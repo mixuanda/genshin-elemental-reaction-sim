@@ -1,0 +1,663 @@
+diff --git a/internal/characters/baizhu/burst.go b/internal/characters/baizhu/burst.go
+--- a/internal/characters/baizhu/burst.go
++++ b/internal/characters/baizhu/burst.go
+@@ -87,12 +87,35 @@
+ 
+ func (c *char) summonSeamlessShieldHealing() {
+ 	// Seamless Shield Healing
++	ratio := burstHealPP[c.TalentLvlBurst()]
++	flat := burstHealFlat[c.TalentLvlBurst()]
++	var maxHp float64
++	var maxHpRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHp, maxHpRead = c.MaxHPWithProvenance()
++	} else {
++		maxHp = c.MaxHP()
++	}
++	src, srcID := ratio*maxHp+flat, 0
++	if c.Core.SourceHost != nil {
++		src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-baizhu-burst", map[string]any{"ratio": ratio, "maxHp": maxHp, "flat": flat}, []*info.SourceHostStatRead{maxHpRead}, nil)
++	}
++	bonus, bonusID := 0.0, 0
++	var bonusRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++		bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++	} else {
++		bonus = c.Stat(attributes.Heal)
++	}
+ 	c.Core.Player.Heal(info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  c.Core.Player.Active(),
+-		Message: "Seamless Shield Healing",
+-		Src:     burstHealPP[c.TalentLvlBurst()]*c.MaxHP() + burstHealFlat[c.TalentLvlBurst()],
+-		Bonus:   c.Stat(attributes.Heal),
++		Caller:            c.Index(),
++		Target:            c.Core.Player.Active(),
++		Message:           "Seamless Shield Healing",
++		Src:               src,
++		Bonus:             bonus,
++		SourceHostSrcID:   srcID,
++		SourceHostBonusID: bonusID,
+ 	})
+ 	c.a4()
+ }
+diff --git a/internal/characters/baizhu/cons.go b/internal/characters/baizhu/cons.go
+--- a/internal/characters/baizhu/cons.go
++++ b/internal/characters/baizhu/cons.go
+@@ -60,12 +60,35 @@
+ 
+ 		// C2 healing
+ 		c.Core.Tasks.Add(func() {
++			ratio := skillHealPP[c.TalentLvlSkill()]
++			flat := skillHealFlat[c.TalentLvlSkill()]
++			var maxHp float64
++			var maxHpRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				maxHp, maxHpRead = c.MaxHPWithProvenance()
++			} else {
++				maxHp = c.MaxHP()
++			}
++			src, srcID := (ratio*maxHp+flat)*0.2, 0
++			if c.Core.SourceHost != nil {
++				src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-baizhu-c2", map[string]any{"ratio": ratio, "maxHp": maxHp, "flat": flat}, []*info.SourceHostStatRead{maxHpRead}, nil)
++			}
++			bonus, bonusID := 0.0, 0
++			var bonusRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			} else {
++				bonus = c.Stat(attributes.Heal)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  c.Core.Player.Active(),
+-				Message: "Baizhu's C2: Healing",
+-				Src:     (skillHealPP[c.TalentLvlSkill()]*c.MaxHP() + skillHealFlat[c.TalentLvlSkill()]) * 0.2,
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            c.Core.Player.Active(),
++				Message:           "Baizhu's C2: Healing",
++				Src:               src,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}, skillReturnTravel) // reuse skill for now
+ 
+diff --git a/internal/characters/baizhu/skill.go b/internal/characters/baizhu/skill.go
+--- a/internal/characters/baizhu/skill.go
++++ b/internal/characters/baizhu/skill.go
+@@ -121,12 +121,35 @@
+ 
+ func (c *char) skillHealing() {
+ 	c.Core.Tasks.Add(func() {
++		ratio := skillHealPP[c.TalentLvlBurst()]
++		flat := skillHealFlat[c.TalentLvlBurst()]
++		var maxHp float64
++		var maxHpRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHp, maxHpRead = c.MaxHPWithProvenance()
++		} else {
++			maxHp = c.MaxHP()
++		}
++		src, srcID := ratio*maxHp+flat, 0
++		if c.Core.SourceHost != nil {
++			src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-baizhu-skill", map[string]any{"ratio": ratio, "maxHp": maxHp, "flat": flat}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		bonus, bonusID := 0.0, 0
++		var bonusRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		} else {
++			bonus = c.Stat(attributes.Heal)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  -1,
+-			Message: "Universal Diagnosis Healing",
+-			Src:     skillHealPP[c.TalentLvlBurst()]*c.MaxHP() + skillHealFlat[c.TalentLvlBurst()],
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            -1,
++			Message:           "Universal Diagnosis Healing",
++			Src:               src,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}, skillReturnTravel)
+ }
+diff --git a/internal/characters/barbara/attack.go b/internal/characters/barbara/attack.go
+--- a/internal/characters/barbara/attack.go
++++ b/internal/characters/barbara/attack.go
+@@ -69,12 +69,35 @@
+ 		}
+ 		// check for healing
+ 		if c.Core.Status.Duration(barbSkillKey) > 0 {
++			ratio := prochpp[c.TalentLvlSkill()]
++			var maxHp float64
++			var maxHpRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				maxHp, maxHpRead = c.MaxHPWithProvenance()
++			} else {
++				maxHp = c.MaxHP()
++			}
++			flat := prochp[c.TalentLvlSkill()]
++			src, srcID := ratio*maxHp+flat, 0
++			if c.Core.SourceHost != nil {
++				src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-barbara-normal", map[string]any{"ratio": ratio, "maxHp": maxHp, "flat": flat}, []*info.SourceHostStatRead{maxHpRead}, nil)
++			}
++			bonus, bonusID := 0.0, 0
++			var bonusRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			} else {
++				bonus = c.Stat(attributes.Heal)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  -1,
+-				Message: "Melody Loop (Normal Attack)",
+-				Src:     prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()],
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            -1,
++				Message:           "Melody Loop (Normal Attack)",
++				Src:               src,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 			done = true
+ 		}
+diff --git a/internal/characters/barbara/burst.go b/internal/characters/barbara/burst.go
+--- a/internal/characters/barbara/burst.go
++++ b/internal/characters/barbara/burst.go
+@@ -19,14 +19,33 @@
+ }
+ 
+ func (c *char) Burst(p map[string]int) (action.Info, error) {
+-	stats, _ := c.Stats()
++	stats, _, statsRead := c.StatsWithProvenance()
++	bonus, bonusID := stats[attributes.Heal], 0
++	if c.Core.SourceHost != nil {
++		bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stats", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{statsRead}, nil)
++	}
+ 	c.Core.Tasks.Add(func() {
++		ratio := bursthpp[c.TalentLvlBurst()]
++		flat := bursthp[c.TalentLvlBurst()]
++		var maxHp float64
++		var maxHpRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHp, maxHpRead = c.MaxHPWithProvenance()
++		} else {
++			maxHp = c.MaxHP()
++		}
++		src, srcID := flat+ratio*maxHp, 0
++		if c.Core.SourceHost != nil {
++			src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-barbara-burst", map[string]any{"flat": flat, "ratio": ratio, "maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  -1,
+-			Message: "Shining Miracle♪",
+-			Src:     bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP(),
+-			Bonus:   stats[attributes.Heal],
++			Caller:            c.Index(),
++			Target:            -1,
++			Message:           "Shining Miracle♪",
++			Src:               src,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}, 77)
+ 
+diff --git a/internal/characters/barbara/charge.go b/internal/characters/barbara/charge.go
+--- a/internal/characters/barbara/charge.go
++++ b/internal/characters/barbara/charge.go
+@@ -47,12 +47,35 @@
+ 		// check for healing
+ 		if c.Core.Status.Duration(barbSkillKey) > 0 {
+ 			// heal target
++			ratio := prochpp[c.TalentLvlSkill()]
++			var maxHp float64
++			var maxHpRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				maxHp, maxHpRead = c.MaxHPWithProvenance()
++			} else {
++				maxHp = c.MaxHP()
++			}
++			flat := prochp[c.TalentLvlSkill()]
++			src, srcID := 4*(ratio*maxHp+flat), 0
++			if c.Core.SourceHost != nil {
++				src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-barbara-charge", map[string]any{"ratio": ratio, "maxHp": maxHp, "flat": flat}, []*info.SourceHostStatRead{maxHpRead}, nil)
++			}
++			bonus, bonusID := 0.0, 0
++			var bonusRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			} else {
++				bonus = c.Stat(attributes.Heal)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  -1,
+-				Message: "Melody Loop (Charged Attack)",
+-				Src:     4 * (prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()]),
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            -1,
++				Message:           "Melody Loop (Charged Attack)",
++				Src:               src,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 			done = true
+ 		}
+diff --git a/internal/characters/barbara/skill.go b/internal/characters/barbara/skill.go
+--- a/internal/characters/barbara/skill.go
++++ b/internal/characters/barbara/skill.go
+@@ -63,9 +63,23 @@
+ 	c.skillInitF = c.Core.F // needed for ticks
+ 
+ 	// setup heal and wet ticks (first tick at skillCDStart, once every 5s)
+-	stats, _ := c.Stats()
+-	hpplus := stats[attributes.Heal]
+-	heal := skillhp[c.TalentLvlSkill()] + skillhpp[c.TalentLvlSkill()]*c.MaxHP()
++	stats, _, statsRead := c.StatsWithProvenance()
++	hpplus, hpplusID := stats[attributes.Heal], 0
++	if c.Core.SourceHost != nil {
++		hpplus, hpplusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stats", map[string]any{"healBonus": hpplus}, []*info.SourceHostStatRead{statsRead}, nil)
++	}
++	ratio, flat := skillhpp[c.TalentLvlSkill()], skillhp[c.TalentLvlSkill()]
++	var maxHp float64
++	var maxHpRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHp, maxHpRead = c.MaxHPWithProvenance()
++	} else {
++		maxHp = c.MaxHP()
++	}
++	heal, healID := flat+ratio*maxHp, 0
++	if c.Core.SourceHost != nil {
++		heal, healID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-barbara-skill-tick", map[string]any{"flat": flat, "ratio": ratio, "maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++	}
+ 
+ 	// setup Melody Loop ticks (first tick at skillCDStart, once every 1.5s)
+ 	ai.Abil = "Let the Show Begin♪ (Melody Loop)"
+@@ -80,7 +94,7 @@
+ 	c.Core.Tasks.Add(func() {
+ 		c.Core.Status.Add(barbSkillKey, skillDuration)
+ 		c.a1()
+-		c.barbaraSelfTick(heal, hpplus, c.skillInitF)()
++		c.barbaraSelfTick(heal, hpplus, c.skillInitF, healID, hpplusID)()
+ 		c.barbaraMelodyTick(ai, c.skillInitF)()
+ 	}, skillCDStart)
+ 
+@@ -99,7 +113,7 @@
+ 	}, nil
+ }
+ 
+-func (c *char) barbaraSelfTick(healAmt, hpplus float64, skillInitF int) func() {
++func (c *char) barbaraSelfTick(healAmt, hpplus float64, skillInitF, healID, hpplusID int) func() {
+ 	return func() {
+ 		// make sure it's not overwritten
+ 		if c.skillInitF != skillInitF {
+@@ -114,11 +128,13 @@
+ 
+ 		// heal
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Core.Player.Active(),
+-			Message: "Melody Loop (Tick)",
+-			Src:     healAmt,
+-			Bonus:   hpplus,
++			Caller:            c.Index(),
++			Target:            c.Core.Player.Active(),
++			Message:           "Melody Loop (Tick)",
++			Src:               healAmt,
++			Bonus:             hpplus,
++			SourceHostSrcID:   healID,
++			SourceHostBonusID: hpplusID,
+ 		})
+ 
+ 		// wet: apply self infusion for 0.3s
+@@ -129,7 +145,7 @@
+ 		p.ApplySelfInfusion(attributes.Hydro, 25, 0.3*60)
+ 
+ 		// tick every 5s
+-		c.Core.Tasks.Add(c.barbaraSelfTick(healAmt, hpplus, skillInitF), 5*60)
++		c.Core.Tasks.Add(c.barbaraSelfTick(healAmt, hpplus, skillInitF, healID, hpplusID), 5*60)
+ 	}
+ }
+ 
+diff --git a/internal/characters/bennett/burst.go b/internal/characters/bennett/burst.go
+--- a/internal/characters/bennett/burst.go
++++ b/internal/characters/bennett/burst.go
+@@ -53,19 +53,19 @@
+ 	// add 13 ticks starting from t=0s to t=12s
+ 	// buff appears to start ticking right before hit (t=0s)
+ 	// https://discord.com/channels/845087716541595668/869210750596554772/936507730779308032
+-	stats, _ := c.Stats()
++	stats, _, statsRead := c.StatsWithProvenance()
+ 
+ 	// first tick should only buff atk and not heal
+ 	c.Core.Tasks.Add(func() {
+ 		if c.Core.Combat.Player().IsWithinArea(burstArea) {
+-			c.applyBennettField(stats, true)()
++			c.applyBennettField(stats, statsRead, true)()
+ 		}
+ 	}, burstStartFrame)
+ 	// other ticks should heal
+ 	for i := 60; i <= 12*60; i += 60 {
+ 		c.Core.Tasks.Add(func() {
+ 			if c.Core.Combat.Player().IsWithinArea(burstArea) {
+-				c.applyBennettField(stats, false)()
++				c.applyBennettField(stats, statsRead, false)()
+ 			}
+ 		}, i+burstStartFrame)
+ 	}
+@@ -81,9 +81,20 @@
+ 	}, nil
+ }
+ 
+-func (c *char) applyBennettField(stats [attributes.EndStatType]float64, firstTick bool) func() {
++func (c *char) applyBennettField(stats [attributes.EndStatType]float64, statsRead *info.SourceHostStatRead, firstTick bool) func() {
+ 	hpplus := stats[attributes.Heal]
+-	heal := bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()
++	ratio, flat := bursthpp[c.TalentLvlBurst()], bursthp[c.TalentLvlBurst()]
++	var maxHp float64
++	var maxHpRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHp, maxHpRead = c.MaxHPWithProvenance()
++	} else {
++		maxHp = c.MaxHP()
++	}
++	heal, healID := flat+ratio*maxHp, 0
++	if c.Core.SourceHost != nil {
++		heal, healID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-bennett-burst", map[string]any{"flat": flat, "ratio": ratio, "maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++	}
+ 	talent := c.TalentLvlBurst()
+ 	pc := burstatk[talent]
+ 	c1 := 0
+@@ -116,12 +127,18 @@
+ 		active := c.Core.Player.ActiveChar()
+ 		// heal if not first tick and under 70%
+ 		if !firstTick && active.CurrentHPRatio() < 0.7 {
++			bonus, bonusID := hpplus, 0
++			if c.Core.SourceHost != nil {
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stats", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{statsRead}, nil)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  active.Index(),
+-				Message: "Inspiration Field",
+-				Src:     heal,
+-				Bonus:   hpplus,
++				Caller:            c.Index(),
++				Target:            active.Index(),
++				Message:           "Inspiration Field",
++				Src:               heal,
++				Bonus:             bonus,
++				SourceHostSrcID:   healID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}
+ 
+diff --git a/internal/characters/chevreuse/cons.go b/internal/characters/chevreuse/cons.go
+--- a/internal/characters/chevreuse/cons.go
++++ b/internal/characters/chevreuse/cons.go
+@@ -134,12 +134,33 @@
+ 		c.c6(char)
+ 	}
+ 
++	var maxHp float64
++	var maxHpRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHp, maxHpRead = c.MaxHPWithProvenance()
++	} else {
++		maxHp = c.MaxHP()
++	}
++	src, srcID := 0.1*maxHp, 0
++	if c.Core.SourceHost != nil {
++		src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-chevreuse-c6", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++	}
++	bonus, bonusID := 0.0, 0
++	var bonusRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++		bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++	} else {
++		bonus = c.Stat(attributes.Heal)
++	}
+ 	c.Core.Player.Heal(info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  -1,
+-		Message: "In Pursuit of Ending Evil (C6)",
+-		Src:     0.1 * c.MaxHP(),
+-		Bonus:   c.Stat(attributes.Heal),
++		Caller:            c.Index(),
++		Target:            -1,
++		Message:           "In Pursuit of Ending Evil (C6)",
++		Src:               src,
++		Bonus:             bonus,
++		SourceHostSrcID:   srcID,
++		SourceHostBonusID: bonusID,
+ 	})
+ }
+ 
+diff --git a/internal/characters/chevreuse/skill.go b/internal/characters/chevreuse/skill.go
+--- a/internal/characters/chevreuse/skill.go
++++ b/internal/characters/chevreuse/skill.go
+@@ -217,12 +217,35 @@
+ 		return
+ 	}
+ 
++	ratio := skillHpRegen[c.TalentLvlSkill()]
++	var maxHp float64
++	var maxHpRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHp, maxHpRead = c.MaxHPWithProvenance()
++	} else {
++		maxHp = c.MaxHP()
++	}
++	flat := skillHpFlat[c.TalentLvlSkill()]
++	src, srcID := ratio*maxHp+flat, 0
++	if c.Core.SourceHost != nil {
++		src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-chevreuse-skill", map[string]any{"ratio": ratio, "maxHp": maxHp, "flat": flat}, []*info.SourceHostStatRead{maxHpRead}, nil)
++	}
++	bonus, bonusID := 0.0, 0
++	var bonusRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++		bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++	} else {
++		bonus = c.Stat(attributes.Heal)
++	}
+ 	c.Core.Player.Heal(info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  c.Core.Player.Active(),
+-		Message: "Short-Range Rapid Interdiction Fire Healing",
+-		Src:     skillHpRegen[c.TalentLvlSkill()]*c.MaxHP() + skillHpFlat[c.TalentLvlSkill()],
+-		Bonus:   c.Stat(attributes.Heal),
++		Caller:            c.Index(),
++		Target:            c.Core.Player.Active(),
++		Message:           "Short-Range Rapid Interdiction Fire Healing",
++		Src:               src,
++		Bonus:             bonus,
++		SourceHostSrcID:   srcID,
++		SourceHostBonusID: bonusID,
+ 	})
+ 	c.c6(c.Core.Player.ActiveChar())
+ 	c.Core.Tasks.Add(c.startSkillHealing, skillHealInterval)
+diff --git a/internal/characters/dehya/asc.go b/internal/characters/dehya/asc.go
+--- a/internal/characters/dehya/asc.go
++++ b/internal/characters/dehya/asc.go
+@@ -62,12 +62,33 @@
+ 		}
+ 		c.AddStatus(a4ICDKey, a4ICD, true)
+ 		// 20% HP Part
++		var maxHp float64
++		var maxHpRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHp, maxHpRead = c.MaxHPWithProvenance()
++		} else {
++			maxHp = c.MaxHP()
++		}
++		src, srcID := a4InitialHealRatio*maxHp, 0
++		if c.Core.SourceHost != nil {
++			src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-dehya-a4-initial", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		bonus, bonusID := 0.0, 0
++		var bonusRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		} else {
++			bonus = c.Stat(attributes.Heal)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Index(),
+-			Message: a4HealMsg,
+-			Src:     a4InitialHealRatio * c.MaxHP(),
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            c.Index(),
++			Message:           a4HealMsg,
++			Src:               src,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 		// 6% every 2s for 10s part (5 times)
+ 		c.QueueCharTask(c.a4DotHeal(0), a4DoTHealInterval)
+@@ -80,12 +101,33 @@
+ 		if count == 5 {
+ 			return
+ 		}
++		var maxHp float64
++		var maxHpRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHp, maxHpRead = c.MaxHPWithProvenance()
++		} else {
++			maxHp = c.MaxHP()
++		}
++		src, srcID := a4DoTHealRatio*maxHp, 0
++		if c.Core.SourceHost != nil {
++			src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-dehya-a4-dot", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		bonus, bonusID := 0.0, 0
++		var bonusRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		} else {
++			bonus = c.Stat(attributes.Heal)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Index(),
+-			Message: a4HealMsg,
+-			Src:     a4DoTHealRatio * c.MaxHP(),
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            c.Index(),
++			Message:           a4HealMsg,
++			Src:               src,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 		c.QueueCharTask(c.a4DotHeal(count+1), a4DoTHealInterval)
+ 	}
+diff --git a/internal/characters/dehya/cons.go b/internal/characters/dehya/cons.go
+--- a/internal/characters/dehya/cons.go
++++ b/internal/characters/dehya/cons.go
+@@ -105,12 +105,33 @@
+ 		c.AddStatus(c4ICDKey, 0.2*60, true)
+ 
+ 		c.AddEnergy(c4Key, 1.5)
++		var maxHp float64
++		var maxHpRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHp, maxHpRead = c.MaxHPWithProvenance()
++		} else {
++			maxHp = c.MaxHP()
++		}
++		src, srcID := 0.025*maxHp, 0
++		if c.Core.SourceHost != nil {
++			src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-dehya-c4", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		bonus, bonusID := 0.0, 0
++		var bonusRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		} else {
++			bonus = c.Stat(attributes.Heal)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Index(),
+-			Message: "An Oath Abiding (C4)",
+-			Src:     0.025 * c.MaxHP(),
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            c.Index(),
++			Message:           "An Oath Abiding (C4)",
++			Src:               src,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}
+ }
+diff --git a/internal/characters/fischl/burst.go b/internal/characters/fischl/burst.go
+--- a/internal/characters/fischl/burst.go
++++ b/internal/characters/fischl/burst.go
+@@ -66,12 +66,33 @@
+ 
+ 		// heal
+ 		c4HealFunc = func() {
++			var maxHp float64
++			var maxHpRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				maxHp, maxHpRead = c.MaxHPWithProvenance()
++			} else {
++				maxHp = c.MaxHP()
++			}
++			src, srcID := 0.2*maxHp, 0
++			if c.Core.SourceHost != nil {
++				src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-fischl-c4", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++			}
++			bonus, bonusID := 0.0, 0
++			var bonusRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				bonus, bonusRead = c.StatWithProvenance(attributes.Heal)
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			} else {
++				bonus = c.Stat(attributes.Heal)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  c.Index(),
+-				Message: "Her Pilgrimage of Bleak (C4)",
+-				Src:     0.2 * c.MaxHP(),
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            c.Index(),
++				Message:           "Her Pilgrimage of Bleak (C4)",
++				Src:               src,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}
+ 	}

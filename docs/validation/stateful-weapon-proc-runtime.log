@@ -1,0 +1,50 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/stateful-weapon-proc-runtime.test.ts (3 tests | 2 failed) 72ms
+     × counts Flute's actual notes, preserves inclusive clocks and expiry refresh, and hits only the real four-unit circle 35ms
+     × activates Pike on a real zero-count full-energy pickup, ignores fixed energy and off-field pickups, then procs off field without an extra ICD 2ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  11:39:07
+   Duration  978ms (transform 649ms, setup 0ms, import 831ms, tests 72ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/stateful-weapon-proc-runtime.test.ts > actual stateful independent weapon hooks > counts Flute's actual notes, preserves inclusive clocks and expiry refresh, and hits only the real four-unit circle
+ConfigMigrationError: 配置校验失败：
+- weaponProcModel: stateful weapon procs require an explicit legal timeline
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33714:11
+    33712|   if (!parsed.success) {
+    33713|     const issues = formatZodError(parsed.error);
+    33714|     throw new ConfigMigrationError(
+       |           ^
+    33715|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33716|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35153:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18417:18
+ ❯ packages/sim-core/src/__tests__/stateful-weapon-proc-runtime.test.ts:22:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/stateful-weapon-proc-runtime.test.ts > actual stateful independent weapon hooks > activates Pike on a real zero-count full-energy pickup, ignores fixed energy and off-field pickups, then procs off field without an extra ICD
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.0.particles.0.count: Too small: expected number to be >0
+- timeline.abilities.0.energyGains.0.target: unknown character id "self"
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33714:11
+    33712|   if (!parsed.success) {
+    33713|     const issues = formatZodError(parsed.error);
+    33714|     throw new ConfigMigrationError(
+       |           ^
+    33715|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33716|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35153:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18417:18
+ ❯ packages/sim-core/src/__tests__/stateful-weapon-proc-runtime.test.ts:73:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+{"exitCode": 1, "elapsedSeconds": 1.4101810000138357}

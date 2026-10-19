@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { readFile } from "node:fs/promises";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 import {
   durinMeltPreset,
   legalTimelineDemoPreset,
@@ -23,6 +23,13 @@ import {
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_ID,
   LEGACY_FREEZE_BROKEN_ATTACK_POLICY_V1_MODE,
 } from "@genshin-dps-lab/icd-profiles";
+
+// Simulations execute in a worker. Wait for its visible completion state before
+// reading getLastResult or editing a configuration based on that result.
+async function waitForSimulation(page: Page): Promise<void> {
+  await expect(page.locator("#cancelRunButton")).toBeHidden();
+  await expect(page.locator("#simulationProgress")).toHaveText("");
+}
 
 function projectCurrentApplicationsToLegacyWire(value: unknown): unknown {
   if (Array.isArray(value)) {
@@ -531,6 +538,7 @@ test("disables an unused shared scalar for target-level resistance tables and id
   );
 
   await page.getByRole("button", { name: "运行模拟" }).click();
+  await waitForSimulation(page);
   const targetAudit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
     const pyroHit = result?.damageEvents.find(
@@ -941,6 +949,8 @@ test("renders an initial enemy Aura even when the run has no hits or state event
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(config)),
   });
+  await expect(page.locator("#durationInput")).toHaveValue("1");
+  await waitForSimulation(page);
 
   await page.getByRole("button", { name: "时间轴" }).click();
   await expect(page.locator("#auraTimelineCard")).toBeVisible();
@@ -1086,6 +1096,8 @@ test("renders an initial enemy Aura even when the run has no hits or state event
     mimeType: "application/json",
     buffer: Buffer.from(JSON.stringify(config)),
   });
+  await expect(page.locator("#durationInput")).toHaveValue("10");
+  await waitForSimulation(page);
   await expect(page.locator("#auraTimelineCanvas")).toBeVisible();
   const expiredAudit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -3743,6 +3755,7 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const scriptedMissConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     const ability = config.timeline?.abilities.find(
@@ -3760,6 +3773,7 @@ test("audits a scripted target miss before damage, Aura, and hit-confirmed parti
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(scriptedMissConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   await expect(page.locator("#metricGrid")).toContainText("目标判定");
   await expect(page.locator("#metricGrid")).toContainText("2 / 3");
@@ -3892,6 +3906,7 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const targetPolicyConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     const ability = config.timeline?.abilities.find(
@@ -3914,6 +3929,7 @@ test("keeps landed target damage, Aura, and hit-confirm policies independent", a
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(targetPolicyConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4044,6 +4060,7 @@ test("applies half-open enemy target phases and exposes their source per hit", a
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const targetPhaseConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targetPhases = [
@@ -4079,6 +4096,7 @@ test("applies half-open enemy target phases and exposes their source per hit", a
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(targetPhaseConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4187,6 +4205,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const multiTargetConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -4212,6 +4231,7 @@ test("keeps registered enemy stats, Aura, ICD, and UI filters independent", asyn
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(multiTargetConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4352,6 +4372,7 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const aoeConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -4375,6 +4396,7 @@ test("fans one AoE hit across targets while producing hit-confirm particles once
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(aoeConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4444,6 +4466,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const geometryConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -4482,6 +4505,7 @@ test("derives circle hits from target positions and exposes geometric evidence",
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(geometryConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4591,6 +4615,7 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const rectangleConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -4631,6 +4656,7 @@ test("audits rotated rectangle intersections against circular target hitboxes", 
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(rectangleConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4744,6 +4770,7 @@ test("audits finite capsule side and end-cap intersections", async ({
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const capsuleConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -4783,6 +4810,7 @@ test("audits finite capsule side and end-cap intersections", async ({
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(capsuleConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -4895,6 +4923,7 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const sectorConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -4935,6 +4964,7 @@ test("audits filled sector arc, radial-edge, and out-of-range intersections", as
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(sectorConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -5052,6 +5082,7 @@ test("transforms actor-local geometry from a static source pose and audits world
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const actorLocalConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.actorPoses = [
@@ -5094,6 +5125,7 @@ test("transforms actor-local geometry from a static source pose and audits world
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(actorLocalConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -5194,6 +5226,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
   await page
     .locator("#presetSelect")
     .selectOption({ label: "杜林黑 E · 部分机制审计向量" });
+  await waitForSimulation(page);
   const movingTargetConfig = await page.evaluate(() => {
     const config = structuredClone(window.GenshinDpsLab.getConfig());
     config.enemy.targets = [
@@ -5231,6 +5264,7 @@ test("interpolates target motion at each hit frame before geometry resolution", 
   await page.getByRole("button", { name: "高级配置" }).click();
   await page.locator("#jsonEditor").fill(movingTargetConfig);
   await page.getByRole("button", { name: "应用并运行" }).click();
+  await waitForSimulation(page);
 
   const audit = await page.evaluate(() => {
     const result = window.GenshinDpsLab.getLastResult();
@@ -5352,7 +5386,7 @@ test("renders the source-audited Durin white E branch and state transition", asy
   await expect(page.locator("#notice")).toContainText("不是完整角色预设");
   await expect(page.locator("#notice")).toContainText("partial");
   await expect(page.locator("#notice")).toContainText("5 项待实现");
-  await expect(page.locator("#metricGrid")).toContainText("1,625");
+  await expect(page.locator("#metricGrid")).toContainText("3,250");
   await expect(page.locator("#metricGrid")).toContainText("1");
 
   const audit = await page.evaluate(() => {
@@ -5395,10 +5429,10 @@ test("renders the source-audited Durin white E branch and state transition", asy
       {
         frame: 50,
         hitId: "durin-white-e",
-        displayDamage: 1625,
-        reaction: "none",
-        icdAllowed: null,
-        icdGroup: null,
+        displayDamage: 3250,
+        reaction: "melt",
+        icdAllowed: true,
+        icdGroup: "default",
       },
     ],
     commands: [
@@ -5474,12 +5508,12 @@ test("renders the source-audited Durin white E branch and state transition", asy
   await expect(page.locator("#energyTimelineCanvas")).toBeVisible();
   const auraRow = page.locator("#auraTimelineBody tr").first();
   await expect(page.locator("#auraTimelineBody tr")).toHaveCount(1);
-  await expect(auraRow.locator("td").nth(3)).toHaveText("—");
+  await expect(auraRow.locator("td").nth(3)).toHaveText("通过");
   await expect(auraRow.locator("td").nth(4)).toContainText("冰");
-  await expect(auraRow.locator("td").nth(5)).toHaveText("无");
-  await expect(auraRow.locator("td").nth(6)).toHaveText("无");
-  await expect(auraRow.locator("td").nth(7)).toHaveText("—");
-  await expect(auraRow.locator("td").nth(8)).toContainText("冰");
+  await expect(auraRow.locator("td").nth(5)).toHaveText("火 1U");
+  await expect(auraRow.locator("td").nth(6)).toContainText("冰");
+  await expect(auraRow.locator("td").nth(7)).toContainText("融化");
+  await expect(auraRow.locator("td").nth(8)).toHaveText("无");
   await expect(page.locator("#particleEventSummary")).toContainText(
     "durin-white-e",
   );
@@ -5491,7 +5525,7 @@ test("renders the source-audited Durin white E branch and state transition", asy
 test("imports a public UID showcase and keeps graduation data as a placeholder", async ({
   page,
 }) => {
-  await page.route("**/api/showcase/283733593", async (route) => {
+  await page.route("**/api/showcase/900000003", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -5566,6 +5600,7 @@ test("imports a public UID showcase and keeps graduation data as a placeholder",
   await expect(page.locator("#catalogStatus")).toContainText(
     "数值目录与可执行机制严格分离",
   );
+  await page.locator("#showcaseUidInput").fill("900000003");
   await page.getByRole("button", { name: "导入展示柜" }).click();
   await expect(page.locator("#showcaseStatus")).toContainText("导入成功");
   await expect(page.locator("#showcaseStatus")).toContainText("0 项未匹配");

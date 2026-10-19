@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "source-finite-cast-browser-v1",
+  "measurements": {
+    "full": {
+      "rawPath": "/tmp/gidps-finite-cast-amber-q-full.json",
+      "expectedRoots": 18,
+      "completedRoots": 18,
+      "applications": 18,
+      "total": 3644.908929157875,
+      "nativeTotalDamage": 3644.908929157875,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "excludedHitCloses": false,
+      "missingCompletionCloses": false,
+      "legacyCaptureAvailable": false,
+      "importExportSame": true
+    },
+    "partial": {
+      "rawPath": "/tmp/gidps-finite-cast-amber-q-partial.json",
+      "expectedRoots": 18,
+      "completedRoots": 5,
+      "pending": 13,
+      "knownSubtotal": 1100.540369191713,
+      "completeCast": false
+    }
+  },
+  "pageErrors": [],
+  "scope": "Two actual classic Amber Q executions (6s closed and 2s pending); one intrinsic action contract, not a universal full-skill or full-cast proof."
+}

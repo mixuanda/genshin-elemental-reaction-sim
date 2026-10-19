@@ -1,0 +1,431 @@
+{
+  "schemaVersion": "source-finite-coverage-batch-measurements-v1",
+  "asOf": "2026-09-30",
+  "baseline": {
+    "workingTree": "/Users/evan/Documents/gidps",
+    "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+    "preservedExistingChanges": true,
+    "committedOrPublished": false,
+    "classicCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellarCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "node": "v24.15.0"
+  },
+  "previousGoalTurnClassification": "progress: batch116 implemented shield task ownership and recorded passing targeted validation.",
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.572
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.183
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.111
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.835,
+      "scope": "Executed before final JSON canonical characterKey/sourcePath string correction and spec lookup correction; no later TypeScript product implementation changes."
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.118,
+      "viteElapsedMilliseconds": 894,
+      "warnings": [
+        "Existing ineffective dynamic import for workspace-panels.ts",
+        "Some chunks exceed 500 kB after minification"
+      ]
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-finite-coverage-batch.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 6.187,
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      }
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.08,
+      "viteElapsedMilliseconds": 897,
+      "warnings": [
+        "Existing ineffective dynamic import for workspace-panels.ts",
+        "Some chunks exceed 500 kB after minification"
+      ]
+    },
+    "browser-retry": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-finite-coverage-batch.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.317,
+      "environment": {
+        "GIDPS_PREBUILT": "1",
+        "GIDPS_REUSE_SOURCE_FINITE_COVERAGE_CAPTURE": "1"
+      }
+    }
+  },
+  "browserFailure": {
+    "reason": "The DSL/package alias ayato did not match canonical native actor key kamisatoayato. Both the finite registry and test lookup required correction.",
+    "productMetadataChanged": true,
+    "nativeOrFormulaCodeChangedAfterFailure": false,
+    "canonicalKeyRowsCorrected": 11,
+    "sourcePathRowsCorrected": 5,
+    "reusedOriginalNativeCaptures": true,
+    "finalPageErrors": []
+  },
+  "counts": {
+    "distinctFiniteSkillContracts": 70,
+    "producerPlanEntries": 57,
+    "producerSites": 74,
+    "newFiniteSkillContracts": 7,
+    "nativeRuns": 2,
+    "browserCases": 1,
+    "browserAttempts": 2,
+    "additionalNativeRunsOnRetry": 0,
+    "selectedHits": 10
+  },
+  "wasm": {
+    "classic": {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 45207319,
+      "sha256": "d39406fc6974c7e6c96d6c800d010ff4e403a0977fac6cfabd94e593da13603c"
+    },
+    "stellar": {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 70012537,
+      "sha256": "45e75f7b8f32f6ccef0bae91cc07f64cde97ed915c43784e2c2ef4b9be9e1750"
+    }
+  },
+  "native": [
+    {
+      "run": "teamA",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "seed": "202609301171",
+      "observationWindow": {
+        "policy": "native",
+        "configuredEndFrame": 960,
+        "actualEndFrame": 612,
+        "endReason": "actions-exhausted"
+      },
+      "lifecycleObservationFrame": 612,
+      "resultDurationFrames": 612,
+      "nativeTotalDamage": 2604.62240906229,
+      "applicationDamageSum": 2604.62240906229,
+      "applicationCount": 5,
+      "abilityInvocationCount": 4,
+      "abilityProducerCount": 0,
+      "rawPath": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json"
+    },
+    {
+      "run": "teamB",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "seed": "202609301172",
+      "observationWindow": {
+        "policy": "native",
+        "configuredEndFrame": 960,
+        "actualEndFrame": 634,
+        "endReason": "actions-exhausted"
+      },
+      "lifecycleObservationFrame": 634,
+      "resultDurationFrames": 634,
+      "nativeTotalDamage": 773.9741445048104,
+      "applicationDamageSum": 773.9741445048105,
+      "applicationCount": 5,
+      "abilityInvocationCount": 3,
+      "abilityProducerCount": 4,
+      "rawPath": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json"
+    }
+  ],
+  "rawCapture": {
+    "path": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json",
+    "bytes": 1402225,
+    "sha256": "bb3d0d5c81654bfb722b68c6993a1795be1a4bbe76c86c4c4b2d846d1c906013"
+  },
+  "selected": [
+    {
+      "characterKey": "ganyu",
+      "action": "skill",
+      "contractId": "ganyu-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "ganyu-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 2,
+      "observedRootAttackCount": 2,
+      "completedRootAttackCount": 2,
+      "hitCount": 2,
+      "componentSubtotal": 1194.0357925738979,
+      "appliedDamageSubtotal": 1194.0357925738979,
+      "replayDifferences": [
+        0,
+        0
+      ]
+    },
+    {
+      "characterKey": "yanfei",
+      "action": "skill",
+      "contractId": "yanfei-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "yanfei-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 1,
+      "observedRootAttackCount": 1,
+      "completedRootAttackCount": 1,
+      "hitCount": 1,
+      "componentSubtotal": 622.8374895493632,
+      "appliedDamageSubtotal": 622.8374895493632,
+      "replayDifferences": [
+        0
+      ]
+    },
+    {
+      "characterKey": "xiao",
+      "action": "skill",
+      "contractId": "xiao-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "xiao-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 1,
+      "observedRootAttackCount": 1,
+      "completedRootAttackCount": 1,
+      "hitCount": 1,
+      "componentSubtotal": 551.6531511516001,
+      "appliedDamageSubtotal": 551.6531511516001,
+      "replayDifferences": [
+        0
+      ]
+    },
+    {
+      "characterKey": "thoma",
+      "action": "skill",
+      "contractId": "thoma-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "thoma-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 1,
+      "observedRootAttackCount": 1,
+      "completedRootAttackCount": 1,
+      "hitCount": 1,
+      "componentSubtotal": 236.09597578742884,
+      "appliedDamageSubtotal": 236.09597578742884,
+      "replayDifferences": [
+        0
+      ]
+    },
+    {
+      "characterKey": "kamisatoayato",
+      "action": "skill",
+      "contractId": "ayato-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "ayato-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 1,
+      "observedRootAttackCount": 1,
+      "completedRootAttackCount": 1,
+      "hitCount": 1,
+      "componentSubtotal": 147.14406046349998,
+      "appliedDamageSubtotal": 147.14406046349998,
+      "replayDifferences": [
+        0
+      ]
+    },
+    {
+      "characterKey": "yunjin",
+      "action": "burst",
+      "contractId": "yunjin-burst",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "yunjin-burst",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 1,
+      "observedRootAttackCount": 1,
+      "completedRootAttackCount": 1,
+      "hitCount": 1,
+      "componentSubtotal": 378.6432788016,
+      "appliedDamageSubtotal": 378.6432788016,
+      "replayDifferences": [
+        0
+      ]
+    },
+    {
+      "characterKey": "kirara",
+      "action": "skill",
+      "contractId": "kirara-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "kirara-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 3,
+      "observedRootAttackCount": 3,
+      "completedRootAttackCount": 3,
+      "hitCount": 3,
+      "componentSubtotal": 248.1868052397105,
+      "appliedDamageSubtotal": 248.1868052397105,
+      "replayDifferences": [
+        0,
+        0,
+        0
+      ],
+      "rollProducerCount": 2,
+      "rollProducerIds": [
+        3,
+        4
+      ],
+      "rollQueueIds": [
+        8,
+        12
+      ],
+      "rollAttackIds": [
+        4,
+        5
+      ],
+      "rollQueuedAttackCounts": [
+        1,
+        1
+      ],
+      "nativeRollTaskCount": 2
+    }
+  ],
+  "ganyuUiEditExportImport": {
+    "hitCount": 2,
+    "completed": true
+  },
+  "runtimeResult": "docs/validation/source-finite-coverage-batch-team-20260930.result.json",
+  "sourceAudits": [
+    {
+      "path": "docs/validation/source-finite-coverage-batch-direct-20260930.json",
+      "bytes": 13926,
+      "sha256": "1cdaf0526068085cc9ffb6c5516c7a193333ca55c79180514bef2c1b49bae048"
+    },
+    {
+      "path": "docs/validation/source-finite-coverage-batch-simple-tasks-20260930.json",
+      "bytes": 14840,
+      "sha256": "18269a54894345fb068baa3c616bb710daaa8e7fb7d6eb3f4e14db4edfff901b"
+    },
+    {
+      "path": "docs/validation/source-finite-coverage-batch-shield-actions-20260930.json",
+      "bytes": 10305,
+      "sha256": "fdbe7c23f0effdc44bc2edc04a8653140e6bf558e543dc744f03e02b2ff9dd4d"
+    },
+    {
+      "path": "docs/validation/source-immediate-attack-occurrence-native-20260930.json",
+      "bytes": 4124,
+      "sha256": "19f0a342a0596d765f1c49f6cda59d825781cbbdb413fc2277ea55a2a11f29a8"
+    },
+    {
+      "path": "docs/validation/source-finite-native-key-audit-20260930.json",
+      "bytes": 7594,
+      "sha256": "4f9ad3774aff3dc667552cab5a0c101f30f8f7f82d825750c3271c7514c39977"
+    },
+    {
+      "path": "docs/validation/source-finite-coverage-batch-contracts-20260930.json",
+      "bytes": 12596,
+      "sha256": "094a371d89cfefe582813d0283f65356e138de52d8a7cd382146fb7fefa6adab"
+    }
+  ],
+  "patches": [
+    {
+      "path": "packages/source-host/patches/117-simple-tasks.patch",
+      "bytes": 809,
+      "sha256": "0a97bbbe64e8e8c57b0f25f18f05af688b38dd4c4204ce205dcfcc151e5a353a"
+    },
+    {
+      "path": "packages/source-host/patches/117-kirara-tasks.patch",
+      "bytes": 2212,
+      "sha256": "78251d5d9ece07314aeed9af02a448def234a11b0a8a8fdf29a8af210bec7dcd"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "matchesPre117": true
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "matchesPre117": true
+    }
+  ],
+  "dataEvidence": "docs/data-evidence-refresh-20260930.json",
+  "documentationChange": "Moved accumulated README batch history into docs/source-implementation-journal.zh-CN.md; retained setup/architecture and existing generated Update Status block.",
+  "limitations": [
+    "Two classic C0 single-target native configurations only; Stellar compiled, no extra constellation or target matrix.",
+    "Kirara tap/short-hold and other hold durations source-audited; runtime uses hold=60. Immediate occurrence helper is scoped to zero-delay ordinary ability queues, not a universal fix for deferred shared-event reuse.",
+    "Ayato E water-illusion and Yunjin Q initial hit exclude later player/team attack damage; their scope notes remain visible.",
+    "Thoma retains source snapshot/damage TODOs and simplified C1 cooldown; not promoted to game verified.",
+    "Canonical metadata correction inspected both source config inventories; it is not an added runtime validation of the old affected characters.",
+    "Other state/entity/resource ownership, complete action scopes, wider steady-state evidence, remote CI observation, activeVerified dataset, and immutable 7.2 V1 evidence remain unfinished.",
+    "No released/preview promotion, commit or deployment. Goal stays active."
+  ]
+}

@@ -82,7 +82,7 @@ function normalizeReactionOwnedApplicationModel(
   );
 }
 
-interface FixedWindowState<
+export interface FixedWindowState<
   GroupId extends GcsimElementalApplicationGroupId =
     GcsimElementalApplicationGroupId,
 > {
@@ -93,11 +93,36 @@ interface FixedWindowState<
   nextHitIndex: number;
 }
 
-interface LegacyWindowState {
+export interface LegacyWindowState {
   resetFrames: number;
   windowStartFrame: number;
   resetAtFrame: number;
   nextHitIndex: number;
+}
+
+export interface ElementalApplicationIcdCapturedState {
+  profileId: typeof GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID;
+  legacyProfiles: Array<{ profileId: string; profile: IcdProfile }>;
+  reactionOwnedElementalApplicationModel: ReactionOwnedElementalApplicationModel;
+  fixedWindows: Array<FixedWindowState<PublicGcsimElementalApplicationGroupId> & {
+    sourceActorId: string;
+    icdTag: string;
+  }>;
+  legacyWindows: Array<LegacyWindowState & {
+    sourceActorId: string;
+    icdTag: string;
+    profileId: string;
+  }>;
+  burningLegacyWindow: LegacyWindowState | null;
+  reactionFixedWindows: Array<FixedWindowState<"reaction-a"> & {
+    sourceActorId: string;
+    icdTag: string;
+  }>;
+  reactionBurningWindow: FixedWindowState<"burning"> | null;
+  lastDirectAttemptFrame: number | null;
+  lastReactionAttemptFrame: number | null;
+  activeConsumptionEntry: "direct" | "reaction-owned" | null;
+  reentrantConsumptionAttempted: boolean;
 }
 
 interface NormalizedApplication {
@@ -646,6 +671,51 @@ export class ElementalApplicationIcdEngine {
 
   getReactionOwnedElementalApplicationModel(): Readonly<ReactionOwnedElementalApplicationModel> {
     return this.reactionOwnedElementalApplicationModel;
+  }
+
+  /**
+   * Detached raw namespaces and cursors, without advancing reset boundaries.
+   * Includes both configured legacy Burning and trusted reaction Burning.
+   * At an event-before checkpoint, the v2 trusted Burning window remains live
+   * at resetAtFrame (the attempt runs before core reset); its next attempt
+   * opens a window only at frame > resetAtFrame. Direct/legacy and v1 trusted
+   * windows instead reset on frame >= resetAtFrame. The captured model owns
+   * that distinction; capture must not prune either window or move a cursor.
+   */
+  captureState(): ElementalApplicationIcdCapturedState {
+    return {
+      profileId: GCSIM_ELEMENTAL_APPLICATION_PROFILE_ID,
+      legacyProfiles: [...this.legacyProfiles].map(([profileId, profile]) => ({
+        profileId,
+        profile: { ...profile, applicationSequence: [...profile.applicationSequence] },
+      })),
+      reactionOwnedElementalApplicationModel: {
+        ...this.reactionOwnedElementalApplicationModel,
+      },
+      fixedWindows: [...this.fixedStatesByActor].flatMap(([sourceActorId, states]) =>
+        [...states].map(([icdTag, window]) => ({ sourceActorId, icdTag, ...window })),
+      ),
+      legacyWindows: [...this.legacyStatesByActor].flatMap(([sourceActorId, tags]) =>
+        [...tags].flatMap(([icdTag, profiles]) =>
+          [...profiles].map(([profileId, window]) => ({
+            sourceActorId, icdTag, profileId, ...window,
+          })),
+        ),
+      ),
+      burningLegacyWindow: this.burningLegacyState === undefined
+        ? null
+        : { ...this.burningLegacyState },
+      reactionFixedWindows: [...this.reactionFixedStatesByActor].flatMap(([sourceActorId, states]) =>
+        [...states].map(([icdTag, window]) => ({ sourceActorId, icdTag, ...window })),
+      ),
+      reactionBurningWindow: this.reactionBurningState === undefined
+        ? null
+        : { ...this.reactionBurningState },
+      lastDirectAttemptFrame: this.lastDirectAttemptFrame,
+      lastReactionAttemptFrame: this.lastReactionAttemptFrame,
+      activeConsumptionEntry: this.activeConsumptionEntry,
+      reentrantConsumptionAttempted: this.reentrantConsumptionAttempted,
+    };
   }
 
   private runConsumptionEntry<T>(

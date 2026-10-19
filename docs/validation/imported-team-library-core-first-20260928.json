@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "apps/web/src/source-team-handoff.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 2.718,
+  "log": "docs/validation/imported-team-library-core-first-20260928.log"
+}

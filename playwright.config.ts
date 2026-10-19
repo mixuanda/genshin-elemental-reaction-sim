@@ -8,10 +8,11 @@ export default defineConfig({
     trace: "retain-on-failure"
   },
   webServer: {
-    command:
-      "npm run build && npm run preview --workspace @genshin-dps-lab/web -- --host 127.0.0.1",
+    command: process.env.GIDPS_PREBUILT === "1"
+      ? "npm run preview --workspace @genshin-dps-lab/web -- --host 127.0.0.1"
+      : "npm run build && npm run preview --workspace @genshin-dps-lab/web -- --host 127.0.0.1",
     url: "http://127.0.0.1:4173",
-    reuseExistingServer: true,
+    reuseExistingServer: !process.env.CI,
     timeout: 120_000
   },
   projects: [

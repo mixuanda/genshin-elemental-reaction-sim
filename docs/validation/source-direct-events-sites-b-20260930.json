@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "round": 113,
+  "batch": "event-sites-b",
+  "status": "private source-site proposal only; no repository/cache source edits or build/tests",
+  "sourceStage": "verified pre-talent-instrument source export",
+  "sourceRoots": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-yCxalk/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/classic/receipt.json",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "078ce39b48b1a21407d54dca0045c8376ecabf18b3f9d8924771bbdc4f8d728c"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Jtv5GK/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/stellar/receipt.json",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "f326f8a4d08884439eaedc0c183d5f5d25c6772bb650eaecf7130e38a71057e4"
+    }
+  },
+  "sourceFileSha256": {
+    "internal/characters/candace/cons.go": "10c9994290c3e250b62a46947e482b35e58fa3c84d0d7f16d76e172ab1943d27",
+    "internal/characters/kirara/cons.go": "e4f6666f2905b05db1d100f3d04792faf5422d861e78dd159c5693102c9c1028",
+    "internal/characters/kuki/cons.go": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+    "internal/characters/clorinde/cons.go": "c6222607c0c38cd696ccb0fc98d2470c71547669584242c6dea8b5d9ef47d6f2"
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-b/classic.patch",
+      "sha256": "178aeb61ebacc4c80bb49b3d2e42797d95932657ed21b488b1d19b3608247bf6",
+      "bytes": 3626,
+      "applyCheck": { "preTalentInstrumentRootExitCode": 0 }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-b/stellar.patch",
+      "sha256": "178aeb61ebacc4c80bb49b3d2e42797d95932657ed21b488b1d19b3608247bf6",
+      "bytes": 3626,
+      "applyCheck": { "preTalentInstrumentRootExitCode": 0 }
+    }
+  },
+  "components": [
+    {
+      "id": "candace-c6-wave",
+      "siteId": "candace.c6.enemy-damage",
+      "registerKey": "candace-c6",
+      "emitSiteId": "candace.c6.overflow-wave",
+      "ability": "The Overflow (C6)",
+      "attackTagName": "AttackTagElementalBurst",
+      "listenerAttackCountFact": "candace.c6.enemy-damage.attack-count",
+      "allowedAttackCounts": [0, 1],
+      "sourceCommits": { "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" },
+      "sourceFileSha256": "10c9994290c3e250b62a46947e482b35e58fa3c84d0d7f16d76e172ab1943d27",
+      "sourceRefs": [
+        "internal/characters/candace/cons.go:39 (OnEnemyDamage registration)",
+        "internal/characters/candace/cons.go:87-94 (C6 direct QueueAttack site; inventory line 87)",
+        "docs/validation/source-event-damage-inventory-20260930.json:170-207"
+      ],
+      "gateEvidence": "active character is not Candace; nonphysical, nonzero-element Normal damage; Candace burst active; C6 ICD inactive; damage is nonzero",
+      "scopeNotes": "Captures only the one direct C6 wave queue at this listener. The listener reads burst state but does not own the burst status or certify the burst's infusion/swap/status lifecycle."
+    },
+    {
+      "id": "kirara-c4-cardamom",
+      "siteId": "kirara.c4.enemy-damage",
+      "registerKey": "kirara-c4",
+      "emitSiteId": "kirara.c4.cardamom",
+      "ability": "Steed of Skanda",
+      "attackTagName": "AttackTagElementalBurst",
+      "listenerAttackCountFact": "kirara.c4.enemy-damage.attack-count",
+      "allowedAttackCounts": [0, 1],
+      "sourceCommits": { "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" },
+      "sourceFileSha256": "e4f6666f2905b05db1d100f3d04792faf5422d861e78dd159c5693102c9c1028",
+      "sourceRefs": [
+        "internal/characters/kirara/cons.go:29 (OnEnemyDamage registration)",
+        "internal/characters/kirara/cons.go:61 (C4 direct QueueAttack site; inventory line 61)",
+        "internal/characters/kirara/shield.go:36-48 (shield task/lifecycle is separate)",
+        "docs/validation/source-event-damage-inventory-20260930.json:559-600"
+      ],
+      "gateEvidence": "C4 ICD inactive; Kirara skill shield exists; triggering AttackTag is Normal, Extra, or Plunge",
+      "scopeNotes": "Captures only the direct cardamom attack. Shield creation, refresh, break, expiry, and Kirara C6 party buff are separate state/lifecycle behavior and are not closed by this listener call."
+    },
+    {
+      "id": "kuki-c4-thundergrass",
+      "siteId": "kuki.c4.enemy-damage",
+      "registerKey": "kuki-c4",
+      "emitSiteId": "kuki.c4.thundergrass-mark",
+      "ability": "Thundergrass Mark (C4)",
+      "attackTagName": "AttackTagElementalArt",
+      "listenerAttackCountFact": "kuki.c4.enemy-damage.attack-count",
+      "allowedAttackCounts": [0, 1],
+      "sourceCommits": { "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" },
+      "sourceFileSha256": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+      "sourceRefs": [
+        "internal/characters/kuki/cons.go:22 (OnEnemyDamage registration)",
+        "internal/characters/kuki/cons.go:66 (C4 direct QueueAttack site; inventory line 66)",
+        "internal/characters/kuki/skill.go:112-123 (particleCB callback, preserved and outside direct damage scope)",
+        "docs/validation/source-event-damage-inventory-20260930.json:602-641"
+      ],
+      "gateEvidence": "C4 ICD inactive; triggering tag is Normal, Extra, or Plunge; triggering actor is still active; ring duration is nonzero",
+      "scopeNotes": "Captures only the direct Thundergrass Mark attack. Preserves the existing particleCB callback unchanged; any callback particle/ICD/RNG work and the ring's other attacks/lifetime are outside this direct event component."
+    },
+    {
+      "id": "clorinde-c1-shade",
+      "siteId": "clorinde.c1.enemy-damage",
+      "registerKey": "clorinde-c1",
+      "emitSiteId": "clorinde.c1.nightwatch-shade",
+      "ability": "Nightwatch Shade (C1)",
+      "attackTagName": "AttackTagNormal",
+      "listenerAttackCountFact": "clorinde.c1.enemy-damage.attack-count",
+      "allowedAttackCounts": [0, 2],
+      "sourceCommits": { "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" },
+      "sourceFileSha256": "c6222607c0c38cd696ccb0fc98d2470c71547669584242c6dea8b5d9ef47d6f2",
+      "sourceRefs": [
+        "internal/characters/clorinde/cons.go:39 (OnEnemyDamage registration)",
+        "internal/characters/clorinde/cons.go:71-77 (C1 loop queues two direct attacks; inventory line 71)",
+        "internal/characters/clorinde/skill.go:204-215 (particleCB callback is preserved and outside direct damage scope)",
+        "docs/validation/source-event-damage-inventory-20260930.json:357-396"
+      ],
+      "gateEvidence": "C1 is enabled; skill state active; C1 ICD inactive; triggering tag is Normal, element Electro, and actor is Clorinde",
+      "scopeNotes": "Captures only the two direct attacks from the C1 loop. The existing particleCB callback is preserved without wrapping; its effects and the wider skill-state lifecycle are outside this component."
+    }
+  ],
+  "patchNotes": [
+    "Classic and stellar patch texts are identical because assigned source files are identical across lanes and the pre-talent-instrument source contexts match.",
+    "Each listener is labeled at callback entry and records its attack-count fact as zero there. The fact changes only at the actual direct queue branch; Clorinde records len(c1Hitmarks), currently two, immediately before the queue loop.",
+    "Only audited QueueAttack calls were changed to SourceHostQueueEventAttack. Existing argument order, delays, patterns, callbacks, ICD/status writes, selector calls, RNG use, and callback behavior remain unchanged. No callback is wrapped or called an extra time.",
+    "No repository files, frozen source files, or source export trees were edited. Patches remain private in the durable cache; no build or tests were run."
+  ]
+}

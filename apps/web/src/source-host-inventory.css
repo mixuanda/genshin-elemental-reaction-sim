@@ -1,0 +1,31 @@
+.source-inventory { margin-block: 16px; }
+.source-inventory p { line-height: 1.65; }
+.source-inventory code { overflow-wrap: anywhere; }
+.source-inventory__filters { display: grid; grid-template-columns: minmax(240px, 2fr) repeat(3, minmax(150px, 1fr)); gap: 12px; margin-block: 16px; }
+.source-inventory__list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.source-inventory__list > li { min-width: 0; border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+.source-inventory__list p { margin: 10px 0 0; font-size: 13px; }
+.source-inventory__choose { width: 100%; text-align: left; display: grid; gap: 7px; min-height: 120px; align-content: start; overflow-wrap: anywhere; }
+.source-inventory__choose strong { font-size: 16px; }
+.source-inventory__choose span, .source-inventory__choose small { color: var(--muted); }
+.source-inventory__choose[aria-pressed="true"] { border-color: var(--accent); background: rgba(141,182,255,.12); }
+.source-inventory__pager, .source-inventory__actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-block: 16px; }
+.source-inventory__pager { justify-content: center; }
+.source-inventory button:disabled { opacity: .5; cursor: default; transform: none; }
+.source-inventory__selection { border-top: 1px solid var(--border); padding-top: 14px; }
+.source-inventory__selection h3 { margin-block: 4px 12px; }
+.source-inventory__selection details { margin-block: 14px; padding: 12px; border: 1px solid var(--border); border-radius: 10px; }
+.source-inventory__selection summary { cursor: pointer; }
+.source-inventory__selection li { margin-block: 8px; overflow-wrap: anywhere; }
+.source-inventory__fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-block: 14px; }
+.source-inventory__selection textarea { min-height: 88px; font-family: ui-monospace, monospace; }
+.source-inventory__todos { padding-left: 20px; }
+.source-inventory__todos pre { white-space: pre-wrap; overflow-wrap: anywhere; margin-block: 6px 14px; font-size: 13px; }
+.source-inventory__empty { grid-column: 1 / -1; color: var(--muted); }
+@media (max-width: 980px) {
+  .source-inventory__filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .source-inventory__list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 600px) {
+  .source-inventory__filters, .source-inventory__list { grid-template-columns: minmax(0, 1fr); }
+}

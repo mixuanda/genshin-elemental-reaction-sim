@@ -1,0 +1,168 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "weapon-conditioned-expansion",
+  "verification": "provisional",
+  "catalogCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "optimizerCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "gcsimCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "supportedPartialDefinitions": 6,
+  "refinementVariants": 30,
+  "retrievedAt": "2026-09-23T21:24:44.510539+00:00",
+  "notes": [
+    "Only explicit conditioned snapshots; no automatic event lifecycle or independent proc attacks.",
+    "gcsim numerical/semantics conflicts remain archived; executable vectors use agreement between fixed active catalog and fixed optimizer source.",
+    "Reused ForgedByTheGoldenMelody archive is referenced rather than copied."
+  ],
+  "files": [
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/sturdybone.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/sturdybone.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sturdybone.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sturdybone.json",
+      "sha256": "eb7d98093ea4c97e2c3a52f55534fbbb1da75e36c878c58f9421370f7b54e116",
+      "bytes": 7116,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-optimizer",
+      "file": "optimizer/SturdyBone.tsx",
+      "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/SturdyBone/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/SturdyBone/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/SturdyBone/index.tsx",
+      "sha256": "e2eb7987826eaa994b951bf089fc4443ea69281a2ed85c39c115785393a55d79",
+      "bytes": 1476,
+      "license": "MIT"
+    },
+    {
+      "source": "gcsim-conflicting-or-unimplemented",
+      "file": "gcsim/sturdybone.go",
+      "upstreamPath": "internal/weapons/sword/sturdybone/sturdybone.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sturdybone/sturdybone.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sturdybone/sturdybone.go",
+      "sha256": "487a7c139b21d2c20e006c5c94acca01b13ae23140a6220374011ed2cafbce3a",
+      "bytes": 2043,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/talkingstick.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/talkingstick.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/talkingstick.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/talkingstick.json",
+      "sha256": "5ffbc9e1fd9b9f0e5914acc5cba586c47da1f315f153991cd3eaf94833c33113",
+      "bytes": 7326,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-optimizer",
+      "file": "optimizer/TalkingStick.tsx",
+      "upstreamPath": "libs/gi/sheets/src/Weapons/Claymore/TalkingStick/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/TalkingStick/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/TalkingStick/index.tsx",
+      "sha256": "16e40f76819fd38e2ae3178c1b62fff738f5a99f3acb871f396900fbef0da009",
+      "bytes": 2367,
+      "license": "MIT"
+    },
+    {
+      "source": "gcsim-conflicting-or-unimplemented",
+      "file": "gcsim/talkingstick.go",
+      "upstreamPath": "internal/weapons/claymore/talkingstick/talkingstick.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/talkingstick/talkingstick.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/talkingstick/talkingstick.go",
+      "sha256": "2193eaa695603ff72d285bec8fe78fdb24328b06ecf56d6f2503dad49928a2f2",
+      "bytes": 731,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/prototypestarglitter.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "sha256": "5fd934fed372da615380659ff9fc9b9924721041b7886dcbca886dc86a273e83",
+      "bytes": 4458,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-optimizer",
+      "file": "optimizer/PrototypeStarglitter.tsx",
+      "upstreamPath": "libs/gi/sheets/src/Weapons/Polearm/PrototypeStarglitter/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/PrototypeStarglitter/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/PrototypeStarglitter/index.tsx",
+      "sha256": "34d1e301b6a106272e46f4cc5995180ef3acd08db0115415a7585db1f27cc353",
+      "bytes": 1494,
+      "license": "MIT"
+    },
+    {
+      "source": "gcsim-conflicting-or-unimplemented",
+      "file": "gcsim/prototypestarglitter.go",
+      "upstreamPath": "internal/weapons/spear/prototype/prototype.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prototype/prototype.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prototype/prototype.go",
+      "sha256": "032fe2ff1d5a46a35bd068ac9950ea5e6bb74728fd19a9e5348bbe280a62b1bb",
+      "bytes": 1602,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/clashofkings.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/clashofkings.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/clashofkings.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/clashofkings.json",
+      "sha256": "54671d7771d3bc4d1e005856447e48fb2e5fa4c1b5282300f1bc8e59b48eb1de",
+      "bytes": 8127,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-optimizer",
+      "file": "optimizer/ClashOfKings.tsx",
+      "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx",
+      "sha256": "4238530d59c41bc1f3d0bd3c59aa1fc601a8e5525eb7e7039c745a4181bc99b0",
+      "bytes": 1526,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/echoesoftheheart.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+      "sha256": "c1c2401f92de473717d668c4966fbdceea119413ee5f5301f47454170c6e2802",
+      "bytes": 6227,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-optimizer",
+      "file": "optimizer/EchoesOfTheHeart.tsx",
+      "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx",
+      "sha256": "1493e77f79dbffb8debc9e79ada427109d97bb9bae0c55a37f6457c5d2f7bff5",
+      "bytes": 2063,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/forgedbythegoldenmelody.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+      "sha256": "95e186bed4d5cd95876ca1987ca30c6650f43935cf12c6b34b5df11e79e8b4e0",
+      "bytes": 9017,
+      "license": "MIT"
+    },
+    {
+      "source": "genshin-optimizer",
+      "file": "../weapon-extended-effects/optimizer/libs__gi__sheets__src__Weapons__Claymore__ForgedByTheGoldenMelody__index.tsx.txt",
+      "upstreamPath": "libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx",
+      "sha256": "72b3627c605de05cbe9f8604bac834a19a9ff49d0eef20bacd68e6a3e6db5d58",
+      "bytes": 4091,
+      "license": "MIT"
+    }
+  ]
+}

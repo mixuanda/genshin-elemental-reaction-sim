@@ -1,0 +1,386 @@
+--- a/internal/characters/aino/cons.go
++++ b/internal/characters/aino/cons.go
+@@ -142,8 +142,9 @@
+ 					return 0
+ 				}
+ 
++				moonsign := c.Core.Player.GetMoonsignLevel()
+ 				buff := 0.15
+-				if c.Core.Player.GetMoonsignLevel() >= 2 {
++				if moonsign >= 2 {
+ 					buff += 0.2
+ 				}
+ 
+@@ -154,6 +155,9 @@
+ 					return 0
+ 				}
+ 
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-aino-c6", map[string]any{"moonsign": moonsign}, nil)
++				}
+ 				return buff
+ 			},
+ 		})
+--- a/internal/characters/baizhu/asc.go
++++ b/internal/characters/baizhu/asc.go
+@@ -59,11 +59,15 @@
+ 	c.Core.Player.ActiveChar().AddReactBonusMod(character.ReactBonusMod{
+ 		Base: modifier.NewBaseWithHitlag("baizhu-a4", 6*60),
+ 		Amount: func(ai info.AttackInfo) float64 {
+-			limitHP := c.MaxHP() / 1000.0
++			maxHP, statRead := c.MaxHPWithProvenance()
++			limitHP := maxHP / 1000.0
+ 			if limitHP > 50 {
+ 				limitHP = 50
+ 			}
+ 			if ai.Catalyzed && (ai.CatalyzedType == info.ReactionTypeAggravate || ai.CatalyzedType == info.ReactionTypeSpread) {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-baizhu-a4-catalyzed", map[string]any{"maxHP": maxHP}, statRead)
++				}
+ 				return limitHP * 0.008
+ 			}
+ 			mult := 0.02
+@@ -78,6 +82,13 @@
+ 				return 0
+ 			}
+ 
++			if c.Core.SourceHost != nil {
++				ruleID := "char-scalar-baizhu-a4-bloom-family"
++				if ai.AttackTag == attacks.AttackTagDirectLunarBloom {
++					ruleID = "char-scalar-baizhu-a4-direct-lunar-bloom"
++				}
++				return c.Core.SourceHost.CharacterScalarRead(c.Index(), ruleID, map[string]any{"maxHP": maxHP}, statRead)
++			}
+ 			return limitHP * mult
+ 		},
+ 	})
+--- a/internal/characters/durin/asc.go
++++ b/internal/characters/durin/asc.go
+@@ -79,7 +79,11 @@
+ 		Base: modifier.NewBaseWithHitlag(a1BlackKey, burstDuration),
+ 		Amount: func(ai info.AttackInfo) float64 {
+ 			if ai.Amped {
+-				return 0.40 * c.hexereiA1Bonus()
++				bonusFactor := c.hexereiA1Bonus()
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-durin-a1-black", map[string]any{"bonusFactor": bonusFactor}, nil)
++				}
++				return 0.40 * bonusFactor
+ 			}
+ 			return 0
+ 		},
+--- a/internal/characters/ifa/asc.go
++++ b/internal/characters/ifa/asc.go
+@@ -23,11 +23,10 @@
+ 					return 0
+ 				}
+ 
+-				ns := c.getTeamNightsoul()
+-
+-				ns += c.c2BonusPoints(ns)
+-
+-				ns = min(ns, 150.0+c.c2CapIncrease())
++				nightsoul := c.getTeamNightsoul()
++				bonusPoints := c.c2BonusPoints(nightsoul)
++				capIncrease := c.c2CapIncrease()
++				ns := min(nightsoul+bonusPoints, 150.0+capIncrease)
+ 
+ 				c.Core.Log.NewEvent("ifa a1 stacks", glog.LogCharacterEvent, char.Index()).
+ 					Write("stacks", ns)
+@@ -38,11 +37,17 @@
+ 					attacks.AttackTagSwirlElectro,
+ 					attacks.AttackTagSwirlCryo,
+ 					attacks.AttackTagECDamage:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-ifa-a1-swirl-ec", map[string]any{"nightsoul": nightsoul, "bonusPoints": bonusPoints, "capIncrease": capIncrease}, nil)
++					}
+ 					return 0.015 * ns
+ 				case attacks.AttackTagReactionLunarCharge,
+ 					attacks.AttackTagDirectLunarCharged,
+ 					attacks.AttackTagReactionStellarSwirl,
+ 					attacks.AttackTagDirectStellarSwirl:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-ifa-a1-lunar-stellar", map[string]any{"nightsoul": nightsoul, "bonusPoints": bonusPoints, "capIncrease": capIncrease}, nil)
++					}
+ 					return 0.002 * ns
+ 				}
+ 
+--- a/internal/characters/ineffa/cons.go
++++ b/internal/characters/ineffa/cons.go
+@@ -42,7 +42,11 @@
+ 					return 0
+ 				}
+ 
+-				bonus := min(c.TotalAtk()/100*0.025, 0.50)
++				totalAtk, statRead := c.TotalAtkWithProvenance()
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-ineffa-c1", map[string]any{"totalAtk": totalAtk}, statRead)
++				}
++				bonus := min(totalAtk/100*0.025, 0.50)
+ 				return bonus
+ 			},
+ 		})
+--- a/internal/characters/mizuki/skill.go
++++ b/internal/characters/mizuki/skill.go
+@@ -151,10 +151,20 @@
+ 					attacks.AttackTagSwirlElectro,
+ 					attacks.AttackTagSwirlHydro,
+ 					attacks.AttackTagSwirlPyro:
+-					return swirlDMG[c.TalentLvlSkill()] * c.Stat(attributes.EM) * 0.01
++					talentLevel := c.TalentLvlSkill()
++					em, statRead := c.StatWithProvenance(attributes.EM)
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-mizuki-swirl-a7", map[string]any{"talentLevel": talentLevel, "em": em}, statRead)
++					}
++					return swirlDMG[talentLevel] * em * 0.01
+ 				case attacks.AttackTagDirectStellarSwirl,
+ 					attacks.AttackTagReactionStellarSwirl:
+-					return stellarSwirlDMG[c.TalentLvlSkill()] * c.Stat(attributes.EM) * 0.01
++					talentLevel := c.TalentLvlSkill()
++					em, statRead := c.StatWithProvenance(attributes.EM)
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-mizuki-stellar-swirl-a7", map[string]any{"talentLevel": talentLevel, "em": em}, statRead)
++					}
++					return stellarSwirlDMG[talentLevel] * em * 0.01
+ 				default:
+ 					return 0
+ 				}
+--- a/internal/characters/mona/asc.go
++++ b/internal/characters/mona/asc.go
+@@ -162,9 +162,13 @@
+ 		char.AddReactBonusMod(character.ReactBonusMod{
+ 			Base: modifier.NewBase("mona-hexerei-astral-glow-vaporize", -1),
+ 			Amount: func(ai info.AttackInfo) float64 {
+-				m := 0.05 * float64(c.astralGlowStacks)
++				stacks := c.astralGlowStacks
++				m := 0.05 * float64(stacks)
+ 
+ 				if ai.Amped && ai.AmpType == info.ReactionTypeVaporize {
++					if c.Core.SourceHost != nil {
++						m = c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-mona-astral-glow", map[string]any{"stacks": stacks}, nil)
++					}
+ 					c.astralGlowStacks = 0 // clear all stacks
+ 					return m
+ 				}
+--- a/internal/characters/mona/cons.go
++++ b/internal/characters/mona/cons.go
+@@ -59,12 +59,14 @@
+ 				Base: modifier.NewBaseWithHitlag("mona-c1", 8*60),
+ 				Amount: func(ai info.AttackInfo) float64 {
+ 					m := 0.15
++					enhanced := 0
+ 
+ 					// Hexerei passive
+ 					// Additionally, when your off-field party members trigger the above effect, the DMG Bonus
+ 					// to the above Hydro-related Elemental Reactions is enhanced to 160% of its original effect.
+ 					if c.IsHexerei && c.Core.Player.Active() != char.Index() {
+ 						m *= 1.6
++						enhanced = 1
+ 					}
+ 
+ 					switch ai.AttackTag {
+@@ -76,6 +78,9 @@
+ 						attacks.AttackTagECDamage,
+ 						attacks.AttackTagReactionLunarCharge, attacks.AttackTagDirectLunarCharged,
+ 						attacks.AttackTagReactionLunarCrystallize, attacks.AttackTagDirectLunarCrystallize:
++						if c.Core.SourceHost != nil {
++							return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-mona-c1", map[string]any{"enhanced": enhanced}, nil)
++						}
+ 						return m
+ 					}
+ 
+@@ -83,6 +88,9 @@
+ 					// the only way Hydro Swirl can vape is via an AoE Hydro Swirl which doesn't do damage anyways, so this is fine
+ 
+ 					if ai.Amped && ai.AmpType == info.ReactionTypeVaporize {
++						if c.Core.SourceHost != nil {
++							return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-mona-c1", map[string]any{"enhanced": enhanced}, nil)
++						}
+ 						return m
+ 					}
+ 
+--- a/internal/characters/nilou/asc.go
++++ b/internal/characters/nilou/asc.go
+@@ -87,6 +87,11 @@
+ 	if c.Base.Ascension < 4 {
+ 		return
+ 	}
++	if c.Core.SourceHost != nil {
++		if c.a4CreationID == 0 {
++			c.a4Bonus, c.a4CreationID = c.Core.SourceHost.CharacterScalarCreate(c.Index(), a4Mod, "char-scalar-nilou-a4-initial", map[string]any{}, nil)
++		}
++	}
+ 	for _, this := range c.Core.Player.Chars() {
+ 		// TODO: a4 should be an extra buff
+ 		this.AddReactBonusMod(character.ReactBonusMod{
+@@ -101,6 +106,9 @@
+ 				}
+ 				if c.Core.Flags.LogDebug {
+ 					c.Core.Combat.Log.NewEvent("adding nilou a4 bonus", glog.LogCharacterEvent, c.Index()).Write("bonus", c.a4Bonus)
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarSnapshot(c.a4Bonus, c.a4CreationID)
+ 				}
+ 				return c.a4Bonus
+ 			},
+@@ -119,11 +127,16 @@
+ 			return
+ 		}
+ 
+-		c.a4Bonus = (c.MaxHP() - 30000) * 0.001 * 0.09
+-		if c.a4Bonus < 0 {
+-			c.a4Bonus = 0
+-		} else if c.a4Bonus > 4 {
+-			c.a4Bonus = 4
++		maxHP, statRead := c.MaxHPWithProvenance()
++		if c.Core.SourceHost != nil {
++			c.a4Bonus, c.a4CreationID = c.Core.SourceHost.CharacterScalarCreate(c.Index(), a4Mod, "char-scalar-nilou-a4-update", map[string]any{"maxHP": maxHP}, statRead)
++		} else {
++			c.a4Bonus = (maxHP - 30000) * 0.001 * 0.09
++			if c.a4Bonus < 0 {
++				c.a4Bonus = 0
++			} else if c.a4Bonus > 4 {
++				c.a4Bonus = 4
++			}
+ 		}
+ 
+ 		c.QueueCharTask(c.updateA4Bonus(src), 0.5*60)
+--- a/internal/characters/nilou/nilou.go
++++ b/internal/characters/nilou/nilou.go
+@@ -16,6 +16,7 @@
+ 	auraSrc       int
+ 	a4Src         int
+ 	a4Bonus       float64
++	a4CreationID  int
+ }
+ 
+ func NewChar(s *core.Core, w *character.CharWrapper, _ info.CharacterProfile) error {
+--- a/internal/characters/odette/asc.go
++++ b/internal/characters/odette/asc.go
+@@ -40,6 +40,9 @@
+ 			if !c.StatusIsActive(danceDoubleKey) {
+ 				return 0
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-odette-a1-self", map[string]any{"stacks": c.a1StacksSelf}, nil)
++			}
+ 			return float64(c.a1StacksSelf) * 0.15
+ 		},
+ 	})
+@@ -61,6 +64,9 @@
+ 				}
+ 				if !c.StatusIsActive(danceDoubleKey) {
+ 					return 0
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-odette-a1-others", map[string]any{"stacks": c.a1StacksOthers}, nil)
+ 				}
+ 				return float64(c.a1StacksOthers) * 0.15
+ 			},
+--- a/internal/characters/odette/burst.go
++++ b/internal/characters/odette/burst.go
+@@ -111,7 +111,12 @@
+ }
+ 
+ func (c *char) addSwansDreamBuff() {
+-	buff := burstBuff[c.TalentLvlBurst()]
++	talentLevel := c.TalentLvlBurst()
++	buff := burstBuff[talentLevel]
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		buff, creationID = c.Core.SourceHost.CharacterScalarCreate(c.Index(), swansDreamKey, "char-scalar-odette-burst", map[string]any{"talentLevel": talentLevel}, nil)
++	}
+ 	c.AddReactBonusMod(character.ReactBonusMod{
+ 		Base: modifier.NewBaseWithHitlag(swansDreamKey, 20*60),
+ 		Amount: func(ai info.AttackInfo) float64 {
+@@ -119,11 +124,14 @@
+ 			case attacks.AttackTagDirectStellarConduct,
+ 				attacks.AttackTagDirectStellarSwirl,
+ 				attacks.AttackTagReactionStellarSwirl:
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarSnapshot(buff, creationID)
++				}
+ 				return buff
+ 			default:
+ 				return 0
+ 			}
+ 		},
+ 	})
+-	c.c4OnBurst(buff)
++	c.c4OnBurst(buff, talentLevel)
+ }
+--- a/internal/characters/odette/cons.go
++++ b/internal/characters/odette/cons.go
+@@ -171,11 +171,15 @@
+ // The Elemental Burst Presto: Bluebird Finale is enhanced as follows: when Odette obtains Snow
+ // Swan's Dream, Stellar Glimmer reaction DMG dealt by other nearby party members is increased by
+ // 50% of Snow Swan Dream's effects.
+-func (c *char) c4OnBurst(buff float64) {
++func (c *char) c4OnBurst(buff float64, talentLevel int) {
+ 	if c.Base.Cons < 4 {
+ 		return
+ 	}
+ 	buff *= 0.5
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		buff, creationID = c.Core.SourceHost.CharacterScalarCreate(c.Index(), swansDreamKey, "char-scalar-odette-c4", map[string]any{"talentLevel": talentLevel}, nil)
++	}
+ 	for _, char := range c.Core.Player.Chars() {
+ 		if char.Index() == c.Index() {
+ 			continue
+@@ -188,6 +192,9 @@
+ 					attacks.AttackTagDirectStellarConduct,
+ 					attacks.AttackTagDirectStellarSwirl,
+ 					attacks.AttackTagReactionStellarSwirl:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarSnapshot(buff, creationID)
++					}
+ 					return buff
+ 				default:
+ 					return 0
+--- a/internal/characters/qiqi/stellar.go
++++ b/internal/characters/qiqi/stellar.go
+@@ -66,6 +66,9 @@
+ 				switch ai.AttackTag {
+ 				case attacks.AttackTagDirectStellarConduct,
+ 					attacks.AttackTagSuperconductDamage:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-qiqi-revelation-conduct", map[string]any{}, nil)
++					}
+ 					return 0.5
+ 				}
+ 				return 0
+@@ -85,6 +88,9 @@
+ 				case attacks.AttackTagDirectStellarSwirl,
+ 					attacks.AttackTagReactionStellarSwirl,
+ 					attacks.AttackTagSwirlCryo:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-qiqi-revelation-swirl", map[string]any{}, nil)
++					}
+ 					return 0.5
+ 				}
+ 				return 0
+--- a/internal/characters/traveler/common/cryo/cons.go
++++ b/internal/characters/traveler/common/cryo/cons.go
+@@ -158,6 +158,9 @@
+ 					attacks.AttackTagDirectStellarConduct,
+ 					attacks.AttackTagDirectStellarSwirl,
+ 					attacks.AttackTagReactionStellarSwirl:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-cryo-traveler-c6", map[string]any{"stacks": stacks}, nil)
++					}
+ 					return 0.05 * float64(stacks)
+ 				}
+ 				return 0
+--- a/internal/characters/yaemiko/cons.go
++++ b/internal/characters/yaemiko/cons.go
+@@ -47,6 +47,9 @@
+ 		Base: modifier.NewBaseWithHitlag(c1Key+"-ssc", 10*60),
+ 		Amount: func(ai info.AttackInfo) float64 {
+ 			if ai.AttackTag == attacks.AttackTagDirectStellarConduct {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-yaemiko-c1-stellar", map[string]any{}, nil)
++				}
+ 				return 0.5
+ 			}
+ 			return 0

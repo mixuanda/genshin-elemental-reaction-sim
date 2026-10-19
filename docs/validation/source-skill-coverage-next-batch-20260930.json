@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "source-skill-coverage-inventory-v1",
+  "asOf": "2026-09-30",
+  "status": "bounded-read-only-candidates-not-implemented-or-verified",
+  "basis": {
+    "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/build-XZWitQ/source",
+    "classicCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "existingDistinctContracts": 63
+  },
+  "nextBatch": [
+    {
+      "id": "ganyu-skill",
+      "path": "internal/characters/ganyu/skill.go",
+      "observed": "Two direct queues, hit +13/+373; finish callback and init exclusions."
+    },
+    {
+      "id": "yanfei-skill",
+      "path": "internal/characters/yanfei/skill.go",
+      "observed": "One direct queue; finish callback and init exclusions."
+    },
+    {
+      "id": "xiao-skill",
+      "path": "internal/characters/xiao/skill.go",
+      "observed": "One direct queue; finish callback and init exclusions."
+    },
+    {
+      "id": "thoma-skill",
+      "path": "internal/characters/thoma/skill.go",
+      "observed": "Attack +11, shield tasks +9 then +1; ordinary shield has no terminal damage."
+    },
+    {
+      "id": "ayato-skill",
+      "path": "internal/characters/ayato/skill.go",
+      "observed": "Core task emits one delayed attack; verify A1/init/constellation and separate later player slashes."
+    },
+    {
+      "id": "yunjin-burst",
+      "path": "internal/characters/yunjin/burst.go",
+      "observed": "Character task emits one delayed attack; verify init/constellation and distinguish team damage buffs."
+    }
+  ],
+  "nextGroups": [
+    "Kirara E mode-specific task branches",
+    "Qiqi E recursive damage tasks; separate healing",
+    "Yae Miko E producer with replacement/deleted/selection gates",
+    "Beidou Q state ownership reusing existing event-chain analyzer",
+    "Xiangling E custom entity Tick and Yaoyao Q multiple entities"
+  ],
+  "excludedFromCheapBatch": {
+    "layla-skill": "Shield stars, recurring character tasks, refresh, and missiles continuing after shield end require full generator ownership.",
+    "zhongli-skill": "Stone stele construct lifecycle required."
+  },
+  "policy": "Implement a broad group, centralize only necessary validation; do not repeat already completed character browser matrices.",
+  "followUp": {
+    "batch": 117,
+    "implementedContractIds": [
+      "ayato-skill",
+      "ganyu-skill",
+      "kirara-skill",
+      "thoma-skill",
+      "xiao-skill",
+      "yanfei-skill",
+      "yunjin-burst"
+    ],
+    "measurements": "docs/validation/source-finite-coverage-batch-measurements-20260930.json",
+    "remainingGroups": [
+      "Qiqi E recurring damage",
+      "Yae Miko E recurring damage with replacement/deleted gates",
+      "Beidou Q state ownership connected to event chain",
+      "Xiangling E custom entity Tick",
+      "Yaoyao Q multiple entity ownership"
+    ]
+  },
+  "followUp118": {
+    "completedCharacterActions": [
+      "qiqi-skill",
+      "yaemiko-skill",
+      "beidou-burst",
+      "xiangling-skill",
+      "yaoyao-burst"
+    ],
+    "additionalSourceSpecificContracts": [
+      "qiqi-skill-stellar",
+      "yaemiko-skill-stellar"
+    ],
+    "measurements": "docs/validation/source-recurring-skill-ownership-measurements-20260930.json",
+    "nextWork": "Shared native phase coverage and remaining external data/workflow evidence; see source-cross-cutting-next-step-20260930.json.",
+    "remainingSkillExamples": [
+      "Layla E/Q shared shield-star generator",
+      "Zhongli E construct lifecycle"
+    ],
+    "completionBoundary": "This follow-up does not claim all action scopes or full game-mechanics verification."
+  }
+}

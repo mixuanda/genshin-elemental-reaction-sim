@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "protocol": "observed-lohen-resource-v1",
+  "status": "source-assumed",
+  "sourceRefs": [
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Lohen/index.tsx",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Lohen/skillParam.json",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Lohen_gen.json",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+    "https://github.com/KQM-git/TCL/blob/0239a3b101f23b9b82a6dec6070151d1cbbdc5cf/src/data/characters/Lohen.json"
+  ],
+  "rules": {
+    "joyGain": 17,
+    "joyCap": 100,
+    "willCap": 100,
+    "willThresholdBaseAttack": 10,
+    "willAboveThreshold": 20,
+    "willBelowThreshold": 1,
+    "a1ThresholdBaseAttack": 30,
+    "a1ExtraWill": 60,
+    "stanceDurationFrames": 780,
+    "gainCooldownFrames": 6,
+    "maximumEtchCasts": 3,
+    "burstExtensionFrames": 99,
+    "willDamagePerPoint": 0.004
+  },
+  "sourceFields": {
+    "joyGain": "skill[12][0] / normal; skill[13][0] / charged",
+    "baseThreshold": "skill[14][0]",
+    "willHigh": "skill[15][0]",
+    "a1ExtraThreshold": "passive1[0][0]",
+    "a1ExtraWill": "passive1[1][0]",
+    "duration": "skill[11][0]",
+    "gainCooldown": "localized combat2 description: once every0.1s; per teammate forWill",
+    "burstExtension": "localized combat3 description:1.65s",
+    "etchCastLimit": "localized combat2 description:3 perMasterstroke",
+    "etchConsume": "localized combat2 description: afterhitting opponent, allJoy+Will",
+    "exit": "localized combat2 description: fieldleave ends stance and clearsJoy+Will"
+  },
+  "retainedConflict": {
+    "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+    "keys": [
+      "11290003",
+      "11290004"
+    ],
+    "incorrectSubstitutedValues": [
+      "Joy0.381298",
+      "Willthreshold55.2868%",
+      "Willgain0.829302"
+    ],
+    "chosen": "Numerical skillParam.skill[12/13]=17,[14]=10,[15]=20 with explicit sheet field mapping, independently corroborated by pinned KQM character tooltip. Structural0.1s/cap100/exit rules retained from pinned tooltip."
+  }
+}

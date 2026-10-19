@@ -1,0 +1,21 @@
+diff --git a/pkg/stats/action/action.go b/pkg/stats/action/action.go
+--- a/pkg/stats/action/action.go
++++ b/pkg/stats/action/action.go
+@@ -4,5 +4,6 @@ import (
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
++	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/stats"
+ )
+@@ -74,5 +75,10 @@ func NewStat(core *core.Core) (stats.Collector, error) {
+ 		char := args[0].(int)
+ 		e := args[1].(action.Action)
+ 		reason := args[3].(action.Failure)
++
++		// Keep each rejected attempt at its actual source frame. FailedActions
++		// merges repeated failures into intervals and cannot supply attempt counts.
++		core.Log.NewEvent("source-host action rejected", glog.LogActionEvent, char).
++			Write("action", e.String()).Write("reason", reason.String())
+ 
+ 		// Assumes we will continue trying an action until it succeeds.

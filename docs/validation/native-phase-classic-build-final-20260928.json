@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "startedAt": "2026-09-28T13:34:35.427858+00:00",
+  "finishedAt": "2026-09-28T13:34:39.150589+00:00",
+  "wallSeconds": 3.723,
+  "exitCode": 0,
+  "log": "docs/validation/native-phase-classic-build-final-20260928.log"
+}

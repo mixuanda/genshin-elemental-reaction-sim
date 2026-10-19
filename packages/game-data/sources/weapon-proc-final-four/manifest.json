@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "commits": {
+    "gcsim": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "genshin-db": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf"
+  },
+  "archivePath": "packages/game-data/sources/weapon-proc-final-four/source.json.gz",
+  "archiveSha256": "9d9ecac13a0b2794aa8303aa20128478e5c2754dff476b24ab3a57ca53454d1d",
+  "archivedFrom": "existing fixed local source trees; all 16 Messenger external-review hashes matched",
+  "optimizerManifestPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/manifest.json",
+  "scope": "Messenger actual weak-point proc metadata plus three explicitly calculator-only single hits. No full automatic Arkhe, bounce chain, cyclone schedule or attraction is asserted.",
+  "sourceConflicts": [
+    {
+      "weaponId": "eyeofperception",
+      "gcsimExpression": "2.1 * refinement * 0.3",
+      "catalogAndOptimizerCoefficients": [
+        2.4,
+        2.7,
+        3,
+        3.3,
+        3.6
+      ],
+      "gcsimProbabilityGate": "missing despite 50 percent catalogue text",
+      "resolution": "Use catalogue and Optimizer one-bolt damage coefficients with visible conflict. Automatic trigger and bounce chain remain blocked."
+    }
+  ],
+  "files": [
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/bow/messenger/messenger.go",
+      "archiveEntry": "gcsim/internal/weapons/bow/messenger/messenger.go",
+      "bytes": 1961,
+      "sha256": "e3725f9579e2745f8e97b8a2f4479301b51dc961eebafe5668099549951953ba",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/messenger/messenger.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/amber/aimed.go",
+      "archiveEntry": "gcsim/internal/characters/amber/aimed.go",
+      "bytes": 3091,
+      "sha256": "9584af861c32b8d9f89d4457179b868e90fb0f2d394a57e6eff679e6b935d8c4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/aimed.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/amber/asc.go",
+      "archiveEntry": "gcsim/internal/characters/amber/asc.go",
+      "bytes": 1386,
+      "sha256": "b057956e4b9f49703d118c7317a54cafe76a937c98249a15ba65946bcc36cd84",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/asc.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/amber/amber.go",
+      "archiveEntry": "gcsim/internal/characters/amber/amber.go",
+      "bytes": 1022,
+      "sha256": "d3f63fd6c99d4d93c7502ea6b327762d460c47c9211bc5f23299b17318f08c04",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/amber.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/amber/zz_amber.dm.go",
+      "archiveEntry": "gcsim/internal/characters/amber/zz_amber.dm.go",
+      "bytes": 2772,
+      "sha256": "62e6b1a0f66e54f456dd515c34aa46ca83bcc7115ef918d1aabf81a725b14901",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/zz_amber.dm.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/info/combat.go",
+      "archiveEntry": "gcsim/pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/combat.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/attacks/aim.go",
+      "archiveEntry": "gcsim/pkg/core/attacks/aim.go",
+      "bytes": 365,
+      "sha256": "c8bd86a11af5875e0a6399560819f6c42a7afcdd3202570bc28921050b82c292",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/aim.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/attacks/attack.go",
+      "archiveEntry": "gcsim/pkg/core/attacks/attack.go",
+      "bytes": 1484,
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/enemy/damage.go",
+      "archiveEntry": "gcsim/pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/enemy/attack.go",
+      "archiveEntry": "gcsim/pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/attack.go",
+      "archiveEntry": "gcsim/pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/energy.go",
+      "archiveEntry": "gcsim/pkg/core/energy.go",
+      "bytes": 2639,
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/core.go",
+      "archiveEntry": "gcsim/pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/event/event.go",
+      "archiveEntry": "gcsim/pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/simulation/simulation.go",
+      "archiveEntry": "gcsim/pkg/simulation/simulation.go",
+      "bytes": 2049,
+      "sha256": "aaa938c5f5cfbf478c4570abab32211f295a378247e087b9a36afbcf53f768a1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/simulation.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "archiveEntry": "gcsim/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/sword/swordofnarzissenkreuz/swordofnarzissenkreuz.go",
+      "archiveEntry": "gcsim/internal/weapons/sword/swordofnarzissenkreuz/swordofnarzissenkreuz.go",
+      "bytes": 2697,
+      "sha256": "422df06b2fe00e6999ccf37d2622807139a263056e04aae93bc6e7b771390153",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/swordofnarzissenkreuz/swordofnarzissenkreuz.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/catalyst/perception/perception.go",
+      "archiveEntry": "gcsim/internal/weapons/catalyst/perception/perception.go",
+      "bytes": 2737,
+      "sha256": "23fff81296ae0fafe98b21cc247c0d446b7431eac8fb0e8accbd648a31048b0f",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/perception/perception.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/bow/viridescent/viridescent.go",
+      "archiveEntry": "gcsim/internal/weapons/bow/viridescent/viridescent.go",
+      "bytes": 2038,
+      "sha256": "023a0ff84290d4ffe62139b298e23baa5dec284524d2a1128e4fa50795e08a6f",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/viridescent/viridescent.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "LICENSE",
+      "archiveEntry": "gcsim/LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/combat/hitbox.go",
+      "archiveEntry": "gcsim/pkg/core/combat/hitbox.go",
+      "bytes": 2372,
+      "sha256": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/hitbox.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/info/circle.go",
+      "archiveEntry": "gcsim/pkg/core/info/circle.go",
+      "bytes": 3746,
+      "sha256": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/circle.go"
+    },
+    {
+      "source": "genshin-db",
+      "path": "LICENSE",
+      "archiveEntry": "genshin-db/LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/messenger.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/messenger.json",
+      "bytes": 3682,
+      "sha256": "93c733471ac22f608864340600773f7820678115d4a293d9f4bb339032528403",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/messenger.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "bytes": 4785,
+      "sha256": "7fb365b6103959e84d4cab39985865de6b62da3541d57f38c8dd84b1d4c078e3",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "bytes": 5162,
+      "sha256": "d199f323362f3609adc673e00e237f4040bae845f5494eb064f1c5d9befd82ca",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/eyeofperception.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "bytes": 5421,
+      "sha256": "fc1666150448c9f3725490fdeb60dd578b8dd9fdc22c3ea6ef70f1fe971c9f6a",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/theviridescenthunt.json"
+    }
+  ]
+}

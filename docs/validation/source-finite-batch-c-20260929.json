@@ -1,0 +1,974 @@
+{
+  "kind": "source-audited-finite-batch-c-private-proposal",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-eA1lto/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-DSx6Wz/source",
+    "preInstrumentationCheck": "/tmp/gidps-source-host-cache/build-GGPmB1/source"
+  },
+  "patches": {
+    "classic": {
+      "path": "/tmp/gidps-110-finite-batch-c-classic.patch",
+      "sha256": "246f854b33e5cd832525feece68dd497221214f146d956e8935c2e331ac8e400"
+    },
+    "stellar": {
+      "path": "/tmp/gidps-110-finite-batch-c-stellar.patch",
+      "sha256": "246f854b33e5cd832525feece68dd497221214f146d956e8935c2e331ac8e400"
+    }
+  },
+  "patchChecks": {
+    "classic": "patch --dry-run --batch -p1 on separate clean pre-instrumentation copy: exit 0",
+    "stellar": "patch --dry-run --batch -p1 on separate clean pre-instrumentation copy: exit 0"
+  },
+  "entryFactsContract": {
+    "recorder": "c.Core.SourceHost.RecordAbilityFact(siteID,float64) or RecordAbilityBoolFact(siteID,bool)",
+    "encoding": "numeric 0/1 for bool; facts only recorded within actually executed method branch; missing fact blocks the relevant expression",
+    "branchFacts": {
+      "cyno": [
+        "cyno.skill.burst-active",
+        "cyno.skill.a1-active only when burst active"
+      ],
+      "freminet": [
+        "freminet.skill.pers-active",
+        "freminet.skill.aligned-icd-active only on thrust",
+        "freminet.skill.stacks only on detonation"
+      ],
+      "kuki": [
+        "kuki.burst.low-hp"
+      ]
+    }
+  },
+  "rows": [
+    {
+      "id": "beidou-skill",
+      "label": "北斗 E：本次捉浪反击",
+      "characterKey": "beidou",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/beidou/skill.go",
+      "sourceHashes": {
+        "internal/characters/beidou/skill.go": {
+          "classic": "53429b8e860042cf5e2fec03c01106f07c6ce62934c0518f8e2761cc78edc832",
+          "stellar": "53429b8e860042cf5e2fec03c01106f07c6ce62934c0518f8e2761cc78edc832",
+          "preInstrumentation": "53429b8e860042cf5e2fec03c01106f07c6ce62934c0518f8e2761cc78edc832"
+        },
+        "internal/characters/beidou/beidou.go": {
+          "classic": "5a474fca851dfdb5ac0f15e4f70da70522477802f5ff02b42aedad4012818cb3",
+          "stellar": "5a474fca851dfdb5ac0f15e4f70da70522477802f5ff02b42aedad4012818cb3",
+          "preInstrumentation": "5a474fca851dfdb5ac0f15e4f70da70522477802f5ff02b42aedad4012818cb3"
+        },
+        "internal/characters/beidou/asc.go": {
+          "classic": "2e0c5dafcddc7c4136d10b6db04dca7feba2b35f6d1404013b426feb55461eb8",
+          "stellar": "2e0c5dafcddc7c4136d10b6db04dca7feba2b35f6d1404013b426feb55461eb8",
+          "preInstrumentation": "2e0c5dafcddc7c4136d10b6db04dca7feba2b35f6d1404013b426feb55461eb8"
+        },
+        "internal/characters/beidou/cons.go": {
+          "classic": "4c2726cd3d4756b61d6fc63315267666dac7ef0b9f800c3137bd8aad91947a26",
+          "stellar": "4c2726cd3d4756b61d6fc63315267666dac7ef0b9f800c3137bd8aad91947a26",
+          "preInstrumentation": "4c2726cd3d4756b61d6fc63315267666dac7ef0b9f800c3137bd8aad91947a26"
+        }
+      },
+      "sourceEvidence": "skill.go:34–112 counter 限制到2并在73仅 QueueAttack一次；盾与粒子回调无伤害；asc.go A4加攻速/普攻效果，cons.go C4仅正常攻击后另生电伤。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:盾/冷却/粒子不计伤害；beidou.go Init 与 asc.go、cons.go 已审，C4后续普通攻击不是此次E固有攻击。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 1,
+        "expectedRootAttackCount": 1,
+        "sites": [],
+        "scopeNotes": [
+          "每次 E 调用队列仅一个 Tidecaller；counter 参数至多2层影响倍率和盾，不增加攻击机会。后续 C4 普攻追击属于后续动作。"
+        ]
+      },
+      "remainingGaps": []
+    },
+    {
+      "id": "cyno-skill",
+      "label": "赛诺 E：本次秘仪落击或 Q 态蜕锋",
+      "characterKey": "cyno",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/cyno/skill.go",
+      "sourceHashes": {
+        "internal/characters/cyno/skill.go": {
+          "classic": "6a59f6e9767edbe731037301177e94879850d3fa1c8fe78be5b6791e7f36b79e",
+          "stellar": "6a59f6e9767edbe731037301177e94879850d3fa1c8fe78be5b6791e7f36b79e",
+          "preInstrumentation": "567615eeef9da06256ee1b60e5dbf2fbe3c365fdd66bebdfb9a31fa9f8a3e352"
+        },
+        "internal/characters/cyno/cyno.go": {
+          "classic": "0284828ec06f7fa3b8971c616d7408b541324a262a809bc381232b36fedccd7b",
+          "stellar": "0284828ec06f7fa3b8971c616d7408b541324a262a809bc381232b36fedccd7b",
+          "preInstrumentation": "0284828ec06f7fa3b8971c616d7408b541324a262a809bc381232b36fedccd7b"
+        },
+        "internal/characters/cyno/burst.go": {
+          "classic": "ca2429956ff3c1475b2801b6910e8c1b2d9e7c2c71fef060aa50737cec236d37",
+          "stellar": "ca2429956ff3c1475b2801b6910e8c1b2d9e7c2c71fef060aa50737cec236d37",
+          "preInstrumentation": "ca2429956ff3c1475b2801b6910e8c1b2d9e7c2c71fef060aa50737cec236d37"
+        },
+        "internal/characters/cyno/asc.go": {
+          "classic": "1e87ab30efdd3b091aa6ceca52b0877f182edf57d90652f001acdf82c749c3d3",
+          "stellar": "1e87ab30efdd3b091aa6ceca52b0877f182edf57d90652f001acdf82c749c3d3",
+          "preInstrumentation": "1e87ab30efdd3b091aa6ceca52b0877f182edf57d90652f001acdf82c749c3d3"
+        },
+        "internal/characters/cyno/cons.go": {
+          "classic": "a1adbd6859e7a6271ee60adcb11fb9f4ff76665b8f4cfce90f10a427fd8679a1",
+          "stellar": "68009510fae972db73ad5bb04c091f8c012b97336f8d9812d89daf3e6b5335c7",
+          "preInstrumentation": "a1adbd6859e7a6271ee60adcb11fb9f4ff76665b8f4cfce90f10a427fd8679a1"
+        }
+      },
+      "sourceEvidence": "skill.go:42–77 常态1根，:97–153 Q态 a1Key 未激活1根、激活时主击1+三次 bolt；burst.go 创建/延长 Q 状态及A1时序，cons.go C6由后续普通攻击触发。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:冷却 task、粒子回调非伤害；burst.go: Q状态并非本次E根；asc.go A1/A4只改变现有E伤害；cons.go C6后续普通攻击追击不计入本次E。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "fact",
+              "name": "cyno.skill.burst-active"
+            },
+            "right": 1
+          },
+          "then": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "fact",
+                "name": "cyno.skill.a1-active"
+              },
+              "right": 1
+            },
+            "then": 4,
+            "else": 1
+          },
+          "else": 1
+        },
+        "expectedRootAttackCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "fact",
+              "name": "cyno.skill.burst-active"
+            },
+            "right": 1
+          },
+          "then": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "fact",
+                "name": "cyno.skill.a1-active"
+              },
+              "right": 1
+            },
+            "then": 4,
+            "else": 1
+          },
+          "else": 1
+        },
+        "sites": [],
+        "scopeNotes": [
+          "仅本次 E 调用：常态一击；Q 态非末途一击；Q 态末途为主击加三道 Duststalker Bolt。Q 架势后的普攻/重击和 C6 后续触发独立。分支事实在本次 Skill 进入时与 skillB 选择时原位记录。"
+        ]
+      },
+      "remainingGaps": [
+        "必须有 cyno.skill.burst-active；仅其为1时必须有 cyno.skill.a1-active。"
+      ]
+    },
+    {
+      "id": "diluc-skill",
+      "label": "迪卢克 E：本次逆焰之刃一段",
+      "characterKey": "diluc",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/diluc/skill.go",
+      "sourceHashes": {
+        "internal/characters/diluc/skill.go": {
+          "classic": "34570dccfe407667ac0022781a1897fa051b9c55f3d7360df5a88c11e019dfdd",
+          "stellar": "34570dccfe407667ac0022781a1897fa051b9c55f3d7360df5a88c11e019dfdd",
+          "preInstrumentation": "ef403788a79945374bac44400058d9e6b6fd93b7c92b88e5efb73382da4d09cb"
+        },
+        "internal/characters/diluc/diluc.go": {
+          "classic": "3663f8a346ce1ff49ef31d618ffd871743a22567de4a814399dc3e05bd09ef4a",
+          "stellar": "3663f8a346ce1ff49ef31d618ffd871743a22567de4a814399dc3e05bd09ef4a",
+          "preInstrumentation": "3663f8a346ce1ff49ef31d618ffd871743a22567de4a814399dc3e05bd09ef4a"
+        },
+        "internal/characters/diluc/cons.go": {
+          "classic": "3b25ed9c7c549d4292764dd9e820124bac638c46f377b16881ecb434c026b61d",
+          "stellar": "3b25ed9c7c549d4292764dd9e820124bac638c46f377b16881ecb434c026b61d",
+          "preInstrumentation": "3b25ed9c7c549d4292764dd9e820124bac638c46f377b16881ecb434c026b61d"
+        },
+        "internal/characters/diluc/burst.go": {
+          "classic": "f2b73ccbd6fca2d1e2bf36b72bc4819c7ff0ac0067cc1c902e4224894c193024",
+          "stellar": "f2b73ccbd6fca2d1e2bf36b72bc4819c7ff0ac0067cc1c902e4224894c193024",
+          "preInstrumentation": "f2b73ccbd6fca2d1e2bf36b72bc4819c7ff0ac0067cc1c902e4224894c193024"
+        }
+      },
+      "sourceEvidence": "skill.go:56–181 每次调用按 eCounter 选几何/倍率并仅在145 QueueAttack一次；C4任务149只是增益；后三段要求后续独立动作。",
+      "nonDamageCallbacksAndInitAudit": "Init/C1/C2/C4/C6修改状态/增益、普通攻击，C4延迟任务不生成伤害；粒子回调只产球。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 1,
+        "expectedRootAttackCount": 1,
+        "sites": [],
+        "scopeNotes": [
+          "每次 E 行为是一段；三段连招须实际执行三次 E，不能将本次单调用冒称整套连招。"
+        ]
+      },
+      "remainingGaps": []
+    },
+    {
+      "id": "freminet-skill",
+      "label": "菲米尼 E：本次上挑或压力引爆",
+      "characterKey": "freminet",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/freminet/skill.go",
+      "sourceHashes": {
+        "internal/characters/freminet/skill.go": {
+          "classic": "190cd62dc98dafc0c8024a4738b89c5945d3646618a0316515c886effa5d98e7",
+          "stellar": "190cd62dc98dafc0c8024a4738b89c5945d3646618a0316515c886effa5d98e7",
+          "preInstrumentation": "6d7bdcb2bc21d590576a0318aa317d946a07fb5103e4f83f1df4f916e50fdbe4"
+        },
+        "internal/characters/freminet/freminet.go": {
+          "classic": "bfa738211dc9583690ea9f92a8678b17a1e7d4c3da152c07dcf1aa7633178db6",
+          "stellar": "bfa738211dc9583690ea9f92a8678b17a1e7d4c3da152c07dcf1aa7633178db6",
+          "preInstrumentation": "bfa738211dc9583690ea9f92a8678b17a1e7d4c3da152c07dcf1aa7633178db6"
+        },
+        "internal/characters/freminet/burst.go": {
+          "classic": "d486746bc8f16eb427703f3f86abd596bf079bdaf31942ad8b195232a0d3b2f5",
+          "stellar": "d486746bc8f16eb427703f3f86abd596bf079bdaf31942ad8b195232a0d3b2f5",
+          "preInstrumentation": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb"
+        },
+        "internal/characters/freminet/attack.go": {
+          "classic": "390c6ef0a582f97785e0069af2f02978742fb65aa59cd2a2afd9efcfbee36e6d",
+          "stellar": "390c6ef0a582f97785e0069af2f02978742fb65aa59cd2a2afd9efcfbee36e6d",
+          "preInstrumentation": "1bbf76e18788c41f84fb5e65f4704559fc1fde28640eca5b4e1e8e433865892b"
+        },
+        "internal/characters/freminet/asc.go": {
+          "classic": "847dc27436cd087e9d8cab7a5727fe7ea0c50a8a681330539868cc9f367525ec",
+          "stellar": "847dc27436cd087e9d8cab7a5727fe7ea0c50a8a681330539868cc9f367525ec",
+          "preInstrumentation": "847dc27436cd087e9d8cab7a5727fe7ea0c50a8a681330539868cc9f367525ec"
+        },
+        "internal/characters/freminet/cons.go": {
+          "classic": "9375198a8f45c284e0664d7faa4abeee78abd991640f6224df9dd98bc0bb8da9",
+          "stellar": "e389fcd1488513ecf940339dc754ff76f31839385184a4708249ca0ed2e86da7",
+          "preInstrumentation": "9375198a8f45c284e0664d7faa4abeee78abd991640f6224df9dd98bc0bb8da9"
+        }
+      },
+      "sourceEvidence": "skill.go:59–133 初次E上挑1、skillAligned仅ICD未活动再加1；:137–215 再次E依 skillStacks 在0–3入冰击、1–4入物击；burst.go 状态重置/改变E冷却，normal attack可增加压力。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:粒子/冷却/状态不生额外固有根；asc/cons只改变已有攻击、能量/增益；后续佩尔普通攻击及其结果非本次E方法根。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "fact",
+              "name": "freminet.skill.pers-active"
+            },
+            "right": 1
+          },
+          "then": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.stacks"
+              },
+              "right": 0
+            },
+            "then": 1,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "fact",
+                  "name": "freminet.skill.stacks"
+                },
+                "right": 4
+              },
+              "then": 1,
+              "else": 2
+            }
+          },
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.aligned-icd-active"
+              },
+              "right": 1
+            },
+            "then": 1,
+            "else": 2
+          }
+        },
+        "expectedRootAttackCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "fact",
+              "name": "freminet.skill.pers-active"
+            },
+            "right": 1
+          },
+          "then": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.stacks"
+              },
+              "right": 0
+            },
+            "then": 1,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "fact",
+                  "name": "freminet.skill.stacks"
+                },
+                "right": 4
+              },
+              "then": 1,
+              "else": 2
+            }
+          },
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.aligned-icd-active"
+              },
+              "right": 1
+            },
+            "then": 1,
+            "else": 2
+          }
+        },
+        "sites": [],
+        "scopeNotes": [
+          "仅本次 E 行为：入态上挑1，若灵息之棘未在ICD再加1；已有佩尔状态再次E时压力0级1冰、1–3级冰+物2、4级1物。佩尔状态中的后续普攻由后续动作决定。"
+        ]
+      },
+      "remainingGaps": [
+        "必须有 pers-active；仅初次E需要 aligned-icd-active，仅引爆E需要 stacks。"
+      ]
+    },
+    {
+      "id": "heizou-skill",
+      "label": "鹿野院平藏 E：本次聚气拳",
+      "characterKey": "heizou",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/heizou/skill.go",
+      "sourceHashes": {
+        "internal/characters/heizou/skill.go": {
+          "classic": "ecae2c2fa6dd99ad83ee675aa660285ba5203f86074bf20b3d7cee3c5fb729fc",
+          "stellar": "ecae2c2fa6dd99ad83ee675aa660285ba5203f86074bf20b3d7cee3c5fb729fc",
+          "preInstrumentation": "ecae2c2fa6dd99ad83ee675aa660285ba5203f86074bf20b3d7cee3c5fb729fc"
+        },
+        "internal/characters/heizou/heizou.go": {
+          "classic": "98e6b6294ba3f716e6eddb327f1bd04ed57ae44aeb0ea794fe9c385f2ff64796",
+          "stellar": "e5c5304938ca0f001f16addd99ad0ed1433d7220916c489d38325ae6195c3b5f",
+          "preInstrumentation": "98e6b6294ba3f716e6eddb327f1bd04ed57ae44aeb0ea794fe9c385f2ff64796"
+        },
+        "internal/characters/heizou/asc.go": {
+          "classic": "0b54fbe3e8d353987d44012b37b8a2fb85446fed95354de12918813fc8ad633d",
+          "stellar": "db31f9c613bb98b75b11f59b476103a97f82813a470918ca97b21e2e1ae43ec9",
+          "preInstrumentation": "0b54fbe3e8d353987d44012b37b8a2fb85446fed95354de12918813fc8ad633d"
+        },
+        "internal/characters/heizou/cons.go": {
+          "classic": "4e2530f330045bcc093ee252a1859ae7c0a2c5038a4d8adb2fdf2f78a21bd40b",
+          "stellar": "4e2530f330045bcc093ee252a1859ae7c0a2c5038a4d8adb2fdf2f78a21bd40b",
+          "preInstrumentation": "4e2530f330045bcc093ee252a1859ae7c0a2c5038a4d8adb2fdf2f78a21bd40b"
+        },
+        "internal/characters/heizou/burst.go": {
+          "classic": "34b2de6a7296088559387e5d5ab74de88c05399e64288de70e2492f0dcc5368b",
+          "stellar": "34b2de6a7296088559387e5d5ab74de88c05399e64288de70e2492f0dcc5368b",
+          "preInstrumentation": "f426ba6a7d95af160e2dc2df2136ce80976ef22c1c1b43d426ff2c8148a915ef"
+        }
+      },
+      "sourceEvidence": "skill.go:48 skillRelease恰好注册1个伤害task，121在其回调中 QueueAttackWithSnap一次；hold :144–148仅注册叠层任务；cons.go C6改变该击快照，A4只增益。",
+      "nonDamageCallbacksAndInitAudit": "粒子回调只产球、hit callback 清层/A4增益；Init/asc/cons无本次额外根。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 0,
+        "expectedRootAttackCount": 1,
+        "sites": [
+          {
+            "siteId": "heizou.skill.release",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 1
+              }
+            ]
+          }
+        ],
+        "scopeNotes": [
+          "按下或长按均由 release task 生成一击；蓄力叠层 task 无伤害，C6更改这次攻击快照。"
+        ]
+      },
+      "remainingGaps": []
+    },
+    {
+      "id": "mika-skill",
+      "label": "米卡 E：仅按下的流霜之箭",
+      "characterKey": "mika",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/mika/skill.go",
+      "sourceHashes": {
+        "internal/characters/mika/skill.go": {
+          "classic": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+          "stellar": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+          "preInstrumentation": "05a8d239ebbdb7b83d89e741e04f54340675135dc45576bf80644a25c028628f"
+        },
+        "internal/characters/mika/mika.go": {
+          "classic": "9733fd689d94758b40f815291f764c78459d5ab3e542d1a3d7e94af6f129190c",
+          "stellar": "9733fd689d94758b40f815291f764c78459d5ab3e542d1a3d7e94af6f129190c",
+          "preInstrumentation": "9733fd689d94758b40f815291f764c78459d5ab3e542d1a3d7e94af6f129190c"
+        },
+        "internal/characters/mika/asc.go": {
+          "classic": "c4cc33374a3360b18f7a84157696cbd1da6c0654b1bbbfe38e24381cb7031595",
+          "stellar": "c4cc33374a3360b18f7a84157696cbd1da6c0654b1bbbfe38e24381cb7031595",
+          "preInstrumentation": "c4cc33374a3360b18f7a84157696cbd1da6c0654b1bbbfe38e24381cb7031595"
+        },
+        "internal/characters/mika/cons.go": {
+          "classic": "224e1cca216ad66b4a6809a749eb47f20774e567affdbef0968c5a381b672ea6",
+          "stellar": "224e1cca216ad66b4a6809a749eb47f20774e567affdbef0968c5a381b672ea6",
+          "preInstrumentation": "224e1cca216ad66b4a6809a749eb47f20774e567affdbef0968c5a381b672ea6"
+        },
+        "internal/characters/mika/burst.go": {
+          "classic": "389887082fd3b259679ec97262ea052a29fe200e706abc8f063db5703eaa4c58",
+          "stellar": "389887082fd3b259679ec97262ea052a29fe200e706abc8f063db5703eaa4c58",
+          "preInstrumentation": "389887082fd3b259679ec97262ea052a29fe200e706abc8f063db5703eaa4c58"
+        }
+      },
+      "sourceEvidence": "skill.go:51–104 press在91仅入队1次；:106–139 hold在128队列一击，命中回调:151–220按实际敌人另入队0–3碎片。",
+      "nonDamageCallbacksAndInitAudit": "按下的 A1/C2 只叠层；applyBuffs角色任务无伤害；Init/asc/cons无按下新增攻击根。",
+      "producerContract": true,
+      "plan": {
+        "when": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "param",
+            "name": "hold",
+            "default": 0
+          },
+          "right": 0
+        },
+        "directRootCount": 1,
+        "expectedRootAttackCount": 1,
+        "sites": [],
+        "scopeNotes": [
+          "仅 hold=0 的按下分支；长按 Rimestar Flare 命中回调会按实际敌数派生最多三碎片，当前 task producer 不能凭本规则闭合。"
+        ]
+      },
+      "remainingGaps": [
+        "长按E本规则不适用，不能称米卡完整E两分支。"
+      ]
+    },
+    {
+      "id": "sara-burst",
+      "label": "九条裟罗 Q：天狗咒雷与风暴聚集",
+      "characterKey": "sara",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/sara/burst.go",
+      "sourceHashes": {
+        "internal/characters/sara/burst.go": {
+          "classic": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34",
+          "stellar": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34",
+          "preInstrumentation": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34"
+        },
+        "internal/characters/sara/sara.go": {
+          "classic": "0711a9bb4aaf52693401de564cd756205d32f56527991ef2ed90d3eb1e420f22",
+          "stellar": "0711a9bb4aaf52693401de564cd756205d32f56527991ef2ed90d3eb1e420f22",
+          "preInstrumentation": "0711a9bb4aaf52693401de564cd756205d32f56527991ef2ed90d3eb1e420f22"
+        },
+        "internal/characters/sara/cons.go": {
+          "classic": "1cdff4a72ae2dfea37740e1bf719e4ad3e4404a22c95b5ada4a067cbc0c08b82",
+          "stellar": "a2b8ec29df9c6aeb15685034b88867306c26a7f764da5b8738df966faeadf7d0",
+          "preInstrumentation": "1cdff4a72ae2dfea37740e1bf719e4ad3e4404a22c95b5ada4a067cbc0c08b82"
+        },
+        "internal/characters/sara/asc.go": {
+          "classic": "7a8e22f8368b5a3343674ce8d7c05d42aaa47afcd1a7fd32f9f58b648d12a999",
+          "stellar": "7a8e22f8368b5a3343674ce8d7c05d42aaa47afcd1a7fd32f9f58b648d12a999",
+          "preInstrumentation": "7a8e22f8368b5a3343674ce8d7c05d42aaa47afcd1a7fd32f9f58b648d12a999"
+        },
+        "internal/characters/sara/skill.go": {
+          "classic": "300044e925f9f7a87fbf5e0d246a98a2c3eda875f4a51a0b8fc7cc58d16e2f0d",
+          "stellar": "300044e925f9f7a87fbf5e0d246a98a2c3eda875f4a51a0b8fc7cc58d16e2f0d",
+          "preInstrumentation": "7c6a6839ed7c5ca4259853b1d2bb65618c40b73dff3c976a844e7354bbaf5cc6"
+        }
+      },
+      "sourceEvidence": "burst.go:31–97 先1根，再根据C4阈值循环4或6组，每组六次 QueueAttack；各 attackBuff task仅施加攻击增益。",
+      "nonDamageCallbacksAndInitAudit": "Init/C1/C6仅状态、冷却与伤害增益，不新增Q根；skill/aimed的 C2、后续重击不属于本次Q。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 4
+          },
+          "then": 37,
+          "else": 25
+        },
+        "expectedRootAttackCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 4
+          },
+          "then": 37,
+          "else": 25
+        },
+        "sites": [],
+        "scopeNotes": [
+          "本次Q固有排队机会为初击1+4/6组×6=25/37；几何落空为明确零，攻击增益与C1减冷却不计伤害。"
+        ]
+      },
+      "remainingGaps": []
+    },
+    {
+      "id": "dori-burst",
+      "label": "多莉 Q：连接伤害与C2治疗随生击",
+      "characterKey": "dori",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/dori/burst.go",
+      "sourceHashes": {
+        "internal/characters/dori/burst.go": {
+          "classic": "daf99669fb10d405e96cccbb41a88887129fcfc76921e1a16331601ada76ca5f",
+          "stellar": "daf99669fb10d405e96cccbb41a88887129fcfc76921e1a16331601ada76ca5f",
+          "preInstrumentation": "398752de70ce1bdcf4c8d4b199a57086677197551529efb9fd073896e35ec87b"
+        },
+        "internal/characters/dori/dori.go": {
+          "classic": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3",
+          "stellar": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3",
+          "preInstrumentation": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3"
+        },
+        "internal/characters/dori/asc.go": {
+          "classic": "530f6a5ae4a82cfd1d45cbe2a1df4038cfc85c2f55d69a3e22d6bf42bf74a6cf",
+          "stellar": "05ae97282ac1801137d7fb3a7daaf7616f118a04b658c12b687e7f47f0c625fa",
+          "preInstrumentation": "530f6a5ae4a82cfd1d45cbe2a1df4038cfc85c2f55d69a3e22d6bf42bf74a6cf"
+        },
+        "internal/characters/dori/cons.go": {
+          "classic": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada",
+          "stellar": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada",
+          "preInstrumentation": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada"
+        },
+        "internal/characters/dori/skill.go": {
+          "classic": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+          "stellar": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+          "preInstrumentation": "5f22b088b23378174de20338cfa402a9484ebbb21e5781519a07cc2f38fe0498"
+        }
+      },
+      "sourceEvidence": "burst.go:30–130 固定注册32个连接任务与6个治疗任务；连接按位置最多队列1击；C2任务按范围调用cons.go:c2至多1击；快照/角色自附着不生成攻击。",
+      "nonDamageCallbacksAndInitAudit": "Init/A1只减CD，C4治疗增益，C6普通攻击后治疗独立；32个连接的自身元素施加与6个治疗/回能另走非伤害路径。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 0,
+        "sites": [
+          {
+            "siteId": "dori.burst.connector",
+            "rootCount": 32,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 0
+              },
+              {
+                "attackCount": 1
+              }
+            ]
+          },
+          {
+            "siteId": "dori.burst.heal",
+            "rootCount": 6,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 0
+              },
+              {
+                "attackCount": 1,
+                "when": {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "op": "constellation"
+                  },
+                  "right": 2
+                }
+              }
+            ]
+          }
+        ],
+        "scopeNotes": [
+          "32次连接回调每次依玩家是否在原生区域内入队0/1；6次治疗任务仅C2及在区域内时每次另生一击。治疗与回能本身非伤害；由实际任务回执给动态根数。"
+        ]
+      },
+      "remainingGaps": [
+        "玩家空间动态决定连接/治疗实际发射数，不能固定称32或38次命中。"
+      ]
+    },
+    {
+      "id": "gorou-skill",
+      "label": "五郎 E：本次大将旗初击",
+      "characterKey": "gorou",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/gorou/skill.go",
+      "sourceHashes": {
+        "internal/characters/gorou/skill.go": {
+          "classic": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72",
+          "stellar": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72",
+          "preInstrumentation": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72"
+        },
+        "internal/characters/gorou/gorou.go": {
+          "classic": "7b3730d63d3017427dcc5a74e972e80983500653e39a4ae5573a1ff6e4851752",
+          "stellar": "7b3730d63d3017427dcc5a74e972e80983500653e39a4ae5573a1ff6e4851752",
+          "preInstrumentation": "7b3730d63d3017427dcc5a74e972e80983500653e39a4ae5573a1ff6e4851752"
+        },
+        "internal/characters/gorou/asc.go": {
+          "classic": "48c3105656a8a0e92cadc0b6bcbe3112090027c463d048af30eba028d1833c30",
+          "stellar": "48c3105656a8a0e92cadc0b6bcbe3112090027c463d048af30eba028d1833c30",
+          "preInstrumentation": "48c3105656a8a0e92cadc0b6bcbe3112090027c463d048af30eba028d1833c30"
+        },
+        "internal/characters/gorou/cons.go": {
+          "classic": "cc6c3b4cebaa3d2fb8e85a712fb3238c3b0489c15cfc22304546bf9f8a4e7f16",
+          "stellar": "cc6c3b4cebaa3d2fb8e85a712fb3238c3b0489c15cfc22304546bf9f8a4e7f16",
+          "preInstrumentation": "cc6c3b4cebaa3d2fb8e85a712fb3238c3b0489c15cfc22304546bf9f8a4e7f16"
+        },
+        "internal/characters/gorou/burst.go": {
+          "classic": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73",
+          "stellar": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73",
+          "preInstrumentation": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73"
+        }
+      },
+      "sourceEvidence": "skill.go:39–70 唯一延迟初击task在60入队一次；后续 gorouSkillBuffField 只给buff；Q场抑制E旗不抑制这次队列攻击。",
+      "nonDamageCallbacksAndInitAudit": "Init/asc/cons调整元素人数、额外防御加成、C1减冷却/C6暴伤，无E独立新击；粒子回调仅产球。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 0,
+        "expectedRootAttackCount": 1,
+        "sites": [
+          {
+            "siteId": "gorou.skill.initial",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 1
+              }
+            ]
+          }
+        ],
+        "scopeNotes": [
+          "E在技能命中帧由一个task入队一击；若Q场已活动则不置E旗，但这一击仍存在。"
+        ]
+      },
+      "remainingGaps": []
+    },
+    {
+      "id": "gorou-burst",
+      "label": "五郎 Q：初击与实际结晶崩碎循环",
+      "characterKey": "gorou",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/gorou/burst.go",
+      "sourceHashes": {
+        "internal/characters/gorou/burst.go": {
+          "classic": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73",
+          "stellar": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73",
+          "preInstrumentation": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73"
+        },
+        "internal/characters/gorou/gorou.go": {
+          "classic": "7b3730d63d3017427dcc5a74e972e80983500653e39a4ae5573a1ff6e4851752",
+          "stellar": "7b3730d63d3017427dcc5a74e972e80983500653e39a4ae5573a1ff6e4851752",
+          "preInstrumentation": "7b3730d63d3017427dcc5a74e972e80983500653e39a4ae5573a1ff6e4851752"
+        },
+        "internal/characters/gorou/asc.go": {
+          "classic": "48c3105656a8a0e92cadc0b6bcbe3112090027c463d048af30eba028d1833c30",
+          "stellar": "48c3105656a8a0e92cadc0b6bcbe3112090027c463d048af30eba028d1833c30",
+          "preInstrumentation": "48c3105656a8a0e92cadc0b6bcbe3112090027c463d048af30eba028d1833c30"
+        },
+        "internal/characters/gorou/cons.go": {
+          "classic": "cc6c3b4cebaa3d2fb8e85a712fb3238c3b0489c15cfc22304546bf9f8a4e7f16",
+          "stellar": "cc6c3b4cebaa3d2fb8e85a712fb3238c3b0489c15cfc22304546bf9f8a4e7f16",
+          "preInstrumentation": "cc6c3b4cebaa3d2fb8e85a712fb3238c3b0489c15cfc22304546bf9f8a4e7f16"
+        },
+        "internal/characters/gorou/skill.go": {
+          "classic": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72",
+          "stellar": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72",
+          "preInstrumentation": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72"
+        }
+      },
+      "sourceEvidence": "burst.go:27–92 初击task恰好1并注册首个collapse；:114–174 每次collapse若来源或状态失效不攻击且不重排，否则按最近敌人有无入队0/1并重排自己；cons.go C2可延长状态最多3秒。",
+      "nonDamageCallbacksAndInitAudit": "增益场、吸晶体、C4治疗字段、C6暴伤无额外Q根；Init/A1/A4是伤害修饰，不新增攻击；实际几何与晶体状态由原生任务决定。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 0,
+        "sites": [
+          {
+            "siteId": "gorou.burst.initial",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 1,
+                "children": {
+                  "gorou.burst.collapse": 1
+                }
+              }
+            ]
+          },
+          {
+            "siteId": "gorou.burst.collapse",
+            "rootCount": 0,
+            "parentSites": [
+              "gorou.burst.initial",
+              "gorou.burst.collapse"
+            ],
+            "outcomes": [
+              {
+                "attackCount": 0
+              },
+              {
+                "attackCount": 0,
+                "children": {
+                  "gorou.burst.collapse": 1
+                }
+              },
+              {
+                "attackCount": 1,
+                "children": {
+                  "gorou.burst.collapse": 1
+                }
+              }
+            ]
+          }
+        ],
+        "prohibitOverlappingInvocations": true,
+        "scopeNotes": [
+          "Q初击后每90帧注册结晶崩碎；每次源状态活动且范围内有最近敌人时最多1击；任务继续到过期/被覆写后终止。C2拾取结晶可延长原生状态，上限3次；不预设总击数。同角色重施Q共享qFieldSrc，闭合前不纳入。"
+        ]
+      },
+      "remainingGaps": [
+        "递归任务须完整运行至终止且禁止同角色Q重叠；观测窗太短则pending而非完整。"
+      ]
+    },
+    {
+      "id": "kuki-skill",
+      "label": "久岐忍 E：初击与实际越祓雷草循环",
+      "characterKey": "kuki",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kuki/skill.go",
+      "sourceHashes": {
+        "internal/characters/kuki/skill.go": {
+          "classic": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d",
+          "stellar": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d",
+          "preInstrumentation": "2ea99b67aaee802485dfdff9a08b13c37a78e00f302c9706e1a0e7b081358f71"
+        },
+        "internal/characters/kuki/kuki.go": {
+          "classic": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4",
+          "stellar": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4",
+          "preInstrumentation": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4"
+        },
+        "internal/characters/kuki/asc.go": {
+          "classic": "1ea8e79f1534db5c196b675f6ff5c85623e6850ca12e4147eee7d36993912f38",
+          "stellar": "1ea8e79f1534db5c196b675f6ff5c85623e6850ca12e4147eee7d36993912f38",
+          "preInstrumentation": "1ea8e79f1534db5c196b675f6ff5c85623e6850ca12e4147eee7d36993912f38"
+        },
+        "internal/characters/kuki/cons.go": {
+          "classic": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+          "stellar": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+          "preInstrumentation": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9"
+        },
+        "internal/characters/kuki/burst.go": {
+          "classic": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff",
+          "stellar": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff",
+          "preInstrumentation": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff"
+        }
+      },
+      "sourceEvidence": "skill.go:31–112 E初击86队列1根，23帧 activation100注册首bell；:126–211 bellTick每次先队列一击，再以ringKey剩余时长决定是否注册下一tick；cons.go C2改变duration、C4由后续普攻类触发。",
+      "nonDamageCallbacksAndInitAudit": "自身耗血、每跳治疗/粒子和A1/A4/C6增益不是额外E伤害根；Init/cons C4需要后续攻击，不纳入此次E固有链。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": 1,
+        "sites": [
+          {
+            "siteId": "kuki.skill.activate",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 0,
+                "children": {
+                  "kuki.skill.bell-tick": 1
+                }
+              }
+            ]
+          },
+          {
+            "siteId": "kuki.skill.bell-tick",
+            "rootCount": 0,
+            "parentSites": [
+              "kuki.skill.activate",
+              "kuki.skill.bell-tick"
+            ],
+            "outcomes": [
+              {
+                "attackCount": 1
+              },
+              {
+                "attackCount": 1,
+                "children": {
+                  "kuki.skill.bell-tick": 1
+                }
+              }
+            ]
+          }
+        ],
+        "prohibitOverlappingInvocations": true,
+        "scopeNotes": [
+          "初击1根；第23帧任务启动环并注册首个90帧tick；每个实际tick入队1击，若状态仍活动再注册下一tick。C2延长原生状态，结束tick仍可先入队一次；不猜总跳数。C4由后续普通/重击/下落击触发，独立。"
+        ]
+      },
+      "remainingGaps": [
+        "同角色再次E会覆盖 ringSrc，因此仅无重叠调用完整；短观察窗pending不称完整。"
+      ]
+    },
+    {
+      "id": "kuki-burst",
+      "label": "久岐忍 Q：本次雷阵实际排队段数",
+      "characterKey": "kuki",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/kuki/burst.go",
+      "sourceHashes": {
+        "internal/characters/kuki/burst.go": {
+          "classic": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff",
+          "stellar": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff",
+          "preInstrumentation": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff"
+        },
+        "internal/characters/kuki/kuki.go": {
+          "classic": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4",
+          "stellar": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4",
+          "preInstrumentation": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4"
+        },
+        "internal/characters/kuki/asc.go": {
+          "classic": "1ea8e79f1534db5c196b675f6ff5c85623e6850ca12e4147eee7d36993912f38",
+          "stellar": "1ea8e79f1534db5c196b675f6ff5c85623e6850ca12e4147eee7d36993912f38",
+          "preInstrumentation": "1ea8e79f1534db5c196b675f6ff5c85623e6850ca12e4147eee7d36993912f38"
+        },
+        "internal/characters/kuki/cons.go": {
+          "classic": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+          "stellar": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+          "preInstrumentation": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9"
+        },
+        "internal/characters/kuki/skill.go": {
+          "classic": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d",
+          "stellar": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d",
+          "preInstrumentation": "2ea99b67aaee802485dfdff9a08b13c37a78e00f302c9706e1a0e7b081358f71"
+        }
+      },
+      "sourceEvidence": "burst.go:23–75 count默认7，当 CurrentHPRatio<=0.5 改12，for每次 QueueAttackWithSnap一次；cons.go C1只扩大Q范围，C4依后续普通/重击/下落击。",
+      "nonDamageCallbacksAndInitAudit": "ConsumeEnergy/CD/快照和非伤害状态不计额外根；Init/A1/A4/C6调整治疗/属性，不增Q固有根。",
+      "producerContract": true,
+      "plan": {
+        "directRootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "fact",
+              "name": "kuki.burst.low-hp"
+            },
+            "right": 1
+          },
+          "then": 12,
+          "else": 7
+        },
+        "expectedRootAttackCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "fact",
+              "name": "kuki.burst.low-hp"
+            },
+            "right": 1
+          },
+          "then": 12,
+          "else": 7
+        },
+        "sites": [],
+        "scopeNotes": [
+          "Burst 方法当下HP比不高于50%时排队12段，否则7段；同一原生循环初帧50，步长 floor(120/7)=17；C1仅改变范围。"
+        ]
+      },
+      "remainingGaps": [
+        "必须有本次 Burst 方法实际比较结果 kuki.burst.low-hp；不从用户HP输入猜分支。"
+      ]
+    }
+  ],
+  "deferred": [
+    {
+      "candidate": "dori-skill",
+      "reason": "Troubleshooter Shot afterSales hit callback creates 2 or 3 later rounds, with no 108 producer task identity for callback roots; cannot close entire E using directRootCount 1."
+    },
+    {
+      "candidate": "mika-skill-hold",
+      "reason": "Rimestar Flare hit callback selects up to 3 other enemies and queues shards; current producer task model does not bind this callback child set."
+    }
+  ],
+  "validationScope": "Private source and patch application audit only. No build, tests, or gameplay comparison performed."
+}

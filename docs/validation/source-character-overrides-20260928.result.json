@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "source-character-overrides-validation-v1",
+  "laneFilter": "both",
+  "sceneFilter": "both",
+  "measurements": [
+    {
+      "lane": "classic",
+      "scene": "healing",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "cae2f558f9ae44bcee62494765ffc066589ecad11fb8e89f2f8f1cafab09b262",
+      "healing": [
+        {
+          "id": 1,
+          "frame": 25,
+          "source": "Bake-Kurage",
+          "targetIndex": 0,
+          "finalAmount": 1545.51047554,
+          "receivedAmount": 1545.51047554,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive",
+            "overheal"
+          ]
+        },
+        {
+          "id": 2,
+          "frame": 151,
+          "source": "Bake-Kurage",
+          "targetIndex": 1,
+          "finalAmount": 1545.51047554,
+          "receivedAmount": 0,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-override",
+            "overheal"
+          ]
+        },
+        {
+          "id": 4,
+          "frame": 297,
+          "source": "Balemoon Rising (Heal)",
+          "targetIndex": 1,
+          "finalAmount": 1360.2132177,
+          "receivedAmount": 1360.2132177,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-delegation",
+            "receive",
+            "overheal"
+          ]
+        },
+        {
+          "id": 5,
+          "frame": 391,
+          "source": "Bake-Kurage",
+          "targetIndex": 2,
+          "finalAmount": 1545.51047554,
+          "receivedAmount": 0,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-conversion",
+            "receive-override",
+            "overheal"
+          ]
+        },
+        {
+          "id": 6,
+          "frame": 472,
+          "source": "Impale the Night (<100% BoL)",
+          "targetIndex": 2,
+          "finalAmount": 1607.3308945616,
+          "receivedAmount": 61.820419021599946,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-delegation",
+            "receive",
+            "overheal"
+          ]
+        }
+      ],
+      "edit": {
+        "originalConverted": 1545.51047554,
+        "editedConverted": 1670.51047554,
+        "originalCaptureUnchanged": true
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "cooldown",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "cae2f558f9ae44bcee62494765ffc066589ecad11fb8e89f2f8f1cafab09b262",
+      "cooldown": {
+        "sourceId": 328,
+        "routeId": 329,
+        "remainingId": 330,
+        "reductionId": 331,
+        "remaining": 446,
+        "reducedTo": 386,
+        "replayDifference": 0
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "healing",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "2786376a66c4db689ebfd353de1323f72124a282f71c397903d0d6d4d1f723b5",
+      "healing": [
+        {
+          "id": 1,
+          "frame": 25,
+          "source": "Bake-Kurage",
+          "targetIndex": 0,
+          "finalAmount": 1545.51047554,
+          "receivedAmount": 1545.51047554,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive",
+            "overheal"
+          ]
+        },
+        {
+          "id": 2,
+          "frame": 151,
+          "source": "Bake-Kurage",
+          "targetIndex": 1,
+          "finalAmount": 1545.51047554,
+          "receivedAmount": 0,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-override",
+            "overheal"
+          ]
+        },
+        {
+          "id": 4,
+          "frame": 297,
+          "source": "Balemoon Rising (Heal)",
+          "targetIndex": 1,
+          "finalAmount": 1360.2132177,
+          "receivedAmount": 1360.2132177,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-delegation",
+            "receive",
+            "overheal"
+          ]
+        },
+        {
+          "id": 5,
+          "frame": 391,
+          "source": "Bake-Kurage",
+          "targetIndex": 2,
+          "finalAmount": 1545.51047554,
+          "receivedAmount": 0,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-conversion",
+            "receive-override",
+            "overheal"
+          ]
+        },
+        {
+          "id": 6,
+          "frame": 472,
+          "source": "Impale the Night (<100% BoL)",
+          "targetIndex": 2,
+          "finalAmount": 1607.3308945616,
+          "receivedAmount": 61.820419021599946,
+          "replayDifference": 0,
+          "operations": [
+            "base",
+            "bonus",
+            "amount",
+            "receive-delegation",
+            "receive",
+            "overheal"
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "stellar",
+      "scene": "cooldown",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "2786376a66c4db689ebfd353de1323f72124a282f71c397903d0d6d4d1f723b5",
+      "cooldown": {
+        "sourceId": 328,
+        "routeId": 329,
+        "remainingId": 330,
+        "reductionId": 331,
+        "remaining": 446,
+        "reducedTo": 386,
+        "replayDifference": 0
+      }
+    },
+    {
+      "scene": "standalone-trace-report",
+      "nodes": 49,
+      "operations": 67
+    }
+  ],
+  "pageErrors": []
+}

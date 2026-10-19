@@ -1,0 +1,356 @@
+{
+  "schema": "source-player-numeric-gap-audit/v1",
+  "date": "2026-09-28",
+  "source": {
+    "variant": "classic",
+    "buildRoot": "/tmp/gidps-source-host-cache/build-vPmiwy/source",
+    "persistentOverlay": "packages/source-host/patches",
+    "scope": "read-only static source audit; no build or tests"
+  },
+  "shared_boundaries_excluded": [
+    {
+      "area": "incoming player hit and shield consumption",
+      "evidence": "packages/source-host/patches/005-player-incoming.patch; packages/source-host/patches/006-player-shield-health.patch",
+      "state": "already captures player attack, shield-applied damage, and remaining damage; do not report ordinary incoming hit resolution as missing"
+    },
+    {
+      "area": "Drain application and healing pipeline",
+      "evidence": "packages/source-host/patches/006-player-shield-health.patch; packages/source-host/patches/021-character-healing.patch",
+      "state": "Drain ratio/application and generic Heal base/bonus/amount/ReceiveHeal/overheal stages are shared; character-side construction of a particular amount and special direct attack paths are distinct gaps"
+    },
+    {
+      "area": "shield strength bonus",
+      "evidence": "packages/source-host/patches/024-shield-bonus.patch",
+      "state": "shared getter ledger only; it does not derive or attach the generated shield's source HP amount"
+    }
+  ],
+  "families": [
+    {
+      "id": "direct-player-damage-derived-from-an-existing-damage-event",
+      "priority": "high",
+      "implementation": "Add a source-host formula at the native derivation site and carry its result through the already-shared shield/Drain application; preserve native order and source frame. Do not convert the native TODO into a verified rule.",
+      "findings": [
+        {
+          "character": "Dehya",
+          "path": "internal/characters/dehya/skill.go",
+          "lines": "353-398",
+          "expression": "dmg := c.skillRedmanesBlood * skillSelfDoTRatio; c.skillRedmanesBlood = max(c.skillRedmanesBlood-dmg, 0); if A1 active, dmg *= 1-a1ReductionMult; AttackInfo.FlatDmg=dmg; then OnPlayerHit -> Shields.OnDamage -> Drain(Amount:dmgLeft)",
+          "sampling": "each Redmane's Blood DoT tick, after native stored-pool decrement and before player shield mitigation; A1 reads live status for that tick",
+          "state": "not attached to source-host formula; later player shield/Drain handling is shared. Source comments explicitly call off-field player-hit handling a hack/TODO. Preserve pool decrement before A1 reduction."
+        },
+        {
+          "character": "Nilou Bountiful Core",
+          "path": "internal/characters/nilou/bountifulcore.go",
+          "lines": "27-46",
+          "expression": "ai,snap := dendrocore.NewBloomAttack(char,b,...); queue bloom hit; then ai.Abil += SelfDamageSuffix; ai.FlatDmg = 0.02 * ai.FlatDmg; change target mask to player-only and queue same ai/snap",
+          "sampling": "when gadget expires or is killed; Bloom damage is derived at queued explosion task using creator character and current reaction inputs, then self-damage is 2% of that just-computed FlatDmg",
+          "state": "special queued player-hit producer not represented by ordinary character FlatDmg producers; preserve shared ai/snap provenance and ensure the 2% operation follows NewBloomAttack and precedes player-only enqueue"
+        }
+      ]
+    },
+    {
+      "id": "generated-shield-source-amount",
+      "priority": "high",
+      "implementation": "Batch a shield-creation formula/receipt boundary at shield construction, accepting formula inputs and native read provenance; keep Go responsible for creation timing, shield refresh/merge, element, duration, and callbacks. Existing shared ShieldBonus and shield-consumption stages are downstream and are not substitutes.",
+      "state": "No generated shield HP/source-amount bridge found in persistent source-host Go or patches. Static survey found many direct shield constructors; share by arithmetic family rather than per-character bespoke formulas.",
+      "formula_families": [
+        {
+          "kind": "HP talent coefficient plus flat",
+          "examples": [
+            {
+              "path": "internal/characters/beidou/skill.go",
+              "line": 88,
+              "expression": "shieldPer[TalentLvlSkill]*MaxHP + shieldBase[TalentLvlSkill]",
+              "sampling": "shield creation at skill execution"
+            },
+            {
+              "path": "internal/characters/layla/skill.go",
+              "line": 49,
+              "expression": "shieldBase[TalentLvlSkill] + shieldPer[TalentLvlSkill]*MaxHP",
+              "sampling": "shield creation at skill execution"
+            },
+            {
+              "path": "internal/characters/candace/skill.go",
+              "line": 117,
+              "expression": "skillShieldPct[TalentLvlSkill]*MaxHP + skillShieldFlat[TalentLvlSkill]",
+              "sampling": "shield creation at skill execution"
+            },
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 66,
+              "expression": "burstShieldPP[TalentLvlBurst]*MaxHP + burstShieldFlat[TalentLvlBurst]",
+              "sampling": "burst shield creation"
+            },
+            {
+              "path": "internal/characters/thoma/skill.go",
+              "line": 47,
+              "expression": "shieldpp[TalentLvlSkill]*MaxHP + shieldflat[TalentLvlSkill]",
+              "sampling": "skill shield amount computed before shield helper/add"
+            },
+            {
+              "path": "internal/characters/thoma/burst.go",
+              "line": 102,
+              "expression": "burstshieldpp[TalentLvlBurst]*MaxHP + burstshieldflat[TalentLvlBurst]",
+              "sampling": "burst shield refresh amount calculation"
+            }
+          ]
+        },
+        {
+          "kind": "HP scalar coefficient",
+          "examples": [
+            {
+              "path": "internal/characters/columbina/cons.go",
+              "line": 79,
+              "expression": "0.12 * MaxHP",
+              "sampling": "C1 shield construction"
+            },
+            {
+              "path": "internal/characters/yanfei/cons.go",
+              "line": 55,
+              "expression": "0.45 * MaxHP",
+              "sampling": "C4 shield construction"
+            },
+            {
+              "path": "internal/characters/beidou/burst.go",
+              "line": 83,
+              "expression": "0.16 * MaxHP",
+              "sampling": "burst-generated shield construction"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 35,
+              "expression": "0.1 * MaxHP",
+              "sampling": "C1 shield construction"
+            }
+          ]
+        },
+        {
+          "kind": "DEF/ATK/EM coefficient or helper-derived amount",
+          "examples": [
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 45,
+              "note": "expression immediately below snapshot",
+              "expression": "shieldFlat[TalentLvlSkill] + shieldDef[TalentLvlSkill] * snap.Stats.TotalDEF()",
+              "sampling": "skill snapshot; DEF is snapshot value"
+            },
+            {
+              "path": "internal/characters/noelle/asc.go",
+              "line": 50,
+              "expression": "snap.Stats.TotalDEF() * 4",
+              "sampling": "passive shield amount from native snapshot"
+            },
+            {
+              "path": "internal/characters/nicole/shield.go",
+              "line": 14,
+              "expression": "skillShieldAtk[TalentLvlSkill]*TotalAtk + skillShieldFlat[TalentLvlSkill]",
+              "sampling": "helper called at shield creation/refresh"
+            },
+            {
+              "path": "internal/characters/citlali/shield.go",
+              "line": 15,
+              "expression": "shieldEM[TalentLvlSkill]*EM + shieldFlat[TalentLvlSkill]",
+              "sampling": "shield helper invocation; live EM local"
+            },
+            {
+              "path": "internal/characters/ineffa/shield.go",
+              "line": 15,
+              "expression": "shieldAtk[TalentLvlSkill]*ATK + shieldFlat[TalentLvlSkill]",
+              "sampling": "shield helper invocation; local ATK read"
+            },
+            {
+              "path": "internal/characters/sigewinne/shield.go",
+              "line": 18,
+              "expression": "0.3 * MaxHP",
+              "sampling": "shield helper invocation"
+            }
+          ]
+        }
+      ],
+      "additional_direct_HP_fields_seen": [
+        "internal/characters/diona/skill.go:95: (pawShieldPer[level]*MaxHP + pawShieldFlat[level]) * bonus; then passed to shield constructor",
+        "internal/characters/yunjin/skill.go:113: skillShieldPct[level]*MaxHP + skillShieldFlat[level]",
+        "internal/characters/zhongli/shield.go:14: shieldBase[level] + shieldPer[level]*MaxHP",
+        "internal/characters/kirara/shield.go: amount is computed earlier and assigned to shield HP at line 23",
+        "internal/characters/lanyan/shield.go:15,22-37: helper amount; refresh is min(percent*newShieldHP + existing.CurrentHP, newShieldHP), preserving existing element/expiry",
+        "internal/characters/dahlia/shield.go:21: helper-derived shield HP"
+      ]
+    },
+    {
+      "id": "character-constructed-heal-source-amount",
+      "priority": "medium",
+      "implementation": "Do not duplicate the shared heal pipeline. If source-input reconstruction is in scope, batch source amount expression attachment at HealInfo construction/just-before-Player.Heal and provenance-wrap stat reads; preserve calls that forward precomputed snapshot values.",
+      "state": "Generic CharacterHealing records source amount and MaxHP base-stage provenance, but many callers compute the HealInfo.Src or pass opaque local first; no evidence here that those individual source expressions were attached as independently replayable formulas.",
+      "examples": [
+        {
+          "path": "internal/characters/kuki/skill.go",
+          "line": 157,
+          "expression": "skillhealpp[level]*MaxHP + skillhealflat[level] + a4Healing()",
+          "sampling": "at heal application; A4 helper/state is read then"
+        },
+        {
+          "path": "internal/characters/dori/burst.go",
+          "line": 109,
+          "expression": "bursthealpp[level]*MaxHP + bursthealflat[level]",
+          "sampling": "burst heal tick"
+        },
+        {
+          "path": "internal/characters/gorou/burst.go",
+          "line": 187,
+          "expression": "healFieldStats.TotalDEF()*0.5",
+          "sampling": "uses stored heal-field snapshot, not current DEF"
+        },
+        {
+          "path": "internal/characters/lyney/skill.go",
+          "line": 81,
+          "expression": "0.2*MaxHP*float64(propSurplusStacks)",
+          "sampling": "source pool heal construction; stack count is stored state"
+        },
+        {
+          "path": "internal/characters/mika/burst.go",
+          "lines": "30-31,72-73",
+          "expression": "flat + percent*MaxHP",
+          "sampling": "first burst heal and subsequent onBurstHeal callback"
+        },
+        {
+          "path": "internal/characters/dehya/asc.go",
+          "lines": "69,87",
+          "expression": "a4InitialHealRatio*MaxHP; a4DoTHealRatio*MaxHP",
+          "sampling": "two separate A4 recovery applications"
+        }
+      ]
+    }
+  ],
+  "recommended_short_batch_order": [
+    "Implement a shared shield-source formula receipt at shield amount creation with generic HP/DEF/ATK/EM coefficient-plus-flat operations; preserve current-vs-snapshot stat provenance and native refresh/merge behavior.",
+    "Add the two explicit special player-damage derivations: Dehya Redmane's Blood DoT and Nilou Bountiful Core's 2%-of-Bloom self hit, carrying their native event/queue lineage into existing player incoming/Drain ledger.",
+    "Only if caller-level source replay is required, add heal-source expression attachment as a separate boundary; do not duplicate the already-shared heal aggregate/application stages."
+  ],
+  "limitations": [
+    "This is a focused source-path inventory, not a mechanically complete census of every shield/heal constructor or every native HP mutation.",
+    "The Dehya source itself labels off-field self-hit handling a hack/TODO; this audit identifies unshared arithmetic and makes no mechanics or game-verification claim.",
+    "Nilou's Bountiful Core retains the native bloom snapshot and creator attribution; formula attachment must not silently resnapshot at gadget expiry.",
+    "Other native character overrides, debt semantics, callback ordering, and source TODOs remain owned by Go unless explicitly bridged."
+  ],
+  "shield_creation_inventory": {
+    "method": "ripgrep audit of Go source for shield.Tmpl/shield constructors, Shields.Add, HP struct fields, and direct .HP writes across internal/ and pkg/; matched classic and stellar source trees",
+    "source_roots": {
+      "classic": "/tmp/gidps-source-host-cache/build-vPmiwy/source",
+      "stellar": "/tmp/gidps-source-host-cache/stellar-build-aDHwSq/source"
+    },
+    "implemented_batch_scope": {
+      "A": [
+        "Beidou",
+        "Candace",
+        "Yunjin",
+        "Layla",
+        "Baizhu"
+      ],
+      "B": [
+        "Thoma",
+        "Kirara",
+        "Lanyan",
+        "Dahlia"
+      ],
+      "C": [
+        "Noelle",
+        "Xinyan",
+        "Diona",
+        "Zhongli"
+      ],
+      "D": [
+        "Nicole",
+        "Citlali",
+        "Ineffa",
+        "Sigewinne",
+        "Yanfei",
+        "Columbina",
+        "TravelerHydro"
+      ]
+    },
+    "outside_batch_character_or_weapon_producers": [
+      {
+        "kind": "character shield HP derived at creation",
+        "sourceCommits": "same path and expression in classic and stellar trees",
+        "findings": [
+          {
+            "path": "internal/characters/kaeya/cons.go",
+            "lines": "80-101",
+            "expression": "on OnPlayerHPDrain, if amount>0, ICD ready, and CurrentHPRatio()<0.2: HP=0.3*MaxHP",
+            "sampling": "MaxHP read after drain event, before shield add; self is actor and target; Cryo, expiry current frame+1200",
+            "reasonOutside": "Kaeya not in A-D; triggered shield creation currently outside batch."
+          },
+          {
+            "path": "internal/weapons/claymore/bell/bell.go",
+            "lines": "30-56",
+            "expression": "hp=0.17+refinement*0.03; on external positive Drain and inactive ICD, HP=hp*char.MaxHP()",
+            "sampling": "MaxHP read synchronously in OnPlayerHPDrain after setting 2700-frame ICD status; expiry current frame+600",
+            "reasonOutside": "weapon-generated shield, outside character batches."
+          }
+        ]
+      }
+    ],
+    "separate_reaction_producer": [
+      {
+        "path": "internal/template/crystallize/shield.go",
+        "lines": "13-35",
+        "expression": "lvl clamp [0,99]; HP=shieldBaseHP[lvl]; emBonus=(40/9)*(EM/(1400+EM))",
+        "sampling": "constructor receives reaction owner index, element, level, EM, expiry; base HP table is fixed by level; EM bonus captured at construction and later added to per-hit shield bonus",
+        "scope": "reaction shield; intentionally separate from A-D character batches and not a character/weapon shield HP formula."
+      }
+    ],
+    "other_shield_HP_write_findings": [
+      {
+        "path": "internal/characters/diona/skill.go",
+        "lines": "113-144",
+        "expression": "existing concrete shield or new shield; new gets computed shdHp; existing shield HP assigned shdHp during refresh",
+        "classification": "already in C; include update-in-place write, not just Tmpl literal."
+      },
+      {
+        "path": "internal/characters/zhongli/shield.go",
+        "lines": "51-57",
+        "expression": "n.HP=base in shield clone/refresh helper",
+        "classification": "already in C; include helper write."
+      },
+      {
+        "path": "internal/characters/xinyan/shield.go",
+        "lines": "15-21",
+        "expression": "n.Tmpl=&shield.Tmpl{} then n.HP=base",
+        "classification": "already in C; include helper write."
+      },
+      {
+        "path": "internal/characters/layla/shield.go",
+        "line": 45,
+        "expression": "n.HP=base",
+        "classification": "already in A; include helper write."
+      },
+      {
+        "path": "internal/characters/noelle/shield.go",
+        "line": 21,
+        "expression": "n.HP=base",
+        "classification": "already in C; include helper write."
+      },
+      {
+        "path": "internal/characters/baizhu/shield.go",
+        "line": 21,
+        "expression": "n.HP=base",
+        "classification": "already in A; include helper write."
+      },
+      {
+        "path": "internal/characters/traveler/common/hydro/cons.go",
+        "lines": "21-35",
+        "expression": "shield HP reset to 0.1*MaxHP while preserving existing target shield fields",
+        "classification": "already in D; include refresh write."
+      }
+    ],
+    "excluded_non_generation_writes": [
+      {
+        "path": "pkg/core/player/shield/template.go",
+        "lines": "69,82",
+        "expression": "t.HP=hpAfter or 0 during incoming shield damage/expiry",
+        "classification": "absorption and depletion; already shared, not generation source amount."
+      }
+    ],
+    "result_limit": "The two-tree search found no additional character or weapon shield HP producer beyond Kaeya C4, Bell, and the separate Crystallize constructor outside the declared A-D scope. The listed groups are the planned migration scope only; this inventory does not claim batch implementation or full-mechanics verification. Artifact search found no artifact-owned shield HP constructor; artifact ShieldBonus mods remain excluded."
+  }
+}

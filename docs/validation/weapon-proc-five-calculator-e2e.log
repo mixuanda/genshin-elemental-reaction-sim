@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:20697) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/weapon-proc-five-calculator.spec.ts:23:1 › Five new standalone procs expose source conditions and regenerate formulas after panel, refinement and saved context edits
+[chromium] › apps/web/e2e/weapon-proc-five-calculator.spec.ts:23:1 › Five new standalone procs expose source conditions and regenerate formulas after panel, refinement and saved context edits
+Five standalone proc browser measurements {"frostR1Ordinary":{"nonCritical":360,"critical":720,"expected":540},"frostR1Cryo":{"nonCritical":900,"critical":1800,"expected":1350},"frostR5CryoEdited":{"nonCritical":2430,"critical":5346,"expected":3159},"frostR5OrdinaryRestoredContext":{"nonCritical":945,"critical":2079,"expected":1228.5},"unknown":"blocked","filletR5":{"nonCritical":2700,"critical":5940.000000000001,"expected":3510}}
+
+  1 passed (1.8s)

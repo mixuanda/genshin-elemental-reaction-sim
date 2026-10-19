@@ -1,0 +1,10 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.068,
+  "log": "docs/validation/preview-history-diff-check-20260928.log"
+}

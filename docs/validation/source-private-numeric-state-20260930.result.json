@@ -1,0 +1,5431 @@
+{
+  "measurements": {
+    "historicalPath": "docs/validation/source-shared-movement-state-20260930.capture.json",
+    "capturePath": "docs/validation/source-private-numeric-state-20260930.capture.json",
+    "seed": "20260930122",
+    "config": "options iteration=1 duration=12;\nbarbara char lvl=90/90 cons=0 talent=1,1,1;\nbarbara add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nlisa char lvl=90/90 cons=0 talent=1,1,1;\nlisa add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\ntarget lvl=90 hp=1000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive barbara;\nphase(\"before movement\");\nbarbara dash;\nphase(\"dash input window\");\nbarbara walk;\nphase(\"walk input window\");\nbarbara jump;\nphase(\"jump input window\");\nlisa walk;\nphase(\"walk after implicit swap completes\");\nlisa jump;\nlisa attack;\nwait(60);\nphase(\"attack application after swap\");",
+    "lanes": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "98aa872c529ad3d70666e4d65e0733e6a0db43677b41c82efdf87a272b81ed2d",
+          "wasmBytes": 46865912
+        },
+        "phaseFrames": [
+          1,
+          2,
+          23,
+          54,
+          56,
+          174
+        ],
+        "applications": [
+          {
+            "frame": 114,
+            "targetKey": 1,
+            "rawDamage": 45.39786424509601,
+            "appliedDamage": 45.39786424509601,
+            "hpBefore": 1000000,
+            "hpAfter": 999954.6021357549,
+            "isCrit": false
+          }
+        ],
+        "actionLogs": [
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "characterKey": "barbara",
+              "sequence": 1,
+              "action": "dash"
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "profileDelay": 0,
+              "totalPreActionDelay": 0,
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "executed dash",
+            "values": {
+              "action": "dash",
+              "stam_post": 240,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "action": "dash",
+              "characterKey": "barbara",
+              "sequence": 1
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 1
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 2,
+              "action": "walk",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "executed walk",
+            "values": {
+              "action": "walk",
+              "stam_post": 222,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 2,
+              "action": "walk",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 2
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "characterKey": "barbara",
+              "sequence": 3,
+              "action": "jump"
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 3
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 4,
+              "action": "swap",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "swapping barbara to lisa",
+            "values": {}
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 4,
+              "action": "swap",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed swap",
+            "values": {
+              "action": "swap",
+              "target": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 4
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed walk",
+            "values": {
+              "action": "walk",
+              "stam_post": 222,
+              "swap_cd_post": 60
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 5
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 59
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 6
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "action": "attack",
+              "characterKey": "lisa",
+              "sequence": 7
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "characterKey": "lisa",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0,
+              "sequence": 7,
+              "action": "attack"
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "executed attack",
+            "values": {
+              "swap_cd_post": 27,
+              "action": "attack",
+              "stam_post": 222
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 7
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "executed wait",
+            "values": {
+              "f": 60
+            }
+          }
+        ],
+        "phasePlayerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 1,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 2,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 2,
+            "dashCooldownRemaining": 47,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 23,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 3,
+            "dashCooldownRemaining": 26,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 54,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 34,
+            "dashCooldownRemaining": -5,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 56,
+            "activeCharacter": 1,
+            "stamina": 222,
+            "lastStaminaUseAgo": 36,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 59,
+            "swapInterval": 60
+          },
+          {
+            "frame": 174,
+            "activeCharacter": 1,
+            "stamina": 240,
+            "lastStaminaUseAgo": 91,
+            "dashCooldownRemaining": -119,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          }
+        ],
+        "coverageGaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 41 key \"barbara-a4\" has an undescribed callback",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+        ],
+        "privateNumericState": {
+          "barbaraC2Buff": [
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            }
+          ],
+          "barbaraA4ExtendCount": [
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          ],
+          "lisaPreviousDischargeCount": [
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          ],
+          "barbaraC6Icd": [
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            }
+          ],
+          "lisaC6Icd": [
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            }
+          ]
+        },
+        "remainingPrivateNumericGaps": {
+          "skillInitF": [
+            "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+          ],
+          "undescribedCallbacks": [
+            "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+            "events: event 41 key \"barbara-a4\" has an undescribed callback"
+          ]
+        },
+        "historicalComparison": {
+          "applicationsEqual": true,
+          "actionLogsEqual": true,
+          "phaseFramesEqual": true,
+          "phasePlayerStateEqual": true
+        }
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "6b36983daacbfc3a25106b83686ba7b8db9cf1b89736013018fdcf1892c3fe6f",
+          "wasmBytes": 70673108
+        },
+        "phaseFrames": [
+          1,
+          2,
+          23,
+          27,
+          56,
+          174
+        ],
+        "applications": [
+          {
+            "frame": 114,
+            "targetKey": 1,
+            "rawDamage": 45.39786424509601,
+            "appliedDamage": 45.39786424509601,
+            "hpBefore": 1000000,
+            "hpAfter": 999954.6021357549,
+            "isCrit": false
+          }
+        ],
+        "actionLogs": [
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "action": "dash",
+              "characterKey": "barbara",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0,
+              "sequence": 1
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "executed dash",
+            "values": {
+              "action": "dash",
+              "stam_post": 240,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 1
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 2,
+              "action": "walk",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "executed walk",
+            "values": {
+              "action": "walk",
+              "stam_post": 222,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "action": "walk",
+              "characterKey": "barbara",
+              "sequence": 2
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 2
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "characterKey": "barbara",
+              "sequence": 3,
+              "action": "jump"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "profileDelay": 0,
+              "totalPreActionDelay": 0,
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 27,
+            "ended": 27,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 3
+            }
+          },
+          {
+            "frame": 27,
+            "ended": 27,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 4,
+              "action": "swap",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "swapping barbara to lisa",
+            "values": {}
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 4,
+              "action": "swap",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed swap",
+            "values": {
+              "target": "lisa",
+              "action": "swap"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 4
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed walk",
+            "values": {
+              "swap_cd_post": 60,
+              "action": "walk",
+              "stam_post": 222
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 5
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "characterKey": "lisa",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0,
+              "sequence": 6,
+              "action": "jump"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 59
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 60,
+            "ended": 60,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 6
+            }
+          },
+          {
+            "frame": 60,
+            "ended": 60,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 60,
+            "ended": 60,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "totalPreActionDelay": 0,
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa",
+              "profileDelay": 0
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "executed attack",
+            "values": {
+              "action": "attack",
+              "stam_post": 222,
+              "swap_cd_post": 27
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 7
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "executed wait",
+            "values": {
+              "f": 60
+            }
+          }
+        ],
+        "phasePlayerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 1,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 2,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 2,
+            "dashCooldownRemaining": 47,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 23,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 3,
+            "dashCooldownRemaining": 26,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 27,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 7,
+            "dashCooldownRemaining": 22,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 56,
+            "activeCharacter": 1,
+            "stamina": 222,
+            "lastStaminaUseAgo": 36,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 59,
+            "swapInterval": 60
+          },
+          {
+            "frame": 174,
+            "activeCharacter": 1,
+            "stamina": 240,
+            "lastStaminaUseAgo": 91,
+            "dashCooldownRemaining": -119,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          }
+        ],
+        "coverageGaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 44 key \"barbara-a4\" has an undescribed callback",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+        ],
+        "privateNumericState": {
+          "barbaraC2Buff": [
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+              "value": {
+                "capacity": 26,
+                "items": [
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0.15
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  },
+                  {
+                    "type": "float64",
+                    "value": 0
+                  }
+                ],
+                "type": "[]float64"
+              }
+            }
+          ],
+          "barbaraA4ExtendCount": [
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          ],
+          "lisaPreviousDischargeCount": [
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+              "value": {
+                "type": "int",
+                "value": 0
+              }
+            }
+          ],
+          "barbaraC6Icd": [
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            }
+          ],
+          "lisaC6Icd": [
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            },
+            {
+              "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+              "value": {
+                "active": false,
+                "boundary": "exclusive",
+                "remainingFrames": 0,
+                "type": "frameDeadline"
+              }
+            }
+          ]
+        },
+        "remainingPrivateNumericGaps": {
+          "skillInitF": [
+            "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+          ],
+          "undescribedCallbacks": [
+            "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+            "events: event 44 key \"barbara-a4\" has an undescribed callback"
+          ]
+        },
+        "historicalComparison": {
+          "applicationsEqual": true,
+          "actionLogsEqual": true,
+          "phaseFramesEqual": true,
+          "phasePlayerStateEqual": true
+        }
+      }
+    ],
+    "scope": "Two lane captures compared with the archived 122 movement scene. Private phase values and remaining gaps are recorded at sampled frames; this does not claim full phase coverage or convergence.",
+    "nativeRunsPerformed": true
+  },
+  "summaries": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "98aa872c529ad3d70666e4d65e0733e6a0db43677b41c82efdf87a272b81ed2d",
+        "wasmBytes": 46865912
+      },
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        54,
+        56,
+        174
+      ],
+      "applications": [
+        {
+          "frame": 114,
+          "targetKey": 1,
+          "rawDamage": 45.39786424509601,
+          "appliedDamage": 45.39786424509601,
+          "hpBefore": 1000000,
+          "hpAfter": 999954.6021357549,
+          "isCrit": false
+        }
+      ],
+      "actionLogs": [
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "characterKey": "barbara",
+            "sequence": 1,
+            "action": "dash"
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "profileDelay": 0,
+            "totalPreActionDelay": 0,
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "executed dash",
+          "values": {
+            "action": "dash",
+            "stam_post": 240,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "action": "dash",
+            "characterKey": "barbara",
+            "sequence": 1
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 1
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 2,
+            "action": "walk",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "executed walk",
+          "values": {
+            "action": "walk",
+            "stam_post": 222,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 2,
+            "action": "walk",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 2
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "characterKey": "barbara",
+            "sequence": 3,
+            "action": "jump"
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 3
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 4,
+            "action": "swap",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "swapping barbara to lisa",
+          "values": {}
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 4,
+            "action": "swap",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed swap",
+          "values": {
+            "action": "swap",
+            "target": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 4
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed walk",
+          "values": {
+            "action": "walk",
+            "stam_post": 222,
+            "swap_cd_post": 60
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 5
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 59
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 6
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "action": "attack",
+            "characterKey": "lisa",
+            "sequence": 7
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "characterKey": "lisa",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0,
+            "sequence": 7,
+            "action": "attack"
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "executed attack",
+          "values": {
+            "swap_cd_post": 27,
+            "action": "attack",
+            "stam_post": 222
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 7
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "executed wait",
+          "values": {
+            "f": 60
+          }
+        }
+      ],
+      "phasePlayerState": [
+        {
+          "frame": 1,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 1,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 2,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 2,
+          "dashCooldownRemaining": 47,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 23,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 3,
+          "dashCooldownRemaining": 26,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 54,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 34,
+          "dashCooldownRemaining": -5,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 56,
+          "activeCharacter": 1,
+          "stamina": 222,
+          "lastStaminaUseAgo": 36,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 59,
+          "swapInterval": 60
+        },
+        {
+          "frame": 174,
+          "activeCharacter": 1,
+          "stamina": 240,
+          "lastStaminaUseAgo": 91,
+          "dashCooldownRemaining": -119,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        }
+      ],
+      "coverageGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 41 key \"barbara-a4\" has an undescribed callback",
+        "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+      ],
+      "privateNumericState": {
+        "barbaraC2Buff": [
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          }
+        ],
+        "barbaraA4ExtendCount": [
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          }
+        ],
+        "lisaPreviousDischargeCount": [
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          }
+        ],
+        "barbaraC6Icd": [
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          }
+        ],
+        "lisaC6Icd": [
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          }
+        ]
+      },
+      "remainingPrivateNumericGaps": {
+        "skillInitF": [
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+        ],
+        "undescribedCallbacks": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 41 key \"barbara-a4\" has an undescribed callback"
+        ]
+      },
+      "historicalComparison": {
+        "applicationsEqual": true,
+        "actionLogsEqual": true,
+        "phaseFramesEqual": true,
+        "phasePlayerStateEqual": true
+      }
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "6b36983daacbfc3a25106b83686ba7b8db9cf1b89736013018fdcf1892c3fe6f",
+        "wasmBytes": 70673108
+      },
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        27,
+        56,
+        174
+      ],
+      "applications": [
+        {
+          "frame": 114,
+          "targetKey": 1,
+          "rawDamage": 45.39786424509601,
+          "appliedDamage": 45.39786424509601,
+          "hpBefore": 1000000,
+          "hpAfter": 999954.6021357549,
+          "isCrit": false
+        }
+      ],
+      "actionLogs": [
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "action": "dash",
+            "characterKey": "barbara",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0,
+            "sequence": 1
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "executed dash",
+          "values": {
+            "action": "dash",
+            "stam_post": 240,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 1
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 2,
+            "action": "walk",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "executed walk",
+          "values": {
+            "action": "walk",
+            "stam_post": 222,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "action": "walk",
+            "characterKey": "barbara",
+            "sequence": 2
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 2
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "characterKey": "barbara",
+            "sequence": 3,
+            "action": "jump"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "profileDelay": 0,
+            "totalPreActionDelay": 0,
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 27,
+          "ended": 27,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 3
+          }
+        },
+        {
+          "frame": 27,
+          "ended": 27,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 4,
+            "action": "swap",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "swapping barbara to lisa",
+          "values": {}
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 4,
+            "action": "swap",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed swap",
+          "values": {
+            "target": "lisa",
+            "action": "swap"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 4
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed walk",
+          "values": {
+            "swap_cd_post": 60,
+            "action": "walk",
+            "stam_post": 222
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 5
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "characterKey": "lisa",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0,
+            "sequence": 6,
+            "action": "jump"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 59
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 60,
+          "ended": 60,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 6
+          }
+        },
+        {
+          "frame": 60,
+          "ended": 60,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 60,
+          "ended": 60,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "totalPreActionDelay": 0,
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa",
+            "profileDelay": 0
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "executed attack",
+          "values": {
+            "action": "attack",
+            "stam_post": 222,
+            "swap_cd_post": 27
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 7
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "executed wait",
+          "values": {
+            "f": 60
+          }
+        }
+      ],
+      "phasePlayerState": [
+        {
+          "frame": 1,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 1,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 2,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 2,
+          "dashCooldownRemaining": 47,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 23,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 3,
+          "dashCooldownRemaining": 26,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 27,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 7,
+          "dashCooldownRemaining": 22,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 56,
+          "activeCharacter": 1,
+          "stamina": 222,
+          "lastStaminaUseAgo": 36,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 59,
+          "swapInterval": 60
+        },
+        {
+          "frame": 174,
+          "activeCharacter": 1,
+          "stamina": 240,
+          "lastStaminaUseAgo": 91,
+          "dashCooldownRemaining": -119,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        }
+      ],
+      "coverageGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 44 key \"barbara-a4\" has an undescribed callback",
+        "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+      ],
+      "privateNumericState": {
+        "barbaraC2Buff": [
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c2buff",
+            "value": {
+              "capacity": 26,
+              "items": [
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0.15
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                },
+                {
+                  "type": "float64",
+                  "value": 0
+                }
+              ],
+              "type": "[]float64"
+            }
+          }
+        ],
+        "barbaraA4ExtendCount": [
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.a4extendCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          }
+        ],
+        "lisaPreviousDischargeCount": [
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.previousDischargeCount",
+            "value": {
+              "type": "int",
+              "value": 0
+            }
+          }
+        ],
+        "barbaraC6Icd": [
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[0].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          }
+        ],
+        "lisaC6Icd": [
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          },
+          {
+            "path": "characters.actors[1].concreteImplementation.value.fields.c6icd",
+            "value": {
+              "active": false,
+              "boundary": "exclusive",
+              "remainingFrames": 0,
+              "type": "frameDeadline"
+            }
+          }
+        ]
+      },
+      "remainingPrivateNumericGaps": {
+        "skillInitF": [
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+        ],
+        "undescribedCallbacks": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 44 key \"barbara-a4\" has an undescribed callback"
+        ]
+      },
+      "historicalComparison": {
+        "applicationsEqual": true,
+        "actionLogsEqual": true,
+        "phaseFramesEqual": true,
+        "phasePlayerStateEqual": true
+      }
+    }
+  ],
+  "pageErrors": []
+}

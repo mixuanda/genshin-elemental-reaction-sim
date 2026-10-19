@@ -1,0 +1,68 @@
+[
+  {
+    "path": "internal/characters/barbara/attack.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/barbara/attack.go",
+    "sha256": "8fb36e988ba255c863a2dd69956d5f64e3d3ee137301dd0f934c9f94207dbca3",
+    "bytes": 2881
+  },
+  {
+    "path": "internal/characters/barbara/zz_barbara.dm.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/barbara/zz_barbara.dm.go",
+    "sha256": "4f949538b7abb1aa7193e2f5df09e01f97497d0a58858b59c9fe95055cb7206f",
+    "bytes": 4486
+  },
+  {
+    "path": "internal/characters/amber/aimed.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/aimed.go",
+    "sha256": "9584af861c32b8d9f89d4457179b868e90fb0f2d394a57e6eff679e6b935d8c4",
+    "bytes": 3091
+  },
+  {
+    "path": "internal/characters/amber/zz_amber.dm.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/zz_amber.dm.go",
+    "sha256": "62e6b1a0f66e54f456dd515c34aa46ca83bcc7115ef918d1aabf81a725b14901",
+    "bytes": 2772
+  },
+  {
+    "path": "pkg/catalog/character.dm.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/character.dm.go",
+    "sha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+    "bytes": 436821
+  },
+  {
+    "path": "pkg/catalog/weapon.dm.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/weapon.dm.go",
+    "sha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+    "bytes": 410160
+  },
+  {
+    "path": "pkg/core/attributes/stats.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+    "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+    "bytes": 1677
+  },
+  {
+    "path": "pkg/core/attacks/icd_groups.dm.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/icd_groups.dm.go",
+    "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4",
+    "bytes": 15409
+  },
+  {
+    "path": "pkg/reactable/reactable.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go",
+    "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307",
+    "bytes": 11418
+  },
+  {
+    "path": "pkg/reactable/reactable_test.go",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable_test.go",
+    "sha256": "ffad0fda38e45923b27d074f3cec13301a705ffd2dbed3a2d999cc1da220dad0",
+    "bytes": 8913
+  },
+  {
+    "path": "ui/packages/docs/docs/reference/config.md",
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/ui/packages/docs/docs/reference/config.md",
+    "sha256": "63acf6c45e1c0c9dfd674d2b439f0e453d702f7e8c60b347eecbe20a16bf0a7b",
+    "bytes": 14495
+  }
+]

@@ -1,0 +1,397 @@
+{
+  "schemaVersion": 1,
+  "kind": "static-candidate-inventory",
+  "scope": "Character source callsites that register a Gadget or Construct with the core managers in the two fixed patched source trees. This is not runtime lifecycle evidence, closure/readiness, or coverage.",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-eA1lto/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-DSx6Wz/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "coreInterfaces": [
+    {
+      "path": "pkg/core/info/gadget.go",
+      "type": "info.Gadget",
+      "requiredMethods": [
+        "Target",
+        "Src() int",
+        "GadgetTyp() GadgetTyp"
+      ]
+    },
+    {
+      "path": "pkg/core/combat/gadget.go",
+      "method": "(*combat.Handler).AddGadget(info.Gadget)"
+    },
+    {
+      "path": "pkg/core/construct/construct.go",
+      "type": "construct.Construct",
+      "requiredMethods": [
+        "OnDestruct()",
+        "Key() int",
+        "Type() GeoConstructType",
+        "Expiry() int",
+        "IsLimited() bool",
+        "Count() int",
+        "Direction() info.Point",
+        "Pos() info.Point"
+      ]
+    },
+    {
+      "path": "pkg/core/construct/handler.go",
+      "methods": [
+        "(*construct.Handler).New(Construct, refresh bool)",
+        "(*construct.Handler).NewNoLimitCons(Construct, refresh bool)"
+      ]
+    }
+  ],
+  "summary": {
+    "callsiteCount": 16,
+    "laneMatchedCallsiteCount": 16,
+    "operationCounts": {
+      "Constructs.New": 5,
+      "Combat.AddGadget": 10,
+      "Constructs.NewNoLimitCons": 1
+    },
+    "note": "Counts are callsites, not entity instances or skills; helper callsites may be reached by multiple actions and some are conditional/callback-owned."
+  },
+  "entries": [
+    {
+      "characterModule": "albedo",
+      "sourcePath": "internal/characters/albedo/skill.go",
+      "function": "func (c *char) Skill(p map[string]int) (action.Info, error) {",
+      "line": 68,
+      "managerOperation": "Constructs.New",
+      "expression": "c.Core.Constructs.New(c.newConstruct(1800, skillDir, skillPos), true)",
+      "entityClass": "construct",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+        "stellar": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "amber",
+      "sourcePath": "internal/characters/amber/bunny.go",
+      "function": "func (c *char) makeBunny() *Bunny {",
+      "line": 172,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(b)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "4877abd473b263f0573c6d117f7d26342961d2bc7b2259e248b5ab69c97b6d92",
+        "stellar": "4877abd473b263f0573c6d117f7d26342961d2bc7b2259e248b5ab69c97b6d92"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "itto",
+      "sourcePath": "internal/characters/itto/skill.go",
+      "function": "func (c *char) Skill(p map[string]int) (action.Info, error) {",
+      "line": 99,
+      "managerOperation": "Constructs.New",
+      "expression": "c.Core.Constructs.New(c.newUshi(6*60, ushiDir, ushiPos), true)",
+      "entityClass": "construct",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "9743f1e2f9f937230b6e2188f2ede22db8b78d26aaa9c817ad20efdac354ef62",
+        "stellar": "9743f1e2f9f937230b6e2188f2ede22db8b78d26aaa9c817ad20efdac354ef62"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "lynette",
+      "sourcePath": "internal/characters/lynette/burst.go",
+      "function": "func (c *char) Burst(p map[string]int) (action.Info, error) {",
+      "line": 38,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(c)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "5fdc5ede0504b3c3dfbb51365ae6e90487ee53756a660cf688becb6d2a2da533",
+        "stellar": "5fdc5ede0504b3c3dfbb51365ae6e90487ee53756a660cf688becb6d2a2da533"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "lyney",
+      "sourcePath": "internal/characters/lyney/aimed.go",
+      "function": "func (c *char) makeGrinMalkinHat(pos info.Point, hpDrained bool) func() {",
+      "line": 272,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(g)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "a52cf19b85520a5e4b9e498ac0c4656cf6f5b9b38867a1db39c4127f3fcaf861",
+        "stellar": "a52cf19b85520a5e4b9e498ac0c4656cf6f5b9b38867a1db39c4127f3fcaf861"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "lyney",
+      "sourcePath": "internal/characters/lyney/burst.go",
+      "function": "func (c *char) explosiveFirework() {",
+      "line": 126,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(g)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "eeea04faa6f229ed76d30cf6b235785f0c8b1ee6d94fd270a491d60a8e3f62e0",
+        "stellar": "eeea04faa6f229ed76d30cf6b235785f0c8b1ee6d94fd270a491d60a8e3f62e0"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "mizuki",
+      "sourcePath": "internal/characters/mizuki/snack.go",
+      "function": "func newSnack(c *char, pos info.Point) *snack {",
+      "line": 59,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(p)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "b13681cd52fa485638f680746d61152cde5105d91fbb437e81d96864def73f97",
+        "stellar": "b13681cd52fa485638f680746d61152cde5105d91fbb437e81d96864def73f97"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "ningguang",
+      "sourcePath": "internal/characters/ningguang/skill.go",
+      "function": "func (c *char) Skill(p map[string]int) (action.Info, error) {",
+      "line": 68,
+      "managerOperation": "Constructs.New",
+      "expression": "c.Core.Constructs.New(c.newScreen(1800, screenDir, screenPos), true) // 30 seconds",
+      "entityClass": "construct",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "e13ee5ec1ba287babcbacc3e55e8189bd31bb55e651643810ca7b23b5fea9850",
+        "stellar": "e13ee5ec1ba287babcbacc3e55e8189bd31bb55e651643810ca7b23b5fea9850"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "traveler",
+      "sourcePath": "internal/characters/traveler/common/dendro/burst.go",
+      "function": "func (c *Traveler) Burst(p map[string]int) (action.Info, error) {",
+      "line": 53,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(s)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "16c6923b8e909cd6deda190de59485df48c993167915430b90ba1d08773fefce",
+        "stellar": "16c6923b8e909cd6deda190de59485df48c993167915430b90ba1d08773fefce"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "traveler",
+      "sourcePath": "internal/characters/traveler/common/geo/burst.go",
+      "function": "func (c *Traveler) Burst(p map[string]int) (action.Info, error) {",
+      "line": 127,
+      "managerOperation": "Constructs.NewNoLimitCons",
+      "expression": "c.Core.Constructs.NewNoLimitCons(c.newWall(dur, dir, pos), false)",
+      "entityClass": "construct",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "187c994179ac54ef287c173eee92104b40c00aa77affd89c59c73077abedab86",
+        "stellar": "187c994179ac54ef287c173eee92104b40c00aa77affd89c59c73077abedab86"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "traveler",
+      "sourcePath": "internal/characters/traveler/common/geo/skill.go",
+      "function": "func (c *Traveler) Skill(p map[string]int) (action.Info, error) {",
+      "line": 106,
+      "managerOperation": "Constructs.New",
+      "expression": "c.Core.Constructs.New(c.newStone(dur, stoneDir, stonePos), false)",
+      "entityClass": "construct",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "2db3eb938639f28525ead52185ebafb3df1350422d8dcffb8194fc8db9ebf1a4",
+        "stellar": "2db3eb938639f28525ead52185ebafb3df1350422d8dcffb8194fc8db9ebf1a4"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "traveler",
+      "sourcePath": "internal/characters/traveler/common/hydro/asc.go",
+      "function": "func (c *Traveler) makeA1CB() info.AttackCBFunc {",
+      "line": 32,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(droplet)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "0dd8cf844b78945da9fb2a756b6f858b13cd2c9f5f30f52219daf34d544e8236",
+        "stellar": "0dd8cf844b78945da9fb2a756b6f858b13cd2c9f5f30f52219daf34d544e8236"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "xiangling",
+      "sourcePath": "internal/characters/xiangling/skill.go",
+      "function": "func (c *char) Skill(p map[string]int) (action.Info, error) {",
+      "line": 57,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(guoba)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "6d88afb366cd5e1d2f85b648369bef8c93e68ed6eb5bf993966eb46525863fc7",
+        "stellar": "6d88afb366cd5e1d2f85b648369bef8c93e68ed6eb5bf993966eb46525863fc7"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "yaoyao",
+      "sourcePath": "internal/characters/yaoyao/skill.go",
+      "function": "func (c *char) Skill(p map[string]int) (action.Info, error) {",
+      "line": 30,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(yuegui)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+        "stellar": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "yaoyao",
+      "sourcePath": "internal/characters/yaoyao/yuegui.go",
+      "function": "func (c *char) newYueguiJump() {",
+      "line": 82,
+      "managerOperation": "Combat.AddGadget",
+      "expression": "c.Core.Combat.AddGadget(yg)",
+      "entityClass": "gadget",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+        "stellar": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    },
+    {
+      "characterModule": "zhongli",
+      "sourcePath": "internal/characters/zhongli/stele.go",
+      "function": "func (c *char) newStele(dur int) {",
+      "line": 52,
+      "managerOperation": "Constructs.New",
+      "expression": "c.Core.Constructs.New(con, num == c.maxStele)",
+      "entityClass": "construct",
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "193f28f27dbcd298b5f5bf9d99217ac07fb1e8a6bf18af720b82002c0a3e07d3",
+        "stellar": "193f28f27dbcd298b5f5bf9d99217ac07fb1e8a6bf18af720b82002c0a3e07d3"
+      },
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      }
+    }
+  ]
+}

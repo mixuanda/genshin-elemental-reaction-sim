@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:98385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/charlotte-c2.spec.ts:20:1 › Charlotte C2 uses each selected hit's explicit ATK state and preserves full-cast accounting and traces in JSON
+[chromium] › apps/web/e2e/charlotte-c2.spec.ts:20:1 › Charlotte C2 uses each selected hit's explicit ATK state and preserves full-cast accounting and traces in JSON
+Charlotte C2 per-hit browser measurements {"firstMark":{"nonCritical":211.01850000000005,"critical":422.0370000000001,"expected":316.5277500000001},"finalMark":{"nonCritical":200.97000000000003,"critical":401.94000000000005,"expected":301.45500000000004},"complete":{"nonCritical":2367.139500000001,"critical":4734.279000000002,"expected":3550.7092500000012},"includedPanel":{"nonCritical":2367.139500000001,"critical":4734.279000000002,"expected":3550.7092500000012},"json":{"nonCritical":2367.139500000001,"critical":4734.279000000002,"expected":3550.7092500000012},"includedAttackDeltas":[-50,0,0,0,0,0,0,0,-50]}
+
+  1 passed (1.6s)

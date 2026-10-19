@@ -1,0 +1,279 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "external-gcsim-b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541-resolved-proc-context",
+  "randomSeed": "local-weapon-proc-comparison-independent-seed",
+  "meta": {
+    "name": "三武器追击外部面板和已观测宿主命中条件对照",
+    "version": "1",
+    "verificationStatus": "user-supplied"
+  },
+  "duration": 12,
+  "cycleLength": 12,
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defReduction": 0,
+    "targets": [
+      {
+        "id": "enemy-0",
+        "name": "外部固定静止单目标",
+        "position": {
+          "x": 0,
+          "y": 2
+        },
+        "hitboxRadius": 2
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "zhongli",
+      "name": "zhongli",
+      "element": "geo",
+      "color": "#555555",
+      "level": 1,
+      "energyMax": 40,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 62.460812648700006,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 1143.984,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 57.4368,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    },
+    {
+      "id": "barbara",
+      "name": "barbara",
+      "element": "hydro",
+      "color": "#555555",
+      "level": 1,
+      "energyMax": 40,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 55.757000000000005,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 894.4669710000001,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 56.0805,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    },
+    {
+      "id": "amber",
+      "name": "amber",
+      "element": "pyro",
+      "color": "#555555",
+      "level": 1,
+      "energyMax": 40,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 61.0994,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 864.6514380000001,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 50.358,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    }
+  ],
+  "rotation": [
+    {
+      "id": "conditioned-host-external-hit-1",
+      "actorId": "zhongli",
+      "name": "已观测宿主 Normal 0 @12",
+      "at": 0.2,
+      "hits": [
+        {
+          "id": "host-external-hit-1",
+          "offset": 0,
+          "scaling": 0.307691,
+          "element": "physical",
+          "attackTag": "normal",
+          "targeting": {
+            "targetId": "enemy-0",
+            "outcome": "landed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "conditioned-host-external-hit-3",
+      "actorId": "zhongli",
+      "name": "已观测宿主 Normal 1 @28",
+      "at": 0.4666666666666667,
+      "hits": [
+        {
+          "id": "host-external-hit-3",
+          "offset": 0,
+          "scaling": 0.311518,
+          "element": "physical",
+          "attackTag": "normal",
+          "targeting": {
+            "targetId": "enemy-0",
+            "outcome": "landed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "conditioned-host-external-hit-4",
+      "actorId": "barbara",
+      "name": "已观测宿主 Normal 0 @35",
+      "at": 0.5833333333333334,
+      "hits": [
+        {
+          "id": "host-external-hit-4",
+          "offset": 0,
+          "scaling": 0.3784,
+          "element": "hydro",
+          "attackTag": "normal",
+          "targeting": {
+            "targetId": "enemy-0",
+            "outcome": "landed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "conditioned-host-external-hit-6",
+      "actorId": "amber",
+      "name": "已观测宿主 Normal 0 @145",
+      "at": 2.4166666666666665,
+      "hits": [
+        {
+          "id": "host-external-hit-6",
+          "offset": 0,
+          "scaling": 0.3612,
+          "element": "physical",
+          "attackTag": "normal",
+          "targeting": {
+            "targetId": "enemy-0",
+            "outcome": "landed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "conditioned-host-external-hit-8",
+      "actorId": "zhongli",
+      "name": "已观测宿主 Normal 0 @612",
+      "at": 10.2,
+      "hits": [
+        {
+          "id": "host-external-hit-8",
+          "offset": 0,
+          "scaling": 0.307691,
+          "element": "physical",
+          "attackTag": "normal",
+          "targeting": {
+            "targetId": "enemy-0",
+            "outcome": "landed"
+          }
+        }
+      ]
+    }
+  ],
+  "weaponProcModel": {
+    "mode": "fixed-source-no-character-hitlag-v1",
+    "actors": [
+      {
+        "actorId": "zhongli",
+        "weaponId": "halberd",
+        "refinement": 1,
+        "physicalDamageBonus": 0
+      },
+      {
+        "actorId": "barbara",
+        "weaponId": "ashgravendrinkinghorn",
+        "refinement": 1,
+        "physicalDamageBonus": 0
+      },
+      {
+        "actorId": "amber",
+        "weaponId": "sequenceofsolitude",
+        "refinement": 1,
+        "physicalDamageBonus": 0
+      }
+    ]
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "disabled"
+  },
+  "targetTaskModel": {
+    "mode": "legacy-event-heap-v1"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+    "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+  },
+  "callbackBusModel": {
+    "mode": "legacy-no-versioned-callback-bus-v1",
+    "policyId": "legacy-no-versioned-callback-bus-v1"
+  }
+}

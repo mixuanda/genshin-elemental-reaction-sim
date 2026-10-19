@@ -1,0 +1,197 @@
+{
+  "schemaVersion": "source-character-vectors-validation-v1",
+  "laneFilter": "both",
+  "evidence": [
+    {
+      "lane": "classic",
+      "scene": "creation-table",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "957bfc13a8ad4725daa47f2b2c81f83bca34ea3bbbae24b782032d9bf798d0cd",
+      "calculations": 124,
+      "applications": 41,
+      "vectorRules": {
+        "char-vector-keqing-a4-cr": 1,
+        "char-vector-keqing-a4-er": 1,
+        "char-vec-yanfei-burst": 1,
+        "char-vector-ayato-burst-dmgp": 1,
+        "char-vector-hutao-paramita-atk": 1,
+        "char-vector-hutao-a1-cr": 17
+      },
+      "selections": {
+        "hutao-ayato": {
+          "applicationId": 17,
+          "frame": 163,
+          "scalarIds": [
+            4,
+            8
+          ],
+          "replayDifference": 0
+        },
+        "keqing-two-slots": {
+          "applicationId": 43,
+          "frame": 266,
+          "scalarIds": [
+            1,
+            2
+          ],
+          "replayDifference": 0
+        },
+        "yanfei-talent": {
+          "applicationId": 130,
+          "frame": 505,
+          "scalarIds": [
+            3
+          ],
+          "replayDifference": 0
+        }
+      },
+      "edit": {
+        "calculationId": 4,
+        "originalValue": 0.11,
+        "editedValue": 0.12,
+        "stateKey": "talent",
+        "originalCaptureUnchanged": true,
+        "restoredValue": 0.12
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "indexed-slots",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "957bfc13a8ad4725daa47f2b2c81f83bca34ea3bbbae24b782032d9bf798d0cd",
+      "calculations": 2695,
+      "applications": 15,
+      "vectorRules": {
+        "char-vec-xilonen-a4": 1,
+        "char-vector-nicole-a1": 1,
+        "char-vector-diluc-c2-atkp": 1,
+        "char-vector-diluc-c2-atkspd": 1,
+        "char-vec-xilonen-c2-geo": 10,
+        "char-vector-nicole-skill": 1,
+        "char-vec-xilonen-c2-pyro": 2628,
+        "char-vector-navia-a1-dmgp": 5
+      },
+      "selections": {
+        "diluc-two-slots": {
+          "applicationId": 10,
+          "frame": 115,
+          "scalarIds": [
+            4,
+            5
+          ],
+          "replayDifference": 0
+        },
+        "navia-indexed-team": {
+          "applicationId": 310,
+          "frame": 368,
+          "scalarIds": [
+            307,
+            26,
+            308
+          ],
+          "replayDifference": 0
+        },
+        "diluc-pyro-index": {
+          "applicationId": 601,
+          "frame": 485,
+          "scalarIds": [
+            599
+          ],
+          "replayDifference": 0
+        }
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "creation-table",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "5d24c5e5776629a0de3831b1bfc50a1dd6979cf58cd71cd7a4a4ff21c8765a1c",
+      "calculations": 124,
+      "applications": 41,
+      "vectorRules": {
+        "char-vector-keqing-a4-cr": 1,
+        "char-vector-keqing-a4-er": 1,
+        "char-vec-yanfei-burst": 1,
+        "char-vector-ayato-burst-dmgp": 1,
+        "char-vector-hutao-paramita-atk": 1,
+        "char-vector-hutao-a1-cr": 17
+      },
+      "selections": {
+        "hutao-ayato": {
+          "applicationId": 17,
+          "frame": 163,
+          "scalarIds": [
+            4,
+            8
+          ],
+          "replayDifference": 0
+        },
+        "keqing-two-slots": {
+          "applicationId": 43,
+          "frame": 266,
+          "scalarIds": [
+            1,
+            2
+          ],
+          "replayDifference": 0
+        },
+        "yanfei-talent": {
+          "applicationId": 130,
+          "frame": 505,
+          "scalarIds": [
+            3
+          ],
+          "replayDifference": 0
+        }
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "indexed-slots",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "5d24c5e5776629a0de3831b1bfc50a1dd6979cf58cd71cd7a4a4ff21c8765a1c",
+      "calculations": 2696,
+      "applications": 15,
+      "vectorRules": {
+        "char-vec-xilonen-a4": 1,
+        "char-vector-nicole-a1": 1,
+        "char-vector-diluc-c2-atkp": 1,
+        "char-vector-diluc-c2-atkspd": 1,
+        "char-vec-xilonen-c2-geo": 10,
+        "char-vector-nicole-skill": 1,
+        "char-vec-xilonen-c2-pyro": 2628,
+        "char-vector-navia-a1-dmgp": 5
+      },
+      "selections": {
+        "diluc-two-slots": {
+          "applicationId": 10,
+          "frame": 115,
+          "scalarIds": [
+            4,
+            5
+          ],
+          "replayDifference": 0
+        },
+        "navia-indexed-team": {
+          "applicationId": 311,
+          "frame": 368,
+          "scalarIds": [
+            308,
+            26,
+            309
+          ],
+          "replayDifference": 0
+        },
+        "diluc-pyro-index": {
+          "applicationId": 602,
+          "frame": 485,
+          "scalarIds": [
+            600
+          ],
+          "replayDifference": 0
+        }
+      }
+    }
+  ],
+  "pageErrors": []
+}

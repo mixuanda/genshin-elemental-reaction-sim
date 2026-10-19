@@ -1,0 +1,16 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/__tests__/lunar-mixed-simulation.test.ts(62,34): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.
+packages/sim-core/src/__tests__/lunar-mixed-simulation.test.ts(63,34): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.
+packages/sim-core/src/__tests__/lunar-mixed-simulation.test.ts(71,40): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.
+packages/sim-core/src/__tests__/lunar-mixed-simulation.test.ts(72,40): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.

@@ -1,0 +1,2 @@
+packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts(68,42): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.

@@ -1,0 +1,1498 @@
+--- a/internal/characters/alhaitham/plunge.go
++++ b/internal/characters/alhaitham/plunge.go
+@@ -110,7 +110,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return lowPlungeFramesAL[next] - skip },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return lowPlungeFramesAL[next] - skip }),
+ 		AnimationLength: lowPlungeFramesAL[action.InvalidAction] - skip,
+ 		CanQueueAfter:   lowPlungeFramesAL[action.ActionDash] - skip,
+ 		State:           action.PlungeAttackState,
+--- a/internal/characters/amber/skill.go
++++ b/internal/characters/amber/skill.go
+@@ -35,7 +35,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[next] + hold },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[next] + hold }),
+ 		AnimationLength: skillFrames[action.InvalidAction] + hold,
+ 		CanQueueAfter:   skillStart + hold,
+ 		State:           action.SkillState,
+--- a/internal/characters/arlecchino/charge.go
++++ b/internal/characters/arlecchino/charge.go
+@@ -40,7 +40,7 @@
+ 	if early > 0 {
+ 		// TODO: error if the user waits until after hitmark to do the dash/jump
+ 		return action.Info{
+-			Frames:          func(next action.Action) int { return 13 - windup },
++			Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return 13 - windup }),
+ 			AnimationLength: chargeHitmark - 1,
+ 			CanQueueAfter:   13 - windup,
+ 			State:           action.ChargeAttackState,
+@@ -81,7 +81,7 @@
+ 		)
+ 	}, chargeHitmark-windup)
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/ayaka/dash.go
++++ b/internal/characters/ayaka/dash.go
+@@ -63,7 +63,7 @@
+ 	c.QueueDashStaminaConsumption(p)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return dashFrames[next] + f },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return dashFrames[next] + f }),
+ 		AnimationLength: dashFrames[action.InvalidAction] + f,
+ 		CanQueueAfter:   dashFrames[action.ActionDash] + f, // earliest cancel
+ 		State:           action.DashState,
+--- a/internal/characters/ayato/attack.go
++++ b/internal/characters/ayato/attack.go
+@@ -125,9 +125,9 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(shunsuikenFrames[next], atkspd)
+-		},
++		}),
+ 		AnimationLength: shunsuikenFrames[action.InvalidAction],
+ 		CanQueueAfter:   shunsuikenHitmark,
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/baizhu/charge.go
++++ b/internal/characters/baizhu/charge.go
+@@ -54,7 +54,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionDash] - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/barbara/charge.go
++++ b/internal/characters/barbara/charge.go
+@@ -113,7 +113,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/candace/skill.go
++++ b/internal/characters/candace/skill.go
+@@ -141,7 +141,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, cd, skillCDStarts[chargeLevel])
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[chargeLevel][next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[chargeLevel][next] - windup }),
+ 		AnimationLength: skillFrames[chargeLevel][action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[chargeLevel][action.ActionSwap], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/charlotte/charge.go
++++ b/internal/characters/charlotte/charge.go
+@@ -61,7 +61,7 @@
+ 	}, chargeHitmark-windup)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionDash] - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/charlotte/skill.go
++++ b/internal/characters/charlotte/skill.go
+@@ -133,7 +133,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, skillHoldCD, hitmark-2)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return hold + skillHoldFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return hold + skillHoldFrames[next] }),
+ 		AnimationLength: hold + skillHoldFrames[action.InvalidAction],
+ 		CanQueueAfter:   hold + skillHoldFrames[action.ActionBurst],
+ 		State:           action.SkillState,
+--- a/internal/characters/chasca/aimed.go
++++ b/internal/characters/chasca/aimed.go
+@@ -176,9 +176,9 @@
+ 	}, chargeDelay)
+ 
+ 	return action.Info{
+-		Frames: c.skillNextFrames(func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(c.skillNextFrames(func(next action.Action) int {
+ 			return chargeDelay + skillAimFrames[next]
+-		}, skillAimFallDelay),
++		}, skillAimFallDelay)),
+ 		// This needs to be as long as the maximum possible duration of the actions. Which is aim[bullets=6],
+ 		// then nightsoul exipres and chasca falls down
+ 		AnimationLength: chargeDelay + skillAimFrames[action.InvalidAction] + skillCancelFrames[action.InvalidAction],
+--- a/internal/characters/chasca/attack.go
++++ b/internal/characters/chasca/attack.go
+@@ -91,7 +91,7 @@
+ 	defer c.AdvanceNormalIndex()
+ 	framesFunc := frames.NewAttackFunc(c.Character, attackFrames)
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return framesFunc(next) + windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return framesFunc.Run(next) + windup }),
+ 		AnimationLength: attackFrames[c.NormalCounter][action.InvalidAction] + windup,
+ 		CanQueueAfter:   attackHitmarks[c.NormalCounter][len(attackHitmarks[c.NormalCounter])-1] + windup,
+ 		State:           action.NormalAttackState,
+@@ -133,9 +133,9 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames: c.skillNextFrames(func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(c.skillNextFrames(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(attackSkillTapFrames[next], c.Stat(attributes.AtkSpd))
+-		}, 0),
++		}, 0)),
+ 		AnimationLength: attackSkillTapFrames[action.InvalidAction],
+ 		CanQueueAfter:   1, // can run out of nightsoul and start falling earlier
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/chasca/burst.go
++++ b/internal/characters/chasca/burst.go
+@@ -108,7 +108,7 @@
+ 		// if we Q while in the air, we need to add the frames of fall down
+ 		// TODO: set fall down animation to be "idle/skill" instead of burst?
+ 		return action.Info{
+-			Frames:          c.skillNextFrames(frames.NewAbilFunc(burstFramesNS), 0),
++			Frames:          action.OpaqueFrameFunc(c.skillNextFrames(frames.NewAbilFunc(burstFramesNS).Run, 0)),
+ 			AnimationLength: burstFramesNS[action.InvalidAction],
+ 			CanQueueAfter:   burstNSFall,
+ 			State:           action.BurstState,
+--- a/internal/characters/chasca/dash.go
++++ b/internal/characters/chasca/dash.go
+@@ -17,7 +17,7 @@
+ 	if c.nightsoulState.HasBlessing() {
+ 		c.reduceNightsoulPoints(13.3)
+ 		d, e := c.Character.Dash(p)
+-		d.Frames = c.skillNextFrames(d.Frames, 0)
++		d.Frames = action.OpaqueFrameFunc(c.skillNextFrames(d.Frames.Run, 0))
+ 		d.CanQueueAfter = 1 // can run out of nightsoul and immediately start falling
+ 		return d, e
+ 	}
+--- a/internal/characters/chasca/plunge.go
++++ b/internal/characters/chasca/plunge.go
+@@ -61,7 +61,7 @@
+ 		lowPlungeHitmark, lowPlungeHitmark)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return lowPlungeFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return lowPlungeFrames[next] }),
+ 		AnimationLength: lowPlungeFrames[action.InvalidAction],
+ 		CanQueueAfter:   lowPlungeHitmark,
+ 		State:           action.PlungeAttackState,
+--- a/internal/characters/chasca/skill.go
++++ b/internal/characters/chasca/skill.go
+@@ -148,7 +148,7 @@
+ 	c.Core.QueueAttack(ai, ap, skillHitmarks, skillHitmarks)
+ 	c.enterNightsoul()
+ 	return action.Info{
+-		Frames:          c.skillNextFrames(frames.NewAbilFunc(skillFrames), 0),
++		Frames:          action.OpaqueFrameFunc(c.skillNextFrames(frames.NewAbilFunc(skillFrames).Run, 0)),
+ 		AnimationLength: skillFrames[action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[action.ActionAttack], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/chevreuse/skill.go
++++ b/internal/characters/chevreuse/skill.go
+@@ -157,7 +157,7 @@
+ 	c.skillHeal(cdStart)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return hold + skillHoldFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return hold + skillHoldFrames[next] }),
+ 		AnimationLength: hold + skillHoldFrames[action.InvalidAction],
+ 		CanQueueAfter:   hold + skillHoldFrames[action.ActionDash], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/chiori/skill.go
++++ b/internal/characters/chiori/skill.go
+@@ -102,7 +102,7 @@
+ 	}, 1)
+ 	// TODO: doesn't seem like this duration actually matters because of the forced swap, it just needs to cover the 1f until the swap is executed
+ 	return action.Info{
+-		Frames:          func(action.Action) int { return c.Core.Player.Delays.Swap },
++		Frames:          action.OpaqueFrameFunc(func(action.Action) int { return c.Core.Player.Delays.Swap }),
+ 		AnimationLength: c.Core.Player.Delays.Swap,
+ 		CanQueueAfter:   c.Core.Player.Delays.Swap,
+ 		State:           action.SkillState,
+--- a/internal/characters/clorinde/attack.go
++++ b/internal/characters/clorinde/attack.go
+@@ -157,9 +157,9 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(skillAttackFrames[n][next], atkspd)
+-		},
++		}),
+ 		AnimationLength: frames.AtkSpdAdjust(skillAttackFrames[n][action.InvalidAction], atkspd),
+ 		CanQueueAfter:   frames.AtkSpdAdjust(skillAttackHitmarks[n], atkspd),
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/columbina/attack.go
++++ b/internal/characters/columbina/attack.go
+@@ -69,7 +69,7 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames:          c.newAttackFunc(attackFrames, windup),
++		Frames:          action.OpaqueFrameFunc(c.newAttackFunc(attackFrames, windup)),
+ 		AnimationLength: attackFrames[c.NormalCounter][action.InvalidAction] + windup,
+ 		CanQueueAfter:   attackHitmarks[c.NormalCounter] + windup,
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/columbina/charge.go
++++ b/internal/characters/columbina/charge.go
+@@ -110,12 +110,12 @@
+ 	c.QueueCharTask(func() { c.Core.Player.ConsumeDew(1) }, verdantDewFrame+windup)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if next == action.ActionCharge && c.Core.Player.Dew() <= 0 {
+ 				return 89 // CAb -> CA is 89
+ 			}
+ 			return chargeLBFrames[next]
+-		},
++		}),
+ 		AnimationLength: chargeLBFrames[action.InvalidAction],
+ 		CanQueueAfter:   chargeLBFrames[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/columbina/jump.go
++++ b/internal/characters/columbina/jump.go
+@@ -18,7 +18,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          func(action.Action) int { return f },
++		Frames:          action.OpaqueFrameFunc(func(action.Action) int { return f }),
+ 		AnimationLength: f,
+ 		CanQueueAfter:   f,
+ 		State:           action.JumpState,
+--- a/internal/characters/cyno/attack.go
++++ b/internal/characters/cyno/attack.go
+@@ -194,9 +194,9 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(attackBFrames[n][next], atkspd)
+-		},
++		}),
+ 		AnimationLength: attackBFrames[c.normalBCounter][action.InvalidAction],
+ 		CanQueueAfter:   attackBHitmarks[c.normalBCounter][len(attackBHitmarks[c.normalBCounter])-1],
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/dehya/burst.go
++++ b/internal/characters/dehya/burst.go
+@@ -50,7 +50,7 @@
+ 	c.SetCDWithDelay(action.ActionBurst, 18*60, 1)
+ 
+ 	return action.Info{
+-		Frames:          func(action.Action) int { return burstPunch1Hitmark },
++		Frames:          action.OpaqueFrameFunc(func(action.Action) int { return burstPunch1Hitmark }),
+ 		AnimationLength: burstPunch1Hitmark,
+ 		CanQueueAfter:   burstPunch1Hitmark,
+ 		State:           action.BurstState,
+@@ -191,7 +191,7 @@
+ 	c.Core.Tasks.Add(c.burstPunchFunc(src), hitmark)
+ 
+ 	return action.Info{
+-		Frames:          func(action.Action) int { return hitmark },
++		Frames:          action.OpaqueFrameFunc(func(action.Action) int { return hitmark }),
+ 		AnimationLength: hitmark,
+ 		CanQueueAfter:   hitmark,
+ 		State:           action.Idle, // TODO: cannot use burst state because burst state implies iframes
+--- a/internal/characters/dehya/dash.go
++++ b/internal/characters/dehya/dash.go
+@@ -25,12 +25,12 @@
+ 	c.Character.Dash(p)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if c.StatusIsActive(burstKey) && next == action.ActionJump {
+ 				return canQueueAfter
+ 			}
+ 			return length
+-		},
++		}),
+ 		AnimationLength: length,
+ 		CanQueueAfter:   canQueueAfter,
+ 		State:           action.DashState,
+--- a/internal/characters/flins/skill.go
++++ b/internal/characters/flins/skill.go
+@@ -84,7 +84,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 16*60, skillHitmark)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[next] }),
+ 		AnimationLength: skillFrames[action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[action.ActionDash], // earliest cancel
+ 		State:           action.SkillState,
+@@ -121,7 +121,7 @@
+ 	c.AddStatus(thunderousSymphonyKey, 6*60, true)
+ 	c.c2OnSkill()
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return spearStormFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return spearStormFrames[next] }),
+ 		AnimationLength: spearStormFrames[action.InvalidAction],
+ 		CanQueueAfter:   spearStormFrames[action.ActionDash], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/furina/charge.go
++++ b/internal/characters/furina/charge.go
+@@ -77,7 +77,7 @@
+ 	c.QueueCharTask(arkheChangeFunc, chargeHitmark-windup+1)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/ganyu/aimed.go
++++ b/internal/characters/ganyu/aimed.go
+@@ -150,7 +150,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return aimedFrames[hold][next] - skip },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return aimedFrames[hold][next] - skip }),
+ 		AnimationLength: aimedFrames[hold][action.InvalidAction] - skip,
+ 		CanQueueAfter:   aimedHitmarks[hold] - skip,
+ 		State:           action.AimState,
+--- a/internal/characters/heizou/skill.go
++++ b/internal/characters/heizou/skill.go
+@@ -130,7 +130,7 @@
+ 	}, skillCDStart+delay)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return delay + skillEndFrames[next] + skillHitmark },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return delay + skillEndFrames[next] + skillHitmark }),
+ 		AnimationLength: delay + skillEndFrames[action.InvalidAction] + skillHitmark,
+ 		CanQueueAfter:   delay + skillEndFrames[action.ActionSwap] + skillHitmark, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/hutao/charge.go
++++ b/internal/characters/hutao/charge.go
+@@ -148,7 +148,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          ff,
++		Frames:          action.OpaqueFrameFunc(ff),
+ 		AnimationLength: ppChargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   1,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/ifa/attack.go
++++ b/internal/characters/ifa/attack.go
+@@ -129,9 +129,9 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(skillAttackTapFrames[next], atkspd)
+-		},
++		}),
+ 		AnimationLength: attackSkillInterval,
+ 		CanQueueAfter:   0, // can run out of nightsoul and start falling earlier
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/ifa/burst.go
++++ b/internal/characters/ifa/burst.go
+@@ -75,13 +75,13 @@
+ 	c.ConsumeEnergy(4)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if c.nightsoulState.HasBlessing() {
+ 				return burstFramesNS[next]
+ 			}
+ 
+ 			return burstFramesGrounded[next]
+-		},
++		}),
+ 		AnimationLength: burstFramesGrounded[action.InvalidAction],
+ 		CanQueueAfter:   burstFramesNS[action.ActionDash], // earliest cancel
+ 		State:           action.BurstState,
+--- a/internal/characters/ifa/charge.go
++++ b/internal/characters/ifa/charge.go
+@@ -121,9 +121,9 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(skillAttackHoldFrames[next]+c6Extension, atkspd)
+-		},
++		}),
+ 		AnimationLength: attackSkillInterval + c6Extension,
+ 		CanQueueAfter:   0, // can run out of nightsoul and start falling earlier
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/ineffa/skill.go
++++ b/internal/characters/ineffa/skill.go
+@@ -42,7 +42,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 16*60, 1)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[next] }),
+ 		AnimationLength: skillFrames[action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[action.ActionSwap], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/itto/charge.go
++++ b/internal/characters/itto/charge.go
+@@ -282,7 +282,7 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			f := chargeFrames[curSlash][next]
+ 
+ 			if next == action.ActionCharge {
+@@ -300,7 +300,7 @@
+ 			}
+ 
+ 			return frames.AtkSpdAdjust(f-windup, atkspd)
+-		},
++		}),
+ 		OnRemoved: func(next action.AnimationState) {
+ 			if next != action.ChargeAttackState {
+ 				c.slashState = InvalidSlash
+--- a/internal/characters/jahoda/skill.go
++++ b/internal/characters/jahoda/skill.go
+@@ -96,7 +96,7 @@
+ 		)
+ 	}, skillWindup)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			// during pursuit state, allow the frames to increase from current src
+ 			if src == c.skillSrc {
+ 				// except for E -> E, as it uses the cancel frames for the skill
+@@ -108,7 +108,7 @@
+ 
+ 			// after pursuit state ended, pursuit duration freeze and the frames becomes fix
+ 			return c.pursuitDuration + skillCancelFrames[next]
+-		},
++		}),
+ 		AnimationLength: skillWindup + shadowPursuitMaxDuration + skillCancelFrames[action.ActionJump],
+ 		CanQueueAfter:   skillCancelFrames[action.ActionDash], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/jean/skill.go
++++ b/internal/characters/jean/skill.go
+@@ -58,7 +58,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 360, hitmark-2)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[next] + hold },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[next] + hold }),
+ 		AnimationLength: skillFrames[action.InvalidAction] + hold,
+ 		CanQueueAfter:   skillFrames[action.ActionDash] + hold, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/kinich/skill.go
++++ b/internal/characters/kinich/skill.go
+@@ -83,9 +83,9 @@
+ 	}, skillStart+hold)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return skillFrames[next] + hold
+-		},
++		}),
+ 		AnimationLength: skillFrames[action.InvalidAction] + hold,
+ 		CanQueueAfter:   skillFrames[action.ActionBurst] + hold,
+ 		State:           action.SkillState,
+@@ -160,9 +160,9 @@
+ 	}, releaseFrame+hold+pointsConsumptionsDelay)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return releaseFrame + hold + scalespikerFrames[next]
+-		},
++		}),
+ 		AnimationLength: releaseFrame + hold + scalespikerFrames[action.InvalidAction],
+ 		CanQueueAfter:   releaseFrame + hold + scalespikerFrames[action.ActionAttack],
+ 		State:           action.SkillState,
+--- a/internal/characters/kirara/skill.go
++++ b/internal/characters/kirara/skill.go
+@@ -253,7 +253,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, cd, (skillHoldCDStart-600)+duration)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillHoldFrames[next] - 600 + duration },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillHoldFrames[next] - 600 + duration }),
+ 		AnimationLength: skillHoldFrames[action.InvalidAction] - 600 + duration,
+ 		CanQueueAfter:   skillHoldFrames[action.ActionAttack] - 600 + duration, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/klee/charge.go
++++ b/internal/characters/klee/charge.go
+@@ -76,7 +76,7 @@
+ 	c.c1(chargeHitmark - windup + travel)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionJump] - windup, // earliest cancel
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/kokomi/charge.go
++++ b/internal/characters/kokomi/charge.go
+@@ -66,7 +66,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/lanyan/skill.go
++++ b/internal/characters/lanyan/skill.go
+@@ -78,10 +78,10 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 16*60, 4+hold)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			skillFrames := c.getCurrentSkillFrames()
+ 			return skillFrames[next] + hold
+-		},
++		}),
+ 		AnimationLength: skillHitFrames[action.InvalidAction] + hold,
+ 		CanQueueAfter:   detectHitmark + hold, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/lauma/burst.go
++++ b/internal/characters/lauma/burst.go
+@@ -54,12 +54,12 @@
+ 	c.ConsumeEnergy(8)
+ 	c.SetCD(action.ActionBurst, paleHymnDur)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if c.deerStateReady && next == action.ActionCharge {
+ 				return burstDeerFrame
+ 			}
+ 			return burstFrames[next]
+-		},
++		}),
+ 		AnimationLength: burstFrames[action.InvalidAction],
+ 		CanQueueAfter:   burstFrames[action.ActionSwap], // earliest cancel
+ 		State:           action.BurstState,
+--- a/internal/characters/lauma/charge.go
++++ b/internal/characters/lauma/charge.go
+@@ -78,12 +78,12 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if c.deerStateReady && next == action.ActionCharge {
+ 				return chargeReleaseFrame
+ 			}
+ 			return chargeFrames[next]
+-		},
++		}),
+ 		AnimationLength: chargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   chargeFrames[action.ActionAttack],
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/lisa/charge.go
++++ b/internal/characters/lisa/charge.go
+@@ -65,7 +65,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/lynette/skill.go
++++ b/internal/characters/lynette/skill.go
+@@ -128,7 +128,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, skillCD, duration+skillHoldEndCDStart)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return duration + skillHoldEndFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return duration + skillHoldEndFrames[next] }),
+ 		AnimationLength: duration + skillHoldEndFrames[action.InvalidAction],
+ 		CanQueueAfter:   duration + skillHoldEndFrames[action.ActionSwap],
+ 		State:           action.SkillState,
+--- a/internal/characters/mavuika/charge.go
++++ b/internal/characters/mavuika/charge.go
+@@ -244,7 +244,7 @@
+ 	}, durationCA+1)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			f := bikeChargeFrames[next]
+ 
+ 			if f == 0 {
+@@ -253,7 +253,7 @@
+ 				f = durationCA + newMinSpinDuration + bikeChargeFinalFrames[next]
+ 			}
+ 			return f
+-		},
++		}),
+ 		AnimationLength: durationCA + newMinSpinDuration + bikeChargeFinalFrames[action.InvalidAction],
+ 		CanQueueAfter:   durationCA,
+ 		Segmented:       segmented,
+@@ -453,7 +453,7 @@
+ 	}, caFrames)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return bikeChargeFinalFrames[next] + caFrames },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return bikeChargeFinalFrames[next] + caFrames }),
+ 		AnimationLength: bikeChargeFinalFrames[action.InvalidAction] + caFrames,
+ 		CanQueueAfter:   bikeChargeFinalFrames[action.ActionDash] + caFrames,
+ 		Segmented:       segmented,
+--- a/internal/characters/mavuika/skill.go
++++ b/internal/characters/mavuika/skill.go
+@@ -288,7 +288,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return f[next] + plungeFrames },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return f[next] + plungeFrames }),
+ 		AnimationLength: f[action.InvalidAction] + plungeFrames,
+ 		CanQueueAfter:   f[canQueueAfter] + plungeFrames,
+ 		State:           action.SkillState,
+--- a/internal/characters/mizuki/charge.go
++++ b/internal/characters/mizuki/charge.go
+@@ -57,7 +57,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionDash] - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/mona/charge.go
++++ b/internal/characters/mona/charge.go
+@@ -34,7 +34,7 @@
+ 	c.doCA(c.Core.Combat.PrimaryTarget(), chargeHitmark-windup, "")
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionSwap] - windup, // earliest cancel is before hitmark
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/mona/dash.go
++++ b/internal/characters/mona/dash.go
+@@ -55,7 +55,7 @@
+ 	c.QueueDashStaminaConsumption(p)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return dashFrames[next] + f },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return dashFrames[next] + f }),
+ 		AnimationLength: dashFrames[action.InvalidAction] + f,
+ 		CanQueueAfter:   dashHitmark + f,
+ 		State:           action.DashState,
+--- a/internal/characters/mualani/charge.go
++++ b/internal/characters/mualani/charge.go
+@@ -52,7 +52,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return windup + chargeFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return windup + chargeFrames[next] }),
+ 		AnimationLength: windup + chargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   windup + chargeFrames[action.ActionSwap],
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/mualani/skill.go
++++ b/internal/characters/mualani/skill.go
+@@ -112,13 +112,13 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if next == action.ActionWalk && isWalking {
+ 				// TODO: or 0f?
+ 				return skillDelay
+ 			}
+ 			return skillFrames[next]
+-		},
++		}),
+ 		AnimationLength: skillFrames[action.InvalidAction],
+ 		CanQueueAfter:   canQueueAfter,
+ 		State:           action.SkillState,
+--- a/internal/characters/nahida/charge.go
++++ b/internal/characters/nahida/charge.go
+@@ -57,7 +57,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionDash] - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/nahida/skill.go
++++ b/internal/characters/nahida/skill.go
+@@ -111,7 +111,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, skillHoldCD, hold+30)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return hold + skillHoldFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return hold + skillHoldFrames[next] }),
+ 		AnimationLength: hold + skillHoldFrames[action.InvalidAction],
+ 		CanQueueAfter:   hold + skillHoldFrames[action.ActionSwap], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/navia/skill.go
++++ b/internal/characters/navia/skill.go
+@@ -221,7 +221,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[holdIndex][shrapnelIndex][next] + hold },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[holdIndex][shrapnelIndex][next] + hold }),
+ 		AnimationLength: skillFrames[holdIndex][1][action.InvalidAction] + hold,
+ 		CanQueueAfter:   skillFrames[holdIndex][0][action.ActionJump] + hold,
+ 		State:           action.SkillState,
+--- a/internal/characters/neuvillette/charge.go
++++ b/internal/characters/neuvillette/charge.go
+@@ -144,9 +144,9 @@
+ 	}, windup+3)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return windup + 3 + chargeLegalEvalLeft + c.tickAnimLength + endLag[next]
+-		},
++		}),
+ 		AnimationLength: 1200, // there is no upper limit on the duration of the CA
+ 		CanQueueAfter:   windup + 3 + endLag[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+@@ -194,7 +194,7 @@
+ 	}, windup+3)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return windup + chargeFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return windup + chargeFrames[next] }),
+ 		AnimationLength: windup + chargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   windup + chargeFrames[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/nicole/attack.go
++++ b/internal/characters/nicole/attack.go
+@@ -81,7 +81,7 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames:          attackFuncWithWindup(c.Character, attackFrames, windup),
++		Frames:          action.OpaqueFrameFunc(attackFuncWithWindup(c.Character, attackFrames, windup)),
+ 		AnimationLength: attackFrames[counter][action.InvalidAction] + windup,
+ 		CanQueueAfter:   attackHitmarks[counter] + windup,
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/nicole/charge.go
++++ b/internal/characters/nicole/charge.go
+@@ -54,7 +54,7 @@
+ 	}, chargeHitmark)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionJump] - windup, // earliest cancel
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/nilou/skill.go
++++ b/internal/characters/nilou/skill.go
+@@ -273,9 +273,9 @@
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(swordDanceFrames[s][next], atkspd)
+-		},
++		}),
+ 		AnimationLength: swordDanceFrames[s][action.InvalidAction],
+ 		CanQueueAfter:   swordDanceFrames[s][action.ActionJump], // earliest cancel
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/ningguang/attack.go
++++ b/internal/characters/ningguang/attack.go
+@@ -122,9 +122,9 @@
+ 	c.prevAttack = nextAttack
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(attackFrames[nextAttack][next], atkspd)
+-		},
++		}),
+ 		AnimationLength: attackFrames[nextAttack][action.InvalidAction],
+ 		CanQueueAfter:   attackLockout[nextAttack],
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/ningguang/charge.go
++++ b/internal/characters/ningguang/charge.go
+@@ -157,9 +157,9 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return chargeFrames[chargeType][next] - windup
+-		},
++		}),
+ 		AnimationLength: chargeFrames[chargeType][action.InvalidAction] - windup,
+ 		CanQueueAfter:   canQueueAfter - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/noelle/charge.go
++++ b/internal/characters/noelle/charge.go
+@@ -97,7 +97,7 @@
+ 
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 	act := action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			f := chargeFrames[next]
+ 
+ 			switch {
+@@ -113,7 +113,7 @@
+ 			}
+ 
+ 			return windup + frames.AtkSpdAdjust(f, atkspd)
+-		},
++		}),
+ 		OnRemoved: func(next action.AnimationState) {
+ 			if next != action.ChargeAttackState {
+ 				c.caState = ChargeState{}
+--- a/internal/characters/prune/charge.go
++++ b/internal/characters/prune/charge.go
+@@ -55,7 +55,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/prune/skill.go
++++ b/internal/characters/prune/skill.go
+@@ -115,13 +115,13 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 15*60, 25)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			// skill recast has different cancel frame
+ 			if next == action.ActionSkill && c.StatusIsActive(skillRecastWindowKey) {
+ 				return 28
+ 			}
+ 			return skillFrames[next]
+-		},
++		}),
+ 		AnimationLength: skillFrames[action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[action.ActionSwap],
+ 		State:           action.SkillState,
+--- a/internal/characters/sayu/skill.go
++++ b/internal/characters/sayu/skill.go
+@@ -285,7 +285,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, int(6*60+float64(duration)*0.5), (skillHoldCDStart-600)+duration+2)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillHoldFrames[next] - 600 + duration },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillHoldFrames[next] - 600 + duration }),
+ 		AnimationLength: skillHoldFrames[action.InvalidAction] - 600 + duration,
+ 		CanQueueAfter:   skillHoldFrames[action.ActionSwap] - 600 + duration, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/sethos/aimed.go
++++ b/internal/characters/sethos/aimed.go
+@@ -111,7 +111,7 @@
+ 	}, aimedHitmarks[hold]-skip)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return aimedFrames[hold][next] - skip },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return aimedFrames[hold][next] - skip }),
+ 		AnimationLength: aimedFrames[hold][action.InvalidAction] - skip,
+ 		CanQueueAfter:   aimedHitmarks[hold] - skip,
+ 		State:           action.AimState,
+@@ -208,7 +208,7 @@
+ 	}, aimedHitmarks[2]-skip)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return aimedFrames[2][next] - skip },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return aimedFrames[2][next] - skip }),
+ 		AnimationLength: aimedFrames[2][action.InvalidAction] - skip,
+ 		CanQueueAfter:   aimedHitmarks[2] - skip,
+ 		State:           action.AimState,
+--- a/internal/characters/sigewinne/burst.go
++++ b/internal/characters/sigewinne/burst.go
+@@ -72,9 +72,9 @@
+ 	c.addC2Shield()
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return chargeBurstDur + c.tickAnimLength + endLag[next]
+-		},
++		}),
+ 		AnimationLength: chargeBurstDur + c.burstMaxDuration,
+ 		CanQueueAfter:   chargeBurstDur,
+ 		State:           action.BurstState,
+--- a/internal/characters/skirk/attack.go
++++ b/internal/characters/skirk/attack.go
+@@ -140,9 +140,9 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(attackFrames[normalCounter][next], c.Stat(attributes.AtkSpd)) - windupRemove
+-		},
++		}),
+ 		AnimationLength: attackFrames[normalCounter][action.InvalidAction] - windupRemove,
+ 		CanQueueAfter:   attackHitmarks[normalCounter][len(attackHitmarks[normalCounter])-1] - windupRemove,
+ 		State:           action.NormalAttackState,
+@@ -210,9 +210,9 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return frames.AtkSpdAdjust(attackSkillFrames[normalCounter][next], c.Stat(attributes.AtkSpd)) - windupRemove
+-		},
++		}),
+ 		AnimationLength: attackSkillFrames[normalCounter][action.InvalidAction] - windupRemove,
+ 		CanQueueAfter:   attackSkillHitmarks[normalCounter][len(attackSkillHitmarks[normalCounter])-1] - windupRemove,
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/skirk/charge.go
++++ b/internal/characters/skirk/charge.go
+@@ -75,7 +75,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] }),
+ 		AnimationLength: chargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   chargeFrames[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/skirk/dash.go
++++ b/internal/characters/skirk/dash.go
+@@ -22,14 +22,14 @@
+ 
+ 	dashJumpLength := c.DashToJumpLength()
+ 	return action.Info{
+-		Frames: func(a action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(a action.Action) int {
+ 			switch a {
+ 			case action.ActionJump:
+ 				return dashJumpLength
+ 			default:
+ 				return skillDashLength
+ 			}
+-		},
++		}),
+ 		AnimationLength: skillDashLength,
+ 		CanQueueAfter:   dashJumpLength,
+ 		State:           action.DashState,
+--- a/internal/characters/skirk/skill.go
++++ b/internal/characters/skirk/skill.go
+@@ -125,9 +125,9 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 8*60, extraDuration+skillHoldGainSS)
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return skillHoldFrames[next] + extraDuration
+-		},
++		}),
+ 		AnimationLength: skillHoldFrames[action.InvalidAction] + extraDuration,
+ 		CanQueueAfter:   skillHoldFrames[action.ActionSwap] + extraDuration,
+ 		State:           action.SkillState,
+--- a/internal/characters/sucrose/charge.go
++++ b/internal/characters/sucrose/charge.go
+@@ -59,7 +59,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/tartaglia/dash.go
++++ b/internal/characters/tartaglia/dash.go
+@@ -15,7 +15,7 @@
+ func (c *char) Dash(p map[string]int) (action.Info, error) {
+ 	c.Character.Dash(p)
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return dashFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return dashFrames[next] }),
+ 		AnimationLength: dashFrames[action.InvalidAction],
+ 		CanQueueAfter:   dashFrames[action.ActionSkill], // fastest cancel
+ 		State:           action.DashState,
+--- a/internal/characters/tartaglia/walk.go
++++ b/internal/characters/tartaglia/walk.go
+@@ -19,12 +19,12 @@
+ 	}
+ 	animLength := max(walkFrames[action.ActionSkill], f)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if f < walkFrames[next] {
+ 				return walkFrames[next]
+ 			}
+ 			return f
+-		},
++		}),
+ 		AnimationLength: animLength,
+ 		CanQueueAfter:   f,
+ 		State:           action.WalkState,
+--- a/internal/characters/tighnari/aimed.go
++++ b/internal/characters/tighnari/aimed.go
+@@ -217,7 +217,7 @@
+ 	}, aimedWreathHitmark+travel-skip)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return aimedWreathFrames[next] - skip },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return aimedWreathFrames[next] - skip }),
+ 		AnimationLength: aimedWreathFrames[action.InvalidAction] - skip,
+ 		CanQueueAfter:   aimedWreathHitmark - skip,
+ 		State:           action.AimState,
+--- a/internal/characters/traveler/common/anemo/skill.go
++++ b/internal/characters/traveler/common/anemo/skill.go
+@@ -234,7 +234,7 @@
+ 	// starts absorbing after the first tick?
+ 	c.Core.Tasks.Add(c.absorbCheckE(c.Core.F, 0, hitmark/18), firstTick+1)
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillHoldDelayFrames[c.gender][next] + hitmark },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillHoldDelayFrames[c.gender][next] + hitmark }),
+ 		AnimationLength: skillHoldDelayFrames[c.gender][action.InvalidAction] + hitmark,
+ 		CanQueueAfter:   skillHoldDelayFrames[c.gender][action.ActionDash] + hitmark, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/traveler/common/hydro/skill.go
++++ b/internal/characters/traveler/common/hydro/skill.go
+@@ -201,7 +201,7 @@
+ 	c.SetCDWithDelay(action.ActionSkill, 10*60, skillShortHoldCdStart+extend)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillShortHoldFrames[c.gender][next] + extend },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillShortHoldFrames[c.gender][next] + extend }),
+ 		AnimationLength: skillShortHoldFrames[c.gender][action.InvalidAction] + extend,
+ 		CanQueueAfter:   skillShortHoldCanQueueAfter[c.gender] + extend, // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/varesa/attack.go
++++ b/internal/characters/varesa/attack.go
+@@ -116,7 +116,7 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return attackFrames[normalCounter][next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return attackFrames[normalCounter][next] - windup }),
+ 		AnimationLength: attackFrames[normalCounter][action.InvalidAction] - windup,
+ 		CanQueueAfter:   attackCQA[normalCounter] - windup,
+ 		State:           action.NormalAttackState,
+@@ -174,7 +174,7 @@
+ 	defer c.AdvanceNormalIndex()
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return fieryAttackFrames[normalCounter][next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return fieryAttackFrames[normalCounter][next] - windup }),
+ 		AnimationLength: fieryAttackFrames[normalCounter][action.InvalidAction] - windup,
+ 		CanQueueAfter:   fieryAttackCQA[normalCounter] - windup,
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/varesa/charge.go
++++ b/internal/characters/varesa/charge.go
+@@ -74,7 +74,7 @@
+ 	if c.StatusIsActive(skillStatus) {
+ 		ai.Abil += " (Follow-Up Strike)"
+ 		hitmark = fastChargeHitmark
+-		framesCB = quickAbilFunc(chargeFrames, fastChargedFrame)
++		framesCB = action.OpaqueFrameFunc(quickAbilFunc(chargeFrames, fastChargedFrame))
+ 		c.DeleteStatus(skillStatus)
+ 	}
+ 
+@@ -115,7 +115,7 @@
+ 	if c.StatusIsActive(skillStatus) {
+ 		ai.Abil += " (Follow-Up Strike)"
+ 		hitmark = fastFieryChargeHitmark
+-		framesCB = quickAbilFunc(fieryChargeFrames, fastFieryChargedFrame)
++		framesCB = action.OpaqueFrameFunc(quickAbilFunc(fieryChargeFrames, fastFieryChargedFrame))
+ 		c.DeleteStatus(skillStatus)
+ 	}
+ 
+--- a/internal/characters/varesa/plunge.go
++++ b/internal/characters/varesa/plunge.go
+@@ -286,7 +286,7 @@
+ 
+ 	hitmark := xianyunHighPlungeHitmark
+ 	c.exitNS = false
+-	plungeFrames := c.newAbilFuncXYPlunge(xianyunHighPlungeFrames, xianyunHighPlungeNonNSWalk)
++	plungeFrames := action.OpaqueFrameFunc(c.newAbilFuncXYPlunge(xianyunHighPlungeFrames, xianyunHighPlungeNonNSWalk))
+ 	if c.nightsoulState.HasBlessing() {
+ 		ai.Abil = "Fiery Passion High Plunge"
+ 		ai.Mult = fieryHighPlunge[c.TalentLvlAttack()]
+@@ -314,8 +314,8 @@
+ 
+ 	return action.Info{
+ 		Frames:          plungeFrames,
+-		AnimationLength: plungeFrames(action.InvalidAction),
+-		CanQueueAfter:   plungeFrames(action.ActionDash),
++		AnimationLength: plungeFrames.Run(action.InvalidAction),
++		CanQueueAfter:   plungeFrames.Run(action.ActionDash),
+ 		State:           action.PlungeAttackState,
+ 		OnRemoved:       c.clearNightsoulCB,
+ 	}
+@@ -356,7 +356,7 @@
+ 
+ 	hitmark := xianyunLowPlungeHitmark
+ 	c.exitNS = false
+-	plungeFrames := c.newAbilFuncXYPlunge(xianyunLowPlungeFrames, xianyunLowPlungeNonNSWalk)
++	plungeFrames := action.OpaqueFrameFunc(c.newAbilFuncXYPlunge(xianyunLowPlungeFrames, xianyunLowPlungeNonNSWalk))
+ 	if c.nightsoulState.HasBlessing() {
+ 		ai.Abil = "Fiery Passion Low Plunge"
+ 		ai.Mult = fieryLowPlunge[c.TalentLvlAttack()]
+@@ -384,8 +384,8 @@
+ 
+ 	return action.Info{
+ 		Frames:          plungeFrames,
+-		AnimationLength: plungeFrames(action.InvalidAction),
+-		CanQueueAfter:   plungeFrames(action.ActionDash),
++		AnimationLength: plungeFrames.Run(action.InvalidAction),
++		CanQueueAfter:   plungeFrames.Run(action.ActionDash),
+ 		State:           action.PlungeAttackState,
+ 		OnRemoved:       c.clearNightsoulCB,
+ 	}
+--- a/internal/characters/varka/skill.go
++++ b/internal/characters/varka/skill.go
+@@ -125,7 +125,7 @@
+ 	}, skillHitmark-1) // converts to skill state before the skill hitmark, relevant for Sac GS resetting cooldowns
+ 	c.SetCDWithDelay(action.ActionSkill, skillCD, 39)
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return skillFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return skillFrames[next] }),
+ 		AnimationLength: skillFrames[action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[action.ActionJump], // earliest cancel
+ 		State:           action.SkillState,
+@@ -186,7 +186,7 @@
+ 	c.c2OnSpecialSkill()
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return specialSkillFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return specialSkillFrames[next] }),
+ 		AnimationLength: specialSkillFrames[action.InvalidAction],
+ 		CanQueueAfter:   specialSkillFrames[action.ActionBurst], // earliest cancel
+ 		State:           action.SkillState,
+--- a/internal/characters/wanderer/attack.go
++++ b/internal/characters/wanderer/attack.go
+@@ -120,10 +120,10 @@
+ 	defer c.AdvanceNormalIndex()
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return windup +
+ 				frames.AtkSpdAdjust(attackFramesNormal[currentNormalCounter][next], atkspd)
+-		},
++		}),
+ 		AnimationLength: windup + attackFramesNormal[c.NormalCounter][action.InvalidAction],
+ 		CanQueueAfter:   windup + attackCQANormal[c.NormalCounter],
+ 		State:           action.NormalAttackState,
+@@ -173,10 +173,10 @@
+ 	defer c.AdvanceNormalIndex()
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return windup +
+ 				frames.AtkSpdAdjust(attackFramesE[currentNormalCounter][next], atkspd)
+-		},
++		}),
+ 		AnimationLength: windup + attackFramesE[c.NormalCounter][action.InvalidAction],
+ 		CanQueueAfter:   windup + attackCQAE[c.NormalCounter],
+ 		State:           action.NormalAttackState,
+--- a/internal/characters/wanderer/burst.go
++++ b/internal/characters/wanderer/burst.go
+@@ -71,7 +71,7 @@
+ 	c.ConsumeEnergy(5)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return delay + burstFramesNormal[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return delay + burstFramesNormal[next] }),
+ 		AnimationLength: delay + burstFramesNormal[action.InvalidAction],
+ 		CanQueueAfter:   delay + burstFramesNormal[action.ActionAttack],
+ 		State:           action.BurstState,
+@@ -107,7 +107,7 @@
+ 	c.skydwellerPoints = 0
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return burstFramesE[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return burstFramesE[next] }),
+ 		AnimationLength: burstFramesE[action.InvalidAction],
+ 		CanQueueAfter:   burstFramesE[action.ActionWalk],
+ 		State:           action.BurstState,
+--- a/internal/characters/wanderer/charge.go
++++ b/internal/characters/wanderer/charge.go
+@@ -71,10 +71,10 @@
+ 	)
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return windup +
+ 				frames.AtkSpdAdjust(chargeFramesNormal[next], atkspd)
+-		},
++		}),
+ 		AnimationLength: windup + chargeFramesNormal[action.InvalidAction],
+ 		CanQueueAfter:   windup + chargeFramesNormal[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+@@ -108,10 +108,10 @@
+ 	)
+ 	atkspd := c.Stat(attributes.AtkSpd)
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			return windup +
+ 				frames.AtkSpdAdjust(chargeFramesE[next], atkspd)
+-		},
++		}),
+ 		AnimationLength: windup + chargeFramesE[action.InvalidAction],
+ 		CanQueueAfter:   windup + chargeFramesE[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/wanderer/dash.go
++++ b/internal/characters/wanderer/dash.go
+@@ -38,7 +38,7 @@
+ 	// length is standard dash length + skill end delay (to simulate falling)
+ 	length := c.DashLength() + delay
+ 	return action.Info{
+-		Frames:          func(action.Action) int { return length },
++		Frames:          action.OpaqueFrameFunc(func(action.Action) int { return length }),
+ 		AnimationLength: length,
+ 		CanQueueAfter:   length,
+ 		State:           action.DashState,
+@@ -47,7 +47,7 @@
+ 
+ func (c *char) WindfavoredDash(p map[string]int) (action.Info, error) {
+ 	ai := action.Info{
+-		Frames:          func(next action.Action) int { return dashFramesE[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return dashFramesE[next] }),
+ 		AnimationLength: dashFramesE[action.InvalidAction],
+ 		CanQueueAfter:   dashFramesE[action.ActionSkill],
+ 		State:           action.DashState,
+--- a/internal/characters/wanderer/jump.go
++++ b/internal/characters/wanderer/jump.go
+@@ -27,7 +27,7 @@
+ 	ai, err := c.Character.Jump(p)
+ 
+ 	f := delay + ai.AnimationLength
+-	ai.Frames = func(action.Action) int { return f }
++	ai.Frames = action.OpaqueFrameFunc(func(action.Action) int { return f })
+ 	ai.AnimationLength = f
+ 	ai.CanQueueAfter = f
+ 
+--- a/internal/characters/wanderer/plunge.go
++++ b/internal/characters/wanderer/plunge.go
+@@ -69,7 +69,7 @@
+ 		delay+lowPlungeHitmark, delay+lowPlungeHitmark)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return lowPlungeFrames[next] },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return lowPlungeFrames[next] }),
+ 		AnimationLength: lowPlungeFrames[action.InvalidAction],
+ 		CanQueueAfter:   lowPlungeHitmark,
+ 		State:           action.PlungeAttackState,
+--- a/internal/characters/wanderer/skill.go
++++ b/internal/characters/wanderer/skill.go
+@@ -73,12 +73,12 @@
+ 	delay := c.skillEndRoutine()
+ 
+ 	return action.Info{
+-		Frames: func(next action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(next action.Action) int {
+ 			if next == action.ActionLowPlunge {
+ 				return 7
+ 			}
+ 			return delay
+-		},
++		}),
+ 		AnimationLength: delay,
+ 		CanQueueAfter:   7,
+ 		State:           action.Idle,
+--- a/internal/characters/wanderer/wanderer.go
++++ b/internal/characters/wanderer/wanderer.go
+@@ -55,7 +55,7 @@
+ 	ai, err := c.Character.Walk(p)
+ 
+ 	f := delay + ai.AnimationLength
+-	ai.Frames = func(action.Action) int { return f }
++	ai.Frames = action.OpaqueFrameFunc(func(action.Action) int { return f })
+ 	ai.AnimationLength = f
+ 	ai.CanQueueAfter = f
+ 
+--- a/internal/characters/xianyun/charge.go
++++ b/internal/characters/xianyun/charge.go
+@@ -64,7 +64,7 @@
+ 	)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmark - windup,
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/xilonen/skill.go
++++ b/internal/characters/xilonen/skill.go
+@@ -161,7 +161,7 @@
+ 	if c.nightsoulState.HasBlessing() { // don't use canUseNightsoul
+ 		c.exitNightsoul()
+ 		return action.Info{
+-			Frames:          func(_ action.Action) int { return 1 },
++			Frames:          action.OpaqueFrameFunc(func(_ action.Action) int { return 1 }),
+ 			AnimationLength: 1,
+ 			CanQueueAfter:   1, // earliest cancel
+ 			State:           action.SkillState,
+--- a/internal/characters/yaemiko/charge.go
++++ b/internal/characters/yaemiko/charge.go
+@@ -57,7 +57,7 @@
+ 	}
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionDash] - windup, // earliest cancel is before hitmark
+ 		State:           action.ChargeAttackState,
+--- a/internal/characters/yanfei/charge.go
++++ b/internal/characters/yanfei/charge.go
+@@ -75,7 +75,7 @@
+ 	}, 1)
+ 
+ 	return action.Info{
+-		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
++		Frames:          action.OpaqueFrameFunc(func(next action.Action) int { return chargeFrames[next] - windup }),
+ 		AnimationLength: chargeFrames[action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeFrames[action.ActionJump] - windup, // earliest cancel is before hitmark
+ 		State:           action.ChargeAttackState,
+--- a/internal/template/character/stam.go
++++ b/internal/template/character/stam.go
+@@ -48,14 +48,14 @@
+ 	length := c.DashLength()
+ 	dashJumpLength := c.DashToJumpLength()
+ 	return action.Info{
+-		Frames: func(a action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(a action.Action) int {
+ 			switch a {
+ 			case action.ActionJump:
+ 				return dashJumpLength
+ 			default:
+ 				return length
+ 			}
+-		},
++		}),
+ 		AnimationLength: length,
+ 		CanQueueAfter:   dashJumpLength,
+ 		State:           action.DashState,
+@@ -129,7 +129,7 @@
+ 		c.Core.Player.SetAirborne(player.AirborneXianyun)
+ 
+ 		return action.Info{
+-			Frames: func(a action.Action) int {
++			Frames: action.OpaqueFrameFunc(func(a action.Action) int {
+ 				switch a {
+ 				case action.ActionLowPlunge:
+ 					return lowPlunge
+@@ -138,7 +138,7 @@
+ 				default:
+ 					return animLength // This is expected to later lead to action error because no other action besides plunges can be done while AirborneXianyun
+ 				}
+-			},
++			}),
+ 			AnimationLength: animLength,
+ 			CanQueueAfter:   lowPlunge, // earliest cancel
+ 			State:           action.JumpState,
+@@ -149,7 +149,7 @@
+ 		c.Core.Player.SetAirborne(player.AirborneStellarSwirl)
+ 		c.Core.Status.Delete(player.StellarSwirlAirborneBuff)
+ 		return action.Info{
+-			Frames: func(a action.Action) int {
++			Frames: action.OpaqueFrameFunc(func(a action.Action) int {
+ 				switch a {
+ 				case action.ActionLowPlunge:
+ 					return lowPlunge
+@@ -158,7 +158,7 @@
+ 				default:
+ 					return animLength // This is expected to later lead to action error because no other action besides plunges can be done while AirborneStellarSwirl
+ 				}
+-			},
++			}),
+ 			AnimationLength: animLength,
+ 			CanQueueAfter:   lowPlunge, // earliest cancel
+ 			State:           action.JumpState,
+@@ -172,7 +172,7 @@
+ 		// If it's towards the end of the jump it only makes the jump last a bit longer
+ 		// therefore we need a function that is duration_of_jump(frame_when_ssw_explodes), as well
+ 		// as which frame the player can plunge at after the ssw explosion
+-		Frames: func(a action.Action) int {
++		Frames: action.OpaqueFrameFunc(func(a action.Action) int {
+ 			if c.JumpModified == player.AirborneStellarSwirl && c.Core.Player.Airborne() == player.AirborneStellarSwirl {
+ 				switch a {
+ 				case action.ActionLowPlunge:
+@@ -184,7 +184,7 @@
+ 				}
+ 			}
+ 			return f
+-		},
++		}),
+ 		AnimationLength: animLength,
+ 		CanQueueAfter:   lowPlunge,
+ 		State:           action.JumpState,
+@@ -220,7 +220,7 @@
+ 		f = 1
+ 	}
+ 	return action.Info{
+-		Frames:          func(action.Action) int { return f },
++		Frames:          action.OpaqueFrameFunc(func(action.Action) int { return f }),
+ 		AnimationLength: f,
+ 		CanQueueAfter:   f,
+ 		State:           action.WalkState,
+--- a/internal/tests/frames_func/frames_func_test.go
++++ b/internal/tests/frames_func/frames_func_test.go
+@@ -141,8 +141,8 @@
+ 		}
+ 		c.Player.SetActionUsed(c.Player.Active(), a, &evt)
+ 		for act := range action.EndActionType {
+-			if evt.Frames(act) > evt.AnimationLength {
+-				t.Errorf("character %s action %s params: %v AnimationLength (%d) is smaller than the output of evt.Frames[%s] (%d). Action sequence: %s", c.Player.ActiveChar().Base.Key.String(), a, p, evt.AnimationLength, act.String(), evt.Frames(act), acts[:i+1])
++			if evt.Frames.Run(act) > evt.AnimationLength {
++				t.Errorf("character %s action %s params: %v AnimationLength (%d) is smaller than the output of evt.Frames[%s] (%d). Action sequence: %s", c.Player.ActiveChar().Base.Key.String(), a, p, evt.AnimationLength, act.String(), evt.Frames.Run(act), acts[:i+1])
+ 				break
+ 			}
+ 
+@@ -156,8 +156,8 @@
+ 				break
+ 			}
+ 
+-			if evt.Frames(act) < evt.CanQueueAfter {
+-				t.Errorf("character %s action %s params: %v CanQueueAfter (%d) is larger than the output of evt.Frames[%s] (%d). Action sequence: %s", c.Player.ActiveChar().Base.Key.String(), a, p, evt.CanQueueAfter, act.String(), evt.Frames(act), acts[:i+1])
++			if evt.Frames.Run(act) < evt.CanQueueAfter {
++				t.Errorf("character %s action %s params: %v CanQueueAfter (%d) is larger than the output of evt.Frames[%s] (%d). Action sequence: %s", c.Player.ActiveChar().Base.Key.String(), a, p, evt.CanQueueAfter, act.String(), evt.Frames.Run(act), acts[:i+1])
+ 				break
+ 			}
+ 		}
+--- a/pkg/core/player/animation/animation.go
++++ b/pkg/core/player/animation/animation.go
+@@ -93,7 +93,7 @@
+ 			Write("Segmented", evt.Segmented).
+ 			Write("State", evt.State.String())
+ 		for i := range action.EndActionType {
+-			h.event.Write(i.String(), evt.Frames(i))
++			h.event.Write(i.String(), evt.Frames.Run(i))
+ 		}
+ 	}
+ }

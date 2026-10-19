@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts (3 tests | 1 failed) 575ms
+     × samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners 94ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts > remaining fixed-source weapon lifecycles > samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners
+AssertionError: expected 16 to be 112 // Object.is equality
+
+- Expected
++ Received
+
+- 112
++ 16
+
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts:64:96
+     62|     expect(hits.map(row => [row.frame, row.targetId, row.activeCharact…
+     63|     expect(replay(result, hits[0]!.id)).toBe(0);
+     64|     expect(abilityPendingHorizonTicks(config.timeline!.abilities[0]!, …
+       |                                                                                                ^
+     65|     const pendingConfig = { ...structuredClone(config), duration: 15 /…
+     66|     delete pendingConfig.enemy.targetMotions; // moving-target checkpo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:56:22
+   Duration  1.59s (transform 741ms, setup 0ms, import 952ms, tests 575ms, environment 0ms)
+

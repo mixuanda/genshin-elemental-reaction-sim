@@ -1,0 +1,40 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts (3 tests | 1 failed) 580ms
+     × samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners 100ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts > remaining fixed-source weapon lifecycles > samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners
+AssertionError: expected { complete: false, …(2) } to match object { complete: true, reasons: [] }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "complete": true,
+-   "reasons": [],
++   "complete": false,
++   "reasons": [
++     "未来完整输入周期并不重复，或不足两次完整的 1 至 16 周期模式；不能折叠为已验证周期输入。",
++   ],
+  }
+
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts:72:62
+     70|     pendingConfig.timeline!.commands.push({ type: "swap", characterId:…
+     71|     const checkpointRun = simulate({ ...pendingConfig, duration: 3 }, …
+     72|     expect(checkpointRun.executionAudit!.checkpointCoverage).toMatchOb…
+       |                                                              ^
+     73|     const state = checkpointRun.executionAudit!.phaseCheckpoints[0]!.s…
+     74|     expect(state.pendingEvents.inFlight.find((row: any) => row.type ==…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:57:26
+   Duration  1.57s (transform 727ms, setup 0ms, import 931ms, tests 580ms, environment 0ms)
+

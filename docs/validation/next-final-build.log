@@ -1,0 +1,14 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/__tests__/special-profile-fixtures.ts(40,8): error TS2322: Type '({ type: string; actorId: string; abilityId: string; atFrame: number; characterId?: never; } | { actorId?: never; abilityId?: never; type: string; characterId: string; atFrame: number; })[]' is not assignable to type 'LegalTimelineCommand[]'.
+  Type '{ type: string; actorId: string; abilityId: string; atFrame: number; characterId?: never; } | { actorId?: never; abilityId?: never; type: string; characterId: string; atFrame: number; }' is not assignable to type 'LegalTimelineCommand'.
+    Type '{ type: string; actorId: string; abilityId: string; atFrame: number; characterId?: never; }' is not assignable to type 'LegalTimelineCommand'.
+      Type '{ type: string; actorId: string; abilityId: string; atFrame: number; characterId?: never; }' is not assignable to type 'TimelineAbilityCommand'.
+        Types of property 'type' are incompatible.
+          Type 'string' is not assignable to type 'AbilityKind'.

@@ -1,0 +1,27 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/source-host-target-summary.test.ts (2 tests | 1 failed) 19ms
+   × maps non-contiguous native target keys, retains an observed zero-hit target, and traces per-target and total sums 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/source-host-target-summary.test.ts > maps non-contiguous native target keys, retains an observed zero-hit target, and traces per-target and total sums
+TypeError: Cannot read properties of undefined (reading 'rawDamage')
+ ❯ summarizeSourceHostTargets packages/sim-core/src/source-host-target-summary.ts:192:137
+    190|     for (const row of targetRows) {
+    191|       const metric = groups.find(group => group.targetKey === row.targ…
+    192|       row.rawDamageRate = rateMetric(builder, `target-${row.targetKey}…
+       |                                                                                                                                         ^
+    193|       row.appliedDamageRate = rateMetric(builder, `target-${row.target…
+    194|     }
+ ❯ packages/sim-core/src/source-host-target-summary.test.ts:25:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 4 passed (5)
+   Start at  07:02:20
+   Duration  245ms (transform 42ms, setup 0ms, import 58ms, tests 22ms, environment 0ms)
+

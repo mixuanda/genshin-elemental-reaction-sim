@@ -1,0 +1,354 @@
+{
+  "scope": "research provenance metadata only; no live-game correctness certification",
+  "records": [
+    {
+      "id": "s1",
+      "url": "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+      "resolvedUrl": "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+      "retrievedAt": "2026-09-22T14:30:46.223720+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "etag": null,
+      "lastModified": null,
+      "sha256": "928302c082615f2e3b6b37fb83165a670c63d23c379a11b3ea5d492f6e247cf6",
+      "bytes": 124336
+    },
+    {
+      "id": "s2",
+      "url": "https://keqingmains.com/misc/lunar-reactions/",
+      "resolvedUrl": "https://keqingmains.com/misc/lunar-reactions/",
+      "retrievedAt": "2026-09-22T14:30:48.108617+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "etag": null,
+      "lastModified": null,
+      "sha256": "de1ebc4ee7767842f07ee7a5eb6ceeb7eb980b1d8b55a7eaac84e5e027097a9e",
+      "bytes": 180716,
+      "declaredGameVersion": "Luna VI",
+      "pagePublishedAt": "2026-01-12T05:20:40+00:00",
+      "pageModifiedAt": "2026-08-13T14:34:22+00:00"
+    },
+    {
+      "id": "s3",
+      "url": "https://keqingmains.com/misc/stellar-reaction-guide/",
+      "resolvedUrl": "https://keqingmains.com/misc/stellar-reaction-guide/",
+      "retrievedAt": "2026-09-22T14:30:49.729027+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html; charset=utf-8",
+      "etag": null,
+      "lastModified": null,
+      "sha256": "cba82bde8a037b75cc1762a3b13976c857118a917221087a756b0347f5a6330c",
+      "bytes": 179082,
+      "declaredGameVersion": "7.0",
+      "pagePublishedAt": "2026-08-11T07:25:43+00:00",
+      "pageModifiedAt": "2026-08-19T17:00:11+00:00"
+    },
+    {
+      "id": "s4",
+      "url": "https://compendium.keqingmains.com/",
+      "resolvedUrl": "https://compendium.keqingmains.com/",
+      "retrievedAt": "2026-09-22T14:30:51.394060+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "etag": null,
+      "lastModified": null,
+      "sha256": "108ead58463dd251b1e881094903c245d74a3e2cc83d181dce8da63e5873ed56",
+      "bytes": 106073,
+      "declaredRevision": "2.0.2",
+      "declaredLastUpdated": "2024-05-03"
+    },
+    {
+      "id": "s5",
+      "url": "https://docs.gcsim.app/",
+      "resolvedUrl": "https://docs.gcsim.app/",
+      "retrievedAt": "2026-09-22T14:30:52.572108+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "etag": null,
+      "lastModified": null,
+      "sha256": "a6e92dba0f2aed917318950d25268a788d220537c8048ee794f27591bbeaff24",
+      "bytes": 15574
+    },
+    {
+      "id": "gcsim",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.dm.go",
+      "resolvedUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.dm.go",
+      "retrievedAt": "2026-09-22T14:30:53.634110+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "etag": "\"05049612544c21c611fb1cfbfff67e155a01cbea66641159fd3aae40effd1b15\"",
+      "lastModified": null,
+      "sha256": "b3b8b2f16ffd32e6a133ffd6770889ea257dfae52ed35156e6e26bd2c1e9b9e9",
+      "bytes": 2431
+    },
+    {
+      "id": "ssc-direct",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Direct-Stellar-Conduct-Formula.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Direct-Stellar-Conduct-Formula.webp",
+      "retrievedAt": "2026-09-22T14:30:54.852913+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"0ddbf6b24622f6ecbea7f751a842c69f\"",
+      "lastModified": "Tue, 11 Aug 2026 12:00:04 GMT",
+      "sha256": "12495bf7d8e1214b1a1b673ebfb35e9d646f7f027fa7e020266f4097f8ee867a",
+      "bytes": 13542
+    },
+    {
+      "id": "ssw-indirect",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Indirect-Stellar-Swirl-Formula.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Indirect-Stellar-Swirl-Formula.webp",
+      "retrievedAt": "2026-09-22T14:30:55.797792+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"5c3b3fa4bf267fed7e0b375643a7355e\"",
+      "lastModified": "Tue, 11 Aug 2026 12:00:04 GMT",
+      "sha256": "0164bbecd1ae804a41d9eb09b74d8cc8383de84816d30d485a75d30ffd98ca5a",
+      "bytes": 13332
+    },
+    {
+      "id": "ssw-contribution",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Stellar-Swirl-Contribution.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Stellar-Swirl-Contribution.webp",
+      "retrievedAt": "2026-09-22T14:30:57.166353+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"8b3afac69a409b4a76d80fddd8b7a90b\"",
+      "lastModified": "Tue, 11 Aug 2026 12:00:04 GMT",
+      "sha256": "74027c7ef3d4d3a65204f407c4808a28c1d76b2b32f18887fc9bc61490451c0f",
+      "bytes": 8524
+    },
+    {
+      "id": "ssw-direct",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Direct-Stellar-Swirl-Formula.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/Direct-Stellar-Swirl-Formula.webp",
+      "retrievedAt": "2026-09-22T14:30:57.915484+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"702d8d86f4b61e73306bd278392b2b73\"",
+      "lastModified": "Tue, 11 Aug 2026 12:00:04 GMT",
+      "sha256": "18c5d7a3e8f7af69d1b6d8b211b18fecbd3bbee68c019d069b475f0b80b06df2",
+      "bytes": 12338
+    },
+    {
+      "id": "ssw-em",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/EM-Bonus-Formula.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/08/EM-Bonus-Formula.webp",
+      "retrievedAt": "2026-09-22T14:30:58.646149+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"48b2d751565b2ac6a3d0678d21b34d2f\"",
+      "lastModified": "Tue, 11 Aug 2026 12:00:04 GMT",
+      "sha256": "f62d72b62ba67e7f896295a8a9107f56f801c343b8dcc60a0ee652afe53d15ac",
+      "bytes": 3548
+    },
+    {
+      "id": "lc-indirect",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/05/image2-new.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/05/image2-new.webp",
+      "retrievedAt": "2026-09-22T14:30:59.378638+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"f1bb7c18c49182e3627687fcea79854d\"",
+      "lastModified": "Tue, 05 May 2026 00:00:04 GMT",
+      "sha256": "36cf1f3556242a208c458bde75f59492b3bac28d78d0916e8a5a361eb768d116",
+      "bytes": 8076
+    },
+    {
+      "id": "lc-contribution",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/05/image6-new.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/05/image6-new.webp",
+      "retrievedAt": "2026-09-22T14:31:01.121962+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"f345a45ec0170cf38c102206eb681cb6\"",
+      "lastModified": "Tue, 05 May 2026 00:00:04 GMT",
+      "sha256": "97afa6f447880413b2c5389bb2c778bc6630f7ca061238af95733940cc7f01d1",
+      "bytes": 5324
+    },
+    {
+      "id": "lc-direct",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/Direct-LC.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/Direct-LC.webp",
+      "retrievedAt": "2026-09-22T14:31:01.878997+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"33042b19eff5f869331c313b7eb052d1\"",
+      "lastModified": "Tue, 13 Jan 2026 00:00:04 GMT",
+      "sha256": "6c8983555ba9a9ecc8570384c3ce8e8e95efe58d4b26b4d8a43259fd44e7e5a3",
+      "bytes": 12698
+    },
+    {
+      "id": "lb-direct",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/Direct-LB.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/Direct-LB.webp",
+      "retrievedAt": "2026-09-22T14:31:02.787308+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"8853f158551a397ec2043c363d068258\"",
+      "lastModified": "Tue, 13 Jan 2026 00:00:04 GMT",
+      "sha256": "871e851915e491b6046b246264a17d23cbdbb6227c803b35bbdf69a47f63dee4",
+      "bytes": 12080
+    },
+    {
+      "id": "lcr-indirect",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/05/image5-new.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/05/image5-new.webp",
+      "retrievedAt": "2026-09-22T14:31:03.579129+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"d6e99f5f0808cb948b0515a3bcbd63a5\"",
+      "lastModified": "Tue, 05 May 2026 00:00:04 GMT",
+      "sha256": "b24b6ec5b79e7c20d0d84ddbaf0be17abe15b593d3153708f15eaa18791015f7",
+      "bytes": 8344
+    },
+    {
+      "id": "lcr-direct",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/Direct-LCr.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/Direct-LCr.webp",
+      "retrievedAt": "2026-09-22T14:31:04.337942+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"e8af74c86a836659e7678bc0aadd79e6\"",
+      "lastModified": "Tue, 13 Jan 2026 00:00:05 GMT",
+      "sha256": "2bd014ec3125f64488149bc2a99c5e7808fa3d56e130ca3a70cede565af93af5",
+      "bytes": 13036
+    },
+    {
+      "id": "lunar-em",
+      "url": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/EM-Bonus.webp",
+      "resolvedUrl": "https://kqm-uploads.keqingmains.com/wp-content/uploads/2026/01/EM-Bonus.webp",
+      "retrievedAt": "2026-09-22T14:31:05.079286+00:00",
+      "httpStatus": 200,
+      "contentType": "image/webp",
+      "etag": "\"5dc877fc3f754fe92a40ffbbf5096e73\"",
+      "lastModified": "Tue, 13 Jan 2026 00:00:04 GMT",
+      "sha256": "8f1486d669b1b5adffdffa145b2351e86f142b1b06a3119917b61ea1a885d05d",
+      "bytes": 3184
+    },
+    {
+      "id": "official-71",
+      "url": "https://www.hoyolab.com/article_pre/18014398241022008",
+      "resolvedUrl": "https://www.hoyolab.com/article_pre/18014398241022008",
+      "retrievedAt": "2026-09-22T14:31:06.493393+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "etag": "\"48999ace60a1e2dde0de1de438c519ab\"",
+      "lastModified": "Wed, 27 May 2026 03:22:59 GMT",
+      "sha256": "e9a64eabc9c657487fcc0b240a76d8dbfaaae095fa04b523649532e70f320557",
+      "bytes": 7213,
+      "contentScope": "generic-javascript-shell-only",
+      "articleBodyVerifiedByThisHash": false
+    },
+    {
+      "id": "official-70",
+      "url": "https://www.hoyolab.com/article/46233468",
+      "resolvedUrl": "https://www.hoyolab.com/article/46233468",
+      "retrievedAt": "2026-09-22T14:31:07.343436+00:00",
+      "httpStatus": 200,
+      "contentType": "text/html",
+      "etag": "\"48999ace60a1e2dde0de1de438c519ab\"",
+      "lastModified": "Wed, 27 May 2026 03:22:59 GMT",
+      "sha256": "e9a64eabc9c657487fcc0b240a76d8dbfaaae095fa04b523649532e70f320557",
+      "bytes": 7213,
+      "contentScope": "generic-javascript-shell-only",
+      "articleBodyVerifiedByThisHash": false
+    },
+    {
+      "id": "s1-revision",
+      "url": "https://api.github.com/repos/KQM-git/TCL/commits?path=docs/combat-mechanics/damage/damage-formula.md&per_page=1",
+      "retrievedAt": "2026-09-22T14:32:47.090667+00:00",
+      "sha256": "0a5fdf9a516ee1f54637bde3b46d99a65db04a70c779987863c9c90430dd3c29",
+      "revision": "bd7c18fa07735381a157e8397e9e55b3fc377be1",
+      "revisionDate": "2025-07-28T06:03:59Z"
+    },
+    {
+      "id": "gcsim-commit",
+      "url": "https://api.github.com/repos/genshinsim/gcsim/commits/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-22T14:32:48.185904+00:00",
+      "sha256": "7abcf2f060e7708c8e862cc43540436ef56a7318f0250435058bae9e24ef8e91",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "revisionDate": "2026-07-25T16:00:55Z"
+    },
+    {
+      "id": "s3-metadata",
+      "url": "https://keqingmains.com/wp-json/wp/v2/pages?slug=stellar-reaction-guide",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "id": "s2-metadata",
+      "url": "https://keqingmains.com/wp-json/wp/v2/pages?slug=lunar-reactions",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "id": "internal/characters/durin/skill.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/skill.go",
+      "retrievedAt": "2026-09-22T14:35:39.666837+00:00",
+      "sha256": "14bded4b59a93b25f2ee7a49b7fa2bef2598054eddd411790ae7fd87120c256c",
+      "bytes": 4729
+    },
+    {
+      "id": "pkg/core/attacks/icd_groups.dm.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/icd_groups.dm.go",
+      "retrievedAt": "2026-09-22T14:35:40.653895+00:00",
+      "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4",
+      "bytes": 15409
+    },
+    {
+      "id": "pkg/core/combat/reaction.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "retrievedAt": "2026-09-22T14:35:42.261785+00:00",
+      "sha256": "f0acf39365cfd8d751a2a70c4b7fcc7e97f479fe6b9eadb0b56194360089d334",
+      "bytes": 1301
+    },
+    {
+      "id": "official-account-71-maintenance",
+      "url": "https://www.reddit.com/r/Genshin_Impact/comments/1wm149c/version_71_update_maintenance_preview/",
+      "retrievedAt": "2026-09-22T14:35:20Z",
+      "retrievalMethod": "web tool page text",
+      "author": "genshinimpact",
+      "postPublishedDate": "2026-09-21",
+      "contentScope": "official account post and official account notice comment",
+      "contentHash": null,
+      "contentHashReason": "Raw bytes of the web-tool indexed response are not available as a stable source artifact.",
+      "observedFields": {
+        "version": "7.1",
+        "releaseStatusAtObservation": "official-next",
+        "maintenanceStartsAt": "2026-09-23T06:00:00+08:00",
+        "preinstallationAvailable": true,
+        "launchCompletionTime": null
+      }
+    },
+    {
+      "id": "official-account-70-update",
+      "url": "https://www.reddit.com/r/Genshin_Impact/comments/1vm0zdc/everwinter_without_mercy_version_70_update_details/",
+      "retrievedAt": "2026-09-22T14:35:20Z",
+      "retrievalMethod": "web tool page text",
+      "author": "genshinimpact",
+      "contentScope": "official account post and official account update comment",
+      "contentHash": null,
+      "contentHashReason": "Raw bytes of the web-tool indexed response are not available as a stable source artifact.",
+      "observedFields": {
+        "version": "7.0",
+        "releaseStatusAtObservation": "released"
+      }
+    },
+    {
+      "id": "genshin-72-v1-discovery",
+      "retrievedAt": "2026-09-22T14:35:20Z",
+      "status": "no-version-pinned-snapshot-acquired",
+      "attemptedUrls": [
+        "https://ambr.top/en/changelog",
+        "https://api.ambr.top/v2/en/changelog",
+        "https://homdgcat.wiki/gi/char?lang=EN"
+      ],
+      "observedEntities": null,
+      "unknownFields": [
+        "snapshot revision",
+        "complete entity inventory",
+        "numeric fields",
+        "mechanic fields"
+      ],
+      "error": "Ambr pages inaccessible in web tool; HomDGCat returned 502; focused searches did not yield a usable version-pinned 7.2 V1 snapshot. This is not proof of nonexistence."
+    }
+  ]
+}

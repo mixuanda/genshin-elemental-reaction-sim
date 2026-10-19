@@ -1,0 +1,2613 @@
+{
+  "schema": "source-healing-producers-census/v1",
+  "date": "2026-09-28",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-cakRT0/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-pmZuQT/source"
+  },
+  "method": "Static lexical census across all internal/ and pkg/ Go files: HealInfo composite literals plus direct Src/Bonus writes to variables assigned from those literals. No build or tests.",
+  "counts": {
+    "classic": {
+      "healInfoLiterals": 82,
+      "postConstructionSrcBonusWrites": 2,
+      "sourceGroupCounts": {
+        "A": 14,
+        "B": 14,
+        "C": 15,
+        "D": 18,
+        "E": 14,
+        "F": 7
+      },
+      "unitCounts": {
+        "arlecchino": 1,
+        "baizhu": 3,
+        "barbara": 4,
+        "bennett": 1,
+        "charlotte": 4,
+        "chevreuse": 2,
+        "clorinde": 1,
+        "dehya": 3,
+        "diona": 1,
+        "dori": 2,
+        "escoffier": 2,
+        "fischl": 1,
+        "furina": 3,
+        "gaming": 3,
+        "gorou": 1,
+        "hutao": 1,
+        "jean": 3,
+        "kaeya": 1,
+        "kaveh": 1,
+        "kokomi": 2,
+        "kuki": 1,
+        "lauma": 1,
+        "lynette": 1,
+        "lyney": 1,
+        "mika": 2,
+        "mizuki": 1,
+        "neuvillette": 1,
+        "noelle": 1,
+        "qiqi": 4,
+        "sayu": 3,
+        "sigewinne": 2,
+        "traveler": 3,
+        "wriothesley": 2,
+        "xianyun": 3,
+        "xilonen": 2,
+        "yaoyao": 6,
+        "zhongli": 1,
+        "bow": 1,
+        "catalyst": 2,
+        "claymore": 1,
+        "sword": 3
+      }
+    },
+    "stellar": {
+      "healInfoLiterals": 87,
+      "postConstructionSrcBonusWrites": 2,
+      "sourceGroupCounts": {
+        "A": 14,
+        "B": 14,
+        "C": 16,
+        "D": 18,
+        "E": 14,
+        "F": 7,
+        "uncatalogued": 4
+      },
+      "unitCounts": {
+        "arlecchino": 1,
+        "baizhu": 3,
+        "barbara": 4,
+        "bennett": 1,
+        "charlotte": 4,
+        "chevreuse": 2,
+        "clorinde": 1,
+        "dehya": 3,
+        "diona": 1,
+        "dori": 2,
+        "escoffier": 2,
+        "fischl": 1,
+        "furina": 3,
+        "gaming": 3,
+        "gorou": 1,
+        "hutao": 1,
+        "iansan": 1,
+        "ifa": 1,
+        "jahoda": 2,
+        "jean": 3,
+        "kaeya": 1,
+        "kaveh": 1,
+        "kokomi": 2,
+        "kuki": 1,
+        "lauma": 1,
+        "lynette": 1,
+        "lyney": 1,
+        "mika": 2,
+        "mizuki": 1,
+        "neuvillette": 1,
+        "noelle": 1,
+        "qiqi": 5,
+        "sayu": 3,
+        "sigewinne": 2,
+        "traveler": 3,
+        "wriothesley": 2,
+        "xianyun": 3,
+        "xilonen": 2,
+        "yaoyao": 6,
+        "zhongli": 1,
+        "bow": 1,
+        "catalyst": 2,
+        "claymore": 1,
+        "sword": 3
+      }
+    }
+  },
+  "sourceGroups": {
+    "A": [
+      "baizhu",
+      "barbara",
+      "bennett",
+      "chevreuse",
+      "dehya",
+      "fischl"
+    ],
+    "B": [
+      "charlotte",
+      "diona",
+      "dori",
+      "escoffier",
+      "xianyun",
+      "mika"
+    ],
+    "C": [
+      "jean",
+      "kaeya",
+      "kokomi",
+      "noelle",
+      "qiqi",
+      "sayu",
+      "gorou"
+    ],
+    "D": [
+      "furina",
+      "gaming",
+      "hutao",
+      "kaveh",
+      "kuki",
+      "lauma",
+      "lynette",
+      "lyney",
+      "neuvillette",
+      "wriothesley",
+      "sigewinne",
+      "mizuki"
+    ],
+    "E": [
+      "traveler",
+      "xilonen",
+      "yaoyao",
+      "zhongli",
+      "arlecchino",
+      "clorinde"
+    ],
+    "F": [
+      "weapons"
+    ]
+  },
+  "crossLaneDiff": {
+    "classicOnlyProducers": [],
+    "stellarOnlyProducers": [
+      {
+        "sourcePath": "internal/characters/iansan/asc.go",
+        "line": 116,
+        "function": "a4Heal",
+        "receiverVariable": null,
+        "messageExpression": "\"Warming Up\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.TotalAtk() * 0.6",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "characters"
+      },
+      {
+        "sourcePath": "internal/characters/ifa/skill.go",
+        "line": 198,
+        "function": "healSkill",
+        "receiverVariable": "hi",
+        "messageExpression": "\"Tonicshot Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "healBonus",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "characters"
+      },
+      {
+        "sourcePath": "internal/characters/jahoda/burst.go",
+        "line": 95,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Additional Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healOffField",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "characters"
+      },
+      {
+        "sourcePath": "internal/characters/jahoda/burst.go",
+        "line": 106,
+        "function": "Burst",
+        "receiverVariable": "robotHi",
+        "messageExpression": "\"Purrsonal Coordinated Assistance Robot Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "characters"
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/cons.go",
+        "line": 155,
+        "function": "c4OnHeal",
+        "receiverVariable": null,
+        "messageExpression": "\"Fortune-Preserving Talisman (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "characters"
+      }
+    ],
+    "sameProducerMovedOrRelocated": [
+      {
+        "classic": {
+          "sourcePath": "internal/characters/qiqi/burst.go",
+          "line": 91,
+          "function": "talismanHealHook"
+        },
+        "stellar": {
+          "sourcePath": "internal/characters/qiqi/burst.go",
+          "line": 104,
+          "function": "burstInit"
+        },
+        "sameProducerDifferentLocation": true
+      },
+      {
+        "classic": {
+          "sourcePath": "internal/characters/qiqi/burst.go",
+          "line": 146,
+          "function": "onNACAHitHook"
+        },
+        "stellar": {
+          "sourcePath": "internal/characters/qiqi/skill.go",
+          "line": 240,
+          "function": "skillHealCB"
+        },
+        "sameProducerDifferentLocation": true
+      }
+    ],
+    "postConstructionWrites": {
+      "classic": [
+        {
+          "sourcePath": "internal/characters/xilonen/burst.go",
+          "line": 83,
+          "function": "burstHeal",
+          "receiverVariable": "hi",
+          "field": "Src",
+          "operator": "=",
+          "expression": "burstHealBase[c.TalentLvlBurst()] + c.TotalDef(false)*burstHealPer[c.TalentLvlBurst()]",
+          "sourceGroup": "uncatalogued",
+          "sourceUnit": "characters"
+        },
+        {
+          "sourcePath": "internal/characters/xilonen/burst.go",
+          "line": 84,
+          "function": "burstHeal",
+          "receiverVariable": "hi",
+          "field": "Bonus",
+          "operator": "=",
+          "expression": "c.Stat(attributes.Heal)",
+          "sourceGroup": "uncatalogued",
+          "sourceUnit": "characters"
+        }
+      ],
+      "stellar": [
+        {
+          "sourcePath": "internal/characters/xilonen/burst.go",
+          "line": 83,
+          "function": "burstHeal",
+          "receiverVariable": "hi",
+          "field": "Src",
+          "operator": "=",
+          "expression": "burstHealBase[c.TalentLvlBurst()] + c.TotalDef(false)*burstHealPer[c.TalentLvlBurst()]",
+          "sourceGroup": "uncatalogued",
+          "sourceUnit": "characters"
+        },
+        {
+          "sourcePath": "internal/characters/xilonen/burst.go",
+          "line": 84,
+          "function": "burstHeal",
+          "receiverVariable": "hi",
+          "field": "Bonus",
+          "operator": "=",
+          "expression": "c.Stat(attributes.Heal)",
+          "sourceGroup": "uncatalogued",
+          "sourceUnit": "characters"
+        }
+      ],
+      "classicOnlyWriteExpressions": [],
+      "stellarOnlyWriteExpressions": []
+    }
+  },
+  "allEntries": {
+    "classic": [
+      {
+        "sourcePath": "internal/characters/arlecchino/burst.go",
+        "line": 93,
+        "function": "balemoonRisingHeal",
+        "receiverVariable": null,
+        "messageExpression": "balemoonRisingHealAbil",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "amt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "arlecchino",
+        "resolvedLocalExpression": {
+          "line": 92,
+          "expression": "1.5*c.CurrentHPDebt() + 1.5*c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/baizhu/burst.go",
+        "line": 90,
+        "function": "summonSeamlessShieldHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Seamless Shield Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "burstHealPP[c.TalentLvlBurst()]*c.MaxHP() + burstHealFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "baizhu"
+      },
+      {
+        "sourcePath": "internal/characters/baizhu/cons.go",
+        "line": 63,
+        "function": "c2",
+        "receiverVariable": null,
+        "messageExpression": "\"Baizhu's C2: Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "(skillHealPP[c.TalentLvlSkill()]*c.MaxHP() + skillHealFlat[c.TalentLvlSkill()]) * 0.2",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "baizhu"
+      },
+      {
+        "sourcePath": "internal/characters/baizhu/skill.go",
+        "line": 124,
+        "function": "skillHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Universal Diagnosis Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "skillHealPP[c.TalentLvlBurst()]*c.MaxHP() + skillHealFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "baizhu"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/attack.go",
+        "line": 72,
+        "function": "Attack",
+        "receiverVariable": null,
+        "messageExpression": "\"Melody Loop (Normal Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/burst.go",
+        "line": 24,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Shining Miracle♪\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()",
+        "bonusExpression": "stats[attributes.Heal]",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/charge.go",
+        "line": 50,
+        "function": "ChargeAttack",
+        "receiverVariable": null,
+        "messageExpression": "\"Melody Loop (Charged Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "4 * (prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()])",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/skill.go",
+        "line": 116,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Melody Loop (Tick)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/bennett/burst.go",
+        "line": 119,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Inspiration Field\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "A",
+        "sourceUnit": "bennett",
+        "resolvedLocalExpression": {
+          "line": 86,
+          "expression": "bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/burst.go",
+        "line": 73,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "healInitialMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "healp",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte",
+        "resolvedLocalExpression": {
+          "line": 61,
+          "expression": "burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/burst.go",
+        "line": 87,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "healDotMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healDot",
+        "bonusExpression": "healp",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte",
+        "resolvedLocalExpression": {
+          "line": 62,
+          "expression": "burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/cons.go",
+        "line": 30,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "c1HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.TotalAtk() * 0.8",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte"
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/cons.go",
+        "line": 159,
+        "function": "c6",
+        "receiverVariable": null,
+        "messageExpression": "c6HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.TotalAtk() * 0.42",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte"
+      },
+      {
+        "sourcePath": "internal/characters/chevreuse/cons.go",
+        "line": 137,
+        "function": "c6TeamHeal",
+        "receiverVariable": null,
+        "messageExpression": "\"In Pursuit of Ending Evil (C6)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.1 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "chevreuse"
+      },
+      {
+        "sourcePath": "internal/characters/chevreuse/skill.go",
+        "line": 220,
+        "function": "startSkillHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Short-Range Rapid Interdiction Fire Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "skillHpRegen[c.TalentLvlSkill()]*c.MaxHP() + skillHpFlat[c.TalentLvlSkill()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "chevreuse"
+      },
+      {
+        "sourcePath": "internal/characters/clorinde/skill.go",
+        "line": 183,
+        "function": "skillHeal",
+        "receiverVariable": null,
+        "messageExpression": "msg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "amt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "clorinde",
+        "resolvedLocalExpression": {
+          "line": 182,
+          "expression": "c.CurrentHPDebt() * bolMult"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/dehya/asc.go",
+        "line": 65,
+        "function": "a4",
+        "receiverVariable": null,
+        "messageExpression": "a4HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "a4InitialHealRatio * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "dehya"
+      },
+      {
+        "sourcePath": "internal/characters/dehya/asc.go",
+        "line": 83,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "a4HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "a4DoTHealRatio * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "dehya"
+      },
+      {
+        "sourcePath": "internal/characters/dehya/cons.go",
+        "line": 108,
+        "function": "c4CB",
+        "receiverVariable": null,
+        "messageExpression": "\"An Oath Abiding (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.025 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "dehya"
+      },
+      {
+        "sourcePath": "internal/characters/diona/burst.go",
+        "line": 64,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Drunken Mist\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "B",
+        "sourceUnit": "diona",
+        "resolvedLocalExpression": {
+          "line": 46,
+          "expression": "burstHealPer[c.TalentLvlBurst()]*maxhp + burstHealFlat[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/dori/burst.go",
+        "line": 105,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Alcazarzaray's Exactitude: Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "bursthealpp[c.TalentLvlBurst()]*c.MaxHP() + bursthealflat[c.TalentLvlBurst()]",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "B",
+        "sourceUnit": "dori"
+      },
+      {
+        "sourcePath": "internal/characters/dori/cons.go",
+        "line": 107,
+        "function": "makeC6CB",
+        "receiverVariable": null,
+        "messageExpression": "\"dori-c6-heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.04 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "dori"
+      },
+      {
+        "sourcePath": "internal/characters/escoffier/asc.go",
+        "line": 41,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Rehab Diet\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "escoffier",
+        "resolvedLocalExpression": {
+          "line": 40,
+          "expression": "scale * c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/escoffier/burst.go",
+        "line": 44,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Scoring Cuts (Healing)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "escoffier",
+        "resolvedLocalExpression": {
+          "line": 43,
+          "expression": "burstHealFlat[c.TalentLvlBurst()] + burstHealPer[c.TalentLvlBurst()]*c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/fischl/burst.go",
+        "line": 69,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Her Pilgrimage of Bleak (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.2 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "fischl"
+      },
+      {
+        "sourcePath": "internal/characters/furina/asc.go",
+        "line": 57,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Endless Waltz\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.02",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "furina"
+      },
+      {
+        "sourcePath": "internal/characters/furina/cons.go",
+        "line": 123,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Furina C6 Ousia Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.04 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "furina"
+      },
+      {
+        "sourcePath": "internal/characters/furina/skill.go",
+        "line": 338,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Singer of Many Waters\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "skillSingerHealFlat[c.TalentLvlSkill()] + skillSingerHealScale[c.TalentLvlSkill()]*c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "furina"
+      },
+      {
+        "sourcePath": "internal/characters/gaming/asc.go",
+        "line": 35,
+        "function": "a1Heal",
+        "receiverVariable": null,
+        "messageExpression": "\"Dance of Amity (A1)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.015",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "gaming"
+      },
+      {
+        "sourcePath": "internal/characters/gaming/burst.go",
+        "line": 44,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Suanni's Gilded Dance\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.3",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "gaming"
+      },
+      {
+        "sourcePath": "internal/characters/gaming/cons.go",
+        "line": 24,
+        "function": "c1",
+        "receiverVariable": null,
+        "messageExpression": "\"Bringer of Blessing (C1)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.15",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "gaming"
+      },
+      {
+        "sourcePath": "internal/characters/gorou/burst.go",
+        "line": 183,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Lapping Hound: Warm as Water\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healFieldStats.TotalDEF() * 0.5",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "gorou"
+      },
+      {
+        "sourcePath": "internal/characters/hutao/burst.go",
+        "line": 34,
+        "function": "Burst",
+        "receiverVariable": "burstHealAmount",
+        "messageExpression": "burstAbilName",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.MaxHP() * regen",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "hutao"
+      },
+      {
+        "sourcePath": "internal/characters/jean/asc.go",
+        "line": 25,
+        "function": "makeA1CB",
+        "receiverVariable": null,
+        "messageExpression": "\"Wind Companion\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "snap.Stats.TotalATK() * .15",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "jean"
+      },
+      {
+        "sourcePath": "internal/characters/jean/burst.go",
+        "line": 71,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Dandelion Breeze\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "C",
+        "sourceUnit": "jean",
+        "resolvedLocalExpression": {
+          "line": 67,
+          "expression": "burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/jean/burst.go",
+        "line": 105,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Dandelion Field\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healDot",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "C",
+        "sourceUnit": "jean",
+        "resolvedLocalExpression": {
+          "line": 68,
+          "expression": "burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/kaeya/skill.go",
+        "line": 49,
+        "function": "Skill",
+        "receiverVariable": null,
+        "messageExpression": "\"Cold-Blooded Strike\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "a.AttackEvent.Snapshot.Stats.TotalATK() * .15",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "kaeya"
+      },
+      {
+        "sourcePath": "internal/characters/kaveh/asc.go",
+        "line": 38,
+        "function": "a1",
+        "receiverVariable": null,
+        "messageExpression": "\"Creator's Undertaking (A1)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "3.0 * c.Stat(attributes.EM)",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "kaveh"
+      },
+      {
+        "sourcePath": "internal/characters/kokomi/burst.go",
+        "line": 174,
+        "function": "makeBurstHealCB",
+        "receiverVariable": null,
+        "messageExpression": "\"Ceremonial Garment\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "src",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "kokomi",
+        "resolvedLocalExpression": {
+          "line": 163,
+          "expression": "heal"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/kokomi/skill.go",
+        "line": 140,
+        "function": "skillTick",
+        "receiverVariable": null,
+        "messageExpression": "\"Bake-Kurage\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "src",
+        "bonusExpression": "d.Snapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "kokomi",
+        "resolvedLocalExpression": {
+          "line": 125,
+          "expression": "skillHealPct[c.TalentLvlSkill()]*maxhp + skillHealFlat[c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/kuki/skill.go",
+        "line": 153,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Grass Ring of Sanctification Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "(skillhealpp[c.TalentLvlSkill()]*c.MaxHP() + skillhealflat[c.TalentLvlSkill()] + c.a4Healing())",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "kuki"
+      },
+      {
+        "sourcePath": "internal/characters/lauma/cons.go",
+        "line": 50,
+        "function": "c1Init",
+        "receiverVariable": null,
+        "messageExpression": "\"Lauma C1 (Heal)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "lauma",
+        "resolvedLocalExpression": {
+          "line": 46,
+          "expression": "5.0 * c.Stat(attributes.EM)"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/lynette/skill.go",
+        "line": 204,
+        "function": "makeSkillHealAndDrainCB",
+        "receiverVariable": null,
+        "messageExpression": "skillAbil",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.25 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "lynette"
+      },
+      {
+        "sourcePath": "internal/characters/lyney/skill.go",
+        "line": 77,
+        "function": "Skill",
+        "receiverVariable": "skillHeal",
+        "messageExpression": "\"Bewildering Lights\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.2 * c.MaxHP() * float64(c.propSurplusStacks)",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "lyney"
+      },
+      {
+        "sourcePath": "internal/characters/mika/burst.go",
+        "line": 31,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Skyfeather Song\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "mika",
+        "resolvedLocalExpression": {
+          "line": 30,
+          "expression": "burstHealFirstF[c.TalentLvlBurst()] + burstHealFirstP[c.TalentLvlBurst()]*c.MaxHP()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/mika/burst.go",
+        "line": 73,
+        "function": "onBurstHeal",
+        "receiverVariable": null,
+        "messageExpression": "\"Eagleplume\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "mika",
+        "resolvedLocalExpression": {
+          "line": 72,
+          "expression": "burstHealF[c.TalentLvlBurst()] + burstHealP[c.TalentLvlBurst()]*c.MaxHP()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/mizuki/snack.go",
+        "line": 124,
+        "function": "onPickedUp",
+        "receiverVariable": null,
+        "messageExpression": "snackHealName",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "((mizuki.Stat(attributes.EM) * snackHealEM[mizuki.TalentLvlBurst()]) + snackHealFlat[mizuki.TalentLvlBurst()]) * healMultiplier",
+        "bonusExpression": "mizuki.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "mizuki"
+      },
+      {
+        "sourcePath": "internal/characters/neuvillette/charge.go",
+        "line": 324,
+        "function": "consumeDroplet",
+        "receiverVariable": null,
+        "messageExpression": "\"Sourcewater Droplets Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.MaxHP() * 0.16",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "neuvillette"
+      },
+      {
+        "sourcePath": "internal/characters/noelle/skill.go",
+        "line": 117,
+        "function": "skillHealCB",
+        "receiverVariable": null,
+        "messageExpression": "\"Breastplate (Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "atk.AttackEvent.Snapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "noelle",
+        "resolvedLocalExpression": {
+          "line": 116,
+          "expression": "shieldHeal[c.TalentLvlSkill()]*def + shieldHealFlat[c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/burst.go",
+        "line": 91,
+        "function": "talismanHealHook",
+        "receiverVariable": null,
+        "messageExpression": "\"Fortune-Preserving Talisman\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi",
+        "resolvedLocalExpression": {
+          "line": 90,
+          "expression": "c.healDynamic(burstHealPer, burstHealFlat, c.TalentLvlBurst())"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/burst.go",
+        "line": 146,
+        "function": "onNACAHitHook",
+        "receiverVariable": null,
+        "messageExpression": "\"Herald of Frost (Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healSnapshot(&c.skillHealSnapshot, skillHealOnHitPer, skillHealOnHitFlat, c.TalentLvlSkill())",
+        "bonusExpression": "c.skillHealSnapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi"
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/skill.go",
+        "line": 53,
+        "function": "Skill",
+        "receiverVariable": null,
+        "messageExpression": "\"Herald of Frost (Tick)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healSnapshot(&snap, skillHealContPer, skillHealContFlat, c.TalentLvlSkill())",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi"
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/skill.go",
+        "line": 155,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Herald of Frost (Tick)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healSnapshot(&c.skillHealSnapshot, skillHealContPer, skillHealContFlat, c.TalentLvlSkill())",
+        "bonusExpression": "c.skillHealSnapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi"
+      },
+      {
+        "sourcePath": "internal/characters/sayu/asc.go",
+        "line": 42,
+        "function": "a1",
+        "receiverVariable": null,
+        "messageExpression": "\"Someone More Capable\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "sayu",
+        "resolvedLocalExpression": {
+          "line": 41,
+          "expression": "300 + c.Stat(attributes.EM)*1.2"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/sayu/burst.go",
+        "line": 52,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Yoohoo Art: Mujina Flurry\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "sayu",
+        "resolvedLocalExpression": {
+          "line": 51,
+          "expression": "initHealFlat[c.TalentLvlBurst()] + atk*initHealPP[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/sayu/burst.go",
+        "line": 105,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Muji-Muji Daruma\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "d.Snapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "sayu",
+        "resolvedLocalExpression": {
+          "line": 63,
+          "expression": "burstHealFlat[c.TalentLvlBurst()] + atk*burstHealPP[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/sigewinne/skill.go",
+        "line": 221,
+        "function": "bubbleHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Bolstering Bubblebalm Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "bolsteringBubblebalmHealingPct[c.TalentLvlSkill()]*c.MaxHP() + bolsteringBubblebalmHealingFlat[c.TalentLvlSkill()]",
+        "bonusExpression": "c.Stat(attributes.Heal) + skillBonus",
+        "sourceGroup": "D",
+        "sourceUnit": "sigewinne"
+      },
+      {
+        "sourcePath": "internal/characters/sigewinne/skill.go",
+        "line": 238,
+        "function": "bubbleFinalHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Bolstering Bubblebalm Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "finalBounceHealing * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal) + skillBonus",
+        "sourceGroup": "D",
+        "sourceUnit": "sigewinne"
+      },
+      {
+        "sourcePath": "internal/characters/traveler/common/anemo/asc.go",
+        "line": 70,
+        "function": "a4",
+        "receiverVariable": null,
+        "messageExpression": "\"Second Wind\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.02",
+        "bonusExpression": null,
+        "sourceGroup": "E",
+        "sourceUnit": "traveler"
+      },
+      {
+        "sourcePath": "internal/characters/traveler/common/hydro/asc.go",
+        "line": 50,
+        "function": "a1PickUp",
+        "receiverVariable": null,
+        "messageExpression": "\"Spotless Waters\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.MaxHP() * 0.07",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "traveler"
+      },
+      {
+        "sourcePath": "internal/characters/traveler/common/hydro/cons.go",
+        "line": 96,
+        "function": "c6",
+        "receiverVariable": null,
+        "messageExpression": "\"Tides of Justice\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.06",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "traveler"
+      },
+      {
+        "sourcePath": "internal/characters/wriothesley/asc.go",
+        "line": 60,
+        "function": "a1",
+        "receiverVariable": null,
+        "messageExpression": "\"There Shall Be a Plea for Justice\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.caHeal * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "wriothesley"
+      },
+      {
+        "sourcePath": "internal/characters/wriothesley/cons.go",
+        "line": 75,
+        "function": "c1",
+        "receiverVariable": null,
+        "messageExpression": "\"There Shall Be a Plea for Justice\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.caHeal * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "wriothesley"
+      },
+      {
+        "sourcePath": "internal/characters/xianyun/burst.go",
+        "line": 76,
+        "function": "burstCast",
+        "receiverVariable": null,
+        "messageExpression": "\"Stars Gather at Dusk Heal (Initial)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healInstantP[c.TalentLvlBurst()]*c.TotalAtk() + healInstantFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "xianyun"
+      },
+      {
+        "sourcePath": "internal/characters/xianyun/burst.go",
+        "line": 174,
+        "function": "burstHealDoT",
+        "receiverVariable": null,
+        "messageExpression": "\"Starwicker Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healDotP[c.TalentLvlBurst()]*c.TotalAtk() + healDotFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "xianyun"
+      },
+      {
+        "sourcePath": "internal/characters/xianyun/cons.go",
+        "line": 83,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Mystery Millet Gourmet (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c4Ratio[c.skillCounter] * c.TotalAtk()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "xianyun"
+      },
+      {
+        "sourcePath": "internal/characters/xilonen/burst.go",
+        "line": 76,
+        "function": "burstHeal",
+        "receiverVariable": "hi",
+        "messageExpression": "\"Ebullient Rhythm\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "(not set in literal; check later field writes/helper assignment)",
+        "bonusExpression": null,
+        "sourceGroup": "E",
+        "sourceUnit": "xilonen",
+        "postConstructionWrites": [
+          {
+            "line": 83,
+            "field": "Src",
+            "expression": "burstHealBase[c.TalentLvlBurst()] + c.TotalDef(false)*burstHealPer[c.TalentLvlBurst()]"
+          },
+          {
+            "line": 84,
+            "field": "Bonus",
+            "expression": "c.Stat(attributes.Heal)"
+          }
+        ]
+      },
+      {
+        "sourcePath": "internal/characters/xilonen/cons.go",
+        "line": 213,
+        "function": "applyC6",
+        "receiverVariable": null,
+        "messageExpression": "\"Imperishable Night Carnival\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "E",
+        "sourceUnit": "xilonen",
+        "resolvedLocalExpression": {
+          "line": 212,
+          "expression": "c.TotalDef(false) * 1.2"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/asc.go",
+        "line": 75,
+        "function": "func",
+        "receiverVariable": "hi",
+        "messageExpression": "\"Yaoyao A4\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.008 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/burst.go",
+        "line": 72,
+        "function": "getBurstHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Burst Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/burst.go",
+        "line": 75,
+        "function": "getBurstHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Burst Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao",
+        "resolvedLocalExpression": {
+          "line": 74,
+          "expression": "burstRadishHealing[0][c.TalentLvlBurst()]*maxhp + burstRadishHealing[1][c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/cons.go",
+        "line": 101,
+        "function": "c6",
+        "receiverVariable": "hi",
+        "messageExpression": "c6HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "yg.c.MaxHP() * 0.075",
+        "bonusExpression": "yg.c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/skill.go",
+        "line": 47,
+        "function": "getSkillHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Skill\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/skill.go",
+        "line": 50,
+        "function": "getSkillHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Skill\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao",
+        "resolvedLocalExpression": {
+          "line": 49,
+          "expression": "skillRadishHealing[0][c.TalentLvlSkill()]*maxhp + skillRadishHealing[1][c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/zhongli/shield.go",
+        "line": 94,
+        "function": "OnDamage",
+        "receiverVariable": null,
+        "messageExpression": "\"Chrysos, Bounty of Dominator\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "s.c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "zhongli",
+        "resolvedLocalExpression": {
+          "line": 92,
+          "expression": "0.08 * maxhp"
+        }
+      },
+      {
+        "sourcePath": "internal/weapons/bow/recurve/recurve.go",
+        "line": 42,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Recurve Bow (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "healPercentage",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "bow",
+        "resolvedLocalExpression": {
+          "line": 25,
+          "expression": "0.06 + float64(r)*0.02"
+        }
+      },
+      {
+        "sourcePath": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+        "line": 29,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Otherworldly Story (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.0075 + float64(r)*0.0025",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "catalyst"
+      },
+      {
+        "sourcePath": "internal/weapons/catalyst/prototype/prototype.go",
+        "line": 42,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Prototype Amber\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "e / 100.0",
+        "bonusExpression": "char.Stat(attributes.Heal)",
+        "sourceGroup": "F",
+        "sourceUnit": "catalyst"
+      },
+      {
+        "sourcePath": "internal/weapons/claymore/whiteiron/whiteiron.go",
+        "line": 41,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"White Iron Greatsword (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.06 + float64(r)*0.02",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "claymore"
+      },
+      {
+        "sourcePath": "internal/weapons/sword/aquila/aquila.go",
+        "line": 75,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Aquila Favonia\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "snap.Stats.TotalATK() * heal",
+        "bonusExpression": "char.Stat(attributes.Heal)",
+        "sourceGroup": "F",
+        "sourceUnit": "sword"
+      },
+      {
+        "sourcePath": "internal/weapons/sword/blacksword/blacksword.go",
+        "line": 58,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"The Black Sword\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal * atk.Snapshot.Stats.TotalATK()",
+        "bonusExpression": "char.Stat(attributes.Heal)",
+        "sourceGroup": "F",
+        "sourceUnit": "sword"
+      },
+      {
+        "sourcePath": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+        "line": 29,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Traveler's Handy Sword (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.0075 + float64(r)*0.0025",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "sword"
+      }
+    ],
+    "stellar": [
+      {
+        "sourcePath": "internal/characters/arlecchino/burst.go",
+        "line": 93,
+        "function": "balemoonRisingHeal",
+        "receiverVariable": null,
+        "messageExpression": "balemoonRisingHealAbil",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "amt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "arlecchino",
+        "resolvedLocalExpression": {
+          "line": 92,
+          "expression": "1.5*c.CurrentHPDebt() + 1.5*c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/baizhu/burst.go",
+        "line": 90,
+        "function": "summonSeamlessShieldHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Seamless Shield Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "burstHealPP[c.TalentLvlBurst()]*c.MaxHP() + burstHealFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "baizhu"
+      },
+      {
+        "sourcePath": "internal/characters/baizhu/cons.go",
+        "line": 63,
+        "function": "c2",
+        "receiverVariable": null,
+        "messageExpression": "\"Baizhu's C2: Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "(skillHealPP[c.TalentLvlSkill()]*c.MaxHP() + skillHealFlat[c.TalentLvlSkill()]) * 0.2",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "baizhu"
+      },
+      {
+        "sourcePath": "internal/characters/baizhu/skill.go",
+        "line": 124,
+        "function": "skillHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Universal Diagnosis Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "skillHealPP[c.TalentLvlBurst()]*c.MaxHP() + skillHealFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "baizhu"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/attack.go",
+        "line": 71,
+        "function": "Attack",
+        "receiverVariable": null,
+        "messageExpression": "\"Melody Loop (Normal Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/burst.go",
+        "line": 24,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Shining Miracle♪\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()",
+        "bonusExpression": "stats[attributes.Heal]",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/charge.go",
+        "line": 50,
+        "function": "ChargeAttack",
+        "receiverVariable": null,
+        "messageExpression": "\"Melody Loop (Charged Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "4 * (prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()])",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/barbara/skill.go",
+        "line": 116,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Melody Loop (Tick)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "A",
+        "sourceUnit": "barbara"
+      },
+      {
+        "sourcePath": "internal/characters/bennett/burst.go",
+        "line": 119,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Inspiration Field\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "A",
+        "sourceUnit": "bennett",
+        "resolvedLocalExpression": {
+          "line": 86,
+          "expression": "bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/burst.go",
+        "line": 73,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "healInitialMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "healp",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte",
+        "resolvedLocalExpression": {
+          "line": 61,
+          "expression": "burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/burst.go",
+        "line": 87,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "healDotMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healDot",
+        "bonusExpression": "healp",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte",
+        "resolvedLocalExpression": {
+          "line": 62,
+          "expression": "burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/cons.go",
+        "line": 30,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "c1HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.TotalAtk() * 0.8",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte"
+      },
+      {
+        "sourcePath": "internal/characters/charlotte/cons.go",
+        "line": 159,
+        "function": "c6",
+        "receiverVariable": null,
+        "messageExpression": "c6HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.TotalAtk() * 0.42",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "charlotte"
+      },
+      {
+        "sourcePath": "internal/characters/chevreuse/cons.go",
+        "line": 137,
+        "function": "c6TeamHeal",
+        "receiverVariable": null,
+        "messageExpression": "\"In Pursuit of Ending Evil (C6)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.1 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "chevreuse"
+      },
+      {
+        "sourcePath": "internal/characters/chevreuse/skill.go",
+        "line": 220,
+        "function": "startSkillHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Short-Range Rapid Interdiction Fire Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "skillHpRegen[c.TalentLvlSkill()]*c.MaxHP() + skillHpFlat[c.TalentLvlSkill()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "chevreuse"
+      },
+      {
+        "sourcePath": "internal/characters/clorinde/skill.go",
+        "line": 183,
+        "function": "skillHeal",
+        "receiverVariable": null,
+        "messageExpression": "msg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "amt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "clorinde",
+        "resolvedLocalExpression": {
+          "line": 182,
+          "expression": "c.CurrentHPDebt() * bolMult"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/dehya/asc.go",
+        "line": 65,
+        "function": "a4",
+        "receiverVariable": null,
+        "messageExpression": "a4HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "a4InitialHealRatio * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "dehya"
+      },
+      {
+        "sourcePath": "internal/characters/dehya/asc.go",
+        "line": 83,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "a4HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "a4DoTHealRatio * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "dehya"
+      },
+      {
+        "sourcePath": "internal/characters/dehya/cons.go",
+        "line": 108,
+        "function": "c4CB",
+        "receiverVariable": null,
+        "messageExpression": "\"An Oath Abiding (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.025 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "dehya"
+      },
+      {
+        "sourcePath": "internal/characters/diona/burst.go",
+        "line": 64,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Drunken Mist\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "B",
+        "sourceUnit": "diona",
+        "resolvedLocalExpression": {
+          "line": 46,
+          "expression": "burstHealPer[c.TalentLvlBurst()]*maxhp + burstHealFlat[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/dori/burst.go",
+        "line": 105,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Alcazarzaray's Exactitude: Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "bursthealpp[c.TalentLvlBurst()]*c.MaxHP() + bursthealflat[c.TalentLvlBurst()]",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "B",
+        "sourceUnit": "dori"
+      },
+      {
+        "sourcePath": "internal/characters/dori/cons.go",
+        "line": 107,
+        "function": "makeC6CB",
+        "receiverVariable": null,
+        "messageExpression": "\"dori-c6-heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.04 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "dori"
+      },
+      {
+        "sourcePath": "internal/characters/escoffier/asc.go",
+        "line": 41,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Rehab Diet\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "escoffier",
+        "resolvedLocalExpression": {
+          "line": 40,
+          "expression": "scale * c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/escoffier/burst.go",
+        "line": 44,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Scoring Cuts (Healing)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "escoffier",
+        "resolvedLocalExpression": {
+          "line": 43,
+          "expression": "burstHealFlat[c.TalentLvlBurst()] + burstHealPer[c.TalentLvlBurst()]*c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/fischl/burst.go",
+        "line": 69,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Her Pilgrimage of Bleak (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.2 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "A",
+        "sourceUnit": "fischl"
+      },
+      {
+        "sourcePath": "internal/characters/furina/asc.go",
+        "line": 57,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Endless Waltz\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.02",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "furina"
+      },
+      {
+        "sourcePath": "internal/characters/furina/cons.go",
+        "line": 123,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Furina C6 Ousia Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.04 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "furina"
+      },
+      {
+        "sourcePath": "internal/characters/furina/skill.go",
+        "line": 338,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Singer of Many Waters\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "skillSingerHealFlat[c.TalentLvlSkill()] + skillSingerHealScale[c.TalentLvlSkill()]*c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "furina"
+      },
+      {
+        "sourcePath": "internal/characters/gaming/asc.go",
+        "line": 35,
+        "function": "a1Heal",
+        "receiverVariable": null,
+        "messageExpression": "\"Dance of Amity (A1)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.015",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "gaming"
+      },
+      {
+        "sourcePath": "internal/characters/gaming/burst.go",
+        "line": 44,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Suanni's Gilded Dance\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.3",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "gaming"
+      },
+      {
+        "sourcePath": "internal/characters/gaming/cons.go",
+        "line": 24,
+        "function": "c1",
+        "receiverVariable": null,
+        "messageExpression": "\"Bringer of Blessing (C1)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.15",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "gaming"
+      },
+      {
+        "sourcePath": "internal/characters/gorou/burst.go",
+        "line": 183,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Lapping Hound: Warm as Water\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healFieldStats.TotalDEF() * 0.5",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "gorou"
+      },
+      {
+        "sourcePath": "internal/characters/hutao/burst.go",
+        "line": 34,
+        "function": "Burst",
+        "receiverVariable": "burstHealAmount",
+        "messageExpression": "burstAbilName",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.MaxHP() * regen",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "hutao"
+      },
+      {
+        "sourcePath": "internal/characters/iansan/asc.go",
+        "line": 116,
+        "function": "a4Heal",
+        "receiverVariable": null,
+        "messageExpression": "\"Warming Up\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.TotalAtk() * 0.6",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "iansan"
+      },
+      {
+        "sourcePath": "internal/characters/ifa/skill.go",
+        "line": 198,
+        "function": "healSkill",
+        "receiverVariable": "hi",
+        "messageExpression": "\"Tonicshot Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "healBonus",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "ifa",
+        "resolvedLocalExpression": {
+          "line": 195,
+          "expression": "skillHeal[c.TalentLvlSkill()]*em + skillHealFlat[c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/jahoda/burst.go",
+        "line": 95,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Additional Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healOffField",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "jahoda",
+        "resolvedLocalExpression": {
+          "line": 93,
+          "expression": "(burstAdditionalHealFlat[c.TalentLvlBurst()] + burstAdditionalHealPP[c.TalentLvlBurst()]*c.TotalAtk()) * c.a1HealMult"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/jahoda/burst.go",
+        "line": 106,
+        "function": "Burst",
+        "receiverVariable": "robotHi",
+        "messageExpression": "\"Purrsonal Coordinated Assistance Robot Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "uncatalogued",
+        "sourceUnit": "jahoda",
+        "resolvedLocalExpression": {
+          "line": 105,
+          "expression": "(burstHealFlat[c.TalentLvlBurst()] + burstHealPP[c.TalentLvlBurst()]*c.TotalAtk()) * c.a1HealMult"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/jean/asc.go",
+        "line": 25,
+        "function": "makeA1CB",
+        "receiverVariable": null,
+        "messageExpression": "\"Wind Companion\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "snap.Stats.TotalATK() * .15",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "jean"
+      },
+      {
+        "sourcePath": "internal/characters/jean/burst.go",
+        "line": 71,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Dandelion Breeze\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "C",
+        "sourceUnit": "jean",
+        "resolvedLocalExpression": {
+          "line": 67,
+          "expression": "burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/jean/burst.go",
+        "line": 105,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Dandelion Field\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healDot",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "C",
+        "sourceUnit": "jean",
+        "resolvedLocalExpression": {
+          "line": 68,
+          "expression": "burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/kaeya/skill.go",
+        "line": 49,
+        "function": "Skill",
+        "receiverVariable": null,
+        "messageExpression": "\"Cold-Blooded Strike\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "a.AttackEvent.Snapshot.Stats.TotalATK() * .15",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "kaeya"
+      },
+      {
+        "sourcePath": "internal/characters/kaveh/asc.go",
+        "line": 38,
+        "function": "a1",
+        "receiverVariable": null,
+        "messageExpression": "\"Creator's Undertaking (A1)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "3.0 * c.Stat(attributes.EM)",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "kaveh"
+      },
+      {
+        "sourcePath": "internal/characters/kokomi/burst.go",
+        "line": 174,
+        "function": "makeBurstHealCB",
+        "receiverVariable": null,
+        "messageExpression": "\"Ceremonial Garment\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "src",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "kokomi",
+        "resolvedLocalExpression": {
+          "line": 163,
+          "expression": "heal"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/kokomi/skill.go",
+        "line": 140,
+        "function": "skillTick",
+        "receiverVariable": null,
+        "messageExpression": "\"Bake-Kurage\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "src",
+        "bonusExpression": "d.Snapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "kokomi",
+        "resolvedLocalExpression": {
+          "line": 125,
+          "expression": "skillHealPct[c.TalentLvlSkill()]*maxhp + skillHealFlat[c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/kuki/skill.go",
+        "line": 153,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Grass Ring of Sanctification Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "(skillhealpp[c.TalentLvlSkill()]*c.MaxHP() + skillhealflat[c.TalentLvlSkill()] + c.a4Healing())",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "kuki"
+      },
+      {
+        "sourcePath": "internal/characters/lauma/cons.go",
+        "line": 50,
+        "function": "c1Init",
+        "receiverVariable": null,
+        "messageExpression": "\"Lauma C1 (Heal)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "lauma",
+        "resolvedLocalExpression": {
+          "line": 46,
+          "expression": "5.0 * c.Stat(attributes.EM)"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/lynette/skill.go",
+        "line": 204,
+        "function": "makeSkillHealAndDrainCB",
+        "receiverVariable": null,
+        "messageExpression": "skillAbil",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.25 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "lynette"
+      },
+      {
+        "sourcePath": "internal/characters/lyney/skill.go",
+        "line": 77,
+        "function": "Skill",
+        "receiverVariable": "skillHeal",
+        "messageExpression": "\"Bewildering Lights\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.2 * c.MaxHP() * float64(c.propSurplusStacks)",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "lyney"
+      },
+      {
+        "sourcePath": "internal/characters/mika/burst.go",
+        "line": 31,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Skyfeather Song\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "mika",
+        "resolvedLocalExpression": {
+          "line": 30,
+          "expression": "burstHealFirstF[c.TalentLvlBurst()] + burstHealFirstP[c.TalentLvlBurst()]*c.MaxHP()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/mika/burst.go",
+        "line": 73,
+        "function": "onBurstHeal",
+        "receiverVariable": null,
+        "messageExpression": "\"Eagleplume\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "mika",
+        "resolvedLocalExpression": {
+          "line": 72,
+          "expression": "burstHealF[c.TalentLvlBurst()] + burstHealP[c.TalentLvlBurst()]*c.MaxHP()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/mizuki/snack.go",
+        "line": 124,
+        "function": "onPickedUp",
+        "receiverVariable": null,
+        "messageExpression": "snackHealName",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "((mizuki.Stat(attributes.EM) * snackHealEM[mizuki.TalentLvlBurst()]) + snackHealFlat[mizuki.TalentLvlBurst()]) * healMultiplier",
+        "bonusExpression": "mizuki.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "mizuki"
+      },
+      {
+        "sourcePath": "internal/characters/neuvillette/charge.go",
+        "line": 324,
+        "function": "consumeDroplet",
+        "receiverVariable": null,
+        "messageExpression": "\"Sourcewater Droplets Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.MaxHP() * 0.16",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "neuvillette"
+      },
+      {
+        "sourcePath": "internal/characters/noelle/skill.go",
+        "line": 117,
+        "function": "skillHealCB",
+        "receiverVariable": null,
+        "messageExpression": "\"Breastplate (Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "atk.AttackEvent.Snapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "noelle",
+        "resolvedLocalExpression": {
+          "line": 116,
+          "expression": "shieldHeal[c.TalentLvlSkill()]*def + shieldHealFlat[c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/burst.go",
+        "line": 104,
+        "function": "burstInit",
+        "receiverVariable": null,
+        "messageExpression": "\"Fortune-Preserving Talisman\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi",
+        "resolvedLocalExpression": {
+          "line": 103,
+          "expression": "c.healDynamic(burstHealPer, burstHealFlat, c.TalentLvlBurst())"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/cons.go",
+        "line": 155,
+        "function": "c4OnHeal",
+        "receiverVariable": null,
+        "messageExpression": "\"Fortune-Preserving Talisman (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healAmt",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi",
+        "resolvedLocalExpression": {
+          "line": 154,
+          "expression": "1.8 * c.TotalAtk()"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/skill.go",
+        "line": 68,
+        "function": "Skill",
+        "receiverVariable": null,
+        "messageExpression": "\"Herald of Frost (Tick)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healSnapshot(&snap, skillHealContPer, skillHealContFlat, c.TalentLvlSkill())",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi"
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/skill.go",
+        "line": 159,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Herald of Frost (Tick)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healSnapshot(&c.skillHealSnapshot, skillHealContPer, skillHealContFlat, c.TalentLvlSkill())",
+        "bonusExpression": "c.skillHealSnapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi"
+      },
+      {
+        "sourcePath": "internal/characters/qiqi/skill.go",
+        "line": 240,
+        "function": "skillHealCB",
+        "receiverVariable": null,
+        "messageExpression": "\"Herald of Frost (Attack)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.healSnapshot(&c.skillHealSnapshot, skillHealOnHitPer, skillHealOnHitFlat, c.TalentLvlSkill())",
+        "bonusExpression": "c.skillHealSnapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "qiqi"
+      },
+      {
+        "sourcePath": "internal/characters/sayu/asc.go",
+        "line": 42,
+        "function": "a1",
+        "receiverVariable": null,
+        "messageExpression": "\"Someone More Capable\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "C",
+        "sourceUnit": "sayu",
+        "resolvedLocalExpression": {
+          "line": 41,
+          "expression": "300 + c.Stat(attributes.EM)*1.2"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/sayu/burst.go",
+        "line": 52,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Yoohoo Art: Mujina Flurry\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "sayu",
+        "resolvedLocalExpression": {
+          "line": 51,
+          "expression": "initHealFlat[c.TalentLvlBurst()] + atk*initHealPP[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/sayu/burst.go",
+        "line": 105,
+        "function": "Burst",
+        "receiverVariable": null,
+        "messageExpression": "\"Muji-Muji Daruma\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "d.Snapshot.Stats[attributes.Heal]",
+        "sourceGroup": "C",
+        "sourceUnit": "sayu",
+        "resolvedLocalExpression": {
+          "line": 63,
+          "expression": "burstHealFlat[c.TalentLvlBurst()] + atk*burstHealPP[c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/sigewinne/skill.go",
+        "line": 221,
+        "function": "bubbleHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Bolstering Bubblebalm Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "bolsteringBubblebalmHealingPct[c.TalentLvlSkill()]*c.MaxHP() + bolsteringBubblebalmHealingFlat[c.TalentLvlSkill()]",
+        "bonusExpression": "c.Stat(attributes.Heal) + skillBonus",
+        "sourceGroup": "D",
+        "sourceUnit": "sigewinne"
+      },
+      {
+        "sourcePath": "internal/characters/sigewinne/skill.go",
+        "line": 238,
+        "function": "bubbleFinalHealing",
+        "receiverVariable": null,
+        "messageExpression": "\"Bolstering Bubblebalm Healing\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "finalBounceHealing * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal) + skillBonus",
+        "sourceGroup": "D",
+        "sourceUnit": "sigewinne"
+      },
+      {
+        "sourcePath": "internal/characters/traveler/common/anemo/asc.go",
+        "line": 70,
+        "function": "a4",
+        "receiverVariable": null,
+        "messageExpression": "\"Second Wind\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.02",
+        "bonusExpression": null,
+        "sourceGroup": "E",
+        "sourceUnit": "traveler"
+      },
+      {
+        "sourcePath": "internal/characters/traveler/common/hydro/asc.go",
+        "line": 50,
+        "function": "a1PickUp",
+        "receiverVariable": null,
+        "messageExpression": "\"Spotless Waters\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.MaxHP() * 0.07",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "traveler"
+      },
+      {
+        "sourcePath": "internal/characters/traveler/common/hydro/cons.go",
+        "line": 96,
+        "function": "c6",
+        "receiverVariable": null,
+        "messageExpression": "\"Tides of Justice\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.06",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "traveler"
+      },
+      {
+        "sourcePath": "internal/characters/wriothesley/asc.go",
+        "line": 60,
+        "function": "a1",
+        "receiverVariable": null,
+        "messageExpression": "\"There Shall Be a Plea for Justice\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.caHeal * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "wriothesley"
+      },
+      {
+        "sourcePath": "internal/characters/wriothesley/cons.go",
+        "line": 75,
+        "function": "c1",
+        "receiverVariable": null,
+        "messageExpression": "\"There Shall Be a Plea for Justice\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c.caHeal * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "D",
+        "sourceUnit": "wriothesley"
+      },
+      {
+        "sourcePath": "internal/characters/xianyun/burst.go",
+        "line": 76,
+        "function": "burstCast",
+        "receiverVariable": null,
+        "messageExpression": "\"Stars Gather at Dusk Heal (Initial)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healInstantP[c.TalentLvlBurst()]*c.TotalAtk() + healInstantFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "xianyun"
+      },
+      {
+        "sourcePath": "internal/characters/xianyun/burst.go",
+        "line": 174,
+        "function": "burstHealDoT",
+        "receiverVariable": null,
+        "messageExpression": "\"Starwicker Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "healDotP[c.TalentLvlBurst()]*c.TotalAtk() + healDotFlat[c.TalentLvlBurst()]",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "xianyun"
+      },
+      {
+        "sourcePath": "internal/characters/xianyun/cons.go",
+        "line": 83,
+        "function": "func",
+        "receiverVariable": null,
+        "messageExpression": "\"Mystery Millet Gourmet (C4)\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "c4Ratio[c.skillCounter] * c.TotalAtk()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "B",
+        "sourceUnit": "xianyun"
+      },
+      {
+        "sourcePath": "internal/characters/xilonen/burst.go",
+        "line": 76,
+        "function": "burstHeal",
+        "receiverVariable": "hi",
+        "messageExpression": "\"Ebullient Rhythm\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "(not set in literal; check later field writes/helper assignment)",
+        "bonusExpression": null,
+        "sourceGroup": "E",
+        "sourceUnit": "xilonen",
+        "postConstructionWrites": [
+          {
+            "line": 83,
+            "field": "Src",
+            "expression": "burstHealBase[c.TalentLvlBurst()] + c.TotalDef(false)*burstHealPer[c.TalentLvlBurst()]"
+          },
+          {
+            "line": 84,
+            "field": "Bonus",
+            "expression": "c.Stat(attributes.Heal)"
+          }
+        ]
+      },
+      {
+        "sourcePath": "internal/characters/xilonen/cons.go",
+        "line": 213,
+        "function": "applyC6",
+        "receiverVariable": null,
+        "messageExpression": "\"Imperishable Night Carnival\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "hpplus",
+        "sourceGroup": "E",
+        "sourceUnit": "xilonen",
+        "resolvedLocalExpression": {
+          "line": 212,
+          "expression": "c.TotalDef(false) * 1.2"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/asc.go",
+        "line": 75,
+        "function": "func",
+        "receiverVariable": "hi",
+        "messageExpression": "\"Yaoyao A4\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "0.008 * c.MaxHP()",
+        "bonusExpression": "c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/burst.go",
+        "line": 72,
+        "function": "getBurstHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Burst Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/burst.go",
+        "line": 75,
+        "function": "getBurstHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Burst Heal\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao",
+        "resolvedLocalExpression": {
+          "line": 74,
+          "expression": "burstRadishHealing[0][c.TalentLvlBurst()]*maxhp + burstRadishHealing[1][c.TalentLvlBurst()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/cons.go",
+        "line": 101,
+        "function": "c6",
+        "receiverVariable": "hi",
+        "messageExpression": "c6HealMsg",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "yg.c.MaxHP() * 0.075",
+        "bonusExpression": "yg.c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/skill.go",
+        "line": 47,
+        "function": "getSkillHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Skill\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao"
+      },
+      {
+        "sourcePath": "internal/characters/yaoyao/skill.go",
+        "line": 50,
+        "function": "getSkillHealInfo",
+        "receiverVariable": null,
+        "messageExpression": "\"Yuegui Skill\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "snap.Stats[attributes.Heal]",
+        "sourceGroup": "E",
+        "sourceUnit": "yaoyao",
+        "resolvedLocalExpression": {
+          "line": 49,
+          "expression": "skillRadishHealing[0][c.TalentLvlSkill()]*maxhp + skillRadishHealing[1][c.TalentLvlSkill()]"
+        }
+      },
+      {
+        "sourcePath": "internal/characters/zhongli/shield.go",
+        "line": 94,
+        "function": "OnDamage",
+        "receiverVariable": null,
+        "messageExpression": "\"Chrysos, Bounty of Dominator\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal",
+        "bonusExpression": "s.c.Stat(attributes.Heal)",
+        "sourceGroup": "E",
+        "sourceUnit": "zhongli",
+        "resolvedLocalExpression": {
+          "line": 92,
+          "expression": "0.08 * maxhp"
+        }
+      },
+      {
+        "sourcePath": "internal/weapons/bow/recurve/recurve.go",
+        "line": 42,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Recurve Bow (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "healPercentage",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "bow",
+        "resolvedLocalExpression": {
+          "line": 25,
+          "expression": "0.06 + float64(r)*0.02"
+        }
+      },
+      {
+        "sourcePath": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+        "line": 29,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Otherworldly Story (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.0075 + float64(r)*0.0025",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "catalyst"
+      },
+      {
+        "sourcePath": "internal/weapons/catalyst/prototype/prototype.go",
+        "line": 42,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Prototype Amber\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "e / 100.0",
+        "bonusExpression": "char.Stat(attributes.Heal)",
+        "sourceGroup": "F",
+        "sourceUnit": "catalyst"
+      },
+      {
+        "sourcePath": "internal/weapons/claymore/whiteiron/whiteiron.go",
+        "line": 41,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"White Iron Greatsword (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.06 + float64(r)*0.02",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "claymore"
+      },
+      {
+        "sourcePath": "internal/weapons/sword/aquila/aquila.go",
+        "line": 75,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Aquila Favonia\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "snap.Stats.TotalATK() * heal",
+        "bonusExpression": "char.Stat(attributes.Heal)",
+        "sourceGroup": "F",
+        "sourceUnit": "sword"
+      },
+      {
+        "sourcePath": "internal/weapons/sword/blacksword/blacksword.go",
+        "line": 58,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"The Black Sword\"",
+        "typeExpression": "default HealTypeAbsolute",
+        "srcExpression": "heal * atk.Snapshot.Stats.TotalATK()",
+        "bonusExpression": "char.Stat(attributes.Heal)",
+        "sourceGroup": "F",
+        "sourceUnit": "sword"
+      },
+      {
+        "sourcePath": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+        "line": 29,
+        "function": "NewWeapon",
+        "receiverVariable": null,
+        "messageExpression": "\"Traveler's Handy Sword (Proc)\"",
+        "typeExpression": "info.HealTypePercent",
+        "srcExpression": "0.0075 + float64(r)*0.0025",
+        "bonusExpression": null,
+        "sourceGroup": "F",
+        "sourceUnit": "sword"
+      }
+    ]
+  },
+  "limitations": [
+    "This is a static producer census, not verification that every conditional/tick actually executes.",
+    "Heals built through helper-returned HealInfo are listed at their composite literal; callers forwarding a value are not duplicated as producers.",
+    "Direct field-write detection is limited to variables syntactically initialized from a HealInfo literal in the same file; pointer aliases/reflection are not inferred."
+  ],
+  "prior82CensusReview": {
+    "classicLiteralCount": 82,
+    "result": "The prior classic census did not miss any HealInfo composite-literal count in this pinned tree (82 matches 82). It did miss the effective Xilonen source amount because Src and Bonus are assigned after constructing the HealInfo literal inside each delayed heal task. That source producer is listed under postConstructionWrites. The previous literal-only census is therefore incomplete as a producer inventory."
+  },
+  "catalogDifferences": {
+    "stellarOnlyCharacterUnits": [
+      "iansan",
+      "ifa",
+      "jahoda"
+    ],
+    "note": "These units occur in the actual stellar source tree but are absent from the requested A-E character catalog; they are included as uncatalogued rows. Qiqi has two moved producer sites plus a separate C4 healing producer in stellar."
+  }
+}

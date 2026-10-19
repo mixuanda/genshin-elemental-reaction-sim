@@ -1,0 +1,15 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs --cache-dir /Users/evan/Library/Caches/gidps-source-host
+
+file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21
+  if (result.error || result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed: ${result.error ?? result.stderr ?? result.status}`);
+                                                 ^
+
+Error: git apply --whitespace=nowarn /Users/evan/Documents/gidps/packages/source-host/stellar-overlay/patches/121-animation-sites.patch failed: error: patch failed: pkg/core/player/animation/animation.go:15
+error: pkg/core/player/animation/animation.go: patch does not apply
+
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21:50)
+    at file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:314:40
+
+Node.js v24.15.0

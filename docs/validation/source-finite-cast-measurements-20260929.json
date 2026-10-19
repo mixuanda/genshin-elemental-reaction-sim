@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "source-finite-cast-measurements-v1",
+  "date": "2026-09-29",
+  "commands": [
+    {
+      "step": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.238
+    },
+    {
+      "step": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.569
+    },
+    {
+      "step": "registry",
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.224
+    },
+    {
+      "step": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 3.258
+    },
+    {
+      "step": "web-build-fixed",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 0.68
+    },
+    {
+      "step": "web-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.772
+    },
+    {
+      "step": "browser",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-finite-cast.spec.ts",
+        "--workers=1",
+        "--reporter=line"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 1.113
+    },
+    {
+      "step": "web-build-json-import",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.093
+    },
+    {
+      "step": "browser-json-fixed",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-finite-cast.spec.ts",
+        "--workers=1",
+        "--reporter=line"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 11.165
+    },
+    {
+      "step": "web-layout-build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.267
+    }
+  ],
+  "actualNativeExecutions": 2,
+  "browserTestCasesExecuted": 1,
+  "initialBrowserFailure": "JSON import attribute missing before test discovery; zero native executions in that failed attempt.",
+  "archives": [
+    {
+      "scope": "full",
+      "path": "docs/validation/source-finite-cast-amber-q-full-20260929.capture.json",
+      "bytes": 229133,
+      "sha256": "ca25a236cfe4e4f8afffe7ddb621e6564ad0c9bc18eae829a0a7135074eb44d0",
+      "configuredFrames": 360,
+      "actualFrames": 360,
+      "abilityInvocations": 1,
+      "dispatchCompletions": 18,
+      "applications": 18,
+      "pendingAttackStages": 0
+    },
+    {
+      "scope": "partial",
+      "path": "docs/validation/source-finite-cast-amber-q-partial-20260929.capture.json",
+      "bytes": 82532,
+      "sha256": "21ffe9cc44b5abb161b0cedd180eb5ec81986288cd13170fa41ab6d03adc4ae8",
+      "configuredFrames": 120,
+      "actualFrames": 120,
+      "abilityInvocations": 1,
+      "dispatchCompletions": 5,
+      "applications": 5,
+      "pendingAttackStages": 13
+    }
+  ],
+  "dataPointers": {
+    "packages/game-data/manifests/pointers.json": {
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    "packages/game-data/manifests/runtime/current.ts": {
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  },
+  "result": "docs/validation/source-finite-cast-browser-20260929.result.json",
+  "screenshot": "docs/validation/source-finite-cast-amber-q-formula-20260929.png",
+  "verificationBoundary": "Classic Amber Q observed; Stellar compiled. Ten pinned-source contracts audited; not ten gameplay/runtime samples or a universal entity-lifetime claim.",
+  "postBrowserLayoutChange": "Moved result summary above single-hit editor and collapsed the detailed opportunity table; web bundle rebuilt once (1.267s). Formula/core unchanged; no additional native execution or repeated browser case."
+}

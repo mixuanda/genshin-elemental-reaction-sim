@@ -1,0 +1,40 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/linnea-observed-lifecycle.test.ts(57,7): error TS2322: Type '{ id: string; kind: string; frame: number; order: number; summonId: string; attackId: string; component: "hammer"; targetId: string; contactConfirmed: boolean; targetWithinLumiA1Range: boolean; nearbyMoondrift: boolean; moonsignLevel: number; snapshotFrame: number; snapshotId: string; }' is not assignable to type '{ id: string; frame: number; order: number; kind: "skill-tap"; summonId: string; observedEffect: "feed" | "summon"; observedExpiresFrame?: number | undefined; supplyAfter?: number | undefined; actionReadyConfirmed: boolean; } | ... 4 more ... | { ...; }'.
+  Types of property 'kind' are incompatible.
+    Type 'string' is not assignable to type '"attack-contact" | "burst-cast" | "expire-observed" | "form-observed" | "normal-tap-feed" | "skill-tap"'.
+packages/sim-core/src/linnea-observed-lifecycle.ts(128,38): error TS2345: Argument of type 'Map<string, { eventId: string | undefined; issues: string[]; }>' is not assignable to parameter of type 'Map<string, { eventId?: string; issues: string[]; }>'.
+  Type '{ eventId: string | undefined; issues: string[]; }' is not assignable to type '{ eventId?: string; issues: string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'eventId' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/linnea-observed-lifecycle.ts(131,27): error TS2345: Argument of type 'Map<string, { eventId: string | undefined; issues: string[]; }>' is not assignable to parameter of type 'Map<string, { eventId?: string; issues: string[]; }>'.
+  Type '{ eventId: string | undefined; issues: string[]; }' is not assignable to type '{ eventId?: string; issues: string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'eventId' are incompatible.
+      Type 'string | undefined' is not assignable to type 'string'.
+        Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/nefer-observed-lifecycle.ts(166,18): error TS2379: Argument of type '{ eventId: string; kind: "c2-veil-grant" | "c4-target-leave" | "c4-target-near" | "dew-gain" | "first-shade-summon" | "rush-hit" | "seed-absorb" | "shadow-enter" | "shadow-exit" | "skill-cast"; ... 12 more ...; c4ResidualExpiresAt?: number | undefined; }' is not assignable to parameter of type 'NeferObservedRecord' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'fullVeilEmActive' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/nefer-observed-lifecycle.ts(170,3): error TS2375: Type '{ records: NeferObservedRecord[]; issues: string[]; complete: boolean; dew: number; phantasmsUsed: number; veils: { [k: string]: { expiresAt: number; }; }; emWindowExpiresAt: number | undefined; shadowDanceActive: boolean; c4Targets: { ...; }; }' is not assignable to type 'NeferObservedResolution' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'emWindowExpiresAt' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/sandrone-observed-lifecycle.ts(75,9): error TS2375: Type '{ heat: number | undefined; mode: "decoding" | "inactive" | "overdrive" | undefined; radiance: "none" | "stellar-conduct" | "stellar-swirl" | undefined; }' is not assignable to type 'State' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'heat' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/sandrone-observed-lifecycle.ts(87,7): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/sandrone-observed-lifecycle.ts(94,7): error TS2412: Type '"decoding" | "inactive" | "overdrive" | undefined' is not assignable to type 'Mode' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'Mode'.
+packages/sim-core/src/sandrone-observed-lifecycle.ts(98,44): error TS2412: Type '"none" | "stellar-conduct" | "stellar-swirl" | undefined' is not assignable to type 'Radiance' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'Radiance'.
+packages/sim-core/src/sandrone-observed-lifecycle.ts(149,7): error TS18048: 'result.gameContext' is possibly 'undefined'.

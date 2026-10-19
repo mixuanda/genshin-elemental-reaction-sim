@@ -1,0 +1,2002 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "read-only claymore audit, no production modifications or tests",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "verification": "provisional",
+  "newContextFields": [
+    "moonsignAscendant",
+    "nightsoulBlessingActive"
+  ],
+  "audited": [
+    {
+      "id": "weapon:12402",
+      "slug": "thebell",
+      "name": "钟剑",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/bell/bell.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "受到伤害时，生成一个伤害吸收量等同于生命值上限20%的护盾，持续10秒或直到护盾失效,每45秒只能触发一次。角色处于护盾庇护下时，造成的伤害提升12%。",
+          "values": [
+            "20%",
+            "45",
+            "12%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "受到伤害时，生成一个伤害吸收量等同于生命值上限23%的护盾，持续10秒或直到护盾失效,每45秒只能触发一次。角色处于护盾庇护下时，造成的伤害提升15%。",
+          "values": [
+            "23%",
+            "45",
+            "15%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "受到伤害时，生成一个伤害吸收量等同于生命值上限26%的护盾，持续10秒或直到护盾失效,每45秒只能触发一次。角色处于护盾庇护下时，造成的伤害提升18%。",
+          "values": [
+            "26%",
+            "45",
+            "18%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "受到伤害时，生成一个伤害吸收量等同于生命值上限29%的护盾，持续10秒或直到护盾失效,每45秒只能触发一次。角色处于护盾庇护下时，造成的伤害提升21%。",
+          "values": [
+            "29%",
+            "45",
+            "21%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "受到伤害时，生成一个伤害吸收量等同于生命值上限32%的护盾，持续10秒或直到护盾失效,每45秒只能触发一次。角色处于护盾庇护下时，造成的伤害提升24%。",
+          "values": [
+            "32%",
+            "45",
+            "24%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "shielded",
+          "kind": "boolean",
+          "meaning": "此命中时装备者实际处于护盾庇护"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "shielded ? shieldDamageBonus : 0",
+          "valuesR1ToR5": [
+            0.12,
+            0.15,
+            0.18,
+            0.21,
+            0.24
+          ],
+          "filters": "all direct hits"
+        }
+      ],
+      "blockers": [
+        "护盾生成、吸收量、持续时间和45秒CD未模拟；不能凭此条款声明护盾生命周期已实现"
+      ],
+      "handExpectations": {
+        "shieldedTrue": {
+          "R1": 0.12,
+          "R5": 0.24
+        },
+        "shieldedFalse": 0
+      },
+      "sourceNotes": [
+        "源码任意有效护盾均触发增伤，不限钟剑自产护盾。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12412",
+      "slug": "luxurioussealord",
+      "name": "衔珠海皇",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/sealord/sealord.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素爆发造成的伤害提升12%。元素爆发命中敌人时，有100%概率召唤大鲔冲击，造成100%攻击力的范围伤害。该效果每15秒至多触发一次。",
+          "values": [
+            "12%",
+            "100%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素爆发造成的伤害提升15%。元素爆发命中敌人时，有100%概率召唤大鲔冲击，造成125%攻击力的范围伤害。该效果每15秒至多触发一次。",
+          "values": [
+            "15%",
+            "125%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素爆发造成的伤害提升18%。元素爆发命中敌人时，有100%概率召唤大鲔冲击，造成150%攻击力的范围伤害。该效果每15秒至多触发一次。",
+          "values": [
+            "18%",
+            "150%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素爆发造成的伤害提升21%。元素爆发命中敌人时，有100%概率召唤大鲔冲击，造成175%攻击力的范围伤害。该效果每15秒至多触发一次。",
+          "values": [
+            "21%",
+            "175%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素爆发造成的伤害提升24%。元素爆发命中敌人时，有100%概率召唤大鲔冲击，造成200%攻击力的范围伤害。该效果每15秒至多触发一次。",
+          "values": [
+            "24%",
+            "200%"
+          ]
+        }
+      ],
+      "context": [],
+      "clauses": [
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "burstBonus",
+          "valuesR1ToR5": [
+            0.12,
+            0.15,
+            0.18,
+            0.21,
+            0.24
+          ],
+          "attackTags": [
+            "burst"
+          ]
+        }
+      ],
+      "blockers": [
+        "大鲔额外物理攻击及15秒CD未模拟；不得并入原爆发技能倍率"
+      ],
+      "handExpectations": {
+        "burst": {
+          "R1": 0.12,
+          "R5": 0.24
+        },
+        "skill": 0
+      },
+      "sourceNotes": [
+        "固定源码额外攻击只在装备者前台爆发命中时触发；独立WeaponSkill物理伤害。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12414",
+      "slug": "katsuragikirinagamasa",
+      "name": "桂木斩长正",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/nagamasa/nagamasa.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技造成的伤害提升6%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复3点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+          "values": [
+            "6%",
+            "3"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技造成的伤害提升7.5%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复3.5点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+          "values": [
+            "7.5%",
+            "3.5"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技造成的伤害提升9%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复4点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+          "values": [
+            "9%",
+            "4"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技造成的伤害提升10.5%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复4.5点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+          "values": [
+            "10.5%",
+            "4.5"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技造成的伤害提升12%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复5点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+          "values": [
+            "12%",
+            "5"
+          ]
+        }
+      ],
+      "context": [],
+      "clauses": [
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "skillBonus",
+          "valuesR1ToR5": [
+            0.06,
+            0.075,
+            0.09,
+            0.105,
+            0.12
+          ],
+          "attackTags": [
+            "skill"
+          ]
+        }
+      ],
+      "blockers": [
+        "战技命中后流失3能量、2/4/6秒各恢复能量及10秒CD未接入事件结算"
+      ],
+      "handExpectations": {
+        "skill": {
+          "R1": 0.06,
+          "R5": 0.12
+        },
+        "burst": 0
+      },
+      "sourceNotes": [
+        "Skill/SkillHold都适用；能量恢复每次R1–5为3/3.5/4/4.5/5，与充能效率加成不同。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12417",
+      "slug": "forestregalia",
+      "name": "森林王器",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/forestregalia/forestregalia.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升60点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "60"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升75点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "75"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升90点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "90"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升105点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "105"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升120点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "120"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponEffectActive",
+          "kind": "boolean",
+          "meaning": "装备者本人已拾取种识之叶且12秒精通窗口仍有效"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "em",
+          "phase": "pre-panel",
+          "expression": "weaponEffectActive ? leafEm : 0",
+          "valuesR1ToR5": [
+            60,
+            75,
+            90,
+            105,
+            120
+          ]
+        }
+      ],
+      "blockers": [
+        "叶片生成、10秒可拾取窗口、20秒生成CD、跨角色拾取与转授未自动执行；本输入仅恢复装备者已有加成"
+      ],
+      "handExpectations": {
+        "active": {
+          "R1": 60,
+          "R5": 120
+        },
+        "inactive": 0
+      },
+      "sourceNotes": [
+        "实际获得者是拾取瞬间前台角色，不必为装备者；同类forest-sanctuary键不可叠加。源码已包含OnLunarBloom。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12424",
+      "slug": "talkingstick",
+      "name": "聊聊棒",
+      "status": "excluded",
+      "upstreamPath": "internal/weapons/claymore/talkingstick/talkingstick.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "承受火元素附着后的15秒内，攻击力提升16%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升12%，每12秒至多触发一次。",
+          "values": [
+            "16%",
+            "12%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "承受火元素附着后的15秒内，攻击力提升20%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升15%，每12秒至多触发一次。",
+          "values": [
+            "20%",
+            "15%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "承受火元素附着后的15秒内，攻击力提升24%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升18%，每12秒至多触发一次。",
+          "values": [
+            "24%",
+            "18%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "承受火元素附着后的15秒内，攻击力提升28%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升21%，每12秒至多触发一次。",
+          "values": [
+            "28%",
+            "21%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "承受火元素附着后的15秒内，攻击力提升32%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升24%，每12秒至多触发一次。",
+          "values": [
+            "32%",
+            "24%"
+          ]
+        }
+      ],
+      "context": [],
+      "clauses": [],
+      "blockers": [
+        "固定源码NewNoEffect且附TODO issue850；未提供可独立核对的行为或数值执行实现"
+      ],
+      "handExpectations": {},
+      "sourceNotes": [
+        "目录R1–5值有完整文本，但不能把注释当已验证机制。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12426",
+      "slug": "ultimateoverlordsmegamagicsword",
+      "name": "「究极霸王超级魔剑」",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/ultimateoverlordsmegamagicsword/ultimateoverlordsmegamagicsword.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击力提升12%。不仅如此！海沫村中曾蒙你帮助的美露莘们的声援心意充满了力量，依照她们的数目，攻击力至多进一步提升12%。",
+          "values": [
+            "12%",
+            "12%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击力提升15%。不仅如此！海沫村中曾蒙你帮助的美露莘们的声援心意充满了力量，依照她们的数目，攻击力至多进一步提升15%。",
+          "values": [
+            "15%",
+            "15%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击力提升18%。不仅如此！海沫村中曾蒙你帮助的美露莘们的声援心意充满了力量，依照她们的数目，攻击力至多进一步提升18%。",
+          "values": [
+            "18%",
+            "18%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击力提升21%。不仅如此！海沫村中曾蒙你帮助的美露莘们的声援心意充满了力量，依照她们的数目，攻击力至多进一步提升21%。",
+          "values": [
+            "21%",
+            "21%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击力提升24%。不仅如此！海沫村中曾蒙你帮助的美露莘们的声援心意充满了力量，依照她们的数目，攻击力至多进一步提升24%。",
+          "values": [
+            "24%",
+            "24%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponStacks",
+          "kind": "integer",
+          "meaning": "已帮助的有效美露莘数量；6位即满加成",
+          "min": 0,
+          "max": 6
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "atkPercent",
+          "phase": "pre-panel",
+          "expression": "baseAtkBonus * (1 + weaponStacks / 6)",
+          "valuesR1ToR5": [
+            0.12,
+            0.15,
+            0.18,
+            0.21,
+            0.24
+          ]
+        }
+      ],
+      "blockers": [
+        "6位封顶与线性比例来自固定社区源码，目录仅给额外上限；保持provisional。不得继承参考实现默认6位"
+      ],
+      "handExpectations": {
+        "count0": {
+          "R1": 0.12,
+          "R5": 0.24
+        },
+        "count3": {
+          "R1": 0.18,
+          "R5": 0.36
+        },
+        "count6": {
+          "R1": 0.24,
+          "R5": 0.48
+        }
+      },
+      "sourceNotes": [
+        "源码将数量夹到0–6；产品应显式输入合法整数而非默认为完成任务。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12427",
+      "slug": "portablepowersaw",
+      "name": "便携动力锯",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/powersaw/powersaw.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高40点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复2点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "40",
+            "2"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高50点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复2.5点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "50",
+            "2.5"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高60点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复3点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "60",
+            "3"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高70点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复3.5点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "70",
+            "3.5"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高80点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复4点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "80",
+            "4"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponStacks",
+          "kind": "integer",
+          "meaning": "当前有效10秒奋起窗口中实际已消耗的坚忍标记数；无有效窗口填0",
+          "min": 0,
+          "max": 3
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "em",
+          "phase": "pre-panel",
+          "expression": "perConsumedSymbolEm * weaponStacks",
+          "valuesR1ToR5": [
+            40,
+            50,
+            60,
+            70,
+            80
+          ]
+        }
+      ],
+      "blockers": [
+        "治疗标记获得/30秒刷新、施放消耗、15秒CD与2秒后能量恢复未自动模拟；未消耗的库存标记不能提供精通"
+      ],
+      "handExpectations": {
+        "stacks0": 0,
+        "stacks1": {
+          "R1": 40,
+          "R5": 80
+        },
+        "stacks3": {
+          "R1": 120,
+          "R5": 240
+        }
+      },
+      "sourceNotes": [
+        "OnHeal要求实际amount>0；装备者治疗或被治疗均可，后台也可。EM窗口支持hitlag。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12430",
+      "slug": "fruitfulhook",
+      "name": "硕果钩",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/fruitfulhook/fruitfulhook.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "下落攻击的暴击率提升16%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升16%，持续10秒。",
+          "values": [
+            "16%",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "下落攻击的暴击率提升20%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升20%，持续10秒。",
+          "values": [
+            "20%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "下落攻击的暴击率提升24%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升24%，持续10秒。",
+          "values": [
+            "24%",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "下落攻击的暴击率提升28%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升28%，持续10秒。",
+          "values": [
+            "28%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "下落攻击的暴击率提升32%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升32%，持续10秒。",
+          "values": [
+            "32%",
+            "32%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponEffectActive",
+          "kind": "boolean",
+          "meaning": "下落攻击命中后10秒增伤窗口当前有效"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "weaponEffectActive ? attackBonus : 0",
+          "valuesR1ToR5": [
+            0.16,
+            0.2,
+            0.24,
+            0.28,
+            0.32
+          ],
+          "attackTags": [
+            "normal",
+            "charged",
+            "plunge"
+          ]
+        }
+      ],
+      "blockers": [
+        "常驻下落攻击专属暴击率16/20/24/28/32%需要逐命中暴击修正通道；当前AST不支持，绝不能写入全局critRate",
+        "下落命中触发/刷新10秒窗口未自动模拟"
+      ],
+      "handExpectations": {
+        "activeFilteredHit": {
+          "R1": 0.16,
+          "R5": 0.32
+        },
+        "skill": 0,
+        "inactive": 0
+      },
+      "sourceNotes": [
+        "两个系数相同但分别是逐命中CR与DMG%，不可合并。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12432",
+      "slug": "flameforgedinsight",
+      "name": "拾慧铸熔",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/flameforgedinsight/flameforgedinsight.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "触发感电、月感电、绽放、月绽放、结晶或月结晶反应时，恢复12点元素能量，并在接下来的15秒内使元素精通提升60点。该效果每15秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "12",
+            "60"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "触发感电、月感电、绽放、月绽放、结晶或月结晶反应时，恢复15点元素能量，并在接下来的15秒内使元素精通提升75点。该效果每15秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "15",
+            "75"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "触发感电、月感电、绽放、月绽放、结晶或月结晶反应时，恢复18点元素能量，并在接下来的15秒内使元素精通提升90点。该效果每15秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "18",
+            "90"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "触发感电、月感电、绽放、月绽放、结晶或月结晶反应时，恢复21点元素能量，并在接下来的15秒内使元素精通提升105点。该效果每15秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "21",
+            "105"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "触发感电、月感电、绽放、月绽放、结晶或月结晶反应时，恢复24点元素能量，并在接下来的15秒内使元素精通提升120点。该效果每15秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "24",
+            "120"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponEffectActive",
+          "kind": "boolean",
+          "meaning": "合资格反应触发后15秒精通窗口当前有效"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "em",
+          "phase": "pre-panel",
+          "expression": "weaponEffectActive ? reactionEm : 0",
+          "valuesR1ToR5": [
+            60,
+            75,
+            90,
+            105,
+            120
+          ]
+        }
+      ],
+      "blockers": [
+        "感电/月感电/绽放/月绽放/结晶/月结晶触发与15秒CD、12/15/18/21/24点能量恢复未自动结算"
+      ],
+      "handExpectations": {
+        "active": {
+          "R1": 60,
+          "R5": 120
+        },
+        "inactive": 0
+      },
+      "sourceNotes": [
+        "固定源码已包含当前目录列出的所有月反应事件；owner检查存在且无前台限制。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12433",
+      "slug": "masterkey",
+      "name": "万能钥匙",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/masterkey/masterkey.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "触发元素反应后的12秒内，元素精通提升60点。月兆·满辉：该效果中的元素精通额外提升60点。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "60",
+            "60"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "触发元素反应后的12秒内，元素精通提升75点。月兆·满辉：该效果中的元素精通额外提升75点。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "75",
+            "75"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "触发元素反应后的12秒内，元素精通提升90点。月兆·满辉：该效果中的元素精通额外提升90点。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "90",
+            "90"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "触发元素反应后的12秒内，元素精通提升105点。月兆·满辉：该效果中的元素精通额外提升105点。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "105",
+            "105"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "触发元素反应后的12秒内，元素精通提升120点。月兆·满辉：该效果中的元素精通额外提升120点。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "120",
+            "120"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponEffectActive",
+          "kind": "boolean",
+          "meaning": "触发反应后12秒精通窗口当前有效"
+        },
+        {
+          "name": "moonsignAscendant",
+          "kind": "boolean",
+          "meaning": "当前队伍达到月兆·满辉"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "em",
+          "phase": "pre-panel",
+          "expression": "weaponEffectActive ? reactionEm * (moonsignAscendant ? 2 : 1) : 0",
+          "valuesR1ToR5": [
+            60,
+            75,
+            90,
+            105,
+            120
+          ]
+        }
+      ],
+      "blockers": [
+        "反应触发和12秒刷新未自动模拟；月兆状态不得由角色名字或后台状态推断"
+      ],
+      "handExpectations": {
+        "activeBase": {
+          "R1": 60,
+          "R5": 120
+        },
+        "activeAscendant": {
+          "R1": 120,
+          "R5": 240
+        },
+        "inactive": 0
+      },
+      "sourceNotes": [
+        "参考Amount读取GetMoonsignLevel()>=2动态决定倍数；player.go汇总队伍Moonsign字段。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12503",
+      "slug": "songofbrokenpines",
+      "name": "松籁响起之时",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/pines/pines.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "飘游风中的「千年的大乐章」的一部分。攻击力提高16%；普通攻击或重击命中敌人时，角色获得一枚低语之符，每0.3秒内至多触发一次。拥有4枚低语之符时，将消耗所有低语之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·揭旗之歌」效果：普通攻击速度提高12%，攻击力提升20%。触发后20秒内，无法再次获得低语之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "16%",
+            "12%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "飘游风中的「千年的大乐章」的一部分。攻击力提高20%；普通攻击或重击命中敌人时，角色获得一枚低语之符，每0.3秒内至多触发一次。拥有4枚低语之符时，将消耗所有低语之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·揭旗之歌」效果：普通攻击速度提高15%，攻击力提升25%。触发后20秒内，无法再次获得低语之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "20%",
+            "15%",
+            "25%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "飘游风中的「千年的大乐章」的一部分。攻击力提高24%；普通攻击或重击命中敌人时，角色获得一枚低语之符，每0.3秒内至多触发一次。拥有4枚低语之符时，将消耗所有低语之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·揭旗之歌」效果：普通攻击速度提高18%，攻击力提升30%。触发后20秒内，无法再次获得低语之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "24%",
+            "18%",
+            "30%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "飘游风中的「千年的大乐章」的一部分。攻击力提高28%；普通攻击或重击命中敌人时，角色获得一枚低语之符，每0.3秒内至多触发一次。拥有4枚低语之符时，将消耗所有低语之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·揭旗之歌」效果：普通攻击速度提高21%，攻击力提升35%。触发后20秒内，无法再次获得低语之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "28%",
+            "21%",
+            "35%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "飘游风中的「千年的大乐章」的一部分。攻击力提高32%；普通攻击或重击命中敌人时，角色获得一枚低语之符，每0.3秒内至多触发一次。拥有4枚低语之符时，将消耗所有低语之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·揭旗之歌」效果：普通攻击速度提高24%，攻击力提升40%。触发后20秒内，无法再次获得低语之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "32%",
+            "24%",
+            "40%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponEffectActive",
+          "kind": "boolean",
+          "meaning": "装备者已获得揭旗之歌且12秒有效，且该同类千年ATK加成为当前选中的有效来源"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "atkPercent",
+          "phase": "pre-panel",
+          "expression": "permanentAtk + (weaponEffectActive ? bannerAtk : 0)",
+          "permanentR1ToR5": [
+            0.16,
+            0.2,
+            0.24,
+            0.28,
+            0.32
+          ],
+          "bannerR1ToR5": [
+            0.2,
+            0.25,
+            0.3,
+            0.35,
+            0.4
+          ]
+        }
+      ],
+      "blockers": [
+        "12/15/18/21/24%普通攻击速度、全队授予、叠符/20秒CD/时序未实现",
+        "千年大乐章同类ATK增益共用millennial-atk%键，不能与苍古/终末同类加成重复累计；多来源去重未有可靠上下文时不得自动叠加"
+      ],
+      "handExpectations": {
+        "inactive": {
+          "R1": 0.16,
+          "R5": 0.32
+        },
+        "activeSelfOnly": {
+          "R1": 0.36,
+          "R5": 0.72
+        }
+      },
+      "sourceNotes": [
+        "持有者静态ATK%和团队临时ATK%是独立条款。只读常驻值无需条件，完整结果需要显式active。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12510",
+      "slug": "redhornstonethresher",
+      "name": "赤角石溃杵",
+      "status": "partial",
+      "upstreamPath": "internal/weapons/claymore/redhorn/redhorn.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "防御力提高28%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的40%。",
+          "values": [
+            "28%",
+            "40%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "防御力提高35%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的50%。",
+          "values": [
+            "35%",
+            "50%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "防御力提高42%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的60%。",
+          "values": [
+            "42%",
+            "60%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "防御力提高49%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的70%。",
+          "values": [
+            "49%",
+            "70%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "防御力提高56%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的80%。",
+          "values": [
+            "56%",
+            "80%"
+          ]
+        }
+      ],
+      "context": [],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "defPercent",
+          "phase": "pre-panel",
+          "expression": "defBonus",
+          "valuesR1ToR5": [
+            0.28,
+            0.35,
+            0.42,
+            0.49,
+            0.56
+          ]
+        }
+      ],
+      "blockers": [
+        "普通/重击额外伤害为角色当前TotalDef(false)×0.40/0.50/0.60/0.70/0.80，写入atk.Info.FlatDmg；当前AST缺命中前附加伤害通道，不得当作flatAtk或普通增伤"
+      ],
+      "handExpectations": {
+        "defPercent": {
+          "R1": 0.28,
+          "R5": 0.56
+        },
+        "unsupportedAddendIfDef2000": {
+          "R1": 800,
+          "R5": 1600
+        }
+      },
+      "sourceNotes": [
+        "附加伤害取实际命中时当前防御；不应混入技能倍率或攻击面板。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12511",
+      "slug": "beaconofthereedsea",
+      "name": "苇海信标",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/beacon/beacon.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技命中敌人后，攻击力提升20%，持续8秒；受到伤害后，攻击力提升20%，持续8秒。上述2种效果角色处于队伍后台时也能触发。此外，不处于护盾庇护下时，生命值上限提高32%。",
+          "values": [
+            "20%",
+            "20%",
+            "32%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技命中敌人后，攻击力提升25%，持续8秒；受到伤害后，攻击力提升25%，持续8秒。上述2种效果角色处于队伍后台时也能触发。此外，不处于护盾庇护下时，生命值上限提高40%。",
+          "values": [
+            "25%",
+            "25%",
+            "40%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技命中敌人后，攻击力提升30%，持续8秒；受到伤害后，攻击力提升30%，持续8秒。上述2种效果角色处于队伍后台时也能触发。此外，不处于护盾庇护下时，生命值上限提高48%。",
+          "values": [
+            "30%",
+            "30%",
+            "48%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技命中敌人后，攻击力提升35%，持续8秒；受到伤害后，攻击力提升35%，持续8秒。上述2种效果角色处于队伍后台时也能触发。此外，不处于护盾庇护下时，生命值上限提高56%。",
+          "values": [
+            "35%",
+            "35%",
+            "56%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技命中敌人后，攻击力提升40%，持续8秒；受到伤害后，攻击力提升40%，持续8秒。上述2种效果角色处于队伍后台时也能触发。此外，不处于护盾庇护下时，生命值上限提高64%。",
+          "values": [
+            "40%",
+            "40%",
+            "64%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponStacks",
+          "kind": "integer",
+          "meaning": "此刻仍有效的两种独立8秒ATK窗口个数（战技命中、实际受到外部伤害）",
+          "min": 0,
+          "max": 2
+        },
+        {
+          "name": "shielded",
+          "kind": "boolean",
+          "meaning": "此命中时装备者实际处于护盾庇护"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "atkPercent",
+          "phase": "pre-panel",
+          "expression": "perActiveWindowAtk * weaponStacks",
+          "valuesR1ToR5": [
+            0.2,
+            0.25,
+            0.3,
+            0.35,
+            0.4
+          ]
+        },
+        {
+          "output": "statModifiers",
+          "target": "hpPercent",
+          "phase": "pre-panel",
+          "expression": "shielded ? 0 : unshieldedHp",
+          "valuesR1ToR5": [
+            0.32,
+            0.4,
+            0.48,
+            0.56,
+            0.64
+          ]
+        }
+      ],
+      "blockers": [
+        "独立窗口触发/8秒刷新未自动模拟；重复触发同一类型只刷新而不能当第二层，后台触发可保留"
+      ],
+      "handExpectations": {
+        "stacks0Shielded": {
+          "atkPercent": 0,
+          "hpPercent": 0
+        },
+        "stacks2Unshielded": {
+          "R1": {
+            "atkPercent": 0.4,
+            "hpPercent": 0.32
+          },
+          "R5": {
+            "atkPercent": 0.8,
+            "hpPercent": 0.64
+          }
+        }
+      },
+      "sourceNotes": [
+        "外部伤害要求ActorIndex正确、Amount>0、External=true；自损不等同受到伤害。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12512",
+      "slug": "verdict",
+      "name": "裁断",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/verdict/verdict.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击力提升20%；队伍中的角色获取结晶反应产生的晶片或触发月结晶反应时，会为装备者赋予1枚「约印」，使元素战技造成的伤害提升18%，约印持续15秒，至多同时持有2枚。所有约印将在装备者的元素战技造成伤害后的0.2秒后移除。每1秒至多通过月结晶反应获取1枚「约印」。",
+          "values": [
+            "20%",
+            "18%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击力提升25%；队伍中的角色获取结晶反应产生的晶片或触发月结晶反应时，会为装备者赋予1枚「约印」，使元素战技造成的伤害提升22.5%，约印持续15秒，至多同时持有2枚。所有约印将在装备者的元素战技造成伤害后的0.2秒后移除。每1秒至多通过月结晶反应获取1枚「约印」。",
+          "values": [
+            "25%",
+            "22.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击力提升30%；队伍中的角色获取结晶反应产生的晶片或触发月结晶反应时，会为装备者赋予1枚「约印」，使元素战技造成的伤害提升27%，约印持续15秒，至多同时持有2枚。所有约印将在装备者的元素战技造成伤害后的0.2秒后移除。每1秒至多通过月结晶反应获取1枚「约印」。",
+          "values": [
+            "30%",
+            "27%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击力提升35%；队伍中的角色获取结晶反应产生的晶片或触发月结晶反应时，会为装备者赋予1枚「约印」，使元素战技造成的伤害提升31.5%，约印持续15秒，至多同时持有2枚。所有约印将在装备者的元素战技造成伤害后的0.2秒后移除。每1秒至多通过月结晶反应获取1枚「约印」。",
+          "values": [
+            "35%",
+            "31.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击力提升40%；队伍中的角色获取结晶反应产生的晶片或触发月结晶反应时，会为装备者赋予1枚「约印」，使元素战技造成的伤害提升36%，约印持续15秒，至多同时持有2枚。所有约印将在装备者的元素战技造成伤害后的0.2秒后移除。每1秒至多通过月结晶反应获取1枚「约印」。",
+          "values": [
+            "40%",
+            "36%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponStacks",
+          "kind": "integer",
+          "meaning": "命中当前仍有效的约印数，含战技首次伤害后0.2秒消费窗口",
+          "min": 0,
+          "max": 2
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "atkPercent",
+          "phase": "pre-panel",
+          "expression": "permanentAtk",
+          "valuesR1ToR5": [
+            0.2,
+            0.25,
+            0.3,
+            0.35,
+            0.4
+          ]
+        },
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "perSealSkillBonus * weaponStacks",
+          "valuesR1ToR5": [
+            0.18,
+            0.225,
+            0.27,
+            0.315,
+            0.36
+          ],
+          "attackTags": [
+            "skill"
+          ]
+        }
+      ],
+      "blockers": [
+        "拾取结晶/月结晶触发、15秒时效及战技后0.2秒清空未自动执行；不能把约印作用于爆发"
+      ],
+      "handExpectations": {
+        "stacks2": {
+          "R1": {
+            "atkPercent": 0.2,
+            "skillBonus": 0.36
+          },
+          "R5": {
+            "atkPercent": 0.4,
+            "skillBonus": 0.72
+          }
+        },
+        "stacks0": {
+          "skillBonus": 0
+        }
+      },
+      "sourceNotes": [
+        "固定源码包含OnLunarCrystallize与60帧ICD，已对齐当前月结晶目录描述。StatusIsActive与StatModIsActive共用modIsActive，非命名差异bug。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12513",
+      "slug": "fangofthemountainking",
+      "name": "山王长牙",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/fangofthemountainking/fangofthemountainking.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技命中敌人后，会获得1层「悬木祝赐」，该效果每0.5秒至多触发1次；队伍中附近的角色触发了燃烧或烈绽放反应后，装备者会获得3层悬木祝赐，该效果每2秒至多触发1次，队伍中的角色处于队伍后台时也能触发。悬木祝赐：元素战技伤害和元素爆发伤害提升10%，持续6秒，至多叠加6层，每层持续时间独立计算。",
+          "values": [
+            "10%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技命中敌人后，会获得1层「悬木祝赐」，该效果每0.5秒至多触发1次；队伍中附近的角色触发了燃烧或烈绽放反应后，装备者会获得3层悬木祝赐，该效果每2秒至多触发1次，队伍中的角色处于队伍后台时也能触发。悬木祝赐：元素战技伤害和元素爆发伤害提升12.5%，持续6秒，至多叠加6层，每层持续时间独立计算。",
+          "values": [
+            "12.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技命中敌人后，会获得1层「悬木祝赐」，该效果每0.5秒至多触发1次；队伍中附近的角色触发了燃烧或烈绽放反应后，装备者会获得3层悬木祝赐，该效果每2秒至多触发1次，队伍中的角色处于队伍后台时也能触发。悬木祝赐：元素战技伤害和元素爆发伤害提升15%，持续6秒，至多叠加6层，每层持续时间独立计算。",
+          "values": [
+            "15%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技命中敌人后，会获得1层「悬木祝赐」，该效果每0.5秒至多触发1次；队伍中附近的角色触发了燃烧或烈绽放反应后，装备者会获得3层悬木祝赐，该效果每2秒至多触发1次，队伍中的角色处于队伍后台时也能触发。悬木祝赐：元素战技伤害和元素爆发伤害提升17.5%，持续6秒，至多叠加6层，每层持续时间独立计算。",
+          "values": [
+            "17.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技命中敌人后，会获得1层「悬木祝赐」，该效果每0.5秒至多触发1次；队伍中附近的角色触发了燃烧或烈绽放反应后，装备者会获得3层悬木祝赐，该效果每2秒至多触发1次，队伍中的角色处于队伍后台时也能触发。悬木祝赐：元素战技伤害和元素爆发伤害提升20%，持续6秒，至多叠加6层，每层持续时间独立计算。",
+          "values": [
+            "20%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponStacks",
+          "kind": "integer",
+          "meaning": "此命中时仍未过期的悬木祝赐层数",
+          "min": 0,
+          "max": 6
+        }
+      ],
+      "clauses": [
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "perStackBonus * weaponStacks",
+          "valuesR1ToR5": [
+            0.1,
+            0.125,
+            0.15,
+            0.175,
+            0.2
+          ],
+          "attackTags": [
+            "skill",
+            "burst"
+          ]
+        }
+      ],
+      "blockers": [
+        "战技0.5秒触发、燃烧/烈绽放2秒触发、6秒独立层时效未自动模拟；数值输入不是累计历史次数"
+      ],
+      "handExpectations": {
+        "stacks0": 0,
+        "stacks6": {
+          "R1": 0.6,
+          "R5": 1.2
+        }
+      },
+      "sourceNotes": [
+        "源码独立层tracker满层后刷新最早过期的一层。角色自身战技叠层源代码额外要求前台；队员燃烧/烈绽放无需前台。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12514",
+      "slug": "athousandblazingsuns",
+      "name": "焚曜千阳",
+      "status": "conditional",
+      "upstreamPath": "internal/weapons/claymore/athousandblazingsuns/athousandblazingsuns.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "施放元素战技或元素爆发时，获得「焚光」效果：暴击伤害提高20%，攻击力提升28%，该效果持续6秒，每10秒至多触发一次。\n持续期间内，普通攻击或重击造成元素伤害后，将使此次「焚光」效果的持续时间延长2秒，该效果每1秒至多触发一次，至多通过这种方式使持续时间延长6秒。\n此外，处于夜魂加持状态下时，「焚光」效果提高75%，且「焚光」效果在装备者处于后台时不进行计时。",
+          "values": [
+            "20%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "施放元素战技或元素爆发时，获得「焚光」效果：暴击伤害提高25%，攻击力提升35%，该效果持续6秒，每10秒至多触发一次。\n持续期间内，普通攻击或重击造成元素伤害后，将使此次「焚光」效果的持续时间延长2秒，该效果每1秒至多触发一次，至多通过这种方式使持续时间延长6秒。\n此外，处于夜魂加持状态下时，「焚光」效果提高75%，且「焚光」效果在装备者处于后台时不进行计时。",
+          "values": [
+            "25%",
+            "35%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "施放元素战技或元素爆发时，获得「焚光」效果：暴击伤害提高30%，攻击力提升42%，该效果持续6秒，每10秒至多触发一次。\n持续期间内，普通攻击或重击造成元素伤害后，将使此次「焚光」效果的持续时间延长2秒，该效果每1秒至多触发一次，至多通过这种方式使持续时间延长6秒。\n此外，处于夜魂加持状态下时，「焚光」效果提高75%，且「焚光」效果在装备者处于后台时不进行计时。",
+          "values": [
+            "30%",
+            "42%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "施放元素战技或元素爆发时，获得「焚光」效果：暴击伤害提高35%，攻击力提升49%，该效果持续6秒，每10秒至多触发一次。\n持续期间内，普通攻击或重击造成元素伤害后，将使此次「焚光」效果的持续时间延长2秒，该效果每1秒至多触发一次，至多通过这种方式使持续时间延长6秒。\n此外，处于夜魂加持状态下时，「焚光」效果提高75%，且「焚光」效果在装备者处于后台时不进行计时。",
+          "values": [
+            "35%",
+            "49%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "施放元素战技或元素爆发时，获得「焚光」效果：暴击伤害提高40%，攻击力提升56%，该效果持续6秒，每10秒至多触发一次。\n持续期间内，普通攻击或重击造成元素伤害后，将使此次「焚光」效果的持续时间延长2秒，该效果每1秒至多触发一次，至多通过这种方式使持续时间延长6秒。\n此外，处于夜魂加持状态下时，「焚光」效果提高75%，且「焚光」效果在装备者处于后台时不进行计时。",
+          "values": [
+            "40%",
+            "56%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponEffectActive",
+          "kind": "boolean",
+          "meaning": "焚光窗口在当前命中仍有效"
+        },
+        {
+          "name": "nightsoulBlessingActive",
+          "kind": "boolean",
+          "meaning": "当前处于夜魂加持状态"
+        }
+      ],
+      "clauses": [
+        {
+          "output": "statModifiers",
+          "target": "atkPercent",
+          "phase": "pre-panel",
+          "expression": "weaponEffectActive ? baseAtkBonus * (nightsoulBlessingActive ? 1.75 : 1) : 0",
+          "valuesR1ToR5": [
+            0.28,
+            0.35,
+            0.42,
+            0.49,
+            0.56
+          ]
+        },
+        {
+          "output": "statModifiers",
+          "target": "critDamage",
+          "phase": "pre-panel",
+          "expression": "weaponEffectActive ? baseCritDamage * (nightsoulBlessingActive ? 1.75 : 1) : 0",
+          "valuesR1ToR5": [
+            0.2,
+            0.25,
+            0.3,
+            0.35,
+            0.4
+          ]
+        }
+      ],
+      "blockers": [
+        "E/Q触发、10秒CD、元素普重击延长（1秒ICD，每次2秒，上限6秒）、夜魂后台暂停均未自动模拟；必须恢复显式状态"
+      ],
+      "handExpectations": {
+        "activeBase": {
+          "R1": {
+            "atkPercent": 0.28,
+            "critDamage": 0.2
+          },
+          "R5": {
+            "atkPercent": 0.56,
+            "critDamage": 0.4
+          }
+        },
+        "activeNightsoul": {
+          "R1": {
+            "atkPercent": 0.49,
+            "critDamage": 0.35
+          },
+          "R5": {
+            "atkPercent": 0.98,
+            "critDamage": 0.7
+          }
+        },
+        "inactive": {
+          "atkPercent": 0,
+          "critDamage": 0
+        }
+      },
+      "sourceNotes": [
+        "75%提升是×1.75，非额外75个百分点。Amount动态读取夜魂状态；后台计时源码用18帧周期补时。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    },
+    {
+      "id": "weapon:12515",
+      "slug": "gestofthemightywolf",
+      "name": "狼的武功歌",
+      "status": "partial-with-source-conflict",
+      "upstreamPath": "internal/weapons/claymore/gestofthemightywolf/gestofthemightywolf.go",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击速度提升10%。普通攻击命中敌人/施放元素战技/开始重击时，装备者将分别获得1/2/2层「四风诗系」：造成的伤害提升7.5%，该效果持续4秒，至多叠加4次，每0.01秒至多触发一次。\n此外，队伍拥有「魔导·秘仪」效果时，每层「四风诗系」还会使装备者的暴击伤害提高7.5%。",
+          "values": [
+            "7.5%",
+            "7.5%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击速度提升10%。普通攻击命中敌人/施放元素战技/开始重击时，装备者将分别获得1/2/2层「四风诗系」：造成的伤害提升9.5%，该效果持续4秒，至多叠加4次，每0.01秒至多触发一次。\n此外，队伍拥有「魔导·秘仪」效果时，每层「四风诗系」还会使装备者的暴击伤害提高9.5%。",
+          "values": [
+            "9.5%",
+            "9.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击速度提升10%。普通攻击命中敌人/施放元素战技/开始重击时，装备者将分别获得1/2/2层「四风诗系」：造成的伤害提升11.5%，该效果持续4秒，至多叠加4次，每0.01秒至多触发一次。\n此外，队伍拥有「魔导·秘仪」效果时，每层「四风诗系」还会使装备者的暴击伤害提高11.5%。",
+          "values": [
+            "11.5%",
+            "11.5%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击速度提升10%。普通攻击命中敌人/施放元素战技/开始重击时，装备者将分别获得1/2/2层「四风诗系」：造成的伤害提升13.5%，该效果持续4秒，至多叠加4次，每0.01秒至多触发一次。\n此外，队伍拥有「魔导·秘仪」效果时，每层「四风诗系」还会使装备者的暴击伤害提高13.5%。",
+          "values": [
+            "13.5%",
+            "13.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击速度提升10%。普通攻击命中敌人/施放元素战技/开始重击时，装备者将分别获得1/2/2层「四风诗系」：造成的伤害提升15.5%，该效果持续4秒，至多叠加4次，每0.01秒至多触发一次。\n此外，队伍拥有「魔导·秘仪」效果时，每层「四风诗系」还会使装备者的暴击伤害提高15.5%。",
+          "values": [
+            "15.5%",
+            "15.5%"
+          ]
+        }
+      ],
+      "context": [
+        {
+          "name": "weaponStacks",
+          "kind": "integer",
+          "meaning": "人工核实当前4秒窗口有效的四风诗系层数",
+          "min": 0,
+          "max": 4
+        }
+      ],
+      "clauses": [
+        {
+          "output": "dynamicHitBonuses",
+          "expression": "perStackDmgBonus * weaponStacks",
+          "valuesR1ToR5": [
+            0.075,
+            0.095,
+            0.115,
+            0.135,
+            0.155
+          ],
+          "filters": "all direct hits"
+        }
+      ],
+      "blockers": [
+        "10%攻击速度未支持",
+        "暴伤条件冲突：目录为队伍拥有魔导·秘仪；固定源码检查装备者char.IsHexerei，不能据此实现目录条件",
+        "自动叠层源码OnEnemyDamage无owner和Normal标签筛选，OnSkill/OnCharge亦无owner筛选，未实现目录0.01秒ICD；不得自动沿用参考事件实现"
+      ],
+      "handExpectations": {
+        "stacks0": 0,
+        "stacks4DamageOnly": {
+          "R1": 0.3,
+          "R5": 0.62
+        }
+      },
+      "sourceNotes": [
+        "player.go单独提供GetHexereiCount并遍历IsHexerei，证实该字段是角色标记而非已聚合队伍效果。暴伤系数数值虽一致，条件不可标验证完成。"
+      ],
+      "allRefinementValueArraysMatchManualSourceAudit": true
+    }
+  ],
+  "otherRemainingClaymores": [
+    {
+      "id": "weapon:12101",
+      "slug": "wastergreatsword",
+      "name": "训练大剑",
+      "reason": "无武器被动条款",
+      "refinements": []
+    },
+    {
+      "id": "weapon:12201",
+      "slug": "oldmercspal",
+      "name": "佣兵重剑",
+      "reason": "无武器被动条款",
+      "refinements": []
+    },
+    {
+      "id": "weapon:12303",
+      "slug": "whiteirongreatsword",
+      "name": "白铁大剑",
+      "reason": "仅治疗、能量、重置CD或额外攻击等事件机制；此有界标量模块不纳入",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "击败敌人时，恢复8%生命值。",
+          "values": [
+            "8%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "击败敌人时，恢复10%生命值。",
+          "values": [
+            "10%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "击败敌人时，恢复12%生命值。",
+          "values": [
+            "12%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "击败敌人时，恢复14%生命值。",
+          "values": [
+            "14%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "击败敌人时，恢复16%生命值。",
+          "values": [
+            "16%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12305",
+      "slug": "debateclub",
+      "name": "以理服人",
+      "reason": "仅治疗、能量、重置CD或额外攻击等事件机制；此有界标量模块不纳入",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "施放元素战技后，普通攻击和重击命中时会在小范围内额外造成60%攻击力的伤害。该效果持续15秒，伤害每3秒只能触发一次。",
+          "values": [
+            "60%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "施放元素战技后，普通攻击和重击命中时会在小范围内额外造成75%攻击力的伤害。该效果持续15秒，伤害每3秒只能触发一次。",
+          "values": [
+            "75%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "施放元素战技后，普通攻击和重击命中时会在小范围内额外造成90%攻击力的伤害。该效果持续15秒，伤害每3秒只能触发一次。",
+          "values": [
+            "90%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "施放元素战技后，普通攻击和重击命中时会在小范围内额外造成105%攻击力的伤害。该效果持续15秒，伤害每3秒只能触发一次。",
+          "values": [
+            "105%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "施放元素战技后，普通攻击和重击命中时会在小范围内额外造成120%攻击力的伤害。该效果持续15秒，伤害每3秒只能触发一次。",
+          "values": [
+            "120%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12401",
+      "slug": "favoniusgreatsword",
+      "name": "西风大剑",
+      "reason": "仅治疗、能量、重置CD或额外攻击等事件机制；此有界标量模块不纳入",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击造成暴击时，有60%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每12秒只能触发一次。",
+          "values": [
+            "60%",
+            "12"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击造成暴击时，有70%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每10.5秒只能触发一次。",
+          "values": [
+            "70%",
+            "10.5"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击造成暴击时，有80%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每9秒只能触发一次。",
+          "values": [
+            "80%",
+            "9"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击造成暴击时，有90%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每7.5秒只能触发一次。",
+          "values": [
+            "90%",
+            "7.5"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击造成暴击时，有100%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每6秒只能触发一次。",
+          "values": [
+            "100%",
+            "6"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12403",
+      "slug": "sacrificialgreatsword",
+      "name": "祭礼大剑",
+      "reason": "仅治疗、能量、重置CD或额外攻击等事件机制；此有界标量模块不纳入",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技造成伤害时，有40%的概率重置该技能的冷却时间，该效果每30秒只能触发一次。",
+          "values": [
+            "40%",
+            "30"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技造成伤害时，有50%的概率重置该技能的冷却时间，该效果每26秒只能触发一次。",
+          "values": [
+            "50%",
+            "26"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技造成伤害时，有60%的概率重置该技能的冷却时间，该效果每22秒只能触发一次。",
+          "values": [
+            "60%",
+            "22"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技造成伤害时，有70%的概率重置该技能的冷却时间，该效果每19秒只能触发一次。",
+          "values": [
+            "70%",
+            "19"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技造成伤害时，有80%的概率重置该技能的冷却时间，该效果每16秒只能触发一次。",
+          "values": [
+            "80%",
+            "16"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12406",
+      "slug": "prototypearchaic",
+      "name": "试作古华",
+      "reason": "仅治疗、能量、重置CD或额外攻击等事件机制；此有界标量模块不纳入",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成240%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "240%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成300%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "300%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成360%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "360%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成420%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "420%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成480%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "480%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12411",
+      "slug": "snowtombedstarsilver",
+      "name": "雪葬的星银",
+      "reason": "仅治疗、能量、重置CD或额外攻击等事件机制；此有界标量模块不纳入",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击与重击命中敌人时，有60%概率在敌人上方生成恒冰晶核并坠落，造成80%攻击力的范围伤害。若敌人处于冰元素影响下，则造成200%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "60%",
+            "80%",
+            "200%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "普通攻击与重击命中敌人时，有70%概率在敌人上方生成恒冰晶核并坠落，造成95%攻击力的范围伤害。若敌人处于冰元素影响下，则造成240%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "70%",
+            "95%",
+            "240%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "普通攻击与重击命中敌人时，有80%概率在敌人上方生成恒冰晶核并坠落，造成110%攻击力的范围伤害。若敌人处于冰元素影响下，则造成280%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "80%",
+            "110%",
+            "280%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "普通攻击与重击命中敌人时，有90%概率在敌人上方生成恒冰晶核并坠落，造成125%攻击力的范围伤害。若敌人处于冰元素影响下，则造成320%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "90%",
+            "125%",
+            "320%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "普通攻击与重击命中敌人时，有100%概率在敌人上方生成恒冰晶核并坠落，造成140%攻击力的范围伤害。若敌人处于冰元素影响下，则造成360%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "100%",
+            "140%",
+            "360%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12435",
+      "slug": "forgedbythegoldenmelody",
+      "name": "金律铸影",
+      "reason": "当前固定gcsim树未包含对应实现；即使目录有数字也不标为已独立核对",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升18%/元素精通提升120点/星烁反应伤害提升28%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+          "values": [
+            "18%",
+            "120",
+            "28%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升22.5%/元素精通提升150点/星烁反应伤害提升35%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+          "values": [
+            "22.5%",
+            "150",
+            "35%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升27%/元素精通提升180点/星烁反应伤害提升42%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+          "values": [
+            "27%",
+            "180",
+            "42%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升31.5%/元素精通提升210点/星烁反应伤害提升49%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+          "values": [
+            "31.5%",
+            "210",
+            "49%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升36%/元素精通提升240点/星烁反应伤害提升56%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+          "values": [
+            "36%",
+            "240",
+            "56%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12436",
+      "slug": "bladeofatonement",
+      "name": "救赎之斩",
+      "reason": "当前固定gcsim树未包含对应实现；即使目录有数字也不标为已独立核对",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "触发元素反应的12秒内，装备者的元素精通提升64点；触发星烁反应的12秒内，装备者的攻击力提升16%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "64",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "触发元素反应的12秒内，装备者的元素精通提升80点；触发星烁反应的12秒内，装备者的攻击力提升20%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "80",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "触发元素反应的12秒内，装备者的元素精通提升96点；触发星烁反应的12秒内，装备者的攻击力提升24%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "96",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "触发元素反应的12秒内，装备者的元素精通提升112点；触发星烁反应的12秒内，装备者的攻击力提升28%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "112",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "触发元素反应的12秒内，装备者的元素精通提升128点；触发星烁反应的12秒内，装备者的攻击力提升32%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "128",
+            "32%"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "weapon:12516",
+      "slug": "ateaspoonoftranscendence",
+      "name": "超越之匙",
+      "reason": "当前固定gcsim树未包含对应实现；即使目录有数字也不标为已独立核对",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击力提升28%。\n此外，装备者的重击每次命中敌人后，都会短暂达成「超越」：使装备者的星超导和星扩散反应伤害提升16%，持续5秒。该效果至多叠加3层，每0.2秒至多叠加一层。",
+          "values": [
+            "28%",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击力提升35%。\n此外，装备者的重击每次命中敌人后，都会短暂达成「超越」：使装备者的星超导和星扩散反应伤害提升20%，持续5秒。该效果至多叠加3层，每0.2秒至多叠加一层。",
+          "values": [
+            "35%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击力提升42%。\n此外，装备者的重击每次命中敌人后，都会短暂达成「超越」：使装备者的星超导和星扩散反应伤害提升24%，持续5秒。该效果至多叠加3层，每0.2秒至多叠加一层。",
+          "values": [
+            "42%",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击力提升49%。\n此外，装备者的重击每次命中敌人后，都会短暂达成「超越」：使装备者的星超导和星扩散反应伤害提升28%，持续5秒。该效果至多叠加3层，每0.2秒至多叠加一层。",
+          "values": [
+            "49%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击力提升56%。\n此外，装备者的重击每次命中敌人后，都会短暂达成「超越」：使装备者的星超导和星扩散反应伤害提升32%，持续5秒。该效果至多叠加3层，每0.2秒至多叠加一层。",
+          "values": [
+            "56%",
+            "32%"
+          ]
+        }
+      ]
+    }
+  ]
+}

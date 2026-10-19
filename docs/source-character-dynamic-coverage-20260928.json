@@ -1,0 +1,2041 @@
+{
+  "schemaVersion": "source-character-dynamic-coverage-v1",
+  "generatedDate": "2026-09-28",
+  "scope": "Only character.StatMod and character.AttackMod Amount closures returning []float64 under internal/characters in the two named built source trees.",
+  "method": {
+    "unit": "one syntactic Amount callback, regardless of number of rule IDs, shared calls, or runtime invocations",
+    "owner": "enclosing character.StatMod or character.AttackMod composite literal",
+    "sharedMarkers": {
+      "shared-fixed": "CharacterModifierVector(",
+      "shared-dynamic-read": "CharacterModifierDynamicRead(",
+      "shared-dynamic-creation-consumption": "CharacterModifierSnapshot("
+    },
+    "remainingCategories": {
+      "unbridged-callback-slot-write": "No shared marker; callback body directly assigns an attributes.<Stat> indexed slot.",
+      "unbridged-local-vector-return": "No shared marker or direct slot assignment; callback returns a local []float64 identifier.",
+      "unbridged-field-vector-return": "No shared marker or direct slot assignment; callback returns a field such as c.buff. Producer and update timing require review.",
+      "unbridged-indexed-vector-return": "No shared marker or direct slot assignment; callback returns an indexed []float64 value.",
+      "unbridged-nil-only": "No shared marker and no non-nil return in the callback body."
+    },
+    "limitations": [
+      "This is a syntactic inventory of built Go source, not a count of reachable effects, completed character kits, or gameplay verification.",
+      "Return-form classes are lexical evidence only: a local or field return does not prove creation-time snapshot semantics; inspect the producer and lifecycle before migrating.",
+      "A callback with a shared marker is counted once even if its formula produces several scalar rule receipts or the callback has multiple branches.",
+      "Other modifier families, direct attack fields, reaction/healing/cooldown scalars, and team configuration are outside this denominator.",
+      "literalModifierKey is null when the enclosing constructor does not contain a directly quoted modifier.NewBase key; no constant or runtime key is inferred."
+    ]
+  },
+  "lanes": {
+    "classic": {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "builtSourceRoot": "/tmp/gidps-source-host-cache/build-8KQFJQ/source",
+      "totalVectorCallbacks": 302,
+      "modifierKinds": {
+        "attack": 108,
+        "stat": 194
+      },
+      "sharedCallbackCounts": {
+        "shared-fixed": 94,
+        "shared-dynamic-read": 58,
+        "shared-dynamic-creation-consumption": 40,
+        "total": 192
+      },
+      "remainingCallbackCounts": {
+        "unbridged-callback-slot-write": 10,
+        "unbridged-field-vector-return": 60,
+        "unbridged-indexed-vector-return": 2,
+        "unbridged-local-vector-return": 36,
+        "unbridged-nil-only": 2,
+        "total": 110
+      },
+      "remainingCallbacks": [
+        {
+          "path": "internal/characters/aino/cons.go",
+          "line": 38,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "61b0f0d9d7595909f0e0dccf9f2fab17d14ebdba8ec4af33c092cd662f9fd93b"
+        },
+        {
+          "path": "internal/characters/aino/cons.go",
+          "line": 52,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "dc02ef3cdbaa7e07e57c6c35f2c8f05199bad27af1a4503dc8aa4a4e0981e7fa"
+        },
+        {
+          "path": "internal/characters/alhaitham/cons.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/alhaitham/cons.go",
+          "line": 129,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "b1154d3b04dacdc207f05f9a9109ca230dfe8df988a9749c02c6a3900de977ab"
+        },
+        {
+          "path": "internal/characters/arlecchino/cons.go",
+          "line": 106,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "56141f33fa42ebef5a42bc4469fca4b72d54dbf787d428662232bd0f30d14619"
+        },
+        {
+          "path": "internal/characters/ayato/burst.go",
+          "line": 76,
+          "modifierKind": "attack",
+          "literalModifierKey": "ayato-burst",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "5646097a80d0ef41f35fa58bb94c742249d0b99a9dfbe5a27546d32a18e224ab"
+        },
+        {
+          "path": "internal/characters/barbara/cons.go",
+          "line": 26,
+          "modifierKind": "stat",
+          "literalModifierKey": "barbara-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ac8a26994d7c8190620cfa43862999b69e30fca69676b476f7331ac01c065665"
+        },
+        {
+          "path": "internal/characters/candace/burst.go",
+          "line": 142,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "ad4f8ab800109596361eb8ee0be5edb68feb5903f0f2cd71b302c163642e2c52"
+        },
+        {
+          "path": "internal/characters/chevreuse/cons.go",
+          "line": 157,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/chiori/asc.go",
+          "line": 197,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a1f383bf0cf07c8ca9c64a9ffe6f071eec38056107dd8b42166767acfa123877"
+        },
+        {
+          "path": "internal/characters/clorinde/asc.go",
+          "line": 59,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-nil-only",
+          "bodySha256": "fe78a91addf1b4b659e7f42e68aa05443bf76f8386b5fd68db758f2e02028140"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 114,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "23eea16d34a4c00771e3db8dddec7610b76967c0fd73f77c5221d7a55df6a66e"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 258,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "e1553c3e8585af3742421bc6ca031ce5773f2c4727b46c35ea40677aa092a3f2"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 282,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "24d72d6745bedcf9cbde5c3d48cbf2d104529010a180b57e971186cbca87b517"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 307,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "944e935b93d547d55d4250f1d9ebdb76ad1ee1bcb92b7f372ba5429a92131b6b"
+        },
+        {
+          "path": "internal/characters/cyno/burst.go",
+          "line": 37,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/cyno/cons.go",
+          "line": 32,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "971fbe2f0c69910df16900d6701d6d01be8481517fc8178abcfcd8de735cccc9"
+        },
+        {
+          "path": "internal/characters/dahlia/asc.go",
+          "line": 81,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "9a7b5d71e1fa4b4a6ff18960fec88043f21e0a4454ab83de21860e310249ff87"
+        },
+        {
+          "path": "internal/characters/diluc/burst.go",
+          "line": 46,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d263e9348582a6c3a96876b98904c559c5bbce5e8fec5cf07958f8ca878565aa"
+        },
+        {
+          "path": "internal/characters/diluc/cons.go",
+          "line": 67,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ac8a26994d7c8190620cfa43862999b69e30fca69676b476f7331ac01c065665"
+        },
+        {
+          "path": "internal/characters/diluc/cons.go",
+          "line": 79,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d3f71022d0e5eae92efc5aa02e7b87b5c53b03e3c2f084781ab2ea1112de46b6"
+        },
+        {
+          "path": "internal/characters/diona/cons.go",
+          "line": 44,
+          "modifierKind": "stat",
+          "literalModifierKey": "diona-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "9da09507ce20776857683d8f10b1af74d4d2616656f13980c81e3da2496cc497"
+        },
+        {
+          "path": "internal/characters/durin/cons.go",
+          "line": 205,
+          "modifierKind": "stat",
+          "literalModifierKey": "durin-c2-",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f0edec034a2a18f9fa281cdaa32198bb411aaa22e24871a38a25b90d8c42283f"
+        },
+        {
+          "path": "internal/characters/emilie/cons.go",
+          "line": 67,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "a8cfe8ce2a94ff55cda7c59b0e7fb082373136bd2b052eb823dc1b7a411f33e8"
+        },
+        {
+          "path": "internal/characters/escoffier/cons.go",
+          "line": 67,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2975c93c4eeea83ada03e17d101b0971dde1c8fd6299b9f7e62621006d5d8e0f"
+        },
+        {
+          "path": "internal/characters/eula/skill.go",
+          "line": 249,
+          "modifierKind": "stat",
+          "literalModifierKey": "eula-c1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0e1ce25c81074bef3abc4dd398649a395bc119dc28a5d28206e4a963283b4f47"
+        },
+        {
+          "path": "internal/characters/flins/cons.go",
+          "line": 139,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/freminet/asc.go",
+          "line": 47,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "b21b61faf81e752dbedf871d273b426be6dfc376e004f7a80aead0d391e0b660"
+        },
+        {
+          "path": "internal/characters/freminet/cons.go",
+          "line": 33,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "89a9ede0ee35b7d414cd34eb11193d193b3d4372df4dc0c209da52c32f825164"
+        },
+        {
+          "path": "internal/characters/gaming/cons.go",
+          "line": 58,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/gaming/cons.go",
+          "line": 97,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "1d61977cdca2afd353cad9798ecf91b791bfd62ab73f9bc57e00535d154a65cc"
+        },
+        {
+          "path": "internal/characters/gorou/asc.go",
+          "line": 18,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "1e8567cbaace85eaa88d9bc86da7d41f29899110274cf05ffe47d9f75038198f"
+        },
+        {
+          "path": "internal/characters/heizou/asc.go",
+          "line": 65,
+          "modifierKind": "stat",
+          "literalModifierKey": "heizou-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a199d8b94a29e1c6adcb048c95fb193a0ec78c32795db156438f13754d9658ee"
+        },
+        {
+          "path": "internal/characters/heizou/cons.go",
+          "line": 27,
+          "modifierKind": "stat",
+          "literalModifierKey": "heizou-c1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0e1ce25c81074bef3abc4dd398649a395bc119dc28a5d28206e4a963283b4f47"
+        },
+        {
+          "path": "internal/characters/hutao/asc.go",
+          "line": 29,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "42791b173aa0d0e69230c746300303e88766e81257a5065accbfb4bdb11e6392"
+        },
+        {
+          "path": "internal/characters/hutao/asc.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": "hutao-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a4a4300a5decf4d88faa9dbc85395bb7d1da7371642ed835cf06cadab4625c78"
+        },
+        {
+          "path": "internal/characters/hutao/cons.go",
+          "line": 57,
+          "modifierKind": "stat",
+          "literalModifierKey": "hutao-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "25b90cd7b266c736890490fc68028df2b63745e4ef190fc49cceb0662ec603b2"
+        },
+        {
+          "path": "internal/characters/hutao/cons.go",
+          "line": 88,
+          "modifierKind": "stat",
+          "literalModifierKey": "hutao-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f2016d409659852a86d79b5d4eb1b1c4c91a6a3b594bc69bdbcdaaf51b816234"
+        },
+        {
+          "path": "internal/characters/hutao/skill.go",
+          "line": 44,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0d2c47f404e92838f8744f174f6668be81b107c73bdb645bee2daa9975802b26"
+        },
+        {
+          "path": "internal/characters/itto/burst.go",
+          "line": 80,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "248c640bec71c8f306d10bb716fad31c9a96a457c5626787a7a3ed80173ad298"
+        },
+        {
+          "path": "internal/characters/jean/cons.go",
+          "line": 36,
+          "modifierKind": "stat",
+          "literalModifierKey": "jean-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ba55ea13f8c29702226ef1fb1a4e9c27973f7ca82c49518c6b7f9e2ec8bb5a5f"
+        },
+        {
+          "path": "internal/characters/kaeya/cons.go",
+          "line": 21,
+          "modifierKind": "attack",
+          "literalModifierKey": "kaeya-c1",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "0471a9b1463e8f6f271c16f24c5481c5c69f7b923b86520002ee71cabd0d6e62"
+        },
+        {
+          "path": "internal/characters/kaveh/cons.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/kazuha/asc.go",
+          "line": 70,
+          "modifierKind": "stat",
+          "literalModifierKey": "kazuha-a4-",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "ed5b81f904b7b1369ed29b79bfc8bd3fbcf4c7e4b2d361450f2688e95911ef36"
+        },
+        {
+          "path": "internal/characters/kazuha/cons.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": "kazuha-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ac8a26994d7c8190620cfa43862999b69e30fca69676b476f7331ac01c065665"
+        },
+        {
+          "path": "internal/characters/kazuha/cons.go",
+          "line": 58,
+          "modifierKind": "stat",
+          "literalModifierKey": "kazuha-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ba55ea13f8c29702226ef1fb1a4e9c27973f7ca82c49518c6b7f9e2ec8bb5a5f"
+        },
+        {
+          "path": "internal/characters/keqing/asc.go",
+          "line": 39,
+          "modifierKind": "stat",
+          "literalModifierKey": "keqing-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "513469eaac18c5c2061da843743641c57ae4f38323cf1dfdd6c026c26ee20067"
+        },
+        {
+          "path": "internal/characters/keqing/cons.go",
+          "line": 53,
+          "modifierKind": "stat",
+          "literalModifierKey": "keqing-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d0a98a6400f6bea10c82852edbe408ca0ccc2b913f200047ce0cadbe82a3c14b"
+        },
+        {
+          "path": "internal/characters/keqing/cons.go",
+          "line": 78,
+          "modifierKind": "stat",
+          "literalModifierKey": "keqing-c6-",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "25b90cd7b266c736890490fc68028df2b63745e4ef190fc49cceb0662ec603b2"
+        },
+        {
+          "path": "internal/characters/kinich/cons.go",
+          "line": 29,
+          "modifierKind": "attack",
+          "literalModifierKey": "kinich-c1",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "3a45dc584371e0f11be4594f50748d5a6b4ec3f620ca526a6b3ef33ba5ff1adf"
+        },
+        {
+          "path": "internal/characters/kinich/cons.go",
+          "line": 77,
+          "modifierKind": "attack",
+          "literalModifierKey": "kinich-c4-dmgp",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "c1c42987f231b92d228f9177ac78157b31d93f86994a303a673288c649be1d5c"
+        },
+        {
+          "path": "internal/characters/kirara/cons.go",
+          "line": 71,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2c9cf4f25f59eb907f43696795f31c61292894ba9919a0a3b7539d043e3e71f5"
+        },
+        {
+          "path": "internal/characters/lynette/asc.go",
+          "line": 39,
+          "modifierKind": "stat",
+          "literalModifierKey": "lynette-a1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "1e8567cbaace85eaa88d9bc86da7d41f29899110274cf05ffe47d9f75038198f"
+        },
+        {
+          "path": "internal/characters/mavuika/asc.go",
+          "line": 27,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/mavuika/cons.go",
+          "line": 40,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "39cfb6c00d9218d127de03b3e3ddcfd070fea28bc358a868d0aa32443a11a9ac"
+        },
+        {
+          "path": "internal/characters/mika/cons.go",
+          "line": 35,
+          "modifierKind": "attack",
+          "literalModifierKey": "mika-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "8a8d7f93e16f826f1b1c316b5552ce315736eeeed9c0b06a4db63c70952e4538"
+        },
+        {
+          "path": "internal/characters/mika/skill.go",
+          "line": 225,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "012c3c31001f9cc855ae199b2079eef455edc513213349dd1d6008087d9e943b"
+        },
+        {
+          "path": "internal/characters/mizuki/asc.go",
+          "line": 119,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a199d8b94a29e1c6adcb048c95fb193a0ec78c32795db156438f13754d9658ee"
+        },
+        {
+          "path": "internal/characters/mizuki/cons.go",
+          "line": 121,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d8cb7b663280f9a3c1a4b7dc767ef0f8f1ec04f5e6efdd846f8e7daf393bdd44"
+        },
+        {
+          "path": "internal/characters/mona/burst.go",
+          "line": 96,
+          "modifierKind": "attack",
+          "literalModifierKey": "mona-omen",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9b635f66b7688fe466a8320856c7de52ba1a1c2f03ff2f1eafcc620921b19d76"
+        },
+        {
+          "path": "internal/characters/mona/cons.go",
+          "line": 178,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "6a6653a879fccd13a723f12950307c72a92391836a2f9f6b9ae4e691cf37b16b"
+        },
+        {
+          "path": "internal/characters/mualani/cons.go",
+          "line": 58,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "effbe893b47ce1a8f38cfe196685a0ef042d566fcb94bc9cd4cae211886638e9"
+        },
+        {
+          "path": "internal/characters/nahida/burst.go",
+          "line": 54,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "6e12765f26a57fc0cfe87485e092eb89bb41a5fb6e04b867286d40467369ca1b"
+        },
+        {
+          "path": "internal/characters/nahida/cons.go",
+          "line": 107,
+          "modifierKind": "stat",
+          "literalModifierKey": "nahida-c4",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "f316b463b2dc440f9ea5423970d56034def44ad341e8835ca1e84de5014ea5ba"
+        },
+        {
+          "path": "internal/characters/navia/asc.go",
+          "line": 30,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "65b0672daf005a589f4c174439094a6cc121e77bbbb494565a1f594221c55479"
+        },
+        {
+          "path": "internal/characters/nicole/asc.go",
+          "line": 102,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "82cb04d18f71d12eb7e75108ba125bc3ac4473e78dbffe5f78f5c8ff297d0d77"
+        },
+        {
+          "path": "internal/characters/nicole/cons.go",
+          "line": 92,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "46c892b9279915f49f26d0c202378428a5cdc42e0fc3fd7c257b3e27bb2a7105"
+        },
+        {
+          "path": "internal/characters/nicole/skill.go",
+          "line": 70,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "134fc080385c93b3a4b811eecf1194a89f1e5779e5015ff4b7f710dbbfe959dc"
+        },
+        {
+          "path": "internal/characters/ororon/cons.go",
+          "line": 29,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "3ff93bff60eadb51704c442d1696c6ded27623aeef27f3fb4d008a40c04c47fd"
+        },
+        {
+          "path": "internal/characters/razor/asc.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": "razor-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ebd94d83edc9c580170cc9e1259e7bd385883a3ed1b8fe8c3f4959365bf11f68"
+        },
+        {
+          "path": "internal/characters/razor/burst.go",
+          "line": 45,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "58d4f6230b36a207b7e47adc13c1d57c6fe766e6b5f208ab98448ec5e91cf219"
+        },
+        {
+          "path": "internal/characters/razor/cons.go",
+          "line": 29,
+          "modifierKind": "stat",
+          "literalModifierKey": "razor-c1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f6d23dfead9d08d2b2a4b0fa6eb615e4fa98f47429c1020109bb587698c0ed85"
+        },
+        {
+          "path": "internal/characters/razor/cons.go",
+          "line": 44,
+          "modifierKind": "attack",
+          "literalModifierKey": "razor-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "eec410a674ce884a2d4d7f49e119c0a9fc0416bb530cc0b11bd5607b7de89dc7"
+        },
+        {
+          "path": "internal/characters/razor/cons.go",
+          "line": 123,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/sara/cons.go",
+          "line": 65,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "4f38f9e1762f97deefdf8273f3518af43713015818e4b2a71bd415d0ebd11934"
+        },
+        {
+          "path": "internal/characters/sayu/cons.go",
+          "line": 21,
+          "modifierKind": "attack",
+          "literalModifierKey": "sayu-c2",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "014a23ae9d99a6cd355fa1295a0cf328cdf36fcc6993d895ecb75dd7e8494127"
+        },
+        {
+          "path": "internal/characters/sethos/cons.go",
+          "line": 123,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0b10374958ea543116e475c19ea5f72c7a4c3bd26260288fa6151daf0bbbc1c9"
+        },
+        {
+          "path": "internal/characters/shenhe/burst.go",
+          "line": 102,
+          "modifierKind": "stat",
+          "literalModifierKey": "shenhe-a1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "002045d8441506a66a89104e9503919ea1c68f019def3c0342852a4653be8d18"
+        },
+        {
+          "path": "internal/characters/shenhe/cons.go",
+          "line": 16,
+          "modifierKind": "attack",
+          "literalModifierKey": "shenhe-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "857c1cb36802e075f72afe3563456fb91d23782b67511a8eb51794b72016a046"
+        },
+        {
+          "path": "internal/characters/shenhe/skill.go",
+          "line": 178,
+          "modifierKind": "attack",
+          "literalModifierKey": "shenhe-a4-press",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "17c0f3ef09c487bf1d3a8683b423d8a428b552f57ab9f639b357c49b6733c8cb"
+        },
+        {
+          "path": "internal/characters/shenhe/skill.go",
+          "line": 202,
+          "modifierKind": "attack",
+          "literalModifierKey": "shenhe-a4-hold",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2ab3a9525e8d8eca90e6efb2724b5ff8bdd431436c0b68b237c87e68748ccf4f"
+        },
+        {
+          "path": "internal/characters/sigewinne/asc.go",
+          "line": 75,
+          "modifierKind": "attack",
+          "literalModifierKey": "sigewinne-a1",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9c89f53603071b7b8809f15df751b0807f32bb9b854ae30fa61c611b244f25d3"
+        },
+        {
+          "path": "internal/characters/skirk/burst.go",
+          "line": 100,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "91d94182b31e5482f2b4d026e397deb368fc798ccf0e0753ef041c7be5b7ea76"
+        },
+        {
+          "path": "internal/characters/skirk/cons.go",
+          "line": 81,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "17e3e50fabc0044e5d7de91c8448d686e57020116f3cf1cb29b3bb5043a0bd89"
+        },
+        {
+          "path": "internal/characters/sucrose/asc.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": "sucrose-a1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2028b94f3b44fc1fd61c64705fe29c3e6017a35b2746c249cdaaa21e6ff4293d"
+        },
+        {
+          "path": "internal/characters/sucrose/asc.go",
+          "line": 134,
+          "modifierKind": "attack",
+          "literalModifierKey": "sucrose-hexerei-skill",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f83fb7cd3226a127c71adf99a5e4b13549df9692860b97933b94ffa3caf00bc0"
+        },
+        {
+          "path": "internal/characters/sucrose/asc.go",
+          "line": 168,
+          "modifierKind": "attack",
+          "literalModifierKey": "sucrose-hexerei-burst",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "8a535e99fe7b369c076a296e8357339470457d841391fbfac0775c1f338f1b3d"
+        },
+        {
+          "path": "internal/characters/sucrose/cons.go",
+          "line": 52,
+          "modifierKind": "stat",
+          "literalModifierKey": "sucrose-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "3d5e740259a7686eb4d37ba99e9de7a294952fbbae2b2b5451b78aaf58502b08"
+        },
+        {
+          "path": "internal/characters/thoma/shield.go",
+          "line": 45,
+          "modifierKind": "attack",
+          "literalModifierKey": "thoma-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "af68a1ab7a4923195d8c7575f87394a6bc1363e88f0def4c1a71920e637fedf5"
+        },
+        {
+          "path": "internal/characters/traveler/common/dendro/cons.go",
+          "line": 66,
+          "modifierKind": "stat",
+          "literalModifierKey": "dmc-c6",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/traveler/common/pyro/cons.go",
+          "line": 30,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "4c36e09e022c068f3830d428bd7d355c2dad7ecc63310b3138450399794f4465"
+        },
+        {
+          "path": "internal/characters/traveler/common/pyro/cons.go",
+          "line": 106,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "f5e83cbd7b23a71ece32abfb55199f6a68446f5d82d19eb18707096e7c77c51c"
+        },
+        {
+          "path": "internal/characters/traveler/common/storybuffs.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": "traveler-story-quest-buffs",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/varka/cons.go",
+          "line": 96,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "66d8f059b7538ad6b6b70c4b1bef4805f466ab4eea14ea80e0a5b11c4f14394e"
+        },
+        {
+          "path": "internal/characters/varka/cons.go",
+          "line": 106,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9868a413d25e356c242856fdf3139fe396cf13ea0d56c8dce1614c674c12c30e"
+        },
+        {
+          "path": "internal/characters/venti/cons.go",
+          "line": 73,
+          "modifierKind": "stat",
+          "literalModifierKey": "venti-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "1acde88eb7edecfdeac1674caded844e2836b747fcbf384150cc7d055820dd85"
+        },
+        {
+          "path": "internal/characters/wanderer/asc.go",
+          "line": 151,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/wanderer/asc.go",
+          "line": 162,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/wriothesley/cons.go",
+          "line": 172,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "b1154d3b04dacdc207f05f9a9109ca230dfe8df988a9749c02c6a3900de977ab"
+        },
+        {
+          "path": "internal/characters/wriothesley/cons.go",
+          "line": 182,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9a9deb922b9c3da8e0e12c7f0245607a9b1d2f175dd77fcfc414a3f0c4878be5"
+        },
+        {
+          "path": "internal/characters/xianyun/cons.go",
+          "line": 57,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "1c0640d6330ffe3c7e735d861a1b6e23a07c9afbadb9d825b81fdf6063c922b8"
+        },
+        {
+          "path": "internal/characters/xilonen/asc.go",
+          "line": 39,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "d1e0ec34ff0245b91f8876e6311b433835a793480988118dc646247514733ae6"
+        },
+        {
+          "path": "internal/characters/xilonen/asc.go",
+          "line": 96,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "line": 71,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-indexed-vector-return",
+          "bodySha256": "482fee54ed4809a04d8f3257258744d324e55e70610e2c245bc1b7d92ee7752e"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "line": 88,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-indexed-vector-return",
+          "bodySha256": "e2b8345c96fe3bdae363778af12c92d311bee3bd98e16de6c4b87bdd740d6963"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "line": 207,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-nil-only",
+          "bodySha256": "a94f9429bf6719b35c39255b238655c6ed95490670560c44f0c58d398b28c61e"
+        },
+        {
+          "path": "internal/characters/xinyan/cons.go",
+          "line": 62,
+          "modifierKind": "attack",
+          "literalModifierKey": "xinyan-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a2ec228e0b1a2431fb7a979f19cf12a785fbd6acab78440da072ed7565d50441"
+        },
+        {
+          "path": "internal/characters/yaemiko/cons.go",
+          "line": 16,
+          "modifierKind": "stat",
+          "literalModifierKey": "yaemiko-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d0a98a6400f6bea10c82852edbe408ca0ccc2b913f200047ce0cadbe82a3c14b"
+        },
+        {
+          "path": "internal/characters/yanfei/burst.go",
+          "line": 39,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a19c3baceefef79fcb4e931f67c20ae0f24bce84c0e5465426295f4219e964f6"
+        },
+        {
+          "path": "internal/characters/yanfei/cons.go",
+          "line": 20,
+          "modifierKind": "attack",
+          "literalModifierKey": "yanfei-c2",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "5b7f7e8aeb8e7c121bc210a308fe443fe85e552ca1ea94a880d0404526a941c5"
+        }
+      ],
+      "remainingModifierKinds": {
+        "attack": 42,
+        "stat": 68
+      },
+      "sharedModifierKinds": {
+        "attack": 66,
+        "stat": 126
+      }
+    },
+    "stellar": {
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "builtSourceRoot": "/tmp/gidps-source-host-cache/stellar-build-ypLDB7/source",
+      "totalVectorCallbacks": 326,
+      "modifierKinds": {
+        "attack": 113,
+        "stat": 213
+      },
+      "sharedCallbackCounts": {
+        "shared-fixed": 95,
+        "shared-dynamic-read": 58,
+        "shared-dynamic-creation-consumption": 40,
+        "total": 193
+      },
+      "remainingCallbackCounts": {
+        "unbridged-callback-slot-write": 15,
+        "unbridged-field-vector-return": 72,
+        "unbridged-indexed-vector-return": 2,
+        "unbridged-local-vector-return": 42,
+        "unbridged-nil-only": 2,
+        "total": 133
+      },
+      "remainingCallbacks": [
+        {
+          "path": "internal/characters/aino/cons.go",
+          "line": 38,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "61b0f0d9d7595909f0e0dccf9f2fab17d14ebdba8ec4af33c092cd662f9fd93b"
+        },
+        {
+          "path": "internal/characters/aino/cons.go",
+          "line": 52,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "dc02ef3cdbaa7e07e57c6c35f2c8f05199bad27af1a4503dc8aa4a4e0981e7fa"
+        },
+        {
+          "path": "internal/characters/alhaitham/cons.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/alhaitham/cons.go",
+          "line": 128,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "b1154d3b04dacdc207f05f9a9109ca230dfe8df988a9749c02c6a3900de977ab"
+        },
+        {
+          "path": "internal/characters/arlecchino/cons.go",
+          "line": 106,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "56141f33fa42ebef5a42bc4469fca4b72d54dbf787d428662232bd0f30d14619"
+        },
+        {
+          "path": "internal/characters/ayato/burst.go",
+          "line": 76,
+          "modifierKind": "attack",
+          "literalModifierKey": "ayato-burst",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "5646097a80d0ef41f35fa58bb94c742249d0b99a9dfbe5a27546d32a18e224ab"
+        },
+        {
+          "path": "internal/characters/barbara/cons.go",
+          "line": 26,
+          "modifierKind": "stat",
+          "literalModifierKey": "barbara-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ac8a26994d7c8190620cfa43862999b69e30fca69676b476f7331ac01c065665"
+        },
+        {
+          "path": "internal/characters/candace/burst.go",
+          "line": 142,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "ad4f8ab800109596361eb8ee0be5edb68feb5903f0f2cd71b302c163642e2c52"
+        },
+        {
+          "path": "internal/characters/chevreuse/cons.go",
+          "line": 157,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/chiori/asc.go",
+          "line": 197,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a1f383bf0cf07c8ca9c64a9ffe6f071eec38056107dd8b42166767acfa123877"
+        },
+        {
+          "path": "internal/characters/clorinde/asc.go",
+          "line": 60,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-nil-only",
+          "bodySha256": "fe78a91addf1b4b659e7f42e68aa05443bf76f8386b5fd68db758f2e02028140"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 113,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "23eea16d34a4c00771e3db8dddec7610b76967c0fd73f77c5221d7a55df6a66e"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 257,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "e1553c3e8585af3742421bc6ca031ce5773f2c4727b46c35ea40677aa092a3f2"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 281,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "24d72d6745bedcf9cbde5c3d48cbf2d104529010a180b57e971186cbca87b517"
+        },
+        {
+          "path": "internal/characters/columbina/cons.go",
+          "line": 306,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "944e935b93d547d55d4250f1d9ebdb76ad1ee1bcb92b7f372ba5429a92131b6b"
+        },
+        {
+          "path": "internal/characters/cyno/burst.go",
+          "line": 37,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/cyno/cons.go",
+          "line": 32,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "971fbe2f0c69910df16900d6701d6d01be8481517fc8178abcfcd8de735cccc9"
+        },
+        {
+          "path": "internal/characters/dahlia/asc.go",
+          "line": 81,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "9a7b5d71e1fa4b4a6ff18960fec88043f21e0a4454ab83de21860e310249ff87"
+        },
+        {
+          "path": "internal/characters/diluc/burst.go",
+          "line": 46,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d263e9348582a6c3a96876b98904c559c5bbce5e8fec5cf07958f8ca878565aa"
+        },
+        {
+          "path": "internal/characters/diluc/cons.go",
+          "line": 67,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ac8a26994d7c8190620cfa43862999b69e30fca69676b476f7331ac01c065665"
+        },
+        {
+          "path": "internal/characters/diluc/cons.go",
+          "line": 79,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d3f71022d0e5eae92efc5aa02e7b87b5c53b03e3c2f084781ab2ea1112de46b6"
+        },
+        {
+          "path": "internal/characters/diona/cons.go",
+          "line": 44,
+          "modifierKind": "stat",
+          "literalModifierKey": "diona-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "9da09507ce20776857683d8f10b1af74d4d2616656f13980c81e3da2496cc497"
+        },
+        {
+          "path": "internal/characters/durin/cons.go",
+          "line": 205,
+          "modifierKind": "stat",
+          "literalModifierKey": "durin-c2-",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f0edec034a2a18f9fa281cdaa32198bb411aaa22e24871a38a25b90d8c42283f"
+        },
+        {
+          "path": "internal/characters/emilie/cons.go",
+          "line": 67,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "a8cfe8ce2a94ff55cda7c59b0e7fb082373136bd2b052eb823dc1b7a411f33e8"
+        },
+        {
+          "path": "internal/characters/escoffier/cons.go",
+          "line": 67,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2975c93c4eeea83ada03e17d101b0971dde1c8fd6299b9f7e62621006d5d8e0f"
+        },
+        {
+          "path": "internal/characters/eula/skill.go",
+          "line": 249,
+          "modifierKind": "stat",
+          "literalModifierKey": "eula-c1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0e1ce25c81074bef3abc4dd398649a395bc119dc28a5d28206e4a963283b4f47"
+        },
+        {
+          "path": "internal/characters/flins/cons.go",
+          "line": 139,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/freminet/asc.go",
+          "line": 47,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "b21b61faf81e752dbedf871d273b426be6dfc376e004f7a80aead0d391e0b660"
+        },
+        {
+          "path": "internal/characters/freminet/cons.go",
+          "line": 33,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "89a9ede0ee35b7d414cd34eb11193d193b3d4372df4dc0c209da52c32f825164"
+        },
+        {
+          "path": "internal/characters/gaming/cons.go",
+          "line": 58,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/gaming/cons.go",
+          "line": 97,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "1d61977cdca2afd353cad9798ecf91b791bfd62ab73f9bc57e00535d154a65cc"
+        },
+        {
+          "path": "internal/characters/gorou/asc.go",
+          "line": 18,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "1e8567cbaace85eaa88d9bc86da7d41f29899110274cf05ffe47d9f75038198f"
+        },
+        {
+          "path": "internal/characters/heizou/asc.go",
+          "line": 67,
+          "modifierKind": "stat",
+          "literalModifierKey": "heizou-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a199d8b94a29e1c6adcb048c95fb193a0ec78c32795db156438f13754d9658ee"
+        },
+        {
+          "path": "internal/characters/heizou/cons.go",
+          "line": 27,
+          "modifierKind": "stat",
+          "literalModifierKey": "heizou-c1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0e1ce25c81074bef3abc4dd398649a395bc119dc28a5d28206e4a963283b4f47"
+        },
+        {
+          "path": "internal/characters/hutao/asc.go",
+          "line": 29,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "42791b173aa0d0e69230c746300303e88766e81257a5065accbfb4bdb11e6392"
+        },
+        {
+          "path": "internal/characters/hutao/asc.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": "hutao-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a4a4300a5decf4d88faa9dbc85395bb7d1da7371642ed835cf06cadab4625c78"
+        },
+        {
+          "path": "internal/characters/hutao/cons.go",
+          "line": 57,
+          "modifierKind": "stat",
+          "literalModifierKey": "hutao-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "25b90cd7b266c736890490fc68028df2b63745e4ef190fc49cceb0662ec603b2"
+        },
+        {
+          "path": "internal/characters/hutao/cons.go",
+          "line": 88,
+          "modifierKind": "stat",
+          "literalModifierKey": "hutao-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f2016d409659852a86d79b5d4eb1b1c4c91a6a3b594bc69bdbcdaaf51b816234"
+        },
+        {
+          "path": "internal/characters/hutao/skill.go",
+          "line": 44,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0d2c47f404e92838f8744f174f6668be81b107c73bdb645bee2daa9975802b26"
+        },
+        {
+          "path": "internal/characters/iansan/asc.go",
+          "line": 51,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "82cb04d18f71d12eb7e75108ba125bc3ac4473e78dbffe5f78f5c8ff297d0d77"
+        },
+        {
+          "path": "internal/characters/iansan/burst.go",
+          "line": 96,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "9cbf8cb7b329d60e6a2c6d80dbb8a5ce2d9feedc309820ecacb63e4840203851"
+        },
+        {
+          "path": "internal/characters/iansan/cons.go",
+          "line": 52,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9f51960c2814d15f04c6896a45b69d14b74878b9584ca5dc5b4ddaccaaddf5e2"
+        },
+        {
+          "path": "internal/characters/iansan/cons.go",
+          "line": 135,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f89d66548e96a26409a44f47649295ac1f690d4c6a70cd026114a3d4a04a45ee"
+        },
+        {
+          "path": "internal/characters/itto/burst.go",
+          "line": 80,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "248c640bec71c8f306d10bb716fad31c9a96a457c5626787a7a3ed80173ad298"
+        },
+        {
+          "path": "internal/characters/jahoda/asc.go",
+          "line": 95,
+          "modifierKind": "stat",
+          "literalModifierKey": "jahoda-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a1f383bf0cf07c8ca9c64a9ffe6f071eec38056107dd8b42166767acfa123877"
+        },
+        {
+          "path": "internal/characters/jahoda/cons.go",
+          "line": 144,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2c9cf4f25f59eb907f43696795f31c61292894ba9919a0a3b7539d043e3e71f5"
+        },
+        {
+          "path": "internal/characters/jean/cons.go",
+          "line": 36,
+          "modifierKind": "stat",
+          "literalModifierKey": "jean-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ba55ea13f8c29702226ef1fb1a4e9c27973f7ca82c49518c6b7f9e2ec8bb5a5f"
+        },
+        {
+          "path": "internal/characters/kaeya/cons.go",
+          "line": 21,
+          "modifierKind": "attack",
+          "literalModifierKey": "kaeya-c1",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "0471a9b1463e8f6f271c16f24c5481c5c69f7b923b86520002ee71cabd0d6e62"
+        },
+        {
+          "path": "internal/characters/kaveh/cons.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/kazuha/asc.go",
+          "line": 70,
+          "modifierKind": "stat",
+          "literalModifierKey": "kazuha-a4-",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "ed5b81f904b7b1369ed29b79bfc8bd3fbcf4c7e4b2d361450f2688e95911ef36"
+        },
+        {
+          "path": "internal/characters/kazuha/cons.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": "kazuha-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ac8a26994d7c8190620cfa43862999b69e30fca69676b476f7331ac01c065665"
+        },
+        {
+          "path": "internal/characters/kazuha/cons.go",
+          "line": 58,
+          "modifierKind": "stat",
+          "literalModifierKey": "kazuha-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ba55ea13f8c29702226ef1fb1a4e9c27973f7ca82c49518c6b7f9e2ec8bb5a5f"
+        },
+        {
+          "path": "internal/characters/keqing/asc.go",
+          "line": 39,
+          "modifierKind": "stat",
+          "literalModifierKey": "keqing-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "513469eaac18c5c2061da843743641c57ae4f38323cf1dfdd6c026c26ee20067"
+        },
+        {
+          "path": "internal/characters/keqing/cons.go",
+          "line": 53,
+          "modifierKind": "stat",
+          "literalModifierKey": "keqing-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d0a98a6400f6bea10c82852edbe408ca0ccc2b913f200047ce0cadbe82a3c14b"
+        },
+        {
+          "path": "internal/characters/keqing/cons.go",
+          "line": 79,
+          "modifierKind": "stat",
+          "literalModifierKey": "keqing-c6-",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "25b90cd7b266c736890490fc68028df2b63745e4ef190fc49cceb0662ec603b2"
+        },
+        {
+          "path": "internal/characters/kinich/cons.go",
+          "line": 29,
+          "modifierKind": "attack",
+          "literalModifierKey": "kinich-c1",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "a6073a069840152668a7295a9690ec18d4141d8359ddb7f10c94ce93783b98bb"
+        },
+        {
+          "path": "internal/characters/kinich/cons.go",
+          "line": 77,
+          "modifierKind": "attack",
+          "literalModifierKey": "kinich-c4-dmgp",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "c1c42987f231b92d228f9177ac78157b31d93f86994a303a673288c649be1d5c"
+        },
+        {
+          "path": "internal/characters/kirara/cons.go",
+          "line": 71,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2c9cf4f25f59eb907f43696795f31c61292894ba9919a0a3b7539d043e3e71f5"
+        },
+        {
+          "path": "internal/characters/lynette/asc.go",
+          "line": 39,
+          "modifierKind": "stat",
+          "literalModifierKey": "lynette-a1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "1e8567cbaace85eaa88d9bc86da7d41f29899110274cf05ffe47d9f75038198f"
+        },
+        {
+          "path": "internal/characters/mavuika/asc.go",
+          "line": 27,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/mavuika/cons.go",
+          "line": 40,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "39cfb6c00d9218d127de03b3e3ddcfd070fea28bc358a868d0aa32443a11a9ac"
+        },
+        {
+          "path": "internal/characters/mika/cons.go",
+          "line": 35,
+          "modifierKind": "attack",
+          "literalModifierKey": "mika-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "8a8d7f93e16f826f1b1c316b5552ce315736eeeed9c0b06a4db63c70952e4538"
+        },
+        {
+          "path": "internal/characters/mika/skill.go",
+          "line": 225,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "012c3c31001f9cc855ae199b2079eef455edc513213349dd1d6008087d9e943b"
+        },
+        {
+          "path": "internal/characters/mizuki/asc.go",
+          "line": 120,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a199d8b94a29e1c6adcb048c95fb193a0ec78c32795db156438f13754d9658ee"
+        },
+        {
+          "path": "internal/characters/mizuki/cons.go",
+          "line": 123,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d8cb7b663280f9a3c1a4b7dc767ef0f8f1ec04f5e6efdd846f8e7daf393bdd44"
+        },
+        {
+          "path": "internal/characters/mizuki/cons.go",
+          "line": 230,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "b0fd125f185bcfa09793927e32d5e11ecbbb565ff9dfefab97942fcc14d88e99"
+        },
+        {
+          "path": "internal/characters/mona/burst.go",
+          "line": 96,
+          "modifierKind": "attack",
+          "literalModifierKey": "mona-omen",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9b635f66b7688fe466a8320856c7de52ba1a1c2f03ff2f1eafcc620921b19d76"
+        },
+        {
+          "path": "internal/characters/mona/cons.go",
+          "line": 178,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "6a6653a879fccd13a723f12950307c72a92391836a2f9f6b9ae4e691cf37b16b"
+        },
+        {
+          "path": "internal/characters/mualani/cons.go",
+          "line": 58,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "effbe893b47ce1a8f38cfe196685a0ef042d566fcb94bc9cd4cae211886638e9"
+        },
+        {
+          "path": "internal/characters/nahida/burst.go",
+          "line": 54,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "6e12765f26a57fc0cfe87485e092eb89bb41a5fb6e04b867286d40467369ca1b"
+        },
+        {
+          "path": "internal/characters/nahida/cons.go",
+          "line": 107,
+          "modifierKind": "stat",
+          "literalModifierKey": "nahida-c4",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "f316b463b2dc440f9ea5423970d56034def44ad341e8835ca1e84de5014ea5ba"
+        },
+        {
+          "path": "internal/characters/navia/asc.go",
+          "line": 30,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "65b0672daf005a589f4c174439094a6cc121e77bbbb494565a1f594221c55479"
+        },
+        {
+          "path": "internal/characters/nicole/asc.go",
+          "line": 102,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "82cb04d18f71d12eb7e75108ba125bc3ac4473e78dbffe5f78f5c8ff297d0d77"
+        },
+        {
+          "path": "internal/characters/nicole/cons.go",
+          "line": 92,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "46c892b9279915f49f26d0c202378428a5cdc42e0fc3fd7c257b3e27bb2a7105"
+        },
+        {
+          "path": "internal/characters/nicole/skill.go",
+          "line": 70,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "134fc080385c93b3a4b811eecf1194a89f1e5779e5015ff4b7f710dbbfe959dc"
+        },
+        {
+          "path": "internal/characters/odette/cons.go",
+          "line": 91,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "7f6b308288448057a2ea299502e33649cce5fdec5c6401d55c83386b5919d5a8"
+        },
+        {
+          "path": "internal/characters/odette/cons.go",
+          "line": 107,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "eba30cedb4fffa2dba5a62b339269799ff8d7ec3886cb8dd04245bd6f55aae3c"
+        },
+        {
+          "path": "internal/characters/ororon/cons.go",
+          "line": 29,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "3ff93bff60eadb51704c442d1696c6ded27623aeef27f3fb4d008a40c04c47fd"
+        },
+        {
+          "path": "internal/characters/prune/asc.go",
+          "line": 114,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d6bec1f29213f2fbf09b8f00959e79ed7bf2c9e957a4ce575463205fc476da1a"
+        },
+        {
+          "path": "internal/characters/prune/asc.go",
+          "line": 181,
+          "modifierKind": "stat",
+          "literalModifierKey": "prune-hex-self-buff",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "14c29dabe2fb79342e189a613be67f58b0e7052f8a7e421875ba80d2a13bacbb"
+        },
+        {
+          "path": "internal/characters/prune/asc.go",
+          "line": 194,
+          "modifierKind": "stat",
+          "literalModifierKey": "prune-hex-team-buff",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "5bdaa7d312bc86a8dac5c07fe825a5b14289d722fed86802a915b56c352a5ab1"
+        },
+        {
+          "path": "internal/characters/prune/cons.go",
+          "line": 58,
+          "modifierKind": "stat",
+          "literalModifierKey": "prune-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "23eea16d34a4c00771e3db8dddec7610b76967c0fd73f77c5221d7a55df6a66e"
+        },
+        {
+          "path": "internal/characters/prune/cons.go",
+          "line": 167,
+          "modifierKind": "stat",
+          "literalModifierKey": "prune-c6-self-buff",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2c9cf4f25f59eb907f43696795f31c61292894ba9919a0a3b7539d043e3e71f5"
+        },
+        {
+          "path": "internal/characters/prune/cons.go",
+          "line": 210,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "bc059c6d08cc039ba822d94a8dc605eba221eb0326cceadce2547535700f9d01"
+        },
+        {
+          "path": "internal/characters/qiqi/cons.go",
+          "line": 81,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9eda9af2bd4d562e778ebdf0850072c5a88c60a82ec9b5cc0ffe666322967a11"
+        },
+        {
+          "path": "internal/characters/qiqi/cons.go",
+          "line": 107,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0c5c02ff50050de50f02a9bbac49af39ca1045776cae4f9c06a172ed15242c69"
+        },
+        {
+          "path": "internal/characters/razor/asc.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": "razor-a4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "ebd94d83edc9c580170cc9e1259e7bd385883a3ed1b8fe8c3f4959365bf11f68"
+        },
+        {
+          "path": "internal/characters/razor/burst.go",
+          "line": 45,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "58d4f6230b36a207b7e47adc13c1d57c6fe766e6b5f208ab98448ec5e91cf219"
+        },
+        {
+          "path": "internal/characters/razor/cons.go",
+          "line": 29,
+          "modifierKind": "stat",
+          "literalModifierKey": "razor-c1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f6d23dfead9d08d2b2a4b0fa6eb615e4fa98f47429c1020109bb587698c0ed85"
+        },
+        {
+          "path": "internal/characters/razor/cons.go",
+          "line": 44,
+          "modifierKind": "attack",
+          "literalModifierKey": "razor-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "eec410a674ce884a2d4d7f49e119c0a9fc0416bb530cc0b11bd5607b7de89dc7"
+        },
+        {
+          "path": "internal/characters/razor/cons.go",
+          "line": 123,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/sara/cons.go",
+          "line": 65,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "4f38f9e1762f97deefdf8273f3518af43713015818e4b2a71bd415d0ebd11934"
+        },
+        {
+          "path": "internal/characters/sayu/cons.go",
+          "line": 21,
+          "modifierKind": "attack",
+          "literalModifierKey": "sayu-c2",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "014a23ae9d99a6cd355fa1295a0cf328cdf36fcc6993d895ecb75dd7e8494127"
+        },
+        {
+          "path": "internal/characters/sethos/cons.go",
+          "line": 123,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "0b10374958ea543116e475c19ea5f72c7a4c3bd26260288fa6151daf0bbbc1c9"
+        },
+        {
+          "path": "internal/characters/shenhe/asc.go",
+          "line": 21,
+          "modifierKind": "attack",
+          "literalModifierKey": "shenhe-a4-press",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "17c0f3ef09c487bf1d3a8683b423d8a428b552f57ab9f639b357c49b6733c8cb"
+        },
+        {
+          "path": "internal/characters/shenhe/asc.go",
+          "line": 46,
+          "modifierKind": "attack",
+          "literalModifierKey": "shenhe-a4-hold",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2ab3a9525e8d8eca90e6efb2724b5ff8bdd431436c0b68b237c87e68748ccf4f"
+        },
+        {
+          "path": "internal/characters/shenhe/burst.go",
+          "line": 102,
+          "modifierKind": "stat",
+          "literalModifierKey": "shenhe-a1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "002045d8441506a66a89104e9503919ea1c68f019def3c0342852a4653be8d18"
+        },
+        {
+          "path": "internal/characters/shenhe/cons.go",
+          "line": 16,
+          "modifierKind": "attack",
+          "literalModifierKey": "shenhe-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "857c1cb36802e075f72afe3563456fb91d23782b67511a8eb51794b72016a046"
+        },
+        {
+          "path": "internal/characters/sigewinne/asc.go",
+          "line": 75,
+          "modifierKind": "attack",
+          "literalModifierKey": "sigewinne-a1",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9c89f53603071b7b8809f15df751b0807f32bb9b854ae30fa61c611b244f25d3"
+        },
+        {
+          "path": "internal/characters/skirk/burst.go",
+          "line": 100,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "91d94182b31e5482f2b4d026e397deb368fc798ccf0e0753ef041c7be5b7ea76"
+        },
+        {
+          "path": "internal/characters/skirk/cons.go",
+          "line": 81,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "17e3e50fabc0044e5d7de91c8448d686e57020116f3cf1cb29b3bb5043a0bd89"
+        },
+        {
+          "path": "internal/characters/sucrose/asc.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": "sucrose-a1",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "2028b94f3b44fc1fd61c64705fe29c3e6017a35b2746c249cdaaa21e6ff4293d"
+        },
+        {
+          "path": "internal/characters/sucrose/asc.go",
+          "line": 135,
+          "modifierKind": "attack",
+          "literalModifierKey": "sucrose-hexerei-skill",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "f83fb7cd3226a127c71adf99a5e4b13549df9692860b97933b94ffa3caf00bc0"
+        },
+        {
+          "path": "internal/characters/sucrose/asc.go",
+          "line": 169,
+          "modifierKind": "attack",
+          "literalModifierKey": "sucrose-hexerei-burst",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "8a535e99fe7b369c076a296e8357339470457d841391fbfac0775c1f338f1b3d"
+        },
+        {
+          "path": "internal/characters/sucrose/cons.go",
+          "line": 52,
+          "modifierKind": "stat",
+          "literalModifierKey": "sucrose-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "85a2d807d741b775bc399f0c83c5aa63ed8492bee93a699819332623ada8d7a3"
+        },
+        {
+          "path": "internal/characters/thoma/shield.go",
+          "line": 45,
+          "modifierKind": "attack",
+          "literalModifierKey": "thoma-c6",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "af68a1ab7a4923195d8c7575f87394a6bc1363e88f0def4c1a71920e637fedf5"
+        },
+        {
+          "path": "internal/characters/traveler/common/cryo/asc.go",
+          "line": 48,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "5ef900202f121fc188498d9b636dc404e52caec8f2c92784cf7a5249e6713395"
+        },
+        {
+          "path": "internal/characters/traveler/common/cryo/cons.go",
+          "line": 121,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "71f1fe10d0434b2883d39d89aca5e0b4ce3e31408dd72c6df2a9f66d482bbb08"
+        },
+        {
+          "path": "internal/characters/traveler/common/dendro/cons.go",
+          "line": 66,
+          "modifierKind": "stat",
+          "literalModifierKey": "dmc-c6",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/traveler/common/pyro/cons.go",
+          "line": 30,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "4c36e09e022c068f3830d428bd7d355c2dad7ecc63310b3138450399794f4465"
+        },
+        {
+          "path": "internal/characters/traveler/common/pyro/cons.go",
+          "line": 106,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "3cf8c5864a7977bed405ac7e4a37a03523a1235caf357a55cc835b312c86d885"
+        },
+        {
+          "path": "internal/characters/traveler/common/storybuffs.go",
+          "line": 60,
+          "modifierKind": "stat",
+          "literalModifierKey": "traveler-story-quest-buffs",
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/varka/cons.go",
+          "line": 97,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "66d8f059b7538ad6b6b70c4b1bef4805f466ab4eea14ea80e0a5b11c4f14394e"
+        },
+        {
+          "path": "internal/characters/varka/cons.go",
+          "line": 107,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9868a413d25e356c242856fdf3139fe396cf13ea0d56c8dce1614c674c12c30e"
+        },
+        {
+          "path": "internal/characters/venti/cons.go",
+          "line": 73,
+          "modifierKind": "stat",
+          "literalModifierKey": "venti-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "1acde88eb7edecfdeac1674caded844e2836b747fcbf384150cc7d055820dd85"
+        },
+        {
+          "path": "internal/characters/wanderer/asc.go",
+          "line": 151,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/wanderer/asc.go",
+          "line": 162,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/wriothesley/cons.go",
+          "line": 172,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "b1154d3b04dacdc207f05f9a9109ca230dfe8df988a9749c02c6a3900de977ab"
+        },
+        {
+          "path": "internal/characters/wriothesley/cons.go",
+          "line": 182,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "9a9deb922b9c3da8e0e12c7f0245607a9b1d2f175dd77fcfc414a3f0c4878be5"
+        },
+        {
+          "path": "internal/characters/xianyun/cons.go",
+          "line": 57,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "1c0640d6330ffe3c7e735d861a1b6e23a07c9afbadb9d825b81fdf6063c922b8"
+        },
+        {
+          "path": "internal/characters/xilonen/asc.go",
+          "line": 39,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "c0d9d7a210b2bdfaed723dd20779138341804c9d4119c6a70e880640d0e1df3e"
+        },
+        {
+          "path": "internal/characters/xilonen/asc.go",
+          "line": 96,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "0493b674acafbaa2172d76d57317437f7499c9fba0d8e77c1f842287126587fc"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "line": 71,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-indexed-vector-return",
+          "bodySha256": "482fee54ed4809a04d8f3257258744d324e55e70610e2c245bc1b7d92ee7752e"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "line": 88,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-indexed-vector-return",
+          "bodySha256": "e2b8345c96fe3bdae363778af12c92d311bee3bd98e16de6c4b87bdd740d6963"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "line": 207,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-nil-only",
+          "bodySha256": "0db76df425acab16b7fbf3c1669e46fc5c16a29d5b55662b3aa47b5f415a9144"
+        },
+        {
+          "path": "internal/characters/xinyan/cons.go",
+          "line": 62,
+          "modifierKind": "attack",
+          "literalModifierKey": "xinyan-c2",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a2ec228e0b1a2431fb7a979f19cf12a785fbd6acab78440da072ed7565d50441"
+        },
+        {
+          "path": "internal/characters/yaemiko/cons.go",
+          "line": 41,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "dc53b167f0b49ad1abbcec3ef8b72fb87c8b2e2e4be759ee6baa6031e5d74240"
+        },
+        {
+          "path": "internal/characters/yaemiko/cons.go",
+          "line": 121,
+          "modifierKind": "stat",
+          "literalModifierKey": null,
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "7fe1af1b3ad622da839ee32529b1af9d5731a1aaa1c2eaa2956fa1de7b87c78e"
+        },
+        {
+          "path": "internal/characters/yaemiko/cons.go",
+          "line": 161,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "effbe893b47ce1a8f38cfe196685a0ef042d566fcb94bc9cd4cae211886638e9"
+        },
+        {
+          "path": "internal/characters/yaemiko/cons.go",
+          "line": 198,
+          "modifierKind": "stat",
+          "literalModifierKey": "yaemiko-c4",
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "d0a98a6400f6bea10c82852edbe408ca0ccc2b913f200047ce0cadbe82a3c14b"
+        },
+        {
+          "path": "internal/characters/yaemiko/cons.go",
+          "line": 228,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-local-vector-return",
+          "bodySha256": "ebe9224a240ddd836354047d1c3513ab85a8279809659ceeb2be083222a41ad5"
+        },
+        {
+          "path": "internal/characters/yanfei/burst.go",
+          "line": 39,
+          "modifierKind": "attack",
+          "literalModifierKey": null,
+          "category": "unbridged-field-vector-return",
+          "bodySha256": "a19c3baceefef79fcb4e931f67c20ae0f24bce84c0e5465426295f4219e964f6"
+        },
+        {
+          "path": "internal/characters/yanfei/cons.go",
+          "line": 20,
+          "modifierKind": "attack",
+          "literalModifierKey": "yanfei-c2",
+          "category": "unbridged-callback-slot-write",
+          "bodySha256": "5b7f7e8aeb8e7c121bc210a308fe443fe85e552ca1ea94a880d0404526a941c5"
+        }
+      ],
+      "remainingModifierKinds": {
+        "attack": 48,
+        "stat": 85
+      },
+      "sharedModifierKinds": {
+        "attack": 65,
+        "stat": 128
+      }
+    }
+  },
+  "sourceIdentityCorrection": "Classic commit typo corrected against packages/source-host/dist/manifest.json; builtSourceRoot and callback hashes unchanged."
+}

@@ -1,0 +1,3075 @@
+{
+  "from": {
+    "metadata": {
+      "snapshotId": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+      "catalogVersion": "lunaris-7.1.50-preview-observed-20260924.partial-two-characters.1",
+      "gameVersion": "7.1.50",
+      "releaseStatus": "preview",
+      "contentSha256": "b5281065d42479f0215ccc29310a2d58593d81abc1590d556eb8fe580fb86c7d",
+      "numericEvidenceStatus": "missing",
+      "mechanicEvidenceStatus": "missing",
+      "sourceIds": [
+        "lunaris-version-json",
+        "lunaris-charlist-json",
+        "lunaris-mitya-en-json",
+        "lunaris-valeriy-en-json",
+        "lunaris-mitya-chs-json",
+        "lunaris-valeriy-chs-json",
+        "lunaris-lunaris-app-js"
+      ]
+    },
+    "sources": [
+      {
+        "id": "lunaris-version-json",
+        "url": "https://api.lunaris.moe/data/version.json",
+        "revision": "7.1.50:sha256:eaeff9d580d0631f142f8494072e5d4888aa7003c4109ed1ba6a96f71ef06f16",
+        "retrievedAt": "2026-09-24T14:53:22.207464Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "eaeff9d580d0631f142f8494072e5d4888aa7003c4109ed1ba6a96f71ef06f16",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#version.json"
+      },
+      {
+        "id": "lunaris-charlist-json",
+        "url": "https://api.lunaris.moe/data/7.1.50/charlist.json",
+        "revision": "7.1.50:sha256:c086253bd2d09698d1ab7b98bdb85690ba52b0e212a5f747f43e127b2f3330aa",
+        "retrievedAt": "2026-09-24T14:53:22.207946Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "c086253bd2d09698d1ab7b98bdb85690ba52b0e212a5f747f43e127b2f3330aa",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#charlist.json"
+      },
+      {
+        "id": "lunaris-mitya-en-json",
+        "url": "https://api.lunaris.moe/data/7.1.50/en/char/10000136.json",
+        "revision": "7.1.50:sha256:357b9f0b0967d96491ac875d53ba0408d3ed1d2d86e948cba1f327880d9ef678",
+        "retrievedAt": "2026-09-24T14:53:22.208014Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "357b9f0b0967d96491ac875d53ba0408d3ed1d2d86e948cba1f327880d9ef678",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#mitya.en.json"
+      },
+      {
+        "id": "lunaris-valeriy-en-json",
+        "url": "https://api.lunaris.moe/data/7.1.50/en/char/10000137.json",
+        "revision": "7.1.50:sha256:ab0f155c8ee3d6b33842cee41e16f526fd459c6f4f4e310c974654ae330e1d2c",
+        "retrievedAt": "2026-09-24T14:53:22.208061Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "ab0f155c8ee3d6b33842cee41e16f526fd459c6f4f4e310c974654ae330e1d2c",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#valeriy.en.json"
+      },
+      {
+        "id": "lunaris-mitya-chs-json",
+        "url": "https://api.lunaris.moe/data/7.1.50/chs/char/10000136.json",
+        "revision": "7.1.50:sha256:d3d5bc6445f57ebd969cd67a43ba67a4dd7e4e7da673be1947fa31ecac0ef81e",
+        "retrievedAt": "2026-09-24T14:53:22.208096Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "d3d5bc6445f57ebd969cd67a43ba67a4dd7e4e7da673be1947fa31ecac0ef81e",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#mitya.chs.json"
+      },
+      {
+        "id": "lunaris-valeriy-chs-json",
+        "url": "https://api.lunaris.moe/data/7.1.50/chs/char/10000137.json",
+        "revision": "7.1.50:sha256:0714b7f9db97e3256c906dbf850c45aa99211cf566e5f4dc0e67f48461c21d50",
+        "retrievedAt": "2026-09-24T14:53:24.530898Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "0714b7f9db97e3256c906dbf850c45aa99211cf566e5f4dc0e67f48461c21d50",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#valeriy.chs.json"
+      },
+      {
+        "id": "lunaris-lunaris-app-js",
+        "url": "https://lunaris.moe/assets/index-Cqv6iXhA.js",
+        "revision": "7.1.50:sha256:404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b",
+        "retrievedAt": "2026-09-24T14:53:24.834231Z",
+        "gameVersion": "7.1.50",
+        "contentSha256": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b",
+        "license": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+        "verificationMethod": "HTTP200 exact source bytes retained with SHA256; no upstream code executed; content and version identity not independently verified.",
+        "evidenceRef": "retrieval-manifest.json#lunaris-app.js"
+      }
+    ]
+  },
+  "to": {
+    "metadata": {
+      "snapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+      "catalogVersion": "lunaris-7.1.50.2-preview-observed-20260928.partial-two-characters.1",
+      "gameVersion": "7.1.50.2",
+      "releaseStatus": "preview",
+      "contentSha256": "f744f0aef052fae3a5bd6aa007457154cac01205f4c4c515a6f29ed5850dcb08",
+      "numericEvidenceStatus": "missing",
+      "mechanicEvidenceStatus": "missing",
+      "sourceIds": [
+        "lunaris-version-json",
+        "lunaris-charlist-json",
+        "lunaris-mitya-en-json",
+        "lunaris-valeriy-en-json",
+        "lunaris-mitya-chs-json",
+        "lunaris-valeriy-chs-json",
+        "lunaris-lunaris-app-js"
+      ]
+    },
+    "sources": [
+      {
+        "id": "lunaris-version-json",
+        "url": "https://api.lunaris.moe/data/version.json",
+        "revision": "7.1.50.2:sha256:7ecef4c5ae8e09646cca87fffc0f301c00d825fd5b221b52a1b182ee4c2ae313",
+        "retrievedAt": "2026-09-28T02:16:11.783Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "7ecef4c5ae8e09646cca87fffc0f301c00d825fd5b221b52a1b182ee4c2ae313",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#version.json"
+      },
+      {
+        "id": "lunaris-charlist-json",
+        "url": "https://api.lunaris.moe/data/7.1.50.2/charlist.json",
+        "revision": "7.1.50.2:sha256:28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc",
+        "retrievedAt": "2026-09-28T02:16:13.566Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#charlist.json"
+      },
+      {
+        "id": "lunaris-mitya-en-json",
+        "url": "https://api.lunaris.moe/data/7.1.50.2/en/char/10000136.json",
+        "revision": "7.1.50.2:sha256:494aff4797b8867443c92bb363832b4026030542be4df14bb910d8a138552e60",
+        "retrievedAt": "2026-09-28T02:16:15.174Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "494aff4797b8867443c92bb363832b4026030542be4df14bb910d8a138552e60",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#mitya.en.json"
+      },
+      {
+        "id": "lunaris-valeriy-en-json",
+        "url": "https://api.lunaris.moe/data/7.1.50.2/en/char/10000137.json",
+        "revision": "7.1.50.2:sha256:a5e9cd98815e6b0675030f9ef9b0d043a17b11b1f15643375c0c507b1e2e3655",
+        "retrievedAt": "2026-09-28T02:16:16.730Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "a5e9cd98815e6b0675030f9ef9b0d043a17b11b1f15643375c0c507b1e2e3655",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#valeriy.en.json"
+      },
+      {
+        "id": "lunaris-mitya-chs-json",
+        "url": "https://api.lunaris.moe/data/7.1.50.2/chs/char/10000136.json",
+        "revision": "7.1.50.2:sha256:9c4b0e202c5eaacafcbd41c17bbe7f436cce8c29bc21e3042b1a241104b32efb",
+        "retrievedAt": "2026-09-28T02:16:17.869Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "9c4b0e202c5eaacafcbd41c17bbe7f436cce8c29bc21e3042b1a241104b32efb",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#mitya.chs.json"
+      },
+      {
+        "id": "lunaris-valeriy-chs-json",
+        "url": "https://api.lunaris.moe/data/7.1.50.2/chs/char/10000137.json",
+        "revision": "7.1.50.2:sha256:2095a051f1d49568eea54f29b0a7a53ba748ffe2274881b0fbff22e8e2761b19",
+        "retrievedAt": "2026-09-28T02:16:19.611Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "2095a051f1d49568eea54f29b0a7a53ba748ffe2274881b0fbff22e8e2761b19",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#valeriy.chs.json"
+      },
+      {
+        "id": "lunaris-lunaris-app-js",
+        "url": "https://lunaris.moe/assets/index-Cqv6iXhA.js",
+        "revision": "7.1.50.2:sha256:404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b",
+        "retrievedAt": "2026-09-28T02:16:21.664Z",
+        "gameVersion": "7.1.50.2",
+        "contentSha256": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b",
+        "license": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+        "verificationMethod": "Saved HTTP 200 bytes and SHA-256; numeric/mechanic semantics unverified.",
+        "evidenceRef": "retrieval-manifest.json#lunaris-app.js"
+      }
+    ]
+  },
+  "changes": [
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Source supplies absolute level/ascension attributes; no verified base/curve/promotion decomposition. Empty maps mean unavailable, not zero.",
+      "after": "Only absolute source attributes observed; base/curve/promotion decomposition unknown."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/7",
+      "kind": "changed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/characters/character:10000136/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Source supplies absolute level/ascension attributes; no verified base/curve/promotion decomposition. Empty maps mean unavailable, not zero.",
+      "after": "Only absolute source attributes observed; base/curve/promotion decomposition unknown."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/7",
+      "kind": "changed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/characters/character:10000137/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 3.336,
+      "after": 3.3359999656677246,
+      "numericDelta": -3.433227524496374e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 6.672,
+      "after": 6.671999931335449,
+      "numericDelta": -6.866455048992748e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.9072,
+      "after": 0.9071999788284302,
+      "numericDelta": -2.1171569830613635e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 1.296,
+      "after": 1.2960000038146973,
+      "numericDelta": 3.814697224768793e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam2/0",
+      "kind": "changed",
+      "before": 0.72,
+      "after": 0.7200000286102295,
+      "numericDelta": 2.8610229518832853e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam3/0",
+      "kind": "changed",
+      "before": 0.96,
+      "after": 0.9599999785423279,
+      "numericDelta": -2.1457672083613488e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam4/0",
+      "kind": "changed",
+      "before": 1.152,
+      "after": 1.1519999504089355,
+      "numericDelta": -4.9591064366083515e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.587984,
+      "after": 0.587984025478363,
+      "numericDelta": 2.54783630859734e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 0.483008,
+      "after": 0.4830079972743988,
+      "numericDelta": -2.7256011891907406e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam2/0",
+      "kind": "changed",
+      "before": 0.690224,
+      "after": 0.6902239918708801,
+      "numericDelta": -8.129119821731479e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam3/0",
+      "kind": "changed",
+      "before": 1.3688,
+      "after": 1.3688000440597534,
+      "numericDelta": 4.4059753401270996e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam5/0",
+      "kind": "changed",
+      "before": 0.568288,
+      "after": 0.5682880282402039,
+      "numericDelta": 2.8240203842067046e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam6/0",
+      "kind": "changed",
+      "before": 1.136335,
+      "after": 1.136335015296936,
+      "numericDelta": 1.5296935940156686e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam7/0",
+      "kind": "changed",
+      "before": 1.419344,
+      "after": 1.4193439483642578,
+      "numericDelta": -5.163574212652122e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam8/0",
+      "kind": "changed",
+      "before": 1.53,
+      "after": 1.5299999713897705,
+      "numericDelta": -2.8610229518832853e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam9/0",
+      "kind": "changed",
+      "before": 2.04,
+      "after": 2.0399999618530273,
+      "numericDelta": -3.814697269177714e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/sourceMultipliers/低空~1高空坠地冲击伤害/5",
+      "kind": "changed",
+      "before": "165.17%/206.3%",
+      "after": "165.16%/206.3%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/sourceMultipliers/递变聚爆伤害/4",
+      "kind": "changed",
+      "before": "202.72%",
+      "after": "202.73%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/sourceMultipliers/递变聚爆伤害/12",
+      "kind": "changed",
+      "before": "325.12%",
+      "after": "325.13%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/sourceMultipliers/递变聚爆伤害/14",
+      "kind": "changed",
+      "before": "363.38%",
+      "after": "363.37%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p1/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.05,
+      "after": 0.05000000074505806,
+      "numericDelta": 7.450580569168253e-10
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.00028,
+      "after": 0.0002800000074785203,
+      "numericDelta": 7.478520298691282e-12
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 0.14,
+      "after": 0.14000000059604645,
+      "numericDelta": 5.9604643443123e-10
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.2,
+      "after": 0.20000000298023224,
+      "numericDelta": 2.980232227667301e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/damageParam",
+      "kind": "added",
+      "after": "AS_ArtHold_Dmg"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/icd_source",
+      "kind": "added",
+      "after": "Tag: Elemental_Art (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/name",
+      "kind": "added",
+      "after": "ElementalArt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/poise",
+      "kind": "added",
+      "after": "LV2/100"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/damageParam",
+      "kind": "added",
+      "after": "AS_ArtTrigger_Dmg"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/icd_source",
+      "kind": "added",
+      "after": "Tag: Elemental_Art (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/name",
+      "kind": "added",
+      "after": "ElementalArt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/poise",
+      "kind": "added",
+      "after": "LV2/75"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/attackType",
+      "kind": "added",
+      "after": "Default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/damageParam",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/icd_source",
+      "kind": "added",
+      "after": "Tag: IceCraftedPickaxe_Dig (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/name",
+      "kind": "added",
+      "after": "Partner_EnhanceAttackManager"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/poise",
+      "kind": "added",
+      "after": "LV1/0"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/damageParam",
+      "kind": "added",
+      "after": "AS_Partner_Enhance_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/icd_rule",
+      "kind": "added",
+      "after": "Standard (3h/2.5s)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/icd_source",
+      "kind": "added",
+      "after": "Tag: default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/name",
+      "kind": "added",
+      "after": "Partner_EnhanceAttackManager"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/poise",
+      "kind": "added",
+      "after": "LV2/20"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/3/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/damageParam",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/icd_source",
+      "kind": "added",
+      "after": "Tag: StarSuperconductorElectricDamage (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/name",
+      "kind": "added",
+      "after": "Partner_Enhance_DestroyShard_Gadget"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/poise",
+      "kind": "added",
+      "after": "LV2/35"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/4/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/damageParam",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/icd_source",
+      "kind": "added",
+      "after": "Tag: StarSuperconductorElectricDamage (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/name",
+      "kind": "added",
+      "after": "OverShardDamage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/poise",
+      "kind": "added",
+      "after": "LV2/35"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/5/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/attackType",
+      "kind": "added",
+      "after": "Default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/damageParam",
+      "kind": "added",
+      "after": "AS_ExtraAttack_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/icd_source",
+      "kind": "added",
+      "after": "Tag: ExtraAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/name",
+      "kind": "added",
+      "after": "ExtraAttack_Normal"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/poise",
+      "kind": "added",
+      "after": "LV2/80"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/6/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/damageParam",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/icd_source",
+      "kind": "added",
+      "after": "Tag: StarSuperconductorElectricDamage (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/name",
+      "kind": "added",
+      "after": "ExtraAttack_Enhance"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/poise",
+      "kind": "added",
+      "after": "LV3/40"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/7/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/damageParam",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/icd_source",
+      "kind": "added",
+      "after": "Tag: StarSuperconductorElectricDamage (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/name",
+      "kind": "added",
+      "after": "ExtraAttack_Enhance"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/poise",
+      "kind": "added",
+      "after": "LV3/40"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/8/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/damageParam",
+      "kind": "added",
+      "after": "AS_ExtraAttackEnhancePre_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/icd_rule",
+      "kind": "added",
+      "after": "Standard (3h/2.5s)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/icd_source",
+      "kind": "added",
+      "after": "Tag: default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/name",
+      "kind": "added",
+      "after": "ExtraAttack_Enhance_PartnerControl"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/poise",
+      "kind": "added",
+      "after": "LV2/30"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/9/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/damageParam",
+      "kind": "added",
+      "after": "AS_ElementalBurst_AttackDamageRatio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/gauge",
+      "kind": "added",
+      "after": "2U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/icd_source",
+      "kind": "added",
+      "after": "Tag: Elemental_Burst (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/name",
+      "kind": "added",
+      "after": "ElementalBurstGadget"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/poise",
+      "kind": "added",
+      "after": "LV5/150"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/10/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/attackType",
+      "kind": "added",
+      "after": "Default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/damageParam",
+      "kind": "added",
+      "after": "FallingAnthem_Normal_Loop_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/icd_source",
+      "kind": "added",
+      "after": "Tag: FallingAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/name",
+      "kind": "added",
+      "after": "FallingAnthem"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/poise",
+      "kind": "added",
+      "after": "LV2/5"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/11/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/attackType",
+      "kind": "added",
+      "after": "Default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/damageParam",
+      "kind": "added",
+      "after": "FallingAnthem_Normal_Rank_1_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/icd_source",
+      "kind": "added",
+      "after": "Tag: FallingAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/name",
+      "kind": "added",
+      "after": "FallingAnthem"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/poise",
+      "kind": "added",
+      "after": "LV3/50"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/12/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/attackType",
+      "kind": "added",
+      "after": "Default"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/damageParam",
+      "kind": "added",
+      "after": "FallingAnthem_Normal_Rank_2_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/icd_source",
+      "kind": "added",
+      "after": "Tag: FallingAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/name",
+      "kind": "added",
+      "after": "FallingAnthem"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/poise",
+      "kind": "added",
+      "after": "LV4/100"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/13/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/damageParam",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/icd_source",
+      "kind": "added",
+      "after": "Tag: StarSuperconductorElectricDamage (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/name",
+      "kind": "added",
+      "after": "Constellation_4"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/poise",
+      "kind": "added",
+      "after": "LV2/35"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/14/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/endure",
+      "kind": "added",
+      "after": []
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/energy/0/cd",
+      "kind": "added",
+      "after": "0.5s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/energy/0/chance",
+      "kind": "added",
+      "after": "100%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/energy/0/particles",
+      "kind": "added",
+      "after": "5"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/energy/0/source",
+      "kind": "added",
+      "after": "DropElemBall"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:mitya/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 1.3512,
+      "after": 1.351199984550476,
+      "numericDelta": -1.5449523882438143e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 0.3152,
+      "after": 0.31520000100135803,
+      "numericDelta": 1.0013580520329413e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 1.66,
+      "after": 1.659999966621399,
+      "numericDelta": -3.337860099428269e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 2.08896,
+      "after": 2.0889599323272705,
+      "numericDelta": -6.767272964225413e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/parameters/sourceParam2/0",
+      "kind": "changed",
+      "before": 1309.6384,
+      "after": 1309.638427734375,
+      "numericDelta": 0.000027734374953070073
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.324839,
+      "after": 0.3248389959335327,
+      "numericDelta": -4.066467274022045e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 0.29326,
+      "after": 0.29326000809669495,
+      "numericDelta": 8.096694925630032e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam10/0",
+      "kind": "changed",
+      "before": 0.639324,
+      "after": 0.6393240094184875,
+      "numericDelta": 9.41848754543173e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam11/0",
+      "kind": "changed",
+      "before": 1.278377,
+      "after": 1.2783770561218262,
+      "numericDelta": 5.612182607528382e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam12/0",
+      "kind": "changed",
+      "before": 1.596762,
+      "after": 1.59676194190979,
+      "numericDelta": -5.80902099756031e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam2/0",
+      "kind": "changed",
+      "before": 0.454175,
+      "after": 0.4541749954223633,
+      "numericDelta": -4.577636714131472e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam3/0",
+      "kind": "changed",
+      "before": 1.00276,
+      "after": 1.0027600526809692,
+      "numericDelta": 5.2680969142571143e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam4/0",
+      "kind": "changed",
+      "before": 2.292,
+      "after": 2.2920000553131104,
+      "numericDelta": 5.531311053630361e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam6/0",
+      "kind": "changed",
+      "before": 0.2096,
+      "after": 0.20960000157356262,
+      "numericDelta": 1.5735626135437997e-9
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam7/0",
+      "kind": "changed",
+      "before": 0.6288,
+      "after": 0.6287999749183655,
+      "numericDelta": -2.5081634547063913e-8
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/sourceMultipliers/一段伤害/5",
+      "kind": "changed",
+      "before": "47.22%",
+      "after": "47.21%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/sourceMultipliers/一段伤害/10",
+      "kind": "changed",
+      "before": "68.75%",
+      "after": "68.74%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/sourceMultipliers/下坠期间伤害/5",
+      "kind": "changed",
+      "before": "92.92%",
+      "after": "92.93%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/sourceMultipliers/二段伤害/5",
+      "kind": "changed",
+      "before": "42.62%",
+      "after": "42.63%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p1/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/parameters/sourceParam0/0",
+      "kind": "changed",
+      "before": 0.003,
+      "after": 0.003000000026077032,
+      "numericDelta": 2.6077032026783353e-11
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/parameters/sourceParam1/0",
+      "kind": "changed",
+      "before": 0.009,
+      "after": 0.008999999612569809,
+      "numericDelta": -3.8743019036002746e-10
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/sourceParameterMeaning",
+      "kind": "changed",
+      "before": "Each one-element array preserves one raw provider params slot; level association is not asserted. levelCount0 means unclassified, not zero talent.",
+      "after": "One-element arrays preserve raw provider params slots; level meaning unclassified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "Raw params slots are not assigned to talent levels, scaling expressions, hit counts or damage categories.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p3/unmappedMechanics/9",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/damageParam",
+      "kind": "added",
+      "after": "NormalAttack_01"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/icd_source",
+      "kind": "added",
+      "after": "Tag: NormalAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/name",
+      "kind": "added",
+      "after": "NormalAttack"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/poise",
+      "kind": "added",
+      "after": "LV3/33"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/0/strikeType",
+      "kind": "added",
+      "after": "Slash"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/damageParam",
+      "kind": "added",
+      "after": "NormalAttack_02"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/icd_source",
+      "kind": "added",
+      "after": "Tag: NormalAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/name",
+      "kind": "added",
+      "after": "NormalAttack"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/poise",
+      "kind": "added",
+      "after": "LV3/30"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/1/strikeType",
+      "kind": "added",
+      "after": "Slash"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/damageParam",
+      "kind": "added",
+      "after": "NormalAttack_03"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/icd_source",
+      "kind": "added",
+      "after": "Tag: NormalAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/name",
+      "kind": "added",
+      "after": "NormalAttack"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/poise",
+      "kind": "added",
+      "after": "LV4/47"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/2/strikeType",
+      "kind": "added",
+      "after": "Slash"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/damageParam",
+      "kind": "added",
+      "after": "ExtraAttack_Cannon"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/icd_source",
+      "kind": "added",
+      "after": "Tag: ExtraAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/name",
+      "kind": "added",
+      "after": "ExtraAttack"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/poise",
+      "kind": "added",
+      "after": "LV3/140"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/3/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/damageParam",
+      "kind": "added",
+      "after": "ExtraAttack_Shield"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/icd_source",
+      "kind": "added",
+      "after": "Tag: ExtraAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/name",
+      "kind": "added",
+      "after": "ExtraAttack"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/poise",
+      "kind": "added",
+      "after": "LV5/120"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/4/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/damageParam",
+      "kind": "added",
+      "after": "FallingAnthem_Normal_Loop_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/gauge",
+      "kind": "added",
+      "after": "0U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/icd_source",
+      "kind": "added",
+      "after": "Tag: FallingAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/name",
+      "kind": "added",
+      "after": "FallingAnthem"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/poise",
+      "kind": "added",
+      "after": "LV2/25"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/5/strikeType",
+      "kind": "added",
+      "after": "Slash"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/damageParam",
+      "kind": "added",
+      "after": "FallingAnthem_Normal_Rank_1_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/icd_source",
+      "kind": "added",
+      "after": "Tag: FallingAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/name",
+      "kind": "added",
+      "after": "FallingAnthem"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/poise",
+      "kind": "added",
+      "after": "LV4/100"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/6/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/damageParam",
+      "kind": "added",
+      "after": "FallingAnthem_Normal_Rank_2_Damage"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/element",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/icd_source",
+      "kind": "added",
+      "after": "Tag: FallingAttack (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/name",
+      "kind": "added",
+      "after": "FallingAnthem"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/poise",
+      "kind": "added",
+      "after": "LV7/150"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/7/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/damageParam",
+      "kind": "added",
+      "after": "ElementalArt_RushDamageRatio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/icd_source",
+      "kind": "added",
+      "after": "Tag: Elemental_Art (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/name",
+      "kind": "added",
+      "after": "ElementalArt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/poise",
+      "kind": "added",
+      "after": "LV3/60"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/8/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/attackType",
+      "kind": "added",
+      "after": "Melee"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/damageParam",
+      "kind": "added",
+      "after": "Burst_DamageRatio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/icd_rule",
+      "kind": "added",
+      "after": "Independent"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/icd_source",
+      "kind": "added",
+      "after": "Tag: Elemental_Burst (!)"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/name",
+      "kind": "added",
+      "after": "ElementalBurst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/poise",
+      "kind": "added",
+      "after": "LV4/40"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/9/strikeType",
+      "kind": "added",
+      "after": "-"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/damageParam",
+      "kind": "added",
+      "after": "Damage_Ratio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/icd_rule",
+      "kind": "added",
+      "after": "2 hits / 2s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/icd_source",
+      "kind": "added",
+      "after": "Tag: Avatar_Valeriy_Burst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/name",
+      "kind": "added",
+      "after": "SkillObj_Funnel"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/poise",
+      "kind": "added",
+      "after": "LV1/15"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/10/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/damageParam",
+      "kind": "added",
+      "after": "Damage_Ratio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/icd_rule",
+      "kind": "added",
+      "after": "2 hits / 2s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/icd_source",
+      "kind": "added",
+      "after": "Tag: Avatar_Valeriy_Burst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/name",
+      "kind": "added",
+      "after": "SkillObj_Funnel"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/poise",
+      "kind": "added",
+      "after": "LV1/15"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/11/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/damageParam",
+      "kind": "added",
+      "after": "Damage_Ratio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/icd_rule",
+      "kind": "added",
+      "after": "2 hits / 2s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/icd_source",
+      "kind": "added",
+      "after": "Tag: Avatar_Valeriy_Burst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/name",
+      "kind": "added",
+      "after": "SkillObj_Funnel"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/poise",
+      "kind": "added",
+      "after": "LV1/15"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/12/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/damageParam",
+      "kind": "added",
+      "after": "Damage_Ratio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/icd_rule",
+      "kind": "added",
+      "after": "2 hits / 2s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/icd_source",
+      "kind": "added",
+      "after": "Tag: Avatar_Valeriy_Burst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/name",
+      "kind": "added",
+      "after": "SkillObj_Funnel"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/poise",
+      "kind": "added",
+      "after": "LV1/15"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/13/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/damageParam",
+      "kind": "added",
+      "after": "Damage_Ratio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/icd_rule",
+      "kind": "added",
+      "after": "2 hits / 2s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/icd_source",
+      "kind": "added",
+      "after": "Tag: Avatar_Valeriy_Burst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/name",
+      "kind": "added",
+      "after": "SkillObj_Funnel"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/poise",
+      "kind": "added",
+      "after": "LV1/15"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/14/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/attackType",
+      "kind": "added",
+      "after": "Range"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/damageParam",
+      "kind": "added",
+      "after": "Damage_Ratio"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/element",
+      "kind": "added",
+      "after": "Electric"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/gauge",
+      "kind": "added",
+      "after": "1U"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/icd_rule",
+      "kind": "added",
+      "after": "2 hits / 2s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/icd_source",
+      "kind": "added",
+      "after": "Tag: Avatar_Valeriy_Burst"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/name",
+      "kind": "added",
+      "after": "SkillObj_Funnel"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/poise",
+      "kind": "added",
+      "after": "LV1/15"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/attacks/15/strikeType",
+      "kind": "added",
+      "after": "Blunt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/0/Actor_EndureDelta",
+      "kind": "added",
+      "after": 0
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/0/ability",
+      "kind": "added",
+      "after": "ElementalArt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/0/handler",
+      "kind": "added",
+      "after": "UNIQUE_ElementalArt_Shield_Child"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/1/Actor_EndureDelta",
+      "kind": "added",
+      "after": 0.5
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/1/ability",
+      "kind": "added",
+      "after": "ElementalArt"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/1/handler",
+      "kind": "added",
+      "after": "ElementalArt_Endure"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/2/Actor_EndureDelta",
+      "kind": "added",
+      "after": 0.5
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/2/ability",
+      "kind": "added",
+      "after": "ExtraAttack"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/endure/2/handler",
+      "kind": "added",
+      "after": "Endure_Add"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/energy/0/cd",
+      "kind": "added",
+      "after": "0.3s"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/energy/0/chance",
+      "kind": "added",
+      "after": "100%"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/energy/0/particles",
+      "kind": "added",
+      "after": "3"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/sourceCombatMetadata/energy/0/source",
+      "kind": "added",
+      "after": "ElementalArt_DropBall"
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/0",
+      "kind": "changed",
+      "before": "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+      "after": "Provider 7.1.50.2 has no confirmed mapping to the requested 7.2 V1 or an official beta ordinal."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/1",
+      "kind": "changed",
+      "before": "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+      "after": "Only two character bodies were sampled; full preview inventory, weapon and artifact data were not collected."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/2",
+      "kind": "changed",
+      "before": "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+      "after": "Absolute attribute rows do not establish base, curve or promotion decomposition."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/3",
+      "kind": "changed",
+      "before": "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+      "after": "Source params and multiplier text are retained without assigning scaling, talent level, hit grouping or damage semantics."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/4",
+      "kind": "changed",
+      "before": "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+      "after": "Attack, energy and endurance tables are source metadata; ICD, gauge, particle and shield behavior are not executable or independently verified."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/5",
+      "kind": "changed",
+      "before": "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+      "after": "A provider URL is mutable; exact saved bytes and SHA-256 identify this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/6",
+      "kind": "changed",
+      "before": "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified.",
+      "after": "No independent expected inventory or numerical/game-mechanic verification exists."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/7",
+      "kind": "removed",
+      "before": "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation."
+    },
+    {
+      "path": "/catalog/talentSets/talent-set:valeriy/unmappedMechanics/8",
+      "kind": "removed",
+      "before": "No independent expected inventory or numerical/game-mechanic verification."
+    },
+    {
+      "path": "/supplemental/constellationSets/constellation-set:mitya/entries/const6/params/0",
+      "kind": "changed",
+      "before": 0.3,
+      "after": 0.30000001192092896,
+      "numericDelta": 1.1920928966180355e-8
+    },
+    {
+      "path": "/supplemental/constellationSets/constellation-set:mitya/entries/const6/params/1",
+      "kind": "changed",
+      "before": 0.2,
+      "after": 0.20000000298023224,
+      "numericDelta": 2.980232227667301e-9
+    },
+    {
+      "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const2/params/0",
+      "kind": "changed",
+      "before": 0.08,
+      "after": 0.07999999821186066,
+      "numericDelta": -1.7881393449270533e-9
+    },
+    {
+      "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const4/params/0",
+      "kind": "changed",
+      "before": 0.3,
+      "after": 0.30000001192092896,
+      "numericDelta": 1.1920928966180355e-8
+    },
+    {
+      "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const6/params/2",
+      "kind": "changed",
+      "before": 0.1,
+      "after": 0.10000000149011612,
+      "numericDelta": 1.4901161138336505e-9
+    },
+    {
+      "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const6/params/3",
+      "kind": "changed",
+      "before": 0.4,
+      "after": 0.4000000059604645,
+      "numericDelta": 5.960464455334602e-9
+    }
+  ]
+}

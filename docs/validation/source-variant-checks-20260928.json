@@ -1,0 +1,59 @@
+[
+  {
+    "name": "candidate-script-syntax",
+    "command": [
+      "node",
+      "--check",
+      "packages/game-data/scripts/sync-genshin-db-candidate.mjs"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 0.024,
+    "log": "docs/validation/source-variant-candidate-script-syntax-20260928.log"
+  },
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 2.502,
+    "log": "docs/validation/source-variant-build-20260928.log"
+  },
+  {
+    "name": "build-retry1",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.526,
+    "log": "docs/validation/source-variant-build-20260928.retry1.log"
+  },
+  {
+    "name": "source-variant-browser",
+    "command": [
+      "GIDPS_PREBUILT=1",
+      "npx",
+      "playwright",
+      "test",
+      "apps/web/e2e/source-variant-builder.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.798,
+    "log": "docs/validation/source-variant-browser-20260928.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 0.076,
+    "log": "docs/validation/source-variant-diff-check-20260928.log"
+  }
+]

@@ -1,0 +1,356 @@
+diff --git a/pkg/avatar/sourcehost_phase.go b/pkg/avatar/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/avatar/sourcehost_phase.go
+@@ -0,0 +1,18 @@
++package avatar
++
++func (p *Player) SourceHostPhaseState() (map[string]any, []string) {
++	target, gaps := p.Target.SourceHostPhaseState()
++	state := map[string]any{"target": target}
++	if provider, ok := p.Reactable.(interface {
++		SourceHostPhaseState() (map[string]any, []string)
++	}); ok {
++		value, missing := provider.SourceHostPhaseState()
++		state["reaction"] = value
++		for _, gap := range missing {
++			gaps = append(gaps, "avatar.reaction."+gap)
++		}
++	} else {
++		gaps = append(gaps, "avatar.reaction-private-state")
++	}
++	return state, gaps
++}
+diff --git a/pkg/core/combat/sourcehost_phase.go b/pkg/core/combat/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/combat/sourcehost_phase.go
+@@ -0,0 +1,56 @@
++package combat
++
++import (
++	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++)
++
++type sourceHostPhaseProvider interface {
++	SourceHostPhaseState() (map[string]any, []string)
++}
++
++func sourceHostTargetPhase(target info.Target) (map[string]any, []string) {
++	if target == nil {
++		return nil, nil
++	}
++	typ := fmt.Sprintf("%T", target)
++	state := map[string]any{"concreteType": typ, "key": target.Key(), "targetType": target.Type()}
++	gaps := []string{}
++	if provider, ok := target.(sourceHostPhaseProvider); ok {
++		value, missing := provider.SourceHostPhaseState()
++		state["state"] = value
++		gaps = append(gaps, missing...)
++	} else {
++		state["alive"] = target.IsAlive()
++		state["position"] = target.Pos()
++		gaps = append(gaps, "target-provider-missing:"+typ)
++	}
++	// Embedded Target/Gadget providers cannot prove a concrete subtype's private
++	// continuation state. Explicitly audited types are the only exceptions.
++	switch typ {
++	case "*enemy.Enemy", "*avatar.Player", "*gadget.Gadget":
++	default:
++		gaps = append(gaps, "target-subtype-private-state:"+typ)
++	}
++	return state, gaps
++}
++
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++	gaps := []string{}
++	capture := func(target info.Target, path string) map[string]any {
++		state, missing := sourceHostTargetPhase(target)
++		for _, gap := range missing {
++			gaps = append(gaps, path+"."+gap)
++		}
++		return state
++	}
++	enemies := make([]map[string]any, len(h.enemies))
++	for i, target := range h.enemies {
++		enemies[i] = capture(target, fmt.Sprintf("enemies[%d]", i))
++	}
++	gadgets := make([]map[string]any, len(h.gadgets))
++	for i, target := range h.gadgets {
++		gadgets[i] = capture(target, fmt.Sprintf("gadgets[%d]", i))
++	}
++	return map[string]any{"enemies": enemies, "gadgets": gadgets, "player": capture(h.player, "player"), "defaultTarget": h.DefaultTarget, "nextTargetKey": h.keycount, "gadgetCollectionTick": h.gccount, "damageMode": h.DamageMode, "defenseHalt": h.DefHalt, "hitlagEnabled": h.EnableHitlag}, gaps
++}
+diff --git a/pkg/core/construct/sourcehost_phase.go b/pkg/core/construct/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/construct/sourcehost_phase.go
+@@ -0,0 +1,31 @@
++package construct
++
++import "fmt"
++
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++	gaps := []string{}
++	capture := func(list []Construct, path string) []map[string]any {
++		rows := make([]map[string]any, len(list))
++		for i, c := range list {
++			if c == nil {
++				continue
++			}
++			expiry := c.Expiry()
++			row := map[string]any{"concreteType": fmt.Sprintf("%T", c), "key": c.Key(), "type": c.Type(), "expiryOffsetFrames": expiry - *h.f, "limited": c.IsLimited(), "count": c.Count(), "direction": c.Direction(), "position": c.Pos()}
++			if provider, ok := c.(interface {
++				SourceHostPhaseConstructState() (map[string]any, []string)
++			}); ok {
++				value, missing := provider.SourceHostPhaseConstructState()
++				row["privateState"] = value
++				for _, gap := range missing {
++					gaps = append(gaps, fmt.Sprintf("%s[%d].%s", path, i, gap))
++				}
++			} else {
++				gaps = append(gaps, fmt.Sprintf("%s[%d].construct-private-state-and-on-destruct:%T", path, i, c))
++			}
++			rows[i] = row
++		}
++		return rows
++	}
++	return map[string]any{"limited": capture(h.constructs, "limited"), "unlimited": capture(h.consNoLimit, "unlimited")}, gaps
++}
+diff --git a/pkg/core/info/sourcehost_phase_shape.go b/pkg/core/info/sourcehost_phase_shape.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/info/sourcehost_phase_shape.go
+@@ -0,0 +1,6 @@
++package info
++
++// SourceHostPhaseState copies the complete collision shape without moving it.
++func (c *Circle) SourceHostPhaseState() (map[string]any, []string) {
++	return map[string]any{"kind": "circle", "center": c.center, "radius": c.r, "direction": c.dir, "fanAngle": c.fanAngle, "segments": append([]Point{}, c.segments...), "aabb": append([]Point{}, c.aabb...)}, nil
++}
+diff --git a/pkg/enemy/sourcehost_phase.go b/pkg/enemy/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/enemy/sourcehost_phase.go
+@@ -0,0 +1,73 @@
++package enemy
++
++import (
++	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++)
++
++type sourceHostPhaseProvider interface {
++	SourceHostPhaseState() (map[string]any, []string)
++}
++
++func (e *Enemy) SourceHostPhaseState() (map[string]any, []string) {
++	target, gaps := e.Target.SourceHostPhaseState()
++	resists := map[string]float64{}
++	for element, value := range e.resists {
++		resists[element.String()] = value
++	}
++	mods := []map[string]any{}
++	for _, mod := range e.mods {
++		row := map[string]any{"key": mod.Key(), "type": fmt.Sprintf("%T", mod), "hitlag": mod.AffectedByHitlag()}
++		if metadata, ok := mod.(interface{ SourceHostPhaseMetadata(int) map[string]any }); ok {
++			row["lifetime"] = metadata.SourceHostPhaseMetadata(e.Core.F)
++		} else {
++			gaps = append(gaps, "enemy.modifier-lifetime-private-state:"+mod.Key())
++		}
++		switch m := mod.(type) {
++		case *info.Status:
++		case *info.ResistMod:
++			row["element"] = m.Ele.String()
++			row["value"] = m.Value
++		case *info.DefMod:
++			row["value"] = m.Value
++			row["duration"] = m.Dur
++		default:
++			gaps = append(gaps, "enemy.modifier-private-state:"+mod.Key())
++		}
++		mods = append(mods, row)
++	}
++	state := map[string]any{"target": target, "level": e.Level, "resists": resists, "hp": e.hp, "maxHp": e.maxhp, "frozenFrames": e.frozenFrames, "modifiers": mods, "particleDropIndex": e.particleDropIndex}
++	drops := []map[string]any{}
++	for _, drop := range e.prof.ParticleDrops {
++		if drop == nil {
++			drops = append(drops, nil)
++		} else {
++			drops = append(drops, map[string]any{"dropId": drop.DropId, "hpPercent": drop.HpPercent})
++		}
++	}
++	state["particleProfile"] = map[string]any{"threshold": e.prof.ParticleDropThreshold, "count": e.prof.ParticleDropCount, "element": e.prof.ParticleElement.String(), "hpDrops": drops}
++	if e.prof.ParticleDropThreshold > 0 {
++		state["damageSinceParticleThreshold"] = e.damageTaken - float64(e.lastParticleDrop)*e.prof.ParticleDropThreshold
++	}
++	if provider, ok := e.Reactable.(sourceHostPhaseProvider); ok {
++		value, missing := provider.SourceHostPhaseState()
++		state["reaction"] = value
++		for _, gap := range missing {
++			gaps = append(gaps, "enemy.reaction."+gap)
++		}
++	} else {
++		gaps = append(gaps, "enemy.reaction-private-state")
++	}
++	if provider, ok := any(e.queue).(sourceHostPhaseProvider); ok {
++		value, missing := provider.SourceHostPhaseState()
++		state["taskQueue"] = value
++		for _, gap := range missing {
++			gaps = append(gaps, "enemy.taskQueue."+gap)
++		}
++	} else {
++		gaps = append(gaps, "enemy.taskQueue-private-state")
++	}
++	// timePassed is a local clock. Task deadlines are normalized by that same
++	// clock in the queue provider; absolute time is not a phase state variable.
++	return state, gaps
++}
+diff --git a/pkg/gadget/sourcehost_phase.go b/pkg/gadget/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/gadget/sourcehost_phase.go
+@@ -0,0 +1,16 @@
++package gadget
++
++func (g *Gadget) SourceHostPhaseState() (map[string]any, []string) {
++	target, gaps := g.Target.SourceHostPhaseState()
++	state := map[string]any{"target": target, "type": g.gadgetTyp, "generationAgeFrames": g.core.F - g.src, "durationRemainingFrames": g.Duration, "thinkIntervalFrames": g.ThinkInterval, "sinceLastThinkFrames": g.sinceLastThink, "hasOnKill": g.OnKill != nil, "hasOnExpiry": g.OnExpiry != nil, "hasOnThink": g.OnThinkInterval != nil}
++	if g.OnKill != nil {
++		gaps = append(gaps, "gadget.on-kill-captured-state")
++	}
++	if g.OnExpiry != nil {
++		gaps = append(gaps, "gadget.on-expiry-captured-state")
++	}
++	if g.OnThinkInterval != nil {
++		gaps = append(gaps, "gadget.on-think-captured-state")
++	}
++	return state, gaps
++}
+diff --git a/pkg/modifier/sourcehost_phase.go b/pkg/modifier/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/modifier/sourcehost_phase.go
+@@ -0,0 +1,8 @@
++package modifier
++
++// SourceHostPhaseMetadata reads the duration/extension state without calling
++// modifier effects or touching the event used only for logging.
++func (b *Base) SourceHostPhaseMetadata(frame int) map[string]any {
++	expiry := b.Expiry()
++	return map[string]any{"key": b.ModKey, "duration": b.Dur, "infinite": expiry == -1, "expired": expiry != -1 && expiry < frame, "remainingFrames": max(0, expiry-frame), "hitlag": b.Hitlag, "extension": b.extension}
++}
+diff --git a/pkg/reactable/sourcehost_phase.go b/pkg/reactable/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/reactable/sourcehost_phase.go
+@@ -0,0 +1,45 @@
++package reactable
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++func sourceHostPhaseReactionSnapshot(snapshot info.Snapshot) map[string]any {
++	// Snapshot log/provenance IDs do not influence the future damage calculation.
++	return map[string]any{"stats": snapshot.Stats, "characterLevel": snapshot.CharLvl}
++}
++
++func sourceHostPhaseReactionAttack(attack info.AttackInfo) info.AttackInfo {
++	attack.AdditionalTags = append(attack.AdditionalTags[:0:0], attack.AdditionalTags...)
++	attack.SourceHostComponents = nil
++	attack.SourceHostMultiplierID = 0
++	return attack
++}
++
++func (r *Reactable) SourceHostPhaseState() (map[string]any, []string) {
++	state := map[string]any{"durabilityByOwner": r.Durability, "decayRates": r.DecayRate, "freezeResist": r.FreezeResist, "lunarChargedOwner": r.lcAtkOwner}
++	state["gcdRemainingFrames"] = map[string]int{"overload": max(0, r.overloadGCD-r.core.F), "shatter": max(0, r.shatterGCD-r.core.F), "superconduct": max(0, r.superconductGCD-r.core.F), "swirlElectro": max(0, r.swirlElectroGCD-r.core.F), "swirlHydro": max(0, r.swirlHydroGCD-r.core.F), "swirlCryo": max(0, r.swirlCryoGCD-r.core.F), "swirlPyro": max(0, r.swirlPyroGCD-r.core.F), "crystallize": max(0, r.crystallizeGCD-r.core.F)}
++	gaps := []string{}
++	ec := map[string]any{"active": r.ecTickSrc != -1}
++	if r.ecTickSrc != -1 {
++		ec["generationAgeFrames"] = r.core.F - r.ecTickSrc
++		ec["attack"] = sourceHostPhaseReactionAttack(r.ecAtk)
++		ec["snapshot"] = sourceHostPhaseReactionSnapshot(r.ecSnapshot)
++		gaps = append(gaps, "electrocharged-task-and-event-captured-state")
++	}
++	state["electrocharged"] = ec
++	burning := map[string]any{"active": r.burningTickSrc != -1}
++	if r.burningTickSrc != -1 {
++		burning["generationAgeFrames"] = r.core.F - r.burningTickSrc
++		burning["attack"] = sourceHostPhaseReactionAttack(r.burningAtk)
++		burning["snapshot"] = sourceHostPhaseReactionSnapshot(r.burningSnapshot)
++		gaps = append(gaps, "burning-task-captured-counter-and-generation")
++	}
++	state["burning"] = burning
++	return state, gaps
++}
++
++// This construct has only the fields already read by construct.Handler and an
++// empty OnDestruct method. Unlike callback-backed constructs it has no extra
++// private continuation state.
++func (c *LunarCrystallizeConstruct) SourceHostPhaseConstructState() (map[string]any, []string) {
++	return map[string]any{}, nil
++}
+diff --git a/pkg/target/sourcehost_phase.go b/pkg/target/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/target/sourcehost_phase.go
+@@ -0,0 +1,58 @@
++package target
++
++import "sort"
++
++// SourceHostPhaseState is a read-only export. ICD reset tasks live in the core
++// queue and their captured values must also be covered before claiming closure.
++func (t *Target) SourceHostPhaseState() (map[string]any, []string) {
++	tags := make(map[string]int, len(t.Tags))
++	for key, value := range t.Tags {
++		tags[key] = value
++	}
++	shape, _ := t.Hitbox.SourceHostPhaseState()
++	gaps := []string{}
++	if t.OnCollision != nil {
++		gaps = append(gaps, "target.collision-callback-captured-state")
++	}
++	if len(tags) > 0 {
++		gaps = append(gaps, "target.tag-value-temporal-semantics")
++	}
++	icd := []map[string]any{}
++	keys := map[IcdKey]bool{}
++	for key := range t.icdTagOnTimer {
++		keys[key] = true
++	}
++	for key := range t.icdTagCounter {
++		keys[key] = true
++	}
++	for key := range t.icdDamageTagOnTimer {
++		keys[key] = true
++	}
++	for key := range t.icdDamageTagCounter {
++		keys[key] = true
++	}
++	ordered := make([]IcdKey, 0, len(keys))
++	for key := range keys {
++		ordered = append(ordered, key)
++	}
++	sort.Slice(ordered, func(i, j int) bool {
++		a, b := ordered[i], ordered[j]
++		if a.Char != b.Char {
++			return a.Char < b.Char
++		}
++		if a.IcdTag != b.IcdTag {
++			return a.IcdTag < b.IcdTag
++		}
++		return a.IcdGroup < b.IcdGroup
++	})
++	for _, key := range ordered {
++		on := t.icdTagOnTimer[key]
++		count := t.icdTagCounter[key]
++		damageOn := t.icdDamageTagOnTimer[key]
++		damageCount := t.icdDamageTagCounter[key]
++		if on || count != 0 || damageOn || damageCount != 0 {
++			icd = append(icd, map[string]any{"actor": key.Char, "tag": key.IcdTag, "group": key.IcdGroup, "applicationOnTimer": on, "applicationCounter": count, "damageOnTimer": damageOn, "damageCounter": damageCount})
++		}
++	}
++	return map[string]any{"key": t.key, "alive": t.Alive, "shape": shape, "direction": t.direction, "tags": tags, "collidableTypes": t.CollidableTypes, "hasCollisionCallback": t.OnCollision != nil, "icd": icd}, gaps
++}

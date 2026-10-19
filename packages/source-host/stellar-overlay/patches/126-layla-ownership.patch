@@ -1,0 +1,260 @@
+--- a/internal/characters/layla/burst.go
++++ b/internal/characters/layla/burst.go
+@@ -67,22 +67,33 @@
+ 	player := c.Core.Combat.Player()
+ 	burstArea := combat.NewCircleHitOnTarget(player, info.Point{Y: 1}, 12)
+ 	for delay := burstStart; delay < 12*60+burstStart; delay += 90 {
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("layla.burst.slug", c.Index(), func() {
++			c.Core.SourceHostAbilityProducerFact("layla.burst.slug.attack-count", 0)
+ 			enemy := c.Core.Combat.ClosestEnemyWithinArea(burstArea, nil)
+ 			if enemy == nil {
+ 				return
+ 			}
+ 
++			c.Core.SourceHostAbilityProducerFact("layla.burst.slug.attack-count", 1)
++
+ 			done := false
+-			cb := func(_ info.AttackCB) {
++			cb := func(a info.AttackCB) {
++				c.Core.SourceHostLabelHitCallback("layla.burst.night-star-hit", a)
++				c.Core.SourceHostHitCallbackFact("layla.burst.callback.first", 0)
+ 				if done {
+ 					return
+ 				}
+ 				done = true
++				c.Core.SourceHostHitCallbackFact("layla.burst.callback.first", 1)
+ 
+ 				exist := c.Core.Player.Shields.Get(shield.LaylaSkill)
++				c.Core.SourceHostHitCallbackFact("layla.burst.callback.shield-instance", float64(c.Core.SourceHostShieldInstanceID(exist)))
++				c.Core.SourceHostHitCallbackFact("layla.burst.callback.shield-present", 0)
+ 				if exist != nil {
+-					c.addNightStars(1, ICDNightStarBurst)
++					c.Core.SourceHostHitCallbackFact("layla.burst.callback.shield-present", 1)
++					c.Core.SourceHostWithShieldTrigger(exist, "layla.shield.burst-star", "trigger", func() {
++						c.addNightStars(1, ICDNightStarBurst)
++					})
+ 				}
+ 			}
+ 
+--- a/internal/characters/layla/shield.go
++++ b/internal/characters/layla/shield.go
+@@ -50,6 +50,8 @@
+ }
+ 
+ func (c *char) addNightStars(count int, icd ICDNightStar) {
++	c.Core.SourceHostShieldHookFact("layla.stars.branch", 0)
++	c.Core.SourceHostShieldHookFact("layla.stars.count", float64(count))
+ 	if c.Tag(shootingStars) > 0 {
+ 		return
+ 	}
+@@ -57,11 +59,13 @@
+ 	switch icd {
+ 	case ICDNightStarSkill:
+ 		if c.StatusIsActive(starSkillIcd) {
++			c.Core.SourceHostShieldHookFact("layla.stars.branch", 1)
+ 			return
+ 		}
+ 		c.AddStatus(starSkillIcd, 0.3*60, false)
+ 	case ICDNightStarBurst:
+ 		if c.StatusIsActive(starBurstIcd) {
++			c.Core.SourceHostShieldHookFact("layla.stars.branch", 2)
+ 			return
+ 		}
+ 		c.AddStatus(starBurstIcd, 0.5*60, false)
+@@ -71,24 +75,31 @@
+ 		c.a1Stack++
+ 	}
+ 
+-	stars := min(count+c.Tag(nightStars), 4)
++	previousStars := c.Tag(nightStars)
++	stars := min(count+previousStars, 4)
++	c.Core.SourceHostShieldHookFact("layla.stars.before", float64(previousStars))
++	c.Core.SourceHostShieldHookFact("layla.stars.after", float64(stars))
++	c.Core.SourceHostShieldHookFact("layla.stars.branch", 3)
+ 	c.SetTag(nightStars, stars)
+ 	c.Core.Log.NewEvent("adding stars", glog.LogCharacterEvent, c.Index()).
+ 		Write("stars", stars)
+ 
+ 	if stars == 4 && c.Tag(shootingStars) == 0 {
++		c.Core.SourceHostShieldHookFact("layla.stars.branch", 4)
+ 		c.SetTag(shootingStars, 1)
+ 		c.shootStarSrc = c.Core.F
+-		c.Core.Tasks.Add(c.shootStars(c.shootStarSrc, nil, c.makeParticleCB()), 0.1*60)
++		c.Core.SourceHostQueueShieldTask("layla.shield.shoot", c.shootStars(c.shootStarSrc, nil, c.makeParticleCB()), 0.1*60)
+ 	}
+ }
+ 
+ func (c *char) shootStars(src int, last info.Enemy, particleCB info.AttackCBFunc) func() {
+ 	return func() {
++		c.Core.SourceHostShieldTaskFact("layla.shoot.branch", 0)
+ 		if c.shootStarSrc != src {
+ 			return
+ 		}
+ 		if c.Tag(shootingStars) == 0 {
++			c.Core.SourceHostShieldTaskFact("layla.shoot.branch", 1)
+ 			return
+ 		}
+ 
+@@ -99,10 +110,12 @@
+ 		if last == nil {
+ 			// if not found
+ 			if enemyNotFound {
+-				c.Core.Tasks.Add(c.shootStars(src, nil, particleCB), 0.1*60)
++				c.Core.SourceHostShieldTaskFact("layla.shoot.branch", 2)
++				c.Core.SourceHostQueueShieldTask("layla.shield.shoot", c.shootStars(src, nil, particleCB), 0.1*60)
+ 				return
+ 			}
+-			c.Core.Tasks.Add(c.shootStars(src, enemy, particleCB), 0.5*60)
++			c.Core.SourceHostShieldTaskFact("layla.shoot.branch", 3)
++			c.Core.SourceHostQueueShieldTask("layla.shield.shoot", c.shootStars(src, enemy, particleCB), 0.5*60)
+ 			return
+ 		}
+ 		if enemyNotFound {
+@@ -110,6 +123,7 @@
+ 		}
+ 
+ 		stars := c.Tag(nightStars)
++		c.Core.SourceHostShieldTaskFact("layla.shoot.stars-before", float64(stars))
+ 		if stars == 4 && c.Base.Cons >= 4 {
+ 			for _, char := range c.Core.Player.Chars() {
+ 				char.AddStatus(c4Key, 3*60, true)
+@@ -145,7 +159,7 @@
+ 			}
+ 		}
+ 
+-		c.Core.QueueAttack(
++		c.Core.SourceHostQueueShieldAttack("layla.shield.shooting-star",
+ 			ai,
+ 			combat.NewCircleHit(c.Core.Combat.Player(), enemy, nil, 0.8),
+ 			0,
+@@ -155,12 +169,15 @@
+ 		)
+ 
+ 		stars--
++		c.Core.SourceHostShieldTaskFact("layla.shoot.stars-after", float64(stars))
+ 		c.SetTag(nightStars, stars)
+ 		if stars != 0 {
+-			c.Core.Tasks.Add(c.shootStars(src, enemy, particleCB), 0.45*60)
+-			return
+-		}
+-
++			c.Core.SourceHostShieldTaskFact("layla.shoot.branch", 4)
++			c.Core.SourceHostQueueShieldTask("layla.shield.shoot", c.shootStars(src, enemy, particleCB), 0.45*60)
++			return
++		}
++
++		c.Core.SourceHostShieldTaskFact("layla.shoot.branch", 5)
+ 		c.RemoveTag(shootingStars)
+ 		c.starTickSrc = c.Core.F
+ 		c.tickNightStar(c.starTickSrc, false)()
+@@ -194,23 +211,30 @@
+ 
+ func (c *char) tickNightStar(src int, star bool) func() {
+ 	return func() {
++		c.Core.SourceHostShieldTaskFact("layla.tick.branch", 0)
++		c.Core.SourceHostAbilityProducerFact("layla.tick.branch", 0)
+ 		if c.starTickSrc != src {
+ 			return
+ 		}
+ 		exist := c.Core.Player.Shields.Get(shield.LaylaSkill)
++		c.Core.SourceHostShieldTaskGate(exist)
+ 		if exist == nil {
+-			return
+-		}
+-
++			c.Core.SourceHostShieldTaskFact("layla.tick.branch", 1)
++			c.Core.SourceHostAbilityProducerFact("layla.tick.branch", 1)
++			return
++		}
++
++		c.Core.SourceHostShieldTaskFact("layla.tick.branch", 2)
++		c.Core.SourceHostAbilityProducerFact("layla.tick.branch", 2)
+ 		if star {
+-			c.addNightStars(1, ICDNightStarSkill)
++			c.Core.SourceHostWithShieldTrigger(exist, "layla.shield.tick-star", "trigger", func() { c.addNightStars(1, ICDNightStarSkill) })
+ 		}
+ 
+ 		interval := 1.5 * 60
+ 		if c.Base.Cons >= 6 {
+ 			interval = 1.5 * 0.8 * 60
+ 		}
+-		c.QueueCharTask(c.tickNightStar(src, true), int(interval))
++		c.SourceHostQueueShieldCharTask("layla.shield.night-star-tick", exist, c.tickNightStar(src, true), int(interval))
+ 	}
+ }
+ 
+--- a/internal/characters/layla/skill.go
++++ b/internal/characters/layla/skill.go
+@@ -42,9 +42,10 @@
+ 	}
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 2.5), 0, skillHitmark)
+ 
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("layla.skill.shield-update", func() {
+ 		// add shield
+ 		exist := c.Core.Player.Shields.Get(shield.LaylaSkill)
++		c.Core.SourceHostAbilityProducerFact("layla.skill.refresh", 0)
+ 		if exist == nil {
+ 			flatTalent := c.TalentLvlSkill()
+ 			ratioTalent := c.TalentLvlSkill()
+@@ -67,10 +68,16 @@
+ 					"flatTalent": flatTalent, "ratioTalent": ratioTalent, "maxHp": maxHP, "c1": c1Unlocked,
+ 				}, []*info.SourceHostStatRead{maxHPRead}, nil)
+ 			}
+-			c.Core.Player.Shields.Add(c.newShield(shieldHP, 12*60, shieldHPID))
++			exist = c.newShield(shieldHP, 12*60, shieldHPID)
++			c.Core.SourceHostWithShieldBirth("layla.skill.shield", func() { c.Core.Player.Shields.Add(exist) })
+ 		} else {
+ 			shd, _ := exist.(*shd)
+-			shd.Expires = c.Core.F + 12*60
++			c.Core.SourceHostAbilityProducerFact("layla.skill.refresh", 1)
++			c.Core.SourceHostWithShieldTrigger(shd, "layla.skill.shield-refresh", "refresh", func() {
++				c.Core.SourceHostShieldHookFact("layla.refresh.expiry-before", float64(shd.Expires))
++				shd.Expires = c.Core.F + 12*60
++				c.Core.SourceHostShieldHookFact("layla.refresh.expiry-after", float64(shd.Expires))
++			})
+ 		}
+ 
+ 		// apply cryo & run a task
+@@ -80,6 +87,7 @@
+ 		}
+ 		player.ApplySelfInfusion(attributes.Cryo, 25, 0.1*60)
+ 
++		c.Core.SourceHostAbilityProducerFact("layla.skill.shield-instance", float64(c.Core.SourceHostShieldInstanceID(exist)))
+ 		c.starTickSrc = c.Core.F
+ 		c.tickNightStar(c.starTickSrc, false)()
+ 	}, 19)
+@@ -96,9 +104,11 @@
+ 
+ func (c *char) starsSkill() {
+ 	c.Core.Events.Subscribe(event.OnSkill, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("layla.shield.on-skill", args...)
+ 		exist := c.Core.Player.Shields.Get(shield.LaylaSkill)
++		c.Core.SourceHostEventListenerFact("layla.shield.instance", float64(c.Core.SourceHostShieldInstanceID(exist)))
+ 		if exist != nil {
+-			c.addNightStars(2, ICDNightStarSkill)
++			c.Core.SourceHostWithShieldTrigger(exist, "layla.shield.skill-stars", "trigger", func() { c.addNightStars(2, ICDNightStarSkill) })
+ 		}
+ 	}, "stars-skill")
+ }
+--- a/pkg/core/event/event.go
++++ b/pkg/core/event/event.go
+@@ -95,7 +95,7 @@
+ 	EndEventTypes          // elim
+ )
+ 
+-// SourceHostEventObserver receives only the two audited enemy damage/death
++// SourceHostEventObserver receives audited enemy damage/death and skill
+ // event families. It observes original hook slots without replacing callbacks.
+ type SourceHostEventObserver interface {
+ 	RegisterEventListener(eventType, slotIndex int, key string, origin info.SourceHostOrigin) int
+@@ -220,7 +220,7 @@
+ }
+ 
+ func sourceHostObservedEvent(e Event) bool {
+-	return e == OnEnemyDamage || e == OnTargetDied
++	return e == OnEnemyDamage || e == OnTargetDied || e == OnSkill
+ }
+ 
+ func (h *Handler) EmitObserved(e Event, args ...any) ObservedEmission {

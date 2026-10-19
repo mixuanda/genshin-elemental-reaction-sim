@@ -1,0 +1,40 @@
+{
+  "catalogVersion": "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1",
+  "gamePatch": "6.7",
+  "characters": 120,
+  "talentSets": 125,
+  "talentAbilityRecords": 762,
+  "weapons": 237,
+  "enkaMappings": 148,
+  "artifactSets": 0,
+  "perRecordStatuses": {
+    "characters": {
+      "simulation": {
+        "metadata-only": 120
+      },
+      "evidence": {
+        "provisional": 120
+      }
+    },
+    "talentSets": {
+      "simulation": {
+        "metadata-only": 125
+      },
+      "evidence": {
+        "provisional": 125
+      }
+    },
+    "weapons": {
+      "simulation": {
+        "metadata-only": 237
+      },
+      "evidence": {
+        "provisional": 237
+      }
+    }
+  },
+  "independentExpectedReleasedRoster": null,
+  "fullyMechanicsVerifiedCatalogRecords": 0,
+  "scopeReadinessCounts": null,
+  "scopeReadinessNote": "Baseline has metadata-only flags, not independent hit/skill/team readiness dimensions. Zero verified catalog records must not be read as absence of generic formula or synthetic simulation support."
+}

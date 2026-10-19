@@ -1,0 +1,40 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 315 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                     28.64 kB │ gzip:   9.08 kB
+dist/assets/simulation-worker-DLa6PXgx.js        1,803.26 kB
+dist/assets/analysis-worker-DDAtxuVx.js          1,810.38 kB
+dist/assets/lunar-simulation-worker-nALidX3W.js  1,813.07 kB
+dist/assets/index-D855a1cJ.css                      17.66 kB │ gzip:   4.37 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js             0.15 kB │ gzip:   0.15 kB
+dist/assets/update-panel-BH4JRL3Q.js                 5.37 kB │ gzip:   2.69 kB
+dist/assets/lunar-simulation-panel-DoTujyyI.js      51.14 kB │ gzip:  16.59 kB
+dist/assets/calculator-ui-D4uhWT3O.js               87.45 kB │ gzip:  28.12 kB
+dist/assets/supplemental-DQ283TAg.js               341.66 kB │ gzip:  69.02 kB
+dist/assets/character-calculations-Cvh2-IrF.js     923.50 kB │ gzip: 145.41 kB
+dist/assets/equipment-controls-tvPVgEJk.js         927.40 kB │ gzip: 179.22 kB
+dist/assets/src-3KWUZDAA.js                      1,189.99 kB │ gzip: 260.74 kB
+dist/assets/index-D-OlvCdX.js                    1,338.81 kB │ gzip: 346.31 kB
+dist/assets/catalog-DflKqhPY.js                  1,971.38 kB │ gzip: 319.06 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../../packages/sim-core/src/calculator-bridge.ts is dynamically imported by src/app.ts but also statically imported by ../../packages/sim-core/src/index.ts, dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 331ms

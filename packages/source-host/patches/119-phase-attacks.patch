@@ -1,0 +1,86 @@
+--- a/pkg/core/attack.go
++++ b/pkg/core/attack.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ func (c *Core) QueueAttackWithSnap(
+@@ -84,13 +85,21 @@
+ 		if c.SourceHost != nil {
+ 			stageID = c.SourceHost.ScheduleAttackStage(&ae, "snapshot", snapshotDelay)
+ 		}
+-		c.Tasks.Add(func() {
++		c.Tasks.AddWithPhase(func() {
+ 			if c.SourceHost != nil {
+ 				c.SourceHost.BeginAttackStage(stageID)
+ 			}
+ 			c.generateSnapshot(&ae)
+ 			c.queueDmg(&ae, dmgDelay-snapshotDelay)
+-		}, snapshotDelay)
++		}, snapshotDelay, "attack-snapshot", phase.Descriptor{
++			Source: "pkg/core/attack.go:QueueAttack:snapshot", CaptureReference: &ae,
++			Observe: func() (map[string]any, []string) {
++				state, gaps := ae.SourceHostPhaseState(c.F)
++				delete(state, "snapshot") // generateSnapshot overwrites it before any future use.
++				state["damageDelayAfterSnapshot"] = dmgDelay - snapshotDelay
++				return state, gaps
++			},
++		})
+ 	}
+ }
+ 
+@@ -114,10 +123,13 @@
+ 	if c.SourceHost != nil {
+ 		stageID = c.SourceHost.ScheduleAttackStage(a, "application", delay)
+ 	}
+-	c.Tasks.Add(func() {
++	c.Tasks.AddWithPhase(func() {
+ 		if c.SourceHost != nil {
+ 			c.SourceHost.BeginAttackStage(stageID)
+ 		}
+ 		c.Combat.ApplyAttack(a)
+-	}, delay)
++	}, delay, "attack-application", phase.Descriptor{
++		Source: "pkg/core/attack.go:queueDmg:application", CaptureReference: a,
++		Observe: func() (map[string]any, []string) { return a.SourceHostPhaseState(c.F) },
++	})
+ }
+--- a/pkg/core/phase/descriptor.go
++++ b/pkg/core/phase/descriptor.go
+@@ -3,6 +3,11 @@
+ package phase
+ 
+ type Descriptor struct {
++	// CaptureReference is an optional comparable pointer shared by queued closures.
++	// The task observer records only its relative alias group, never an address.
++	// Attack snapshot/application tasks use this to distinguish one shared mutable
++	// AttackEvent from independent events that happen to have equal values.
++	CaptureReference any
+ 	// Source identifies the audited registration or queue site, not a key prefix.
+ 	Source string
+ 	// Observe reads the callback's live captured values without invoking it.
+--- a/pkg/core/task/sourcehost_phase.go
++++ b/pkg/core/task/sourcehost_phase.go
+@@ -29,10 +29,19 @@
+ 	})
+ 	rows := make([]map[string]any, 0, len(tasks))
+ 	gaps := []string{}
++	references := make(map[any]int)
+ 	for _, pending := range tasks {
+ 		entry := map[string]any{
+ 			"key": pending.key, "source": pending.phase.Source,
+ 			"remainingFrames": pending.executeBy - *s.f, "fifoRank": ranks[pending.id],
++		}
++		if reference := pending.phase.CaptureReference; reference != nil {
++			rank, exists := references[reference]
++			if !exists {
++				rank = len(references)
++				references[reference] = rank
++			}
++			entry["captureReference"] = rank
+ 		}
+ 		switch {
+ 		case pending.phase.Source == "":

@@ -1,0 +1,1147 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "Independent hand-entered R1/R5 conditioned rule expectations, reviewed against pinned sources; not computed by production resolver. This file has not been executed as tests.",
+  "statsMeaning": "Sums of this weapon passive contribution only, excluding base character/equipment stats.",
+  "hitMeaning": "Sum all matching dynamicHitBonuses for the given element+attackTag; empty matching list means zero.",
+  "cases": [
+    {
+      "weaponId": "weapon:11407",
+      "slug": "ironsting",
+      "context": {
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.12
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.24
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14407",
+      "slug": "mappamare",
+      "context": {
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.16
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.32
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12409",
+      "slug": "serpentspine",
+      "context": {
+        "weaponStacks": 5
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.3
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.5
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12410",
+      "slug": "lithicblade",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.28,
+          "critRate": 0.12
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.44,
+          "critRate": 0.28
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:13406",
+      "slug": "lithicspear",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.28,
+          "critRate": 0.12
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.44,
+          "critRate": 0.28
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11406",
+      "slug": "prototyperancour",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.16,
+          "defPercent": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.32,
+          "defPercent": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12407",
+      "slug": "whiteblind",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.24,
+          "defPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.48,
+          "defPercent": 0.48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12306",
+      "slug": "skyridergreatsword",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11304",
+      "slug": "darkironsword",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11431",
+      "slug": "fluteofezpitzal",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14301",
+      "slug": "magicguide",
+      "context": {
+        "enemyAuras": [
+          "hydro"
+        ]
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.12
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.24
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14304",
+      "slug": "emeraldorb",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14415",
+      "slug": "oathsworneye",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "energyRechargeBonus": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "energyRechargeBonus": 0.48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14426",
+      "slug": "balladoftheboundlessblue",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.24
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.18
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.48
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.36
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12418",
+      "slug": "mailedflower",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12,
+          "em": 48
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24,
+          "em": 96
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:13419",
+      "slug": "missivewindspear",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12,
+          "em": 48
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24,
+          "em": 96
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15413",
+      "slug": "windblumeode",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15425",
+      "slug": "songofstillness",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.16
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.32
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12425",
+      "slug": "tidalshadow",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12431",
+      "slug": "earthshaker",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.16
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.32
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:13431",
+      "slug": "footprintoftherainbow",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15508",
+      "slug": "aquasimulacra",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.2
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.32
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.4
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14502",
+      "slug": "lostprayertothesacredwinds",
+      "context": {
+        "weaponStacks": 4,
+        "offField": false
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.32
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.64
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15507",
+      "slug": "polarstar",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.48
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.12
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.12
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.96
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.24
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.24
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14405",
+      "slug": "solarpearl",
+      "context": {
+        "normalHitEffectActive": true,
+        "skillBurstHitEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.2
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.2
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.2
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.4
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.4
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.4
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:13405",
+      "slug": "deathmatch",
+      "context": {
+        "nearbyEnemyCount": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.16,
+          "defPercent": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.32,
+          "defPercent": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:13416",
+      "slug": "wavebreakersfin",
+      "context": {
+        "teamBurstEnergyTotal": 300
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.36
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.72
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15416",
+      "slug": "mouunsmoon",
+      "context": {
+        "teamBurstEnergyTotal": 300
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.36
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.72
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12416",
+      "slug": "akuoumaru",
+      "context": {
+        "teamBurstEnergyTotal": 300
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.36
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.72
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11510",
+      "slug": "harangeppakufutsu",
+      "context": {
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.4
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.52
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.12
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.8
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 1.04
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.24
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11514",
+      "slug": "urakumisugiri",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.2
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.32
+          },
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.48
+          },
+          {
+            "element": "geo",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.4
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.64
+          },
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.96
+          },
+          {
+            "element": "geo",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15512",
+      "slug": "thefirstgreatmagic",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.48
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.16
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.96
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.32
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11422",
+      "slug": "toukaboushigure",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.16
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.32
+          }
+        ]
+      }
+    }
+  ],
+  "additionalBranchExpectations": [
+    {
+      "slugs": [
+        "wavebreakersfin",
+        "mouunsmoon",
+        "akuoumaru"
+      ],
+      "context": {
+        "teamBurstEnergyTotal": 1000
+      },
+      "R1Burst": 0.4,
+      "R5Burst": 0.8
+    },
+    {
+      "slug": "deathmatch",
+      "context": {
+        "nearbyEnemyCount": 1
+      },
+      "R1Stats": {
+        "atkPercent": 0.24,
+        "defPercent": 0
+      },
+      "R5Stats": {
+        "atkPercent": 0.48,
+        "defPercent": 0
+      }
+    },
+    {
+      "slug": "polarstar",
+      "stackCounts": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "R1AtkPercent": [
+        0,
+        0.1,
+        0.2,
+        0.3,
+        0.48
+      ],
+      "R5AtkPercent": [
+        0,
+        0.2,
+        0.4,
+        0.6,
+        0.96
+      ]
+    },
+    {
+      "slug": "solarpearl",
+      "context": {
+        "normalHitEffectActive": true,
+        "skillBurstHitEffectActive": false
+      },
+      "R1Hits": {
+        "normal": 0,
+        "skill": 0.2,
+        "burst": 0.2,
+        "charged": 0
+      }
+    },
+    {
+      "slug": "urakumisugiri",
+      "context": {
+        "weaponEffectActive": false
+      },
+      "R1Stats": {
+        "defPercent": 0.2
+      },
+      "R1Hits": {
+        "normal": 0.16,
+        "skill": 0.24,
+        "burst": 0
+      }
+    },
+    {
+      "slug": "aquasimulacra",
+      "context": {
+        "weaponEffectActive": false
+      },
+      "R1Stats": {
+        "hpPercent": 0.16
+      },
+      "R1Hits": {
+        "normal": 0
+      }
+    },
+    {
+      "slug": "lostprayertothesacredwinds",
+      "context": {
+        "offField": true
+      },
+      "R1ElementalBonus": 0,
+      "missingConditions": []
+    },
+    {
+      "slug": "magicguide",
+      "context": {
+        "enemyAuras": [],
+        "targetFrozen": false
+      },
+      "R1Bonus": 0
+    },
+    {
+      "slug": "magicguide",
+      "context": {
+        "enemyAuras": [
+          "cryo"
+        ],
+        "targetFrozen": false
+      },
+      "requiredMissingConditionSubstring": "来源冲突"
+    },
+    {
+      "slug": "magicguide",
+      "context": {
+        "enemyAuras": [],
+        "targetFrozen": true
+      },
+      "requiredMissingConditionSubstring": "来源冲突"
+    },
+    {
+      "slug": "thefirstgreatmagic",
+      "context": {
+        "weaponStacks": 1
+      },
+      "R1Stats": {
+        "atkPercent": 0.16
+      },
+      "R5Stats": {
+        "atkPercent": 0.32
+      }
+    },
+    {
+      "slug": "thefirstgreatmagic",
+      "context": {
+        "weaponStacks": 0
+      },
+      "throws": true
+    }
+  ]
+}

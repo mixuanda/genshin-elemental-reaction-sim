@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "source-finite-coverage-batch-browser-v1",
+  "measurements": {
+    "teamA": {
+      "rawPath": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json",
+      "archived": true,
+      "config": "options iteration=1 duration=16 ignore_burst_energy=true;\nganyu char lvl=90/90 cons=0 talent=1,1,1;\nganyu add weapon=\"ravenbow\" refine=1 lvl=1/20;\nyanfei char lvl=90/90 cons=0 talent=1,1,1;\nyanfei add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nxiao char lvl=90/90 cons=0 talent=1,1,1;\nxiao add weapon=\"whitetassel\" refine=1 lvl=1/20;\nthoma char lvl=90/90 cons=0 talent=1,1,1;\nthoma add weapon=\"whitetassel\" refine=1 lvl=1/20;\ntarget lvl=90 hp=1000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive ganyu;\nganyu skill;\nyanfei skill;\nxiao skill;\nthoma skill;\nwait(420);"
+    },
+    "teamB": {
+      "rawPath": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json",
+      "archived": true,
+      "config": "options iteration=1 duration=16 ignore_burst_energy=true;\nayato char lvl=90/90 cons=0 talent=1,1,1;\nayato add weapon=\"dullblade\" refine=1 lvl=1/20;\nyunjin char lvl=90/90 cons=0 talent=1,1,1;\nyunjin add weapon=\"whitetassel\" refine=1 lvl=1/20;\nkirara char lvl=90/90 cons=0 talent=1,1,1;\nkirara add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=1000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive ayato;\nayato skill;\nyunjin burst;\nkirara skill[hold=60];\nwait(420);"
+    },
+    "nativeRunsPerformed": true,
+    "rawPath": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json",
+    "nativeResultArchived": true,
+    "casts": [
+      {
+        "characterKey": "ganyu",
+        "action": "skill",
+        "contractId": "ganyu-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "ganyu-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 2,
+        "observedRootAttackCount": 2,
+        "completedRootAttackCount": 2,
+        "hitCount": 2,
+        "componentSubtotal": 1194.0357925738979,
+        "appliedDamageSubtotal": 1194.0357925738979,
+        "replayDifferences": [
+          0,
+          0
+        ]
+      },
+      {
+        "characterKey": "yanfei",
+        "action": "skill",
+        "contractId": "yanfei-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "yanfei-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 622.8374895493632,
+        "appliedDamageSubtotal": 622.8374895493632,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "xiao",
+        "action": "skill",
+        "contractId": "xiao-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "xiao-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 551.6531511516001,
+        "appliedDamageSubtotal": 551.6531511516001,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "thoma",
+        "action": "skill",
+        "contractId": "thoma-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "thoma-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 236.09597578742884,
+        "appliedDamageSubtotal": 236.09597578742884,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "ayato",
+        "action": "skill",
+        "contractId": "ayato-skill",
+        "invocationFound": false
+      }
+    ]
+  },
+  "pageErrors": [],
+  "scope": "Two classic native configurations cover one Ganyu E, Yanfei E, Xiao E, Thoma E, Ayato E, Yunjin Q, and Kirara E invocation. Each selected finite cast is limited to its registered intrinsic source roots and included captured applications."
+}

@@ -1,0 +1,14 @@
+options iteration=1 duration=8 workers=1 hitlag=false swap_delay=1;
+barbara char lvl=1/20 cons=0 talent=1,1,1 +params=[start_energy=0];
+barbara add weapon="apprenticesnotes" refine=1 lvl=1/20;
+barbara add stats cr=-0.05;
+amber char lvl=1/20 cons=0 talent=1,1,1 +params=[start_energy=0];
+amber add weapon="huntersbow" refine=1 lvl=1/20;
+amber add stats cr=-0.05 em=100;
+target lvl=90 resist=0.1 pos=0,2 radius=2;
+active barbara;
+barbara attack;
+wait(60);
+amber aim[hold=1,travel=10,weakspot=0];
+amber aim[hold=1,travel=10,weakspot=0];
+wait(480);

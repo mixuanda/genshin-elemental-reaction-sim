@@ -1,0 +1,14 @@
+{
+  "name": "core-repair",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/er-independent-failure.test.ts",
+    "-t",
+    "all-success|strict stamina"
+  ],
+  "elapsedSeconds": 1.68,
+  "exitCode": 0,
+  "log": "docs/validation/logs/er-independent-120-core-repair.txt"
+}

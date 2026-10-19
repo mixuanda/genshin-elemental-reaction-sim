@@ -1,0 +1,11 @@
+[WebServer] (node:68771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:68772) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"sourceCommit":"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd","calculations":23,"applications":17,"stellarContributors":4,"stellarRanked":2,"stellarDeliveries":2,"stellarDirect":5,"hitIndex":2,"originalValue":3885.398600922288,"editedValue":4184.838308438685,"wasmSha256":"548a8b8bc2e3cc14e9eed129c4af696a8147c40ea7e12578d49bd58c24eb920d","errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-host-stellar.spec.ts:6:1 › runs Stellar source receipts and restores an edited standalone contributor (2.7s)
+
+  1 passed (3.5s)

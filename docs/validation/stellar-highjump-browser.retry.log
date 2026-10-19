@@ -1,0 +1,33 @@
+
+Running 1 test using 1 worker
+
+(node:7206) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/stellar-swirl-high-jump.spec.ts:8:1 › Stellar Worker consumes an actual jump, lands a declared plunge and exports its ordinary damage
+  1) [chromium] › apps/web/e2e/stellar-swirl-high-jump.spec.ts:8:1 › Stellar Worker consumes an actual jump, lands a declared plunge and exports its ordinary damage 
+
+    TypeError: Cannot read properties of undefined (reading 'totals')
+
+      52 |   await expect(page).toHaveURL(/\/calculator$/);
+      53 |   const audit = JSON.parse((await page.locator("#calc-results .calculator-audit pre").textContent())!) as { result: CalculatorResult };
+    > 54 |   expect(audit.result.totals!.expected).toBeCloseTo(plunge[0]!.finalDamage, 10);
+         |                       ^
+      55 | });
+      56 |
+        at /Users/evan/Documents/gidps/apps/web/e2e/stellar-swirl-high-jump.spec.ts:54:23
+
+    Error Context: test-results/stellar-swirl-high-jump-St-b39e7-exports-its-ordinary-damage-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stellar-swirl-high-jump-St-b39e7-exports-its-ordinary-damage-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stellar-swirl-high-jump-St-b39e7-exports-its-ordinary-damage-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/stellar-swirl-high-jump.spec.ts:8:1 › Stellar Worker consumes an actual jump, lands a declared plunge and exports its ordinary damage 

@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 test:unit
+> vitest run --exclude packages/sim-core/src/__tests__/performance.test.ts
+
+
+ RUN  v4.1.10 /private/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr
+
+
+ Test Files  155 passed (155)
+      Tests  1858 passed (1858)
+   Start at  22:33:05
+   Duration  84.86s (transform 1.67s, setup 0ms, import 17.33s, tests 59.25s, environment 5ms)
+

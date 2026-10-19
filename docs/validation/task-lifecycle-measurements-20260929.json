@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "source-task-lifecycle-measurements-v1",
+  "batch": "100",
+  "date": "2026-09-29",
+  "commands": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.231
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.708
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.17
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.979
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-task-lifecycle.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 11.024
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-task-lifecycle-browser-v1",
+    "seed": "11",
+    "script": "options iteration=1 duration=12;\nxingqiu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxingqiu add weapon=\"favoniussword\" refine=1 lvl=90/90;\nxingqiu add stats atk=200 er=0.2 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive xingqiu;\nxingqiu burst;\nxingqiu skill;\nfischl skill;\nxingqiu attack:3;\nwait(300);\n",
+    "measurements": [
+      {
+        "lane": "classic",
+        "rawPath": "/tmp/gidps-task-lifecycle-classic.json",
+        "baselinePath": "docs/validation/talent-range-classic-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+          "wasmBytes": 44567991
+        },
+        "observationFrame": 720,
+        "queueCount": 4,
+        "queueClocks": [
+          {
+            "id": 1,
+            "kind": "core",
+            "clock": 720
+          },
+          {
+            "id": 2,
+            "kind": "enemy",
+            "targetKey": 1,
+            "clock": 682
+          },
+          {
+            "id": 3,
+            "kind": "character",
+            "actorIndex": 0,
+            "clock": 682
+          },
+          {
+            "id": 4,
+            "kind": "character",
+            "actorIndex": 1,
+            "clock": 720
+          }
+        ],
+        "taskCount": 148,
+        "completedCount": 136,
+        "pendingCount": 12,
+        "parentLinkedCount": 131,
+        "parentOrPendingAbsent": false,
+        "actionSequence": 2,
+        "associatedTaskIds": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "contextTaskIds": [],
+        "pendingLocalClocks": [
+          {
+            "taskId": 11,
+            "queueId": 1,
+            "queueKind": "core",
+            "queueClock": 720,
+            "dueClock": 1304,
+            "remainingLocalClock": 584
+          }
+        ],
+        "selectedHitCount": 2,
+        "completeCast": false,
+        "gameplayUnchanged": true,
+        "captureRoundtrip": true,
+        "calculationCount": 102,
+        "applicationCount": 38,
+        "tasksByQueueKind": {
+          "core": {
+            "pending": 11,
+            "completed": 123
+          },
+          "character": {
+            "completed": 13,
+            "pending": 1
+          },
+          "enemy": {}
+        },
+        "selectedAssociatedCompletedCount": 6,
+        "talentRegistryUnchangedFrom099": true,
+        "selectedFirstHitReplayDifference": 0
+      },
+      {
+        "lane": "stellar",
+        "rawPath": "/tmp/gidps-task-lifecycle-stellar.json",
+        "baselinePath": "docs/validation/talent-range-stellar-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "80ae51913ec43ab1f319135dc2ff1bd6034ebce63d93089b3dc6d95cb1620ae5",
+          "wasmBytes": 68401439
+        },
+        "observationFrame": 720,
+        "queueCount": 4,
+        "queueClocks": [
+          {
+            "id": 1,
+            "kind": "core",
+            "clock": 720
+          },
+          {
+            "id": 2,
+            "kind": "enemy",
+            "targetKey": 1,
+            "clock": 682
+          },
+          {
+            "id": 3,
+            "kind": "character",
+            "actorIndex": 0,
+            "clock": 682
+          },
+          {
+            "id": 4,
+            "kind": "character",
+            "actorIndex": 1,
+            "clock": 720
+          }
+        ],
+        "taskCount": 148,
+        "completedCount": 136,
+        "pendingCount": 12,
+        "parentLinkedCount": 131,
+        "parentOrPendingAbsent": false,
+        "actionSequence": 2,
+        "associatedTaskIds": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14
+        ],
+        "contextTaskIds": [],
+        "pendingLocalClocks": [
+          {
+            "taskId": 11,
+            "queueId": 1,
+            "queueKind": "core",
+            "queueClock": 720,
+            "dueClock": 1304,
+            "remainingLocalClock": 584
+          }
+        ],
+        "selectedHitCount": 2,
+        "completeCast": false,
+        "gameplayUnchanged": true,
+        "captureRoundtrip": true,
+        "calculationCount": 102,
+        "applicationCount": 38,
+        "tasksByQueueKind": {
+          "core": {
+            "pending": 11,
+            "completed": 123
+          },
+          "character": {
+            "completed": 13,
+            "pending": 1
+          },
+          "enemy": {}
+        },
+        "selectedAssociatedCompletedCount": 6,
+        "talentRegistryUnchangedFrom099": true,
+        "selectedFirstHitReplayDifference": 0
+      }
+    ],
+    "pageErrors": [],
+    "scope": "Native queue-local task clocks, observed pending/completed states and selected action context; no global-frame due time inference or complete-cast claim."
+  },
+  "dataHashes": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "scope": "One unchanged 12-second script per fixed source lane; no unit tests or character matrix. Queue lifecycle records are not full callback/entity/opportunity closure and do not establish completeCast."
+}

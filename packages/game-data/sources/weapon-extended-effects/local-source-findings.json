@@ -1,0 +1,208 @@
+{
+  "purpose": "Manual fixed-code coefficient review, not production resolver output or a project test. Full active rank text/value guard is in reviewed-catalog.json.",
+  "weapons": [
+    {
+      "slug": "mistsplitterreforged",
+      "id": "weapon:11509",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/mistsplitter/mistsplitter.go",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/MistsplitterReforged/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "allElements": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "oneOwnElementStack": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ],
+        "twoOwnElementStacks": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "threeOwnElementStacks": [
+          0.28,
+          0.35,
+          0.42,
+          0.49,
+          0.56
+        ]
+      },
+      "scope": "自身元素必须从角色ID对应目录获得；本击元素和附魔不改变角色自身元素。合法有效层数由显式输入恢复，源码AttackTagExtra自动触发与目录冲突不继承。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "peakpatrolsong",
+      "id": "weapon:11516",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/peakpatrolsong/peakpatrolsong.go",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/PeakPatrolSong/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "defPerStack": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ],
+        "elementalPerStack": [
+          0.1,
+          0.125,
+          0.15,
+          0.175,
+          0.2
+        ],
+        "teamBonusPer1000Def": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ],
+        "teamBonusCap": [
+          0.256,
+          0.32,
+          0.384,
+          0.448,
+          0.512
+        ]
+      },
+      "scope": "最多两层自身6秒buff；独立15秒团队buff取最近触发时含自身层数的防御快照，min(snapshotDef/1000*coefficient,cap)。GC与GO数值相同；不默取当前DEF。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "finaleofthedeep",
+      "id": "weapon:11425",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/finaleofthedeep/finaleofthedeep.go",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/FinaleOfTheDeep/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "skillWindowAtk": [
+          0.12,
+          0.15,
+          0.18,
+          0.21,
+          0.24
+        ],
+        "clearedBondToFlatAtk": [
+          0.024,
+          0.03,
+          0.036,
+          0.042,
+          0.048
+        ],
+        "flatAtkCap": [
+          150,
+          187.5,
+          225,
+          262.5,
+          300
+        ]
+      },
+      "scope": "GC对本角色每次实际清除生命之契量累积，完全清空后产生min(cleared*coefficient,cap)真实flatATK，两个15秒窗口独立。GO将债量简化成当前HP*25%，本实现采用显式实际清除量，不继承简化。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "emberwell",
+      "id": "weapon:11436",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/Emberwell/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "reactionWindowAtk": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ]
+      },
+      "scope": "GO真实执行condReact→atk，与目录全精炼相符。星烁窗口单独condStellar但当前普通伤害通道不表达；只恢复合法元素反应攻击窗口。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "lightbearingmoonshard",
+      "id": "weapon:11519",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/LightbearingMoonshard/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "permanentDef": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ]
+      },
+      "scope": "GO真实执行常驻防御。月结晶64/80/96/112/128%加成是专属反应伤害，当前模块未执行。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "whitelakefrostfeather",
+      "id": "weapon:11520",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/WhitelakeFrostfeather/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "atkPerStack": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ]
+      },
+      "scope": "GO真实执行1–3层ATK，未触发为0。满层星烁专属暴伤50/65/80/95/110%和固定返能4/4.5/5/5.5/6均明确未实现；不作全局暴伤/ER。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "bladeofatonement",
+      "id": "weapon:12436",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/BladeOfAtonement/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "reactionWindowEm": [
+          64,
+          80,
+          96,
+          112,
+          128
+        ]
+      },
+      "scope": "GO真实执行condReact→EM，与目录全精炼相符。其ATK表达式错误读condReact而非condStellar，独立ATK条款冲突被排除。",
+      "verification": "provisional"
+    },
+    {
+      "slug": "ateaspoonoftranscendence",
+      "id": "weapon:12516",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/ATeaspoonOfTranscendence/index.tsx"
+      ],
+      "sourceCoefficientsR1ToR5": {
+        "permanentAtk": [
+          0.28,
+          0.35,
+          0.42,
+          0.49,
+          0.56
+        ]
+      },
+      "scope": "GO真实执行常驻ATK，与目录全精炼相符。星超导/星扩散16/20/24/28/32%每层专属反应加成未混入普通伤害。",
+      "verification": "provisional"
+    }
+  ]
+}

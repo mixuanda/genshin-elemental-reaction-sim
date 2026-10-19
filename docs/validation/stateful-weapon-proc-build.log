@@ -1,0 +1,32 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/stateful-weapon-proc-runtime.spec.ts(41,67): error TS2322: Type '"flatAtk"' is not assignable to type 'BuffStat'.
+packages/reaction-formulas/src/weapon-proc-lifecycle.ts(48,33): error TS2339: Property 'attackTag' does not exist on type 'WeaponProcLifecycleInput'.
+  Property 'attackTag' does not exist on type '{ kind: "particle-received" | "skill"; frame: number; holderOnField: boolean; }'.
+packages/reaction-formulas/src/weapon-proc-lifecycle.ts(48,65): error TS2339: Property 'attackTag' does not exist on type 'WeaponProcLifecycleInput'.
+  Property 'attackTag' does not exist on type '{ kind: "particle-received" | "skill"; frame: number; holderOnField: boolean; }'.
+packages/reaction-formulas/src/weapon-proc-lifecycle.ts(52,16): error TS2339: Property 'isHolderDamage' does not exist on type 'WeaponProcLifecycleInput'.
+  Property 'isHolderDamage' does not exist on type '{ kind: "particle-received" | "skill"; frame: number; holderOnField: boolean; }'.
+packages/reaction-formulas/src/weapon-proc-lifecycle.ts(58,14): error TS2339: Property 'isHolderDamage' does not exist on type 'WeaponProcLifecycleInput'.
+  Property 'isHolderDamage' does not exist on type '{ kind: "particle-received" | "skill"; frame: number; holderOnField: boolean; }'.
+packages/reaction-formulas/src/weapon-proc-lifecycle.ts(61,15): error TS2339: Property 'damage' does not exist on type 'WeaponProcLifecycleInput'.
+  Property 'damage' does not exist on type '{ kind: "particle-received" | "skill"; frame: number; holderOnField: boolean; }'.
+packages/schemas/src/energy-replay-integrity.ts(2383,5): error TS2353: Object literal may only specify known properties, and 'path' does not exist in type '$RefinementCtx<unknown>'.
+packages/schemas/src/energy-replay-integrity.ts(2383,20): error TS2339: Property 'path' does not exist on type '$RefinementCtx<unknown>'.
+packages/schemas/src/schema.ts(2472,60): error TS2345: Argument of type '{ version: "1.9.0"; identityAlgorithm: "fnv1a32-v2"; schemaVersion: "1.53.0"; engineVersion: "1.53.0-callback-bus"; dataVersion: string; configHash: string; resolvedRuntimeOptions: { energyMode: "configured" | ... 1 more ... | "zero"; ... 4 more ...; flatStatBuffSemantics?: "canonical-v1" | undefined; }; ... 10 more...' is not assignable to parameter of type 'VersionedSimulationRunIdentity'.
+  Type '{ version: "1.9.0"; identityAlgorithm: "fnv1a32-v2"; schemaVersion: "1.53.0"; engineVersion: "1.53.0-callback-bus"; dataVersion: string; configHash: string; resolvedRuntimeOptions: { energyMode: "configured" | ... 1 more ... | "zero"; ... 4 more ...; flatStatBuffSemantics?: "canonical-v1" | undefined; }; ... 10 more...' is not assignable to type 'CurrentSimulationRunIdentity'.
+    The types of 'resolvedRuntimeOptions.flatStatBuffSemantics' are incompatible between these types.
+      Type '"canonical-v1" | undefined' is not assignable to type '"canonical-v1"'.
+        Type 'undefined' is not assignable to type '"canonical-v1"'.
+packages/schemas/src/schema.ts(2651,3): error TS2322: Type '{ version: "1.6.0"; identityAlgorithm: "fnv1a32-v2"; schemaVersion: "1.50.0"; engineVersion: "1.50.0-reaction-damage-reset-boundary"; dataVersion: string; configHash: string; resolvedRuntimeOptions: { ...; }; ... 6 more ...; reproducibilityKey: string; } | { ...; } | { ...; } | { ...; }' is not assignable to type 'SimulationRunManifestV150 | SimulationRunManifestV151 | SimulationRunManifestV152 | SimulationRunManifestV153'.
+  Type '{ version: "1.9.0"; identityAlgorithm: "fnv1a32-v2"; schemaVersion: "1.53.0"; engineVersion: "1.53.0-callback-bus"; dataVersion: string; configHash: string; resolvedRuntimeOptions: { energyMode: "configured" | ... 1 more ... | "zero"; ... 4 more ...; flatStatBuffSemantics?: "canonical-v1" | undefined; }; ... 11 more...' is not assignable to type 'SimulationRunManifestV150 | SimulationRunManifestV151 | SimulationRunManifestV152 | SimulationRunManifestV153'.
+    Type '{ version: "1.9.0"; identityAlgorithm: "fnv1a32-v2"; schemaVersion: "1.53.0"; engineVersion: "1.53.0-callback-bus"; dataVersion: string; configHash: string; resolvedRuntimeOptions: { energyMode: "configured" | ... 1 more ... | "zero"; ... 4 more ...; flatStatBuffSemantics?: "canonical-v1" | undefined; }; ... 11 more...' is not assignable to type 'SimulationRunManifestV153'.
+      The types of 'resolvedRuntimeOptions.flatStatBuffSemantics' are incompatible between these types.
+        Type '"canonical-v1" | undefined' is not assignable to type '"canonical-v1"'.
+          Type 'undefined' is not assignable to type '"canonical-v1"'.

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "source-conditional-enemy-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=20 ignore_burst_energy=true;\nchasca char lvl=90/90 cons=0 talent=1,1,1;\nchasca add weapon=\"huntersbow\" refine=1 lvl=90/90;\nxilonen char lvl=90/90 cons=0 talent=1,1,1;\nxilonen add weapon=\"dullblade\" refine=1 lvl=1/20;\nqiqi char lvl=90/90 cons=0 talent=1,1,1;\nqiqi add weapon=\"dullblade\" refine=1 lvl=1/20;\nnilou char lvl=90/90 cons=0 talent=1,1,1;\nnilou add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.4,1;\nactive chasca;\nchasca skill;\nwait(65);\nchasca skill;\nxilonen skill;\nwait(65);\nxilonen skill;\nqiqi burst;\nnilou burst;\nwait(240);",
+    "seed": "1",
+    "baselinePath": "docs/validation/source-conditional-enemy-20260930.baseline.json",
+    "capturePath": "docs/validation/source-conditional-enemy-20260930.capture.json",
+    "runs": [],
+    "scope": "Classic pre-expansion baseline, then one aggregate Classic and Stellar run; one run per lane.",
+    "mode": "classic-pre-expansion-baseline",
+    "baselineSourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "baselineArtifact": {
+      "wasmSha256": "b1aeaeaf870788dbd019a4c77f9651b0991ef97889766d7dc036f07029de17e2",
+      "wasmBytes": 46810582
+    }
+  },
+  "pageErrors": []
+}

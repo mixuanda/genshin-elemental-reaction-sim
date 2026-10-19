@@ -1,0 +1,49 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-23T18:23:55.457947+00:00",
+  "evidenceStatus": "fixed-source-assumed",
+  "files": [
+    {
+      "path": "internal/template/character/heal.go",
+      "archive": "internal__template__character__heal.go.txt",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "remoteMatchesLocal": true
+    },
+    {
+      "path": "internal/template/character/hp.go",
+      "archive": "internal__template__character__hp.go.txt",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "remoteMatchesLocal": true
+    },
+    {
+      "path": "pkg/core/player/heal.go",
+      "archive": "pkg__core__player__heal.go.txt",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/heal.go",
+      "sha256": "39231033df792ba3165ed9e569e9d7747a83209879b53f1e799bef9ce896eadd",
+      "remoteMatchesLocal": true
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "archive": "pkg__core__player__character__mods.go.txt",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "remoteMatchesLocal": true
+    },
+    {
+      "path": "internal/characters/kuki/skill.go",
+      "archive": "internal__characters__kuki__skill.go.txt",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+      "sha256": "7d14fab1e06c4dad5179a2a09c612f61080ccfd0d0aee58b21e665e533273782",
+      "remoteMatchesLocal": true
+    },
+    {
+      "path": "internal/characters/gaming/plunge.go",
+      "archive": "internal__characters__gaming__plunge.go.txt",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/gaming/plunge.go",
+      "sha256": "c303795226734e40f18185201c52f8acabfeb949a2bf00df636155960a3f5b9c",
+      "remoteMatchesLocal": true
+    }
+  ]
+}

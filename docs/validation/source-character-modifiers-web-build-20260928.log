@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-character-modifiers.spec.ts(151,38): error TS2339: Property 'elementalMastery' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; } | ... 52 more ... | { ...; }'.
+  Property 'elementalMastery' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; }'.
+apps/web/e2e/source-character-modifiers.spec.ts(152,38): error TS2339: Property 'damageBonus' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; } | ... 52 more ... | { ...; }'.
+  Property 'damageBonus' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; }'.

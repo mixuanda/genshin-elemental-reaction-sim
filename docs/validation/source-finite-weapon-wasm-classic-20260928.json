@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 5.615,
+  "log": "docs/validation/source-finite-weapon-wasm-classic-20260928.log"
+}

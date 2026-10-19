@@ -1,0 +1,36 @@
+[WebServer] (node:43814) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:43815) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-talent-expression.spec.ts:57:1 › both native lanes replay compound talent-table expressions without changing native damage (2.2s)
+
+
+  1) [chromium] › apps/web/e2e/source-talent-expression.spec.ts:57:1 › both native lanes replay compound talent-table expressions without changing native damage 
+
+    TypeError: Cannot read properties of null (reading 'sort')
+
+      51 |   };
+      52 |   for (const enemy of result.enemies)
+    > 53 |     enemy.reaction_status.sort((a, b) => a.start - b.start || a.end - b.end || a.type.localeCompare(b.type));
+         |                           ^
+      54 |   return result;
+      55 | }
+      56 |
+        at sortedGameplay (/Users/evan/Documents/gidps/apps/web/e2e/source-talent-expression.spec.ts:53:27)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-talent-expression.spec.ts:95:14
+
+    Error Context: test-results/source-talent-expression-b-5682b-hout-changing-native-damage-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-talent-expression-b-5682b-hout-changing-native-damage-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-talent-expression-b-5682b-hout-changing-native-damage-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-talent-expression.spec.ts:57:1 › both native lanes replay compound talent-table expressions without changing native damage 

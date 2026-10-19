@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:13194) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/sacrificial-runtime.spec.ts:41:1 › Sacrificial normal controls reset one serial charge, execute a third skill, and preserve actual hit replay without claiming steady state
+[chromium] › apps/web/e2e/sacrificial-runtime.spec.ts:41:1 › Sacrificial normal controls reset one serial charge, execute a third skill, and preserve actual hit replay without claiming steady state
+Sacrificial runtime browser measurements {"starts":[1,2,10],"totalDamage":1350,"resetFrame":7,"queueBefore":2,"queueAfter":1,"thirdCastQueue":2,"finalEnergy":9,"roll":0.6284964594524354,"replayDifference":0,"startupStatus":"steady-state-not-established","checkpointComplete":false}
+
+  1 passed (2.4s)

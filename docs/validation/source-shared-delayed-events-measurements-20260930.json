@@ -1,0 +1,333 @@
+{
+  "schemaVersion": "source-shared-delayed-events-measurements-v1",
+  "asOf": "2026-09-30",
+  "batch": 114,
+  "baselineHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "environment": {
+    "os": "Darwin",
+    "release": "27.0.0",
+    "machine": "arm64"
+  },
+  "commands": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.385
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.06
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.127
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.731
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.28
+    },
+    "typecheck-final": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.868
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shared-delayed-events.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 43.772
+    }
+  },
+  "counts": {
+    "newEventComponents": 11,
+    "totalEventComponents": 22,
+    "newComponentsWithNativeSample": 5,
+    "newComponentsWithSourceAndBuildEvidenceOnly": 6,
+    "staticEventInventoryFamilies": 23,
+    "inventoryFamiliesWithoutEventCollection": 1,
+    "distinctFiniteSkillContracts": 60,
+    "producerPlanEntries": 51,
+    "nativeRuns": 2,
+    "browserCases": 1,
+    "browserAttempts": 1,
+    "historicalCapturesReused": 1,
+    "historicalComponentsRecalculated": 1
+  },
+  "native": [
+    {
+      "name": "shared",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "seed": "202609301",
+      "lifecycleObservationFrame": 798,
+      "resultDurationFrames": 798,
+      "nativeTotalDamage": 38769.898634191195,
+      "applicationDamageSum": 38769.898634191195,
+      "applicationsCount": 67,
+      "eventRegistrationsCount": 9,
+      "eventEmissionsCount": 67,
+      "eventListenerCallsCount": 536,
+      "eventProducersCount": 4,
+      "hitCallbackBatchesCount": 67,
+      "hitCallbacksCount": 32
+    },
+    {
+      "name": "taskTree",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "seed": "202609302",
+      "lifecycleObservationFrame": 258,
+      "resultDurationFrames": 258,
+      "nativeTotalDamage": 9855.532194060197,
+      "applicationDamageSum": 9855.532194060197,
+      "applicationsCount": 10,
+      "eventRegistrationsCount": 5,
+      "eventEmissionsCount": 10,
+      "eventListenerCallsCount": 50,
+      "eventProducersCount": 4,
+      "hitCallbackBatchesCount": 10,
+      "hitCallbacksCount": 2
+    }
+  ],
+  "selectedComponents": [
+    {
+      "siteId": "mona.bubble.on-enemy-damage",
+      "componentId": "mona-burst-bubble",
+      "listenerCallId": 180,
+      "entryFacts": {
+        "mona.bubble.on-enemy-damage.attack-count": 1
+      },
+      "deliveryClosed": true,
+      "attackCount": 1,
+      "producerCount": 0,
+      "completedProducerCount": 0,
+      "pendingProducerCount": 0,
+      "hitCount": 1,
+      "componentSubtotal": 1040.1457191052034,
+      "reasons": []
+    },
+    {
+      "siteId": "charlotte.c6.enemy-damage",
+      "componentId": "charlotte-c6",
+      "listenerCallId": 277,
+      "entryFacts": {
+        "charlotte.c6.enemy-damage.producer-count": 1
+      },
+      "deliveryClosed": true,
+      "attackCount": 1,
+      "producerCount": 1,
+      "completedProducerCount": 1,
+      "pendingProducerCount": 0,
+      "hitCount": 2,
+      "componentSubtotal": 719.126366738158,
+      "reasons": []
+    },
+    {
+      "siteId": "faruzan.c6.enemy-damage",
+      "componentId": "faruzan-c6-collapse",
+      "listenerCallId": 118,
+      "entryFacts": {
+        "faruzan.c6.enemy-damage.producer-count": 1
+      },
+      "deliveryClosed": true,
+      "attackCount": 1,
+      "producerCount": 1,
+      "completedProducerCount": 1,
+      "pendingProducerCount": 0,
+      "hitCount": 2,
+      "componentSubtotal": 665.531497852868,
+      "reasons": []
+    },
+    {
+      "siteId": "beidou.burst.enemy-damage",
+      "componentId": "beidou-burst-proc",
+      "listenerCallId": 279,
+      "entryFacts": {
+        "beidou.burst.attack-count": 1,
+        "beidou.burst.max-hit-count": 5
+      },
+      "deliveryClosed": true,
+      "attackCount": 5,
+      "producerCount": 0,
+      "completedProducerCount": 0,
+      "pendingProducerCount": 0,
+      "hitCount": 5,
+      "componentSubtotal": 1018.653568268538,
+      "reasons": []
+    },
+    {
+      "siteId": "chiori.c4.enemy-damage",
+      "componentId": "chiori-c4-kinu",
+      "listenerCallId": 14,
+      "entryFacts": {
+        "chiori.c4.enemy-damage.producer-count": 2
+      },
+      "deliveryClosed": true,
+      "attackCount": 1,
+      "producerCount": 4,
+      "completedProducerCount": 4,
+      "pendingProducerCount": 0,
+      "hitCount": 2,
+      "componentSubtotal": 2413.3720588859705,
+      "reasons": []
+    }
+  ],
+  "selectedHitCount": 12,
+  "selectedSubtotal": 5856.829210850738,
+  "maxSelectedReplayDifference": 0,
+  "replayEvidence": "Passing browser assertions check every included fresh application against replaySourceHostHit; no new offline native executions.",
+  "historical": {
+    "siteId": "albedo.skill.enemy-damage",
+    "componentId": "albedo-skill-proc",
+    "listenerCallId": 18,
+    "deliveryClosed": true,
+    "hitCount": 2,
+    "replayDifferences": [
+      0,
+      0
+    ],
+    "componentSubtotal": 1356.88886407622,
+    "reasons": [],
+    "rawPath": "docs/validation/source-direct-events-team-20260930.capture.json"
+  },
+  "offlineGapProbes": {
+    "additionalNativeRuns": 0,
+    "missingDelayedProducer": {
+      "siteId": "charlotte.c6.enemy-damage",
+      "listenerCallId": 277,
+      "reasons": [
+        "本次监听器发出的直接攻击或延迟任务数与实际分支不符。"
+      ]
+    },
+    "missingBeidouCallbackEvidence": {
+      "siteId": "beidou.burst.enemy-damage",
+      "listenerCallId": 279,
+      "reasons": [
+        "缺少北斗闪雷的原生命中回调批次或槽位回执。",
+        "闪雷目标 1 缺少精确父队列、攻击、派发身份的唯一回调批次。"
+      ]
+    },
+    "missingChioriTaskTreeChild": {
+      "siteId": "chiori.c4.enemy-damage",
+      "listenerCallId": 14,
+      "producerId": 3,
+      "reasons": [
+        "Kinu 任务 #2 的实际分支、子任务数或攻击数不完整。",
+        "存活 Kinu 检查任务 #2 缺少唯一的攻击尝试与下一次检查。"
+      ]
+    }
+  },
+  "ui": {
+    "siteId": "chiori.c4.enemy-damage",
+    "componentId": "chiori-c4-kinu",
+    "listenerCallId": 14,
+    "label": "千织 C4 · 绢任务树事件组件",
+    "closedBeforeAndAfter": true
+  },
+  "pageErrors": [],
+  "sourcePatches": [
+    {
+      "path": "packages/source-host/patches/114-event-beidou-chain.patch",
+      "bytes": 2170,
+      "sha256": "1e8033b4917dfdfff158ee24622c6973628927291ed4d2332e4e5ffa5fd35449"
+    },
+    {
+      "path": "packages/source-host/patches/114-event-chiori-tree.patch",
+      "bytes": 4837,
+      "sha256": "8eabe937abb7ae2891d7450203225d290f5282a1a4e76b8792c2e551c079fc33"
+    },
+    {
+      "path": "packages/source-host/patches/114-event-ororon.patch",
+      "bytes": 3195,
+      "sha256": "3ac74f41f4e857e830b1937c839fe30810a82d0adf66fb1f4596d2a764d144c1"
+    },
+    {
+      "path": "packages/source-host/patches/114-event-sites-a.patch",
+      "bytes": 2427,
+      "sha256": "6d71f992b5105fa4b3b4ca232302c1bfe76be96a1e557fc79a99053fd0be52ce"
+    },
+    {
+      "path": "packages/source-host/patches/114-event-sites-b.patch",
+      "bytes": 5309,
+      "sha256": "c17e10dc4fd9cda7f57a0f62e4771207c17baedd730ce695bc721e323e74be95"
+    },
+    {
+      "path": "packages/source-host/patches/114-event-sites-c.patch",
+      "bytes": 3313,
+      "sha256": "b9569c5c8b09d5f0245ce7a9b9c8be1241cf69d769088b106d37445ac53b59ca"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/114-event-ororon.patch",
+      "bytes": 3191,
+      "sha256": "1c70f77b1cacffc53a67e4ebebf1946342347d92739bff23b37c23c1592d0360"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/114-event-sites-a.patch",
+      "bytes": 3773,
+      "sha256": "d1021c8b388d709fa51eab82b0f4096a9493e936e808ff63a7503c7c18f02a7a"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/114-event-sites-b.patch",
+      "bytes": 4930,
+      "sha256": "d67990a020fc81f776714c59dea3dde5d75f7039b2c6412edb21c4fe2ac3ccc2"
+    }
+  ],
+  "dataState": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "scope": "Selected source-pinned event components, not whole skills, game verification, or a fixed-window DPS benchmark. Declared source duration and actual observed frames remain distinct. Data refresh was already recorded earlier on this date; no promotion performed."
+}

@@ -1,0 +1,340 @@
+{
+  "schemaVersion": 1,
+  "round": 118,
+  "lane": "stellar",
+  "status": "private source patches and registry/plan/generator/callback proposal ready; requires coordinated native/TS integration; gofmt/default git apply --check passed; no build/test",
+  "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-OHxtfN/source",
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "sourceReceipt": {
+    "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch118/stellar/receipt.json",
+    "sha256": "2f5664fec4a784ca5a5b562b04aedbc5b9b2c77565492e56d3a1166aaa5b7ba6",
+    "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+    "exportSha256": "8fb6f24b22fff8b0ae99fb01b686959e4a2f909db2c01a22784782be6bf09265"
+  },
+  "sourceHashesSha256": {
+    "internal/characters/qiqi/qiqi.go": "3fa28926000174de5017ff1399175f54aa6beadcf2906e0893b05fdf15b55b68",
+    "internal/characters/qiqi/skill.go": "c1f79dd0a52cdd48a14d5c038d5fb06bf593dd8941fc6dda164698699d3592d7",
+    "internal/characters/qiqi/burst.go": "c8872d218a139d9b12f0e4610a902396140d40ff2f40c7edb88d0b8986b52d40",
+    "internal/characters/qiqi/asc.go": "dadc5f0df4b34c99c767f77fd85a864ef09a3725fda5a7e55e0ac18cd499d593",
+    "internal/characters/qiqi/cons.go": "ada99337f2808a9e51651868baf1db4d12e0808d1134e69a4b0341d44c1f3bb7",
+    "internal/characters/qiqi/stellar.go": "a5d683d7dc7e29f44b32046f39b1cfd626ff34155926925723368a7abc8d11ae",
+    "internal/characters/yaemiko/yaemiko.go": "3af3e69fce635090e4cad7a0ec7cc2b9a562e1323a3695509049f3937cbac002",
+    "internal/characters/yaemiko/skill.go": "5f701868812629d05431b9feb88ce445cb30eb3de06b2cc3b8d918f306034956",
+    "internal/characters/yaemiko/burst.go": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+    "internal/characters/yaemiko/asc.go": "7de0aa83c6a411c88a15b914d4dcf1212e53f790f0111f2ee5c5a1f5bea19028",
+    "internal/characters/yaemiko/cons.go": "25f668a0376885392279c6c658f60bd64f2d0753c32a7bcaf4b0638d6074d4ae",
+    "internal/characters/yaemiko/stellar.go": "7117963c4e511c4963cfc08dcd8b5187c4bb25fd0e8c598a04d17c2cf435746b",
+    "internal/characters/yaemiko/kitsune.go": "38a6f4ffaa39c75f88f71b19071d04f4d06a6be0276e00f68accc9b283343a37",
+    "pkg/core/sourcehost_ability_producer.go": "9054aaabf5cfe7757851b0fca5cdd5683997a2b9171ae98fc2f74a914b83a4a5",
+    "pkg/core/sourcehost/ability_producer.go": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504",
+    "pkg/core/sourcehost/owned_generator.go": "40c33784843bf1364ae556232b04c62b33c3274f031ac1a051eaaf6d4d511ee7",
+    "pkg/core/player/character/sourcehost_owned_generator.go": "59f8ce3db79fc645c0d03a9482d9aa136c46ea168dc968f5d20beaf5db0fc895",
+    "pkg/core/sourcehost_owned_attack.go": "fb8633431c08452f2808b3c17ffbeb43f0b0787122ed53a1fbcad63aa9c2f60a",
+    "pkg/core/sourcehost_hit_attack.go": "bcb83052390e3dbab322cc534088d2f55d87cbbaa0def09465ad54918b0f8bda",
+    "pkg/core/sourcehost/hit_callback.go": "730e02e6a5fb85d5dce21924ac9a8552c46f1fa39f21ec7624aee21f6bac740c",
+    "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+    "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+    "pkg/reactable/stellarconduct.go": "a2b71bcf3b2e73bb5de25f2e673252b8a1d12cfd3fa613df7c65dd77d8a10260",
+    "pkg/reactable/stellarconduct_gadget.go": "c6b6cb0721705d1060e0fb4a0f36873b9bd181a042545e9e01f63476b74347bc",
+    "internal/characters/odette/stellar.go": "063da35c708feaa39877bfc4c8195106a71443a3916a4688959df2b13e032256"
+  },
+  "patchedSourceHashesSha256": {
+    "internal/characters/qiqi/skill.go": "ae07db0df37ceb319b985d161fecfc395e015f23f672f5204b935604cb77b43c",
+    "internal/characters/yaemiko/skill.go": "793a8fbbe33ca261c4b61e21311fd11ced1561aafec979ccde54557bd680d63d",
+    "internal/characters/yaemiko/kitsune.go": "cf7d8dc0c0b016d877490a8017361ec7561f54cd9bd6f3dbe60c371b70d395a0",
+    "internal/characters/yaemiko/asc.go": "05a40f97d6c2d5ebdef2bf06a40558b80f8e8d5c167e0833884ed01c0fcf8f1a",
+    "internal/characters/yaemiko/stellar.go": "929cbbce1127302e83604e5361d5ee68e811d3bcd2faf243494316eefa1eca74"
+  },
+  "patches": {
+    "qiqi-stellar.patch": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/qiqi-stellar.patch",
+      "sha256": "27167311cd7a018fa8f65b877b9aafd84c3688b8b9d851cc203e71624347af50",
+      "bytes": 2966,
+      "sourcePaths": [
+        "internal/characters/qiqi/skill.go"
+      ]
+    },
+    "yaemiko-stellar.patch": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/yaemiko-stellar.patch",
+      "sha256": "e1ca2fc8445a733ea6d70594f1b2a4d5012f49f6663c5ca4f41187f9f2300f41",
+      "bytes": 3521,
+      "sourcePaths": [
+        "internal/characters/yaemiko/skill.go",
+        "internal/characters/yaemiko/kitsune.go",
+        "internal/characters/yaemiko/asc.go",
+        "internal/characters/yaemiko/stellar.go"
+      ]
+    },
+    "118-recurring-skills-stellar.patch": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/118-recurring-skills-stellar.patch",
+      "sha256": "93c86517308db5bfdc718104f29222cba0687cbb0ef9c83a9ae3611f77eb9b95",
+      "bytes": 6487,
+      "sourcePaths": [
+        "internal/characters/qiqi/skill.go",
+        "internal/characters/yaemiko/skill.go",
+        "internal/characters/yaemiko/kitsune.go",
+        "internal/characters/yaemiko/asc.go",
+        "internal/characters/yaemiko/stellar.go"
+      ]
+    }
+  },
+  "validation": {
+    "gofmt": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+      "files": [
+        "internal/characters/qiqi/skill.go",
+        "internal/characters/yaemiko/skill.go",
+        "internal/characters/yaemiko/kitsune.go",
+        "internal/characters/yaemiko/asc.go",
+        "internal/characters/yaemiko/stellar.go"
+      ],
+      "result": "no unrelated formatting edits"
+    },
+    "gitApplyChecks": {
+      "qiqi-stellar.patch": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/stellar-build-OHxtfN/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/qiqi-stellar.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "yaemiko-stellar.patch": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/stellar-build-OHxtfN/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/yaemiko-stellar.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "118-recurring-skills-stellar.patch": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/stellar-build-OHxtfN/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/118-recurring-skills-stellar.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "receiptHashMatch": true,
+    "frozenTargetsUnchanged": true,
+    "buildsOrTestsRun": false
+  },
+  "proposalPath": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/stellar-registry-plan-proposal.json",
+  "qiqi": {
+    "scopeNotes": [
+      "覆盖该次 E 的初始伤害、完整轮转伤害任务链，以及属于其实际寒病鬼差状态实例的协同攻击；revelation=0 时协同监听器未注册，零次触发合法。",
+      "轮转链依据实际 expired／replaced／emit 分支闭合；协同攻击依据实际 E 状态替换、移除或到期闭合。不同 E 的实际状态实例与任务归属分别核对。",
+      "Stellar 原源码仍注明轮转／治疗帧数为近似估计，以及祭礼剑重放按仅一个实例处理的 TODO；本契约复现固定源码，不代表游戏实测。",
+      "治疗、粒子、C1 回能、受治疗加成、反应增益、Q 与 C6 对其他角色反应追加基础伤害另计。"
+    ],
+    "sameProducerSitesAsClassic": true,
+    "tickBranchFact": "qiqi.skill.tick.branch",
+    "tickBranches": {
+      "0": "expired:0 attacks/0children",
+      "1": "replaced:0attacks/0children",
+      "2": "emit:1attack/next-tick1"
+    },
+    "nativePointerSemantics": "Stellar captures separate aiTick and snapTick pointers, passes the original pointer pair recursively, and invokes QueueAttackWithSnap by value at each actual emission. Do not import classic AttackEvent-copy code or117 occurrence wrapper.",
+    "callbacks": [
+      "particleCB may queue particles",
+      "c1CB adds energy",
+      "c1RevelationCB adds energy only after original getRadiance check"
+    ],
+    "producerTiming": {
+      "initial": 32,
+      "firstAfterInitial": 64,
+      "alternatingNext": [
+        135,
+        60
+      ],
+      "naturalTerminalRelativeToCast": 1011
+    },
+    "ownedGenerator": {
+      "contractId": "qiqi-skill-stellar",
+      "generatorSiteId": "qiqi.skill.herald-status",
+      "statusKey": "qiqi-e",
+      "triggerSites": [
+        {
+          "siteId": "qiqi.skill.herald.enemy-hit",
+          "kind": "enemy-hit"
+        }
+      ],
+      "emitSites": [
+        "qiqi.skill.coordinated-attack"
+      ],
+      "directAttackCount": 0,
+      "emitPattern": {
+        "kind": "fixed",
+        "siteId": "qiqi.skill.coordinated-attack",
+        "count": 1
+      },
+      "activation": "synchronous within Skill before skillLastUsed assignment and initial task registration",
+      "revelationDisabled": "status generator still registered, zero triggers expected/valid",
+      "ending": "exact actual status instance replacement/removal or native expiry; source adds901f non-hitlag status",
+      "ability": "Herald of Frost: Coordinated Attack",
+      "attackTag": "AttackTagElementalArt",
+      "snapshotDelay": 1,
+      "damageDelay": 1,
+      "callbacks": [
+        "particleCB",
+        "c1CB",
+        "c1RevelationCB"
+      ],
+      "callbacksProduceDamage": false
+    },
+    "listenerSource": "internal/characters/qiqi/skill.go::skillInit",
+    "listenerRegistration": "Only when revelation true; default profile parameter is1. No new event wrapping/registration/filter or ICD changes.",
+    "listenerGuards": [
+      "actual enemy target",
+      "original on-field actor equality",
+      "reject ECDamage/BurningDamage/SwirlHydro",
+      "Qiqi E status active",
+      "current active actor qiqi-e-icd inactive"
+    ],
+    "icd": "132f hitlag-affected status on current active character, added before original AttackInfo and pattern construction",
+    "snapshotAndOrder": "Owned trigger wrapper encloses only original positive queue after ai/ap construction. Original QueueAttack 1/1 and original particleCB,c1CB,c1RevelationCB ordering preserved.",
+    "otherSourceScope": "Stellar burst additional SSC queue and C6 stacks belong to Q. C6 listener modifies FlatDmg of other on-field actors direct stellar attacks, creates no new E queue. A1 heal bonus, A4 talisman, C2 stats and revelation reaction bonuses remain modifiers/healing.",
+    "nativeDependency": "RegisterOwnedGenerator original frozen implementation was Q-only; sibling native patch supplies exact current E invocation registration, retaining delayed-Q fallback."
+  },
+  "yaemiko": {
+    "scopeNotes": [
+      "覆盖该次 E 新建杀生樱的完整原生任务链、替换第四柱时本次施放产生的 A1 雷击，以及该图腾强化雷击的实际命中追击。",
+      "每个 E 的任务沿创建时原生图腾指针继承；任务区分已删除、无目标、敌人、机关，必须观察到期任务和最终零子任务后才闭合。",
+      "revelation 默认开启，原生图腾寿命增加600帧，Q不销毁图腾；revelation关闭时保留原生Q销毁行为，不强行套用经典生命周期。",
+      "强化追击要求原生revelationEnhanceDMG实际返回回调；每个父雷击队列至多由一次成功敌人命中回调追加一击。槽位存在性使用返回值事实，不重读启示或Radiance条件。",
+      "额外天狐霆雷属于Q；独立普攻、反应、武器／圣遗物伤害及粒子、能量、队伍增益另计。"
+    ],
+    "pointerOwnership": "Exactly one fresh *kitsune per spawn; first tick, expiry and next tick retain original pointer through closures. Source still pops oldest in expiry if captured k is not deleted. No invented pointer-ID/gadget or cleanup path.",
+    "producerTiming": {
+      "spawn": 34,
+      "firstAfterSpawn": 86,
+      "next": 176,
+      "expiryAfterSpawn": "kitsuneDur + revelationBonusSkillDur() - skillStart =866 or1466; original getter calls retained",
+      "defaultRevelationNaturalExpiryRelativeToCast": 1500,
+      "defaultRevelationNaturalTerminalTickRelativeToCast": 1528
+    },
+    "tickBranchFact": "yaemiko.skill.tick.branch",
+    "tickBranches": {
+      "0": "deleted:0attack/0children",
+      "1": "no enemy then no gadget:0attack/next1",
+      "2": "original enemy selection:1attack/next1",
+      "3": "enemy absent,original gadget selection:1attack/next1"
+    },
+    "noRepeatedReads": "Original target selectors, sakuraLevel, revelationEnhanceDMG, isRadianceSSC and c6DefIgnore calls are unchanged; extra observation only checks the already returned callback value and writes source-proven branch counts.",
+    "spawnA1": {
+      "countFact": "yaemiko.skill.spawn.attack-count",
+      "values": [
+        0,
+        1
+      ],
+      "initialization": "0 at makeKitsune entry",
+      "positiveRecording": "1 at actual a1OnSkillPopKitsune QueueAttack branch",
+      "sourceCallers": [
+        "makeKitsune after kitsuneCount()==3 popOldestKitsune"
+      ],
+      "nativeGates": "Base.Ascension>=1 and revelation true",
+      "abilityVariants": [
+        "Yae A1",
+        "Yae A1 (Stellar-Conduct)"
+      ],
+      "attackTagVariants": [
+        "AttackTagNone",
+        "AttackTagDirectStellarConduct"
+      ],
+      "snapshotDelay": 64,
+      "damageDelay": 64,
+      "callbacks": 0,
+      "ownership": "new E spawn owns this attack; older removed totem does not"
+    },
+    "enhancementCallback": {
+      "contractId": "yaemiko-skill-stellar",
+      "rootProducerSites": [
+        "yaemiko.skill.first-tick",
+        "yaemiko.skill.next-tick"
+      ],
+      "presentFact": "yaemiko.skill.tick.revelation-callback",
+      "allowedPresentFactValues": [
+        0,
+        1
+      ],
+      "presentFactSource": "nil/non-nil result of the one original revelationEnhanceDMG call, stored before native QueueAttack",
+      "nativeRootSlots": [
+        "particleCB always nonnil",
+        "revelation callback only when presentFact1",
+        "c4MakeCB result only when constellation>=4"
+      ],
+      "callbackSite": "yaemiko.skill.revelation-hit",
+      "callbackIndexWhenPresent": 1,
+      "attackCountFact": "yaemiko.skill.revelation.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "emitSite": "yaemiko.skill.revelation-strike",
+      "ability": "Sesshou Sakura (Stellar-Conduct)",
+      "attackTag": "AttackTagDirectStellarConduct",
+      "snapshotDelay": 12,
+      "damageDelay": 12,
+      "childCallbacks": 0,
+      "onceScope": "at most one positive callback per exact parent tick queue; done closure is created afresh for each returned enhancement callback, not shared across all E ticks",
+      "positiveGates": [
+        "native target is enemy",
+        "native done false, then sets done true"
+      ],
+      "zeroBranches": [
+        "non-enemy target returns before done",
+        "done true returns"
+      ],
+      "otherRootSlots": {
+        "spawnA1": 0,
+        "revelationChildStrike": 0
+      },
+      "missingFactBehavior": "Unknown/fail; do not infer absent callback from current radiance, status, or queued strike count."
+    },
+    "helperAudit": "revelationInit only installs status on Superconduct/StellarConduct. revelationEnhanceDMG checks revelation/status/ICD then consumes enhancement status and computes flatDMG; if original isRadianceSSC is false, no callback. When true, returned closure owns its own done flag and queues one child after first actual enemy hit. C1 reaction hooks, C2 stat/range/level, C4 buff/energy and C6 modifiers do not emit extra attacks.",
+    "QBehavior": "kitsuneBurst uses Q invocation; popAllKitsune only when !revelation, preserving live E tasks otherwise."
+  },
+  "focusedValidationRecipe": {
+    "status": "source-derived recipe only; not executed by source agent",
+    "party": [
+      "odette C0 (Init enables Stellar-Conduct)",
+      "qiqi C0 default revelation=1",
+      "yaemiko C0 default revelation=1"
+    ],
+    "plainWeaponKeys": {
+      "qiqi": "dullblade",
+      "yaemiko": "magicguide"
+    },
+    "actions": [
+      "qiqi skill",
+      "wait at least180 frames, qiqi attack for actual-normal-trigger coordinated attack",
+      "yaemiko attack on Cryo target to trigger Stellar-Conduct and Polestar field",
+      "yaemiko skill so next tick consumes enhancement while Polestar status exists",
+      "optionally fill three totems, wait for skill charge, cast fourth E for source A1 replacement branch"
+    ],
+    "observation": "at least1700 frames after final Yae E; default mixed45sec run should cover producer terminal and delayed callbacks",
+    "requiredObservedPositiveEvidence": [
+      "qiqi.skill.herald.enemy-hit trigger originating from actual normal attack",
+      "yaemiko.skill.tick.revelation-callback=1",
+      "yaemiko.skill.revelation-hit attack-count=1 and its12f child attack"
+    ],
+    "caution": "Use runtime receipts to confirm the exact positive branches; this preparation did not run simulation."
+  },
+  "repositoryFilesChanged": false
+}

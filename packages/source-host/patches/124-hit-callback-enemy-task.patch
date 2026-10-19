@@ -1,0 +1,20 @@
+--- a/internal/characters/nilou/burst.go
++++ b/internal/characters/nilou/burst.go
+@@ -72,13 +72,16 @@
+ }
+ 
+ func (c *char) LingeringAeon(a info.AttackCB) {
++	c.Core.SourceHostLabelHitCallback("nilou.burst.lingering-aeon-hit", a)
++	c.Core.SourceHostHitCallbackFact("nilou.burst.lingering-aeon-task-count", 0)
+ 	t, ok := a.Target.(*enemy.Enemy)
+ 	if !ok {
+ 		return
+ 	}
+ 	t.AddStatus(lingeringAeonStatus, burstAeonHitmark, false)
+ 
+-	t.QueueEnemyTask(func() {
++	c.Core.SourceHostHitCallbackFact("nilou.burst.lingering-aeon-task-count", 1)
++	t.SourceHostQueueHitCallbackAbilityTask("nilou.burst.lingering-aeon-task", c.Index(), func() {
+ 		flatID := 0
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),

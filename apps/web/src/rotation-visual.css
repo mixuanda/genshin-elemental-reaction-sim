@@ -1,0 +1,30 @@
+.rotation-palette { margin: 1.25rem 0; }
+.rotation-actor-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); }
+.rotation-actor { padding: 1rem; border: 1px solid var(--border, #b8c8c1); border-radius: .8rem; }
+.rotation-actor h4 { margin: 0 0 .75rem; }
+.rotation-skill-buttons { display: flex; flex-wrap: wrap; gap: .5rem; }
+.rotation-skill-buttons button { display: grid; text-align: left; gap: .25rem; max-width: 100%; min-width: 100px; }
+.rotation-skill-buttons button span, .rotation-skill-buttons button small { white-space: normal; font-weight: normal; }
+.rotation-skill-buttons button:disabled { opacity: .55; cursor: not-allowed; }
+.rotation-cards, .rotation-execution-list { list-style: none; margin: .8rem 0; padding: 0; display: grid; gap: .75rem; }
+.rotation-action-card, .rotation-execution-row { border: 1px solid var(--border, #b8c8c1); border-radius: .75rem; padding: 1rem; }
+.rotation-card-heading { display: flex; gap: .8rem; align-items: flex-start; }
+.rotation-card-heading p { margin: .25rem 0; }
+.rotation-step-number { display: grid; place-items: center; flex: 0 0 1.8rem; height: 1.8rem; border-radius: 50%; background: #27624f; color: white; font-weight: 700; }
+.rotation-definition { display: flex; flex-wrap: wrap; gap: .4rem .8rem; font-size: .83rem; margin: .6rem 0; }
+.rotation-definition span { padding: .2rem .4rem; background: color-mix(in srgb, currentColor 5%, transparent); border-radius: .3rem; }
+.rotation-card-controls { display: flex; flex-wrap: wrap; gap: .5rem; align-items: flex-start; }
+.rotation-card-controls details { font-size: .85rem; padding: .5rem; }
+.rotation-empty { padding: 1.5rem; border: 1px dashed var(--border, #b8c8c1); border-radius: .75rem; }
+.rotation-execution-heading { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .5rem; }
+.rotation-execution-row p { font-size: .85rem; margin: .5rem 0; }
+.rotation-execution-row.rejected { border-color: #b94b3d; }
+.rotation-execution-row.waited { border-color: #b58128; }
+.rotation-time-track { position: relative; overflow: hidden; height: .8rem; background: color-mix(in srgb, currentColor 7%, transparent); border-radius: .25rem; margin-top: .8rem; }
+.rotation-action-bar, .rotation-wait-bar { position: absolute; top: 0; bottom: 0; }
+.rotation-action-bar { background: #39745f; }
+.rotation-wait-bar { background: #c39947; }
+.rotation-execution-row.rejected .rotation-action-bar { background: #b94b3d; }
+.rotation-wait-reason { font-weight: 600; }
+#rotation-advanced-controls, #rotation-advanced-dsl, #rotation-source-examples { margin: 1rem 0; padding: .75rem; border: 1px solid var(--border, #b8c8c1); border-radius: .6rem; }
+@media (max-width: 600px) { .rotation-action-card, .rotation-execution-row { padding: .75rem; } .rotation-card-controls button { min-height: 40px; } }

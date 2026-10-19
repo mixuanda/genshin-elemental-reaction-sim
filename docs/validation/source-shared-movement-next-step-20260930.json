@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "source-shared-movement-next-step-v1",
+  "asOf": "2026-09-30",
+  "finding": {
+    "id": "shared-swap-and-movement-lifecycle",
+    "classification": "cross-character-implementation-gap",
+    "basis": "Direct source audit following 121. The 121 runtime probe did not sample unfinished swap/movement boundaries; its remaining Collei/Xiangling tasks must not be relabeled as these common tasks.",
+    "sourceFiles": [
+      "pkg/core/action/action.go",
+      "pkg/core/action/sourcehost_phase_state.go",
+      "pkg/core/player/exec.go",
+      "pkg/core/player/player.go",
+      "internal/template/character/stam.go"
+    ],
+    "implementationScope": [
+      "Couple queued animation callbacks with optional captured-state descriptors; unknown callers stay unknown.",
+      "Describe the shared swap animation frame rule and completion callback while preserving native event order and actor relationships.",
+      "Describe delayed dash stamina consumption using the actual captured actor and parameter map, without invoking AbilStamCost or UseStam during observation.",
+      "Describe standard Dash/Walk/Jump frame rules in both lanes. Stellar Jump must retain its live JumpModified and airborne predicates; inspect/capture their real state instead of substituting Classic constants."
+    ],
+    "preserve": [
+      "Original callback execution frame, player state mutations and event order.",
+      "Original parameter alias for gameplay; copy only observation output.",
+      "Source-specific dynamic jump behavior.",
+      "Unknown custom movement/queued callbacks."
+    ],
+    "validationScope": "One aggregate scene at pending movement/swap boundaries in both lanes, preserving actual timing and enough baseline evidence; no individual-character matrix.",
+    "notCompletionProof": [
+      "All remaining phase callbacks.",
+      "General deterministic or stochastic convergence.",
+      "Game verification."
+    ]
+  }
+}

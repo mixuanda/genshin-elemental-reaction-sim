@@ -1,0 +1,3 @@
+{"status":"PASS","actions":44,"hitTemplates":49,"rawUnknownBlocked":true,"fullJsonTraceEqual":true,"rows":[{"skill":"manekin-normal-3-raw-base","total":454.90275,"single":227.451375,"unselectedUnknownIndependent":true},{"characterId":"10000117","actions":14},{"characterId":"10000118","actions":14},{"characterId":"10000140","actions":7},{"characterId":"10000143","actions":9}]}
+
+WALL_SECONDS=2.475

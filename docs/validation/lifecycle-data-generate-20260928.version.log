@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 data:generate
+> node packages/game-data/scripts/update-data.mjs normalize
+
+Wrote full catalog plus runtime index: 120 characters, 125 talent sets, 762 abilities, 237 weapons and 148 Enka mappings.
+61 artifact sets, 122 constellation sets, 100 character curve levels, 100 weapon curve levels; parsed only, no semantic promotion.
+Runtime catalog projection matches snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34.
+Artifact stat source hashes match (5 files).
+
+exit=0 wallSeconds=4.795336583047174

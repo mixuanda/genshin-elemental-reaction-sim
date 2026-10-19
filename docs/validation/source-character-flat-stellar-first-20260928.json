@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 31.215,
+  "log": "docs/validation/source-character-flat-stellar-first-20260928.log"
+}

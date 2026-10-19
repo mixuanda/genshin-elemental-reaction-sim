@@ -1,0 +1,9 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/calculator-workspace.test.ts(11,13): error TS2540: Cannot assign to 'channel' because it is a read-only property.

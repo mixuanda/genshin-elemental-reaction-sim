@@ -10,6 +10,15 @@ export class MinHeap<T> {
     return this.#values.length;
   }
 
+  peek(): T | undefined {
+    return this.#values[0];
+  }
+
+  /** Ordered read-only view of the pending queue; never drains or reorders it. */
+  snapshot(): readonly T[] {
+    return this.#values.slice().sort(this.#compare);
+  }
+
   push(value: T): void {
     const values = this.#values;
     values.push(value);
@@ -53,4 +62,3 @@ export class MinHeap<T> {
     return root;
   }
 }
-

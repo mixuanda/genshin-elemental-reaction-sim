@@ -1,0 +1,11 @@
+{
+  "command": "STATEFUL_EXTERNAL_LOCAL_READY=1 node docs/cross-validation/stateful-weapon-procs/compare-local.mjs",
+  "exitCode": 1,
+  "toolWallTimeSeconds": 0.688084375,
+  "startedAt": "2026-09-24T03:36:21.597Z",
+  "elapsedSeconds": 0.725800625,
+  "combatExecuted": false,
+  "reason": "Source fixture used cooldownStartFrame, a field restricted to modeled Sacrificial holders.",
+  "scriptSha256": "59f8d73d2c7f3ff2cfe8f72e018cddf92addffa8052348dc988a1e69aae6e9ae",
+  "archivedScript": "docs/cross-validation/stateful-weapon-procs/compare-local-attempt1.mjs"
+}

@@ -1,0 +1,10 @@
+[WebServer] (node:59132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:59133) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-target-profile.spec.ts:17:1 › classic source target profile changes native resistance and HP mode, then survives team handoff (4.8s)
+
+  1 passed (6.0s)

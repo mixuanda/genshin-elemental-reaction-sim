@@ -1,0 +1,41 @@
+[WebServer] (node:66122) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:66123) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-layla-ownership.spec.ts:86:1 › Layla E shield ownership and Q slug contributions close in both source lanes (15.7s)
+
+
+  1) [chromium] › apps/web/e2e/source-layla-ownership.spec.ts:86:1 › Layla E shield ownership and Q slug contributions close in both source lanes 
+
+    Error: layla skill: ["技能晚星 #6 没有对应实际事件调用。","技能晚星 #13 没有对应实际事件调用。"]
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      76 |   const replayDifferences = included.map(hit => replaySourceHostHit(hit.calculation.originalCapture).difference);
+      77 |   expect(analysis.finiteCast?.contract?.id).toBe(characterKey === 'layla' && action === 'skill' ? 'layla-skill' : 'layla-burst');
+    > 78 |   expect(analysis.completeCast, `${characterKey} ${action}: ${JSON.stringify(analysis.finiteCast?.reasons)}`).toBe(true);
+         |                                                                                                               ^
+      79 |   expect(replayDifferences).toEqual(replayDifferences.map(() => 0));
+      80 |   expect(analysis.finiteCast?.observedRootAttackCount).toBe(analysis.finiteCast?.expectedRootAttackCount);
+      81 |   expect(analysis.total).toBeCloseTo(included.reduce((sum, hit) =>
+        at finiteCase (/Users/evan/Documents/gidps/apps/web/e2e/source-layla-ownership.spec.ts:78:111)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-layla-ownership.spec.ts:142:18
+
+    Error Context: test-results/source-layla-ownership-Lay-feb72--close-in-both-source-lanes-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-layla-ownership-Lay-feb72--close-in-both-source-lanes-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-layla-ownership-Lay-feb72--close-in-both-source-lanes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-layla-ownership.spec.ts:86:1 › Layla E shield ownership and Q slug contributions close in both source lanes 

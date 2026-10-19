@@ -1,0 +1,2813 @@
+{
+  "schemaVersion": "remaining-product-implementation-v1",
+  "asOf": "2026-10-05",
+  "scope": "基于当前主进度与已知限制整理可交付的跨角色产品缺口；不是全量完成率或验证结论。",
+  "items": [
+    {
+      "id": "broaden-source-action-execution",
+      "gapType": "code-and-source-input",
+      "priority": 1,
+      "entryPoints": [
+        "apps/web/src/source-action-capabilities.ts",
+        "apps/web/src/source-action-controls.ts",
+        "apps/web/src/source-team-builder.ts",
+        "apps/web/src/source-team-handoff.ts",
+        "apps/web/src/source-host-panel.ts",
+        "packages/sim-core/src/source-runtime-abilities.ts",
+        "packages/sim-core/src/source-action-library.ts",
+        "packages/sim-core/src/rotation-dsl.ts"
+      ],
+      "deliverable": "按master §3、§5及§11扩大可执行的typed动作／伤害语义，并复用同一共享公式与完整上下文，使模拟命中可在独立计算器中重现。现有15角色/57动作是TypeScript可组合库的已知边界，不代表整体模拟器需要复制为第二套完整引擎；固定来源原生执行可以提供广泛动作执行与回执，但不能替代所需的共享公式、上下文回放或独立技能能力。GOOD/Enka批量配装handoff与命名预设已实现。",
+      "codeGap": "真实缺口是可组合typed技能/命中覆盖及对应共享公式和上下文重放仍不完整：缺少更多角色不同伤害基数、属性/资源依赖、持续实体生命周期、条件/状态分支与逐击解释上下文，因而不能把更多动作普遍作为可执行且可独立复现的内容。无需复制一套完整TypeScript原生模拟引擎。普通SimConfig→source full转换只是附加便利功能；若保留，应显式映射角色身份、装备和动作语义。没有可靠source build provenance时不得从最终面板反推源输入，但这不构成master独立验收门槛。固定来源动作发现、GOOD/Enka handoff和队伍编辑器已不再是待办。",
+      "externalEvidenceGap": "原生方法静态实现只表明固定源码提供入口；当前能否施放、实际时序和状态结果须由所选 b4/a7 原生运行取得，不能从方法名推断，也不构成游戏内验证。观察模板缺接触/路径输入时保持 partial。",
+      "basis": "docs/master-requirements-status.zh-CN.md §18、docs/known-limitations.md 可组合来源能力边界、docs/source-actions-weapon-composition-20260928.zh-CN.md",
+      "scopeDistinction": "15角色/57可执行动作/89命中模板描述本地TypeScript可组合能力，不是必须复制完整团队引擎的要求。固定b4/a7原生宿主分别注册117/124角色；注册数或原生E/Q/N/冲刺/跳跃入口本身不证明共享typed公式、完整上下文解释或独立技能重放已覆盖。优先复用原生执行和共享计算核心，补齐缺失的可组合公式、条件与实体语义。普通local SimConfig→source转换是可选便利能力；不得在缺少明确provenance时逆推来源身份/动作，也不把该转换列为强制门槛。各执行域和分母不可混用。",
+      "nativeActionProvenanceGap": {
+        "status": "partial-delivered",
+        "observed": "Both fixed source lanes carry native action receipts, creation/trigger ancestry through action, task/event callback, attack and per-target application, and observed hit collections. A separate Status instance owner association now binds status activation to the Minazuki watcher trigger for Xingqiu, Yelan, Thoma and Fischl C6. Application.origin remains the hit grouping key; Request.origin remains formula-call context.",
+        "next": "Continue source-audited creation hooks and attack-opportunity completeness where source permits. Current generic status-instance replacement/removal/expiry observations and the two specifically instrumented pending core-task stages are bounded lifecycle evidence, not universal callback, entity, or cast completion. Preserve unknown source ancestry and report pending-stage IDs separately from AttackIDs.",
+        "boundary": "Do not claim complete native skill coverage. Lifecycle capture records status end states, but current browser sample did not exercise removed/unknown status outcomes or the positive delayed-snapshot branch. Pending-attack tracking covers only two core Tasks.Add sites (snapshot and application), with stage IDs rather than AttackIDs; absent records are not proof of an empty queue. Per-target resolved/missed rows still lack a universal opportunity census; post-window entity/callback lifetimes and source-specific opaque tasks remain open.",
+        "delivered": {
+          "patches": [
+            "packages/source-host/patches/088-action-origin.patch",
+            "packages/source-host/patches/089-attack-observation.patch",
+            "packages/source-host/patches/090-origin-phase-observation.patch",
+            "packages/source-host/stellar-overlay/patches/088-action-origin.patch",
+            "packages/source-host/stellar-overlay/patches/089-attack-observation.patch",
+            "packages/source-host/stellar-overlay/patches/090-origin-phase-observation.patch",
+            "packages/source-host/patches/091-status-owner.patch",
+            "packages/source-host/patches/092-status-lifecycle-and-pending-attacks.patch",
+            "packages/source-host/stellar-overlay/patches/091-status-owner.patch",
+            "packages/source-host/stellar-overlay/patches/092-status-lifecycle-and-pending-attacks.patch"
+          ],
+          "core": [
+            "packages/sim-core/src/source-host-action-origin.ts",
+            "packages/sim-core/src/source-host-action-collection.ts"
+          ],
+          "ui": [
+            "apps/web/src/source-host-origin-panel.ts",
+            "apps/web/src/source-host-action-calculator.ts",
+            "apps/web/src/source-host-lifecycle-view.ts"
+          ],
+          "ledgerStages": [
+            "queued",
+            "dispatched",
+            "resolved",
+            "missed"
+          ],
+          "collectionScope": "observed-action-hits; each selected hit retains a full editable shared-formula capture and supports JSON export/import."
+        },
+        "evidence": {
+          "report": "docs/source-action-origin-20260929.zh-CN.md",
+          "measurements": "docs/validation/action-origin-measurements-20260929.json",
+          "result": "docs/validation/action-origin-browser-20260929.result.json",
+          "bothLanesApplications": 38,
+          "attackObservationRowsPerLane": 114,
+          "creationUnassignedHitsPerLane": 9,
+          "selectedHits": 2,
+          "originalRawTotal": 1966.0871939310314,
+          "replayDifference": 0,
+          "editedAndExcludedTotal": 1010.2708033975873,
+          "gameplayUnchangedInComparedRuns": true
+        },
+        "statusActivationOwnership": {
+          "status": "bounded-owner-association",
+          "report": "docs/source-status-owner-and-update-20260929.zh-CN.md",
+          "result": "docs/validation/status-owner-browser-20260929.result.json",
+          "scope": "Separate status-instance ownership association, bound only to Minazuki watcher trigger for Xingqiu, Yelan, Thoma and Fischl C6; it does not infer the initial top-level creation callback, full status lifetime, or skill ownership.",
+          "bothLanesApplicationsUnchanged": 38,
+          "statusSequence": 1,
+          "statusHits": 6,
+          "statusOwnerTotal": 2403.863077651348,
+          "replayDifference": 0,
+          "editedExcludeRoundtripTotal": 2136.111260020432,
+          "pageErrors": []
+        },
+        "statusInstanceLifecycles": {
+          "status": "partial-lifecycle-observation",
+          "report": "docs/source-lifecycle-and-action-semantics-20260929.zh-CN.md",
+          "measurement": "docs/validation/lifecycle-measurements-20260929.json",
+          "result": "docs/validation/lifecycle-browser-20260929.result.json",
+          "scope": "Two-lane status instances report replaced, removed, expired-at-end, active-at-end, or unknown-at-end. Shared schema/collection/export/UI retains lifecycle records; display is capped at 200 while full JSON retains all rows. A missing record is not interpreted as an empty lifecycle.",
+          "observedBothLanes": {
+            "statusInstances": 22,
+            "endStates": {
+              "active-at-end": 4,
+              "replaced": 12,
+              "expired-at-end": 6
+            },
+            "pendingCoreTaskStages": 0,
+            "observationFrame": 720,
+            "applications": 38,
+            "gameplayUnchanged": true
+          },
+          "pendingStageScope": {
+            "instrumentedSites": 2,
+            "stages": [
+              "snapshot",
+              "application"
+            ],
+            "identifier": "stage ID, not AttackID",
+            "truncatedProbeFrame": 30,
+            "queuedFrame": 1,
+            "dueFrame": 52,
+            "attackId": 1,
+            "applicationsAtProbe": 0
+          },
+          "selectedOwnerHits": 6,
+          "selectedOwnerTotal": 2403.863077651348,
+          "replayDifference": 0,
+          "editedExcludeRoundtripTotal": 2136.111260020432,
+          "notObserved": [
+            "removed status outcome",
+            "unknown-at-end status outcome",
+            "positive delayed-snapshot pending branch"
+          ],
+          "boundary": "Does not establish universal callback/task coverage, full cast completion, every status transition, or game verification."
+        },
+        "lifecycle": {
+          "status": "bounded-native-lifecycle-capture",
+          "report": "docs/source-lifecycle-and-action-semantics-20260929.zh-CN.md",
+          "result": "docs/validation/lifecycle-browser-20260929.result.json",
+          "patches": [
+            "packages/source-host/patches/092-status-lifecycle-and-pending-attacks.patch",
+            "packages/source-host/stellar-overlay/patches/092-status-lifecycle-and-pending-attacks.patch"
+          ],
+          "schema": "Shared result/collection records lifecycle rows; UI displays at most 200, while full JSON export retains all rows.",
+          "observedEndStates": [
+            "replaced",
+            "removed",
+            "expired-at-end",
+            "active-at-end",
+            "unknown-at-end"
+          ],
+          "bothLanesSample": {
+            "durationSeconds": 12,
+            "applications": 38,
+            "statusInstances": 22,
+            "endStates": {
+              "active-at-end": 4,
+              "replaced": 12,
+              "expired-at-end": 6
+            },
+            "pendingAttackStages": 0,
+            "frame": 720,
+            "gameplayUnchanged": true
+          },
+          "pendingStages": {
+            "onlyInstrumentedTaskSites": [
+              "snapshot",
+              "application"
+            ],
+            "stageIDIsNotAttackID": true,
+            "sampledPendingAtFrame30": {
+              "stage": "application",
+              "stageId": 1,
+              "attackId": 1,
+              "queuedFrame": 1,
+              "dueFrame": 52,
+              "applications": 0
+            },
+            "lanes": [
+              "classic",
+              "stellar"
+            ]
+          },
+          "selectedOwnerHits": 6,
+          "selectedOwnerTotal": 2403.863077651348,
+          "replayDifference": 0,
+          "editedExcludeRoundtripTotal": 2136.111260020432,
+          "verification": {
+            "classicBuildSeconds": 14.601,
+            "stellarBuildSeconds": 15.194,
+            "coreUnit": "3/3; wall 1.688 s",
+            "webFinalBuildSeconds": 8.718,
+            "aggregatePageCases": "1 passed; case 9.0 s, wall 11.089 s"
+          },
+          "knownUnobserved": [
+            "removed status instance outcome",
+            "unknown-at-end status outcome",
+            "positive delayed-snapshot pending branch"
+          ],
+          "boundary": "Observed status end states and two pending core task sites do not establish all callback/task coverage or complete cast damage collection; absent record is not empty state."
+        },
+        "handlerTaskLifecycle": {
+          "status": "bounded-native-task-ledger-delivered",
+          "report": "docs/source-task-lifecycle-20260929.zh-CN.md",
+          "design": "docs/source-task-lifecycle-next-20260929.zh-CN.md",
+          "measurements": "docs/validation/task-lifecycle-measurements-20260929.json",
+          "scope": "Three actual Task.Handler queue classes (core, character, enemy), with run-global taskId, queueId, parentTaskId, local queued/due clock and global queued/run/completed frames. Callback completion is not skill completion; completeCast remains false.",
+          "observedBothLanes": {
+            "observationFrame": 720,
+            "queues": 4,
+            "taskCount": 148,
+            "completed": 136,
+            "pending": 12,
+            "parentLinks": 131,
+            "byQueue": {
+              "core": {
+                "completed": 123,
+                "pending": 11
+              },
+              "character": {
+                "completed": 13,
+                "pending": 1
+              },
+              "enemy": {
+                "tasks": 0,
+                "queueRegistered": true
+              }
+            },
+            "selectedXingqiuEAssociatedTasks": 7,
+            "selectedXingqiuECompleted": 6,
+            "selectedXingqiuEPending": 1,
+            "selectedHits": 2,
+            "firstHitReplayDifference": 0,
+            "captureRoundtrip": true,
+            "pendingCoreTask": {
+              "taskId": 11,
+              "dueClock": 1304,
+              "queueClock": 720,
+              "remaining": 584,
+              "clockInterpretation": "core queue uses global frame counter"
+            },
+            "associatedParentContextCount": 0,
+            "calculations": 102,
+            "applications": 38,
+            "gameplayUnchanged": true,
+            "pageErrors": []
+          },
+          "boundaries": [
+            "Enemy queue was registered but had no tasks in this sample; no enemy-task or death-branch runtime claim.",
+            "QueueCharTask/QueueEnemyTask delay=0 direct calls bypass Handler and are outside this ledger; ordinary core Handler.Add(delay=0) still enters the heap.",
+            "Task-only no-damage branch and a non-matching ancestor context example were not sampled.",
+            "Queue callback completion and empty queues do not certify full skill/entity completion."
+          ],
+          "legacyPendingAttackStages": "The earlier two core Tasks.Add (snapshot/application) pending-stage instrumentation remains a distinct narrower scope and is not replaced by this general Handler ledger.",
+          "verificationBoundary": "No unit tests or character matrix added. Data pointers unchanged; no game verification, coverage promotion, or completeCast=true."
+        }
+      },
+      "initialBasePanel": {
+        "status": "bounded-initialization-panel-delivered",
+        "report": "docs/source-base-panel-20260929.zh-CN.md",
+        "measurements": "docs/validation/base-panel-measurements-20260929.json",
+        "receiptSchema": "base-panel-v1",
+        "core": "packages/sim-core/src/source-host-base-panel.ts",
+        "nativePatches": [
+          "packages/source-host/patches/093-base-panel-provenance.patch",
+          "packages/source-host/stellar-overlay/patches/093-base-panel-provenance.patch"
+        ],
+        "sharedReads": [
+          "stats",
+          "stat",
+          "non-extra-stat",
+          "select-stat"
+        ],
+        "sample": {
+          "lanes": [
+            "classic",
+            "stellar"
+          ],
+          "calculationsPerLane": 102,
+          "applicationsPerLane": 38,
+          "actorPanelsPerLane": 2,
+          "characterStepsPerActor": 11,
+          "weaponStepsPerActor": 3,
+          "selectedApplicationId": 11,
+          "selectedFrame": 46,
+          "replayDifference": 0,
+          "standaloneJsonRoundtrip": true,
+          "gameplayUnchangedAgainstImmutableBaseline": true,
+          "traceNodes": 112
+        },
+        "limits": [
+          "Sampled random substat vector remains an external input; random generation was not replayed.",
+          "Configured labels are not inferred artifact pieces.",
+          "Only reads carrying a base-panel receipt expand initialization provenance; historical reads without one remain opaque.",
+          "Later dynamic modifiers and closure internals remain separate explanation gaps.",
+          "This does not promote static coverage, game verification, full character/action execution, or overall completion."
+        ],
+        "verification": {
+          "coreFinal": "2/2; wall 1.386 s",
+          "classicBuildSeconds": 19.292,
+          "stellarBuildSeconds": 19.887,
+          "webBuildSeconds": 8.551,
+          "browser": "1 passed; case 18.2 s; wall 18.847 s; pageErrors=[]",
+          "postcopyBundleSeconds": 2.397
+        },
+        "captures": [
+          "docs/validation/base-panel-classic-20260929.capture.json",
+          "docs/validation/base-panel-stellar-20260929.capture.json"
+        ]
+      },
+      "opportunityDispatchBinding": {
+        "status": "bounded-native-opportunity-binding-delivered",
+        "report": "docs/source-action-opportunities-20260929.zh-CN.md",
+        "measurements": "docs/validation/action-opportunities-measurements-20260929.json",
+        "result": "docs/validation/action-opportunities-browser-20260929.result.json",
+        "nativePatches": [
+          "packages/source-host/patches/094-attack-dispatch-identity.patch",
+          "packages/source-host/stellar-overlay/patches/094-attack-dispatch-identity.patch"
+        ],
+        "sharedCore": "packages/sim-core/src/source-host-action-collection.ts",
+        "identity": "dispatchId + attackId + targetKey",
+        "semantics": {
+          "actualEnemyApplication": "Count once by exact dispatch/attack/target identity.",
+          "missed": "Only explicit target miss is observed zero for that recorded opportunity.",
+          "queuedOrDispatched": "Phase observations only; never extra damage terms or attack counts.",
+          "resolvedWithoutExactEnemyApplication": "Unresolved, including other target types or missing bindings; never inferred zero.",
+          "pending": "Retain unresolved future work; no damage subtotal unless separate settled/missed evidence exists.",
+          "zeroApplications": "Collection can still preserve full source context; zero captured applications does not prove a non-damaging skill or complete cast."
+        },
+        "sourceContextOnZeroApplicationCollections": [
+          "sourceCommit",
+          "sourceConfig",
+          "seed",
+          "executionArtifact",
+          "randomness",
+          "initialEnergy",
+          "startupState"
+        ],
+        "sample": {
+          "lanes": [
+            "classic",
+            "stellar"
+          ],
+          "baselineCalculationsPerLane": 102,
+          "baselineApplicationsPerLane": 38,
+          "gameplayUnchanged": true,
+          "selectedXingqiuValues": [
+            919.5508033975872,
+            1046.5363905334443
+          ],
+          "selectedXingqiuSubtotal": 1966.0871939310314,
+          "dispatchIds": [
+            2,
+            3
+          ],
+          "exactTargetKey": 1,
+          "explicitMissSubtotal": 0,
+          "pendingAtFrame": 30,
+          "pendingDueFrame": 52,
+          "pendingKnownSubtotal": null,
+          "sixCollectionsRoundtrip": true,
+          "pageErrors": []
+        },
+        "verification": {
+          "core": "5/5; Vitest 313 ms; wall 1.547 s",
+          "classicBuildSeconds": 8.519,
+          "stellarBuildSeconds": 8.94,
+          "webBuildSeconds": 5.081,
+          "browser": "1 passed; case 14.6 s; runner 15.8 s; wall 16.371 s"
+        },
+        "boundary": "completeCast remains false. Pending task coverage still names only two core Tasks.Add sites; universal attack opportunities, other target types, post-window work, skill coverage, game verification, and overall completion remain open."
+      },
+      "formulaDependencyLinks": {
+        "status": "verified-consumer-links-delivered",
+        "report": "docs/source-formula-dependency-links-20260929.zh-CN.md",
+        "measurements": "docs/validation/formula-links-measurements-20260929.json",
+        "replayResult": "docs/validation/formula-links-replay-20260929.result.json",
+        "implementation": {
+          "verifier": "packages/sim-core/src/source-host-artifact-support.ts::verifySourceHostArtifactSupport",
+          "damageLinks": "packages/sim-core/src/source-host-damage-stat-links.ts::linkSourceHostDamageStatInputs",
+          "resolver": "packages/sim-core/src/source-host-formula.ts",
+          "ordinaryDamageKinds": "all kind:damage requests",
+          "helperConsumers": [
+            "shield",
+            "healing",
+            "drain",
+            "energy",
+            "artifact",
+            "weapon",
+            "character modifier/scalar/additive/flat/multiplier"
+          ],
+          "conditions": [
+            "consumer/read/step/slot key and modifier identity",
+            "phase/frame/actor/holder/recipient/target where applicable",
+            "source commit and actual formula output value",
+            "formula ran before consumer",
+            "creation formula IDs included in actual consumed IDs"
+          ]
+        },
+        "ordinaryDamagePanelLinks": {
+          "scalingStats": "exact final snapshot slots for ATK/HP/DEF or EM",
+          "elementalMastery": "only EM scaling and applied amplification branch",
+          "critRate": "pinned-source clamp max(0,min(1,CR)) links to actual snapshot CR",
+          "critDamage": "actual snapshot CD slot",
+          "damageBonus": "only when AttackTag is below lane NoneStat threshold (classic 9 / stellar 13) and input equals actual element/physical plus generic bonus sum",
+          "ineligibleBranch": "qualifier false and constant zero; no invented skipped getter"
+        },
+        "sample": {
+          "lanes": [
+            "classic",
+            "stellar"
+          ],
+          "calculationsPerLane": 102,
+          "applicationsPerLane": 38,
+          "allCalculationValuesExact": true,
+          "selectedCalculation": 10,
+          "selectedAbility": "Guhua Sword: Fatal Rainscreen 0; E first hit",
+          "selectedValue": 919.5508033975872,
+          "selectedReplayDifference": 0,
+          "a4SourceFormulaCalculationId": 9,
+          "sourceCritRate": 0.25,
+          "sourceDamageBonus": 0.2,
+          "selectedTraceNodes": 199,
+          "allChildLinksPresent": true,
+          "editedFinalPanelDetachesHistoricalStatLinks": true,
+          "aggregateExplanationGapStrings": 45,
+          "gapCountMeaning": "This archived run produced 45 gap strings; they are not a count of independent mechanics."
+        },
+        "auditedBoundaries": [
+          "Eight transformative electrocharged hits lacked statProvenance; their FlatDmg components were complete but upstream EM getter was not captured, so reaction-base producer remains unlinked.",
+          "Five Xingqiu orbital calculations used scaling=0 and FlatDmg=0; they do not warrant a missing-panel-source gap.",
+          "Selected ordinary hit retains native multiplier 1.68 without linked talent table/producer; native trigger and lifecycle are not independently verified.",
+          "Direct snapshot writes, boundary deltas, and real AttackMod changes remain explicit unless their own formula consumer is verified."
+        ],
+        "verification": {
+          "core": "3 files / 6 tests passed; Vitest 2.27 s; tests 1.25 s; wall 2.923 s",
+          "web": "first pass; typecheck + Vite wall 4.961 s; Vite 992 ms; existing chunk and dynamic/static warnings only",
+          "nativeBuilds": 0,
+          "newNativeSimulations": 0,
+          "browserTests": 0,
+          "replay": "existing two-lane archived runs only"
+        },
+        "unchanged": [
+          "verification remains provisional",
+          "explanationStatus remains partial",
+          "active verified remains null",
+          "coverage classification unchanged",
+          "source data pointer hashes unchanged",
+          "completeCast unchanged",
+          "overall goal remains active"
+        ]
+      },
+      "reactionEmProvenance": {
+        "status": "bounded-source-link-delivered",
+        "report": "docs/source-reaction-em-provenance-20260929.zh-CN.md",
+        "measurements": "docs/validation/reaction-em-measurements-20260929.json",
+        "browserResult": "docs/validation/reaction-em-browser-20260929.result.json",
+        "scope": "Each fixed source lane records eleven native EM reads (nine transformative and two catalyze); resolver links only matching actor/frame/stat/nonExtra=false/EM-slot/value reads to the existing reaction formula.",
+        "browserSample": "Electro-Charged only; remaining ten source read sites have static wiring and two-lane build coverage, not separate runtime samples.",
+        "observedBothLanes": {
+          "reactionProducersPerLane": 12,
+          "electroChargedTicksPerLane": 8,
+          "consumedProducerIdsPerLane": 7,
+          "selectedApplicationId": 51,
+          "selectedProducerId": 43,
+          "statReadId": "actor-1-read-277",
+          "actorIndex": 1,
+          "frame": 204,
+          "em": 100,
+          "replayDifference": 0,
+          "editedProducerEm": 110,
+          "editedDamageDifference": 188.08115910629658,
+          "calculatorRoundtrip": true,
+          "gameplayUnchanged": true,
+          "pageErrors": []
+        },
+        "verificationBoundary": "Does not promote provisional/partial verification, coverage classification, game validation, completeCast, or data pointers. First browser attempt failed on an ambiguous test selector and is preserved; the selector was narrowed and the one EC case passed."
+      },
+      "sourceTalentTableProvenance": {
+        "status": "bounded-source-link-delivered",
+        "report": "docs/source-talent-table-provenance-20260929.zh-CN.md",
+        "measurements": "docs/validation/talent-table-measurements-20260929.json",
+        "registryBuildOrder": "packages/source-host/scripts/README.md",
+        "staticInventory": {
+          "classic": {
+            "sites": 514,
+            "tables": 498,
+            "skippedCandidates": 224,
+            "characterDirectories": 103,
+            "dimensions": {
+              "1": 441,
+              "2": 70,
+              "3": 3
+            }
+          },
+          "stellar": {
+            "sites": 543,
+            "tables": 524,
+            "skippedCandidates": 242,
+            "characterDirectories": 108,
+            "dimensions": {
+              "1": 468,
+              "2": 73,
+              "3": 2
+            }
+          }
+        },
+        "runtimeSample": {
+          "perLaneReceiptHits": 14,
+          "perLaneDistinctTables": 2,
+          "perLaneDistinctSites": 2,
+          "selectedCalculationId": 37,
+          "selectedApplicationId": 39,
+          "actor": "xingqiu",
+          "frame": 200,
+          "sourceSite": "internal/characters/xingqiu/burst.go:83:15",
+          "table": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+          "indices": [
+            0
+          ],
+          "tableValue": 0.54272,
+          "replayDifference": 0,
+          "editedScaling": 0.64272,
+          "editedDamageDifference": 54.735166868903946,
+          "calculatorRoundtrip": true,
+          "nativeGameplayUnchanged": true,
+          "pageErrors": []
+        },
+        "implementationBoundary": "A later Mult write skips only that candidate AttackInfo literal. Actual dynamic indices are captured and replayed; their generating arithmetic remains unexplained. Site coordinates use patched pre-instrumentation sources; preserve prior registries for captures from older site registries. Static sites and character directory counts are not runtime or mechanism coverage.",
+        "verificationBoundary": "Provisional/partial verification, coverage classification, data pointers and completeCast unchanged. One browser case per lane validates only two distinct sites per lane; not all registry entries have independent runtime verification."
+      },
+      "sourceTalentIndexProvenance": {
+        "status": "bounded-index-decomposition-delivered",
+        "report": "docs/source-talent-index-provenance-20260929.zh-CN.md",
+        "measurements": "docs/validation/talent-index-measurements-20260929.json",
+        "staticGetterSites": {
+          "classic": {
+            "total": 507,
+            "attack": 277,
+            "skill": 142,
+            "burst": 88
+          },
+          "stellar": {
+            "total": 535,
+            "attack": 286,
+            "skill": 155,
+            "burst": 94
+          }
+        },
+        "staticRelationship": "Instrumented totals remain 514/543 sites; talent tables, site identities/index expressions, skipped sites, and all 102 calculations/38 applications per lane match batch 096 when only the new indexSources metadata is removed.",
+        "runtimeSample": {
+          "runsPerLane": 1,
+          "receiptHitsPerLane": 14,
+          "distinctSitesPerLane": 2,
+          "distinctTablesPerLane": 2,
+          "selectedActor": "xingqiu",
+          "constellation": 0,
+          "ability": "burst",
+          "baseTalent": 1,
+          "constellationUnlock": 3,
+          "passiveTagValue": "omitted",
+          "indexExpression": "baseTalent + cappedOffset",
+          "indexSubstitution": "1 + (-1) = 0",
+          "tableValue": 0.54272,
+          "replayDifference": 0,
+          "editedScaling": 0.64272,
+          "editedDamageDifference": 54.735166868903946,
+          "uiAndJsonRoundtrip": true,
+          "pageErrors": []
+        },
+        "syntheticOnly": "C3 and positive passive values are exercised only by synthetic core tests, not the native browser scenario.",
+        "remaining": "Dynamic index state generation, passive tag activation/lifecycle, later AttackInfo.Mult writes, range-local table rows, and complete skill/entity semantics remain open.",
+        "verificationBoundary": "No game-data, coverage, verified, completeCast, or data-pointer promotion; one runtime sample per lane is not all-site runtime verification."
+      },
+      "sourceTalentRangeProvenance": {
+        "status": "bounded-range-read-provenance-delivered",
+        "report": "docs/source-talent-range-provenance-20260929.zh-CN.md",
+        "measurements": "docs/validation/talent-range-measurements-20260929.json",
+        "staticInventory": {
+          "classic": {
+            "newRangeSites": 74,
+            "fromPreviouslySkippedLiterals": 44,
+            "assignmentSites": 30,
+            "totalSites": 588,
+            "tables": 571,
+            "totalSkipped": 188,
+            "newSkippedCandidates": 8,
+            "characterDirectoriesWithNewRangeSites": 54
+          },
+          "stellar": {
+            "newRangeSites": 77,
+            "fromPreviouslySkippedLiterals": 47,
+            "assignmentSites": 30,
+            "totalSites": 620,
+            "tables": 600,
+            "totalSkipped": 204,
+            "newSkippedCandidates": 9,
+            "characterDirectoriesWithNewRangeSites": 57
+          }
+        },
+        "preservation": "All 514/543 prior sites and 498/524 tables from batches 096/097 preserved object-for-object; each lane also preserves 102 calculations, 38 applications, and the prior 14 talent reads.",
+        "runtimeSample": {
+          "scenarioPerLane": 1,
+          "calculationsPerLane": 102,
+          "applicationsPerLane": 38,
+          "newRangeReadsPerLane": 4,
+          "selectedCalculationId": 34,
+          "selectedApplicationId": 35,
+          "actor": "xingqiu",
+          "attackFrame": 183,
+          "classicSite": "internal/characters/xingqiu/attack.go:60:13",
+          "classicRangeLine": 57,
+          "stellarSite": "internal/characters/xingqiu/attack.go:59:13",
+          "stellarRangeLine": 56,
+          "rangeFrame": 173,
+          "coefficientReadFrame": 173,
+          "indices": [
+            0,
+            0,
+            0
+          ],
+          "tableValue": 0.46612,
+          "replayDifference": 0,
+          "editedScaling": 0.56612,
+          "editedDamageDifference": 45.61263905742001,
+          "calculatorRoundtrip": true,
+          "pageErrors": []
+        },
+        "observedTuplesPerLane": [
+          {
+            "indices": [
+              0,
+              0,
+              0
+            ],
+            "value": 0.46612
+          },
+          {
+            "indices": [
+              1,
+              0,
+              0
+            ],
+            "value": 0.47644
+          },
+          {
+            "indices": [
+              2,
+              0,
+              0
+            ],
+            "value": 0.28552
+          },
+          {
+            "indices": [
+              2,
+              1,
+              0
+            ],
+            "value": 0.28552
+          }
+        ],
+        "boundary": "Skipped total changes because earlier skipped literals were recognized and new candidates were added; do not interpret the changed denominator as a completion rate. Delayed callback frame divergence is source-inspected and compiled only, not observed at runtime.",
+        "remaining": "Dynamic action-state generation, complex aliases/nested ranges, later Mult writes, other unresolved table-row aliases, and complete skill/entity semantics remain open.",
+        "verificationBoundary": "No game-data, coverage, verified, completeCast, or data-pointer promotion; one actual selected site per lane does not establish runtime coverage of all static sites."
+      },
+      "sourceTalentExpressionProvenance": {
+        "status": "bounded-expression-source-delivered",
+        "report": "docs/source-talent-expression-provenance-20260929.zh-CN.md",
+        "measurements": "docs/validation/talent-expression-measurements-20260929.json",
+        "browserResult": "docs/validation/talent-expression-browser-20260929.result.json",
+        "staticInventoryPerLane": {
+          "expressionSites": 10,
+          "tableLeaves": 12,
+          "characterDirectories": 9,
+          "newTables": 5
+        },
+        "preservation": {
+          "classic": {
+            "oldSites": 588,
+            "newSites": 600,
+            "oldTables": 571,
+            "newTables": 576
+          },
+          "stellar": {
+            "oldSites": 620,
+            "newSites": 632,
+            "oldTables": 600,
+            "newTables": 605
+          }
+        },
+        "runtimeSample": {
+          "scenarioPerLane": 1,
+          "calculationsPerLane": 6,
+          "applicationsPerLane": 4,
+          "expressionReadsPerLane": 3,
+          "distinctSitesPerLane": 2,
+          "selectedActor": "wanderer",
+          "constellation": 0,
+          "selectedCalculationId": 5,
+          "selectedApplicationId": 6,
+          "frame": 96,
+          "expression": "term0 * term1",
+          "leafValues": [
+            1.329825,
+            0.68714
+          ],
+          "expressionValue": 0.9137759504999999,
+          "replayDifference": 0,
+          "editedDamageDifference": 39.692420126999934,
+          "calculatorRoundtrip": true,
+          "pageErrors": []
+        },
+        "limitations": "Chasca supports only the default final assignment; initializer and earlier branch remain skipped. Dynamic fields, unknown helpers, other unresolved local-table aliases/dynamic expressions, later Mult writes and complete skill/entity semantics remain open. Generated site counts do not establish branch runtime coverage.",
+        "repairs": "Classic first build was followed by review/fix for missing leaf actorIndex. First Web build failed a test typing check; first browser run failed on a null reaction_status comparison. Final builds and same browser scenario passed after fixes.",
+        "verificationBoundary": "No unit tests or character matrix added. No game-data, coverage, verified, data-pointer, or completeCast promotion; overall goal remains active."
+      },
+      "standaloneSourceSingleSkillEntry": {
+        "status": "bounded-product-entry-delivered",
+        "report": "docs/source-single-skill-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-single-skill-measurements-20260929.json",
+        "entryPoint": "/calculator independent single-character, one accepted implemented action, then bounded observation wait; no team selection or user-authored GCSL required.",
+        "inputs": "Pinned source variant/revision; editable member/build, weapon, artifact sets/stats, action params, duration, target level/resistance, startup mode and uint64 seed. Imports validated source-team drafts, GOOD/Enka build candidates, or single-skill JSON; no live Enka request in this batch.",
+        "observedBothLanesBeforeFinalLabelFix": {
+          "character": "kaeya",
+          "action": "skill",
+          "observedHitsPerLane": 1,
+          "selectedAssociation": "creation",
+          "firstHitReplayDifference": 0,
+          "collectionRoundtrip": true,
+          "completeCast": false,
+          "classicSyntheticGoodFixture": true,
+          "stellarPresetBuild": true
+        },
+        "finalUiRecheck": {
+          "lane": "classic",
+          "result": "pass",
+          "pageErrors": [],
+          "stellarNotRerunAfterLabelFix": true
+        },
+        "checks": "Web build 6.720s initial pass, 6.552s after tier state correction, 6.830s after label/utility visibility fix. First E2E failed before cases on Node test-loader JSON import attributes; type-only test import fixed it. Dual-lane E2E passed wall14.543s/case12.6s/runner13.9s; final classic-only E2E 7.979s.",
+        "productBoundary": "No native builds or native mechanics changed. Full raw native result including unassociated applications is preserved; association selection only scopes follow-up collection analysis. Initial target geometry radius/x/y is now editable through shared team and single-skill draft input; only legacy JSON entirely missing the geometry object uses the visible application default, while incomplete objects are rejected. This does not certify actual contact geometry, movement, multi-target behavior, or full casts. Target profile now includes shared editable element resistances, freeze resistance, HP and custom particle drops; the optional duration-or-native receipt is preserved for reexecution. These target inputs do not imply shields/phases/invulnerability/DEF modifier/multi-target coverage. Batch 104 added editable static multi-target scenes; single-skill target summaries remain scoped to selected associated application IDs and do not report DPS.",
+        "dataHashesUnchanged": {
+          "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+          "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+        },
+        "verificationBoundary": "No live Enka, native build, new unit suite, character matrix or game validation. UI product entry does not add mechanics or imply completeCast; coverage, verified status, pointers and overall goal remain unchanged."
+      },
+      "initialTargetGeometryInput": {
+        "status": "bounded-input-capability-delivered",
+        "report": "docs/source-target-geometry-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-target-geometry-measurements-20260929.json",
+        "fields": [
+          "radius",
+          "x",
+          "y"
+        ],
+        "legacyCompatibility": "Only a wholly absent geometry object receives the visible application default radius=2, pos=(0,2.4); a provided incomplete object is rejected.",
+        "results": {
+          "formatterTests": "2/2",
+          "webBuildSeconds": 6.358,
+          "viteSeconds": 1.31,
+          "browserCase": {
+            "wallSeconds": 5.667,
+            "caseSeconds": 3.8,
+            "runnerSeconds": 5.0,
+            "pageErrors": []
+          },
+          "classicNear": {
+            "geometry": "radius=2,pos=(0,2.4)",
+            "calculations": 12,
+            "applications": 1,
+            "subtotal": 1161.8921525418264,
+            "replayDifference": 0
+          },
+          "classicFar": {
+            "geometry": "radius=2,pos=(50,2.4)",
+            "calculations": 2,
+            "applications": 0,
+            "explicitNativeMiss": true,
+            "subtotal": 0,
+            "pending": 0
+          },
+          "teamJsonAndGcslRoundtrip": true
+        },
+        "verificationBoundary": "No native build; native WASM and data pointers unchanged. This does not establish hitbox rules, movement, multi-target damage, general skill behavior, game verification, coverage, verified status, or completeCast. Static multi-target configuration and per-target summaries were delivered separately in batch 104; this earlier single-target measurement remains scoped to its own case."
+      },
+      "sourceTargetProfile": {
+        "status": "bounded-static-defense-adjustment-delivered; not verified",
+        "report": "docs/source-target-defense-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-target-defense-measurements-20260929.json",
+        "requirementsMapping": "Partial master §22: static user-declared DEF adjustment and per-target phase scenarios are configurable. Phase effects are separate damage, aura/application, and hit-confirm axes, matched by native targetKey and half-open frames; this does not provide verified enemy data or establish native enemy mechanics. Dynamic stacking, shields, phase-specific source data, HP-mode runtime, movement, and complete enemy coverage remain incomplete.",
+        "implementation": {
+          "sharedUiAndFormatter": [
+            "apps/web/src/source-target-profile.ts",
+            "apps/web/src/source-target-profile-controls.ts",
+            "apps/web/src/source-team-builder.ts",
+            "apps/web/src/source-single-skill-panel.ts"
+          ],
+          "durationPolicy": [
+            "apps/web/src/source-single-skill.ts",
+            "packages/sim-core/src/source-host-wire.ts",
+            "packages/sim-core/src/source-host-reexecution.ts",
+            "packages/source-host/patches/103-stop-at-duration.patch"
+          ],
+          "semantics": "队伍生成脚本自动启用stopAtDuration；raw来源入口的可见开关缺省native；单角色单动作入口请求启用。启用时deadline在native frame tick后检查并包含readiness waits，目标死亡/actions exhausted可以更早停止。它不能抢占不yield的手写循环。队伍、single-skill与batch/startup policy参数及reexecution恢复已有接线；本批policy reexecution与batch/startup只typecheck，未完整重放。原生HP阈值检查读取当前攻击伤害排队/应用前的此前累计扣血；阈值满足后固定延迟100帧分发。无cast-completion claim。",
+          "targetParticleDropTiming": "native pkg/enemy/attack.go: check before the current hit damage is queued/applied, using cumulative damage already taken; after the threshold condition fires, particle distribution is queued at a fixed 100-frame delay.",
+          "durationPolicyDefaults": {
+            "generatedTeamScript": "stopAtDuration=true",
+            "singleSkill": "stopAtDuration=true",
+            "rawSourcePanelDefault": "native; user-visible toggle",
+            "zeroDuration": "native config defaults to 90 seconds unless explicit duration policy requires a positive >=1-frame duration",
+            "negativeDuration": "duration=-1 is rejected by the fixed source parser lexer"
+          }
+        },
+        "checks": {
+          "focusedTests": {
+            "passed": 3,
+            "total": 3,
+            "testMilliseconds": 3,
+            "commandSeconds": 0.713
+          },
+          "classicBuildSeconds": 7.381,
+          "stellarBuildSeconds": 8.764,
+          "registrySeconds": 0.223,
+          "webBuildInitial": {
+            "result": "failed",
+            "seconds": 4.884,
+            "reason": "test unknown type"
+          },
+          "webBuildFinal": {
+            "result": "passed",
+            "seconds": 6.316
+          },
+          "browser": {
+            "result": "passed",
+            "caseCount": 1,
+            "wallSeconds": 6.674,
+            "pageErrors": []
+          }
+        },
+        "runtimeEvidence": {
+          "classicRuns": 3,
+          "cryoResistance": {
+            "from": 0.1,
+            "to": 0.5,
+            "knownSubtotalBefore": 1161.8921525418264,
+            "knownSubtotalAfter": 645.4956403010146,
+            "ratio": 0.5555555555555556,
+            "replayDifference": 0
+          },
+          "hpKill": {
+            "configuredHp": 100,
+            "knownSubtotalBeforeHpCap": 645.4956403010146,
+            "nativeAppliedDamage": 100,
+            "hpLoss": 100,
+            "actualFrame": 29,
+            "configuredEndFrame": 360,
+            "endReason": "targets-dead",
+            "replayDifference": 0
+          },
+          "zeroEnergyBurstDurationCap": {
+            "actualFrame": 360,
+            "endReason": "duration",
+            "applications": 0
+          },
+          "freezeAndDrops": "JSON/GCSL/profile and starved-Q configuration consumption only; no actual trigger in this batch",
+          "stellarRuntime": "not run; stellar compiled only",
+          "policyReplay": "reexecution and batch/startup paths typechecked, but no new full replay run"
+        },
+        "boundary": "No verified promotion, no full-cast claim, and no game-data pointer change. See same-day data evidence refresh: the provider remained at 7.1.51 with unchanged response hash, no newly eligible immutable revision was detected, 7.2 V1 remains unconfirmed, and the preexisting candidate stayed isolated.",
+        "nextBroadProductPriority": {
+          "id": "static-multi-target-damage-aggregation",
+          "status": "delivered-in-batch-104",
+          "report": "docs/source-target-scene-20260929.zh-CN.md",
+          "measurements": "docs/validation/source-target-scene-measurements-20260929.json",
+          "delivered": "Editable static initial multi-target scene, per-target application totals, all-target total, and independently selected statistics target; native default target and attack targeting remain unchanged."
+        },
+        "dataEvidenceRefresh": {
+          "report": "docs/data-evidence-refresh-20260929.json",
+          "newEligibleRevision": false,
+          "providerLatest": "7.1.51",
+          "preview72V1": "unconfirmed",
+          "isolatedCandidateUnchanged": true,
+          "projectDataPointersUnchanged": true,
+          "verifiedPointer": null
+        },
+        "nextReadOnlyAudit": {
+          "id": "finite-skill-lifecycle-closure",
+          "status": "next implementation-oriented source review",
+          "scope": "Identify source-audited finite skill lifecycles whose hit opportunities, pending tasks and entity expiry can be proven closed. Prioritize completing independent full-skill calculation; retain target-phase HP/convergence gaps as bounded validation limits, not a new repeated-test workstream."
+        },
+        "staticDefenseAdjustment": {
+          "field": "SourceTargetProfile.defenseAdjustment",
+          "range": [
+            -1,
+            0.9
+          ],
+          "omitted": "native default 0",
+          "semantics": "Persistent user-declared static target scenario, not a timed DefMod; separate from attack defenseIgnore.",
+          "runtime": {
+            "lane": "classic only",
+            "case": "Kaeya E against three colocated targets",
+            "targets": [
+              {
+                "adjustment": 0,
+                "rawDamage": 1161.8921525418264,
+                "replayDifference": 0
+              },
+              {
+                "adjustment": -0.3,
+                "rawDamage": 1366.9319441668545,
+                "replayDifference": 0
+              },
+              {
+                "adjustment": 0.2,
+                "rawDamage": 1056.2655932198422,
+                "replayDifference": 0
+              }
+            ],
+            "allHitsNonCrit": true,
+            "totalRawDamage": 3585.089689928523,
+            "normalizedDamageRatios": {
+              "minusThirtyPercent": 1.1764705882352942,
+              "plusTwentyPercent": 0.9090909090909092
+            },
+            "teamDraftPreserved": true,
+            "secondNativeRunForTeamDraft": false
+          },
+          "checks": {
+            "focusedTests": "2 passed; 0.889s",
+            "classicBuildSeconds": 12.255,
+            "stellarBuildSeconds": 12.919,
+            "registrySeconds": 0.211,
+            "webBuildSeconds": 7.36,
+            "browserFirstAttempt": "Failed before native execution because test attempted import before roster readiness (7.906s).",
+            "browserReadyRetry": "Passed same single case (7.243s); pageErrors empty."
+          },
+          "boundary": "Stellar was compiled only. No new runtime verification of dynamic DEF stacking, phase behavior, enemy shields, special damage families, HP duration, or monster data. No coverage/verified/data-pointer/activeVerified/completeCast promotion."
+        },
+        "nextImplementationPriority": {
+          "id": "complete-source-backed-finite-skill-scopes",
+          "status": "remaining product implementation",
+          "boundary": "Use explicit source lifecycle and opportunity evidence to complete eligible finite single-skill scopes in the independent calculator and shared team core. Do not infer completion from a time window or empty visible queue. Prioritize missing behavior and source evidence; add only checks needed by that implementation or an observed defect. Target-phase HP and future-window runtime samples remain known validation limits."
+        },
+        "targetPhaseScenarios": {
+          "status": "bounded-user-declared-target-phase-scenarios-delivered; not verified",
+          "report": "docs/source-target-phases-20260929.zh-CN.md",
+          "measurements": "docs/validation/source-target-phases-measurements-20260929.json",
+          "capture": {
+            "path": "docs/validation/source-target-phases-20260929.capture.json",
+            "bytes": 201841,
+            "sha256": "76344295139492f5a1ac15e6d89786feb17560653e7050a545230df5de49f82b"
+          },
+          "policies": [
+            "damage: normal|immune",
+            "aura: normal|blocked",
+            "hitConfirm: normal|blocked"
+          ],
+          "interval": "Integer half-open [startFrame,endFrame); same-target overlaps and duplicate IDs rejected; target declaration index is bound to the native targetKey and matched at actual hit frame.",
+          "runtime": {
+            "lane": "classic only; stellar compiled only",
+            "case": "Kaeya E at frame 29 against six colocated synthetic targets",
+            "targetKeyByDeclarationIndex": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6
+            ],
+            "perTargetRawDamage": 1161.8921525418264,
+            "totalRawDamage": 6971.352915250958,
+            "totalAppliedDamage": 5809.460762709132,
+            "immuneTargetAppliedDamage": 0,
+            "auraBlockedTargetAuraApplied": false,
+            "hitConfirmBlockedEffects": {
+              "attackCallbacksSkipped": 3,
+              "onEnemyDamageGameplaySkipped": 2,
+              "onEnemyDamageObserversEmitted": 1
+            },
+            "allSixRawAndAppliedReplayDifferencesZero": true,
+            "fixedDurationHpLossAllTargets": 0,
+            "teamDraftPreservedWithoutSecondTeamSimulation": true
+          },
+          "checks": {
+            "focusedFirst": "5/6; cross-builder child reference integration issue",
+            "focusedFinal": "6/6; 1.484s after fix",
+            "classicBuildSeconds": 7.372,
+            "stellarBuildSeconds": 7.854,
+            "registrySeconds": 0.115,
+            "webBuildInitial": "failed 3.353s; request-kind exclusions and E2E result typing",
+            "webBuildFinalSeconds": 4.405,
+            "browserInitial": "failed 62.531s; strict request schema rejected receipt targetKey fields; no accepted/exported result",
+            "browserFinal": "passed 5.694s; same case after request-identity normalization; pageErrors empty",
+            "nativeInvocations": 2,
+            "acceptedClassicRuns": 1
+          },
+          "boundary": "The sample was fixed-duration and had no HP loss; HP cap has only narrow arithmetic-test coverage. No runtime verification of actual enemy mechanics, ICD carryover/reset, prior-aura decay, shatter, every reaction or gameplay hook, or phase convergence. No verified/coverage/data-pointer/activeVerified/completeCast promotion."
+        }
+      },
+      "sourceTargetScene": {
+        "status": "bounded-static-multi-target-scene-delivered; not verified",
+        "report": "docs/source-target-scene-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-target-scene-measurements-20260929.json",
+        "entryPoints": [
+          "apps/web/src/source-team-builder.ts",
+          "apps/web/src/source-single-skill-panel.ts"
+        ],
+        "implementation": [
+          "apps/web/src/source-target-scene.ts",
+          "apps/web/src/source-target-scene-controls.ts",
+          "packages/sim-core/src/source-host-target-summary.ts",
+          "apps/web/src/source-host-target-summary-panel.ts",
+          "packages/source-host/go/cmd/sourcehost/target_scene.go"
+        ],
+        "behavior": "Static initial targets each retain a native targetKey/declaration index. Aggregation reports per-target raw/applied damage, HP loss and hit count plus all-application totals; primaryTargetIndex selects the statistics target only and does not change native default target or targeting. Single-skill mode scopes summaries to selected associated application IDs and hides DPS; team result UI reports full-window primary/all-target DPS only when the native observation receipt confirms the configured window, otherwise it labels rates by actual runtime.",
+        "checks": {
+          "focusedUnitInitial": {
+            "passed": 4,
+            "total": 5,
+            "elapsedSeconds": 0.938,
+            "failure": "target summary rate referenced raw grouping object instead of traced row metrics"
+          },
+          "focusedUnitRepair": {
+            "scope": "only packages/sim-core/src/source-host-target-summary.test.ts",
+            "passed": 2,
+            "total": 2,
+            "elapsedSeconds": 0.582
+          },
+          "classicBuildSeconds": 5.783,
+          "stellarBuildSeconds": 6.831,
+          "registrySeconds": 0.182,
+          "webBuildInitial": {
+            "result": "failed",
+            "seconds": 4.622,
+            "reason": "exactOptionalPropertyTypes errors in target scene propagation and optional rate assignments"
+          },
+          "webBuildFinal": {
+            "result": "passed",
+            "seconds": 6.358
+          },
+          "browser": {
+            "result": "passed",
+            "cases": 1,
+            "elapsedSeconds": 14.971,
+            "pageErrors": []
+          }
+        },
+        "runtime": {
+          "nativeRuns": 2,
+          "runtimeLane": "classic",
+          "stellar": "compiled only; no runtime case",
+          "sceneTargets": 3,
+          "sameGCSLAndSeed": true,
+          "primarySelections": [
+            {
+              "mode": "single-skill",
+              "primaryTargetIndex": 1,
+              "primaryTargetKey": 2,
+              "nativeInitialDefaultTargetKey": 1
+            },
+            {
+              "mode": "team",
+              "primaryTargetIndex": 2,
+              "primaryTargetKey": 3,
+              "nativeInitialDefaultTargetKey": 1
+            }
+          ],
+          "perTargetRawAndAppliedDamage": [
+            1161.8921525418264,
+            645.4956403010146,
+            0
+          ],
+          "perTargetHitCounts": [
+            1,
+            1,
+            0
+          ],
+          "allTargetRawDamage": 1807.387792842841,
+          "teamSelectedPrimaryRawDamage": 0,
+          "nativeApplicationsUnchangedWhenPrimaryChanges": true,
+          "perTargetReplayDifferences": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "copiedRemovedDraftJsonRestored": true,
+          "diagramNote": "Rows can show crowded labels when targets are close; the numbered list distinguishes them."
+        },
+        "boundary": "No dynamic target motion, enemy shields, phase/invulnerability, initial DEF modifier support, complete-cast claim, coverage or verified promotion. Project data pointers are unchanged and activeVerified remains null."
+      },
+      "finiteIntrinsicRootAttackContracts107": {
+        "status": "bounded-source-contracts-and-dual-lane-instrumentation; classic Amber Q finite full/partial behavior implemented and sampled",
+        "report": "docs/source-finite-skill-casts-20260929.zh-CN.md",
+        "staticAudit": "docs/validation/source-finite-intrinsic-contracts-20260929.json",
+        "sourceCommits": {
+          "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+        },
+        "auditedContracts": 10,
+        "scope": "Intrinsic root attacks queued directly by ten fixed-source ability methods; contracts describe source branches/counts, not successful hits or all cast damage.",
+        "builds": {
+          "classic": "docs/validation/source-finite-cast-classic-build-20260929.json",
+          "stellar": "docs/validation/source-finite-cast-stellar-build-20260929.json"
+        },
+        "nativeInvocationAndDispatchSamples": {
+          "actualNativeExecutions": 2,
+          "browserCases": 1,
+          "lane": "classic",
+          "action": "Amber Q",
+          "full": {
+            "configuredFrames": 360,
+            "actualFrames": 360,
+            "expectedRoots": 18,
+            "completedRoots": 18,
+            "dispatchCompletions": 18,
+            "applications": 18,
+            "pending": 0,
+            "rawDamage": 3644.908929157875,
+            "nativeTotalDamage": 3644.908929157875,
+            "allReplayDifferencesZero": true,
+            "importExportIdentical": true
+          },
+          "partial": {
+            "configuredFrames": 120,
+            "actualFrames": 120,
+            "expectedRoots": 18,
+            "completedRoots": 5,
+            "pending": 13,
+            "knownSubtotal": 1100.540369191713,
+            "completeCast": false
+          },
+          "perturbations": {
+            "markingHitNotIncludedCloses": false,
+            "missingCompletionCloses": false,
+            "legacyCaptureFiniteAnalysisAvailable": false
+          },
+          "browser": {
+            "passed": true,
+            "runnerSeconds": 10.7,
+            "commandWallSeconds": 11.165,
+            "testCaseDurationMeasured": false,
+            "pageErrors": []
+          },
+          "result": "docs/validation/source-finite-cast-browser-20260929.result.json",
+          "measurements": "docs/validation/source-finite-cast-measurements-20260929.json",
+          "rawArchives": [
+            "docs/validation/source-finite-cast-amber-q-full-20260929.capture.json",
+            "docs/validation/source-finite-cast-amber-q-partial-20260929.capture.json"
+          ],
+          "layoutFollowup": "Result summary moved above the hit editor and opportunity detail collapsed; web-only build passed in 1.267s. No additional native execution or browser run; screenshot predates this layout-only change."
+        },
+        "stellarRuntimeSample": false,
+        "doesNotPromote": [
+          "global character coverage",
+          "verified",
+          "global completion"
+        ],
+        "instrumentationPatches": [
+          "packages/source-host/patches/107-ability-dispatch-receipts.patch",
+          "packages/source-host/stellar-overlay/build.mjs phaseCompletionPatches includes shared patch",
+          "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/ability_receipt.go"
+        ],
+        "completeCastRule": "May be true only for an explicitly finite scope when actual native invocation/dispatch receipts prove all audited root attacks are accounted for; observed collection scope remains separate. Amber Q full-window scope closed, while the truncated scope and an observed selection remain partial."
+      },
+      "finiteIntrinsicProducerContracts108": {
+        "status": "bounded-source-producer-closure-delivered",
+        "report": "docs/source-delayed-finite-skill-casts-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-delayed-finite-measurements-20260929.json",
+        "sourceAudit": "docs/validation/source-ability-producer-sites-20260929.json",
+        "remainingTaskInventory": "docs/validation/source-task-emitter-inventory-20260929.json",
+        "producerFamilies": 12,
+        "explicitProducerSites": 19,
+        "uniqueSkillContractsIncluding107": 21,
+        "delivered": [
+          "Both native lanes annotate exact audited producer registration sites; preserve native clocks, actual parent/child task registration, start/completion and attack queue identity.",
+          "Shared finite-skill capture restores producer and invocation receipts, validates source graph outcomes, and requires every intrinsic attack dispatch to finish across checked enemies.",
+          "Runtime-dependent totals remain unknown until the actual producer graph closes; pending observations are partial, not zero-filled.",
+          "Venti and Sucrose overlapping same-character Q lifetimes do not claim independent complete casts; Raiden Q contract explicitly covers initial strike only.",
+          "Single-skill calculator and team-origin handoff share the same finite capture, editable hit formulas and JSON restoration."
+        ],
+        "classicMeasurements": [
+          {
+            "character": "diona",
+            "action": "burst",
+            "seconds": 15,
+            "producers": 7,
+            "completedProducers": 7,
+            "rootAttacks": 7,
+            "applications": 7,
+            "total": 2334.666065224993,
+            "nativeDifference": 0,
+            "allHitReplayDifferences": 0,
+            "completeCast": true
+          },
+          {
+            "character": "kaeya",
+            "action": "burst",
+            "seconds": 12,
+            "producers": 16,
+            "completedProducers": 16,
+            "rootAttacks": 13,
+            "applications": 13,
+            "total": 2966.6700854069763,
+            "nativeDifference": 0,
+            "allHitReplayDifferences": 0,
+            "completeCast": true
+          },
+          {
+            "character": "kaeya",
+            "action": "burst",
+            "seconds": 2,
+            "producers": 5,
+            "pendingProducers": 3,
+            "rootAttacks": 2,
+            "applications": 2,
+            "knownSubtotal": 456.410782370304,
+            "nativeDifference": 0,
+            "allHitReplayDifferences": 0,
+            "completeCast": false
+          }
+        ],
+        "validation": "One browser case passed after two fixture/readiness failures. Four native executions total including an earlier Diona repeat. One synthetic Venti terminal-depth regression passed. Both lane builds and final typecheck/web build passed; no full suite or per-character matrix.",
+        "remaining": "Other producer families and branches are audited source contracts, not newly sampled native/game behavior. Stateful entities, event-bound future attacks and other unreviewed producers remain outside full-cast proof. Continue common lifecycle families using the inventory; do not substitute repeated individual-character testing for missing implementations.",
+        "dataPromotion": false,
+        "gameVerification": false,
+        "fullGoalComplete": false
+      },
+      "finiteTaskAndOwnedGeneratorContracts109": {
+        "status": "bounded-task-and-exact-status-ownership-delivered",
+        "report": "docs/source-owned-generators-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-owned-generators-measurements-20260929.json",
+        "runtimeResult": "docs/validation/source-owned-generators-team-20260929.result.json",
+        "sourceAudits": [
+          "docs/validation/source-finite-batch-a-20260929.json",
+          "docs/validation/source-finite-batch-b-20260929.json",
+          "docs/validation/source-owned-generators-audit-20260929.json"
+        ],
+        "uniqueContractsIncluding107And108": 35,
+        "declarationEntries": 26,
+        "explicitTaskProducerSitesAcrossDeclarations": 42,
+        "newFiniteFamilies": [
+          "aino-skill",
+          "charlotte-burst",
+          "xinyan-burst (C0-C1)",
+          "xiangling-burst",
+          "collei-burst",
+          "kazuha-burst",
+          "ayaka-burst",
+          "jean-burst",
+          "sayu-burst",
+          "kokomi-skill",
+          "kirara-burst (hits>=0, mine_delay=180)"
+        ],
+        "newOwnedGenerators": [
+          "xingqiu-burst sword-rain only",
+          "yelan-burst initial and dice damage",
+          "thoma-burst initial and collapse damage"
+        ],
+        "delivered": [
+          "Producer plans are declarative, with source parameter/constellation gates and actual task graph outcomes.",
+          "Exact Q-created status instances bind persistent generators independently of later trigger actions and callback creation ancestry.",
+          "Every owned generator declares trigger IDs; trigger rows retain exact emission sites and native queued attack references. Status termination plus all generated attack dispatch outcomes is required for complete scope.",
+          "Yelan skill-hit direct dice trigger preserves native behavior without inserting Minazuki ICD.",
+          "Single-skill and team handoff reuse the same finite capture, editable shared formulas and JSON restoration. Ordinary observed associations stay distinct from skill-ownership."
+        ],
+        "classicRuntime": {
+          "nativeRuns": 1,
+          "character": "yelan",
+          "constellation": 2,
+          "seconds": 23,
+          "generatorCount": 1,
+          "activationFrame": 77,
+          "expiryFrame": 977,
+          "observedEndFrame": 1380,
+          "triggers": 9,
+          "triggerKinds": [
+            "state-change",
+            "ticker",
+            "skill-hit"
+          ],
+          "ownedApplications": 32,
+          "ownedSubtotal": 28378.67210456749,
+          "nativeTeamTotal": 34526.939080662196,
+          "excludedNormalOwnHits": 10,
+          "excludedSkillOwnHits": 1,
+          "maxReplayDifference": 0,
+          "completeCast": true,
+          "collectionImportExportSame": true,
+          "pageErrors": []
+        },
+        "validation": "Both final native builds, registry generation, typecheck/web build, two focused offline tests and one browser case passed. Initial patch-context and association type errors were repaired and retained in the measurement log. No full suite or character matrix.",
+        "offlineNegativeEvidence": [
+          "Removing a native trigger row while retaining the independent generator triggerIds census does not close the recaptured skill.",
+          "Changing the archived status outcome to active-at-end prevents closure; this is not a separately executed short native run."
+        ],
+        "remaining": "Other families have fixed-source audit/build evidence, not new native or in-game samples. Entity/gadget lifetimes and additional event emitters still require implementation; Aino Q, Charlotte E, Chongyun E, Xinyan C2+ Q/E, Collei E, Lynette full Q, Yaoyao gadget scopes and unreviewed branches remain open. Continue common mechanisms rather than repeating character tests. All master-wide source/data/steady-state/external gaps remain tracked.",
+        "dataPromotion": false,
+        "gameVerification": false,
+        "fullGoalComplete": false
+      },
+      "finiteTaskEntryFactsAndOwnedEntities110": {
+        "status": "bounded-source-facts-and-entity-ownership-delivered",
+        "report": "docs/source-owned-entities-20260929.zh-CN.md",
+        "measurements": "docs/validation/source-owned-entities-measurements-20260929.json",
+        "runtimeResult": "docs/validation/source-owned-entities-team-20260929.result.json",
+        "sourceAudits": [
+          "docs/validation/source-finite-batch-c-20260929.json",
+          "docs/validation/source-finite-batch-d-20260929.json",
+          "docs/validation/source-owned-entities-audit-20260929.json",
+          "docs/validation/source-entity-entry-inventory-20260929.json"
+        ],
+        "uniqueContractsIncluding107To109": 57,
+        "declarationEntries": 48,
+        "explicitTaskProducerSitesAcrossDeclarations": 60,
+        "newFiniteFamilies": [
+          "beidou-skill",
+          "cyno-skill",
+          "diluc-skill",
+          "freminet-skill",
+          "heizou-skill",
+          "mika-skill (press only)",
+          "sara-burst",
+          "dori-burst",
+          "gorou-skill",
+          "gorou-burst",
+          "kuki-skill",
+          "kuki-burst",
+          "ayato-burst",
+          "wanderer-burst",
+          "arlecchino-burst",
+          "neuvillette-burst",
+          "clorinde-burst",
+          "yaemiko-burst",
+          "tighnari-burst",
+          "dehya-burst (automatic chain only)"
+        ],
+        "newOwnedEntityFamilies": [
+          "amber-skill",
+          "yaoyao-skill"
+        ],
+        "delivered": [
+          "Ability entry facts capture the actual native branches for Cyno, Freminet, Kuki and Yae; lazy plan expressions do not invent unused or missing facts.",
+          "Exact spawn, entity, callback and flight-task receipts preserve original action ancestry and explicitly bind intrinsic queue sites.",
+          "Entity removal and attack settlement are separate; owned attacks after removal retain their exact entity provenance.",
+          "Single-skill collection capture, formula replay, import/export and entity completion UI share these receipts.",
+          "Wanderer Q allows only its source-audited cleanup OnRemoved callback; other callback contracts are unchanged."
+        ],
+        "classicRuntime": {
+          "nativeRuns": 1,
+          "seconds": 24,
+          "rawPath": "docs/validation/source-owned-entities-team-20260929.capture.json",
+          "nativeResultArchived": true,
+          "entities": [
+            {
+              "id": 1,
+              "siteId": "amber.skill.bunny",
+              "triggerCount": 1,
+              "producerCount": 0,
+              "endedFrame": 530,
+              "endReason": "expired"
+            },
+            {
+              "id": 2,
+              "siteId": "yaoyao.skill.yuegui",
+              "triggerCount": 10,
+              "producerCount": 10,
+              "endedFrame": 688,
+              "endReason": "expired"
+            }
+          ],
+          "yaoyao": {
+            "thinkCount": 10,
+            "megaThinkIndexes": [
+              2,
+              5
+            ],
+            "flightCount": 10,
+            "applications": 12,
+            "sharedTotal": 4277.550401222926
+          },
+          "amber": {
+            "applications": 1,
+            "sharedTotal": 738.3152411002368,
+            "explosionAttackId": 14
+          },
+          "yae": {
+            "entryKitsuneCount": 3,
+            "applications": 4,
+            "sharedTotal": 7015.053499813503,
+            "roots": 4
+          },
+          "combinedOwnedSubtotal": 12030.919142136665,
+          "nativeTotalDamage": 18546.079767718868,
+          "collectionImportExportSame": true,
+          "missingProducerCloses": false,
+          "missingExplosionDispatchCloses": false,
+          "missingYaeEntryFactCapturable": false,
+          "teamApplications": 32,
+          "selectedApplications": 17,
+          "maxReplayDifference": 0,
+          "allThreeScopesClosed": true,
+          "pageErrors": []
+        },
+        "validation": "Both native builds, registry generation, typecheck, web build, two focused offline tests and one browser case passed on their first execution this batch. No full suite or character matrix.",
+        "remaining": "This closes audited Amber E and Yaoyao E intrinsic damage ownership, not all entity/event skill scopes. Other declarations remain source-audited rather than individually runtime sampled; Yaoyao Q, unreviewed on-hit chains, constructs, event generators, remaining action scopes and master-wide steady-state/data/external evidence gaps remain open.",
+        "dataPromotion": false,
+        "gameVerification": false,
+        "fullGoalComplete": false
+      },
+      "targetHitCallbackClosure111": {
+        "status": "source-audited-target-callback-closure-delivered",
+        "report": "docs/source-hit-callbacks-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-hit-callbacks-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-hit-callbacks-team-20260929.result.json",
+        "sourceAudits": [
+          "docs/validation/source-hit-callbacks-design-20260929.json",
+          "docs/validation/source-hit-callbacks-dori-mika-audit-20260929.json",
+          "docs/validation/source-hit-callbacks-b-audit-20260929.json"
+        ],
+        "uniqueContractsIncluding107To110": 60,
+        "declarationEntries": 51,
+        "newContracts": [
+          "dori-skill",
+          "baizhu-skill (C0-C1 only)",
+          "navia-skill (press and native-clamped hold, all constellations)"
+        ],
+        "expandedContract": "mika-skill press preserved and all integer nonzero hold branches source-audited",
+        "delivered": [
+          "The actual per-target native damage/callback task records a pending/completed/blocked batch with exact parent queue/attack/dispatch/target identity and the actual callback slot census.",
+          "Only source-labeled callback sites and explicitly tagged child queues extend the skill graph. Original action ancestry, gameplay order, selected targets and random reads remain unchanged.",
+          "Dori/Mika one-shot callback branches use actual facts; Baizhu chained target choice and invocation overlap follow descendant completion; Navia fire reads real target N once and branches on the actual producer-local Arkhe ICD fact.",
+          "Standalone skill UI, shared formula traces, editable child hits and JSON restoration use the same reachable intrinsic graph."
+        ],
+        "runtime": {
+          "nativeRuns": 1,
+          "browserAttempts": 2,
+          "seconds": 12,
+          "targets": 2,
+          "teamApplications": 34,
+          "selectedApplications": 30,
+          "maxReplayDifference": 0,
+          "nativeRunPerformed": false,
+          "rawPath": "docs/validation/source-hit-callbacks-team-20260929.capture.json",
+          "nativeResultArchived": true,
+          "invocations": {
+            "dori": {
+              "id": 1,
+              "actionSequence": 1,
+              "params": {}
+            },
+            "mika": {
+              "id": 2,
+              "actionSequence": 3,
+              "params": {
+                "hold": 1
+              }
+            },
+            "baizhu": {
+              "id": 3,
+              "actionSequence": 5,
+              "params": {}
+            },
+            "navia": {
+              "id": 4,
+              "actionSequence": 7,
+              "params": {
+                "hold": 31
+              }
+            }
+          },
+          "callbackBatches": 34,
+          "callbacks": 23,
+          "auditedCallbackCounts": {
+            "dori": 2,
+            "mika": 1,
+            "baizhu": 6,
+            "navia": 2
+          },
+          "childAttackCounts": {
+            "dori": 3,
+            "mika": 1,
+            "baizhu": 6,
+            "navia": 1
+          },
+          "naviaSelectedEnemyCount": 2,
+          "applications": {
+            "dori": {
+              "count": 8,
+              "subtotal": 2351.6251669063295,
+              "expectedRoots": 4,
+              "completedRoots": 4
+            },
+            "mika": {
+              "count": 2,
+              "subtotal": 321.13439068838403,
+              "expectedRoots": 2,
+              "completedRoots": 2
+            },
+            "baizhu": {
+              "count": 14,
+              "subtotal": 5941.130255119439,
+              "expectedRoots": 7,
+              "completedRoots": 7
+            },
+            "navia": {
+              "count": 6,
+              "subtotal": 7783.105580503631,
+              "expectedRoots": 4,
+              "completedRoots": 4
+            }
+          },
+          "combinedSubtotal": 16396.995393217785,
+          "nativeTotalDamage": 24210.004293217797,
+          "collectionImportExportSame": true,
+          "missingBatchCloses": false,
+          "missingCallbackCloses": false,
+          "missingNaviaProducerFactCloses": false,
+          "pageErrors": []
+        },
+        "validation": "Both native builds, registry, typecheck/Web and one historical-capture regression passed. First browser exposed missing Mika callback metadata; repaired final build and saved-capture UI replay passed without repeating the native simulation.",
+        "remaining": "Global event-owned damage, death-triggered attacks, shield lifetimes and other source scopes still require implementation. Baizhu C2/C6 and Childe Q are explicitly excluded from complete-cast registration. Other parameter/constellation/phase/overlap outcomes are source-audited rather than separately runtime sampled. Master-wide action, phase, data and external evidence gaps remain.",
+        "dataPromotion": false,
+        "gameVerification": false,
+        "fullGoalComplete": false
+      },
+      "globalEventComponents112": {
+        "status": "bounded-observed-event-components",
+        "report": "docs/source-event-components-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-event-components-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-event-components-team-20260930.result.json",
+        "sourceAudits": [
+          "docs/validation/source-event-sites-112-20260930.json",
+          "docs/validation/source-event-ownership-design-112-20260930.json",
+          "docs/validation/source-event-damage-inventory-20260930.json",
+          "docs/validation/source-shield-ownership-design-20260930.json"
+        ],
+        "scope": "Generic actual OnEnemyDamage/OnTargetDied registration/emission/call/task receipts; only audited Baizhu C2 and Tartaglia death Riptide components are independent editable collections. No E/Q ownership inference or completeCast promotion.",
+        "delivered": [
+          "Native event registration lifetime, emissions, executed/suppressed listeners",
+          "Exact branch facts, child queue sites and +5f core-task identity",
+          "Shared hit formulas, structured subtotal traces, editing, JSON roundtrip and source-page entry"
+        ],
+        "counts": {
+          "eventTypesObserved": 2,
+          "auditedEventComponents": 2,
+          "staticEventDamageCandidateFamilies": 23,
+          "distinctSkillContracts": 60,
+          "producerPlanEntries": 51,
+          "nativeRunsThisBatch": 1,
+          "browserCases": 1,
+          "browserAttempts": 2,
+          "offlineTests": 1,
+          "historicalCapturesReused": 4
+        },
+        "runtime": {
+          "lifecycleObservationFrame": 681,
+          "teamApplicationCount": 8,
+          "nativeTotalDamage": 964356.9998983659,
+          "registrationCount": 5,
+          "emissionCount": 9,
+          "listenerCallCount": 33,
+          "producerCount": 1,
+          "selectedApplicationCount": 2,
+          "selectedSubtotal": 428.8435330531382,
+          "maxSelectedHitReplayDifference": 0,
+          "firstAttemptResult": "docs/validation/source-event-components-team-initial-20260930.result.json",
+          "evidence": "Passing browser case asserts exact-zero replay for both selected hits; the second attempt reused the first native capture."
+        },
+        "components": [
+          {
+            "siteId": "baizhu.c2.enemy-damage",
+            "listenerCallId": 12,
+            "componentId": "baizhu-c2-on-enemy-damage",
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 1,
+            "componentSubtotal": 303.44568032812504
+          },
+          {
+            "siteId": "tartaglia.riptide.target-died",
+            "listenerCallId": 9,
+            "componentId": "tartaglia-riptide-on-target-died",
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 1,
+            "completedProducerCount": 1,
+            "pendingProducerCount": 0,
+            "hitCount": 1,
+            "componentSubtotal": 125.39785272501312
+          }
+        ],
+        "boundary": "deliveryClosed concerns only the selected listener invocation; shield/status lifetimes remain separate. The 23-family inventory is static evidence only.",
+        "next": "Reuse event receipts for additional audited families and implement source-proven shield instance/task ownership before claiming C6, shield refresh or Xinyan lifetimes complete."
+      },
+      "directEventComponents113": {
+        "status": "source-audited-direct-event-components",
+        "report": "docs/source-direct-events-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-direct-events-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-direct-events-team-20260930.result.json",
+        "counts": {
+          "newDirectEventComponents": 9,
+          "totalEventComponents": 11,
+          "newComponentsWithNativeSample": 3,
+          "newComponentsWithSourceAndBuildEvidenceOnly": 6,
+          "staticEventInventoryFamilies": 23,
+          "inventoryFamiliesWithoutEventCollection": 12,
+          "distinctFiniteSkillContracts": 60,
+          "producerPlanEntries": 51,
+          "nativeRuns": 1,
+          "browserCases": 1,
+          "browserAttempts": 1,
+          "historicalCapturesReused": 1,
+          "historicalComponentsRecalculated": 2
+        },
+        "runtime": {
+          "lifecycleObservationFrame": 770,
+          "teamApplicationCount": 24,
+          "nativeTotalDamage": 18851.851237575444,
+          "eventRegistrations": 7,
+          "eventEmissions": 24,
+          "eventListenerCalls": 168,
+          "eventProducers": 0,
+          "selectedApplicationCount": 6,
+          "selectedSubtotal": 1875.5684120374535,
+          "maxSelectedReplayDifference": 0,
+          "historicalApplicationCount": 2,
+          "maxHistoricalReplayDifference": 0,
+          "evidence": "Single passing Playwright case checks all six selected fresh hits and both old component hits against the same shared calculation core."
+        },
+        "components": [
+          {
+            "siteId": "albedo.skill.enemy-damage",
+            "componentId": "albedo-skill-proc",
+            "listenerCallId": 18,
+            "entryFacts": {
+              "albedo.skill.enemy-damage.attack-count": 1
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 2,
+            "componentSubtotal": 1356.88886407622,
+            "reasons": []
+          },
+          {
+            "siteId": "dehya.skill.enemy-damage",
+            "componentId": "dehya-skill-followup",
+            "listenerCallId": 47,
+            "entryFacts": {
+              "dehya.skill.enemy-damage.attack-count": 1
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 2,
+            "componentSubtotal": 364.9738662611342,
+            "reasons": []
+          },
+          {
+            "siteId": "raiden.eye.enemy-damage",
+            "componentId": "raiden-eye-followup",
+            "listenerCallId": 104,
+            "entryFacts": {
+              "raiden.eye.enemy-damage.attack-count": 1
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 2,
+            "componentSubtotal": 153.70568170009923,
+            "reasons": []
+          }
+        ],
+        "scope": "One actual listener call, its audited finite direct-queue count and exact tagged queues/target applications. Shared registry drives both UI entries and calculation rules. No E/Q lifecycle claim.",
+        "sourceAudits": [
+          "docs/validation/source-direct-events-sites-a-20260930.json",
+          "docs/validation/source-direct-events-sites-b-20260930.json",
+          "docs/validation/source-direct-events-sites-c-20260930.json"
+        ],
+        "remaining": "Twelve inventory families still require further event task/callback/entity/resource bindings. Prior status, construct and shield ownership and full skill lifetimes remain separate work."
+      },
+      "sharedAndDelayedEventComponents114": {
+        "status": "source-audited-event-components",
+        "report": "docs/source-shared-delayed-events-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-shared-delayed-events-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-shared-delayed-events-team-20260930.result.json",
+        "counts": {
+          "newEventComponents": 11,
+          "totalEventComponents": 22,
+          "newComponentsWithNativeSample": 5,
+          "newComponentsWithSourceAndBuildEvidenceOnly": 6,
+          "staticEventInventoryFamilies": 23,
+          "inventoryFamiliesWithoutEventCollection": 1,
+          "distinctFiniteSkillContracts": 60,
+          "producerPlanEntries": 51,
+          "nativeRuns": 2,
+          "browserCases": 1,
+          "browserAttempts": 1,
+          "historicalCapturesReused": 1,
+          "historicalComponentsRecalculated": 1
+        },
+        "native": [
+          {
+            "name": "shared",
+            "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "seed": "202609301",
+            "lifecycleObservationFrame": 798,
+            "resultDurationFrames": 798,
+            "nativeTotalDamage": 38769.898634191195,
+            "applicationDamageSum": 38769.898634191195,
+            "applicationsCount": 67,
+            "eventRegistrationsCount": 9,
+            "eventEmissionsCount": 67,
+            "eventListenerCallsCount": 536,
+            "eventProducersCount": 4,
+            "hitCallbackBatchesCount": 67,
+            "hitCallbacksCount": 32
+          },
+          {
+            "name": "taskTree",
+            "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+            "seed": "202609302",
+            "lifecycleObservationFrame": 258,
+            "resultDurationFrames": 258,
+            "nativeTotalDamage": 9855.532194060197,
+            "applicationDamageSum": 9855.532194060197,
+            "applicationsCount": 10,
+            "eventRegistrationsCount": 5,
+            "eventEmissionsCount": 10,
+            "eventListenerCallsCount": 50,
+            "eventProducersCount": 4,
+            "hitCallbackBatchesCount": 10,
+            "hitCallbacksCount": 2
+          }
+        ],
+        "selectedApplicationCount": 12,
+        "selectedSubtotal": 5856.829210850738,
+        "maxSelectedReplayDifference": 0,
+        "historicalApplicationCount": 2,
+        "maxHistoricalReplayDifference": 0,
+        "components": [
+          {
+            "siteId": "mona.bubble.on-enemy-damage",
+            "componentId": "mona-burst-bubble",
+            "listenerCallId": 180,
+            "entryFacts": {
+              "mona.bubble.on-enemy-damage.attack-count": 1
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 1,
+            "componentSubtotal": 1040.1457191052034,
+            "reasons": []
+          },
+          {
+            "siteId": "charlotte.c6.enemy-damage",
+            "componentId": "charlotte-c6",
+            "listenerCallId": 277,
+            "entryFacts": {
+              "charlotte.c6.enemy-damage.producer-count": 1
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 1,
+            "completedProducerCount": 1,
+            "pendingProducerCount": 0,
+            "hitCount": 2,
+            "componentSubtotal": 719.126366738158,
+            "reasons": []
+          },
+          {
+            "siteId": "faruzan.c6.enemy-damage",
+            "componentId": "faruzan-c6-collapse",
+            "listenerCallId": 118,
+            "entryFacts": {
+              "faruzan.c6.enemy-damage.producer-count": 1
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 1,
+            "completedProducerCount": 1,
+            "pendingProducerCount": 0,
+            "hitCount": 2,
+            "componentSubtotal": 665.531497852868,
+            "reasons": []
+          },
+          {
+            "siteId": "beidou.burst.enemy-damage",
+            "componentId": "beidou-burst-proc",
+            "listenerCallId": 279,
+            "entryFacts": {
+              "beidou.burst.attack-count": 1,
+              "beidou.burst.max-hit-count": 5
+            },
+            "deliveryClosed": true,
+            "attackCount": 5,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 5,
+            "componentSubtotal": 1018.653568268538,
+            "reasons": []
+          },
+          {
+            "siteId": "chiori.c4.enemy-damage",
+            "componentId": "chiori-c4-kinu",
+            "listenerCallId": 14,
+            "entryFacts": {
+              "chiori.c4.enemy-damage.producer-count": 2
+            },
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 4,
+            "completedProducerCount": 4,
+            "pendingProducerCount": 0,
+            "hitCount": 2,
+            "componentSubtotal": 2413.3720588859705,
+            "reasons": []
+          }
+        ],
+        "scope": "One actual listener invocation and audited direct/shared helper, delayed, hit-callback or nested task descendants. Full earlier status ownership and whole E/Q lifecycle remain separate. Source-pinned implementations do not certify released-game mechanics.",
+        "remaining": "The one remaining family in the 23-family static event inventory is Columbina gravity: recurring resource/task ownership still needs implementation. Broader status/construct/shield ownership, full skills and source-phase convergence remain open."
+      },
+      "ownedShieldFiniteCast115": {
+        "status": "source-audited-finite-skill-damage",
+        "report": "docs/source-shield-ownership-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-shield-ownership-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-shield-ownership-team-20260930.result.json",
+        "counts": {
+          "distinctFiniteSkillContracts": 61,
+          "producerPlanEntries": 52,
+          "producerSites": 65,
+          "newFiniteSkillContracts": 1,
+          "nativeRuns": 1,
+          "browserCases": 1,
+          "browserAttempts": 2,
+          "additionalNativeRunsOnRetry": 0,
+          "offlineGapProbes": 2
+        },
+        "selected": {
+          "invocationId": 1,
+          "qShieldIds": [
+            1,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "excludedC6ShieldIds": [
+            2,
+            3
+          ],
+          "closed": true,
+          "producerCount": 6,
+          "endedShieldCount": 6,
+          "hookCounts": {
+            "refresh": 5,
+            "overwrite": 5,
+            "expiry": 1,
+            "damage": 0
+          },
+          "hitCount": 6,
+          "subtotal": 5525.524907224306,
+          "replayDifferences": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "missingBirthClosed": false,
+          "missingExpiryHookClosed": false,
+          "editedAndRoundTripped": true
+        },
+        "remaining": "Other shield-created skill ownership, callback-to-task ancestry, state/resource generators, complete action scopes and broader phase convergence remain unfinished; this is not game verification."
+      },
+      "shieldCallbackTaskFiniteCast116": {
+        "status": "source-audited-finite-skill-damage",
+        "report": "docs/source-shield-task-casts-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-shield-task-casts-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-shield-task-casts-team-20260930.result.json",
+        "counts": {
+          "distinctFiniteSkillContracts": 63,
+          "producerPlanEntries": 54,
+          "producerSites": 70,
+          "newFiniteSkillContracts": 2,
+          "extendedFiniteSkillContracts": 1,
+          "nativeRuns": 1,
+          "browserCases": 1,
+          "browserAttempts": 3,
+          "additionalNativeRunsOnRetry": 0,
+          "offlineGapProbes": 1
+        },
+        "selected": [
+          {
+            "key": "noelleE",
+            "contractId": "noelle-skill",
+            "completeCast": true,
+            "hitCount": 4,
+            "componentSubtotal": 2292.4880410260785,
+            "appliedDamageSubtotal": 2292.4880410260785,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "producerCount": 2,
+            "shieldInstanceIds": [
+              1
+            ],
+            "shieldCount": 1,
+            "endedShieldCount": 1,
+            "shieldHookCount": 1,
+            "shieldProducerCount": 0,
+            "hitCallbackCount": 0,
+            "observedRootAttackCount": 2,
+            "closed": true
+          },
+          {
+            "key": "xinyanE",
+            "contractId": "xinyan-skill",
+            "completeCast": true,
+            "hitCount": 4,
+            "componentSubtotal": 691.6303929066518,
+            "appliedDamageSubtotal": 691.6303929066518,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "producerCount": 3,
+            "shieldInstanceIds": [
+              2,
+              3
+            ],
+            "shieldCount": 2,
+            "endedShieldCount": 2,
+            "shieldHookCount": 2,
+            "shieldProducerCount": 2,
+            "hitCallbackCount": 8,
+            "observedRootAttackCount": 2,
+            "closed": true
+          },
+          {
+            "key": "xinyanQ",
+            "contractId": "xinyan-burst",
+            "completeCast": true,
+            "hitCount": 30,
+            "componentSubtotal": 3783.136560570299,
+            "appliedDamageSubtotal": 3783.136560570299,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "producerCount": 3,
+            "shieldInstanceIds": [
+              4
+            ],
+            "shieldCount": 1,
+            "endedShieldCount": 1,
+            "shieldHookCount": 1,
+            "shieldProducerCount": 6,
+            "hitCallbackCount": 0,
+            "observedRootAttackCount": 15,
+            "closed": true
+          }
+        ],
+        "remaining": "Other intrinsic skill ownership and state/resource generators, complete action scopes and broader phase convergence remain unfinished; source replay is not game verification."
+      },
+      "finiteCoverageAndImmediateOccurrences117": {
+        "status": "source-audited-finite-skill-damage",
+        "report": "docs/source-finite-coverage-batch-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-finite-coverage-batch-measurements-20260930.json",
+        "runtimeResult": "docs/validation/source-finite-coverage-batch-team-20260930.result.json",
+        "counts": {
+          "distinctFiniteSkillContracts": 70,
+          "producerPlanEntries": 57,
+          "producerSites": 74,
+          "newFiniteSkillContracts": 7,
+          "nativeRuns": 2,
+          "browserCases": 1,
+          "browserAttempts": 2,
+          "additionalNativeRunsOnRetry": 0,
+          "selectedHits": 10
+        },
+        "selected": [
+          {
+            "contractId": "ganyu-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "componentSubtotal": 1194.0357925738979,
+            "replayDifferences": [
+              0,
+              0
+            ]
+          },
+          {
+            "contractId": "yanfei-skill",
+            "completeCast": true,
+            "hitCount": 1,
+            "componentSubtotal": 622.8374895493632,
+            "replayDifferences": [
+              0
+            ]
+          },
+          {
+            "contractId": "xiao-skill",
+            "completeCast": true,
+            "hitCount": 1,
+            "componentSubtotal": 551.6531511516001,
+            "replayDifferences": [
+              0
+            ]
+          },
+          {
+            "contractId": "thoma-skill",
+            "completeCast": true,
+            "hitCount": 1,
+            "componentSubtotal": 236.09597578742884,
+            "replayDifferences": [
+              0
+            ]
+          },
+          {
+            "contractId": "ayato-skill",
+            "completeCast": true,
+            "hitCount": 1,
+            "componentSubtotal": 147.14406046349998,
+            "replayDifferences": [
+              0
+            ]
+          },
+          {
+            "contractId": "yunjin-burst",
+            "completeCast": true,
+            "hitCount": 1,
+            "componentSubtotal": 378.6432788016,
+            "replayDifferences": [
+              0
+            ]
+          },
+          {
+            "contractId": "kirara-skill",
+            "completeCast": true,
+            "hitCount": 3,
+            "componentSubtotal": 248.1868052397105,
+            "replayDifferences": [
+              0,
+              0,
+              0
+            ]
+          }
+        ],
+        "metadataCorrection": {
+          "canonicalKeys": 11,
+          "sourcePaths": 5,
+          "audit": "docs/validation/source-finite-native-key-audit-20260930.json"
+        },
+        "remaining": "Other state/entity/resource owned skills and complete action scopes remain incomplete; broad game verification has not been established."
+      },
+      "recurringSkillOwnership118": {
+        "status": "implemented-source-audited-and-focused-runtime-captured",
+        "report": "docs/source-recurring-skill-ownership-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-recurring-skill-ownership-measurements-20260930.json",
+        "newCharacterActions": [
+          "qiqi E",
+          "yaemiko E",
+          "xiangling E",
+          "yaoyao Q",
+          "beidou Q"
+        ],
+        "sourceSpecificContracts": 7,
+        "allDistinctSourceContracts": 77,
+        "uniqueCharacterActions": 75,
+        "plans": 64,
+        "producerSites": 94,
+        "runtime": {
+          "classicRuns": 2,
+          "stellarRuns": 1,
+          "selectedApplications": 66,
+          "perHitReplayDifference": 0,
+          "finiteCollectionsComplete": 7,
+          "browserAttempts": 1,
+          "independentCalculatorEditJsonRoundTrip": "passed"
+        },
+        "laneSeparation": "Qiqi and Yae classic/Stellar have independently audited definitions and exact sourceCommit allowlists.",
+        "verificationBoundary": "Source-native behavior and scoped replay evidence, not game verification or full-roster completion."
+      },
+      "finiteExpansionAndTalentAssignments123": {
+        "status": "source-scoped-delivered; full master goal remains active",
+        "report": "docs/source-finite-expansion-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-finite-expansion-measurements-20260930.json",
+        "sourceAudits": [
+          "docs/validation/source-finite-expansion-candidates-20260930.json",
+          "docs/validation/source-finite-expansion-producer-audit-20260930.json",
+          "docs/validation/source-reassigned-talent-sites-20260930.json"
+        ],
+        "delivered": [
+          "Ten source-audited direct finite E/Q contracts plus Shenhe E/Q and Chongyun E producer contracts.",
+          "Chongyun replacement preserves native old snapshot, original registration ownership, and actual cancelled/queued branch facts; no overlap ban.",
+          "Talent table reads support whole AttackInfo replacement and direct Mult field assignments, including visible by-value AttackInfo parameters, using the existing shared table/index core.",
+          "Existing standalone calculator imports complete captures and supports per-hit edits/export/import without requiring the full team."
+        ],
+        "registry": {
+          "newDirectContracts": 10,
+          "newProducerContracts": 3,
+          "mergedContractIds": 90,
+          "canonicalCharacterActions": 88,
+          "directRegistryRows": 24,
+          "producerRegistryRows": 67,
+          "producerPlanDeclarations": 67,
+          "explicitProducerSiteDeclarations": 99,
+          "uniqueProducerSiteIds": 92
+        },
+        "runtime": {
+          "nativeRuns": 3,
+          "oneClassicBaseline": true,
+          "postChangeLanes": [
+            "classic",
+            "stellar"
+          ],
+          "endFramePerLane": 1707,
+          "applicationsPerLane": 62,
+          "selectedApplicationsPerLane": 58,
+          "completeInvocationsPerLane": 5,
+          "distinctNewContractsObserved": 4,
+          "maximumAbsoluteReplayDifference": 0,
+          "classicApplicationsUnchangedFromBaseline": true,
+          "shenheDoTTalentReadsPerLane": 36,
+          "shenheQQuillComponentsPerLane": 3,
+          "classicCalculatorEditExportImport": true,
+          "pageErrors": []
+        },
+        "talentReadSiteCounts": {
+          "classic": {
+            "before": 600,
+            "after": 663,
+            "added": 63,
+            "addedFiles": 55,
+            "removedKeyCounts": []
+          },
+          "stellar": {
+            "before": 632,
+            "after": 698,
+            "added": 66,
+            "addedFiles": 58,
+            "removedKeyCounts": []
+          }
+        },
+        "validation": {
+          "checks": "docs/validation/source-finite-expansion-measurements-20260930.json",
+          "repair": "One test-harness union narrowing fix before final TypeScript pass. No native retry, full unit suite, or performance run."
+        },
+        "remaining": [
+          "Nine other newly registered direct contracts have source/build evidence only.",
+          "Remaining native E/Q producer, callback, and persistent effect scopes still require source-specific complete ownership rules; registry count is not universal coverage.",
+          "Unbound helper, alias, dynamic resource expression and later-write paths still retain explicit provenance gaps.",
+          "No additional game verification or remote data-update execution; released and preview pointers are unchanged."
+        ],
+        "next": "Continue broad source-audited action/formula coverage and shared state semantics; avoid rerunning the passed role sample matrix. Use existing captures when only analysis or presentation changes.",
+        "fullGoalComplete": false,
+        "gameVerifiedPromotion": false,
+        "dataPointersChanged": false
+      },
+      "conditionalBranchesAndEnemyTasks124": {
+        "status": "bounded-source-contracts-and-shared-tag-matching-delivered",
+        "report": "docs/source-conditional-enemy-tasks-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-conditional-enemy-measurements-20260930.json",
+        "audits": [
+          "docs/validation/source-conditional-entries-audit-20260930.json",
+          "docs/validation/source-nilou-enemy-task-audit-20260930.json",
+          "docs/validation/source-attack-tag-aliases-20260930.json"
+        ],
+        "implementation": [
+          "8 additional canonical E/Q contracts: 3 constant, 4 branch/parameter plans, Nilou callback-to-enemy-task ownership.",
+          "Zero-attack complete branch trace and calculator presentation; missing branch facts remain unknown.",
+          "Actual Nilou parent hit callback, producer, task ID, enemy queue target and local-clock edges; original attack Origin is unchanged.",
+          "Shared strict comparison of seven audited tag aliases used by 13 gates across 9 consumers, preserving raw wire evidence."
+        ],
+        "counts": {
+          "newCanonicalActions": 8,
+          "directRegistryRows": 27,
+          "producerRegistryRows": 72,
+          "rawRegistryRows": 99,
+          "mergedContractIds": 98,
+          "canonicalCharacterActions": 96,
+          "producerPlanDeclarations": 72,
+          "explicitProducerSiteDeclarations": 100,
+          "uniqueProducerSiteIds": 93
+        },
+        "runtime": {
+          "nativeRuns": 3,
+          "cachedVerificationRuns": 1,
+          "endFramePerLane": 653,
+          "applicationsPerLane": 15,
+          "selectedApplicationsPerLane": 12,
+          "completeInvocationsPerLane": 6,
+          "distinctNewContractsObserved": 4,
+          "maximumAbsoluteReplayDifference": 0,
+          "classicApplicationsAndOriginalOriginUnchanged": true,
+          "nilouRootsPerLane": 3,
+          "nilouApplicationsPerLane": 4,
+          "nilouTotalAppliedDamagePerLane": 7209.930777468864,
+          "classicZeroAttackCalculatorExportImport": true,
+          "pageErrors": []
+        },
+        "repair": {
+          "initialBrowserFailure": "Stellar receipts encode the ordinary Burst tag as AttackTag(6); named-only matching rejected valid Nilou attacks. Added the seven source-shared literal aliases in one helper and reused the saved two-lane native captures for final checks.",
+          "nativeRunsRepeated": false,
+          "goRebuildAfterTagRepair": false
+        },
+        "remaining": [
+          "Jean E, Lanyan Q, Varka Q and Aloy E have source/build evidence only in this batch.",
+          "Qiqi Stellar Conduct positive branch, Chasca pending AimState release and Nilou dead-target pending branch were not exercised.",
+          "Sara E delayed Crowfeather ownership and Mavuika Q persistent mode/resource ownership are incomplete.",
+          "Shared tag aliases fix matching gates; other existing contracts were not rerun as a character matrix.",
+          "General native phase convergence, remaining E/Q ownership, unavailable game evidence and remote CI execution remain open."
+        ]
+      },
+      "finiteFrontier125": {
+        "status": "three-source-reviewed-scopes-built-not-newly-runtime-sampled",
+        "report": "docs/source-private-numeric-state-20260930.zh-CN.md",
+        "newRules": [
+          "tighnari-skill",
+          "escoffier-burst",
+          "ororon-skill"
+        ],
+        "registryCounts": {
+          "directRows": 28,
+          "producerRows": 74,
+          "rawRows": 102,
+          "mergedIds": 101,
+          "canonicalCharacterActions": 99,
+          "producerPlans": 74,
+          "producerSiteDeclarations": 101,
+          "uniqueProducerSites": 94
+        },
+        "sourceFrontierAfter125": {
+          "classic": {
+            "registeredCharacters": 117,
+            "eqBindings": 234,
+            "uniqueEQSourceMethods": 222,
+            "registeredScopeBindings": 99,
+            "remainingBindings": 135,
+            "remainingUniqueMethods": 123,
+            "scope": "Uses existing Go AST actionCapabilities metadata, including forwarded/alternate Traveler receivers. Source implemented and registered scope do not mean game verification or all branches runtime sampled."
+          },
+          "stellar": {
+            "registeredCharacters": 124,
+            "eqBindings": 248,
+            "uniqueEQSourceMethods": 234,
+            "registeredScopeBindings": 99,
+            "remainingBindings": 149,
+            "remainingUniqueMethods": 135,
+            "scope": "Uses existing Go AST actionCapabilities metadata, including forwarded/alternate Traveler receivers. Source implemented and registered scope do not mean game verification or all branches runtime sampled."
+          }
+        },
+        "boundary": "Scope registrations are not proof of full gameplay or runtime coverage. Uses existing actionCapabilities AST extractor; no new Traveler metadata implementation."
+      },
+      "laylaShieldOwnership126": {
+        "status": "integrated-and-runtime-verified-for-recorded-source-scene",
+        "report": "docs/source-layla-ownership-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-layla-ownership-measurements-20260930.json",
+        "newRules": [
+          "layla-skill",
+          "layla-burst"
+        ],
+        "registryCounts": {
+          "directRows": 28,
+          "producerRows": 76,
+          "rawRows": 104,
+          "mergedIds": 103,
+          "canonicalCharacterActions": 101,
+          "producerPlans": 76,
+          "producerSiteDeclarations": 103,
+          "uniqueProducerSites": 96
+        },
+        "runtimePerLane": {
+          "actualEndFrame": 1730,
+          "damageApplications": 58,
+          "closedSelectedCasts": 3,
+          "replayedSelectedHits": 52,
+          "maxReplayDifference": 0,
+          "sameLaneBaselineApplicationsOriginsActionsEqual": true,
+          "shieldBirthFrame": 76,
+          "refreshFrame": 707,
+          "expiryFrame": 1427,
+          "shieldTasks": 38,
+          "shootingStarRoots": 16,
+          "qSlugRoots": 8
+        },
+        "sampleLimits": [
+          "Positive OnSkill star gain (observed Kaeya/E2 triggers were blocked while shooting).",
+          "Shield break and shooting past a broken shield; no-target retry; old shoot chain restarting accumulation on a new shield generation.",
+          "C6 tick interval; Q no-target, miss or hit-confirm-blocked branches.",
+          "Calculator export/import roundtrip and editing not newly sampled in this batch; only Classic complete E import/certificate."
+        ],
+        "boundary": "Source-backed ownership, finite damage scopes and shared-core hit replay. No gameplay verification, full private-phase coverage, deterministic convergence or overall goal completion claim.",
+        "remainingSourceBindings": {
+          "classic": 133,
+          "stellar": 147,
+          "classicUniqueMethods": 121,
+          "stellarUniqueMethods": 133
+        }
+      }
+    },
+    {
+      "id": "complete-remaining-action-scopes",
+      "gapType": "code-and-source-input",
+      "priority": 2,
+      "entryPoints": [
+        "packages/mechanics/src/characters/",
+        "packages/mechanics/src/compiler.ts",
+        "apps/web/src/calculator-ui.ts",
+        "apps/web/src/source-action-controls.ts"
+      ],
+      "deliverable": "按当前 v29 24 个 partial action ID 继续补齐可定义的单击组成或真实观察事件绑定；不把存在公式的组件笼统记为缺公式。将命中选择、触发概率、非伤害组成和缺失项保留在同一结果卡中。当前24项拆为8个低/高下落观察模板与其余16个动作；另有8个 standalone special components，属于独立组成分母，不是24项之外的完整动作。",
+      "codeGap": "已实现奈芙尔 E、露米指定组成与桑多涅指定命中的可选观察状态；后续观察组成层已补露米普通／特殊完整生命周期条件聚合与 Fagio 实际窗口，含逐段 CalculatorDocument 编辑、落空及缺段。Fagio 仍不能认证一次按住重击，辉映扫射／超载映射、真实资源生成与广角色执行的剩余语义待完成，不编造完整次数或时序。 本批已补四类账本行编辑、八个逐击历史面板表单及卡齐娜A1逐击记账；未观测事件／历史值仍需实际观察，页面样本不代表全部编辑器或模板覆盖。 已按固定Optimizer来源修正桑多涅普通冰伤边界：C0普通扫射与超载射击不再被辉映门误阻塞；辉映仍只替代凝聚光束。该修复不宣称完整蓄力攻击或新增partial分类。 桑多涅辉映普通伤害分支已作上述固定来源修正，但没有改变24 partial/8 special分类；完整蓄力循环的次数、时序及heat状态仍需真实观察。",
+      "externalEvidenceGap": "8个低/高下落观察模板只有用户提供的真实碰撞机会与目标接触、落地接触、C0/无外部附魔/无反应条件及稳定面板或逐击快照时，才能作为该次 complete-cast；不猜动画时序、路径、帧或次数。其余16项按各动作需求输入资源/命中/事件状态；未观测事件必须留空/partial，不补默认值。现有固定源/归档表可支持多项公式，但不能证明缺失的执行时间、命中数与资源事件。",
+      "basis": "docs/master-requirements-status.zh-CN.md §3–4、§18；docs/known-limitations.md 2026-09-28 当前边界；docs/remaining-action-scopes-20260928.json（当前指针、v29 计数及8+16分组）；docs/remaining-action-implementation-20260928.json（24项公式/UI/缺口明细）；docs/research/actual-partial-paths-20260928.json（v29 partial ID 清单）。",
+      "completedSourceArithmeticBatches": {
+        "healing": "93 条固定来源 HealInfo 生产公式已接入；两版聚合页重放206次治疗应用差0，未观察规则与历史来源边界见专报。",
+        "drain": "19 条固定来源扣血/Dehya池公式及2条草核自伤FlatDmg规则已接入；两版聚合页重放55次Drain应用差0，不把源码等价当游戏验证。",
+        "reports": [
+          "docs/source-healing-sources-20260928.zh-CN.md",
+          "docs/source-drain-sources-20260928.zh-CN.md"
+        ],
+        "remainingBoundary": "这些批次不代表所有动作组成、状态来源与游戏机制完成；普通草核规则和若干分支本批未页面观察，不据此发起逐角色重复测试。"
+      },
+      "actionCensus": {
+        "report": "docs/remaining-action-scopes-20260928.json",
+        "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.29+durin.8",
+        "partialActionIds": 24,
+        "observedLowHighPlungeTemplates": 8,
+        "otherPartialActions": 16,
+        "standaloneSpecialComponents": 8,
+        "boundary": "8 special components are separate actual-component/partial entries; not extra complete actions. Action counts describe mapping classification only, not game verification."
+      },
+      "completedObservedStateBindings": {
+        "report": "docs/observed-lifecycles-and-candidate-20260928.zh-CN.md",
+        "scopes": [
+          "nefer-skill-rush prefix resource/EM/C4 state",
+          "linnea observed pummeler pair / hammer / crush binding",
+          "sandrone observed heat/mode/radiance and ordinary/special selection"
+        ],
+        "acceptance": "Three explicit teaching observation documents passed one aggregated page edit/JSON roundtrip, max numerical difference 0. Not in-game verification.",
+        "remainingBoundary": "No static coverage promotion; no full summoned or charged-cycle count/time certification."
+      },
+      "observedCompositionProgress": {
+        "report": "docs/observed-composition-20260928.zh-CN.md",
+        "profiles": [
+          "linnea-lumi",
+          "sandrone-fagio-window"
+        ],
+        "classificationChanged": false,
+        "gameVerifiedChanged": false
+      },
+      "observedInputEditors": {
+        "report": "docs/observed-input-editors-20260929.zh-CN.md",
+        "measurement": "docs/validation/observed-input-editors-measurements-20260929.json",
+        "implemented": {
+          "structuredObservedEventEditors": [
+            "nefer",
+            "linnea",
+            "sandrone",
+            "alyosha"
+          ],
+          "eventRows": "Actual type, frame/order, type-specific fields, row binding or matching Linnea special selectedEventId; rows can be added, removed and reordered. Advanced JSON retains initial state and completeness flags.",
+          "perHitPlungeSnapshots": [
+            "lohen-low",
+            "lohen-high",
+            "linnea-low",
+            "linnea-high",
+            "sandrone-low",
+            "sandrone-high",
+            "alyosha-low",
+            "alyosha-high"
+          ],
+          "kachinaA1": "Each actual contacting hit records whether A1 is active and whether its 20% Geo damage bonus is already included.",
+          "perHitPlungeSnapshotsNote": "Stable original-panel path is preserved. When multi-hit offense stability is unconfirmed, each actual contacting hit needs its own historical finalSnapshot; target defense/resistance stability is a separate explicit condition."
+        },
+        "verification": {
+          "plungeUnitCases": 2,
+          "plungeUnitTestMs": 54,
+          "plungeUnitWallSeconds": 5.649,
+          "kachinaUnitTestsPassed": 6,
+          "kachinaUnitTestsMs": 80,
+          "kachinaUnitWallSeconds": 5.453136833,
+          "webBuildBeforeFinalSelectorCopySeconds": 5.956,
+          "finalWebBuildSeconds": 6.801,
+          "browserSample": [
+            "nefer event ledger",
+            "lohen-low collision and landing snapshots"
+          ],
+          "browserPassed": true,
+          "browserCaseSeconds": 5.0,
+          "browserWallSeconds": 6.593,
+          "pageErrors": [],
+          "eventRowCount": 14,
+          "eventExpectedDamage": 3453.2289791999997,
+          "eventRestoredDamage": 3453.2289791999997,
+          "plungeExpectedBeforeEdit": 2843.0235000000002,
+          "plungeExpectedAfterEdit": 2899.8936000000003,
+          "plungeRestoredDamage": 2899.8936000000003,
+          "initialBrowserFailures": [
+            "Selected simple low landing instead of collision plus landing template.",
+            "Waited for contact selector before leaving collision-count input, so existing blur update did not run."
+          ],
+          "intermediateTypecheckFailure": "Linnea optional selectedEventId UI passed explicit undefined under exactOptionalPropertyTypes; conditional omission corrected it before final build.",
+          "postSampleScope": "Final Linnea special selectedEventId selector and Nefer/Linnea label corrections are included in final build but not browser sampled.",
+          "knownMissContactFalseBlocks": true,
+          "historicalSnapshotRequiredWhenStabilityUnconfirmed": true,
+          "finalViteSeconds": 1.35
+        },
+        "boundary": "Teaching observations only; no game verification. Browser sample does not cover all four event editors or all eight plunge templates. teamSimulationReadyFromTheseMappings=0 describes only the static mapping readiness denominator, not native registration or executable team-engine counts. v29 counts and data pointers unchanged; activeVerifiedSnapshotId remains null."
+      },
+      "sandroneRadiantOrdinaryCorrection": {
+        "status": "source-backed-targeted-correction; action classifications unchanged",
+        "report": "docs/sandrone-radiant-ordinary-20260929.zh-CN.md",
+        "basis": "Pinned Optimizer Sandrone sheet: sweepDmg and overdriveDmg are unconditional ordinary Cryo dmgNode branches; Stellar Radiance replaces beam damage only.",
+        "changedFiles": [
+          "packages/sim-core/src/sandrone-observed-lifecycle.ts",
+          "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts",
+          "packages/sim-core/src/sandrone-observed-lifecycle.test.ts"
+        ],
+        "result": "C0 observed ordinary Cryo sweep remains gated by actual sweep mode; overdrive by actual overload mode; neither is blocked by the no-Radiance flag. Beam remains the Stellar replacement branch.",
+        "focusedUnit": "3/3 passed; 10.01 s Vitest / 11.32 s wall",
+        "classificationChanged": false,
+        "remaining": "No complete charged-cast claim: actual sweep/beam/overdrive count, timing, and heat transition still need observed events/state; no blanket partial-action promotion."
+      }
+    },
+    {
+      "id": "source-native-phase-convergence-evidence",
+      "gapType": "code-gap",
+      "priority": 3,
+      "entryPoints": [
+        "packages/sim-core/src/phase-checkpoint.ts",
+        "packages/sim-core/src/target-phase-checkpoint.ts",
+        "packages/sim-core/src/random-checkpoint.ts",
+        "apps/web/src/source-host-energy-analysis.ts",
+        "apps/web/src/source-host-startup-analysis.ts",
+        "apps/web/src/source-host-panel.ts",
+        "packages/source-host/patches/",
+        "packages/sim-core/src/source-host-phase-analysis.ts",
+        "apps/web/src/source-host-phase-panel.ts"
+      ],
+      "deliverable": "随机运行已具备版本化种子与暖机/分布政策，并披露有限样本及残余起步敏感度；这满足§20对随机模式的范围要求，不要求证明所有随机分布的数学稳态。Go RNG种子别名防重与显式native RNG回执已在所报告范围内实现并验证，见docs/validation/source-host-rng-policy-20260928.md及docs/validation/source-rng-policy-browser-20260928.result.json。确定性原生相位仍按实际相关状态和完整覆盖判定；星辉单一来源域周期为provisional source-state，不是全角色或游戏验证。",
+      "codeGap": "尚有未审查的角色私有时钟、装备事件、活动反应/实体任务、护盾/耐力状态闭包，需按明确来源域扩展实际未来状态覆盖；经典示例的skill_charge递增说明该域当前不周期。RNG回执及seed alias防重的代码缺口已关闭于已检查的来源执行路径；这不证明不同有效种子在统计上独立，也不证明随机分布达到数学稳态。",
+      "externalEvidenceGap": "固定来源WASM上的RNG策略/别名结果仅证明本报告实际输入和执行产物；固定来源相位结果仍须限于记录的source-state。缺失的私有状态/闭包应保持“未建立”；不得将有限窗口、随机统计或相近DPS/能量边界升级为全角色稳态或游戏内验证。",
+      "basis": "/Users/evan/Downloads/GENSHIN_DPS_MASTER_PROMPT_EN.md §19–21；docs/benchmark-profiles.md 稳态判定边界；docs/master-requirements-status.zh-CN.md §20；docs/source-steady-state-scope-audit-20260928.zh-CN.md",
+      "nextImplementationAudit": "docs/source-native-phase-implementation-next-20260928.zh-CN.md",
+      "previousNativePhaseImplementation": {
+        "report": "docs/source-native-phase-20260928.zh-CN.md",
+        "measurements": "docs/validation/native-phase-measurements-20260928.json",
+        "nativeSamplesPerLane": 9,
+        "nativeCompleteCoverageSamples": 0,
+        "nativeSteadyStateEstablished": false
+      },
+      "latestNativePhaseImplementation": {
+        "report": "docs/source-phase-captures-20260928.zh-CN.md",
+        "measurements": "docs/validation/phase-captures-measurements-20260928.json",
+        "nativeSamplesPerDeterministicLane": 6,
+        "nativeCompleteCoverageSamples": 12,
+        "nativeSteadyStateEstablished": true,
+        "establishedLane": "stellar",
+        "evidence": "provisional-source-state; pinned native Venti C0 E/dash loop; not game verified",
+        "periodFrames": 444,
+        "periodDamage": 2059.5758212353603,
+        "conditionalDps": 278.3210569236973,
+        "classicResult": "complete captured state, not periodic: observable skill_charge counter changes",
+        "remaining": "扩大确定性原生相位的具体私有状态/闭包覆盖，并保持固定来源结果为provisional。RNG alias防重与native RNG receipt已按source-host-rng-policy报告的构建、focused tests及浏览器样本范围实现和验证；不代表统计独立性、随机稳态、游戏验证或全量goal完成。"
+      },
+      "nextCrossCuttingPriority119": {
+        "audit": "docs/validation/source-cross-cutting-next-step-20260930.json",
+        "action": "Read actual coverage.gaps from representative saved native captures and implement the highest-frequency shared opaque state descriptor; do not add another per-character validation matrix.",
+        "scope": "Broad deterministic phase state closure; stochastic steady state requires separately justified evidence.",
+        "followUp": "119 implemented shared source descriptors with two runtime probes; see sharedPhaseState119. Full phase-state closure remains open."
+      },
+      "sharedPhaseState119": {
+        "status": "bounded-runtime-capture-delivered",
+        "report": "docs/source-shared-phase-state-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-shared-phase-state-measurements-20260930.json",
+        "scope": "Shared pending attack, EC/Burning task/event, stamina/shield modifier and HP-drop phase descriptors; unknown closures retain gaps.",
+        "observed": "Two source runs; each 406 frames, 14 phase boundaries, 14 native applications; EC/Burning and attack application descriptors observed. Stellar phase JSON roundtrip equal.",
+        "boundary": "All boundaries incomplete, 66 distinct gaps per lane. Different input positions; no deterministic convergence or stochastic steady-state promotion. Other new descriptor registrations are source-audited and built only.",
+        "next": "Continue actual shared state gaps and proof-backed ER-independent failure classification; no individual-character test matrix."
+      },
+      "sharedAnimationState121": {
+        "status": "shared-frame-callbacks-described-unknown-scopes-remain",
+        "report": "docs/source-shared-animation-state-20260930.zh-CN.md",
+        "audit": "docs/validation/source-shared-animation-audit-20260930.json",
+        "measurements": "docs/validation/source-shared-animation-measurements-20260930.json",
+        "code": [
+          "Coupled FrameFunc callback and descriptor.",
+          "Shared normal/ability constructors with original captures and read timing.",
+          "Default pause predicate bound to actual actor.",
+          "Custom callback overrides stay opaque."
+        ],
+        "runtimePerLane": {
+          "phaseBoundaries": 14,
+          "damageApplications": 14,
+          "normalConstructorCaptures": 1,
+          "abilityConstructorCaptures": 5,
+          "defaultPauseCaptures": 6,
+          "remainingDistinctGaps": 64,
+          "completeBoundaries": 0,
+          "phaseFramesAndApplicationProjectionMatchBatch119": true
+        },
+        "remaining": "Custom animation closures, queued callbacks, broader shared event/resource state, full action scopes and general native convergence remain incomplete."
+      },
+      "sharedMovementState122": {
+        "status": "shared-lifecycle-described-other-source-gaps-remain",
+        "report": "docs/source-shared-movement-state-20260930.zh-CN.md",
+        "audit": "docs/validation/source-shared-movement-audit-20260930.json",
+        "measurements": "docs/validation/source-shared-movement-measurements-20260930.json",
+        "code": [
+          "Animation queue optional descriptors stored and removed with actual callback.",
+          "Swap live frame delay and destination closure state.",
+          "Default Dash/Walk/Jump frame rules, preserving Stellar dynamic branch.",
+          "Delayed dash stamina and delayed cooldown start task captures without early gameplay evaluation."
+        ],
+        "runtimePerLane": {
+          "actualEndFrame": 175,
+          "phaseBoundaries": 6,
+          "damageApplications": 1,
+          "walkDescriptors": 2,
+          "jumpDescriptors": 1,
+          "pendingDashStaminaDescriptors": 1,
+          "defaultDashFrameDescriptors": 0,
+          "swapDescriptors": 0,
+          "distinctGapsBefore": 35,
+          "distinctGapsAfter": 33,
+          "completeBoundaries": 0,
+          "sameLaneBeforeAfterDamageActionLogsAndPlayerStatesEqual": true
+        },
+        "remaining": "Custom action/private state and callback coverage, special movement branches, complete casts and general phase convergence remain incomplete. No new game verification or data promotion."
+      },
+      "sharedPrivateNumericState125": {
+        "status": "integrated-source-reviewed-policy-and-bounded-runtime-sample",
+        "report": "docs/source-private-numeric-state-20260930.zh-CN.md",
+        "measurements": "docs/validation/source-private-numeric-measurements-20260930.json",
+        "numericPolicyCounts": {
+          "classic": {
+            "statsSlice": 81,
+            "unknownGap": 217,
+            "counter": 112,
+            "absoluteDeadlineExclusive": 8,
+            "preexistingReviewedException": 1,
+            "absoluteDeadlineInclusive": 1
+          },
+          "stellar": {
+            "statsSlice": 92,
+            "unknownGap": 242,
+            "counter": 117,
+            "absoluteDeadlineExclusive": 8,
+            "preexistingReviewedException": 1,
+            "absoluteDeadlineInclusive": 1
+          }
+        },
+        "runtimePerLane": {
+          "actualEndFrame": 175,
+          "phaseBoundaries": 6,
+          "applications": 1,
+          "historicalDistinctGaps": 33,
+          "finalDistinctGaps": 3,
+          "completeBoundaries": 0,
+          "sameLaneHistoricalDamageActionFramesAndPlayerStateEqual": true
+        },
+        "remaining": "Unknown numeric fields, generation tokens, callbacks, full scope and general convergence remain incomplete. The source review covers declared type char numeric fields only."
+      },
+      "sharedAnimationCallbacks130": {
+        "report": "docs/source-animation-eye-frontier-20261003.zh-CN.md",
+        "sourceActorSites": {
+          "classic": 17,
+          "stellar": 18
+        },
+        "sampled": "Hu Tao charged-attack OnRemoved; normalized-time predicate source/build only.",
+        "completePhaseBoundaries": 0,
+        "unknownGapCountPerLane": 54,
+        "boundary": "Capturing known actor identity exposes unresolved implementation fields; no full private-state or steady-state claim."
+      }
+    },
+    {
+      "id": "run-and-operationalize-data-update-workflow",
+      "gapType": "external-operation-and-evidence",
+      "priority": 4,
+      "entryPoints": [
+        "packages/game-data/scripts/update-data.mjs",
+        "packages/game-data/src/update-pipeline.test.ts",
+        "packages/game-data/src/update-status.ts",
+        "apps/web/src/update-panel.ts"
+      ],
+      "deliverable": "在受控环境执行已实现的每周来源发现与候选摄取流程，记录真实候选、解析差异、验证/阻断原因及回滚结果；将运行状态和人工晋升步骤呈现在更新面板，不因抓取成功自动改活动或verified数据集。",
+      "codeGap": "本地失败账本与只读审核流程已实现：保留早期 fetch/parse 失败，CI 在 failure gate 前上传回执，页面可只读导入并检查运行回执。本批页面样本覆盖两条合成失败的可见性与无效文件清除旧展示；不代表所有失败分支已实测。远端调度及真实来源重新抓取仍无本批执行证据。",
+      "externalEvidenceGap": "远端 workflow 尚未执行；本批合成的失败历史（fetch失败与fake git失败）不代表真实provider或远端CI结果。版本发布身份、7.2 V1映射及数值/机制语义仍缺可信来源证据，不能靠本地实现补出。",
+      "basis": "docs/master-requirements-status.zh-CN.md §12；docs/known-limitations.md 数据与版本；packages/game-data/src/update-status.ts",
+      "latestLocalCandidateRun": {
+        "providerVersion": "7.1.51",
+        "snapshotId": "snapshot-77008c3d87b7116802ca00435af9b69290113c9e4ab8545877a5585d977af819",
+        "store": "packages/game-data/sources/lunaris-preview-7.1.51-20260928/isolated-store",
+        "receipt": "packages/game-data/sources/lunaris-preview-7.1.51-20260928/ingestion-receipt.json",
+        "result": "sync and schema validation passed; isolated two-character candidate only, no project pointer changes. Remote CI not executed."
+      },
+      "operationalReview": {
+        "report": "docs/source-status-owner-and-update-20260929.zh-CN.md",
+        "browserResult": "docs/validation/action-origin-status-owner-update-browser-final-20260929.json",
+        "existingReviewResult": "docs/validation/update-review-browser-20260929.result.json",
+        "webBuildResult": "docs/validation/action-origin-status-owner-update-web-build-20260929.json",
+        "implemented": "Persistent failure ledger preserves early fetch/parse failures; CI uploads receipts before failure gate; read-only receipt import/review UI.",
+        "syntheticFailureHistory": [
+          "fetch failure",
+          "fake git failure"
+        ],
+        "pageCases": 2,
+        "pageCaseResults": "source-owner replay and read-only update receipt review passed; pageErrors=[]",
+        "browserElapsedSeconds": 14.396,
+        "webBuildSeconds": 9.553,
+        "remoteWorkflowExecuted": false,
+        "providerRefetchPerformed": false,
+        "dataPointersChanged": false,
+        "generatedStatusRefresh": "Local status regenerated; sourceDiscovery=null and candidateReview=null. No discovery fetch or candidate selection was performed.",
+        "boundary": "Synthetic local failure history is not evidence of provider refetch or remote CI execution.",
+        "measurements": "docs/validation/status-owner-update-measurements-20260929.json",
+        "dataWorkflowChecks": "docs/validation/update-discovery-checks-20260929.json",
+        "focusedUnitResults": {
+          "actionCollection": "3/3 passed",
+          "updateReceiptReview": "1/1 passed before removing the time-sensitive sourceDiscovery-null assertion; amended test not rerun"
+        },
+        "firstBrowserFailure": "The first browser command exited before test cases because the test runtime required a JSON import attribute; corrected to type-only import, no production change, then both cases passed."
+      }
+    },
+    {
+      "id": "resolve-next-version-data-evidence",
+      "gapType": "external-evidence",
+      "priority": 5,
+      "entryPoints": [
+        "packages/game-data/src/update-schema.ts",
+        "packages/game-data/src/update-status.ts",
+        "apps/web/src/update-panel.ts",
+        "docs/master-requirements-status.zh-CN.md §12"
+      ],
+      "deliverable": "取得可核验的下一版本官方/独立来源映射与完整名册证据后，生成隔离preview，逐字段展示缺失、冲突和来源链；仅在证据满足既有门槛后由人工晋升，不把局部候选称为完整版本支持。继续保留历史7.1.50与7.1.50.2 preview记录，并将新观察7.1.51单列为待映射候选。",
+      "codeGap": "预览隔离和字段状态展示已有实现；取得证据后仍需按新增差异补数据/映射。",
+      "externalEvidenceGap": "截至2026-09-28，官方发布证据仍支持7.1；Lunaris版本索引新出现7.1.51，但139键charlist与本地归档7.1.50.2字节相同。版本标签和相同charlist均未证实映射到7.2 V1；尚无其完整角色/武器/圣遗物快照。7.1.50与7.1.50.2旧preview历史保留，不删除、不回写为7.1.51。官方映射、完整名册、数值语义、机制证据及许可状态仍不能从当前仓库推导。",
+      "basis": "docs/master-requirements-status.zh-CN.md §12 与“真实外部证据与代码缺口分开”；docs/known-limitations.md 数据与版本；docs/data-evidence-refresh-20260928.json（2026-09-28 11:11–11:13 UTC只读刷新：Lunaris 7.1.51标签、charlist与7.1.50.2 SHA相同；未映射为7.2 V1）；packages/game-data/src/update-status.ts。",
+      "latestCandidateEvidence": {
+        "report": "packages/game-data/sources/lunaris-preview-7.1.51-20260928/candidate-report.json",
+        "rawDifferenceRows": 204,
+        "numericValueRows": 14,
+        "mapping72V1Confirmed": false,
+        "executableDefinitions": 0,
+        "status": "Isolated candidate only; unchanged charlist does not imply unchanged character JSON or prove full roster."
+      },
+      "priorEvidenceRefreshes": [
+        {
+          "report": "docs/data-evidence-refresh-20260928.json",
+          "observedAtUtc": "2026-09-28T11:13:14Z",
+          "providerLatestLabel": "7.1.51",
+          "providerVersionCount": 49,
+          "providerCharlistKeyCount": 139,
+          "sameAs": "archived 7.1.50.2 charlist, byte-identical/SHA-256 identical",
+          "mappingConclusion": "No 7.2-prefixed version in observed provider index; 7.1.51 remains unmapped and is not evidence of 7.2 V1."
+        },
+        {
+          "report": "docs/data-evidence-refresh-20260930.json",
+          "observedAtUtc": "2026-09-30T05:53:23.763071Z",
+          "providerLatestLabel": "7.1.51",
+          "providerVersionCount": 49,
+          "providerCharlistKeyCount": 139,
+          "sameAs": "Latest charlist SHA unchanged from Sep29 and archived 7.1.50.2; upstream genshin-db HEAD and release unchanged.",
+          "indexChange": "Exact version-index bytes changed; current latest/count/timestamp summary unchanged. Prior full labels not retained, so field-level cause is unattributed.",
+          "mappingConclusion": "No observed complete immutable source mapping to 7.2 V1; data pointers unchanged.",
+          "historical": true
+        }
+      ],
+      "latestEvidenceRefresh": {
+        "report": "docs/data-evidence-refresh-20261003.json",
+        "observedAtUtc": "2026-10-03T11:26:33.858677+00:00",
+        "providerLatestLabel": "7.1.51",
+        "providerVersionCount": 49,
+        "sameAs": "Index exact bytes and genshin-db HEAD unchanged; release identity v5.2.14 unchanged, response bytes differ with unattributed cause.",
+        "officialFreshness": "Not established: publisher search returned no indexed evidence. Last Sep30 official observation retained as historical; absence is not proof of no release.",
+        "mappingConclusion": "No observed immutable complete mapping to 7.2 V1; current pointers unchanged."
+      }
+    }
+  ],
+  "nextCrossCuttingCodeGap120": {
+    "audit": "docs/validation/source-stochastic-next-step-20260930.json",
+    "id": "er-independent-failure-reporting",
+    "status": "implemented-with-two-sufficient-proof-classes",
+    "report": "docs/er-independent-failure-20260930.zh-CN.md",
+    "measurements": "docs/validation/er-independent-failure-measurements-20260930.json"
+  },
+  "nextCrossCuttingCodeGap121": {
+    "id": "shared-animation-callback-phase-state",
+    "status": "implemented-shared-constructors-and-default-pause",
+    "audit": "docs/validation/source-shared-animation-next-step-20260930.json",
+    "report": "docs/source-shared-animation-state-20260930.zh-CN.md"
+  },
+  "nextCrossCuttingCodeGap122": {
+    "id": "shared-swap-and-movement-lifecycle",
+    "status": "implemented-shared-movement-swap-and-delayed-cooldown",
+    "audit": "docs/validation/source-shared-movement-next-step-20260930.json",
+    "report": "docs/source-shared-movement-state-20260930.zh-CN.md"
+  },
+  "sharedDelayedCooldown122": {
+    "status": "implemented-source-and-build-evidence",
+    "audit": "docs/validation/source-shared-state-next-step-20260930.json",
+    "runtimeSampled": false
+  },
+  "nextCrossCuttingCodeGap125": {
+    "id": "reviewed-private-numeric-state",
+    "status": "integrated-source-reviewed-policy-and-bounded-runtime-sample",
+    "audit": "docs/validation/source-private-numeric-audit-20260930.json",
+    "report": "docs/source-private-numeric-state-20260930.zh-CN.md",
+    "measurements": "docs/validation/source-private-numeric-measurements-20260930.json",
+    "scope": "Type-qualified stat vectors, historical counters and source-confirmed exclusive/inclusive deadlines. Unknown callbacks and generation tokens remain gaps. No convergence claim."
+  },
+  "nextActionOwnershipWork": {
+    "layla126": {
+      "status": "integrated-and-bounded-runtime-checked",
+      "report": "docs/source-layla-ownership-20260930.zh-CN.md"
+    },
+    "constructs127": {
+      "status": "integrated-and-bounded-runtime-checked",
+      "report": "docs/source-construct-ownership-20260930.zh-CN.md",
+      "measurements": "docs/validation/source-construct-ownership-measurements-20260930.json",
+      "scope": "Albedo and Zhongli actual construct identity/lifecycle, native resonance task ownership and shared snapshot source; 8 closed selected casts and 152 hit replays across two lanes. Unsampled branches remain source/build-only."
+    },
+    "finite128": {
+      "status": "integrated-source-reviewed-and-built",
+      "audit": "docs/validation/source-finite-frontier-128-audit-20260930.json",
+      "scope": "Xiao Q zero-direct-damage activation and Chevreuse Q fixed 9-root queue; source/build evidence only. Raiden E delivered in131; Candace Q and Geo Traveler E still need ability-owned followup closure."
+    },
+    "finite129": {
+      "status": "integrated-and-bounded-runtime-checked",
+      "report": "docs/source-animation-eye-frontier-20261003.zh-CN.md",
+      "scope": "Yanfei Q one intrinsic root; Mika Q zero-damage roots. Hu Tao Q C2 and Faruzan Q C6 remained excluded from this simple batch."
+    },
+    "raiden131": {
+      "status": "integrated-and-bounded-runtime-checked",
+      "report": "docs/source-animation-eye-frontier-20261003.zh-CN.md",
+      "measurements": "docs/validation/source-animation-eye-frontier-measurements-20261003.json",
+      "scope": "Caster and per-holder native AttackMod instance identity kept separately. 4 ended holders and 5 actual Eye triggers per lane, 6 full E hits; shared-core replay delta 0."
+    }
+  },
+  "currentFiniteRegistry": {
+    "directJsonRows": 32,
+    "producerJsonRows": 77,
+    "constructTypeScriptRows": 2,
+    "rawRows": 111,
+    "mergedRuntimeRows": 110,
+    "mergedIds": 110,
+    "canonicalCharacterActions": 108,
+    "jsonProducerPlans": 77,
+    "jsonProducerSiteDeclarations": 104,
+    "uniqueJsonProducerSites": 97,
+    "additionalDynamicConstructPlans": 2
+  },
+  "currentFiniteSourceBindingCoverage": {
+    "classic": {
+      "implementedEqBindings": 234,
+      "missingContractBindings": 126,
+      "missingUniqueSourceMethods": 114,
+      "meaning": "Fixed-source entrypoint bindings without finite skill contracts; not game readiness or complete character coverage."
+    },
+    "stellar": {
+      "implementedEqBindings": 248,
+      "missingContractBindings": 140,
+      "missingUniqueSourceMethods": 126,
+      "meaning": "Fixed-source entrypoint bindings without finite skill contracts; not game readiness or complete character coverage."
+    }
+  }
+}

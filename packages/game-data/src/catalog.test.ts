@@ -8,11 +8,15 @@ import {
   findCharacterByAvatarId,
   findTalentSetById,
   findWeaponByItemId,
-  gameDataCatalog
+  gameDataCatalog as activeCatalog
 } from "./catalog";
 
+import baselineCatalog from "./generated/catalog.zh-CN.json";
+import { runtimeDatasetMetadata } from "./runtime-metadata";
+const gameDataCatalog = gameDataCatalogSchema.parse(baselineCatalog);
+
 describe("versioned game-data catalog", () => {
-  it("parses the committed catalog with complete deterministic counts", () => {
+  it("parses the preserved baseline catalog with complete deterministic counts", () => {
     expect(() => gameDataCatalogSchema.parse(gameDataCatalog)).not.toThrow();
     expect(gameDataCatalog.counts).toEqual({
       characters: 120,
@@ -39,6 +43,16 @@ describe("versioned game-data catalog", () => {
         })
       ])
     );
+  });
+
+  it("uses one active dataset identity and resolves only explicitly reviewed no-secondary weapons", () => {
+    expect(activeCatalog.catalogVersion).toBe(runtimeDatasetMetadata.catalogVersion);
+    expect(activeCatalog.gamePatch).toBe(runtimeDatasetMetadata.gameVersion);
+    const starterIds = [11101, 11201, 12101, 12201, 13101, 13201, 14101, 14201, 15101, 15201];
+    for (const id of starterIds) {
+      expect(findWeaponByItemId(id)).toMatchObject({ mainStatType: "FIGHT_PROP_NONE", stats: { specialized: "FIGHT_PROP_NONE" } });
+    }
+    expect(findWeaponByItemId(11501)?.mainStatType).not.toBe("FIGHT_PROP_NONE");
   });
 
   it("keeps every record source-attributed and non-executable by default", () => {

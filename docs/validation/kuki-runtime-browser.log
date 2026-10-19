@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:71328) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Kuki runtime browser measurements {"c0Damage":496.8981587220481,"c0Hits":9,"c0Heals":8,"c0KukiFinalHp":10216.632688826014,"localParticleFailures":4,"localParticleSpawnFrames":[386,476,566,656],"replayDifference":0,"c2Damage":595.4266390567681,"c2Heals":10}
+  ✓  1 [chromium] › apps/web/e2e/kuki-runtime.spec.ts:32:1 › Kuki sourced E heals the actual active actor with owner HP conditions, retains particle rolls and replays a real ring hit (1.7s)
+
+  1 passed (2.0s)

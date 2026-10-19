@@ -1,0 +1,371 @@
+{
+  "schemaVersion": "source-drain-sources-measurements-v1",
+  "date": "2026-09-28",
+  "baselineHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "registry": "docs/source-drain-source-registry-20260928.json",
+  "registryScope": "19 character-drain source rules, 2 character-flat self-hit rules; fixed-source arithmetic, not game verification.",
+  "lanes": {
+    "classic": {
+      "wasm": {
+        "path": "source-host.wasm",
+        "sha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+        "size": 43576714
+      },
+      "checkedPatches": [
+        "067-drain-source-bridge.patch",
+        "068-drain-source-a.patch",
+        "069-drain-source-b.patch",
+        "070-dehya-drain-source.patch",
+        "071-nilou-self-damage.patch",
+        "072-dendro-core-self-damage.patch"
+      ],
+      "patchHashesMatch": true,
+      "servedArtifacts": [
+        {
+          "path": "apps/web/public/source-host/source-host.wasm",
+          "sha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+          "bytes": 43576714,
+          "matchesManifest": true
+        },
+        {
+          "path": "apps/web/dist/source-host/source-host.wasm",
+          "sha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+          "bytes": 43576714,
+          "matchesManifest": true
+        }
+      ],
+      "drainApplications": 27,
+      "observedDrainRules": [
+        "drain-source-dehya-after-mitigation",
+        "drain-source-dehya-mitigation",
+        "drain-source-dehya-pool-add",
+        "drain-source-dehya-pool-consume",
+        "drain-source-dehya-tick-raw",
+        "drain-source-hutao-skill",
+        "drain-source-kuki-skill",
+        "drain-source-lynette-skill",
+        "drain-source-xiao-burst"
+      ],
+      "unobservedDrainRuleCount": 10,
+      "observedFlatRules": [
+        "char-flat-nilou-bountiful-self-hit"
+      ],
+      "unobservedFlatRuleCount": 1
+    },
+    "stellar": {
+      "wasm": {
+        "path": "source-host.wasm",
+        "sha256": "d73d770c3276da7dbc42938f60ec035634641526abaab74aca810ba15038ce7f",
+        "bytes": 65136532
+      },
+      "checkedPatches": [
+        "067-drain-source-bridge.patch",
+        "068-drain-source-a.patch",
+        "069-drain-source-b.patch",
+        "070-dehya-drain-source.patch",
+        "071-nilou-self-damage.patch",
+        "072-dendro-core-self-damage.patch"
+      ],
+      "patchHashesMatch": true,
+      "servedArtifacts": [
+        {
+          "path": "apps/web/public/source-host-stellar/source-host.wasm",
+          "sha256": "d73d770c3276da7dbc42938f60ec035634641526abaab74aca810ba15038ce7f",
+          "bytes": 65136532,
+          "matchesManifest": true
+        },
+        {
+          "path": "apps/web/dist/source-host-stellar/source-host.wasm",
+          "sha256": "d73d770c3276da7dbc42938f60ec035634641526abaab74aca810ba15038ce7f",
+          "bytes": 65136532,
+          "matchesManifest": true
+        }
+      ],
+      "drainApplications": 28,
+      "observedDrainRules": [
+        "drain-source-dehya-after-mitigation",
+        "drain-source-dehya-mitigation",
+        "drain-source-dehya-pool-add",
+        "drain-source-dehya-pool-consume",
+        "drain-source-dehya-tick-raw",
+        "drain-source-hutao-skill",
+        "drain-source-kuki-skill",
+        "drain-source-lynette-skill",
+        "drain-source-xiao-burst"
+      ],
+      "unobservedDrainRuleCount": 10,
+      "observedFlatRules": [
+        "char-flat-nilou-bountiful-self-hit"
+      ],
+      "unobservedFlatRuleCount": 1
+    }
+  },
+  "rawSceneMeasurements": [
+    {
+      "lane": "classic",
+      "scene": "ordinary",
+      "path": "docs/validation/source-drain-sources-classic-ordinary-20260928.result.json",
+      "bytes": 1293649,
+      "sha256": "6ada3f9b317eb6ba043aeaadd17aade946fce63f10324bee41cd033bc10fd60f",
+      "calculations": 208,
+      "uniqueSourceExecutions": {
+        "drain-source-kuki-skill": 1,
+        "drain-source-hutao-skill": 1,
+        "drain-source-lynette-skill": 3,
+        "drain-source-xiao-burst": 13
+      },
+      "newFlatSourceExecutions": {},
+      "manualIncomingExecutions": 0,
+      "drainApplications": 19,
+      "replayedApplications": 19,
+      "maximumReplayDifference": 0,
+      "observedScope": "Counts are native calculation rows, not repeated references across captures."
+    },
+    {
+      "lane": "classic",
+      "scene": "dehya",
+      "path": "docs/validation/source-drain-sources-classic-dehya-20260928.result.json",
+      "bytes": 362012,
+      "sha256": "11119d41097e817c2582295de905739a801198ed94cbfee49e30c12fc9bcef20",
+      "calculations": 74,
+      "uniqueSourceExecutions": {
+        "drain-source-dehya-mitigation": 1,
+        "drain-source-dehya-pool-add": 1,
+        "drain-source-dehya-after-mitigation": 1,
+        "drain-source-dehya-tick-raw": 6,
+        "drain-source-dehya-pool-consume": 6
+      },
+      "newFlatSourceExecutions": {},
+      "manualIncomingExecutions": 6,
+      "drainApplications": 7,
+      "replayedApplications": 7,
+      "maximumReplayDifference": 0,
+      "observedScope": "Counts are native calculation rows, not repeated references across captures."
+    },
+    {
+      "lane": "classic",
+      "scene": "nilou",
+      "path": "docs/validation/source-drain-sources-classic-nilou-20260928.result.json",
+      "bytes": 3254086,
+      "sha256": "e8a1c8d315910f6dc8705682e63ab2719ac691e9bf883ebbc9eb0fdd22054cf2",
+      "calculations": 493,
+      "uniqueSourceExecutions": {},
+      "newFlatSourceExecutions": {
+        "char-flat-nilou-bountiful-self-hit": 6
+      },
+      "manualIncomingExecutions": 0,
+      "drainApplications": 1,
+      "replayedApplications": 1,
+      "maximumReplayDifference": 0,
+      "observedScope": "Counts are native calculation rows, not repeated references across captures."
+    },
+    {
+      "lane": "stellar",
+      "scene": "ordinary",
+      "path": "docs/validation/source-drain-sources-stellar-ordinary-20260928.result.json",
+      "bytes": 1308672,
+      "sha256": "2b174266ac16438bacfd07b36ea6f252f12e301fba186639729ed6b53fa7ed17",
+      "calculations": 208,
+      "uniqueSourceExecutions": {
+        "drain-source-kuki-skill": 1,
+        "drain-source-hutao-skill": 1,
+        "drain-source-lynette-skill": 3,
+        "drain-source-xiao-burst": 13
+      },
+      "newFlatSourceExecutions": {},
+      "manualIncomingExecutions": 0,
+      "drainApplications": 19,
+      "replayedApplications": 19,
+      "maximumReplayDifference": 0,
+      "observedScope": "Counts are native calculation rows, not repeated references across captures."
+    },
+    {
+      "lane": "stellar",
+      "scene": "dehya",
+      "path": "docs/validation/source-drain-sources-stellar-dehya-20260928.result.json",
+      "bytes": 367572,
+      "sha256": "4ec987d34f1c506d4d16c25f440620f7830ea5e72df09c7a74d33aa75079606c",
+      "calculations": 74,
+      "uniqueSourceExecutions": {
+        "drain-source-dehya-mitigation": 1,
+        "drain-source-dehya-pool-add": 1,
+        "drain-source-dehya-after-mitigation": 1,
+        "drain-source-dehya-tick-raw": 6,
+        "drain-source-dehya-pool-consume": 6
+      },
+      "newFlatSourceExecutions": {},
+      "manualIncomingExecutions": 6,
+      "drainApplications": 7,
+      "replayedApplications": 7,
+      "maximumReplayDifference": 0,
+      "observedScope": "Counts are native calculation rows, not repeated references across captures."
+    },
+    {
+      "lane": "stellar",
+      "scene": "nilou",
+      "path": "docs/validation/source-drain-sources-stellar-nilou-20260928.result.json",
+      "bytes": 3291532,
+      "sha256": "fe61542c46966002b5480dc1118a8e022b0d301d2ee06ce33bba51795a42d597",
+      "calculations": 491,
+      "uniqueSourceExecutions": {},
+      "newFlatSourceExecutions": {
+        "char-flat-nilou-bountiful-self-hit": 6
+      },
+      "manualIncomingExecutions": 0,
+      "drainApplications": 2,
+      "replayedApplications": 2,
+      "maximumReplayDifference": 0,
+      "observedScope": "Counts are native calculation rows, not repeated references across captures."
+    }
+  ],
+  "pageMeasurements": "docs/validation/source-drain-sources-measurements-20260928.result.json",
+  "totalReplayedApplications": 55,
+  "maximumReplayDifference": 0,
+  "pageErrors": [],
+  "edit": {
+    "applicationId": 18,
+    "sourceId": 16,
+    "originalCurrentHp": 18552.3066196,
+    "editedCurrentHp": 18652.3066196,
+    "originalAmount": 5565.69198588,
+    "editedAmount": 5595.69198588,
+    "originalRatio": 0.7000000000000001,
+    "editedRatio": 0.6983829503999085,
+    "difference": -0.001617049600091569,
+    "originalCaptureUnchanged": true,
+    "editablePath": "docs/validation/source-drain-sources-calculator-20260928.result.json"
+  },
+  "executedChecks": [
+    {
+      "receipt": "docs/validation/source-drain-sources-classicfirst-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 5.176,
+      "log": "docs/validation/source-drain-sources-classicfirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-classicretry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.049,
+      "log": "docs/validation/source-drain-sources-classicretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-stellarfirst-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 5.444,
+      "log": "docs/validation/source-drain-sources-stellarfirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-stellarretry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.426,
+      "log": "docs/validation/source-drain-sources-stellarretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-webfirst-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 0.43,
+      "log": "docs/validation/source-drain-sources-webfirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-webretry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.852,
+      "log": "docs/validation/source-drain-sources-webretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-webretry2-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.978,
+      "log": "docs/validation/source-drain-sources-webretry2-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-e2efirst-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-drain-sources.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 20.704,
+      "log": "docs/validation/source-drain-sources-e2efirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-webcopy-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 1.162,
+      "log": "docs/validation/source-drain-sources-webcopy-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-drain-sources-diffcheck-20260928.json",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.081,
+      "log": "docs/validation/source-drain-sources-diffcheck-20260928.log",
+      "scope": "Tracked diffs only; untracked files are not included."
+    }
+  ],
+  "dataPointerHashes": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "dataPointersUnchangedFromPriorBatch": true,
+  "limits": [
+    "Ten of the 19 Drain rules were not observed in these six native scenes; this includes Dehya A1.",
+    "The generic dendrocore 0.02 rule was not observed; six Nilou flat writes per lane are formula executions, not six player hits.",
+    "The separate read-only manual incoming UI/import path was implemented but not interacted with by this E2E. The actual manual event/Drain chain was replayed, and the Drain editor export/import was exercised.",
+    "CurrentHP leaves retain actual native read values. Independent editing freezes captured HP/state and does not mutate the Go simulation or replay gates/events.",
+    "Memoized Drain dependency-DAG execution was used during the six scenarios; no standalone performance benchmark or asymptotic performance claim.",
+    "One display sentence about the new HP ledger was corrected after the passing E2E and the final Vite bundle rebuilt; no arithmetic or routing changes followed the E2E.",
+    "Native TODOs, omitted private-state histories, broader mechanics and game-version evidence are not marked verified."
+  ],
+  "goalStatus": "active"
+}

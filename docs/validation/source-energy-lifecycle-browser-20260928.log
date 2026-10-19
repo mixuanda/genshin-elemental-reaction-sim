@@ -1,0 +1,88 @@
+[WebServer] (node:75669) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 4 tests using 2 workers
+
+(node:75671) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:75670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/4] [chromium] › apps/web/e2e/observed-kachina-alyosha.spec.ts:16:1 › Kachina's observed E stays blocked until its editable full lifetime is supplied and restores through JSON
+[2/4] [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › classic: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay
+  1) [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › classic: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay 
+
+    Error: seed 1 should record the attempted underfunded burst
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      50 |     expect(hit!.rawDamage - hit!.damageAfterShield).toBe(hit!.shieldAbsorbed);
+      51 |     const logs = Array.isArray(run.result.logs) ? run.result.logs as Array<{ msg?: string }> : [];
+    > 52 |     expect(logs.some(row => row.msg === "source-host action rejected"), `seed ${run.result.seed} should record the attempted underfunded burst`).toBe(true);
+         |                                                                                                                                                  ^
+      53 |     return hit!;
+      54 |   });
+      55 |   await writeFile(`docs/validation/source-energy-shield-${variant}-20260928.result.json`, batchText);
+        at map (/Users/evan/Documents/gidps/apps/web/e2e/source-host-energy-shield.spec.ts:52:146)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-host-energy-shield.spec.ts:40:27
+
+    Error Context: test-results/source-host-energy-shield--11b74--incoming-standalone-replay-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-host-energy-shield--11b74--incoming-standalone-replay-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-host-energy-shield--11b74--incoming-standalone-replay-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[3/4] [chromium] › apps/web/e2e/observed-kachina-alyosha.spec.ts:68:1 › Alyosha exposes editable observed E and Q event contexts without generating a burst count
+(node:75691) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[4/4] [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › stellar: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay
+  2) [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › stellar: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay 
+
+    Error: seed 1 should record the attempted underfunded burst
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      50 |     expect(hit!.rawDamage - hit!.damageAfterShield).toBe(hit!.shieldAbsorbed);
+      51 |     const logs = Array.isArray(run.result.logs) ? run.result.logs as Array<{ msg?: string }> : [];
+    > 52 |     expect(logs.some(row => row.msg === "source-host action rejected"), `seed ${run.result.seed} should record the attempted underfunded burst`).toBe(true);
+         |                                                                                                                                                  ^
+      53 |     return hit!;
+      54 |   });
+      55 |   await writeFile(`docs/validation/source-energy-shield-${variant}-20260928.result.json`, batchText);
+        at map (/Users/evan/Documents/gidps/apps/web/e2e/source-host-energy-shield.spec.ts:52:146)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-host-energy-shield.spec.ts:40:27
+
+    Error Context: test-results/source-host-energy-shield--e3603--incoming-standalone-replay-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-host-energy-shield--e3603--incoming-standalone-replay-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-host-energy-shield--e3603--incoming-standalone-replay-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2 failed
+    [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › classic: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay 
+    [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › stellar: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay 
+  2 passed (11.2s)
+
+exit=1 wallSeconds=11.461886166944169

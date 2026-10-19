@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "source-character-flat-measurements-v1",
+  "date": "2026-09-28",
+  "registry": "docs/source-character-flat-registry-20260928.json",
+  "rules": 142,
+  "characters": 40,
+  "rulesByLane": {
+    "classic": 140,
+    "stellar": 142
+  },
+  "operations": {
+    "set": 120,
+    "add": 16,
+    "multiply": 6
+  },
+  "artifacts": [
+    {
+      "lane": "classic",
+      "manifest": "packages/source-host/dist/manifest.json",
+      "path": "source-host.wasm",
+      "sha256": "89966e037bcb528f05de2b138cab5de86f61331e2e238336dbb53977c9b3a886",
+      "size": 43003852
+    },
+    {
+      "lane": "stellar",
+      "manifest": "packages/source-host/stellar-overlay/dist/manifest.json",
+      "path": "source-host.wasm",
+      "sha256": "af424731f25b44a792d9bce9d790e606b8a6af7343a22a7a6ae888aef7c00bf2",
+      "bytes": 64595003
+    }
+  ],
+  "commands": [
+    {
+      "file": "docs/validation/source-character-flat-classic-first-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 35.239,
+      "log": "docs/validation/source-character-flat-classic-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-e2e-classic-first-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "GIDPS_FLAT_LANE=classic",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-flat.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 10.322,
+      "log": "docs/validation/source-character-flat-e2e-classic-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-e2e-retry1-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-flat.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 9.213,
+      "log": "docs/validation/source-character-flat-e2e-retry1-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-e2e-retry2-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-flat.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 18.19,
+      "log": "docs/validation/source-character-flat-e2e-retry2-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-e2e-retry3-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-flat.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 51.446,
+      "log": "docs/validation/source-character-flat-e2e-retry3-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-stellar-first-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 31.215,
+      "log": "docs/validation/source-character-flat-stellar-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-stellar-retry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 16.364,
+      "log": "docs/validation/source-character-flat-stellar-retry1-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-web-assets-final-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.18,
+      "log": "docs/validation/source-character-flat-web-assets-final-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-web-first-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 7.783,
+      "log": "docs/validation/source-character-flat-web-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-web-retry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 7.471,
+      "log": "docs/validation/source-character-flat-web-retry1-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-web-retry2-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 16.662,
+      "log": "docs/validation/source-character-flat-web-retry2-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-web-retry3-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 18.823,
+      "log": "docs/validation/source-character-flat-web-retry3-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-flat-diff-check-20260928.json",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.235,
+      "log": "docs/validation/source-character-flat-diff-check-20260928.log"
+    }
+  ],
+  "finalRuntime": {
+    "schemaVersion": "source-character-flat-validation-v1",
+    "laneFilter": "both",
+    "sceneFilter": "both",
+    "measurements": [
+      {
+        "lane": "classic",
+        "scene": "chiori-kokomi",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "89966e037bcb528f05de2b138cab5de86f61331e2e238336dbb53977c9b3a886",
+        "applications": 15,
+        "calculations": 2644,
+        "observedRules": {
+          "char-flat-kokomi-burst": 1,
+          "char-flat-kokomi-bonus-skill": 4,
+          "char-flat-kokomi-skill-tick-active": 7,
+          "char-flat-chiori-skill-upward-def-set": 1,
+          "char-flat-chiori-skill-upward-scale": 1,
+          "char-flat-chiori-skill-doll-def-set": 5,
+          "char-flat-chiori-skill-doll-scale": 5,
+          "char-flat-chiori-burst-def-set": 1,
+          "char-flat-chiori-burst-scale": 1
+        },
+        "chiori": {
+          "setId": 651,
+          "multiplyId": 652,
+          "priorFlatDamage": 953.0074188000001,
+          "value": 1778.3118434808002,
+          "replayDifference": 0
+        },
+        "kokomi": {
+          "producerId": 606,
+          "tickId": 806,
+          "producerFrame": 140,
+          "tickFrame": 228,
+          "value": 1549.699026525455,
+          "replayDifference": 0
+        },
+        "edit": {
+          "calculationId": 652,
+          "scope": "formula-only",
+          "originalValue": 1778.3118434808002,
+          "editedValue": 1961.83398174186,
+          "originalCaptureUnchanged": true
+        }
+      },
+      {
+        "lane": "classic",
+        "scene": "nicole-ayato-mualani",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "89966e037bcb528f05de2b138cab5de86f61331e2e238336dbb53977c9b3a886",
+        "applications": 10,
+        "calculations": 46,
+        "observedRules": {
+          "char-flat-nicole-burst-projection": 1,
+          "char-flat-ayato-namisen": 3,
+          "char-flat-mualani-burst": 1,
+          "char-flat-mualani-a4": 1
+        },
+        "mualani": {
+          "setId": 51,
+          "addId": 52,
+          "priorFlatDamage": 14014.39901546045,
+          "value": 17611.57326206045,
+          "replayDifference": 0
+        },
+        "nicole": {
+          "formulaId": 16,
+          "actorIndex": 1,
+          "holderIndex": 0,
+          "replayDifference": 0
+        },
+        "ayato": {
+          "formulaId": 21,
+          "value": 248.50305541908398,
+          "replayDifference": 0
+        }
+      },
+      {
+        "lane": "stellar",
+        "scene": "chiori-kokomi",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "af424731f25b44a792d9bce9d790e606b8a6af7343a22a7a6ae888aef7c00bf2",
+        "applications": 15,
+        "calculations": 2644,
+        "observedRules": {
+          "char-flat-kokomi-burst": 1,
+          "char-flat-kokomi-bonus-skill": 4,
+          "char-flat-kokomi-skill-tick-active": 7,
+          "char-flat-chiori-skill-upward-def-set": 1,
+          "char-flat-chiori-skill-upward-scale": 1,
+          "char-flat-chiori-skill-doll-def-set": 5,
+          "char-flat-chiori-skill-doll-scale": 5,
+          "char-flat-chiori-burst-def-set": 1,
+          "char-flat-chiori-burst-scale": 1
+        },
+        "chiori": {
+          "setId": 651,
+          "multiplyId": 652,
+          "priorFlatDamage": 953.0074188000001,
+          "value": 1778.3118434808002,
+          "replayDifference": 0
+        },
+        "kokomi": {
+          "producerId": 606,
+          "tickId": 806,
+          "producerFrame": 140,
+          "tickFrame": 228,
+          "value": 1549.699026525455,
+          "replayDifference": 0
+        }
+      },
+      {
+        "lane": "stellar",
+        "scene": "nicole-ayato-mualani",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "af424731f25b44a792d9bce9d790e606b8a6af7343a22a7a6ae888aef7c00bf2",
+        "applications": 10,
+        "calculations": 46,
+        "observedRules": {
+          "char-flat-nicole-burst-projection": 1,
+          "char-flat-ayato-namisen": 3,
+          "char-flat-mualani-burst": 1,
+          "char-flat-mualani-a4": 1
+        },
+        "mualani": {
+          "setId": 51,
+          "addId": 52,
+          "priorFlatDamage": 14014.39901546045,
+          "value": 17611.57326206045,
+          "replayDifference": 0
+        },
+        "nicole": {
+          "formulaId": 16,
+          "actorIndex": 1,
+          "holderIndex": 0,
+          "replayDifference": 0
+        },
+        "ayato": {
+          "formulaId": 21,
+          "value": 248.50305541908398,
+          "replayDifference": 0
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "validationLimits": [
+    "One aggregate page with two scenarios per lane; 13 observed rule IDs, not all 142 rules.",
+    "No historical full-suite, character matrix, or new unit suite run.",
+    "The first page run used stale dist artifacts and is not evidence of the new implementation.",
+    "Source simulator semantics remain provisional, not game-verified.",
+    "git diff --check covers tracked changes only; the inherited new modules are untracked."
+  ]
+}

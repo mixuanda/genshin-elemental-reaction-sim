@@ -1,0 +1,36 @@
+$ npx vitest run packages/schemas/src/random-weapon-proc-integrity.test.ts
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/schemas/src/random-weapon-proc-integrity.test.ts (1 test | 1 failed) 23ms
+   × replays the deferred callback's actual Aura, one coefficient for its whole AoE, and the independent random draw 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/schemas/src/random-weapon-proc-integrity.test.ts > replays the deferred callback's actual Aura, one coefficient for its whole AoE, and the independent random draw
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: must include compatibility target "enemy-0" because hits without targeting resolve to it
+- rotation.0.hits.0.targeting: Invalid input
+- rotation.1.hits.0.targeting: Invalid input
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33710:11
+    33708|   if (!parsed.success) {
+    33709|     const issues = formatZodError(parsed.error);
+    33710|     throw new ConfigMigrationError(
+       |           ^
+    33711|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33712|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35149:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18396:18
+ ❯ packages/schemas/src/random-weapon-proc-integrity.test.ts:21:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  10:26:50
+   Duration  985ms (transform 696ms, setup 0ms, import 893ms, tests 23ms, environment 0ms)
+
+
+exit=1
+wall_seconds=1.4258987500797957

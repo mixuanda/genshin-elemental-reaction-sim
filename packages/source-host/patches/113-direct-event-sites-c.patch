@@ -1,0 +1,44 @@
+diff --git a/internal/characters/chiori/asc.go b/internal/characters/chiori/asc.go
+--- a/internal/characters/chiori/asc.go
++++ b/internal/characters/chiori/asc.go
+@@ -57,6 +57,8 @@
+ 		return
+ 	}
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("chiori.a1.seize.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("chiori.a1.seize.enemy-damage.attack-count", 0)
+ 		// seize the moment not active
+ 		if !c.StatusIsActive(a1SeizeTheMomentKey) {
+ 			return
+@@ -124,7 +126,8 @@
+ 		} else {
+ 			ai.FlatDmg *= thrustDefScaling[talentLevel]
+ 		}
+-		c.Core.QueueAttackWithSnap(ai, snap, combat.NewCircleHitOnTarget(t, nil, 2.5), 1)
++		c.Core.SourceHostEventListenerFact("chiori.a1.seize.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttackWithSnap("chiori.a1.seize.attack", ai, snap, combat.NewCircleHitOnTarget(t, nil, 2.5), 1)
+ 
+ 		// increment attack count and delete seize the moment if reached limit
+ 		c.a1AttackCount++
+diff --git a/internal/characters/yoimiya/burst.go b/internal/characters/yoimiya/burst.go
+--- a/internal/characters/yoimiya/burst.go
++++ b/internal/characters/yoimiya/burst.go
+@@ -98,6 +98,8 @@
+ 	// check on attack landed for target 0
+ 	// if aurous active then trigger dmg if not on cd
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("yoimiya.aurous-blaze.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("yoimiya.aurous-blaze.enemy-damage.attack-count", 0)
+ 		ae := args[1].(*info.AttackEvent)
+ 		trg, ok := args[0].(*enemy.Enemy)
+ 		// ignore if not an enemy
+@@ -140,7 +142,8 @@
+ 			Durability: 25,
+ 			Mult:       burstExplode[c.TalentLvlBurst()],
+ 		}
+-		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(trg, nil, 3), 0, 1, c.makeC2CB())
++		c.Core.SourceHostEventListenerFact("yoimiya.aurous-blaze.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttack("yoimiya.aurous-blaze.explosion", ai, combat.NewCircleHitOnTarget(trg, nil, 3), 0, 1, c.makeC2CB())
+ 
+ 		trg.AddStatus(abIcdKey, 120, true) // trigger Aurous Blaze ICD
+ 

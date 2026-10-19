@@ -1,0 +1,97 @@
+
+Running 3 tests using 1 worker
+
+(node:1683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/next-increment.spec.ts:47:1 › sourced Viridescent resistance conditions and Thundering Fury aggravate bonuses affect the shared calculation (2.0s)
+(node:1698) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › apps/web/e2e/next-increment.spec.ts:103:1 › rotation DSL and visual ordering retain requested frames, movement and actor bindings (30.0s)
+(node:1739) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [chromium] › apps/web/e2e/next-increment.spec.ts:166:1 › executed Stellar Conduct fields and the explicit Moondew ability restore their actual damage contexts (30.1s)
+
+
+  1) [chromium] › apps/web/e2e/next-increment.spec.ts:47:1 › sourced Viridescent resistance conditions and Thundering Fury aggravate bonuses affect the shared calculation 
+
+    TypeError: Cannot read properties of undefined (reading 'inputs')
+
+      94 |   expect(hitValue(aggravated.result, "applicableDamageBonus")).toBe(0.15);
+      95 |   const reactionNode = aggravated.result.hits[0]!.trace.find(node => node.id === "additiveReactionDamage")!;
+    > 96 |   const inputs = Object.fromEntries(reactionNode.inputs.map(input => [input.key, input.value]));
+         |                                                  ^
+      97 |   expect(inputs.reactionBonus).toBe(0.2);
+      98 |   expect(reactionNode.result?.value).toBeCloseTo(inputs.levelBaseDamage! * 1.15 * (1 + inputs.elementalMasteryBonus! + 0.2), 8);
+      99 |   await page.locator("#calc-build-mode").selectOption("manual-final");
+        at /Users/evan/Documents/gidps/apps/web/e2e/next-increment.spec.ts:96:50
+
+    Error Context: test-results/next-increment-sourced-Vir-29222-fect-the-shared-calculation-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/next-increment-sourced-Vir-29222-fect-the-shared-calculation-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/next-increment-sourced-Vir-29222-fect-the-shared-calculation-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/next-increment.spec.ts:103:1 › rotation DSL and visual ordering retain requested frames, movement and actor bindings 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#rotation-dsl')
+
+
+      114 |     "wait 6f",
+      115 |   ].join("\n");
+    > 116 |   await page.locator("#rotation-dsl").fill(dsl);
+          |                                       ^
+      117 |   await page.locator("#rotation-parse").click();
+      118 |   await expect(page.locator("#rotation-status")).toContainText("请求帧、移动占用和拾取类型已保留");
+      119 |   await expect(page.locator("#rotation-list li")).toHaveCount(7);
+        at /Users/evan/Documents/gidps/apps/web/e2e/next-increment.spec.ts:116:39
+
+    Error Context: test-results/next-increment-rotation-DS-e3e39-movement-and-actor-bindings-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/next-increment-rotation-DS-e3e39-movement-and-actor-bindings-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/next-increment-rotation-DS-e3e39-movement-and-actor-bindings-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › apps/web/e2e/next-increment.spec.ts:166:1 › executed Stellar Conduct fields and the explicit Moondew ability restore their actual damage contexts 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-lunar-event="1"] > summary')
+
+
+      232 |     expect(hit.damage).toBeCloseTo(expected.damage, 8);
+      233 |     expect(hit.resourceConsumption).toMatchObject({ frame: expected.resourceConsumption.frame, consumed: 1 });
+    > 234 |     await page.locator(`[data-lunar-event="${hit.id}"] > summary`).click();
+          |                                                                    ^
+      235 |     await page.locator(`[data-lunar-open-calculator="${hit.id}"]`).click();
+      236 |     await expect(page).toHaveURL(/\/calculator$/);
+      237 |     const replay = await calculatorAudit(page);
+        at /Users/evan/Documents/gidps/apps/web/e2e/next-increment.spec.ts:234:68
+
+    Error Context: test-results/next-increment-executed-St-4a421-heir-actual-damage-contexts-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/next-increment-executed-St-4a421-heir-actual-damage-contexts-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/next-increment-executed-St-4a421-heir-actual-damage-contexts-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › apps/web/e2e/next-increment.spec.ts:47:1 › sourced Viridescent resistance conditions and Thundering Fury aggravate bonuses affect the shared calculation 
+    [chromium] › apps/web/e2e/next-increment.spec.ts:103:1 › rotation DSL and visual ordering retain requested frames, movement and actor bindings 
+    [chromium] › apps/web/e2e/next-increment.spec.ts:166:1 › executed Stellar Conduct fields and the explicit Moondew ability restore their actual damage contexts 

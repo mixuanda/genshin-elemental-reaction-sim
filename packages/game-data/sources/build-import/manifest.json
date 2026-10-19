@@ -1,0 +1,73 @@
+{
+  "repository": "https://github.com/frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "retrievedAt": "2026-09-26T18:32:41.261875+00:00",
+  "files": [
+    {
+      "path": "libs/gi/good/src/schemas/good-format.ts",
+      "file": "libs__gi__good__src__schemas__good-format.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/good/src/schemas/good-format.ts",
+      "sha256": "da47383dda5634946b1445bb6a78375bc43dfbb7d2ec53d59dfb9351de1fb9ed"
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/artifact.ts",
+      "file": "libs__gi__dm__src__mapping__artifact.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/artifact.ts",
+      "sha256": "0619c7e58d77d04c5f3da37649f4bb860dbe6d9d2c18aeec016ee6ca16facda3"
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/character.ts",
+      "file": "libs__gi__dm__src__mapping__character.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/character.ts",
+      "sha256": "ae0230020461c242d64b6a014babe7400de1eb94077e81f003b30d85eb934ba2"
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/weapon.ts",
+      "file": "libs__gi__dm__src__mapping__weapon.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "sha256": "a24041ebb6383632d69dfbe2322775dea4ba45dd9273a93de2fee2de2d1b0982"
+    },
+    {
+      "path": "LICENSE",
+      "file": "LICENSE",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c"
+    },
+    {
+      "path": "libs/gi/schema/src/artifact.ts",
+      "file": "libs__gi__schema__src__artifact.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/schema/src/artifact.ts",
+      "sha256": "c4bdc2317f1b7aec63c2f09019025a13b4abc60073df702824911b9c18dce2ef"
+    },
+    {
+      "path": "libs/gi/schema/src/character/schema.ts",
+      "file": "libs__gi__schema__src__character__schema.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/schema/src/character/schema.ts",
+      "sha256": "cdb62bbdd399dd7d74990a66557d8c79794d8cd4467fb611bf0a35c012bd4832"
+    },
+    {
+      "path": "libs/gi/schema/src/character/talent.ts",
+      "file": "libs__gi__schema__src__character__talent.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/schema/src/character/talent.ts",
+      "sha256": "00a19ce10d2904b4391c7d05161812113aa653042546c0c52d98c9735ffdcc1f"
+    },
+    {
+      "path": "libs/gi/schema/src/weapon/schema.ts",
+      "file": "libs__gi__schema__src__weapon__schema.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/schema/src/weapon/schema.ts",
+      "sha256": "3745a3ef7b3026b3bd2c9ae781a3d4a15535ee96df86bfc37cd67a61b1c997c8"
+    },
+    {
+      "path": "libs/gi/consts/src/character.ts",
+      "file": "libs__gi__consts__src__character.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/character.ts",
+      "sha256": "1594571fb4a96c184f99e0f424313ff2c1ea8c749abd50a1b38f1dfde2962fdc"
+    },
+    {
+      "path": "libs/gi/dm/src/dm/artifact/ReliquaryExcelConfigData_idmap_gen.json",
+      "file": "libs__gi__dm__src__dm__artifact__ReliquaryExcelConfigData_idmap_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/artifact/ReliquaryExcelConfigData_idmap_gen.json",
+      "sha256": "0149bc68f5d1109412040d9f859a788b067443e90286472295206aafc6acdcaa"
+    }
+  ]
+}

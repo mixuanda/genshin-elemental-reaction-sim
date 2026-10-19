@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-character-dynamic.spec.ts(256,66): error TS2339: Property 'ruleId' does not exist on type '{ ruleId: "const-berserker-2pc-cr" | "const-berserker-4pc-cr" | "const-blizzard-2pc-cryo-p" | "const-blizzard-4pc-cryo-cr" | "const-blizzard-4pc-frozen-cr" | "const-bloodstained-2pc-phy-p" | ... 32 more ... | "const-wanderer-4pc-dmg"; } | ... 53 more ... | { ...; }'.
+  Property 'ruleId' does not exist on type '{ operation: "base"; healType: "absolute"; sourceAmount: number; }'.
+apps/web/e2e/source-character-modifiers.spec.ts(123,26): error TS7053: Element implicitly has an 'any' type because expression of type '"char-albedo-albedo-a1-dmgp-0p25" | "char-albedo-albedo-a4-em-125" | "char-albedo-albedo-c4-dmgp-0p3" | "char-albedo-albedo-c6-dmgp-0p17" | "char-amber-amber-a1-cr-0p1" | ... 197 more ... | "char-yoimiya-yoimiya-c2-pyrop-0p25"' can't be used to index type '{ readonly "char-albedo-albedo-a1-dmgp-0p25": { readonly character: "albedo"; readonly title: "albedo：伤害加成固定加成"; readonly statIndex: 21; readonly value: 0.25; readonly modifierKey: "albedo-a1"; readonly sourceFile: "internal/characters/albedo/asc.go"; readonly sourceCommits: readonly [...]; readonl...'.
+  Property 'char-dyn-alhaitham-a4-dmgp' does not exist on type '{ readonly "char-albedo-albedo-a1-dmgp-0p25": { readonly character: "albedo"; readonly title: "albedo：伤害加成固定加成"; readonly statIndex: 21; readonly value: 0.25; readonly modifierKey: "albedo-a1"; readonly sourceFile: "internal/characters/albedo/asc.go"; readonly sourceCommits: readonly [...]; readonl...'.

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "scope": "intrinsic ability-method root attacks only; excludes independent weapons/artifacts, later player actions, unrelated team damage, continued healing/buffs, and source unverified reactions beyond these root attack deliveries",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "coordinateSystem": "patched fixed source files; line references are current cache, not upstream original",
+  "rows": [
+    {
+      "characterKey": "kaeya",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kaeya/skill.go",
+      "sourceSha256": "38e49bdcc8582d35307e237a9c413c6edc3ed3d564e52526cf8765f8b90eb2db",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:30-94 QueueAttack at 76; hitmark 28",
+      "nonDamageCallbacksAndInitAudit": "particleCB and A1 heal only; C1/C2/C4 Init hooks do not add this cast attack"
+    },
+    {
+      "characterKey": "sucrose",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/sucrose/skill.go",
+      "sourceSha256": "49aa36142ecfe3cec3ec442147203dfc71f2f723cd47216e55ff3d6fa7103d14",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:28-72 QueueAttack at 56, delay 42",
+      "nonDamageCallbacksAndInitAudit": "A4 callback and hexOnSkill add buffs; Init A1 Swirl hooks add buffs, not cast attack"
+    },
+    {
+      "characterKey": "ayaka",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ayaka/skill.go",
+      "sourceSha256": "1fd0598d5729f29623c5d5c5242b59f5a9afe8b624f3e71575ab20c6ecaa63fd",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:28-63 QueueAttack at 46, hitmark 33",
+      "nonDamageCallbacksAndInitAudit": "A1 modifier and particleCB do not queue another attack"
+    },
+    {
+      "characterKey": "bennett",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/bennett/skill.go",
+      "sourceSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1,
+        "condition": "effective hold level == 0 after hold and hold_c4 resolution"
+      },
+      "sourceEvidence": "skill.go:65-106 -> skillPress at 87-120 QueueAttack at 102",
+      "nonDamageCallbacksAndInitAudit": "pressParticleCB queues particle only; hold branches excluded"
+    },
+    {
+      "characterKey": "diona",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/diona/skill.go",
+      "sourceSha256": "3e629a8e0b86e04f4a2de0ee23e99f2d15addbcfb5ad01613daea90aa7d5cda5",
+      "expectedRootAttackCount": {
+        "kind": "paramEquals",
+        "param": "hold",
+        "value": 1,
+        "whenEqual": 5,
+        "otherwise": 2
+      },
+      "sourceEvidence": "skill.go:40-75 -> skillPress/skillHold -> pawsPewPew 96-190; direct for i range pawCount QueueAttack at 178",
+      "nonDamageCallbacksAndInitAudit": "pawCB creates or refreshes shield; makeParticleCB queues particle; travel changes delays only"
+    },
+    {
+      "characterKey": "amber",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/amber/burst.go",
+      "sourceSha256": "d1372bde47b18bb8065a96583bcbce234b8a474b00c12aee8ee87cb0a3991c0c",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 18
+      },
+      "sourceEvidence": "burst.go:27-78: loops 24..120 step24 (5), 36..120 step36 (3), 12..120 step12 (10), all direct QueueAttackWithSnap",
+      "nonDamageCallbacksAndInitAudit": "C6 adds stat modifier; Init A1 changes radius/crit; no cast-created attack callbacks"
+    },
+    {
+      "characterKey": "chongyun",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/chongyun/burst.go",
+      "sourceSha256": "9109b4719e1a02a381210e070412add325a73ac09b605d22602bfbe4df281d64",
+      "expectedRootAttackCount": {
+        "kind": "constellationThreshold",
+        "threshold": 6,
+        "below": 3,
+        "atOrAbove": 4
+      },
+      "sourceEvidence": "burst.go:27-68: burstHitmarks {50,59,67}; C6 fourth at 77",
+      "nonDamageCallbacksAndInitAudit": "C4 callback grants energy; C6 Init modifier affects damage, no additional cast queue"
+    },
+    {
+      "characterKey": "keqing",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/keqing/burst.go",
+      "sourceSha256": "8002f360da1a93ceed52b83a0cd077b1895222316b306d045f57f4ce031eee4a",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 10
+      },
+      "sourceEvidence": "burst.go:23-61: initial at 56, range 82..<162 step11 (8), final at 197",
+      "nonDamageCallbacksAndInitAudit": "A4/C6 add modifiers; Init C4 reaction hooks add modifiers, not extra intrinsic Q attacks"
+    },
+    {
+      "characterKey": "zhongli",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/zhongli/burst.go",
+      "sourceSha256": "55ccc89c549d4386d4bed607fcedf693983be1fb0c3097c5c580f3541f162b19",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "burst.go:23-57 QueueAttack at 47, hitmark 101",
+      "nonDamageCallbacksAndInitAudit": "C2 addJadeShield creates non-damage RES tasks; no additional Q attack"
+    },
+    {
+      "characterKey": "bennett",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/bennett/burst.go",
+      "sourceSha256": "c11659ebc302f01ac4323f743d7a0922708f1fe3629b14a56bfd22714145290e",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "burst.go:33-78 QueueAttack at 55, snapshot and damage delay 37",
+      "nonDamageCallbacksAndInitAudit": "field status and finite tasks heal/buff only; no additional intrinsic Q attack"
+    }
+  ]
+}

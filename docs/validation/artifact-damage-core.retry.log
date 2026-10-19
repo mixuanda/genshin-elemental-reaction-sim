@@ -1,0 +1,32 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+--x
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-damage-runtime.test.ts > fixed-source Echoes and Song actual artifact callbacks > captures actual party healing before debt, queued conversion, live-versus-action ATK, formula replay and random checkpoints
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/sim-core/src/__tests__/artifact-damage-runtime.test.ts:79:64
+     77|     expect(result.artifactDamageLog!.filter(row => row.effectId === "e…
+     78|     expect(result.damageEvents.every(row => row.statsBeforeDamage.base…
+     79|     expect(result.executionAudit!.checkpointCoverage.complete).toBe(tr…
+       |                                                                ^
+     80|     const pending = result.executionAudit!.phaseCheckpoints[0]!.state.…
+     81|     expect(pending.inFlight.filter(row => row.type === "artifactSongCo…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 skipped (3)
+   Start at  03:07:39
+   Duration  1.09s (transform 735ms, setup 0ms, import 939ms, tests 82ms, environment 0ms)
+

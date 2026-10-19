@@ -1,0 +1,204 @@
+{
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogGamePatch": "7.1",
+  "talentSetId": "talent-set:kukishinobu",
+  "vectorCount": 14,
+  "numericValuesChecked": 210,
+  "comparisons": [
+    {
+      "optimizerParameter": "skill[0]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param1",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "skill[1]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param2",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "skill[2]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param3",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "skill[3]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param4",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "skill[4]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param5",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "skill[5]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param6",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "skill[6]",
+      "catalogAbilityId": "talent:kukishinobu:combat2",
+      "catalogParameter": "param7",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[0]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param1",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[1]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param2",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[2]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param3",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[3]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param4",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[4]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param5",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[5]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param6",
+      "valuesChecked": 15,
+      "exactEqual": true
+    },
+    {
+      "optimizerParameter": "burst[6]",
+      "catalogAbilityId": "talent:kukishinobu:combat3",
+      "catalogParameter": "param7",
+      "valuesChecked": 15,
+      "exactEqual": true
+    }
+  ],
+  "displayedBurstTotalRoundingResiduals": [
+    {
+      "talentLevel": 1,
+      "baseTotalMinusSevenHits": "0.000000",
+      "extendedTotalMinusTwelveHits": "0.000000"
+    },
+    {
+      "talentLevel": 2,
+      "baseTotalMinusSevenHits": "-0.000003",
+      "extendedTotalMinusTwelveHits": "-0.000005"
+    },
+    {
+      "talentLevel": 3,
+      "baseTotalMinusSevenHits": "0.000001",
+      "extendedTotalMinusTwelveHits": "0.000002"
+    },
+    {
+      "talentLevel": 4,
+      "baseTotalMinusSevenHits": "0.00000",
+      "extendedTotalMinusTwelveHits": "0.00000"
+    },
+    {
+      "talentLevel": 5,
+      "baseTotalMinusSevenHits": "-0.000003",
+      "extendedTotalMinusTwelveHits": "-0.000005"
+    },
+    {
+      "talentLevel": 6,
+      "baseTotalMinusSevenHits": "0.000001",
+      "extendedTotalMinusTwelveHits": "0.000002"
+    },
+    {
+      "talentLevel": 7,
+      "baseTotalMinusSevenHits": "0.000000",
+      "extendedTotalMinusTwelveHits": "0.000000"
+    },
+    {
+      "talentLevel": 8,
+      "baseTotalMinusSevenHits": "-0.000001",
+      "extendedTotalMinusTwelveHits": "-0.000002"
+    },
+    {
+      "talentLevel": 9,
+      "baseTotalMinusSevenHits": "-0.000003",
+      "extendedTotalMinusTwelveHits": "-0.000005"
+    },
+    {
+      "talentLevel": 10,
+      "baseTotalMinusSevenHits": "0.000003",
+      "extendedTotalMinusTwelveHits": "0.000005"
+    },
+    {
+      "talentLevel": 11,
+      "baseTotalMinusSevenHits": "0.000001",
+      "extendedTotalMinusTwelveHits": "0.000002"
+    },
+    {
+      "talentLevel": 12,
+      "baseTotalMinusSevenHits": "0.000000",
+      "extendedTotalMinusTwelveHits": "0.000000"
+    },
+    {
+      "talentLevel": 13,
+      "baseTotalMinusSevenHits": "0.000000",
+      "extendedTotalMinusTwelveHits": "0.000000"
+    },
+    {
+      "talentLevel": 14,
+      "baseTotalMinusSevenHits": "0.000000",
+      "extendedTotalMinusTwelveHits": "0.000000"
+    },
+    {
+      "talentLevel": 15,
+      "baseTotalMinusSevenHits": "0.000000",
+      "extendedTotalMinusTwelveHits": "0.000000"
+    }
+  ],
+  "notes": [
+    "Burst aggregate parameter vectors are independently rounded; do not replace an executable per-hit schedule with an exactly asserted total/per-hit ratio.",
+    "This comparison checks source numeric parity, not live-game timing or mechanics."
+  ],
+  "historicalComparisonCorrection": {
+    "reason": "Initial comparison read the historical generated catalog and incorrectly described it as the active runtime catalog; retained here as an audit correction.",
+    "catalogPath": "packages/game-data/src/generated/catalog.zh-CN.json",
+    "catalogSha256": "92eb478fbe1f84292c12b8a623e43233d233973563d4519a5af68192247094df",
+    "catalogVersion": "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1",
+    "catalogGamePatch": "6.7",
+    "numericValuesChecked": 210,
+    "exactEqual": true
+  },
+  "catalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "runtimePointerPath": "packages/game-data/manifests/runtime/current.ts",
+  "runtimePointerSha256": "596cb8a3c6d79dd2a968df803f92364abc07ff5b299827c289f89ee6a4ed16a0",
+  "checkedAt": "2026-09-23T18:56:05.499570+00:00",
+  "optimizerParameterPath": "packages/game-data/sources/kuki-skills/raw/optimizer/libs/gi/stats/Data/Characters/KukiShinobu/skillParam.json",
+  "optimizerParameterSha256": "778514f6350914d96a7f1106ffa06ddc886644be9b730a40dcc8710513e4416a"
+}

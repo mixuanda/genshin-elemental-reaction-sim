@@ -1,0 +1,20 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/equipment-weapon-expansion.test.ts(44,41): error TS2379: Argument of type '{ weaponId: string; characterId: string | undefined; refinement: number; enabled: true; context: EquipmentFormulaContext; }' is not assignable to parameter of type '{ weaponId: string; characterId?: string; refinement: number; enabled: boolean; context?: EquipmentFormulaContext; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'characterId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/__tests__/lunar-mixed-v2-simulation.test.ts(54,35): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.
+packages/sim-core/src/__tests__/lunar-mixed-v2-simulation.test.ts(54,80): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.
+packages/sim-core/src/lunar-mixed-v2-runtime.ts(82,48): error TS2339: Property 'taskId' does not exist on type 'LunarMixedV2QueueTask'.
+  Property 'taskId' does not exist on type 'LunarMixedQueueTask'.
+packages/sim-core/src/lunar-mixed-v2-runtime.ts(84,35): error TS2339: Property 'taskId' does not exist on type 'LunarMixedV2QueueTask'.
+  Property 'taskId' does not exist on type 'LunarMixedQueueTask'.

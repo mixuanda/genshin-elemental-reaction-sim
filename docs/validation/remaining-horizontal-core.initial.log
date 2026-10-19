@@ -1,0 +1,55 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 2 failed) 118ms
+   × calculates resolved Hydro/Swift, observed special components and the finite five-hit Phantasm with source oracles 31ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 87ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > calculates resolved Hydro/Swift, observed special components and the finite five-hit Phantasm with source oracles
+AssertionError: iansan-swift-resolved-c0: expected [ Array(1) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "iansan-swift-resolved:schedule：本协议仅属于伊安珊普通攻击天赋下的雷霆飞缒，不能套用E或其他角色天赋等级。",
++ ]
+
+ ❯ complete packages/sim-core/src/remaining-horizontal-source.test.ts:59:58
+     57| function complete(document: CalculatorDocument) {
+     58|   const prepared = prepareSourceCastDocument(document), result = calcu…
+     59|   expect(result.blockers, document.gameContext!.skillId).toEqual([]);
+       |                                                          ^
+     60|   expect(prepared.gameContext!.scopeCoverage).toBe("complete-cast");
+     61|   return { prepared, result };
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:130:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+Error: Trusted SimulationResult 1.53 integrity validation failed: timelineExecution.commandResults.1.abilityId: executed particle ability must backlink the configured command; timelineExecution.commandResults.2.abilityId: executed particle ability must backlink the configured command; timelineExecution.commandResults.4.abilityId: executed particle ability must backlink the configured command; timelineExecution.commandResults.5.abilityId: executed particle ability must backlink the configured command; timelineExecution.commandResults.8.abilityId: executed particle ability must backlink the configured command; actionLog.1.sourceAbilityId: ability-backed action is not owned by an executed timeline command; actionLog.2.sourceAbilityId: ability-backed action is not owned by an executed timeline command; actionLog.3.sourceAbilityId: ability-backed action is not owned by an executed timeline command; actionLog.4.sourceAbilityId: ability-backed action is not owned by an executed timeline command; actionLog.6.sourceAbilityId: ability-backed action is not owned by an executed timeline command; hitResolutionLog.1: direct hit row is not owned one-to-one by a configured executed hit target; hitResolutionLog.2: direct hit row is not owned one-to-one by a configured executed hit target; 70 additional issue(s)
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22903:11
+    22901|     const remainder =
+    22902|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22903|     throw new Error(
+       |           ^
+    22904|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22905|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:19080:10
+ ❯ simulate packages/sim-core/src/simulator.ts:19120:12
+ ❯ assertHorizontalNormalMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:271:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:384:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  12:05:48
+   Duration  2.96s (transform 2.14s, setup 0ms, import 2.76s, tests 118ms, environment 0ms)
+
+
+WALL_SECONDS=3.519

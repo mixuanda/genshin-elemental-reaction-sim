@@ -1,0 +1,63 @@
+diff --git a/internal/characters/baizhu/cons.go b/internal/characters/baizhu/cons.go
+--- a/internal/characters/baizhu/cons.go
++++ b/internal/characters/baizhu/cons.go
+@@ -26,2 +26,3 @@
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("baizhu.c2.enemy-damage", args...)
+ 		ae := args[1].(*info.AttackEvent)
+@@ -29,8 +30,14 @@
+ 		// only trigger with the active character
+-		if ae.Info.ActorIndex != c.Core.Player.Active() {
++		triggerActorActive := ae.Info.ActorIndex == c.Core.Player.Active()
++		if !triggerActorActive {
++			c.Core.SourceHostEventListenerFact("baizhu.c2.trigger-actor-active", 0)
+ 			return
+ 		}
+-		if c.StatusIsActive(c2ICDKey) {
++		c.Core.SourceHostEventListenerFact("baizhu.c2.trigger-actor-active", 1)
++		icdActive := c.StatusIsActive(c2ICDKey)
++		if icdActive {
++			c.Core.SourceHostEventListenerFact("baizhu.c2.icd-active", 1)
+ 			return
+ 		}
++		c.Core.SourceHostEventListenerFact("baizhu.c2.icd-active", 0)
+ 		ai := info.AttackInfo{
+@@ -52,3 +59,4 @@
+ 		// TODO: accurate C2 hitmark and return travel values
+-		c.Core.QueueAttack(
++		c.Core.SourceHostQueueEventAttack(
++			"baizhu.c2.splice-attack",
+ 			ai,
+diff --git a/internal/characters/tartaglia/riptide.go b/internal/characters/tartaglia/riptide.go
+--- a/internal/characters/tartaglia/riptide.go
++++ b/internal/characters/tartaglia/riptide.go
+@@ -242,2 +242,3 @@
+ 	c.Core.Events.Subscribe(event.OnTargetDied, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("tartaglia.riptide.target-died", args...)
+ 		t, ok := args[0].(*enemy.Enemy)
+@@ -245,9 +246,14 @@
+ 		if !ok {
+-			return
+-		}
++			c.Core.SourceHostEventListenerFact("tartaglia.riptide.target-enemy", 0)
++			return
++		}
++		c.Core.SourceHostEventListenerFact("tartaglia.riptide.target-enemy", 1)
+ 		// do nothing if no riptide on target
+-		if !t.StatusIsActive(riptideKey) {
+-			return
+-		}
+-		c.Core.Tasks.Add(func() {
++		riptideActive := t.StatusIsActive(riptideKey)
++		if !riptideActive {
++			c.Core.SourceHostEventListenerFact("tartaglia.riptide.active", 0)
++			return
++		}
++		c.Core.SourceHostEventListenerFact("tartaglia.riptide.active", 1)
++		c.Core.SourceHostQueueEventTask("tartaglia.riptide.death-burst-task", func() {
+ 			ai := info.AttackInfo{
+@@ -263,3 +269,3 @@
+ 			}
+-			c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(t, nil, 5), 0, 0)
++			c.Core.SourceHostQueueEventAttack("tartaglia.riptide.death-burst-attack", ai, combat.NewCircleHitOnTarget(t, nil, 5), 0, 0)
+ 		}, 5)

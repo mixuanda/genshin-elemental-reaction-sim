@@ -1,0 +1,17 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/thrilling-tales-runtime.spec.ts(100,67): error TS2532: Object is possibly 'undefined'.
+apps/web/e2e/thrilling-tales-runtime.spec.ts(107,71): error TS2532: Object is possibly 'undefined'.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"actionConditionLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "periodicEntityLog" | ... 4 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: thrillingTalesLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: thrillingTalesLog" | ... 10 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: thrillingTalesLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: thrillingTalesLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: thrillingTalesLog" | ... 10 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: thrillingTalesLog"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "periodicEntityLog" | ... 4 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: thrillingTalesLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: thrillingTalesLog" | ... 10 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: thrillingTalesLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: thrillingTalesLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: thrillingTalesLog" | ... 10 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: thrillingTalesLog"'.
+packages/schemas/src/thrilling-tales-result-integrity.test.ts(24,10): error TS2532: Object is possibly 'undefined'.
+packages/sim-core/src/__tests__/calculator-thrilling-tales.test.ts(30,172): error TS2538: Type 'undefined' cannot be used as an index type.
+packages/sim-core/src/phase-checkpoint.ts(445,57): error TS2339: Property 'hit' does not exist on type '{ thrillingTalesSnapshotStatuses?: { [k: string]: { key: string; kind: "buff" | "debuff"; sourceActorId?: string; targetId?: string; stat?: BuffStat; element?: "all" | Element; ... 5 more ...; endRemainingTicks: number; }[]; }; }'.

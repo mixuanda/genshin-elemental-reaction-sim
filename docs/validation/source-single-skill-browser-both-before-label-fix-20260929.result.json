@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "source-single-skill-browser-v1",
+  "measurements": [
+    {
+      "lane": "classic",
+      "rawPath": "/tmp/gidps-single-skill-classic.json",
+      "executionArtifact": {
+        "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+        "wasmBytes": 44567991
+      },
+      "sourceMember": "kaeya",
+      "importedSyntheticGood": true,
+      "artifactOnlyStats": {},
+      "weapon": {
+        "key": "coolsteel",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 2
+      },
+      "constellation": 1,
+      "talentSkill": 8,
+      "durationSeconds": 6,
+      "acceptedActionSequence": 1,
+      "observedHitCount": 1,
+      "selectedAssociation": "creation",
+      "knownSubtotal": 1161.8921525418264,
+      "completeCast": false,
+      "firstHitReplayDifference": 0,
+      "editedScaling": 3.1592000000000002,
+      "editedHitDifference": 37.980261262481235,
+      "collectionRoundtrip": true,
+      "oldResultRetainedAfterInputChange": true
+    },
+    {
+      "lane": "stellar",
+      "rawPath": "/tmp/gidps-single-skill-stellar.json",
+      "executionArtifact": {
+        "wasmSha256": "80ae51913ec43ab1f319135dc2ff1bd6034ebce63d93089b3dc6d95cb1620ae5",
+        "wasmBytes": 68401439
+      },
+      "sourceMember": "kaeya",
+      "importedSyntheticGood": false,
+      "artifactOnlyStats": {
+        "hp": 3967,
+        "cr": 0.5224,
+        "cd": 0.645,
+        "atk%": 0.7950999999999999,
+        "er": 0.38860000000000006,
+        "atk": 258,
+        "hp%": 0.1049,
+        "cryo%": 0.387
+      },
+      "weapon": {
+        "key": "prototyperancour",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 2
+      },
+      "constellation": 1,
+      "talentSkill": 8,
+      "durationSeconds": 6,
+      "acceptedActionSequence": 1,
+      "observedHitCount": 1,
+      "selectedAssociation": "creation",
+      "knownSubtotal": 7429.471282557559,
+      "completeCast": false,
+      "firstHitReplayDifference": 0,
+      "editedScaling": 3.1592000000000002,
+      "editedHitDifference": 242.85667110870781,
+      "collectionRoundtrip": true,
+      "oldResultRetainedAfterInputChange": true
+    }
+  ],
+  "pageErrors": [],
+  "scope": "One actual Kaeya skill per pinned source from the independent calculator; finite observed collection, no team script entry or complete-cast inference."
+}

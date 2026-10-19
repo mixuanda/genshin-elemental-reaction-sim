@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts (3 tests | 1 failed) 594ms
+     × samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners 108ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts > remaining fixed-source weapon lifecycles > samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners
+ConfigMigrationError: 配置校验失败：
+- duration: Too small: expected number to be >=1
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33907:11
+    33905|   if (!parsed.success) {
+    33906|     const issues = formatZodError(parsed.error);
+    33907|     throw new ConfigMigrationError(
+       |           ^
+    33908|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33909|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35367:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18685:18
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts:67:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:56:44
+   Duration  1.56s (transform 701ms, setup 0ms, import 908ms, tests 594ms, environment 0ms)
+

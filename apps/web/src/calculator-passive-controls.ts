@@ -1,0 +1,12 @@
+import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
+import { renderKeqingConstellationControls } from "./calculator-keqing-controls";
+
+const toggle = (id: string, path: string, label: string, value: boolean, off: string, on: string): string =>
+  `<label>${label}<select id="${id}" data-passive-context data-passive-field="${path}"><option value="0"${value ? "" : " selected"}>${off}</option><option value="1"${value ? " selected" : ""}>${on}</option></select></label>`;
+
+export function renderPassiveSkillControls(document: CalculatorDocument): string {
+  const keqing = document.gameContext?.keqingBurst, xingqiu = document.gameContext?.xingqiuSkill;
+  if (keqing) return `<fieldset><legend>天街巡游：十次命中与玉衡之贵</legend><div class="calculator-fields">${toggle("calc-keqing-a4-included", "gameContext.keqingBurst.a4IncludedInPanel", "输入暴击率是否已含 A4 的15%", keqing.a4IncludedInPanel, "未含；解锁时由公式加入", "已含；不重复加入")}${toggle("calc-keqing-stats-stable", "gameContext.keqingBurst.statsStableAcrossHits", "基础面板及 C4/C6 以外的装备、目标状态", keqing.statsStableAcrossHits, "未声明稳定；只能明确计算一击", "明确稳定；C4/C6 仍逐击独立")}</div><p class="calculator-hint">初击、八次连斩和末击分别计算，可以独立选择某次命中。A4 在首击前生效；来源配装由核心加入其15%充能，绝缘等依赖充能的公式使用该实际值。手填或导入最终充能须已含适用 A4，不能从当前面板反推旧值。</p><p class="calculator-hint">本段最终暴击率覆盖仍优先；清空覆盖才按面板与 A4 重新计算。C0–C6 的十击条件伤害按来源执行；C4/C6 必须逐击恢复，未知不当作无效，也不据此认证完整轮转。</p></fieldset>${renderKeqingConstellationControls(document)}`;
+  if (xingqiu) return `<fieldset><legend>画雨笼山：两段战技与被动记账</legend><div class="calculator-fields">${toggle("calc-xingqiu-a4-included", "gameContext.xingqiuSkill.a4IncludedInPanel", "每段增伤是否已含 A4 的20%水伤", xingqiu.a4IncludedInPanel, "未含；解锁时由公式加入", "已含；不重复加入")}${toggle("calc-xingqiu-burst-active", "gameContext.xingqiuSkill.burstActiveAtCast", "战技构造时 Q 是否有效", xingqiu.burstActiveAtCast, "无效", "有效；C4使基础天赋倍率×1.5")}${toggle("calc-xingqiu-stats-stable", "gameContext.xingqiuSkill.statsStableAcrossHits", "两段取样之间的面板状态", xingqiu.statsStableAcrossHits, "未声明稳定；缺少另一份快照", "明确稳定")}${toggle("calc-xingqiu-c2-active", "gameContext.xingqiuSkill.c2ShredActive", "目标是否已有 C2 水减抗", xingqiu.c2ShredActive, "无效", "有效；已有剑雨命中所致")}${toggle("calc-xingqiu-c2-included-resistance", "gameContext.xingqiuSkill.c2ShredIncludedInResistance", "输入目标抗性是否已含该减抗", xingqiu.c2ShredIncludedInResistance, "未含；适用时由核心扣除", "已含；不重复扣除")}</div><p class="calculator-hint">C4 使用本次 E 起手明确的 Q 状态，倍率作用于天赋基数，不把它当作普通增伤。E 自身不建立 C2 减抗；该目标状态须已实际存在。每段最终抗性覆盖优先于来源减抗，不会重复扣除。</p><p class="calculator-hint">来源配装由公式加入已解锁 A4；导入最终增伤视为已含，若实际未含可在这里更正。两段反应可分别指定，所填状态不证明完整 Q 生命周期或实战反应覆盖。</p></fieldset>`;
+  return "";
+}

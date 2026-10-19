@@ -1,0 +1,47 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/kuki-source-action.test.ts (2 tests | 2 failed) 4ms
+     × matches the one external fixed-source run for damage, real HP healing and owner A1, with exact calculator hit replay 3ms
+     × executes the sourced C2 duration and permits real initial HP, waiting and swaps while enforcing E/swap timing 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/kuki-source-action.test.ts > Kuki real E source contract > matches the one external fixed-source run for damage, real HP healing and owner A1, with exact calculator hit replay
+TypeError: Reproducibility identity cannot encode undefined values.
+ ❯ canonicalize packages/schemas/src/reproducibility.ts:100:9
+     98|     return `{${encoded.join(",")}}`;
+     99|   }
+    100|   throw new TypeError(
+       |         ^
+    101|     `Reproducibility identity cannot encode ${typeof value} values.`
+    102|   );
+ ❯ canonicalStringify packages/schemas/src/reproducibility.ts:112:10
+ ❯ validateKukiSourceActionSequence packages/sim-core/src/kuki-source-action.ts:102:9
+ ❯ validateSourceBackedNormalSequence packages/sim-core/src/source-action-library.ts:342:48
+ ❯ packages/sim-core/src/__tests__/kuki-source-action.test.ts:16:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/kuki-source-action.test.ts > Kuki real E source contract > executes the sourced C2 duration and permits real initial HP, waiting and swaps while enforcing E/swap timing
+TypeError: Reproducibility identity cannot encode undefined values.
+ ❯ canonicalize packages/schemas/src/reproducibility.ts:100:9
+     98|     return `{${encoded.join(",")}}`;
+     99|   }
+    100|   throw new TypeError(
+       |         ^
+    101|     `Reproducibility identity cannot encode ${typeof value} values.`
+    102|   );
+ ❯ canonicalStringify packages/schemas/src/reproducibility.ts:112:10
+ ❯ validateKukiSourceActionSequence packages/sim-core/src/kuki-source-action.ts:102:9
+ ❯ validateSourceBackedNormalSequence packages/sim-core/src/source-action-library.ts:342:48
+ ❯ packages/sim-core/src/__tests__/kuki-source-action.test.ts:53:12
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  03:39:56
+   Duration  788ms (transform 566ms, setup 0ms, import 731ms, tests 4ms, environment 0ms)
+

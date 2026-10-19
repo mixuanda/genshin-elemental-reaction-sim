@@ -1,0 +1,151 @@
+--- a/pkg/gadget/gadget.go
++++ b/pkg/gadget/gadget.go
+@@ -34,11 +34,24 @@
+ }
+ 
+ func (g *Gadget) Kill() {
++	var endReason func()
++	if g.core.SourceHost != nil {
++		endReason = g.core.SourceHost.BeginOwnedEntityTermination(int(g.Key()), "killed")
++	}
+ 	g.Target.Kill()
+ 	if g.OnKill != nil {
+-		g.OnKill()
++		if g.core.SourceHost != nil {
++			end := g.core.SourceHost.BeginOwnedEntityTrigger(int(g.Key()), "kill")
++			g.OnKill()
++			end()
++		} else {
++			g.OnKill()
++		}
+ 	}
+ 	g.core.Combat.RemoveGadget(g.Key())
++	if endReason != nil {
++		endReason()
++	}
+ }
+ 
+ func (g *Gadget) Type() info.TargettableType { return info.TargettableGadget }
+@@ -51,17 +64,36 @@
+ 			g.sinceLastThink++
+ 		}
+ 		if g.sinceLastThink == g.ThinkInterval {
+-			g.OnThinkInterval()
++			if g.core.SourceHost != nil {
++				end := g.core.SourceHost.BeginOwnedEntityTrigger(int(g.Key()), "think")
++				g.OnThinkInterval()
++				end()
++			} else {
++				g.OnThinkInterval()
++			}
+ 			g.sinceLastThink = 0
+ 		}
+ 	}
+ 	if g.Duration != -1 && g.Duration > 0 {
+ 		g.Duration--
+ 		if g.Duration == 0 {
++			var endReason func()
++			if g.core.SourceHost != nil {
++				endReason = g.core.SourceHost.BeginOwnedEntityTermination(int(g.Key()), "expired")
++			}
+ 			if g.OnExpiry != nil {
+-				g.OnExpiry()
++				if g.core.SourceHost != nil {
++					end := g.core.SourceHost.BeginOwnedEntityTrigger(int(g.Key()), "expiry")
++					g.OnExpiry()
++					end()
++				} else {
++					g.OnExpiry()
++				}
+ 			}
+ 			g.core.Combat.RemoveGadget(g.Key())
++			if endReason != nil {
++				endReason()
++			}
+ 		}
+ 	}
+ }
+--- a/pkg/core/combat/gadget.go
++++ b/pkg/core/combat/gadget.go
+@@ -55,6 +55,9 @@
+ 	for i, v := range h.gadgets {
+ 		if v != nil && v.Key() == key {
+ 			h.gadgets[i] = t
++			if h.SourceHost != nil {
++				h.SourceHost.EndOwnedEntityForKey(int(key), t != nil)
++			}
+ 		}
+ 	}
+ }
+--- a/internal/characters/amber/skill.go
++++ b/internal/characters/amber/skill.go
+@@ -24,7 +24,7 @@
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+ 	hold := p["hold"]
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("amber.skill.spawn-bunny", c.Index(), func() {
+ 		c.makeBunny()
+ 	}, bunnyLand+hold)
+ 
+--- a/internal/characters/amber/bunny.go
++++ b/internal/characters/amber/bunny.go
+@@ -169,7 +169,7 @@
+ 	c.bunnies = append(c.bunnies, b)
+ 	b.OnKill = b.explode
+ 	b.OnExpiry = b.explode
+-	c.Core.Combat.AddGadget(b)
++	c.Core.SourceHostAddOwnedGadget("amber.skill.bunny", c.Index(), b)
+ 	return b
+ }
+ 
+@@ -177,7 +177,7 @@
+ 	// Explode
+ 	b.char.Core.Log.NewEvent("amber exploding bunny", glog.LogCharacterEvent, b.char.Index()).
+ 		Write("src", b.Src())
+-	b.char.Core.QueueAttackEvent(b.ae, 1)
++	b.char.Core.SourceHostQueueOwnedEntityAttackEvent("amber.skill.bunny.explode", b.ae, 1)
+ 
+ 	// remove self from list of bunnies
+ 	for i := 0; i < len(b.char.bunnies); i++ {
+--- a/internal/characters/yaoyao/skill.go
++++ b/internal/characters/yaoyao/skill.go
+@@ -25,9 +25,9 @@
+ 	// yuegui spawns after 48f
+ 	c.Core.Status.Add("yuegui", 600+yueguiThrowSpawn)
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("yaoyao.skill.spawn-yuegui", c.Index(), func() {
+ 		yuegui := c.newYueguiThrow()
+-		c.Core.Combat.AddGadget(yuegui)
++		c.Core.SourceHostAddOwnedGadget("yaoyao.skill.yuegui", c.Index(), yuegui)
+ 	}, skillCDStart+yueguiThrowSpawn)
+ 
+ 	c.SetCDWithDelay(action.ActionSkill, 15*60, skillCDStart)
+--- a/internal/characters/yaoyao/yuegui.go
++++ b/internal/characters/yaoyao/yuegui.go
+@@ -132,12 +132,13 @@
+ 		target = yg.Core.Combat.Player().Pos()
+ 	}
+ 	radishExplodeAoE := combat.NewCircleHitOnTarget(target, nil, radishRad)
+-	yg.c.QueueCharTask(func() {
++	yg.c.SourceHostQueueOwnedEntityCharTask("yaoyao.skill.radish-flight", func() {
+ 		ai, hi := yg.getInfos()
+ 
+ 		delay := 1
+ 		yg.Core.Tasks.Add(yg.c.heal(radishExplodeAoE, hi), delay)
+-		yg.Core.QueueAttackWithSnap(
++		yg.Core.SourceHostQueueOwnedEntityAttackWithSnap(
++			"yaoyao.skill.radish",
+ 			ai,
+ 			yg.snap,
+ 			radishExplodeAoE,
+--- a/internal/characters/yaoyao/cons.go
++++ b/internal/characters/yaoyao/cons.go
+@@ -120,5 +120,5 @@
+ 
+ 	c6MegaRadishAoE := combat.NewCircleHitOnTarget(target, nil, c6MegaRadishRad)
+ 	yg.Core.Tasks.Add(yg.c.heal(c6MegaRadishAoE, hi), c6TravelDelay)
+-	yg.Core.QueueAttackWithSnap(ai, yg.snap, c6MegaRadishAoE, c6TravelDelay)
++	yg.Core.SourceHostQueueOwnedEntityAttackWithSnap("yaoyao.skill.mega-radish", ai, yg.snap, c6MegaRadishAoE, c6TravelDelay)
+ }

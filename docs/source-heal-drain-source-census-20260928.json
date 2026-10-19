@@ -1,0 +1,1507 @@
+{
+  "schema": "source-heal-drain-source-census/v1",
+  "date": "2026-09-28",
+  "source": {
+    "variant": "classic",
+    "buildRoot": "/tmp/gidps-source-host-cache/build-vPmiwy/source",
+    "scannedRoots": [
+      "internal/characters",
+      "internal/weapons",
+      "internal/artifacts"
+    ],
+    "method": "static scan of parsed source literals `info.HealInfo{}` and `info.DrainInfo{}`; no build or tests"
+  },
+  "counts": {
+    "totalInfoLiterals": 96,
+    "healInfo": 82,
+    "drainInfo": 14,
+    "characterHealInfo": 75,
+    "equipmentHealInfo": 7,
+    "artifactHealInfo": 0,
+    "zeroOrOmittedDrain": 2
+  },
+  "sharedCoreBoundary": {
+    "heal": "internal/template/character/heal.go + packages/source-host/patches/021-character-healing.patch: source type/base, HealBonus, amount, dynamic ReceiveHeal delegation, and overheal stages have runtime records. This records Src as a supplied input; caller arithmetic is not reconstructed unless separately attached.",
+    "drain": "internal/template/character/heal.go + packages/source-host/patches/006-player-shield-health.patch: supplied DrainInfo.Amount is used in HP mutation; PlayerDrain records hpBefore/maxHP/Amount and resulting ratio under a runtime ledger request ID (ID is discarded by the Go caller). Caller Amount derivation is not reconstructed.",
+    "identifiers": "runtime receipt IDs are per execution/request; these are not compile-time source formula IDs. Message/Abil is descriptive identity only."
+  },
+  "batchPlan": [
+    {
+      "group": "HP/ATK/DEF/EM table-scaled HealInfo formulas",
+      "work": "First broad implementation batch: lift native source amount arithmetic into per-call formula receipt using talent level and live stat provenance; avoid touching shared base/bonus/receive/overheal phases."
+    },
+    {
+      "group": "fixed/percent source literals",
+      "work": "Attach source expression/level/constants at native HealInfo or DrainInfo creation; percent HealType still delegates target MaxHP multiplication to shared core."
+    },
+    {
+      "group": "live-stat expressions",
+      "work": "Capture stat provenance at the native source read; preserve whether current MaxHP/ATK/EM is sampled at creation or application."
+    },
+    {
+      "group": "snapshot-derived and helper-local values",
+      "work": "Carry original Snapshot or helper-calculation links instead of rereading current stats; expand helper math only when explicit reusable formula needed."
+    },
+    {
+      "group": "stored state / multi-frame pools",
+      "work": "Attach stored field and event lineage (e.g. threshold drains, stack-scaled heal, delayed tick); retain event gating and application order in Go."
+    },
+    {
+      "group": "zero/external drain events",
+      "work": "Keep zero-amount event emissions separate from numeric drain formula migration; they can trigger OnPlayerHPDrain consumers even when no numeric amount is authored here."
+    }
+  ],
+  "entries": [
+    {
+      "sourcePath": "characters/arlecchino/burst.go",
+      "line": 93,
+      "kind": "heal",
+      "message": "balemoonRisingHealAbil",
+      "amountExpression": "amt",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 92,
+        "expression": "1.5*c.CurrentHPDebt() + 1.5*c.TotalAtk()"
+      }
+    },
+    {
+      "sourcePath": "characters/baizhu/burst.go",
+      "line": 75,
+      "kind": "heal",
+      "message": "\"Seamless Shield Healing\"",
+      "amountExpression": "burstHealPP[c.TalentLvlBurst()]*c.MaxHP() + burstHealFlat[c.TalentLvlBurst()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/baizhu/cons.go",
+      "line": 63,
+      "kind": "heal",
+      "message": "\"Baizhu's C2: Healing\"",
+      "amountExpression": "(skillHealPP[c.TalentLvlSkill()]*c.MaxHP() + skillHealFlat[c.TalentLvlSkill()]) * 0.2",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/baizhu/skill.go",
+      "line": 124,
+      "kind": "heal",
+      "message": "\"Universal Diagnosis Healing\"",
+      "amountExpression": "skillHealPP[c.TalentLvlBurst()]*c.MaxHP() + skillHealFlat[c.TalentLvlBurst()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/barbara/attack.go",
+      "line": 72,
+      "kind": "heal",
+      "message": "\"Melody Loop (Normal Attack)\"",
+      "amountExpression": "prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/barbara/burst.go",
+      "line": 24,
+      "kind": "heal",
+      "message": "\"Shining Miracle♪\"",
+      "amountExpression": "bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/barbara/charge.go",
+      "line": 50,
+      "kind": "heal",
+      "message": "\"Melody Loop (Charged Attack)\"",
+      "amountExpression": "4 * (prochpp[c.TalentLvlSkill()]*c.MaxHP() + prochp[c.TalentLvlSkill()])",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/barbara/skill.go",
+      "line": 116,
+      "kind": "heal",
+      "message": "\"Melody Loop (Tick)\"",
+      "amountExpression": "healAmt",
+      "timingDependency": "table/constant or opaque precomputed source amount",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "hpplus"
+    },
+    {
+      "sourcePath": "characters/bennett/burst.go",
+      "line": 119,
+      "kind": "heal",
+      "message": "\"Inspiration Field\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "hpplus",
+      "nearestLocalDefinition": {
+        "line": 86,
+        "expression": "bursthp[c.TalentLvlBurst()] + bursthpp[c.TalentLvlBurst()]*c.MaxHP()"
+      }
+    },
+    {
+      "sourcePath": "characters/charlotte/burst.go",
+      "line": 73,
+      "kind": "heal",
+      "message": "healInitialMsg",
+      "amountExpression": "heal",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "healp",
+      "nearestLocalDefinition": {
+        "line": 61,
+        "expression": "burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/charlotte/burst.go",
+      "line": 87,
+      "kind": "heal",
+      "message": "healDotMsg",
+      "amountExpression": "healDot",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "healp",
+      "nearestLocalDefinition": {
+        "line": 62,
+        "expression": "burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/charlotte/cons.go",
+      "line": 30,
+      "kind": "heal",
+      "message": "c1HealMsg",
+      "amountExpression": "c.TotalAtk() * 0.8",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/charlotte/cons.go",
+      "line": 159,
+      "kind": "heal",
+      "message": "c6HealMsg",
+      "amountExpression": "c.TotalAtk() * 0.42",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/chevreuse/cons.go",
+      "line": 137,
+      "kind": "heal",
+      "message": "\"In Pursuit of Ending Evil (C6)\"",
+      "amountExpression": "0.1 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/chevreuse/skill.go",
+      "line": 220,
+      "kind": "heal",
+      "message": "\"Short-Range Rapid Interdiction Fire Healing\"",
+      "amountExpression": "skillHpRegen[c.TalentLvlSkill()]*c.MaxHP() + skillHpFlat[c.TalentLvlSkill()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/clorinde/skill.go",
+      "line": 183,
+      "kind": "heal",
+      "message": "msg",
+      "amountExpression": "amt",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 182,
+        "expression": "c.CurrentHPDebt() * bolMult"
+      }
+    },
+    {
+      "sourcePath": "characters/dehya/asc.go",
+      "line": 65,
+      "kind": "heal",
+      "message": "a4HealMsg",
+      "amountExpression": "a4InitialHealRatio * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/dehya/asc.go",
+      "line": 83,
+      "kind": "heal",
+      "message": "a4HealMsg",
+      "amountExpression": "a4DoTHealRatio * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/dehya/cons.go",
+      "line": 108,
+      "kind": "heal",
+      "message": "\"An Oath Abiding (C4)\"",
+      "amountExpression": "0.025 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/dehya/skill.go",
+      "line": 394,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "dmgLeft",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 392,
+        "expression": "c.Core.Player.Shields.OnDamage(c.Index(), c.Core.Player.Active(), dmg, ae.Info.Element)"
+      }
+    },
+    {
+      "sourcePath": "characters/diona/burst.go",
+      "line": 64,
+      "kind": "heal",
+      "message": "\"Drunken Mist\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "hpplus",
+      "nearestLocalDefinition": {
+        "line": 46,
+        "expression": "burstHealPer[c.TalentLvlBurst()]*maxhp + burstHealFlat[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/dori/burst.go",
+      "line": 69,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "0",
+      "timingDependency": "event-only/zero amount; no numeric drain source",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      }
+    },
+    {
+      "sourcePath": "characters/dori/burst.go",
+      "line": 105,
+      "kind": "heal",
+      "message": "\"Alcazarzaray's Exactitude: Healing\"",
+      "amountExpression": "bursthealpp[c.TalentLvlBurst()]*c.MaxHP() + bursthealflat[c.TalentLvlBurst()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/dori/cons.go",
+      "line": 107,
+      "kind": "heal",
+      "message": "\"dori-c6-heal\"",
+      "amountExpression": "0.04 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/escoffier/asc.go",
+      "line": 41,
+      "kind": "heal",
+      "message": "\"Rehab Diet\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 40,
+        "expression": "scale * c.TotalAtk()"
+      }
+    },
+    {
+      "sourcePath": "characters/escoffier/burst.go",
+      "line": 44,
+      "kind": "heal",
+      "message": "\"Scoring Cuts (Healing)\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 43,
+        "expression": "burstHealFlat[c.TalentLvlBurst()] + burstHealPer[c.TalentLvlBurst()]*c.TotalAtk()"
+      }
+    },
+    {
+      "sourcePath": "characters/fischl/burst.go",
+      "line": 69,
+      "kind": "heal",
+      "message": "\"Her Pilgrimage of Bleak (C4)\"",
+      "amountExpression": "0.2 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/furina/asc.go",
+      "line": 57,
+      "kind": "heal",
+      "message": "\"Endless Waltz\"",
+      "amountExpression": "0.02",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/furina/cons.go",
+      "line": 102,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "hpDrain",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 101,
+        "expression": "char.CurrentHP() * 0.01"
+      }
+    },
+    {
+      "sourcePath": "characters/furina/cons.go",
+      "line": 123,
+      "kind": "heal",
+      "message": "\"Furina C6 Ousia Heal\"",
+      "amountExpression": "0.04 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/furina/skill.go",
+      "line": 338,
+      "kind": "heal",
+      "message": "\"Singer of Many Waters\"",
+      "amountExpression": "skillSingerHealFlat[c.TalentLvlSkill()] + skillSingerHealScale[c.TalentLvlSkill()]*c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/furina/skill.go",
+      "line": 386,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "hpDrain",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 384,
+        "expression": "char.MaxHP() * hpDrainRatio"
+      }
+    },
+    {
+      "sourcePath": "characters/gaming/asc.go",
+      "line": 35,
+      "kind": "heal",
+      "message": "\"Dance of Amity (A1)\"",
+      "amountExpression": "0.015",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/gaming/burst.go",
+      "line": 44,
+      "kind": "heal",
+      "message": "\"Suanni's Gilded Dance\"",
+      "amountExpression": "0.3",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/gaming/cons.go",
+      "line": 24,
+      "kind": "heal",
+      "message": "\"Bringer of Blessing (C1)\"",
+      "amountExpression": "0.15",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/gaming/plunge.go",
+      "line": 243,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "hpdrain",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 241,
+        "expression": "currentHP - hpDrainThreshold*maxHP"
+      }
+    },
+    {
+      "sourcePath": "characters/gorou/burst.go",
+      "line": 183,
+      "kind": "heal",
+      "message": "\"Lapping Hound: Warm as Water\"",
+      "amountExpression": "c.healFieldStats.TotalDEF() * 0.5",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/hutao/burst.go",
+      "line": 34,
+      "kind": "heal",
+      "message": "burstAbilName",
+      "amountExpression": "c.MaxHP() * regen",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/hutao/skill.go",
+      "line": 63,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "0.30 * c.CurrentHP()",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      }
+    },
+    {
+      "sourcePath": "characters/jean/asc.go",
+      "line": 25,
+      "kind": "heal",
+      "message": "\"Wind Companion\"",
+      "amountExpression": "snap.Stats.TotalATK() * .15",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/jean/burst.go",
+      "line": 71,
+      "kind": "heal",
+      "message": "\"Dandelion Breeze\"",
+      "amountExpression": "heal",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "hpplus",
+      "nearestLocalDefinition": {
+        "line": 67,
+        "expression": "burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/jean/burst.go",
+      "line": 105,
+      "kind": "heal",
+      "message": "\"Dandelion Field\"",
+      "amountExpression": "healDot",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "hpplus",
+      "nearestLocalDefinition": {
+        "line": 68,
+        "expression": "burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/kaeya/skill.go",
+      "line": 49,
+      "kind": "heal",
+      "message": "\"Cold-Blooded Strike\"",
+      "amountExpression": "a.AttackEvent.Snapshot.Stats.TotalATK() * .15",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/kaveh/asc.go",
+      "line": 38,
+      "kind": "heal",
+      "message": "\"Creator's Undertaking (A1)\"",
+      "amountExpression": "3.0 * c.Stat(attributes.EM)",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/kokomi/burst.go",
+      "line": 174,
+      "kind": "heal",
+      "message": "\"Ceremonial Garment\"",
+      "amountExpression": "src",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 163,
+        "expression": "heal"
+      }
+    },
+    {
+      "sourcePath": "characters/kokomi/skill.go",
+      "line": 140,
+      "kind": "heal",
+      "message": "\"Bake-Kurage\"",
+      "amountExpression": "src",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "d.Snapshot.Stats[attributes.Heal]",
+      "nearestLocalDefinition": {
+        "line": 125,
+        "expression": "skillHealPct[c.TalentLvlSkill()]*maxhp + skillHealFlat[c.TalentLvlSkill()]"
+      }
+    },
+    {
+      "sourcePath": "characters/kuki/skill.go",
+      "line": 40,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "hpdrain",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 38,
+        "expression": "currentHP - hpDrainThreshold*maxHP"
+      }
+    },
+    {
+      "sourcePath": "characters/kuki/skill.go",
+      "line": 153,
+      "kind": "heal",
+      "message": "\"Grass Ring of Sanctification Healing\"",
+      "amountExpression": "(skillhealpp[c.TalentLvlSkill()]*c.MaxHP() + skillhealflat[c.TalentLvlSkill()] + c.a4Healing())",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/lauma/cons.go",
+      "line": 50,
+      "kind": "heal",
+      "message": "\"Lauma C1 (Heal)\"",
+      "amountExpression": "healAmt",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 46,
+        "expression": "5.0 * c.Stat(attributes.EM)"
+      }
+    },
+    {
+      "sourcePath": "characters/lynette/skill.go",
+      "line": 204,
+      "kind": "heal",
+      "message": "skillAbil",
+      "amountExpression": "0.25 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/lynette/skill.go",
+      "line": 225,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "0.06 * c.CurrentHP()",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      }
+    },
+    {
+      "sourcePath": "characters/lyney/aimed.go",
+      "line": 198,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "hpdrain",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 196,
+        "expression": "currentHP - propSurplusHPDrainThreshold*maxHP"
+      }
+    },
+    {
+      "sourcePath": "characters/lyney/skill.go",
+      "line": 77,
+      "kind": "heal",
+      "message": "\"Bewildering Lights\"",
+      "amountExpression": "0.2 * c.MaxHP() * float64(c.propSurplusStacks)",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/mika/burst.go",
+      "line": 31,
+      "kind": "heal",
+      "message": "\"Skyfeather Song\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 30,
+        "expression": "burstHealFirstF[c.TalentLvlBurst()] + burstHealFirstP[c.TalentLvlBurst()]*c.MaxHP()"
+      }
+    },
+    {
+      "sourcePath": "characters/mika/burst.go",
+      "line": 73,
+      "kind": "heal",
+      "message": "\"Eagleplume\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 72,
+        "expression": "burstHealF[c.TalentLvlBurst()] + burstHealP[c.TalentLvlBurst()]*c.MaxHP()"
+      }
+    },
+    {
+      "sourcePath": "characters/mizuki/snack.go",
+      "line": 124,
+      "kind": "heal",
+      "message": "snackHealName",
+      "amountExpression": "((mizuki.Stat(attributes.EM) * snackHealEM[mizuki.TalentLvlBurst()]) + snackHealFlat[mizuki.TalentLvlBurst()]) * healMultiplier",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "mizuki.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/neuvillette/charge.go",
+      "line": 309,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "hpDrain",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 307,
+        "expression": "0.08 * c.MaxHP()"
+      }
+    },
+    {
+      "sourcePath": "characters/neuvillette/charge.go",
+      "line": 324,
+      "kind": "heal",
+      "message": "\"Sourcewater Droplets Healing\"",
+      "amountExpression": "c.MaxHP() * 0.16",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/noelle/skill.go",
+      "line": 111,
+      "kind": "heal",
+      "message": "\"Breastplate (Attack)\"",
+      "amountExpression": "heal",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "atk.AttackEvent.Snapshot.Stats[attributes.Heal]",
+      "nearestLocalDefinition": {
+        "line": 110,
+        "expression": "shieldHeal[c.TalentLvlSkill()]*def + shieldHealFlat[c.TalentLvlSkill()]"
+      }
+    },
+    {
+      "sourcePath": "characters/qiqi/burst.go",
+      "line": 91,
+      "kind": "heal",
+      "message": "\"Fortune-Preserving Talisman\"",
+      "amountExpression": "healAmt",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 90,
+        "expression": "c.healDynamic(burstHealPer, burstHealFlat, c.TalentLvlBurst())"
+      }
+    },
+    {
+      "sourcePath": "characters/qiqi/burst.go",
+      "line": 146,
+      "kind": "heal",
+      "message": "\"Herald of Frost (Attack)\"",
+      "amountExpression": "c.healSnapshot(&c.skillHealSnapshot",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.skillHealSnapshot.Stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/qiqi/skill.go",
+      "line": 53,
+      "kind": "heal",
+      "message": "\"Herald of Frost (Tick)\"",
+      "amountExpression": "c.healSnapshot(&snap",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/qiqi/skill.go",
+      "line": 155,
+      "kind": "heal",
+      "message": "\"Herald of Frost (Tick)\"",
+      "amountExpression": "c.healSnapshot(&c.skillHealSnapshot",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.skillHealSnapshot.Stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/sara/skill.go",
+      "line": 118,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "0",
+      "timingDependency": "event-only/zero amount; no numeric drain source",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      }
+    },
+    {
+      "sourcePath": "characters/sayu/asc.go",
+      "line": 42,
+      "kind": "heal",
+      "message": "\"Someone More Capable\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 41,
+        "expression": "300 + c.Stat(attributes.EM)*1.2"
+      }
+    },
+    {
+      "sourcePath": "characters/sayu/burst.go",
+      "line": 52,
+      "kind": "heal",
+      "message": "\"Yoohoo Art: Mujina Flurry\"",
+      "amountExpression": "heal",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]",
+      "nearestLocalDefinition": {
+        "line": 51,
+        "expression": "initHealFlat[c.TalentLvlBurst()] + atk*initHealPP[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/sayu/burst.go",
+      "line": 105,
+      "kind": "heal",
+      "message": "\"Muji-Muji Daruma\"",
+      "amountExpression": "heal",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "d.Snapshot.Stats[attributes.Heal]",
+      "nearestLocalDefinition": {
+        "line": 63,
+        "expression": "burstHealFlat[c.TalentLvlBurst()] + atk*burstHealPP[c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/sigewinne/skill.go",
+      "line": 221,
+      "kind": "heal",
+      "message": "\"Bolstering Bubblebalm Healing\"",
+      "amountExpression": "bolsteringBubblebalmHealingPct[c.TalentLvlSkill()]*c.MaxHP() + bolsteringBubblebalmHealingFlat[c.TalentLvlSkill()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal) + skillBonus"
+    },
+    {
+      "sourcePath": "characters/sigewinne/skill.go",
+      "line": 238,
+      "kind": "heal",
+      "message": "\"Bolstering Bubblebalm Healing\"",
+      "amountExpression": "finalBounceHealing * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal) + skillBonus"
+    },
+    {
+      "sourcePath": "characters/traveler/common/anemo/asc.go",
+      "line": 70,
+      "kind": "heal",
+      "message": "\"Second Wind\"",
+      "amountExpression": "0.02",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent"
+    },
+    {
+      "sourcePath": "characters/traveler/common/hydro/asc.go",
+      "line": 50,
+      "kind": "heal",
+      "message": "\"Spotless Waters\"",
+      "amountExpression": "c.MaxHP() * 0.07",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/traveler/common/hydro/cons.go",
+      "line": 82,
+      "kind": "heal",
+      "message": "\"Tides of Justice\"",
+      "amountExpression": "0.06",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/traveler/common/hydro/skill.go",
+      "line": 347,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "drainHP",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      },
+      "nearestLocalDefinition": {
+        "line": 346,
+        "expression": "0.04 * c.CurrentHP()"
+      }
+    },
+    {
+      "sourcePath": "characters/wriothesley/asc.go",
+      "line": 60,
+      "kind": "heal",
+      "message": "\"There Shall Be a Plea for Justice\"",
+      "amountExpression": "c.caHeal * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/wriothesley/cons.go",
+      "line": 75,
+      "kind": "heal",
+      "message": "\"There Shall Be a Plea for Justice\"",
+      "amountExpression": "c.caHeal * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/wriothesley/skill.go",
+      "line": 79,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "0.045 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      }
+    },
+    {
+      "sourcePath": "characters/xianyun/burst.go",
+      "line": 76,
+      "kind": "heal",
+      "message": "\"Stars Gather at Dusk Heal (Initial)\"",
+      "amountExpression": "healInstantP[c.TalentLvlBurst()]*c.TotalAtk() + healInstantFlat[c.TalentLvlBurst()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/xianyun/burst.go",
+      "line": 174,
+      "kind": "heal",
+      "message": "\"Starwicker Heal\"",
+      "amountExpression": "healDotP[c.TalentLvlBurst()]*c.TotalAtk() + healDotFlat[c.TalentLvlBurst()]",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/xianyun/cons.go",
+      "line": 83,
+      "kind": "heal",
+      "message": "\"Mystery Millet Gourmet (C4)\"",
+      "amountExpression": "c4Ratio[c.skillCounter] * c.TotalAtk()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/xiao/burst.go",
+      "line": 42,
+      "kind": "drain",
+      "message": null,
+      "amountExpression": "burstDrain[c.TalentLvlBurst()] * c.CurrentHP()",
+      "timingDependency": "current HP/state read at event; may depend on stored prior event",
+      "sourceLink": {
+        "sourceExpressionID": "none for caller Amount derivation",
+        "sharedReceipt": "PlayerDrain creates runtime player-drain receipt (ID returned internally); records hpBefore, maxHP, and supplied Amount, but not the expression that produced Amount."
+      }
+    },
+    {
+      "sourcePath": "characters/xilonen/burst.go",
+      "line": 76,
+      "kind": "heal",
+      "message": "\"Ebullient Rhythm\"",
+      "amountExpression": "(field omitted; source amount not explicit in literal)",
+      "timingDependency": "table/constant or opaque precomputed source amount",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      }
+    },
+    {
+      "sourcePath": "characters/xilonen/cons.go",
+      "line": 213,
+      "kind": "heal",
+      "message": "\"Imperishable Night Carnival\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "hpplus",
+      "nearestLocalDefinition": {
+        "line": 212,
+        "expression": "c.TotalDef(false) * 1.2"
+      }
+    },
+    {
+      "sourcePath": "characters/yaoyao/asc.go",
+      "line": 75,
+      "kind": "heal",
+      "message": "\"Yaoyao A4\"",
+      "amountExpression": "0.008 * c.MaxHP()",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/yaoyao/burst.go",
+      "line": 72,
+      "kind": "heal",
+      "message": "\"Yuegui Burst Heal\"",
+      "amountExpression": "heal",
+      "timingDependency": "table/constant or opaque precomputed source amount",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/yaoyao/burst.go",
+      "line": 75,
+      "kind": "heal",
+      "message": "\"Yuegui Burst Heal\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]",
+      "nearestLocalDefinition": {
+        "line": 74,
+        "expression": "burstRadishHealing[0][c.TalentLvlBurst()]*maxhp + burstRadishHealing[1][c.TalentLvlBurst()]"
+      }
+    },
+    {
+      "sourcePath": "characters/yaoyao/cons.go",
+      "line": 101,
+      "kind": "heal",
+      "message": "c6HealMsg",
+      "amountExpression": "yg.c.MaxHP() * 0.075",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "yg.c.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "characters/yaoyao/skill.go",
+      "line": 47,
+      "kind": "heal",
+      "message": "\"Yuegui Skill\"",
+      "amountExpression": "heal",
+      "timingDependency": "table/constant or opaque precomputed source amount",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]"
+    },
+    {
+      "sourcePath": "characters/yaoyao/skill.go",
+      "line": 50,
+      "kind": "heal",
+      "message": "\"Yuegui Skill\"",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "snap.Stats[attributes.Heal]",
+      "nearestLocalDefinition": {
+        "line": 49,
+        "expression": "skillRadishHealing[0][c.TalentLvlSkill()]*maxhp + skillRadishHealing[1][c.TalentLvlSkill()]"
+      }
+    },
+    {
+      "sourcePath": "characters/zhongli/shield.go",
+      "line": 86,
+      "kind": "heal",
+      "message": "\"Chrysos",
+      "amountExpression": "heal",
+      "timingDependency": "live stat read at Heal/Drain construction",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "s.c.Stat(attributes.Heal)",
+      "nearestLocalDefinition": {
+        "line": 84,
+        "expression": "0.08 * maxhp"
+      }
+    },
+    {
+      "sourcePath": "weapons/bow/recurve/recurve.go",
+      "line": 42,
+      "kind": "heal",
+      "message": "\"Recurve Bow (Proc)\"",
+      "amountExpression": "healPercentage",
+      "timingDependency": "precomputed local/helper; see nearest local definition; timing determined there",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "nearestLocalDefinition": {
+        "line": 25,
+        "expression": "0.06 + float64(r)*0.02"
+      }
+    },
+    {
+      "sourcePath": "weapons/catalyst/otherworldly/otherworldly.go",
+      "line": 29,
+      "kind": "heal",
+      "message": "\"Otherworldly Story (Proc)\"",
+      "amountExpression": "0.0075 + float64(r)*0.0025",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent"
+    },
+    {
+      "sourcePath": "weapons/catalyst/prototype/prototype.go",
+      "line": 42,
+      "kind": "heal",
+      "message": "\"Prototype Amber\"",
+      "amountExpression": "e / 100.0",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent",
+      "bonusExpression": "char.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "weapons/claymore/whiteiron/whiteiron.go",
+      "line": 41,
+      "kind": "heal",
+      "message": "\"White Iron Greatsword (Proc)\"",
+      "amountExpression": "0.06 + float64(r)*0.02",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent"
+    },
+    {
+      "sourcePath": "weapons/sword/aquila/aquila.go",
+      "line": 75,
+      "kind": "heal",
+      "message": "\"Aquila Favonia\"",
+      "amountExpression": "snap.Stats.TotalATK() * heal",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "char.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "weapons/sword/blacksword/blacksword.go",
+      "line": 58,
+      "kind": "heal",
+      "message": "\"The Black Sword\"",
+      "amountExpression": "heal * atk.Snapshot.Stats.TotalATK()",
+      "timingDependency": "snapshot-derived; preserve native snapshot frame",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "bonusExpression": "char.Stat(attributes.Heal)"
+    },
+    {
+      "sourcePath": "weapons/sword/travelershandysword/travelershandysword.go",
+      "line": 29,
+      "kind": "heal",
+      "message": "\"Traveler's Handy Sword (Proc)\"",
+      "amountExpression": "0.0075 + float64(r)*0.0025",
+      "timingDependency": "percent-of-target-MaxHP resolved later in shared heal core",
+      "sourceLink": {
+        "sourceExpressionID": "none at native formula site",
+        "sharedReceipt": "generic CharacterHealing creates runtime IDs for base/bonus/amount stages; Src is captured as input. ID is generated per execution and keyed to Message, not a stable per-source formula ID."
+      },
+      "healType": "info.HealTypePercent"
+    }
+  ],
+  "limitations": [
+    "Only Go HealInfo/DrainInfo struct literal sites are enumerated; API calls forwarding existing HealInfo values are represented by the literal that creates that value where found, not duplicated as new amount sources.",
+    "Nearest local definitions are a bounded textual aid, not full Go dataflow; opaque locals/helpers remain explicitly classified instead of inferred.",
+    "This is source provenance inventory, not game-mechanics verification.",
+    "The automated literal census found 96 Go literals (82 HealInfo and 14 DrainInfo); local-definition discovery is nearest textual assignment only, so deeper helper/state dependencies must be inspected before implementing a source formula."
+  ],
+  "entryFamilies": [
+    {
+      "family": "live-stat and talent-table expressions",
+      "count": 48,
+      "kind": "HealInfo",
+      "examples": [
+        "MaxHP coefficient + flat",
+        "TotalATK/TotalDEF/EM scaling",
+        "level-indexed talent coefficients"
+      ],
+      "meaning": "source expression is evaluated by Go at HealInfo construction; shared receipt treats the resulting Src as a supplied input."
+    },
+    {
+      "family": "snapshot-derived formulas",
+      "count": 8,
+      "kind": "HealInfo",
+      "examples": [
+        "Qiqi stored healSnapshot",
+        "Noelle attack Snapshot",
+        "Gorou stored healFieldStats",
+        "Dori burst snap",
+        "weapon proc attack snapshots"
+      ],
+      "meaning": "retain original snapshot read and frame; do not replace with current source stats."
+    },
+    {
+      "family": "percent-target-HP sources",
+      "count": 10,
+      "kind": "HealInfo",
+      "examples": [
+        "Gaming self heals",
+        "Furina A4",
+        "prototype/refinement weapon heals"
+      ],
+      "meaning": "Src is ratio; shared base stage performs target MaxHP multiplication. The ratio/refinement source can still be opaque at caller."
+    },
+    {
+      "family": "stored/helper local heal values",
+      "count": 10,
+      "kind": "HealInfo",
+      "examples": [
+        "Bennett burst heal",
+        "Charlotte initial/tick",
+        "Qiqi dynamic helper",
+        "Sayu tick/initial",
+        "Noelle attack proc",
+        "Clorinde/Arlecchino debt settlement"
+      ],
+      "meaning": "some local definitions resolved in nearbyDefinition; otherwise helper output remains opaque; preserve sequence and captured snapshots."
+    },
+    {
+      "family": "current-HP or state-derived numeric source",
+      "count": 10,
+      "kind": "DrainInfo",
+      "examples": [
+        "Hu Tao 30% CurrentHP",
+        "Xiao talent percentage CurrentHP",
+        "Kuki/Gaming/Lyney threshold-adjusted currentHP minus threshold*MaxHP",
+        "Furina currentHP or MaxHP ratio",
+        "Hydro Traveler 4% currentHP"
+      ],
+      "meaning": "the Drain receipt records final Amount; source expression and threshold/state source remain Go-only."
+    },
+    {
+      "family": "special drain construction",
+      "count": 2,
+      "kind": "DrainInfo",
+      "examples": [
+        "Dehya passes post-shield dmgLeft",
+        "Sara zero-amount external Drain event"
+      ],
+      "meaning": "Dehya amount depends on special player-hit/shield pipeline; Sara zero amount is an event trigger, not authored numeric damage."
+    }
+  ]
+}

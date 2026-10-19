@@ -1,0 +1,657 @@
+[
+  {
+    "id": "weapon:12510",
+    "slug": "redhornstonethresher",
+    "name": "赤角石溃杵",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "防御力提高28%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的40%。",
+        "values": [
+          "28%",
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "防御力提高35%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的50%。",
+        "values": [
+          "35%",
+          "50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "防御力提高42%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的60%。",
+        "values": [
+          "42%",
+          "60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "防御力提高49%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的70%。",
+        "values": [
+          "49%",
+          "70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "防御力提高56%；普通攻击与重击造成的伤害值提高，提高数值相当于防御力的80%。",
+        "values": [
+          "56%",
+          "80%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/redhorn/redhorn.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8
+    ]
+  },
+  {
+    "id": "weapon:11512",
+    "slug": "lightoffoliarincision",
+    "name": "裁叶萃光",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "暴击率提升4%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的120%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+        "values": [
+          "4%",
+          "120%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "暴击率提升5%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的150%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+        "values": [
+          "5%",
+          "150%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "暴击率提升6%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的180%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+        "values": [
+          "6%",
+          "180%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "暴击率提升7%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的210%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+        "values": [
+          "7%",
+          "210%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "暴击率提升8%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的240%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+        "values": [
+          "8%",
+          "240%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/foliar/foliar.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      1.2,
+      1.5,
+      1.8,
+      2.1,
+      2.4
+    ]
+  },
+  {
+    "id": "weapon:11415",
+    "slug": "cinnabarspindle",
+    "name": "辰砂之纺锤",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技造成的伤害值提高，提高数值相当于防御力的40%。该效果每1.5秒最多触发一次，并将在元素战技造成伤害后的0.1秒后清除效果。",
+        "values": [
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技造成的伤害值提高，提高数值相当于防御力的50%。该效果每1.5秒最多触发一次，并将在元素战技造成伤害后的0.1秒后清除效果。",
+        "values": [
+          "50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技造成的伤害值提高，提高数值相当于防御力的60%。该效果每1.5秒最多触发一次，并将在元素战技造成伤害后的0.1秒后清除效果。",
+        "values": [
+          "60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技造成的伤害值提高，提高数值相当于防御力的70%。该效果每1.5秒最多触发一次，并将在元素战技造成伤害后的0.1秒后清除效果。",
+        "values": [
+          "70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技造成的伤害值提高，提高数值相当于防御力的80%。该效果每1.5秒最多触发一次，并将在元素战技造成伤害后的0.1秒后清除效果。",
+        "values": [
+          "80%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/cinnabar/cinnnabar.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.4,
+      0.5,
+      0.6,
+      0.7,
+      0.8
+    ]
+  },
+  {
+    "id": "weapon:11413",
+    "slug": "festeringdesire",
+    "name": "腐殖之剑",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技造成的伤害增加16%，元素战技的暴击率提升6%。",
+        "values": [
+          "16%",
+          "6%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技造成的伤害增加20%，元素战技的暴击率提升7.5%。",
+        "values": [
+          "20%",
+          "7.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技造成的伤害增加24%，元素战技的暴击率提升9%。",
+        "values": [
+          "24%",
+          "9%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技造成的伤害增加28%，元素战技的暴击率提升10.5%。",
+        "values": [
+          "28%",
+          "10.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技造成的伤害增加32%，元素战技的暴击率提升12%。",
+        "values": [
+          "32%",
+          "12%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/festering/festering.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.06,
+      0.075,
+      0.09,
+      0.105,
+      0.12
+    ]
+  },
+  {
+    "id": "weapon:11424",
+    "slug": "wolffang",
+    "name": "狼牙",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技与元素爆发造成的伤害提升16%。元素战技命中敌人时，元素战技的暴击率提升2%；元素爆发命中敌人时，元素爆发的暴击率提升2%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+        "values": [
+          "16%",
+          "2%",
+          "2%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技与元素爆发造成的伤害提升20%。元素战技命中敌人时，元素战技的暴击率提升2.5%；元素爆发命中敌人时，元素爆发的暴击率提升2.5%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+        "values": [
+          "20%",
+          "2.5%",
+          "2.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技与元素爆发造成的伤害提升24%。元素战技命中敌人时，元素战技的暴击率提升3%；元素爆发命中敌人时，元素爆发的暴击率提升3%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+        "values": [
+          "24%",
+          "3%",
+          "3%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技与元素爆发造成的伤害提升28%。元素战技命中敌人时，元素战技的暴击率提升3.5%；元素爆发命中敌人时，元素爆发的暴击率提升3.5%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+        "values": [
+          "28%",
+          "3.5%",
+          "3.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技与元素爆发造成的伤害提升32%。元素战技命中敌人时，元素战技的暴击率提升4%；元素爆发命中敌人时，元素爆发的暴击率提升4%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+        "values": [
+          "32%",
+          "4%",
+          "4%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/wolffang/wolffang.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.02,
+      0.025,
+      0.03,
+      0.035,
+      0.04
+    ]
+  },
+  {
+    "id": "weapon:11426",
+    "slug": "fleuvecendreferryman",
+    "name": "灰河渡手",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技暴击率提升8%；此外，施放元素战技后的5秒内，元素充能效率提升16%。",
+        "values": [
+          "8%",
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技暴击率提升10%；此外，施放元素战技后的5秒内，元素充能效率提升20%。",
+        "values": [
+          "10%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技暴击率提升12%；此外，施放元素战技后的5秒内，元素充能效率提升24%。",
+        "values": [
+          "12%",
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技暴击率提升14%；此外，施放元素战技后的5秒内，元素充能效率提升28%。",
+        "values": [
+          "14%",
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技暴击率提升16%；此外，施放元素战技后的5秒内，元素充能效率提升32%。",
+        "values": [
+          "16%",
+          "32%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.08,
+      0.1,
+      0.12,
+      0.14,
+      0.16
+    ]
+  },
+  {
+    "id": "weapon:11432",
+    "slug": "calamityofeshu",
+    "name": "厄水之祸",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升20%，普通攻击和重击的暴击率提升8%。",
+        "values": [
+          "20%",
+          "8%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升25%，普通攻击和重击的暴击率提升10%。",
+        "values": [
+          "25%",
+          "10%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升30%，普通攻击和重击的暴击率提升12%。",
+        "values": [
+          "30%",
+          "12%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升35%，普通攻击和重击的暴击率提升14%。",
+        "values": [
+          "35%",
+          "14%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升40%，普通攻击和重击的暴击率提升16%。",
+        "values": [
+          "40%",
+          "16%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/calamityofeshu/calamityofeshu.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.08,
+      0.1,
+      0.12,
+      0.14,
+      0.16
+    ]
+  },
+  {
+    "id": "weapon:11518",
+    "slug": "athameartis",
+    "name": "黑蚀",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素爆发造成的暴击伤害提升16%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升20%，除装备者以外，队伍中附近的当前场上角色攻击力提升16%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "16%",
+          "20%",
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素爆发造成的暴击伤害提升20%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升25%，除装备者以外，队伍中附近的当前场上角色攻击力提升20%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "20%",
+          "25%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素爆发造成的暴击伤害提升24%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升30%，除装备者以外，队伍中附近的当前场上角色攻击力提升24%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "24%",
+          "30%",
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素爆发造成的暴击伤害提升28%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升35%，除装备者以外，队伍中附近的当前场上角色攻击力提升28%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "28%",
+          "35%",
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素爆发造成的暴击伤害提升32%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升40%，除装备者以外，队伍中附近的当前场上角色攻击力提升32%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "32%",
+          "40%",
+          "32%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.16,
+      0.2,
+      0.24,
+      0.28,
+      0.32
+    ]
+  },
+  {
+    "id": "weapon:12430",
+    "slug": "fruitfulhook",
+    "name": "硕果钩",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "下落攻击的暴击率提升16%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升16%，持续10秒。",
+        "values": [
+          "16%",
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "下落攻击的暴击率提升20%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升20%，持续10秒。",
+        "values": [
+          "20%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "下落攻击的暴击率提升24%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升24%，持续10秒。",
+        "values": [
+          "24%",
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "下落攻击的暴击率提升28%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升28%，持续10秒。",
+        "values": [
+          "28%",
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "下落攻击的暴击率提升32%；下落攻击命中敌人后，普通攻击、重击、下落攻击造成的伤害提升32%，持续10秒。",
+        "values": [
+          "32%",
+          "32%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/fruitfulhook/fruitfulhook.go"
+    ],
+    "reviewedCoefficientR1ToR5": [
+      0.16,
+      0.2,
+      0.24,
+      0.28,
+      0.32
+    ]
+  },
+  {
+    "id": "weapon:11430",
+    "slug": "sturdybone",
+    "name": "弥坚骨",
+    "supported": false,
+    "blocker": "固定gcsim系数写为0.12+0.4×精炼，与目录0.16/0.20/0.24/0.28/0.32冲突；且读取Stat(ATK)固定攻击组件而非总攻击。未启用该基础伤害加值。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的16%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的20%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的24%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的28%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的32%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "32%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sturdybone/sturdybone.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    ],
+    "reviewedCoefficientR1ToR5": []
+  },
+  {
+    "id": "weapon:11502",
+    "slug": "skywardblade",
+    "name": "天空之刃",
+    "supported": false,
+    "blocker": "该伤害在固定gcsim是独立排队的物理WeaponSkill事件，不是原普攻/重击的基础伤害加值；本通道不执行追击。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "暴击率提升4%；施放元素爆发时，获得破空之势：移动速度提升10%，攻击速度提升10%，普通攻击与重击命中时，额外造成20%攻击力的伤害，持续12秒。",
+        "values": [
+          "4%",
+          "10%",
+          "10%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "暴击率提升5%；施放元素爆发时，获得破空之势：移动速度提升10%，攻击速度提升10%，普通攻击与重击命中时，额外造成25%攻击力的伤害，持续12秒。",
+        "values": [
+          "5%",
+          "10%",
+          "10%",
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "暴击率提升6%；施放元素爆发时，获得破空之势：移动速度提升10%，攻击速度提升10%，普通攻击与重击命中时，额外造成30%攻击力的伤害，持续12秒。",
+        "values": [
+          "6%",
+          "10%",
+          "10%",
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "暴击率提升7%；施放元素爆发时，获得破空之势：移动速度提升10%，攻击速度提升10%，普通攻击与重击命中时，额外造成35%攻击力的伤害，持续12秒。",
+        "values": [
+          "7%",
+          "10%",
+          "10%",
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "暴击率提升8%；施放元素爆发时，获得破空之势：移动速度提升10%，攻击速度提升10%，普通攻击与重击命中时，额外造成40%攻击力的伤害，持续12秒。",
+        "values": [
+          "8%",
+          "10%",
+          "10%",
+          "40%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/skyward/skyward.go"
+    ],
+    "reviewedCoefficientR1ToR5": []
+  }
+]

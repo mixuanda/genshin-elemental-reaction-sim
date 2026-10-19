@@ -1,0 +1,64 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/action-condition-phase.test.ts (3 tests | 3 failed) 22ms
+     × receives existing same-frame healing/particles before eligibility, then freezes seven hits before own zero-offset effects 19ms
+     × locks twelve hits at <=50% despite subsequent healing and preserves their original action snapshot/replay 1ms
+     × keeps undeclared action ordering and failed-input behavior, and rejects the new fields on old wire 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/action-condition-phase.test.ts > accepted-action HP branches and explicit task-before-action phase > receives existing same-frame healing/particles before eligibility, then freezes seven hits before own zero-offset effects
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33604:11
+    33602|   if (!parsed.success) {
+    33603|     const issues = formatZodError(parsed.error);
+    33604|     throw new ConfigMigrationError(
+       |           ^
+    33605|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33606|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35031:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18132:18
+ ❯ packages/sim-core/src/__tests__/action-condition-phase.test.ts:33:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/action-condition-phase.test.ts > accepted-action HP branches and explicit task-before-action phase > locks twelve hits at <=50% despite subsequent healing and preserves their original action snapshot/replay
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33604:11
+    33602|   if (!parsed.success) {
+    33603|     const issues = formatZodError(parsed.error);
+    33604|     throw new ConfigMigrationError(
+       |           ^
+    33605|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33606|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35031:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18132:18
+ ❯ packages/sim-core/src/__tests__/action-condition-phase.test.ts:57:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/action-condition-phase.test.ts > accepted-action HP branches and explicit task-before-action phase > keeps undeclared action ordering and failed-input behavior, and rejects the new fields on old wire
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33604:11
+    33602|   if (!parsed.success) {
+    33603|     const issues = formatZodError(parsed.error);
+    33604|     throw new ConfigMigrationError(
+       |           ^
+    33605|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33606|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35031:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18132:18
+ ❯ packages/sim-core/src/__tests__/action-condition-phase.test.ts:73:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  04:07:18
+   Duration  880ms (transform 602ms, setup 0ms, import 778ms, tests 22ms, environment 0ms)
+

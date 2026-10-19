@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "startedAt": "2026-09-28T12:45:42.712769+00:00",
+  "finishedAt": "2026-09-28T12:45:42.787204+00:00",
+  "wallSeconds": 0.074,
+  "exitCode": 0,
+  "log": "docs/validation/observed-lifecycles-diff-20260928.log"
+}

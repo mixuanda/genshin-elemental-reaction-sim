@@ -1,0 +1,336 @@
+{
+  "schemaVersion": "source-character-vectors-measurements-v1",
+  "ruleCounts": {
+    "a": 55,
+    "b": 54,
+    "c": 40,
+    "d": 44
+  },
+  "totalNewRules": 193,
+  "checks": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 4.909,
+      "log": "docs/validation/source-character-vectors-classic-build-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 5.106,
+      "log": "docs/validation/source-character-vectors-stellar-build-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.772,
+      "log": "docs/validation/source-character-vectors-classic-build-retry1-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.231,
+      "log": "docs/validation/source-character-vectors-stellar-build-retry1-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.953,
+      "log": "docs/validation/source-character-vectors-web-build-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.093,
+      "log": "docs/validation/source-character-vectors-web-build-retry1-20260928.log"
+    },
+    {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-vectors.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 14.096,
+      "log": "docs/validation/source-character-vectors-e2e-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.976,
+      "log": "docs/validation/source-character-vectors-classic-build-final-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.288,
+      "log": "docs/validation/source-character-vectors-stellar-build-final-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.006,
+      "log": "docs/validation/source-character-vectors-web-build-final-20260928.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.088,
+      "log": "docs/validation/source-character-vectors-diff-check-20260928.log",
+      "scope": "Tracked changes only; untracked files are not checked by git diff --check."
+    }
+  ],
+  "evidence": [
+    {
+      "lane": "classic",
+      "scene": "creation-table",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "957bfc13a8ad4725daa47f2b2c81f83bca34ea3bbbae24b782032d9bf798d0cd",
+      "calculations": 124,
+      "applications": 41,
+      "vectorRules": {
+        "char-vector-keqing-a4-cr": 1,
+        "char-vector-keqing-a4-er": 1,
+        "char-vec-yanfei-burst": 1,
+        "char-vector-ayato-burst-dmgp": 1,
+        "char-vector-hutao-paramita-atk": 1,
+        "char-vector-hutao-a1-cr": 17
+      },
+      "selections": {
+        "hutao-ayato": {
+          "applicationId": 17,
+          "frame": 163,
+          "scalarIds": [
+            4,
+            8
+          ],
+          "replayDifference": 0
+        },
+        "keqing-two-slots": {
+          "applicationId": 43,
+          "frame": 266,
+          "scalarIds": [
+            1,
+            2
+          ],
+          "replayDifference": 0
+        },
+        "yanfei-talent": {
+          "applicationId": 130,
+          "frame": 505,
+          "scalarIds": [
+            3
+          ],
+          "replayDifference": 0
+        }
+      },
+      "edit": {
+        "calculationId": 4,
+        "originalValue": 0.11,
+        "editedValue": 0.12,
+        "stateKey": "talent",
+        "originalCaptureUnchanged": true,
+        "restoredValue": 0.12
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "indexed-slots",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "957bfc13a8ad4725daa47f2b2c81f83bca34ea3bbbae24b782032d9bf798d0cd",
+      "calculations": 2695,
+      "applications": 15,
+      "vectorRules": {
+        "char-vec-xilonen-a4": 1,
+        "char-vector-nicole-a1": 1,
+        "char-vector-diluc-c2-atkp": 1,
+        "char-vector-diluc-c2-atkspd": 1,
+        "char-vec-xilonen-c2-geo": 10,
+        "char-vector-nicole-skill": 1,
+        "char-vec-xilonen-c2-pyro": 2628,
+        "char-vector-navia-a1-dmgp": 5
+      },
+      "selections": {
+        "diluc-two-slots": {
+          "applicationId": 10,
+          "frame": 115,
+          "scalarIds": [
+            4,
+            5
+          ],
+          "replayDifference": 0
+        },
+        "navia-indexed-team": {
+          "applicationId": 310,
+          "frame": 368,
+          "scalarIds": [
+            307,
+            26,
+            308
+          ],
+          "replayDifference": 0
+        },
+        "diluc-pyro-index": {
+          "applicationId": 601,
+          "frame": 485,
+          "scalarIds": [
+            599
+          ],
+          "replayDifference": 0
+        }
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "creation-table",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "5d24c5e5776629a0de3831b1bfc50a1dd6979cf58cd71cd7a4a4ff21c8765a1c",
+      "calculations": 124,
+      "applications": 41,
+      "vectorRules": {
+        "char-vector-keqing-a4-cr": 1,
+        "char-vector-keqing-a4-er": 1,
+        "char-vec-yanfei-burst": 1,
+        "char-vector-ayato-burst-dmgp": 1,
+        "char-vector-hutao-paramita-atk": 1,
+        "char-vector-hutao-a1-cr": 17
+      },
+      "selections": {
+        "hutao-ayato": {
+          "applicationId": 17,
+          "frame": 163,
+          "scalarIds": [
+            4,
+            8
+          ],
+          "replayDifference": 0
+        },
+        "keqing-two-slots": {
+          "applicationId": 43,
+          "frame": 266,
+          "scalarIds": [
+            1,
+            2
+          ],
+          "replayDifference": 0
+        },
+        "yanfei-talent": {
+          "applicationId": 130,
+          "frame": 505,
+          "scalarIds": [
+            3
+          ],
+          "replayDifference": 0
+        }
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "indexed-slots",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "5d24c5e5776629a0de3831b1bfc50a1dd6979cf58cd71cd7a4a4ff21c8765a1c",
+      "calculations": 2696,
+      "applications": 15,
+      "vectorRules": {
+        "char-vec-xilonen-a4": 1,
+        "char-vector-nicole-a1": 1,
+        "char-vector-diluc-c2-atkp": 1,
+        "char-vector-diluc-c2-atkspd": 1,
+        "char-vec-xilonen-c2-geo": 10,
+        "char-vector-nicole-skill": 1,
+        "char-vec-xilonen-c2-pyro": 2628,
+        "char-vector-navia-a1-dmgp": 5
+      },
+      "selections": {
+        "diluc-two-slots": {
+          "applicationId": 10,
+          "frame": 115,
+          "scalarIds": [
+            4,
+            5
+          ],
+          "replayDifference": 0
+        },
+        "navia-indexed-team": {
+          "applicationId": 311,
+          "frame": 368,
+          "scalarIds": [
+            308,
+            26,
+            309
+          ],
+          "replayDifference": 0
+        },
+        "diluc-pyro-index": {
+          "applicationId": 602,
+          "frame": 485,
+          "scalarIds": [
+            600
+          ],
+          "replayDifference": 0
+        }
+      }
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Pinned-source local implementation, not game verification. Four native scenes in one aggregate browser test; no new unit tests or old matrix reruns. Character experiments recompute one formula and preserve JSON; downstream hits remain unchanged.",
+  "runtimeArtifactBoundary": "The four passing browser scenes used the retry1 builds, before the later Wanderer A1 Cryo rule. The final builds include that additional rule; it was checked by source review, compilation and final AST inventory, without rerunning the unrelated passing browser scenes.",
+  "coverageFile": "docs/source-character-vectors-coverage-20260928.json",
+  "initialCoverageFile": "docs/source-character-vectors-coverage-initial-20260928.json",
+  "finalArtifacts": {
+    "classic": {
+      "path": "source-host.wasm",
+      "sha256": "a639e57057960ef53c29e66326daf78e370d52b4969ab08fe1d217d5e1123337",
+      "size": 42627371
+    },
+    "stellar": {
+      "path": "source-host.wasm",
+      "sha256": "350262da570c5c540ac3345754b88f08bcdd8a648de95acefc667df9fb89b49c",
+      "bytes": 64193392
+    }
+  },
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5"
+}

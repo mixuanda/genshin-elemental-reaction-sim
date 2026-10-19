@@ -1,0 +1,16 @@
+options iteration=1 duration=16 workers=1 hitlag=false swap_delay=1;
+kuki char lvl=90/90 cons=0 talent=1,1,1 +params=[start_hp%=50,start_energy=60];
+kuki add weapon="dullblade" refine=1 lvl=1/20;
+kuki add stats em=200 cr=-0.05;
+amber char lvl=1/20 cons=0 talent=1,1,1 +params=[start_hp%=50,start_energy=0];
+amber add weapon="huntersbow" refine=1 lvl=1/20;
+target lvl=90 resist=0.1 pos=0,2 radius=2;
+active kuki;
+set_particle_delay("kuki", 100);
+kuki skill;
+amber swap;
+wait(300 - f());
+kuki swap;
+wait(564 - f());
+kuki burst;
+wait(960 - f());

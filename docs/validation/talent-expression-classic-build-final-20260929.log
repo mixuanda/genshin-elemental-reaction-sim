@@ -1,0 +1,19 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs
+
+Exporting verified source into /tmp/gidps-source-host-cache/build-EXKV8Z/source
+go version go1.25.0 darwin/arm64; building ./cmd/sourcehost once
+{"output":"/tmp/gidps-source-host-cache/build-EXKV8Z/dist/inventory-metadata.json","packages":401,"resolvedKeys":401,"todoPackages":182,"todoMarkers":493,"sourceFiles":1607}
+{
+  "outputDir": "/Users/evan/Documents/gidps/packages/source-host/dist",
+  "publicDir": "/Users/evan/Documents/gidps/apps/web/public/source-host",
+  "workspace": "/tmp/gidps-source-host-cache/build-EXKV8Z",
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "f4cd4ffca29c6d1e0417330c1eb4aae76cd4dd10c33a7cc926f8608eb54632e5",
+    "size": 44539894
+  },
+  "linkedDependencyCount": 6,
+  "missingDependencyLicenses": []
+}

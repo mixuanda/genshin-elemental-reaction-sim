@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.867,
+  "log": "docs/validation/preview-history-web-retry2-20260928.log"
+}

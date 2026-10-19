@@ -6,7 +6,17 @@
   "exports": {
     ".": "./src/index.ts",
     "./catalog": "./src/catalog.ts",
-    "./presets": "./src/presets.ts"
+    "./presets": "./src/presets.ts",
+    "./classified-hits": "./src/classified-hits.ts",
+    "./supplemental": "./src/supplemental.ts",
+    "./equipment-build": "./src/equipment-build.ts",
+    "./artifact-build": "./src/artifact-build.ts",
+    "./equipment-effects": "./src/equipment-effects.ts",
+    "./equipment-formulas": "./src/equipment-formulas.ts",
+    "./artifact-conditional-effects": "./src/artifact-conditional-effects.ts",
+    "./artifact-reaction-effects": "./src/artifact-reaction-effects.ts",
+    "./weapon-conditional-effects": "./src/weapon-conditional-effects.ts",
+    "./update-schema": "./src/update-schema.ts"
   },
   "dependencies": {
     "@genshin-dps-lab/icd-profiles": "1.0.0",

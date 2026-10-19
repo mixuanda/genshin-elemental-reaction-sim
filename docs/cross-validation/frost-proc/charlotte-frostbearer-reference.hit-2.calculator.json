@@ -1,0 +1,156 @@
+{
+  "weaponProc": {
+    "weaponId": "frostbearer",
+    "refinement": 5,
+    "triggeringTargetCryoOrFrozen": true
+  },
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "weapon-proc:frostbearer:r5",
+  "label": "忍冬之果 R5 · 独立物理追击",
+  "scope": "single-hit",
+  "characterLevel": 1,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 62.03682680000001,
+      "hp": 902.6731,
+      "def": 45.78,
+      "em": 0,
+      "critRate": 0,
+      "critDamage": 0.5,
+      "energyRecharge": 1
+    },
+    "source": "外部未舍入实际最终面板；原触发目标已被宿主附冰，当前受击目标可无冰。"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "weapon-proc:frostbearer:r5:hit",
+      "label": "忍冬之果 · 本次实际追击",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/frostbearer/frostbearer.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbearer.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ],
+      "dependencies": [
+        "weapon-proc-source:frostbearer",
+        "weapon-proc-context:triggering-target"
+      ],
+      "kind": "ordinary",
+      "element": "physical",
+      "attackTag": "proc",
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 3.6
+        }
+      ],
+      "baseDamageFormula": {
+        "ruleId": "weapon-proc-frostbearer-r5-b4ae769",
+        "label": "ATK × R5 来源选定倍率（360%）",
+        "expression": {
+          "kind": "multiply",
+          "terms": [
+            {
+              "kind": "variable",
+              "key": "atk"
+            },
+            {
+              "kind": "variable",
+              "key": "weaponProcCoefficient"
+            }
+          ]
+        },
+        "inputs": [
+          {
+            "key": "weaponProcCoefficient",
+            "value": 3.6,
+            "allowedValues": [
+              3.6
+            ],
+            "unit": "ratio",
+            "meaningKey": "忍冬之果 R5 本次实际追击的来源选定倍率",
+            "origin": "source-selected-trigger-context"
+          }
+        ],
+        "requirements": {
+          "elements": [
+            "physical"
+          ],
+          "attackTags": [
+            "proc"
+          ]
+        },
+        "sourceRefs": [
+          "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/frostbearer/frostbearer.go",
+          "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbearer.json",
+          "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+          "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+        ]
+      },
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1,
+      "excludedModifiers": [
+        {
+          "label": "宿主命中伤害",
+          "reason": "这是一条独立武器追击，单独结算自己的暴击、防御与物理抗性，不加入宿主的基础伤害加算。"
+        },
+        {
+          "label": "普通攻击／战技／爆发专属增伤",
+          "reason": "武器追击标签为 proc，不继承宿主的攻击类型专属增伤。"
+        }
+      ]
+    }
+  ],
+  "selectedHitIds": [
+    "weapon-proc:frostbearer:r5:hit"
+  ],
+  "assumptions": [
+    "独立追击来源条件：本次追击已经实际触发并命中所填目标；不需要队伍或轮转，也不推断前台、触发次数、冷却可用或命中几何。",
+    "独立追击来源条件：使用实际追击取样的最终面板与通用／物理增伤；该独立proc自己结算暴击、防御和物理抗性，不继承宿主的普攻／重击／战技／爆发专属增伤。",
+    "独立追击来源条件：这里只计算范围追击的一名已知受击目标；不乘未知敌人数。高低倍率取原触发目标在回调时的冰／冻结状态，一次选择用于整次范围追击，不随当前受击目标或稍后状态切换。",
+    "独立追击来源条件：来源概率100%、冷却600帧及延迟1帧只用于说明前提；本入口不执行这些时钟或抽样，不把触发概率乘进已发生的一击。",
+    "独立追击来源条件：R1–R5倍率由固定来源定义重新生成；面板、精炼和原目标条件可编辑。数据为released/provisional来源条件数值，未经当前游戏实测。"
+  ],
+  "dependencies": [
+    {
+      "id": "weapon-proc-source:frostbearer",
+      "status": "provisional",
+      "reason": "固定来源的独立物理追击公式；实际触发与目标命中是输入前提，不是自动触发认证。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/frostbearer/frostbearer.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbearer.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ]
+    },
+    {
+      "id": "weapon-proc-context:triggering-target",
+      "status": "provisional",
+      "reason": "倍率由武器、精炼及明确原触发目标条件重新推导；整次范围追击共用该来源选择。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/frostbearer/frostbearer.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbearer.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "evidenceStatus": "provisional"
+  }
+}

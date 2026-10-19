@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "source-character-flat-validation-v1",
+  "laneFilter": "both",
+  "sceneFilter": "both",
+  "measurements": [
+    {
+      "lane": "classic",
+      "scene": "chiori-kokomi",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "89966e037bcb528f05de2b138cab5de86f61331e2e238336dbb53977c9b3a886",
+      "applications": 15,
+      "calculations": 2644,
+      "observedRules": {
+        "char-flat-kokomi-burst": 1,
+        "char-flat-kokomi-bonus-skill": 4,
+        "char-flat-kokomi-skill-tick-active": 7,
+        "char-flat-chiori-skill-upward-def-set": 1,
+        "char-flat-chiori-skill-upward-scale": 1,
+        "char-flat-chiori-skill-doll-def-set": 5,
+        "char-flat-chiori-skill-doll-scale": 5,
+        "char-flat-chiori-burst-def-set": 1,
+        "char-flat-chiori-burst-scale": 1
+      },
+      "chiori": {
+        "setId": 651,
+        "multiplyId": 652,
+        "priorFlatDamage": 953.0074188000001,
+        "value": 1778.3118434808002,
+        "replayDifference": 0
+      },
+      "kokomi": {
+        "producerId": 606,
+        "tickId": 806,
+        "producerFrame": 140,
+        "tickFrame": 228,
+        "value": 1549.699026525455,
+        "replayDifference": 0
+      },
+      "edit": {
+        "calculationId": 652,
+        "scope": "formula-only",
+        "originalValue": 1778.3118434808002,
+        "editedValue": 1961.83398174186,
+        "originalCaptureUnchanged": true
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "nicole-ayato-mualani",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "89966e037bcb528f05de2b138cab5de86f61331e2e238336dbb53977c9b3a886",
+      "applications": 10,
+      "calculations": 46,
+      "observedRules": {
+        "char-flat-nicole-burst-projection": 1,
+        "char-flat-ayato-namisen": 3,
+        "char-flat-mualani-burst": 1,
+        "char-flat-mualani-a4": 1
+      },
+      "mualani": {
+        "setId": 51,
+        "addId": 52,
+        "priorFlatDamage": 14014.39901546045,
+        "value": 17611.57326206045,
+        "replayDifference": 0
+      },
+      "nicole": {
+        "formulaId": 16,
+        "actorIndex": 1,
+        "holderIndex": 0,
+        "replayDifference": 0
+      },
+      "ayato": {
+        "formulaId": 21,
+        "value": 248.50305541908398,
+        "replayDifference": 0
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "chiori-kokomi",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "af424731f25b44a792d9bce9d790e606b8a6af7343a22a7a6ae888aef7c00bf2",
+      "applications": 15,
+      "calculations": 2644,
+      "observedRules": {
+        "char-flat-kokomi-burst": 1,
+        "char-flat-kokomi-bonus-skill": 4,
+        "char-flat-kokomi-skill-tick-active": 7,
+        "char-flat-chiori-skill-upward-def-set": 1,
+        "char-flat-chiori-skill-upward-scale": 1,
+        "char-flat-chiori-skill-doll-def-set": 5,
+        "char-flat-chiori-skill-doll-scale": 5,
+        "char-flat-chiori-burst-def-set": 1,
+        "char-flat-chiori-burst-scale": 1
+      },
+      "chiori": {
+        "setId": 651,
+        "multiplyId": 652,
+        "priorFlatDamage": 953.0074188000001,
+        "value": 1778.3118434808002,
+        "replayDifference": 0
+      },
+      "kokomi": {
+        "producerId": 606,
+        "tickId": 806,
+        "producerFrame": 140,
+        "tickFrame": 228,
+        "value": 1549.699026525455,
+        "replayDifference": 0
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "nicole-ayato-mualani",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "af424731f25b44a792d9bce9d790e606b8a6af7343a22a7a6ae888aef7c00bf2",
+      "applications": 10,
+      "calculations": 46,
+      "observedRules": {
+        "char-flat-nicole-burst-projection": 1,
+        "char-flat-ayato-namisen": 3,
+        "char-flat-mualani-burst": 1,
+        "char-flat-mualani-a4": 1
+      },
+      "mualani": {
+        "setId": 51,
+        "addId": 52,
+        "priorFlatDamage": 14014.39901546045,
+        "value": 17611.57326206045,
+        "replayDifference": 0
+      },
+      "nicole": {
+        "formulaId": 16,
+        "actorIndex": 1,
+        "holderIndex": 0,
+        "replayDifference": 0
+      },
+      "ayato": {
+        "formulaId": 21,
+        "value": 248.50305541908398,
+        "replayDifference": 0
+      }
+    }
+  ],
+  "pageErrors": []
+}

@@ -1,0 +1,23 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-artifact-support.ts(34,57): error TS2379: Argument of type '{ ids: number[]; readId: string; index: number; key: string; frame: number; actorIndex: number | undefined; kind: "scalar"; returned: number | null; outcome: "applied" | "element-mismatch" | "expired"; }' is not assignable to parameter of type 'StepRef' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'actorIndex' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-capture.ts(326,5): error TS2532: Object is possibly 'undefined'.
+packages/sim-core/src/source-host-capture.ts(327,5): error TS2532: Object is possibly 'undefined'.
+packages/sim-core/src/source-host-capture.ts(328,5): error TS2532: Object is possibly 'undefined'.
+packages/sim-core/src/source-host-capture.ts(329,5): error TS2532: Object is possibly 'undefined'.
+packages/sim-core/src/source-host-stat-provenance.ts(28,14): error TS2375: Type 'ZodLazy<ZodObject<{ id: ZodString; kind: ZodEnum<{ "attack-mods": "attack-mods"; "non-extra-stat": "non-extra-stat"; "select-stat": "select-stat"; stat: "stat"; stats: "stats"; }>; frame: ZodNumber; ... 6 more ...; result: ZodArray<...>; }, $strict>>' is not assignable to type 'ZodType<SourceHostStatReadReceipt, unknown, $ZodTypeInternals<SourceHostStatReadReceipt, unknown>>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  The types of '_zod.output.steps' are incompatible between these types.
+    Type '{ index: number; key: string; expiryBefore: number; expiryAfter: number; affectedStat: number; extra: boolean; affectedByHitlag: boolean; outcome: "applied" | "expired" | "extra-excluded" | "returned-nil" | "stat-filtered"; ... 6 more ...; formulaCalculationIds?: number[] | undefined; }[]' is not assignable to type 'SourceHostStatStepReceipt[]'.
+      Type '{ index: number; key: string; expiryBefore: number; expiryAfter: number; affectedStat: number; extra: boolean; affectedByHitlag: boolean; outcome: "applied" | "expired" | "extra-excluded" | "returned-nil" | "stat-filtered"; ... 6 more ...; formulaCalculationIds?: number[] | undefined; }' is not assignable to type 'SourceHostStatStepReceipt' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Types of property 'formulaCalculationIds' are incompatible.
+          Type 'number[] | undefined' is not assignable to type 'number[]'.
+            Type 'undefined' is not assignable to type 'number[]'.

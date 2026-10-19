@@ -1,0 +1,290 @@
+{
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "originalArchiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+  "localArchivePath": "packages/game-data/sources/base-state-attacks/source.json.gz",
+  "localArchiveSha256": "f433a2640ea9e1782f88ea7dd5d71fc45b7248d37f479447c9a366e0c2b19564",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/chongyun/attack.go": "b34ed5f33ae716709ccf322f445c5576469d9d9b05f1197a0318bc4704439ba5",
+    "internal/characters/chongyun/chongyun.go": "964b568568ede814acbcc375ece32bbeeb054b56466771b96f84d175af27ffa3",
+    "internal/characters/chongyun/cons.go": "47564d836cc786bc897e9013e7d4d6f3bf61d656a42dc61ff51ce89c1be5873f",
+    "internal/characters/chongyun/plunge.go": "7d953d2801ea1447941c96b20e848646a3a3f7b3fe617301227de1051bbd9ed0",
+    "internal/characters/chongyun/skill.go": "2d3c819893c38dbb70ac033782cb053ea13db555befd2a25dcdd4bca0b0d6cff",
+    "internal/characters/chongyun/zz_chongyun.dm.go": "6324f2ea1db74be3b11c0b8f0e07b1394ddd511eecbe5c41ca0e71f8052f32fc",
+    "internal/characters/diluc/attack.go": "73b089c89bef2516e208a3b3841aa7397e115d1b065b200e1744cf04da90fb02",
+    "internal/characters/diluc/burst.go": "980734a506d0e5afda9b59b0fb636a8ebcca1b99b0dc931449790f26669d1f86",
+    "internal/characters/diluc/cons.go": "2718ce2d723fd8e7cf64248314b1be88abcad5d5f65b21cf59e77a7898054875",
+    "internal/characters/diluc/diluc.go": "41583f04730b2c3b6bbb7fbeb354120b4d9c085c0ec4a5331bb1386c6bc7ef0b",
+    "internal/characters/diluc/plunge.go": "06958dbb92edc12c3c06205d8b57927385016e438d8e927e20effc275fda0c1c",
+    "internal/characters/diluc/zz_diluc.dm.go": "8cd30d7b621915216159292c8eb886a9e3c1137167e1aaf73c908d7fb6256e22",
+    "internal/characters/raiden/attack.go": "b43ca77b80d49583b9a687a414786dd35dde9136b0d2ba594d9a9d36a8fe2169",
+    "internal/characters/raiden/burst.go": "008804c54f54f204b5d258f979a604a390b8f085af5a491ee54e49bd7fae2496",
+    "internal/characters/raiden/charge.go": "be38d3e04e72b5c2ff198f372b7328b672e3efa8b6c11cb817b40975a927d4b3",
+    "internal/characters/raiden/plunge.go": "433c5605832c75ea89f5d6464a5e5d998df7761565dc528273aa05735eb9de4e",
+    "internal/characters/raiden/raiden.go": "cc69de33fefcc136d8535b29c72ce5ac7d468e4ff7e767aabbc283d2d2d7c994",
+    "internal/characters/raiden/skill.go": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363",
+    "internal/characters/raiden/zz_raidenshogun.dm.go": "789977d99772eabef1107255b0d6713fb5082fc056e37b5dfde01b9fee572dc2",
+    "internal/characters/razor/attack.go": "983aee217f95659582493b935a732ad1d3ff5684e0b49ab17e1d1c9892d4e7b1",
+    "internal/characters/razor/burst.go": "c727840a5a9d97279806b2f86ab3e2c17f4dbc5bd78917a98fe0df48d74208d2",
+    "internal/characters/razor/cons.go": "c8f0738091112baccb90d0b98e0148e5fb14769022484ca134b377daad92460a",
+    "internal/characters/razor/plunge.go": "76065e98a64e2bb1e20fadafe0218a0c8a184ff1f19d18998679dacbc581dff0",
+    "internal/characters/razor/razor.go": "23c445de378521ba63f30ee8c958268749498a3af21a80481bd51093c60c54d0",
+    "internal/characters/razor/zz_razor.dm.go": "82abb808ba63ab8250d938be5f7cd5531101fe9d5c98f75f982b2fd7d984c270",
+    "internal/characters/thoma/attack.go": "b91617a8f5dac185f2308d7cc7b8cf1202c25da27d61e703673e44c9c779d14c",
+    "internal/characters/thoma/burst.go": "dcc7ef53541bb38ab88e3b01842bd00ea48674055eca9938ced651c2575d4a80",
+    "internal/characters/thoma/charge.go": "a4ee63c42b24709a36561935af6008ff9fd975b9347fd97e815e91d6f94d3969",
+    "internal/characters/thoma/thoma.go": "8155c44b224c00b20294239558cfb948a30396bf6f11cbb01544a3d6292037ca",
+    "internal/characters/thoma/zz_thoma.dm.go": "2af90aa8b53ccae183a0f7c2bc55621e97c5f063ea1519bc581eb6bac1e150be",
+    "pkg/enemy/damage.go": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8"
+  },
+  "classification": "C0 base-state conditional damage only; not verified mechanics",
+  "references": [
+    {
+      "id": "diluc-normal-1-physical-c0-hit-1",
+      "sourceCharacter": "diluc",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0
+      ]
+    },
+    {
+      "id": "diluc-normal-2-physical-c0-hit-1",
+      "sourceCharacter": "diluc",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1
+      ]
+    },
+    {
+      "id": "diluc-normal-3-physical-c0-hit-1",
+      "sourceCharacter": "diluc",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2
+      ]
+    },
+    {
+      "id": "diluc-normal-4-physical-c0-hit-1",
+      "sourceCharacter": "diluc",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3
+      ]
+    },
+    {
+      "id": "diluc-low-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "diluc",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "diluc-high-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "diluc",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "razor-normal-1-physical-c0-hit-1",
+      "sourceCharacter": "razor",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0
+      ]
+    },
+    {
+      "id": "razor-normal-2-physical-c0-hit-1",
+      "sourceCharacter": "razor",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1
+      ]
+    },
+    {
+      "id": "razor-normal-3-physical-c0-hit-1",
+      "sourceCharacter": "razor",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2
+      ]
+    },
+    {
+      "id": "razor-normal-4-physical-c0-hit-1",
+      "sourceCharacter": "razor",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3
+      ]
+    },
+    {
+      "id": "razor-low-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "razor",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "razor-high-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "razor",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "thoma-normal-1-physical-c0-hit-1",
+      "sourceCharacter": "thoma",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "thoma-normal-2-physical-c0-hit-1",
+      "sourceCharacter": "thoma",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "thoma-normal-3-physical-c0-hit-1",
+      "sourceCharacter": "thoma",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "thoma-normal-4-physical-c0-hit-1",
+      "sourceCharacter": "thoma",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "thoma-charged-physical-c0-hit-1",
+      "sourceCharacter": "thoma",
+      "sourceTable": "charged",
+      "sourceIndex": []
+    },
+    {
+      "id": "chongyun-normal-1-physical-c0-hit-1",
+      "sourceCharacter": "chongyun",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0
+      ]
+    },
+    {
+      "id": "chongyun-normal-2-physical-c0-hit-1",
+      "sourceCharacter": "chongyun",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1
+      ]
+    },
+    {
+      "id": "chongyun-normal-3-physical-c0-hit-1",
+      "sourceCharacter": "chongyun",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2
+      ]
+    },
+    {
+      "id": "chongyun-normal-4-physical-c0-hit-1",
+      "sourceCharacter": "chongyun",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3
+      ]
+    },
+    {
+      "id": "chongyun-low-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "chongyun",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "chongyun-high-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "chongyun",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "raidenshogun-normal-1-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "raidenshogun-normal-2-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1,
+        0
+      ]
+    },
+    {
+      "id": "raidenshogun-normal-3-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2,
+        0
+      ]
+    },
+    {
+      "id": "raidenshogun-normal-4-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3,
+        0
+      ]
+    },
+    {
+      "id": "raidenshogun-normal-4-physical-c0-hit-2",
+      "sourceCharacter": "raiden",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "raidenshogun-normal-5-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        4,
+        0
+      ]
+    },
+    {
+      "id": "raidenshogun-charged-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "charge",
+      "sourceIndex": []
+    },
+    {
+      "id": "raidenshogun-low-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "raidenshogun-high-plunge-no-collision-physical-c0-hit-1",
+      "sourceCharacter": "raiden",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    }
+  ]
+}

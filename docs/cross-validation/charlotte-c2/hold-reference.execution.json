@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/charlotte-c2/hold-reference.gcsl",
+    "-out",
+    "docs/cross-validation/charlotte-c2/hold-reference.result.json",
+    "-sample",
+    "docs/cross-validation/charlotte-c2/hold-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-23T23:15:52.091634+00:00",
+  "elapsedSeconds": 0.01998474996071309,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 15.00 seconds (min: 15.00 max: 15.00 std: 0.00)\nAverage 72.98 damage over 15.00 seconds, resulting in 5 dps (min: 4.87 max: 4.87 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 10792908797103459196 to docs/cross-validation/charlotte-c2/hold-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/charlotte-c2/hold-reference.gcsl",
+      "bytes": 291,
+      "sha256": "9740495e6ef5febebd8b8c735cd3b6bc3ff45f27a78d61db5af4326e2799fd34"
+    },
+    {
+      "path": "docs/cross-validation/charlotte-c2/hold-reference.result.json",
+      "bytes": 11646,
+      "sha256": "5cd6669445c34fbcaec61f74ceb74963247f0090a4adec3664e043e410eab0bb"
+    },
+    {
+      "path": "docs/cross-validation/charlotte-c2/hold-reference.sample.json",
+      "bytes": 33731,
+      "sha256": "f129b67dc69c4da7bf24256c9f3ea22d10a970b33939ac62a99838d8402aef74"
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/source-host-target-application.test.ts (3 tests | 1 failed) 66ms
+   × captures and replays a declared immune application, then reapplies it to an edited raw hit 57ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/source-host-target-application.test.ts > captures and replays a declared immune application, then reapplies it to an edited raw hit
+Error: Unknown or unexecuted trace child: targetApplication.hpLoss
+ ❯ TraceBuilder.add packages/sim-core/src/calculation-trace.ts:519:71
+    517|     if (new Set(childIds).size !== childIds.length) throw new Error("T…
+    518|     for (const childId of childIds) {
+    519|       if (!this.traceNodes.some((node) => node.id === childId)) throw …
+       |                                                                       ^
+    520|     }
+    521|     if (!Array.isArray(inputs)) throw new Error("Trace inputs must be …
+ ❯ replaySourceHostHit packages/sim-core/src/source-host-capture.ts:281:20
+ ❯ captureSourceHostHit packages/sim-core/src/source-host-capture.ts:207:10
+ ❯ packages/sim-core/src/source-host-target-application.test.ts:63:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 5 passed (6)
+   Start at  08:13:51
+   Duration  741ms (transform 423ms, setup 0ms, import 555ms, tests 70ms, environment 0ms)
+

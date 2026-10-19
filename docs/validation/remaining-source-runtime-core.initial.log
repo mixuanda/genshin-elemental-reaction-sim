@@ -1,0 +1,68 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts (2 tests | 2 failed) 26ms
+     × applies Noblesse delay, Instructor and Gilded without rewriting snapshots, and Paradise only to an actual Bloom 22ms
+     × uses actual debt callbacks for Fragment and positive drain/cooldown/swap hooks for Vermillion 3ms
+ ❯ packages/sim-core/src/__tests__/player-shield-runtime.test.ts (1 test | 1 failed) 21ms
+   × replays generic shield generation, parallel absorption, replacement, expiry, HP and pending tasks from complete JSON 20ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts > six fixed-source artifact buff lifecycles through real simulation hooks > applies Noblesse delay, Instructor and Gilded without rewriting snapshots, and Paradise only to an actual Bloom
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: must include compatibility target "enemy-0" because hits without targeting resolve to it
+- timeline.abilities.1.hits.0.geometry: aura-v5 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks
+ ❯ parseSimConfig packages/schemas/src/schema.ts:34029:11
+    34027|   if (!parsed.success) {
+    34028|     const issues = formatZodError(parsed.error);
+    34029|     throw new ConfigMigrationError(
+       |           ^
+    34030|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    34031|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35517:12
+ ❯ simulate packages/sim-core/src/simulator.ts:19027:18
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts:62:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts > six fixed-source artifact buff lifecycles through real simulation hooks > uses actual debt callbacks for Fragment and positive drain/cooldown/swap hooks for Vermillion
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: must include compatibility target "enemy-0" because hits without targeting resolve to it
+ ❯ parseSimConfig packages/schemas/src/schema.ts:34029:11
+    34027|   if (!parsed.success) {
+    34028|     const issues = formatZodError(parsed.error);
+    34029|     throw new ConfigMigrationError(
+       |           ^
+    34030|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    34031|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35517:12
+ ❯ simulate packages/sim-core/src/simulator.ts:19027:18
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts:119:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-shield-runtime.test.ts > replays generic shield generation, parallel absorption, replacement, expiry, HP and pending tasks from complete JSON
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:34029:11
+    34027|   if (!parsed.success) {
+    34028|     const issues = formatZodError(parsed.error);
+    34029|     throw new ConfigMigrationError(
+       |           ^
+    34030|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    34031|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35517:12
+ ❯ simulate packages/sim-core/src/simulator.ts:19027:18
+ ❯ packages/sim-core/src/__tests__/player-shield-runtime.test.ts:54:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 2 passed (4)
+      Tests  3 failed | 2 passed (5)
+   Start at  09:24:41
+   Duration  3.62s (transform 1.91s, setup 0ms, import 3.06s, tests 308ms, environment 0ms)
+
+
+wall_seconds=4.144

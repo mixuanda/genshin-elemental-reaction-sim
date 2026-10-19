@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "source-shared-state-next-step-v1",
+  "date": "2026-09-30",
+  "afterBatch": 122,
+  "candidate": {
+    "id": "shared-delayed-cooldown-start",
+    "titleZh": "共享延迟启动冷却任务的状态描述",
+    "evidenceScope": "source-only; no fresh runtime observations or validation were performed",
+    "sourceFinding": "In both frozen PRE122 roots, Character.SetCDWithDelay schedules a bare Tasks.Add closure whenever delay != 0; that pending closure has no phase descriptor. The later startCooldownQueueWorker already uses AddWithPhase. The initial movement-only patch did not touch cooldown.go; the delayed-start descriptor was then integrated in the same batch. This gap is now integrated in batch122; it is no longer the next pending code change.",
+    "gapProvider": {
+      "file": "pkg/core/task/sourcehost_phase.go",
+      "lines": [
+        46,
+        50
+      ],
+      "symbol": "Handler.SourceHostPhaseState",
+      "gap": "queued task \"\" has an undescribed closure"
+    },
+    "implementationSite": {
+      "file": "internal/template/character/cooldown.go",
+      "lines": [
+        79,
+        85
+      ],
+      "symbol": "Character.SetCDWithDelay",
+      "actualClosure": "func() { c.SetCD(a, dur) }",
+      "branch": "delay != 0"
+    },
+    "whyBroad": "One shared scheduling site is called throughout character skill and burst implementations; no per-character callback migration is required.",
+    "status": "integrated-in-batch122"
+  },
+  "lanes": {
+    "classic": {
+      "root": "/Users/evan/Library/Caches/gidps-source-host/build-8jk63z/source",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch122/classic/receipt.json",
+      "receiptSha256": "ea702e2a40afc9c685f07bf57130c61b07540747d7215f1297a0c3e343a14712",
+      "sourceFile": "internal/template/character/cooldown.go",
+      "sourceSha256": "0d51f9ebdd040ff835d2524e3f708e443103c0091d20b06fb54853bcce05423b",
+      "nonTestSourceCallSites": 156,
+      "sourceFilesWithCalls": 122,
+      "topLevelCharacterDirectoriesWithCalls": 89
+    },
+    "stellar": {
+      "root": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-ojElM4/source",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch122/stellar/receipt.json",
+      "receiptSha256": "7243bca6221d6af29a6ca85a0719824c04c4eb85d7d01f99c3d2b45451d4327b",
+      "sourceFile": "internal/template/character/cooldown.go",
+      "sourceSha256": "829e4bef429c084dd6b4d2fd2d0b226bc963a24d7baa939492e06a772dd5e24e",
+      "nonTestSourceCallSites": 159,
+      "sourceFilesWithCalls": 126,
+      "topLevelCharacterDirectoriesWithCalls": 91
+    }
+  },
+  "countDefinition": "Counts are static .SetCDWithDelay( call sites in non-test .go files under internal/characters, not helper definitions, runtime invocations, supported characters or completed mechanics. Calls with computed or zero delay are included. Top-level directories group traveler variants together.",
+  "proposal": {
+    "files": [
+      "internal/template/character/cooldown.go"
+    ],
+    "change": "Replace only the nonzero-delay Tasks.Add with Tasks.AddWithPhase, using the exact original callback and delay expression. The file already imports phase.",
+    "suggestedTaskKey": "delayed-cooldown-start",
+    "suggestedDescriptorSource": "internal/template/character/cooldown.go:SetCDWithDelay",
+    "capture": {
+      "characterIndex": "c.Index(), a pure semantic reference to the captured character",
+      "action": "a.String(), original captured action",
+      "originalDurationFrames": "dur, original captured input before future cooldown modifiers"
+    },
+    "existingSchedulerState": [
+      "remainingFrames",
+      "FIFO rank",
+      "origin and task lifecycle are retained through task.add"
+    ],
+    "preserve": [
+      "The delay == 0 synchronous branch and original handling of any other delay remain unchanged.",
+      "Do not call SetCD, CDReduction, Cooldown, modifier.Amount or any stat read while observing.",
+      "Evaluate current cooldown modifiers only when the original task actually executes.",
+      "Keep later cooldown worker creation, source-pointer cancellation checks and both lane gameplay differences unchanged."
+    ]
+  },
+  "dependencies": [
+    {
+      "file": "internal/template/character/cooldown.go",
+      "symbol": "Character.SetCD",
+      "lines": [
+        35,
+        57
+      ],
+      "readsAndWrites": "Calls live CDReduction, appends resulting duration, may start a worker, decrements AvailableCDCharge and logs. No additional closure-local values beyond c/a/dur are read."
+    },
+    {
+      "file": "pkg/core/player/character/mods.go",
+      "symbol": "CharWrapper.CDReduction",
+      "classicLines": [
+        403,
+        445
+      ],
+      "stellarStartLine": 404,
+      "readsAndWrites": "Reads ordered live CooldownMod entries, expiry versus character clock and Amount(action); removes expired modifiers. Calling this in Observe would mutate state and could execute arbitrary callbacks."
+    },
+    {
+      "file": "internal/template/character/sourcehost_phase_state.go",
+      "symbol": "Character.SourceHostTemplatePhaseState",
+      "startLine": 7,
+      "coverage": "Already copies action cooldowns, charge counts, duration queues, worker presence, relative worker time and remaining cooldown."
+    },
+    {
+      "file": "pkg/core/player/character/sourcehost_phase_state.go",
+      "symbol": "CharWrapper.SourceHostPhaseState",
+      "coverage": "Already includes CooldownMod metadata and delegates Amount closure capture to SourceHostPhaseCallback; unreviewed modifier callbacks remain explicit gaps."
+    },
+    {
+      "file": "pkg/modifier/sourcehost_phase_callback.go",
+      "symbol": "Base.SourceHostPhaseCallback",
+      "startLine": 13,
+      "coverage": "Returns a missing source-reviewed live capture descriptor gap when Amount metadata is absent."
+    },
+    {
+      "file": "pkg/core/task/task.go",
+      "symbols": [
+        "Handler.Add",
+        "Handler.AddWithPhase",
+        "Handler.add"
+      ],
+      "lines": [
+        71,
+        103
+      ],
+      "coverage": "Both APIs use the same queue clock, FIFO counter, origin capture and task tracker."
+    }
+  ],
+  "laneConstraint": "SetCDWithDelay and its capture contract are identical in these lanes. Other cooldown functions differ (Stellar DiscardActionCooldown and queue/charge behavior); do not normalize or copy the whole file between lanes.",
+  "boundedOutcome": "Describes this pending task family; it does not certify arbitrary cooldown modifier callbacks, whole characters, full phase closure, gameplay timing accuracy or source/game agreement. No existing runtime gap-count decrease is claimed.",
+  "notSelected": [
+    {
+      "family": "OnRemoved / UseNormalizedTime",
+      "reason": "Inspected registrations are character-specific closures rather than one shared producer; would require a different bounded audit."
+    },
+    {
+      "family": "weapon infusion",
+      "reason": "Its stored key, element, tags, expiry and override policy already have a shared source observer; no new callback gap was found in this handler."
+    }
+  ],
+  "validation": {
+    "sourceReadsOnly": true,
+    "buildsExecuted": 0,
+    "testsExecuted": 0,
+    "newRuntimeScenariosExecuted": 0,
+    "implementationEdited": true,
+    "implementationScope": "Private copies only; source roots unchanged; parent integration pending."
+  },
+  "status": "integrated-and-built-in-batch122",
+  "implementation": {
+    "batch": 122,
+    "audit": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/source-audit.json",
+    "patches": {
+      "classic": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/classic/122-movement-cooldown.patch",
+      "stellar": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/stellar/122-movement-cooldown.patch"
+    },
+    "captureFields": [
+      "actorIndex",
+      "action",
+      "duration"
+    ],
+    "runtimeExercised": false,
+    "buildEvidence": "docs/validation/source-shared-movement-measurements-20260930.json",
+    "runtimeEvidence": "not-sampled"
+  },
+  "implementationStatus": "integrated-in-batch122"
+}

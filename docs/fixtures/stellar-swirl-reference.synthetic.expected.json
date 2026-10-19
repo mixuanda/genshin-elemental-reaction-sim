@@ -1,0 +1,266 @@
+{
+  "notice": "Synthetic guide-reference input; source count/lifetime/entity/radius conflicts remain unresolved.",
+  "options": {
+    "party": [
+      {
+        "actorId": "c",
+        "characterKey": "sandrone"
+      },
+      {
+        "actorId": "a",
+        "characterKey": "sucrose"
+      }
+    ],
+    "compatibilityMode": "legal-frame-v1",
+    "critMode": "average"
+  },
+  "profile": {
+    "id": "stellar-swirl-guide-reference-v1",
+    "stateProfileId": "special-state-reference-60fps-no-hitlag-v1",
+    "evidence": "guide-profile-source-conflict",
+    "assumptions": [
+      "单个静止范围内目标，60 FPS、无卡肉，只含风/冰/物理输入。",
+      "主引擎完成普通冰扩散替换；初始风伤不附着，漩涡冰伤实际投递1U冰并保留最后触发者归属。",
+      "初始人物快照与+3帧送达分开；爆炸时取人物快照并同帧送达，敌方抗性均在送达读取。",
+      "三次升级、六次引爆及180帧寿命按指南参考配置；固定源码存在计数、实体类型和181帧差异，未验证官服一致性。",
+      "专属基础提升、特殊增伤、加算、擢升和额外攻击明确关闭；无特殊贡献者种子暴击或反馈。",
+      "爆炸后300帧资格在实际jump开始时消费并授予腾空；仅已声明plunge可落地，普通下落伤害沿经典命中计算。动作占用仍使用显式frames，不推导高低下落高度；跳跃途中被爆炸抬升的源码TODO分支未支持。"
+    ]
+  },
+  "totalDamage": 25208.73759373466,
+  "totalDps": 5041.747518746932,
+  "classicDamage": 4381.875,
+  "stellarSwirlDamage": 20826.86259373466,
+  "events": [
+    {
+      "id": 0,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 6,
+      "frame": 9,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 1894.6102661539767,
+      "effectiveResistance": -0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 9,
+        "priority": 3,
+        "sequence": 12
+      }
+    },
+    {
+      "id": 1,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 12,
+      "frame": 15,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 1623.9516567034088,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 15,
+        "priority": 3,
+        "sequence": 17
+      }
+    },
+    {
+      "id": 2,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 18,
+      "frame": 21,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 1623.9516567034088,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 21,
+        "priority": 3,
+        "sequence": 19
+      }
+    },
+    {
+      "id": 3,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 24,
+      "frame": 27,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 1623.9516567034088,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 27,
+        "priority": 3,
+        "sequence": 21
+      }
+    },
+    {
+      "id": 4,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 30,
+      "frame": 33,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 1623.9516567034088,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 33,
+        "priority": 3,
+        "sequence": 23
+      }
+    },
+    {
+      "id": 5,
+      "branch": "stellar-swirl-vortex-2",
+      "snapshotFrame": 36,
+      "frame": 36,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 6495.806626813635,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": {
+        "frame": 36,
+        "ownerId": "a",
+        "targetId": "enemy-0",
+        "applied": true,
+        "element": "cryo",
+        "gaugeUnits": 1,
+        "auraBefore": [],
+        "auraAfter": [
+          {
+            "element": "cryo",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 606,
+            "sourceSlots": [
+              {
+                "sourceActorId": "a",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      "executionOrder": {
+        "frame": 36,
+        "priority": 3,
+        "sequence": 26
+      }
+    },
+    {
+      "id": 6,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 36,
+      "frame": 39,
+      "ownerId": "a",
+      "contributorIds": [
+        "a",
+        "c"
+      ],
+      "damage": 1623.9516567034088,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 39,
+        "priority": 3,
+        "sequence": 25
+      }
+    },
+    {
+      "id": 7,
+      "branch": "stellar-swirl-anemo-reaction",
+      "snapshotFrame": 37,
+      "frame": 40,
+      "ownerId": "a",
+      "contributorIds": [
+        "a"
+      ],
+      "damage": 1177.278386522727,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": null,
+      "executionOrder": {
+        "frame": 40,
+        "priority": 3,
+        "sequence": 28
+      }
+    },
+    {
+      "id": 8,
+      "branch": "stellar-swirl-vortex-1",
+      "snapshotFrame": 217,
+      "frame": 217,
+      "ownerId": "a",
+      "contributorIds": [
+        "a"
+      ],
+      "damage": 3139.4090307272727,
+      "effectiveResistance": 0.1,
+      "cryoDelivery": {
+        "frame": 217,
+        "ownerId": "a",
+        "targetId": "enemy-0",
+        "applied": true,
+        "element": "cryo",
+        "gaugeUnits": 1,
+        "auraBefore": [
+          {
+            "element": "cryo",
+            "gaugeUnits": 0.045964912281,
+            "expiresAtFrame": 250,
+            "sourceSlots": [
+              {
+                "sourceActorId": "a",
+                "gaugeUnits": 0.045964912281
+              }
+            ]
+          }
+        ],
+        "auraAfter": [
+          {
+            "element": "cryo",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 787,
+            "sourceSlots": [
+              {
+                "sourceActorId": "a",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      "executionOrder": {
+        "frame": 217,
+        "priority": 3,
+        "sequence": 30
+      }
+    }
+  ],
+  "highJump": {
+    "available": true,
+    "expiresAt": 517,
+    "consumptionImplemented": true,
+    "airborne": null
+  },
+  "sourceKey": "gdl-v2-fnv1a32-4cc2a50c"
+}

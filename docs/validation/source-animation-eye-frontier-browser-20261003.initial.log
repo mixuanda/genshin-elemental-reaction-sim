@@ -1,0 +1,40 @@
+[WebServer] (node:55483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:55484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-animation-eye-frontier.spec.ts:135:1 › source animation callback and normalized-time phase frontier preserves the combined scene (11.3s)
+
+
+  1) [chromium] › apps/web/e2e/source-animation-eye-frontier.spec.ts:135:1 › source animation callback and normalized-time phase frontier preserves the combined scene 
+
+    Error: classic NormalizedForNextAction captures nextAction=charge
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      258 |       }), `${lane} Hu Tao OnRemoved receipt contains captured actor and implementation`).toBe(true);
+      259 |       expect(normalizedCaptured.some(captured => (captured as Row).nextAction === 'charge'),
+    > 260 |         `${lane} NormalizedForNextAction captures nextAction=charge`).toBe(true);
+          |                                                                       ^
+      261 |       expect(observations.some(row => !row.coverage.complete), `${lane} full phase state remains incomplete`).toBe(true);
+      262 |       expect(gaps.length, `${lane} unknown source gaps remain explicitly measured`).toBeGreaterThan(0);
+      263 |       expect(yanfeiQ.analysis.finiteCast?.contract?.id, `${lane} Yanfei Q finite contract`).toBe('yanfei-burst');
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-animation-eye-frontier.spec.ts:260:71
+
+    Error Context: test-results/source-animation-eye-front-fe5ac-reserves-the-combined-scene-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-animation-eye-front-fe5ac-reserves-the-combined-scene-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-animation-eye-front-fe5ac-reserves-the-combined-scene-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-animation-eye-frontier.spec.ts:135:1 › source animation callback and normalized-time phase frontier preserves the combined scene 

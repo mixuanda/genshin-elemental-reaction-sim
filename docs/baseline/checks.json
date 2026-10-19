@@ -1,0 +1,50 @@
+[
+  {
+    "command": "npm run data:check",
+    "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+    "startedAt": "2026-09-22T14:33:03.240446+00:00",
+    "elapsedSeconds": 0.82,
+    "exitCode": 0,
+    "log": "docs/baseline/data-check.log"
+  },
+  {
+    "command": "npm run typecheck",
+    "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+    "startedAt": "2026-09-22T14:33:04.061069+00:00",
+    "elapsedSeconds": 1.311,
+    "exitCode": 0,
+    "log": "docs/baseline/typecheck.log"
+  },
+  {
+    "command": "npm run test:unit",
+    "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+    "startedAt": "2026-09-22T14:33:05.372491+00:00",
+    "elapsedSeconds": 85.141,
+    "exitCode": 0,
+    "log": "docs/baseline/test-unit.log"
+  },
+  {
+    "command": "npm run test:performance",
+    "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+    "startedAt": "2026-09-22T14:34:30.514308+00:00",
+    "elapsedSeconds": 3.833,
+    "exitCode": 0,
+    "log": "docs/baseline/test-performance.log"
+  },
+  {
+    "command": "npm run build",
+    "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+    "startedAt": "2026-09-22T14:34:34.347861+00:00",
+    "elapsedSeconds": 1.905,
+    "exitCode": 0,
+    "log": "docs/baseline/build.log"
+  },
+  {
+    "command": "npm run test:e2e",
+    "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+    "startedAt": "2026-09-22T14:34:36.253128+00:00",
+    "elapsedSeconds": 25.156,
+    "exitCode": 0,
+    "log": "docs/baseline/test-e2e.log"
+  }
+]

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "source-hit-callbacks-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": false,
+    "rawPath": "docs/validation/source-hit-callbacks-team-20260929.capture.json",
+    "nativeResultArchived": true,
+    "invocations": {
+      "dori": {
+        "id": 1,
+        "actionSequence": 1,
+        "params": {}
+      },
+      "mika": {
+        "id": 2,
+        "actionSequence": 3,
+        "params": {
+          "hold": 1
+        }
+      },
+      "baizhu": {
+        "id": 3,
+        "actionSequence": 5,
+        "params": {}
+      },
+      "navia": {
+        "id": 4,
+        "actionSequence": 7,
+        "params": {
+          "hold": 31
+        }
+      }
+    },
+    "callbackBatches": 34,
+    "callbacks": 23,
+    "auditedCallbackCounts": {
+      "dori": 2,
+      "mika": 1,
+      "baizhu": 6,
+      "navia": 2
+    },
+    "childAttackCounts": {
+      "dori": 3,
+      "mika": 1,
+      "baizhu": 6,
+      "navia": 1
+    },
+    "naviaSelectedEnemyCount": 2,
+    "applications": {
+      "dori": {
+        "count": 8,
+        "subtotal": 2351.6251669063295,
+        "expectedRoots": 4,
+        "completedRoots": 4
+      },
+      "mika": {
+        "count": 2,
+        "subtotal": 321.13439068838403,
+        "expectedRoots": 2,
+        "completedRoots": 2
+      },
+      "baizhu": {
+        "count": 14,
+        "subtotal": 5941.130255119439,
+        "expectedRoots": 7,
+        "completedRoots": 7
+      },
+      "navia": {
+        "count": 6,
+        "subtotal": 7783.105580503631,
+        "expectedRoots": 4,
+        "completedRoots": 4
+      }
+    },
+    "combinedSubtotal": 16396.995393217785,
+    "nativeTotalDamage": 24210.004293217797,
+    "collectionImportExportSame": true,
+    "missingBatchCloses": false,
+    "missingCallbackCloses": false,
+    "missingNaviaProducerFactCloses": false
+  },
+  "pageErrors": [],
+  "scope": "One classic four-character run with two nearby targets. Closure uses actual per-target hit callback batches and audited child queues; unrelated applications remain excluded."
+}

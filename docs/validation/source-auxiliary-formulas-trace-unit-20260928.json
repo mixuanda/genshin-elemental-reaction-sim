@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/calculation-trace.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.598,
+  "log": "docs/validation/source-auxiliary-formulas-trace-unit-20260928.log"
+}

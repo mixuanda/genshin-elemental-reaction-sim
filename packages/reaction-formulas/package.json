@@ -4,8 +4,11 @@
   "private": true,
   "type": "module",
   "exports": "./src/index.ts",
+  "dependencies": {
+    "zod": "4.4.3"
+  },
   "scripts": {
-    "test": "vitest run --root ../.. packages/reaction-formulas/src/profile.test.ts"
+    "test": "vitest run --root ../.. packages/reaction-formulas/src/profile.test.ts packages/reaction-formulas/src/special.test.ts"
   },
   "sideEffects": false
 }

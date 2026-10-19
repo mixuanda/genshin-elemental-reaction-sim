@@ -1,0 +1,168 @@
+{
+  "asOf": "2026-09-28",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "commands": {
+    "web-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.772
+    },
+    "build-stellar-final": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.256
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-phase-captures.spec.ts"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 5.51
+    },
+    "build-classic-final": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.914
+    },
+    "browser-final": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-phase-captures.spec.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.899
+    },
+    "web": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.216
+    },
+    "analysis": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-phase-analysis.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.594
+    },
+    "build-stellar": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.848
+    },
+    "build-classic": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.286
+    }
+  },
+  "artifacts": {
+    "classic": [
+      {
+        "path": "apps/web/public/source-host/source-host.wasm",
+        "sha256": "07977ad3f9714d7007dca5d448d7621b631e3abd85f67de77b4dcf3e0444db3e",
+        "bytes": 44491431
+      },
+      {
+        "path": "apps/web/dist/source-host/source-host.wasm",
+        "sha256": "07977ad3f9714d7007dca5d448d7621b631e3abd85f67de77b4dcf3e0444db3e",
+        "bytes": 44491431
+      }
+    ],
+    "stellar": [
+      {
+        "path": "apps/web/public/source-host-stellar/source-host.wasm",
+        "sha256": "639c945cb55edeaf2f14f37aa3f803d57def3c872dc83e7bfd4259a7b09d1d45",
+        "bytes": 66053720
+      },
+      {
+        "path": "apps/web/dist/source-host-stellar/source-host.wasm",
+        "sha256": "639c945cb55edeaf2f14f37aa3f803d57def3c872dc83e7bfd4259a7b09d1d45",
+        "bytes": 66053720
+      }
+    ]
+  },
+  "dataPointers": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "initialBrowserReceipt": "docs/validation/phase-captures-browser-initial-20260928.result.json",
+  "finalBrowserReceipt": "docs/validation/phase-captures-browser-20260928.result.json",
+  "finalSummary": [
+    {
+      "lane": "classic",
+      "scenario": "deterministic-native-damage",
+      "observations": 6,
+      "applications": 6,
+      "status": "not-established",
+      "completeCoverageObservations": 6,
+      "periodFrames": null,
+      "periodDamage": null,
+      "conditionalDps": null
+    },
+    {
+      "lane": "stellar",
+      "scenario": "deterministic-native-damage",
+      "observations": 6,
+      "applications": 6,
+      "status": "established-for-declared-native-state",
+      "completeCoverageObservations": 6,
+      "periodFrames": 444,
+      "periodDamage": 2059.5758212353603,
+      "conditionalDps": 278.3210569236973
+    },
+    {
+      "lane": "classic",
+      "scenario": "random-opaque-negative",
+      "observations": 9,
+      "applications": 9,
+      "status": "not-established",
+      "completeCoverageObservations": 0,
+      "periodFrames": null,
+      "periodDamage": null,
+      "conditionalDps": null
+    }
+  ],
+  "pageErrors": [],
+  "gameVerifiedAdded": 0,
+  "goalComplete": false,
+  "trackedDiffCheck": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0
+  }
+}

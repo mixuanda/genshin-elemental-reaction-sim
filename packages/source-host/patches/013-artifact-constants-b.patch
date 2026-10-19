@@ -1,0 +1,204 @@
+--- a/internal/artifacts/maiden/maiden.go
++++ b/internal/artifacts/maiden/maiden.go
+@@ -33,6 +33,9 @@
+ 			Base:         modifier.NewBase("maiden-2pc", -1),
+ 			AffectedStat: attributes.Heal,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.Heal] = c.SourceHost.ArtifactScalar(char.Index(), "const-maiden-2pc-heal", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/reminiscence/reminiscence.go
++++ b/internal/artifacts/reminiscence/reminiscence.go
+@@ -33,6 +33,9 @@
+ 			Base:         modifier.NewBase("shim-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "const-reminiscence-2pc-atkp", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -74,6 +77,9 @@
+ 					default:
+ 						return nil
+ 					}
++					if c.SourceHost != nil {
++						m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-reminiscence-4pc-dmg", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/artifacts/scholar/scholar.go
++++ b/internal/artifacts/scholar/scholar.go
+@@ -32,6 +32,9 @@
+ 			Base:         modifier.NewBase("scholar-2pc", -1),
+ 			AffectedStat: attributes.ER,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ER] = c.SourceHost.ArtifactScalar(char.Index(), "const-scholar-2pc-er", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/sojourner/sojourner.go
++++ b/internal/artifacts/sojourner/sojourner.go
+@@ -29,6 +29,9 @@
+ 			Base:         modifier.NewBase("sojourner-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "const-sojourner-2pc-atkp", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -43,6 +46,9 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagExtra {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "const-sojourner-4pc-cr", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/tenacity/tenacity.go
++++ b/internal/artifacts/tenacity/tenacity.go
+@@ -37,6 +37,9 @@
+ 			Base:         modifier.NewBase("tom-2pc", -1),
+ 			AffectedStat: attributes.HPP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.HPP] = c.SourceHost.ArtifactScalar(char.Index(), "const-tenacity-2pc-hpp", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -66,6 +69,9 @@
+ 					Base:         modifier.NewBaseWithHitlag("tom-4pc", 180), // 3s duration
+ 					AffectedStat: attributes.ATKP,
+ 					Amount: func() []float64 {
++						if c.SourceHost != nil {
++							m[attributes.ATKP] = c.SourceHost.ArtifactScalar(this.Index(), "const-tenacity-4pc-atkp", nil, nil, 0)
++						}
+ 						return m
+ 					},
+ 				})
+--- a/internal/artifacts/wanderer/wanderer.go
++++ b/internal/artifacts/wanderer/wanderer.go
+@@ -39,6 +39,9 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagExtra {
+ 				return nil
+ 			}
++			if s.char.SourceHost != nil {
++				m[attributes.DmgP] = s.char.SourceHost.ArtifactScalar(s.char.Index(), "const-wanderer-4pc-dmg", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++			}
+ 			return m
+ 		},
+ 	})
+@@ -60,6 +63,9 @@
+ 			Base:         modifier.NewBase("wt-2pc", -1),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.EM] = c.SourceHost.ArtifactScalar(char.Index(), "const-wanderer-2pc-em", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/deepwood/deepwood.go
++++ b/internal/artifacts/deepwood/deepwood.go
+@@ -36,6 +36,9 @@
+ 			Base:         modifier.NewBase("dm-2pc", -1),
+ 			AffectedStat: attributes.DendroP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.DendroP] = c.SourceHost.ArtifactScalar(char.Index(), "const-deepwood-2pc-dendro", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/viridescent/viridescent.go
++++ b/internal/artifacts/viridescent/viridescent.go
+@@ -33,6 +33,9 @@
+ 			Base:         modifier.NewBase("vv-2pc", -1),
+ 			AffectedStat: attributes.AnemoP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.AnemoP] = c.SourceHost.ArtifactScalar(char.Index(), "const-viridescent-2pc-anemo", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/oceanhuedclam/oceanhuedclam.go
++++ b/internal/artifacts/oceanhuedclam/oceanhuedclam.go
+@@ -55,6 +55,9 @@
+ 			Base:         modifier.NewBase("ohc-2pc", -1),
+ 			AffectedStat: attributes.Heal,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.Heal] = c.SourceHost.ArtifactScalar(char.Index(), "const-oceanhuedclam-2pc-heal", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/noblesse/noblesse.go
++++ b/internal/artifacts/noblesse/noblesse.go
+@@ -48,6 +48,9 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					s.nob2buff[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-noblesse-2pc-dmg", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return s.nob2buff
+ 			},
+ 		})
+@@ -80,6 +83,9 @@
+ 						Base:         modifier.NewBaseWithHitlag(buffKey, buffDuration),
+ 						AffectedStat: attributes.ATKP,
+ 						Amount: func() []float64 {
++							if c.SourceHost != nil {
++								s.nob4buff[attributes.ATKP] = c.SourceHost.ArtifactScalar(this.Index(), "const-noblesse-4pc-atkp", nil, nil, 0)
++							}
+ 							return s.nob4buff
+ 						},
+ 					})
+--- a/internal/artifacts/martialartist/martialartist.go
++++ b/internal/artifacts/martialartist/martialartist.go
+@@ -34,6 +34,9 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-martialartist-2pc-dmg", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+@@ -54,6 +57,9 @@
+ 					if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+ 						return nil
+ 					}
++					if c.SourceHost != nil {
++						m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-martialartist-4pc-dmg", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/artifacts/thundersoother/thundersoother.go
++++ b/internal/artifacts/thundersoother/thundersoother.go
+@@ -37,6 +37,9 @@
+ 				}
+ 
+ 				if r.AuraContains(attributes.Electro) {
++					if c.SourceHost != nil {
++						m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-thundersoother-4pc-dmg", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++					}
+ 					return m
+ 				}
+ 				return nil

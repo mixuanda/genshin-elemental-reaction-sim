@@ -1,0 +1,53 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts (3 tests | 2 failed | 1 skipped) 75ms
+     × establishes a continuous aura-v7 Vaporize cycle with live raw gauge, ICD and damage-group windows 62ms
+     × captures before same-frame reset/hit and rejects unsupported future, initial, infusion and stochastic domains 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts > actual ordinary Aura and ICD checkpoints > establishes a continuous aura-v7 Vaporize cycle with live raw gauge, ICD and damage-group windows
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts:45:121
+     43|     expect(aura.applicationIcd.legacyWindows).toMatchObject([{ icdTag:…
+     44|     expect(state.icdAndTriggerHistory.directDamageGroups[0].windows).t…
+     45|     expect(actual.result!.damageEvents.filter(hit => hit.element === "…
+       |                                                                                                                         ^
+     46|     expect(checkpoints.at(-1)!.state).toEqual(checkpoints[0]!.state);
+     47|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts > actual ordinary Aura and ICD checkpoints > captures before same-frame reset/hit and rejects unsupported future, initial, infusion and stochastic domains
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts:82:64
+     80|     config.timeline!.abilities[1]!.hits![0]!.directDamageGroup = { icd…
+     81|     const actual = simulate(config, { execution: { checkpointFrames: […
+     82|     expect(actual.executionAudit!.checkpointCoverage.complete).toBe(tr…
+       |                                                                ^
+     83|     const [before, after] = actual.executionAudit!.phaseCheckpoints.ma…
+     84|     expect(before!.auras.targets[0].materializedAgeTicks).toBe(29);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 skipped (3)
+   Start at  05:25:48
+   Duration  914ms (transform 603ms, setup 0ms, import 777ms, tests 75ms, environment 0ms)
+

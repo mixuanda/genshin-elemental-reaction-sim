@@ -1,0 +1,49 @@
+--- a/pkg/core/info/sourcehost_stat_provenance.go
++++ b/pkg/core/info/sourcehost_stat_provenance.go
+@@ -9,6 +9,7 @@
+ 	Frame int `json:"frame"`
+ 	ActorIndex int `json:"actorIndex"`
+ 	TargetKey *int `json:"targetKey,omitempty"`
++	EffectSourceActorIndex *int `json:"effectSourceActorIndex,omitempty"`
+ 	Selector []attributes.Stat `json:"selector"`
+ 	NonExtra bool `json:"nonExtra"`
+ 	Base attributes.Stats `json:"base"`
+--- a/internal/artifacts/blizzard/blizzard.go
++++ b/internal/artifacts/blizzard/blizzard.go
+@@ -74,11 +74,19 @@
+ 
+ 		// Frozen check first so we don't mistaken coexisting cryo
+ 		if r.AuraContains(attributes.Frozen) {
+-			ae.Snapshot.Stats[attributes.CR] += 0.4
++			if c.SourceHost != nil {
++				c.SourceHost.ArtifactSnapshot(ae, r.Key(), char.Index(), "bs-4pc-lunarcharge", "const-blizzard-4pc-frozen-cr", nil)
++			} else {
++				ae.Snapshot.Stats[attributes.CR] += 0.4
++			}
+ 			return
+ 		}
+ 		if r.AuraContains(attributes.Cryo) {
+-			ae.Snapshot.Stats[attributes.CR] += 0.2
++			if c.SourceHost != nil {
++				c.SourceHost.ArtifactSnapshot(ae, r.Key(), char.Index(), "bs-4pc-lunarcharge", "const-blizzard-4pc-cryo-cr", nil)
++			} else {
++				ae.Snapshot.Stats[attributes.CR] += 0.2
++			}
+ 			return
+ 		}
+ 	}, "bs-4pc-lunarcharge-"+char.Base.Key.String())
+--- a/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go
++++ b/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go
+@@ -89,7 +89,11 @@
+ 		}
+ 
+ 		if r.StatusIsActive(reactable.SuperConductShredKey) || r.StatusIsActive(reactable.StellarConductShredKey) {
++			if core.SourceHost != nil {
++				core.SourceHost.ArtifactSnapshot(ae, r.Key(), char.Index(), "disenchantment-4pc-superconduct", "dynamic-disenchantmentindeepshadow-4pc-cr-a7", map[string]any{"state": map[string]any{}})
++			} else {
+-			ae.Snapshot.Stats[attributes.CR] += 0.16
++				ae.Snapshot.Stats[attributes.CR] += 0.16
++			}
+ 		}
+ 	}, "disenchantment-4pc-superconduct-"+char.Base.Key.String())
+ 

@@ -1,0 +1,21 @@
+{
+  "command": [
+    "env",
+    "GOROOT=/Users/evan/Library/Caches/gidps-source-host/go1.27.1/darwin-arm64/go",
+    "GOPATH=/Users/evan/Library/Caches/gidps-source-host/gopath",
+    "GOMODCACHE=/Users/evan/Library/Caches/gidps-source-host/modules",
+    "GOCACHE=/Users/evan/Library/Caches/gidps-source-host/go-build",
+    "CGO_ENABLED=0",
+    "GOTOOLCHAIN=local",
+    "/Users/evan/Library/Caches/gidps-source-host/go1.27.1/darwin-arm64/go/bin/go",
+    "-C",
+    "/Users/evan/Library/Caches/gidps-source-host/stellar-build-J8MwI1/source",
+    "test",
+    "./pkg/core/action",
+    "-run",
+    "^TestSourceHostQueuedActionPhaseLifecycle$",
+    "-count=1"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 3.558
+}

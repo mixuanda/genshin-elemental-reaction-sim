@@ -1,0 +1,11 @@
+[WebServer] (node:80650) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:80651) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"runs":[{"lane":"classic","observedRules":{"char-add-yunjin-burst":3,"char-add-kokomi-a4":2,"char-add-xianyun-a4-atk-snapshot":23,"char-add-xianyun-a4":1},"normal":{"applicationId":520,"frame":148,"kokomiId":518,"yunJinId":513,"kokomiValue":1246.7588733900002,"yunJinValue":291.26032761294005,"replayDifference":0},"plunge":{"applicationId":1243,"frame":357,"hitId":1241,"creationId":1210,"creationFrame":342,"hitValue":2375.454244032,"snapshotValue":1187.727122016,"replayDifference":0},"edit":{"calculationId":518,"originalValue":1246.7588733900002,"editedValue":1584.2588733900002,"originalCaptureUnchanged":true,"restoredValue":1584.2588733900002,"scope":"formula-only"}},{"lane":"stellar","observedRules":{"char-add-yunjin-burst":3,"char-add-kokomi-a4":2,"char-add-xianyun-a4-atk-snapshot":23,"char-add-xianyun-a4":1},"normal":{"applicationId":512,"frame":146,"kokomiId":510,"yunJinId":505,"kokomiValue":1246.7588733900002,"yunJinValue":291.26032761294005,"replayDifference":0},"plunge":{"applicationId":1235,"frame":355,"hitId":1233,"creationId":1202,"creationFrame":340,"hitValue":2375.454244032,"snapshotValue":1187.727122016,"replayDifference":0}}],"pageErrors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-character-additive.spec.ts:47:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits (40.4s)
+
+  1 passed (43.4s)

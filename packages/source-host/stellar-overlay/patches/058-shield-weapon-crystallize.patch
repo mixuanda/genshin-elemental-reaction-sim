@@ -1,0 +1,106 @@
+--- a/internal/weapons/claymore/bell/bell.go
++++ b/internal/weapons/claymore/bell/bell.go
+@@ -44,15 +44,21 @@
+ 		}
+ 		char.AddStatus(icdKey, 2700, true)
+ 
++		maxHp, hpRead := char.MaxHPWithProvenance()
++		shieldHP, shieldHPID := hp*maxHp, 0
++		if c.SourceHost != nil {
++			shieldHP, shieldHPID = c.SourceHost.CharacterShieldCompute(char.Index(), "char-shield-bell", map[string]any{"refinement": r, "maxHp": maxHp}, []*info.SourceHostStatRead{hpRead}, nil)
++		}
+ 		c.Player.Shields.Add(&shield.Tmpl{
+-			ActorIndex: char.Index(),
+-			Target:     char.Index(),
+-			Src:        c.F,
+-			ShieldType: shield.Bell,
+-			Name:       "Bell",
+-			HP:         hp * char.MaxHP(),
+-			Ele:        attributes.NoElement,
+-			Expires:    c.F + 600,
++			ActorIndex:     char.Index(),
++			Target:         char.Index(),
++			Src:            c.F,
++			ShieldType:     shield.Bell,
++			Name:           "Bell",
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.NoElement,
++			Expires:        c.F + 600,
+ 		})
+ 	}, fmt.Sprintf("bell-%v", char.Base.Key.String()))
+ 
+--- a/internal/template/crystallize/shield.go
++++ b/internal/template/crystallize/shield.go
+@@ -2,18 +2,23 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ type Shield struct {
+ 	*shield.Tmpl
+-	emBonus float64
+-}
+-
+-func NewShield(index int, typ attributes.Element, src, lvl int, em float64, expiry int) *Shield {
++	emBonus        float64
++	sourceHost     *sourcehost.Bridge
++	sourceHostEMID int
++}
++
++func NewShield(index int, typ attributes.Element, src, lvl int, em float64, expiry int, host *sourcehost.Bridge, snapshot *info.Snapshot) *Shield {
+ 	if typ == attributes.Frozen {
+ 		typ = attributes.Cryo
+ 	}
++	originalLevel := lvl
+ 	lvl = min(max(lvl-1, 0), 99)
+ 
+ 	s := &Shield{}
+@@ -25,16 +30,29 @@
+ 	s.ShieldType = shield.Crystallize
+ 	s.Name = "Crystallize " + typ.String()
+ 	s.Src = src
+-	s.HP = shieldBaseHP[lvl]
++	if host != nil {
++		s.HP, s.SourceHostHPID = host.CharacterShieldCompute(index, "char-shield-crystallize-base", map[string]any{"level": originalLevel}, nil, snapshot)
++	} else {
++		s.HP = shieldBaseHP[lvl]
++	}
+ 	s.Expires = expiry
+ 
+-	s.emBonus = (40.0 / 9.0) * (em / (1400 + em))
++	s.sourceHost = host
++	if host != nil {
++		s.emBonus, s.sourceHostEMID = host.CharacterShieldCompute(index, "char-shield-crystallize-em", map[string]any{"em": em}, nil, snapshot)
++	} else {
++		s.emBonus = (40.0 / 9.0) * (em / (1400 + em))
++	}
+ 
+ 	return s
+ }
+ 
+ func (c *Shield) OnDamage(dmg float64, ele attributes.Element, bonus float64) (float64, bool) {
+-	bonus += c.emBonus
++	if c.sourceHost != nil {
++		bonus, c.SourceHostBonusID = c.sourceHost.CharacterShieldCompute(c.ActorIndex, "char-shield-crystallize-bonus-total", map[string]any{"handlerBonus": bonus, "emBonus": c.emBonus}, nil, nil, map[string]int{"emBonus": c.sourceHostEMID})
++	} else {
++		bonus += c.emBonus
++	}
+ 	return c.Tmpl.OnDamage(dmg, ele, bonus)
+ }
+ 
+--- a/pkg/reactable/crystallize.go
++++ b/pkg/reactable/crystallize.go
+@@ -99,7 +99,7 @@
+ 		// shield snapshots em on shard spawn
+ 		em := snap.Stats[attributes.EM]
+ 		// expiry will get set properly later
+-		shd := crystallize.NewShield(char.Index(), typ, src, lvl, em, -1)
++		shd := crystallize.NewShield(char.Index(), typ, src, lvl, em, -1, r.core.SourceHost, &snap)
+ 		cs := crystallize.NewShard(r.core, r.self.Shape(), shd)
+ 		r.core.Combat.AddGadget(cs)
+ 		r.core.Log.NewEvent(

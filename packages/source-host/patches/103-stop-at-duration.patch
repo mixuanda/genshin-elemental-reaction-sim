@@ -1,0 +1,40 @@
+diff --git a/pkg/simulation/run.go b/pkg/simulation/run.go
+--- a/pkg/simulation/run.go
++++ b/pkg/simulation/run.go
+@@ -375,9 +375,18 @@
+ }
+ 
+ func (s *Simulation) stopCheck() bool {
++	// The source-host opt-in deadline is checked after the frame's native tick,
++	// including damage, tasks, and events. It also bounds readiness waits.
++	if s.C.SourceHost != nil && s.C.SourceHost.StopAtDuration && s.C.F >= int(s.cfg.Settings.Duration*60) {
++		s.C.SourceHost.EndReason = "duration"
++		return true
++	}
+ 	if s.C.Combat.DamageMode {
+ 		// stop if no more actions
+ 		if s.noMoreActions {
++			if s.C.SourceHost != nil {
++				s.C.SourceHost.EndReason = "actions-exhausted"
++			}
+ 			return true
+ 		}
+ 		// stop if all targets are reporting dead
+@@ -388,9 +397,16 @@
+ 				break
+ 			}
+ 		}
++		if allDead && s.C.SourceHost != nil {
++			s.C.SourceHost.EndReason = "targets-dead"
++		}
+ 		return allDead
+ 	}
+-	return s.C.F == int(s.cfg.Settings.Duration*60)
++	done := s.C.F == int(s.cfg.Settings.Duration*60)
++	if done && s.C.SourceHost != nil {
++		s.C.SourceHost.EndReason = "duration"
++	}
++	return done
+ }
+ 
+ // TODO: remove defer in favour of every function actually returning error

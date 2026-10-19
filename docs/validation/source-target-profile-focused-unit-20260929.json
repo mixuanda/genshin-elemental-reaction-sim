@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "apps/web/src/source-target-profile.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.713
+}

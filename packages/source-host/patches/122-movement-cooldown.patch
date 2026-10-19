@@ -1,0 +1,16 @@
+--- a/internal/template/character/cooldown.go
++++ b/internal/template/character/cooldown.go
+@@ -81,7 +81,12 @@
+ 		c.SetCD(a, dur)
+ 		return
+ 	}
+-	c.Core.Tasks.Add(func() { c.SetCD(a, dur) }, delay)
++	c.Core.Tasks.AddWithPhase(func() { c.SetCD(a, dur) }, delay, "delayed-cooldown-start", phase.Descriptor{
++		Source: "internal/template/character/cooldown.go:SetCDWithDelay",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"actorIndex": c.Index(), "action": a.String(), "duration": dur}, nil
++		},
++	})
+ }
+ 
+ func (c *Character) Cooldown(a action.Action) int {

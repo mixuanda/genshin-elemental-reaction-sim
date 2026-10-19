@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:79318) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Execution profile browser measurements {"version":"1.1.0","referenceSeed":"kuki-profile-energy-reference","requests":[3,63,318,584,591],"failedQFrame":584,"postFailureSwapDelay":6,"legacyVersion":"1.0.0","legacyRequests":[3,112]}
+  ✓  1 [chromium] › apps/web/e2e/profile-periodic-checkpoint.spec.ts:24:1 › Execution profiles use the actual energy baseline and retain imported 1.0.0 structural semantics (1.8s)
+
+  1 passed (2.4s)

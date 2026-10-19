@@ -1,0 +1,38 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/periodic-entity-runtime.test.ts (3 tests | 1 failed) 235ms
+     × reads owner HP/A1 and EM at actual ticks, heals the current character, and replays delayed hit inputs 66ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/periodic-entity-runtime.test.ts > real replaceable periodic healing entities > reads owner HP/A1 and EM at actual ticks, heals the current character, and replays delayed hit inputs
+AssertionError: expected [ [ 12, 50, 403.56 ], …(2) ] to deeply equal [ [ 12, 50, 428.56 ], …(2) ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,10 @@
+  [
+    [
+      12,
+      50,
+-     428.56,
++     403.56,
+    ],
+    [
+      116,
+      50,
+      151.2,
+
+ ❯ packages/sim-core/src/__tests__/periodic-entity-runtime.test.ts:51:84
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  03:39:09
+   Duration  1.05s (transform 583ms, setup 0ms, import 753ms, tests 235ms, environment 0ms)
+

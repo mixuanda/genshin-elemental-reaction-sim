@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "candidateId": "genshin-db-49a6544a6c6ae36089cb42fa591fc46f01de8bcf-6720353b1a8f5f9b",
+  "discoveredAt": "2026-09-27T16:54:53.156Z",
+  "repository": "https://github.com/theBowja/genshin-db.git",
+  "branch": "main",
+  "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "sourceTreeUrl": "https://github.com/theBowja/genshin-db/tree/49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "sourceVersion": "5.2.14",
+  "releaseIdentity": {
+    "gameVersion": "unknown",
+    "releaseStatus": "unknown",
+    "evidenceUrl": null
+  },
+  "acquisition": "Git default-branch HEAD resolved and checked out at the exact commit; JSON parsed without running upstream code.",
+  "rawSourceArchiveSha256": "4642b5b307f90934c19e480d1e627cd2c83e3c16343d09e95ebfdbbb3e3c3f0b",
+  "projectedDataSha256": "6720353b1a8f5f9b26e96a7f117fcfe070c2be3ec469235b7dbae0eb5098d7e0",
+  "sourceFiles": 707,
+  "verification": {
+    "structure": "schema-valid-candidate",
+    "numeric": "unchecked",
+    "mechanics": "missing",
+    "officialRelease": "unknown"
+  },
+  "activeDatasetChanged": false
+}

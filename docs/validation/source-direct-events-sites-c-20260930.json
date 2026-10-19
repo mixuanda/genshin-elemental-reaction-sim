@@ -1,0 +1,233 @@
+{
+  "schemaVersion": 1,
+  "round": 113,
+  "batch": "c",
+  "status": "private source-site patch proposal; default git apply --check passed on both verified pre-talent-instrument source roots; no basis mutation or build/test",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-yCxalk/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Jtv5GK/source"
+  },
+  "sourceReceipts": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/frozen/classic/receipt.json",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/frozen/stellar/receipt.json"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/chiori/asc.go": "961b45439ff03d0d0ed4fd062dcbcca3895fbcfe716bfa7a6df718f9957c2a55",
+      "internal/characters/yoimiya/burst.go": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+      "internal/characters/chiori/chiori.go": "312f1d61a1ae3a5146cb96368eea1a355ecb21c5ebd2971e14eb36f71394caa3",
+      "internal/characters/yoimiya/yoimiya.go": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+      "internal/characters/yoimiya/cons.go": "8009f52557c123e6b9d9ae076db074b9987c49ea8d3ecb2d120327a8a921af3b"
+    },
+    "stellar": {
+      "internal/characters/chiori/asc.go": "961b45439ff03d0d0ed4fd062dcbcca3895fbcfe716bfa7a6df718f9957c2a55",
+      "internal/characters/yoimiya/burst.go": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+      "internal/characters/chiori/chiori.go": "312f1d61a1ae3a5146cb96368eea1a355ecb21c5ebd2971e14eb36f71394caa3",
+      "internal/characters/yoimiya/yoimiya.go": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+      "internal/characters/yoimiya/cons.go": "8009f52557c123e6b9d9ae076db074b9987c49ea8d3ecb2d120327a8a921af3b"
+    }
+  },
+  "patchStage": "After prior numbered patches/character flat instrumentation; before SourceHostTalentRead auto-instrumentation",
+  "nativeHelpers": {
+    "label": "Core.SourceHostLabelEventListener(siteID string, args ...any)",
+    "fact": "Core.SourceHostEventListenerFact(key string, value float64)",
+    "attack": "Core.SourceHostQueueEventAttack(siteID string, original QueueAttack arguments...)",
+    "attackWithSnap": "Core.SourceHostQueueEventAttackWithSnap(siteID string, original QueueAttackWithSnap arguments...)"
+  },
+  "components": [
+    {
+      "id": "chiori-a1-seize",
+      "family": "chiori-a1-seize",
+      "character": "chiori",
+      "kind": "direct",
+      "eventType": "OnEnemyDamage",
+      "siteId": "chiori.a1.seize.enemy-damage",
+      "key": "chiori-seize-the-moment",
+      "registerKeyExpression": "a1SeizeTheMomentKey",
+      "emitSite": "chiori.a1.seize.attack",
+      "ability": "Fluttering Hasode (Seize the Moment)",
+      "fullAttackTagName": "AttackTagElementalArt",
+      "countFact": "chiori.a1.seize.enemy-damage.attack-count",
+      "allowedCounts": [
+        0,
+        1
+      ],
+      "queue": {
+        "original": "QueueAttackWithSnap",
+        "helper": "SourceHostQueueEventAttackWithSnap",
+        "snapshot": "existing c.Snapshot(&ai) and DEF flat-damage processing retained unchanged",
+        "damageDelay": 1,
+        "hitPattern": "combat.NewCircleHitOnTarget(t, nil, 2.5)",
+        "callbacks": []
+      },
+      "registration": "Init -> a1TapestrySetup; only installed at ascension >= 1; not created by an E cast",
+      "zeroAttackWhen": [
+        "Seize the Moment status inactive",
+        "Seize ICD active",
+        "trigger tag not Normal/Extra/Plunge",
+        "trigger actor not current active actor",
+        "trigger target is not enemy",
+        "trigger target outside original player-centered radius 30 test"
+      ],
+      "sameListenerEffects": [
+        "set original 120-frame Seize ICD before snapshot/queue",
+        "increment a1AttackCount after queue; delete Seize status when original count reaches 2"
+      ],
+      "sourceRefs": [
+        "internal/characters/chiori/chiori.go:48-50",
+        "internal/characters/chiori/asc.go:15-24",
+        "internal/characters/chiori/asc.go:55-134",
+        "internal/characters/chiori/asc.go:167-172"
+      ],
+      "scopeNotes": [
+        "Only this listener invocation and its zero or one direct queued AttackEvent are within the component; target hit count is separate.",
+        "Queue is inline in the listener; no shared immediate damage helper was changed.",
+        "Existing snapshot, talent reads, DEF flat-damage calculation, geometry evaluation, guard order and getter count are preserved.",
+        "The prior Seize status owner/lifetime, A1 window/Tapestry activation, Tamoto dolls, Kinu/C4, C6 and complete skill/cast lifecycle remain excluded.",
+        "This queue has no native hit callback; no later event-chain or callback additional damage is certified."
+      ],
+      "laneCoverage": [
+        "classic",
+        "stellar"
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceHashesSha256": {
+        "classic": {
+          "internal/characters/chiori/asc.go": "961b45439ff03d0d0ed4fd062dcbcca3895fbcfe716bfa7a6df718f9957c2a55",
+          "internal/characters/chiori/chiori.go": "312f1d61a1ae3a5146cb96368eea1a355ecb21c5ebd2971e14eb36f71394caa3"
+        },
+        "stellar": {
+          "internal/characters/chiori/asc.go": "961b45439ff03d0d0ed4fd062dcbcca3895fbcfe716bfa7a6df718f9957c2a55",
+          "internal/characters/chiori/chiori.go": "312f1d61a1ae3a5146cb96368eea1a355ecb21c5ebd2971e14eb36f71394caa3"
+        }
+      }
+    },
+    {
+      "id": "yoimiya-aurous-blaze-explosion",
+      "family": "yoimiya-aurous-blaze-explosion",
+      "character": "yoimiya",
+      "kind": "direct",
+      "eventType": "OnEnemyDamage",
+      "siteId": "yoimiya.aurous-blaze.enemy-damage",
+      "key": "yoimiya-burst-check",
+      "registerKeyExpression": "\"yoimiya-burst-check\"",
+      "emitSite": "yoimiya.aurous-blaze.explosion",
+      "ability": "Aurous Blaze (Explode)",
+      "fullAttackTagName": "AttackTagElementalBurst",
+      "countFact": "yoimiya.aurous-blaze.enemy-damage.attack-count",
+      "allowedCounts": [
+        0,
+        1
+      ],
+      "queue": {
+        "original": "QueueAttack",
+        "helper": "SourceHostQueueEventAttack",
+        "snapshotDelay": 0,
+        "damageDelay": 1,
+        "hitPattern": "combat.NewCircleHitOnTarget(trg, nil, 3)",
+        "callbacks": [
+          "c.makeC2CB() (unchanged; shared stat-modifier callback)"
+        ]
+      },
+      "registration": "Init -> burstHook; subscription created independently of any Q cast",
+      "zeroAttackWhen": [
+        "trigger target is not enemy",
+        "Aurous Blaze target status inactive",
+        "trigger actor is Yoimiya",
+        "target Aurous Blaze ICD active",
+        "trigger tag not Normal/Extra/Plunge/ElementalArt/ElementalArtHold/ElementalBurst"
+      ],
+      "sameListenerEffects": [
+        "set original target Aurous Blaze ICD to 120 frames after queue",
+        "at C4+, reduce skill cooldown by 72 frames"
+      ],
+      "sourceRefs": [
+        "internal/characters/yoimiya/yoimiya.go:35-42",
+        "internal/characters/yoimiya/burst.go:30-70",
+        "internal/characters/yoimiya/burst.go:73-95",
+        "internal/characters/yoimiya/burst.go:97-167",
+        "internal/characters/yoimiya/cons.go:43-77"
+      ],
+      "scopeNotes": [
+        "Only this listener invocation and its zero or one direct queued explosion AttackEvent are within the component; target hit count is separate.",
+        "The queue is inline in burstHook. Initial Q still uses the original QueueAttack and its applyAB callback.",
+        "makeC2CB is also called by normal, aimed and initial burst attacks; it remains completely unchanged and is not relabeled or wrapped.",
+        "makeC2CB can add a 360-frame Pyro bonus after a Pyro critical hit; its modifier lifetime is excluded and it queues no damage.",
+        "Prior Aurous Blaze application/status ownership, 600/840-frame status lifetime, C1 death buff, damage-mode death cleanup, C2 modifier lifetime and complete burst/cast lifecycle remain excluded.",
+        "Any descendant reaction/event/callback additional damage is outside this direct component."
+      ],
+      "laneCoverage": [
+        "classic",
+        "stellar"
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceHashesSha256": {
+        "classic": {
+          "internal/characters/yoimiya/burst.go": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+          "internal/characters/yoimiya/yoimiya.go": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+          "internal/characters/yoimiya/cons.go": "8009f52557c123e6b9d9ae076db074b9987c49ea8d3ecb2d120327a8a921af3b"
+        },
+        "stellar": {
+          "internal/characters/yoimiya/burst.go": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+          "internal/characters/yoimiya/yoimiya.go": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+          "internal/characters/yoimiya/cons.go": "8009f52557c123e6b9d9ae076db074b9987c49ea8d3ecb2d120327a8a921af3b"
+        }
+      }
+    }
+  ],
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-c/classic.patch",
+      "sha256": "5ef254149a5ffd60d65ba090d42ec67608d227f5fee70faf521d93e5d55a172f",
+      "bytes": 2112,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-c/classic.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/build-yCxalk/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "contextOverride": false
+      }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-c/stellar.patch",
+      "sha256": "5ef254149a5ffd60d65ba090d42ec67608d227f5fee70faf521d93e5d55a172f",
+      "bytes": 2112,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-c/stellar.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Jtv5GK/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "contextOverride": false
+      }
+    }
+  },
+  "notes": [
+    "Classic and stellar patches are text-identical normal unified diffs with three context lines.",
+    "Entry label and count fact 0 precede all existing guards; count 1 is recorded at each existing direct queue branch. No guard expression, getter, RNG, target selector, damage expression or callback is altered.",
+    "Count describes queued AttackEvents per listener call, not per-target hits. The Chiori per-status attack limit of 2 is not the count for a single event call.",
+    "No patch applied to either source root. Private copies exist under this batch cache only.",
+    "Static source audit and patch applicability do not establish runtime occurrence, gameplay correctness or whole-cast completeness."
+  ]
+}

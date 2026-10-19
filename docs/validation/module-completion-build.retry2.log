@@ -1,0 +1,15 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/calculator-ui.ts(198,52): error TS2345: Argument of type '{ characterId: string; weaponId: string; level: number; ascension: number; weaponLevel: number; weaponAscension: number; refinement: number; sourceVersion: string; sourceRefs: string[]; derivedStats: { ...; }[]; ... 18 more ...; effectsDisabled: true; }' is not assignable to parameter of type 'EquipmentBuildInput'.
+  Types of property 'artifacts' are incompatible.
+    Type '{ slot: "circlet" | "flower" | "goblet" | "plume" | "sands"; setId: string; rarity: number; level: number; mainStat: string; initialSubstats: number; substats: { stat: string; rolls: number[]; }[]; }[] | undefined' is not assignable to type 'ArtifactPieceInput[] | undefined'.
+      Type '{ slot: "circlet" | "flower" | "goblet" | "plume" | "sands"; setId: string; rarity: number; level: number; mainStat: string; initialSubstats: number; substats: { stat: string; rolls: number[]; }[]; }[]' is not assignable to type 'ArtifactPieceInput[]'.
+        Type '{ slot: "circlet" | "flower" | "goblet" | "plume" | "sands"; setId: string; rarity: number; level: number; mainStat: string; initialSubstats: number; substats: { stat: string; rolls: number[]; }[]; }' is not assignable to type 'ArtifactPieceInput'.
+          Types of property 'rarity' are incompatible.
+            Type 'number' is not assignable to type 'ArtifactRarity'.

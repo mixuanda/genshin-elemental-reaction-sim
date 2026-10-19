@@ -1,0 +1,10 @@
+[WebServer] (node:5999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:6000) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-shared-phase-state.spec.ts:54:1 › shared native phase captures retain reaction tasks, attack state and unknown coverage (6.1s)
+
+  1 passed (6.9s)

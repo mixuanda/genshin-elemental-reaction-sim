@@ -10,8 +10,13 @@ import type {
   TimelineFailure,
   TimelineFailureCode,
   TimelineStateGrant,
-  TimelineStateLogEntry
+  TimelineStateLogEntry,
+  StaminaCost
 } from "@genshin-dps-lab/schemas";
+
+import { StaminaRuntime } from "./stamina";
+import { SourceNormalChainRuntime, sourceNormalChainDefinitions } from "./source-normal-chain";
+import { actionEventPriority, getRuntimeSkillCooldownActors } from "@genshin-dps-lab/schemas";
 
 export class TimelineLegalityError extends Error {
   readonly failure: TimelineFailure;
@@ -39,6 +44,12 @@ export interface RuntimeEnergyFailure {
 
 export interface CompileLegalTimelineOptions {
   runtimeEnergyFailures?: ReadonlyMap<number, RuntimeEnergyFailure>;
+  /** Actual E availability measured from the already executed command prefix. */
+  runtimeSkillReadyFrames?: ReadonlyMap<number, number>;
+  /** Successful jumps observed in the actual Stellar-Swirl main-queue prefix. */
+  runtimeStellarSwirlJumps?: ReadonlyMap<number, { actorId: string; frame: number }>;
+  /** Only computes this request's animation/stamina anchor, before its runtime probe. */
+  provisionalSkillCommandIndex?: number;
   /** Used by the runtime energy probe to avoid compiling later commands. */
   stopAfterCommandIndex?: number;
 }
@@ -75,6 +86,14 @@ function compileAbilityAction(
     ...(ability.energyCost === undefined
       ? {}
       : { energyCost: ability.energyCost }),
+    ...(ability.energyCostFrame === undefined ? {} : { energyCostFrame: ability.energyCostFrame }),
+    ...(ability.staminaCost === undefined ? {} : { staminaCost: ability.staminaCost }),
+    ...(ability.actionPhase === undefined ? {} : { actionPhase: ability.actionPhase }),
+    ...(ability.conditionalHitGroups === undefined ? {} : { conditionalHitGroups: ability.conditionalHitGroups }),
+    ...(ability.healthChanges === undefined ? {} : { healthChanges: ability.healthChanges }),
+    ...(ability.periodicEntities === undefined ? {} : { periodicEntities: ability.periodicEntities }),
+    ...(ability.summons === undefined ? {} : { summons: ability.summons }),
+    ...(ability.statConversions === undefined ? {} : { statConversions: ability.statConversions }),
     ...(ability.hits === undefined
       ? {}
       : {
@@ -147,6 +166,7 @@ function compileAbilityAction(
                     trigger: {
                       kind: trigger.kind,
                       hitIds: trigger.hitIds,
+                      ...(trigger.probability === undefined ? {} : { probability: trigger.probability }),
                       ...(trigger.internalCooldown === undefined
                         ? {}
                         : {
@@ -233,6 +253,12 @@ export function compileLegalTimeline(
   const abilityById = new Map(
     timeline.abilities.map((ability) => [ability.id, ability])
   );
+  const runtimeSkillActors = getRuntimeSkillCooldownActors(config);
+  const normalChains = sourceNormalChainDefinitions(config.sourceAbilityBindings);
+  const sourceNormals = normalChains.length ? new SourceNormalChainRuntime(normalChains) : undefined;
+  // QueueAction(delay=0) is first visited on the following Player.Tick, not
+  // during Exec. Preserve the legacy synthetic zero-frame swap outside this source profile.
+  const swapFrames = sourceNormals ? Math.max(1, timeline.swapFrames) : timeline.swapFrames;
   const chargeAvailability = new Map<string, number[]>(
     timeline.abilities.map((ability) => [
       ability.id,
@@ -248,6 +274,11 @@ export function compileLegalTimeline(
   let stateSequence = 0;
   let cursor = 0;
   let activeCharacterId = timeline.initialActiveCharacterId;
+  // The source player state is global and has no timed expiry after lift.
+  // Keep it separate from declared finite ability-state grants.
+  let stellarAirborneActorId: string | undefined;
+  const stamina = config.staminaModel === undefined ? undefined : new StaminaRuntime(config.staminaModel, false);
+  let lastAcceptedSourceAnimation: { ability: AbilityDefinition; startFrame: number } | undefined;
 
   const scopedStateKey = (actorId: string, statusKey: string): string =>
     `${actorId}\u0000${statusKey}`;
@@ -404,17 +435,29 @@ export function compileLegalTimeline(
     command: Exclude<LegalTimelineCommand, { type: "wait" }>
   ): { requestedFrame: number; startFrame: number } => {
     const requestedFrame = command.atFrame ?? cursor;
-    if (requestedFrame >= cursor) {
+    let requiredCursor = cursor;
+    if (sourceNormals && lastAcceptedSourceAnimation && command.type !== "pickUpCrystallize") {
+      const previous = lastAcceptedSourceAnimation;
+      requiredCursor = Math.max(requiredCursor, previous.startFrame + (previous.ability.cancelFrames?.[command.type] ?? previous.ability.cancelFrame));
+    }
+    if ((runtimeSkillActors.size > 0 || sourceNormals !== undefined) && command.type !== "pickUpCrystallize") {
+      const actionFrame = Math.max(requestedFrame, cursor) + (command.type === "swap" ? swapFrames : 0);
+      const priority = "abilityId" in command ? actionEventPriority(abilityById.get(command.abilityId) ?? {})
+        : sourceNormals && command.type !== "swap" ? 8 : 0;
+      const earlierPhase = rotation.some(action => Math.round(action.at * 60) === actionFrame && actionEventPriority(action) > priority);
+      if (earlierPhase) requiredCursor = Math.max(requiredCursor, Math.max(requestedFrame, cursor) + 1);
+    }
+    if (requestedFrame >= requiredCursor) {
       cursor = requestedFrame;
       return { requestedFrame, startFrame: cursor };
     }
-    if (timeline.legalityMode === "strict") {
+    if (timeline.legalityMode === "strict" && !(sourceNormals && command.atFrame === undefined)) {
       const failure: TimelineFailure = {
         commandIndex,
         code: "ACTION_OVERLAP",
         frame: requestedFrame,
         message:
-          `请求第 ${requestedFrame} 帧，但前一指令占用至第 ${cursor} 帧。`
+          `请求第 ${requestedFrame} 帧，但前一指令或实际同帧相位占用至第 ${requiredCursor} 帧。`
       };
       failures.push(failure);
       throw new TimelineLegalityError(failure);
@@ -423,19 +466,51 @@ export function compileLegalTimeline(
       commandIndex,
       code: "ACTION_OVERLAP",
       requestedFrame,
-      executedFrame: cursor,
-      waitedFrames: cursor - requestedFrame,
-      message: `行动重叠，等待至第 ${cursor} 帧。`
+      executedFrame: requiredCursor,
+      waitedFrames: requiredCursor - requestedFrame,
+      message: `行动或同帧相位重叠，等待至第 ${requiredCursor} 帧。`
     });
+    cursor = requiredCursor;
     return { requestedFrame, startFrame: cursor };
   };
 
-  timeline.commands.forEach((command, commandIndex) => {
+  const staminaReadyFrame = (
+    cost: StaminaCost | undefined, commandIndex: number,
+    command: LegalTimelineCommand, frame: number, requestedFrame: number
+  ): number | null => {
+    if (cost === undefined || stamina === undefined) return frame;
+    stamina.advanceThrough(frame);
+    if (stamina.available >= cost.amount) return frame;
+    const available = stamina.available;
+    const reject = (message: string): null => {
+      failures.push({ commandIndex, code: "INSUFFICIENT_STAMINA", frame, message });
+      commandResults.push({ commandIndex, commandType: command.type, actorId: commandActor(command),
+        abilityId: commandAbility(command), requestedFrame, startFrame: null, cancelFrame: null,
+        animationEndFrame: null, endFrame: null, status: "rejected",
+        waitedFrames: Math.max(0, frame - requestedFrame), failureCode: "INSUFFICIENT_STAMINA" });
+      return null;
+    };
+    if (timeline.legalityMode === "strict") return reject(`体力不足 ${available}/${cost.amount}，本次行动未执行。`);
+    const ready = stamina.waitUntilAffordable(cost.amount, frame, durationFrames);
+    if (ready === null) return reject(`体力不足 ${available}/${cost.amount}，模拟窗口内不能等到足够体力。`);
+    adjustments.push({ commandIndex, code: "INSUFFICIENT_STAMINA", requestedFrame: frame,
+      executedFrame: ready, waitedFrames: ready - frame,
+      message: `共享体力从 ${available} 恢复至 ${stamina.available}，等待至第 ${ready} 帧。` });
+    return ready;
+  };
+
+  timeline.commands.forEach((inputCommand, commandIndex) => {
     if (
       options.stopAfterCommandIndex !== undefined &&
       commandIndex > options.stopAfterCommandIndex
     ) {
       return;
+    }
+    let command = inputCommand;
+    if (command.type === "normal" && command.sourceNormalChain === "next-v1") {
+      const abilityId = sourceNormals?.nextAbilityId(command.actorId);
+      if (abilityId === undefined) throw new Error(`${command.actorId} 没有可执行的完整来源普攻链。`);
+      command = { ...command, abilityId };
     }
     if (command.type === "wait") {
       const startFrame = cursor;
@@ -472,6 +547,12 @@ export function compileLegalTimeline(
       return;
     }
 
+    if (stellarAirborneActorId !== undefined && command.type !== "plunge" && command.type !== "pickUpCrystallize") {
+      fail(commandIndex, command, "INVALID_AIRBORNE_ACTION", startFrame,
+        `"${stellarAirborneActorId}" 的星旋腾空只允许以下落攻击结束，当前行动未执行。`, anchored.requestedFrame);
+      return;
+    }
+
     if (command.type === "pickUpCrystallize") {
       commandResults.push({
         commandIndex,
@@ -502,7 +583,8 @@ export function compileLegalTimeline(
         );
         return;
       }
-      const endFrame = startFrame + timeline.swapFrames;
+      const endFrame = startFrame + swapFrames;
+      sourceNormals?.reset(activeCharacterId, "swap-start-reset");
       rotation.push(
         syntheticActiveAction(
           command.characterId,
@@ -515,6 +597,8 @@ export function compileLegalTimeline(
       cursor = endFrame;
       expireStatesThrough(endFrame);
       activeCharacterId = command.characterId;
+      sourceNormals?.reset(activeCharacterId, "swap-complete-reset");
+      lastAcceptedSourceAnimation = undefined;
       commandResults.push({
         commandIndex,
         commandType: command.type,
@@ -545,17 +629,34 @@ export function compileLegalTimeline(
     }
 
     if ("frames" in command) {
+      const ready = staminaReadyFrame(command.staminaCost, commandIndex, command, startFrame, anchored.requestedFrame);
+      if (ready === null) return;
+      startFrame = ready;
       const endFrame = startFrame + command.frames;
       rotation.push(
         syntheticActiveAction(
           command.actorId,
           startFrame,
           `__${command.type}#${commandIndex}`,
-          command.type === "dash" ? "冲刺" : "跳跃",
+          command.type === "dash" ? "冲刺" : command.type === "walk" ? "行走" : "跳跃",
           commandIndex,
           endFrame
         )
       );
+      if (sourceNormals) rotation[rotation.length - 1]!.actionPhase = "after-frame-tasks-v1";
+      if (command.staminaCost !== undefined) {
+        rotation[rotation.length - 1]!.staminaCost = command.staminaCost;
+        stamina?.accept(command.staminaCost, startFrame, command.actorId, commandIndex);
+      }
+      sourceNormals?.acceptAction({ actorId: command.actorId, kind: command.type });
+      lastAcceptedSourceAnimation = undefined;
+      const observedJump = options.runtimeStellarSwirlJumps?.get(commandIndex);
+      if (observedJump !== undefined) {
+        if (command.type !== "jump" || observedJump.actorId !== command.actorId || observedJump.frame !== startFrame) {
+          throw new Error(`星旋高跳 ${commandIndex} 的实际前缀反馈与动作不一致。`);
+        }
+        stellarAirborneActorId = command.actorId;
+      }
       cursor = endFrame;
       expireStatesThrough(endFrame);
       commandResults.push({
@@ -596,7 +697,11 @@ export function compileLegalTimeline(
         chargeIndex = index;
       }
     }
-    const chargeReadyFrame = chargeFrames[chargeIndex] ?? 0;
+    const runtimeSkill = ability.kind === "skill" && runtimeSkillActors.has(ability.actorId);
+    const chargeReadyFrame = runtimeSkill
+      ? options.runtimeSkillReadyFrames?.get(commandIndex) ??
+        (options.provisionalSkillCommandIndex === commandIndex ? 0 : (() => { throw new Error(`共享战技 ${commandIndex} 缺少实际前缀冷却反馈。`); })())
+      : chargeFrames[chargeIndex] ?? 0;
     if (chargeReadyFrame > startFrame) {
       if (timeline.legalityMode === "strict") {
         const failure: TimelineFailure = {
@@ -629,22 +734,6 @@ export function compileLegalTimeline(
         "OUT_OF_DURATION",
         startFrame,
         `冷却等待后的开始帧 ${startFrame} 超出模拟结束帧 ${durationFrames}。`,
-        anchored.requestedFrame
-      );
-      return;
-    }
-
-    const missingState = (ability.timelineState?.requires ?? []).find(
-      (statusKey) =>
-        !activeStates.has(scopedStateKey(ability.actorId, statusKey))
-    );
-    if (missingState !== undefined) {
-      fail(
-        commandIndex,
-        command,
-        "MISSING_REQUIRED_STATE",
-        startFrame,
-        `"${ability.name}" 需要 "${missingState}" 行动状态。`,
         anchored.requestedFrame
       );
       return;
@@ -684,10 +773,49 @@ export function compileLegalTimeline(
       return;
     }
 
+    const provisionalSkill = runtimeSkill && options.provisionalSkillCommandIndex === commandIndex;
+    const staminaReady = provisionalSkill ? startFrame : staminaReadyFrame(ability.staminaCost, commandIndex, command, startFrame, anchored.requestedFrame);
+    if (staminaReady === null) return;
+    startFrame = staminaReady;
+    cursor = startFrame;
+    expireStatesThrough(startFrame);
+
+    // A plunge is an existing declared action, not an ordinary attack renamed
+    // by the DSL. Its accepted lift source must still own an airborne window.
+    if (ability.kind === "plunge" && (!ability.timelineState?.requires?.includes("airborne") ||
+        !ability.timelineState.consumes?.includes("airborne"))) {
+      fail(commandIndex, command, "MISSING_REQUIRED_STATE", startFrame,
+        `"${ability.name}" 必须明确声明需要并消耗 airborne 腾空状态；普通跳跃占用不能证明腾空资格。`, anchored.requestedFrame);
+      return;
+    }
+
+    const missingState = (ability.timelineState?.requires ?? []).find(
+      (statusKey) =>
+        !activeStates.has(scopedStateKey(ability.actorId, statusKey)) &&
+        !(statusKey === "airborne" && stellarAirborneActorId === ability.actorId)
+    );
+    if (missingState !== undefined) {
+      fail(
+        commandIndex,
+        command,
+        "MISSING_REQUIRED_STATE",
+        startFrame,
+        `"${ability.name}" 需要 "${missingState}" 行动状态。`,
+        anchored.requestedFrame
+      );
+      return;
+    }
+
+    if (ability.staminaCost !== undefined && !provisionalSkill) stamina?.accept(ability.staminaCost, startFrame, ability.actorId, commandIndex);
+    sourceNormals?.acceptAction({ actorId: ability.actorId, kind: ability.kind, sourceAbilityId: ability.id });
+    if (sourceNormals) lastAcceptedSourceAnimation = { ability, startFrame };
+
     const recoveryFrames =
       ability.chargeRecoveryFrames ?? ability.cooldownFrames;
-    chargeFrames[chargeIndex] = startFrame + recoveryFrames;
-    chargeAvailability.set(ability.id, chargeFrames);
+    if (!runtimeSkill) {
+      chargeFrames[chargeIndex] = startFrame + recoveryFrames;
+      chargeAvailability.set(ability.id, chargeFrames);
+    }
     const followupKind = commandFollowupKind(
       timeline.commands[commandIndex + 1]
     );
@@ -704,6 +832,7 @@ export function compileLegalTimeline(
       )
     );
     applyAbilityStates(ability, commandIndex, startFrame);
+    if (ability.kind === "plunge" && stellarAirborneActorId === ability.actorId) stellarAirborneActorId = undefined;
     const cancelFrame = startFrame + cancelOffset;
     const animationEndFrame = startFrame + ability.animationEndFrame;
     cursor = cancelFrame;

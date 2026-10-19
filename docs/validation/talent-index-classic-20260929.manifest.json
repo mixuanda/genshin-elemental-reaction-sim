@@ -1,0 +1,3870 @@
+{
+  "schemaVersion": 1,
+  "builtAt": "2026-09-28T20:10:58.243Z",
+  "source": {
+    "repository": "https://github.com/genshinsim/gcsim",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "verifiedBlobCount": 4021,
+    "exportedOnlyTrackedBlobs": true,
+    "preparation": {
+      "sourceUrl": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "archiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+      "archiveBytes": 56440121,
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "verifiedBlobCount": 4021
+    }
+  },
+  "sourceInventory": {
+    "meaning": "Pinned Go blank-import registrations; not canonical character IDs, a latest-release list, or a claim that every registered package is ready.",
+    "counts": {
+      "character": 117,
+      "weapon": 231,
+      "artifact": 53
+    },
+    "registeredSourcePackages": [
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/aino",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 6,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/albedo",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 7,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/alhaitham",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 8,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/aloy",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 9,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/amber",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 10,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/arlecchino",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 11,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/ayaka",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 12,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/ayato",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 13,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/baizhu",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 14,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/barbara",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 15,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/beidou",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 16,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/bennett",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 17,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/candace",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 18,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/charlotte",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 19,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/chasca",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 20,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/chevreuse",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 21,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/chiori",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 22,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/chongyun",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 23,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/citlali",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 24,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/clorinde",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 25,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/collei",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 26,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/columbina",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 27,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/cyno",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 28,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/dahlia",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 29,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/dehya",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 30,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/diluc",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 31,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/diona",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 32,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/dori",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 33,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/durin",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 34,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/emilie",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 35,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/escoffier",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 36,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/eula",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 37,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/faruzan",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 38,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/fischl",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 39,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/flins",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 40,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/freminet",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 41,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/furina",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 42,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/gaming",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 43,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/ganyu",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 44,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/gorou",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 45,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/heizou",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 46,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/hutao",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 47,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/ineffa",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 48,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/itto",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 49,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/jean",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 50,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kaeya",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 51,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kaveh",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 52,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kazuha",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 53,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/keqing",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 54,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kinich",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 55,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kirara",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 56,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/klee",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 57,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kokomi",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 58,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/kuki",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 59,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/lanyan",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 60,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/lauma",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 61,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/layla",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 62,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/lisa",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 63,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/lynette",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 64,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/lyney",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 65,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/mavuika",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 66,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/mika",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 67,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/mizuki",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 68,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/mona",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 69,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/mualani",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 70,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/nahida",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 71,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/navia",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 72,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/neuvillette",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 73,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/nicole",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 74,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/nilou",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 75,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/ningguang",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 76,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/noelle",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 77,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/ororon",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 78,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/qiqi",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 79,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/raiden",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 80,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/razor",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 81,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/rosaria",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 82,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/sara",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 83,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/sayu",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 84,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/sethos",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 85,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/shenhe",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 86,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/sigewinne",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 87,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/skirk",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 88,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/sucrose",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 89,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/tartaglia",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 90,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/thoma",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 91,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/tighnari",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 92,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/anemo/aether",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 93,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/anemo/lumine",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 94,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/dendro/aether",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 95,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/dendro/lumine",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 96,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/electro/aether",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 97,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/electro/lumine",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 98,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/geo/aether",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 99,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/geo/lumine",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 100,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/hydro/aether",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 101,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/hydro/lumine",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 102,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/pyro/aether",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 103,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/traveler/pyro/lumine",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 104,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/varesa",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 105,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/varka",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 106,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/venti",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 107,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/wanderer",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 108,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/wriothesley",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 109,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/xiangling",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 110,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/xianyun",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 111,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/xiao",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 112,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/xilonen",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 113,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/xingqiu",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 114,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/xinyan",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 115,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/yaemiko",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 116,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/yanfei",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 117,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/yaoyao",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 118,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/yelan",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 119,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/yoimiya",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 120,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/yunjin",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 121,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "character",
+        "importPath": "github.com/genshinsim/gcsim/internal/characters/zhongli",
+        "sourcePath": "pkg/simulation/imports.character.dm.go",
+        "sourceLine": 122,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/alley",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 6,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/amos",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 7,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/aqua",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 8,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/astralvulturescrimsonplumage",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 9,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/blackcliff",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 10,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/chainbreaker",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 11,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/cloudforged",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 12,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/compound",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 13,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/daybreakchronicles",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 14,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/elegy",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 15,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/endoftheline",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 16,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/favonius",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 17,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/firstgreatmagic",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 18,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/flowerwreathedfeathers",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 19,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/goldenfrostboundoath",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 20,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/hamayumi",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 21,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/heartstrings",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 22,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/huntersbow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 23,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/hunterspath",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 24,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/ibispiercer",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 25,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/kingssquire",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 26,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/messenger",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 27,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/mitternachtswaltz",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 28,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/mouunsmoon",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 29,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/polarstar",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 30,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/predator",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 31,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/prototype",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 32,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/rainbow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 33,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/rangegauge",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 34,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/raven",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 35,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/recurve",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 36,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/royal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 37,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/rust",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 38,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/sacrificial",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 39,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/scionoftheblazingsun",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 40,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/seasonedhuntersbow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 41,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/sequenceofsolitude",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 42,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/sharpshooter",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 43,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/skyward",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 44,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/slingshot",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 45,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/snarehook",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 46,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/songofstillness",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 47,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/stringless",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 48,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/thundering",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 49,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/twilight",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 50,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/viridescent",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 51,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/bow/windblume",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 52,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/angelosheptades",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 53,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/apprentice",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 54,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/ashgraven",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 55,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/athousandfloatingdreams",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 56,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/balladoftheboundlessblue",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 57,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/blackcliff",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 58,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/blackmarrowlantern",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 59,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/cashflow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 60,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/cranesechoingcall",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 61,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/dawningfrost",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 62,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/dodoco",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 63,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/emeraldorb",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 64,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/eternalflow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 65,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/etherlightspindlelute",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 66,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/favonius",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 67,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/flowingpurity",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 68,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/frostbearer",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 69,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/fruitoffulfillment",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 70,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/hakushin",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 71,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/jadefallssplendor",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 72,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/kagura",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 73,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/magicguide",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 74,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/mappa",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 75,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/memory",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 76,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/moonglow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 77,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/nightweavers",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 78,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/nocturnes",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 79,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/oathsworneye",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 80,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/otherworldly",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 81,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/perception",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 82,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/pocket",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 83,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/prayer",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 84,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/prototype",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 85,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/reliquary",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 86,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/ringofyaxche",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 87,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/royal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 88,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/sacrificial",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 89,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/sacrificialjade",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 90,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/skyward",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 91,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/solar",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 92,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/starcallerswatch",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 93,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/sunnymorning",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 94,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/surfsup",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 95,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/thrilling",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 96,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/tulaytullahsremembrance",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 97,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/twin",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 98,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/vividnotions",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 99,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/wanderingevenstar",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 100,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/waveridingwhirl",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 101,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/widsith",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 102,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/catalyst/wine",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 103,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/akuoumaru",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 104,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/aquamarine",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 105,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/athousandblazingsuns",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 106,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/beacon",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 107,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/bell",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 108,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/blackcliff",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 109,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/bloodtainted",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 110,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/debateclub",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 111,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/earthshaker",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 112,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/fangofthemountainking",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 113,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/favonius",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 114,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/ferrousshadow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 115,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/flameforgedinsight",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 116,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/forestregalia",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 117,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/fruitfulhook",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 118,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/gestofthemightywolf",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 119,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/lithic",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 120,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/mailedflower",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 121,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/masterkey",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 122,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/nagamasa",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 123,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/oldmercspal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 124,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/pines",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 125,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/powersaw",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 126,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/prototype",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 127,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/rainslasher",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 128,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/redhorn",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 129,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/royal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 130,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/sacrificial",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 131,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/sealord",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 132,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/skyrider",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 133,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/skyward",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 134,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/spine",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 135,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/starsilver",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 136,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/talkingstick",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 137,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/tidalshadow",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 138,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/ultimateoverlordsmegamagicsword",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 139,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/unforged",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 140,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/verdict",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 141,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/waster",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 142,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/whiteblind",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 143,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/whiteiron",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 144,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/claymore/wolf",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 145,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/balladofthefjords",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 146,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/beginners",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 147,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/blackcliff",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 148,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/blacktassel",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 149,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/bloodsoakedruins",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 150,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/calamity",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 151,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/catch",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 152,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/crescent",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 153,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/crimsonmoonssemblance",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 154,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/deathmatch",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 155,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/dialoguesofthedesertsages",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 156,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/dragonbane",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 157,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/dragonspine",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 158,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/engulfing",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 159,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/favonius",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 160,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/footprint",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 161,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/fracturedhalo",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 162,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/halberd",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 163,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/homa",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 164,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/ironpoint",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 165,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/kitain",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 166,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/lithic",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 167,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/lumidouceelegy",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 168,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/missive",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 169,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/moonpiercer",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 170,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/mountainbracingbolt",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 171,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/primordial",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 172,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/prospectorsdrill",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 173,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/prospectorsshovel",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 174,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/prototype",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 175,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/rightfulreward",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 176,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/royal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 177,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/sacrificersstaff",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 178,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/scarletsands",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 179,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/skyward",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 180,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/symphonist",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 181,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/tamayuratei",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 182,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/vortex",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 183,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/wavebreaker",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 184,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/spear/whitetassel",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 185,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/absolution",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 186,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/alley",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 187,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/amenoma",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 188,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/aquila",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 189,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/athameartis",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 190,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/azurelight",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 191,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/blackcliff",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 192,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/blacksword",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 193,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/calamityofeshu",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 194,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/cinnabar",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 195,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/coolsteel",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 196,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/darkironsword",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 197,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/dockhand",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 198,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/dullblade",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 199,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/favonius",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 200,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/festering",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 201,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/filletblade",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 202,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/finaleofthedeep",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 203,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/fleuvecendreferryman",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 204,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/flute",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 205,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/fluteofezpitzal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 206,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/foliar",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 207,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/freedom",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 208,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/haran",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 209,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/harbinger",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 210,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/ironsting",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 211,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/kagotsurubeisshin",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 212,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/keyofkhajnisut",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 213,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/lion",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 214,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/mistsplitter",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 215,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/moonweaversdawn",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 216,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/peakpatrolsong",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 217,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/primordial",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 218,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/prototype",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 219,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/royal",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 220,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/sacrificial",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 221,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/sapwoodblade",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 222,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/serenityscall",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 223,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/silversword",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 224,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/skyrider",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 225,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/skyward",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 226,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/splendoroftranquilwaters",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 227,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/sturdybone",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 228,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/summit",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 229,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/swordofdescension",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 230,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/swordofnarzissenkreuz",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 231,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/toukaboushigure",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 232,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/travelershandysword",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 233,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/urakumisugiri",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 234,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/wolffang",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 235,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "weapon",
+        "importPath": "github.com/genshinsim/gcsim/internal/weapons/sword/xiphos",
+        "sourcePath": "pkg/simulation/imports.weapon.dm.go",
+        "sourceLine": 236,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/adaycarvedfromrisingwinds",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 6,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/archaic",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 7,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/aubade",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 8,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/berserker",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 9,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/blizzard",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 10,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/bloodstained",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 11,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/bolide",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 12,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/braveheart",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 13,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/celestialgift",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 14,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/crimson",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 15,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/deepwood",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 16,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/defenderswill",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 17,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/desertpavilionchronicle",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 18,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/disenchantmentindeepshadow",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 19,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/echoes",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 20,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/emblem",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 21,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/exile",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 22,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/finaleofthedeepgalleries",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 23,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/flowerofparadiselost",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 24,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/fragmentofharmonicwhimsy",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 25,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/gambler",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 26,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/gildeddreams",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 27,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/gladiator",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 28,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/goldentroupe",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 29,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/heartofdepth",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 30,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/huskofopulentdreams",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 31,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/instructor",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 32,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/lavawalker",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 33,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/longnightsoath",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 34,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/maiden",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 35,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/marechausseehunter",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 36,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/martialartist",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 37,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/nightoftheskysunveiling",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 38,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/nighttimewhispersintheechoingwoods",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 39,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/noblesse",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 40,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/nymphsdream",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 41,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/obsidiancodex",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 42,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/oceanhuedclam",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 43,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/paleflame",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 44,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/reminiscence",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 45,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/scholar",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 46,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/scrolloftheheroofcindercity",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 47,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/silkenmoonsserenade",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 48,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/sojourner",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 49,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/songofdayspast",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 50,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/tenacity",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 51,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/thunderingfury",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 52,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/thundersoother",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 53,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/unfinishedreverie",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 54,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/vermillion",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 55,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/viridescent",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 56,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/vourukashasglow",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 57,
+        "scope": "source-implemented-not-game-verified"
+      },
+      {
+        "kind": "artifact",
+        "importPath": "github.com/genshinsim/gcsim/internal/artifacts/wanderer",
+        "sourcePath": "pkg/simulation/imports.artifact.dm.go",
+        "sourceLine": 58,
+        "scope": "source-implemented-not-game-verified"
+      }
+    ]
+  },
+  "talentReadInstrumentation": {
+    "tool": {
+      "path": "scripts/instrument-talent-reads.go",
+      "sha256": "9dc29795e43c4e925b633e9d6b0e522013fc4f67a5f65724bffec7e0d94de150",
+      "size": 14363
+    },
+    "registry": {
+      "path": "talent-table-registry.json",
+      "sha256": "8dc7b3bde29a0956158b66be10eba7ef5a537aaaea58d7b5d367021d48a1f546",
+      "size": 306511
+    },
+    "report": {
+      "path": "talent-read-instrumentation.json",
+      "sha256": "25e72f01876c420aff8fb315fb4c12f9bff94fd61922d48349ed6bd9cc47e8df",
+      "size": 289006
+    },
+    "host": {
+      "goos": "darwin",
+      "goarch": "arm64"
+    }
+  },
+  "limitations": {
+    "sourceTODOsUnreviewed": true,
+    "fullModifierDerivation": false,
+    "checkpoint": false,
+    "supportedFormulaFamilies": [
+      "ordinary",
+      "amplifying",
+      "additive",
+      "transformative",
+      "lunar-charged-direct",
+      "lunar-bloom-direct",
+      "lunar-crystallize-direct",
+      "lunar-charged-reaction",
+      "lunar-crystallize-reaction",
+      "lunar-bloom-event",
+      "player-incoming",
+      "player-shield",
+      "player-shield-min",
+      "player-drain",
+      "artifact-scalar",
+      "weapon-additive",
+      "artifact-additive",
+      "character-energy",
+      "character-cooldown",
+      "character-healing",
+      "character-modifier",
+      "character-scalar",
+      "character-additive",
+      "character-flat",
+      "character-multiplier",
+      "character-shield",
+      "character-drain",
+      "player-manual-incoming"
+    ],
+    "unsupportedSpecialFormulaFamilies": [
+      "stellar"
+    ],
+    "lunarNonIgnoredDefense": false,
+    "sourceLunarMechanicsVerified": false,
+    "playerIncomingDamageSharedFormula": true,
+    "playerShieldAndDrainSharedFormula": true
+  },
+  "patches": [
+    {
+      "path": "001-authoritative-formula-boundary.patch",
+      "sha256": "953b160619cf54edce18989fc89d4da7d4f376caa1612a8b8353bac291e6c7f6",
+      "size": 11413
+    },
+    {
+      "path": "002-lunar-outgoing-boundary.patch",
+      "sha256": "925cd47659802da6972f6b747cd6dc586e3ccf66297facf4dd1932b9f50d42ec",
+      "size": 5321
+    },
+    {
+      "path": "003-stat-provenance.patch",
+      "sha256": "a9bd869c40a6332709b387cade44bb23f8faa7569695f293deee8de979dab44f",
+      "size": 13107
+    },
+    {
+      "path": "004-scalar-provenance.patch",
+      "sha256": "75375dd2b0af56c40ba70f23f4a52b72b4ab7e718f6a0e5579b965f7cefd86cd",
+      "size": 11386
+    },
+    {
+      "path": "005-player-incoming.patch",
+      "sha256": "dc74243857945e3282ac3a5608cc28c1209211ea8964bf854add3de61065106d",
+      "size": 846
+    },
+    {
+      "path": "006-player-shield-health.patch",
+      "sha256": "361880caf46e07c752f444121a42ffc248fad099a0648e6e4162351ad69ae019",
+      "size": 3257
+    },
+    {
+      "path": "007-action-attempts.patch",
+      "sha256": "8bdfff8db19bf895b5786168b6a8f20f59eb2c5c50ed50ebf82359e982bd2d86",
+      "size": 929
+    },
+    {
+      "path": "008-action-queue-policy.patch",
+      "sha256": "94325f925edb27548a7dc459c5d2e7079b55e518f4657864f07ac44d759cc3e1",
+      "size": 2637
+    },
+    {
+      "path": "009-execution-profile-delays.patch",
+      "sha256": "a1d0665020f491a59974d01a9777dfc47579b0873ab85ac6ea1ef15b006225ea",
+      "size": 1739
+    },
+    {
+      "path": "010-artifact-scalar.patch",
+      "sha256": "04d8f41c3940ff18280adbd3cc952b63dbb38577ac00ebd3cadcaa82e85c6f29",
+      "size": 9921
+    },
+    {
+      "path": "011-weapon-additive.patch",
+      "sha256": "ad5963b2226bffddebfb8635a5aea661d779dbe8ec67a30749949fd02e048214",
+      "size": 3975
+    },
+    {
+      "path": "012-artifact-constants-a.patch",
+      "sha256": "af735ddd352ce02d5de0decd04f72921032b37271198005b730517f7f1f12122",
+      "size": 8314
+    },
+    {
+      "path": "013-artifact-constants-b.patch",
+      "sha256": "43646173e850df2d77bc08dd5246362793eef33bc06356034cc97a10ec80fdcc",
+      "size": 6949
+    },
+    {
+      "path": "014-artifact-dynamic-a.patch",
+      "sha256": "19f25a001500848847511bbda3670b184ab19607e516e6cd41112488f739aaf2",
+      "size": 9721
+    },
+    {
+      "path": "015-artifact-dynamic-b.patch",
+      "sha256": "c0b374781148771e681012e4415bea48cf20e66ce6dbef9e102b27d4963c61b0",
+      "size": 10447
+    },
+    {
+      "path": "016-artifact-dynamic-c.patch",
+      "sha256": "dfb89212f91198fde34a96a95e4148deaf000c500f7fc186b94622bb6331bf83",
+      "size": 6323
+    },
+    {
+      "path": "018-artifact-snapshot.patch",
+      "sha256": "39bfbe50304f7c36a8dd4ee42fb01cc439cd9093f69374269b54eeb551e96e62",
+      "size": 1923
+    },
+    {
+      "path": "019-artifact-additive.patch",
+      "sha256": "5ce7c2de6aec63ce3b454333a9d36dec19759287da954dbbefb3462f02f9da0c",
+      "size": 4171
+    },
+    {
+      "path": "020-character-energy.patch",
+      "sha256": "ebc75ab8956fc5d4f556dc9f1c142a4433563b7d04652029872408c793123d27",
+      "size": 3558
+    },
+    {
+      "path": "021-character-healing.patch",
+      "sha256": "2adf07a99e4f6353700f1a2ce0854e5159e20de3a3081148844b75127e2066a8",
+      "size": 5822
+    },
+    {
+      "path": "022-character-cooldown.patch",
+      "sha256": "962fb530071f83b6195c8cfce0666df6ccc03cf2fcc0d9aefa444b8216bba9d1",
+      "size": 1661
+    },
+    {
+      "path": "023-artifact-resistance.patch",
+      "sha256": "5c21618b2ca5237799027f3e7b072aa635166732f60432d6968a7a58eb69592f",
+      "size": 4190
+    },
+    {
+      "path": "024-shield-bonus.patch",
+      "sha256": "253d0268de64decd8451f0f812c56f9c21e0469b631818cdaf292a8f7bdbbcee",
+      "size": 3945
+    },
+    {
+      "path": "025-character-modifiers.patch",
+      "sha256": "416caddb26905bbc35fc8f126475c66df960386ba92db5c3a80147d59f5ecbcc",
+      "size": 40347
+    },
+    {
+      "path": "026-character-modifier-snapshot.patch",
+      "sha256": "68dd6e12537b6f560587bb9556cf94be824a5de65958e32af2b30fcec4e7eed4",
+      "size": 1125
+    },
+    {
+      "path": "027-character-dynamic-a.patch",
+      "sha256": "2530c81b26ea26b7e9e2ce011c5d0c0ec45240cbfbb1cf5742a6e0b03b0a8897",
+      "size": 26662
+    },
+    {
+      "path": "028-character-dynamic-b.patch",
+      "sha256": "5b4e4d025b24cf307fdc34206e609e64eab66acb1b7d7b7cdf7f25a62ee63d36",
+      "size": 25203
+    },
+    {
+      "path": "029-character-dynamic-c.patch",
+      "sha256": "a58b1448d3713d3530455c0cc7ebf1e9eafb7d5200af999042d64fd20b75e740",
+      "size": 20294
+    },
+    {
+      "path": "030-character-scalar-provenance.patch",
+      "sha256": "c007e6b6c306709873cf6aa8c2c8f6c68cdd7e27300bc10427b36362bac3d9a1",
+      "size": 3156
+    },
+    {
+      "path": "031-character-scalar-a.patch",
+      "sha256": "779ee69db16be20537f3fe4bc817ddc7a21976e2be27d6f6e28f89f3630d3983",
+      "size": 5678
+    },
+    {
+      "path": "032-character-scalar-b.patch",
+      "sha256": "2aafe8c3a67ff9bc2a99dcc9a5076b469d46a1ade9f398bde804df34aa8683fa",
+      "size": 7137
+    },
+    {
+      "path": "034-character-vector-a.patch",
+      "sha256": "b690291aa5e833f653c3ecf7647b963cdb86cfd68b8fb01ebfd4b2e744dcc1c4",
+      "size": 20382
+    },
+    {
+      "path": "035-character-vector-b.patch",
+      "sha256": "c80bbe8aebaaf0fc205c842f7a7b28c50d98fa4912492fdaaccc3edfffb5d38a",
+      "size": 30126
+    },
+    {
+      "path": "036-character-vector-c.patch",
+      "sha256": "416a747f8bd2597a56194d0f9b78df408ecc6a8f8abd015824b74fafea5cea41",
+      "size": 25274
+    },
+    {
+      "path": "037-character-vector-d.patch",
+      "sha256": "102d5959aad5440184c18ef81bf0dc6ce1a8f3fbb7f0fda1a56622122d41734d",
+      "size": 17396
+    },
+    {
+      "path": "038-character-additive-a.patch",
+      "sha256": "a150bfe74ca9305610093ffba6e8d18dfa2c0f3a403a9addbfdcdb4845a0affb",
+      "size": 3840
+    },
+    {
+      "path": "039-character-additive-b.patch",
+      "sha256": "2dd164e4907fd4301b58437511dc9c3bcb1b9c1f6beebef798a1f24625f08384",
+      "size": 4899
+    },
+    {
+      "path": "040-character-additive-c.patch",
+      "sha256": "e89f8bd6204e07b62e5c781c8e67a7400e13aeaf9f71b1776d856e16fa07c95b",
+      "size": 5462
+    },
+    {
+      "path": "041-character-flat-a.patch",
+      "sha256": "726ec81455c3a53febbd112089c3c0bac96762cc104f3587a3f447bbb34b275c",
+      "size": 29183
+    },
+    {
+      "path": "042-character-flat-b.patch",
+      "sha256": "32005902d6ae3b20958ade548c0715041a6adc9d340c173be4bc144389a7942e",
+      "size": 19341
+    },
+    {
+      "path": "043-character-flat-c.patch",
+      "sha256": "15250e025378d22cd6ad416f1ebbe65eb588d512ab19a23c4d02fec338873f83",
+      "size": 33076
+    },
+    {
+      "path": "044-character-flat-d.patch",
+      "sha256": "b6199291d32d32da60a4164c92d6273b1400bd69a782d644d4d59a5e08c9a615",
+      "size": 26455
+    },
+    {
+      "path": "045-character-flat-e.patch",
+      "sha256": "357033e5346c7027d7ca8bab5b12a8583044bad5423e707de34e0c4fc7ce6a00",
+      "size": 30766
+    },
+    {
+      "path": "046-character-helper-derivations.patch",
+      "sha256": "5bca3474bd60e6268997f8395ece565c4348123dc552cf6600ca119269b9901b",
+      "size": 1238
+    },
+    {
+      "path": "047-character-healing-overrides.patch",
+      "sha256": "49e20b09638ddfa53c67ec4f17c63142215571926dec29554ec9e60a76d8fff8",
+      "size": 3581
+    },
+    {
+      "path": "048-cooldown-overrides.patch",
+      "sha256": "d25f05d7cf67adfb1aefd48b3d31ba9760315867feb7fd88c8168399c0fa508b",
+      "size": 2709
+    },
+    {
+      "path": "049-character-multiplier-base.patch",
+      "sha256": "01c8b1b698d7b4836d75fdf1e0c4143c416a5c005da0245ed01884ce838a9705",
+      "size": 438
+    },
+    {
+      "path": "050-character-multiplier-a.patch",
+      "sha256": "3918e29133d9b803c8f2bd58015fdacebfdd25a4d409689df872dfd5578e43a3",
+      "size": 13072
+    },
+    {
+      "path": "051-character-multiplier-b.patch",
+      "sha256": "f7eee9d897d8c595b0b7ccbdf9ee4fce6eb248d9fd4c9ae043ddc8478a03b0af",
+      "size": 15930
+    },
+    {
+      "path": "052-character-multiplier-c.patch",
+      "sha256": "c80c470c28d40e6239e2bb15b4084455e94ca5210247161f2491dc9c73276b1b",
+      "size": 1674
+    },
+    {
+      "path": "053-character-shield-bridge.patch",
+      "sha256": "5d948f98c94874b96767374cf9296b30d057fc83052174eed53354f8d967fbd2",
+      "size": 1068
+    },
+    {
+      "path": "054-character-shield-a.patch",
+      "sha256": "4daed1e486656757b3c0a28ec70aa03d560a0049d8fe41dc76fa9d99aa21a7e3",
+      "size": 9076
+    },
+    {
+      "path": "055-character-shield-b.patch",
+      "sha256": "acf0ca7bca2bb6eaf3b439a9368c21f9f8bc943c6f991d7f389e59304710cb5f",
+      "size": 14011
+    },
+    {
+      "path": "056-character-shield-c.patch",
+      "sha256": "71f70cb5bf42d3c802b888f057b4130cf32e5c969ca2724fc20de55e2c430ce9",
+      "size": 9461
+    },
+    {
+      "path": "057-character-shield-d.patch",
+      "sha256": "1d198d51321573115c7dbd5cdb398dbe7deed0c7c534dc17d487bc2d1454be12",
+      "size": 11971
+    },
+    {
+      "path": "058-shield-weapon-crystallize.patch",
+      "sha256": "f92b4b7b3c35951a10adc489a3989acc7e8c145b4433d2776dabe79fbdd81377",
+      "size": 3546
+    },
+    {
+      "path": "059-healing-source-bridge.patch",
+      "sha256": "f60099b2a4326e6166fec79873e32c25484890ceb4a5c3d2d8df750127be87bb",
+      "size": 2596
+    },
+    {
+      "path": "060-healing-source-a.patch",
+      "sha256": "e3cd99f6861077bd960c89bcdb01ef9aa1f0a7fb22c189d5879e5317af41d57e",
+      "size": 25191
+    },
+    {
+      "path": "061-healing-source-b.patch",
+      "sha256": "b8314f994425caec44f2b33220229f2c848fed78f92e5d3092c1c730a4a9c865",
+      "size": 22704
+    },
+    {
+      "path": "062-healing-source-c.patch",
+      "sha256": "38b7654a9b711c084580f27af7012ee8fc578062a1c2ea72e7017b09eb5ce507",
+      "size": 23307
+    },
+    {
+      "path": "063-healing-source-d.patch",
+      "sha256": "4945f868882085dfa6fbba6bc59e78e5d4d6c0c91f39fcedc378340418320a17",
+      "size": 24229
+    },
+    {
+      "path": "064-healing-source-e.patch",
+      "sha256": "6905703d5721b109181828ab6cbe56b81e9cceea0827134f85450700c4daefc7",
+      "size": 16105
+    },
+    {
+      "path": "065-healing-source-f.patch",
+      "sha256": "bcf89d4218d6e2e97124b6005f33eb12a16014de23d3699793ffd7d6082e7e24",
+      "size": 7460
+    },
+    {
+      "path": "067-drain-source-bridge.patch",
+      "sha256": "8ae956b30cfca717cd36e6ccf3f2c262ec549190faf4f1aa39d01f14e8918e7d",
+      "size": 1000
+    },
+    {
+      "path": "068-drain-source-a.patch",
+      "sha256": "e2fe0439818ae1f74d5c9569750a9c83260e7c94d7cd6ac05cddb39201dfa49c",
+      "size": 7579
+    },
+    {
+      "path": "069-drain-source-b.patch",
+      "sha256": "72e26254f5227ccd9d56f837e7b23184f7e6348869628abf634f40bdba6f72cd",
+      "size": 6424
+    },
+    {
+      "path": "070-dehya-drain-source.patch",
+      "sha256": "65598451f131ec5b9bc6536a88a0cb89d82d28f8b0093ec1e44423c300d38f19",
+      "size": 5716
+    },
+    {
+      "path": "071-nilou-self-damage.patch",
+      "sha256": "df39b1cef5f856b4364a8c73dea69be4b5088ad265b82d59b34c01927c07df9e",
+      "size": 1596
+    },
+    {
+      "path": "072-dendro-core-self-damage.patch",
+      "sha256": "243afd322d4b7269b13b7073e6402fe12310c63aa17bc7cc2a291728c5bccb2c",
+      "size": 2004
+    },
+    {
+      "path": "073-phase-boundary.patch",
+      "sha256": "6b9f1e8a87a1a77a00695a97aef06fbeaa60dd9926dc2e8f17c8a91b00df2b2d",
+      "size": 11447
+    },
+    {
+      "path": "074-phase-actor-state.patch",
+      "sha256": "a7d7a32ccd8c0027e659b1156d82c3bf625b7e5e03bd2c8076b7d972daae6e6c",
+      "size": 16127
+    },
+    {
+      "path": "075-phase-target-state.patch",
+      "sha256": "c7ed13b166a0cdc12c3c385325cd6ce1d6b5ef9330165a702c800c12dd9dc314",
+      "size": 13425
+    },
+    {
+      "path": "076-phase-runtime-state.patch",
+      "sha256": "b6ceed3aee47fb6f35796a99277fcf4c6f4fd654a480b64ca294180779ed786f",
+      "size": 3705
+    },
+    {
+      "path": "077-phase-state-normalization.patch",
+      "sha256": "fff8f62f1380922f32db6d6e6a3c1a9b8263185f30b03e93a3763292ba6229c8",
+      "size": 7488
+    },
+    {
+      "path": "078-phase-callback-state.patch",
+      "sha256": "d58562f9c1324b0d7f2419bc0c28931d885310d05161d11ed97f38bc37717a6f",
+      "size": 8029
+    },
+    {
+      "path": "079-phase-private-state.patch",
+      "sha256": "65a7352654b926b7b49c2da43d8037f48a68e1d180ea7ba6768b57b0a8dec460",
+      "size": 12817
+    },
+    {
+      "path": "080-phase-target-normalization.patch",
+      "sha256": "94042cb8507879703f037bf0be0146dde44f5c2b3edc9bcc7845a60002cfe32a",
+      "size": 5186
+    },
+    {
+      "path": "081-phase-observer-hooks.patch",
+      "sha256": "06de4e194f4ef078234e975525d410c194fe24d45209967125cdb0a69ef62ec4",
+      "size": 7247
+    },
+    {
+      "path": "082-phase-modifier-state.patch",
+      "sha256": "66ea7e21ecb06e1b8ee3962b26b98860b5ac017c366127af22dd6a56325c3d84",
+      "size": 5539
+    },
+    {
+      "path": "083-phase-stats-captures.patch",
+      "sha256": "9155abe766a26f30939e43b3a57467dd9d0e3807522e37bae058b2a07290500c",
+      "size": 2664
+    },
+    {
+      "path": "084-phase-core-hooks.patch",
+      "sha256": "4e5c3938472b6d66a6ba4063d7849bdd6d93604aba2ddf1e44732ffb394920ab",
+      "size": 12592
+    },
+    {
+      "path": "085-phase-resonance-modifiers.patch",
+      "sha256": "a0d4abd5c44e5f04e7caad80ad0f31d7b0894166868340a558be1d830c6569f3",
+      "size": 7302
+    },
+    {
+      "path": "086-phase-cooldown-worker.patch",
+      "sha256": "17995d49de5f75b7cddb36aa391d43445a084d238ba864a61ca59238464f733c",
+      "size": 1719
+    },
+    {
+      "path": "088-action-origin.patch",
+      "sha256": "883e0c2e8f60d49c2a2bc74a82bf2c511572d90897bc1504b530187c8d8262ff",
+      "size": 8650
+    },
+    {
+      "path": "089-attack-observation.patch",
+      "sha256": "01f9c612549b9511c148f0ee0fe25100a6bb07c575419ac23427b7fe5f14b8c2",
+      "size": 1123
+    },
+    {
+      "path": "090-origin-phase-observation.patch",
+      "sha256": "42e81584f8ddae5faacbc80a46e943820a0382bf7b335222d491d9d40cd6bae3",
+      "size": 922
+    },
+    {
+      "path": "091-status-owner.patch",
+      "sha256": "10e3e0bab569815853dfae0d5b4e0d829e71aa706edcf4ffb473017352bd1fad",
+      "size": 3929
+    },
+    {
+      "path": "092-status-lifecycle-and-pending-attacks.patch",
+      "sha256": "76f3b8ac8b42edd4e96ab103654d92b13f90d4d9bf1d1b441668c059afec3f14",
+      "size": 7577
+    },
+    {
+      "path": "093-base-panel-provenance.patch",
+      "sha256": "5958e6d000fdb38844a24da967c8a1dd1d376fde25bb5d0171bf7bc19334e573",
+      "size": 10749
+    },
+    {
+      "path": "094-attack-dispatch-identity.patch",
+      "sha256": "13b08ea39f03ff7df71d4bd3e9b3a6204fa67a0b83c833304bb0f1f95bed48d1",
+      "size": 1392
+    },
+    {
+      "path": "095-reaction-em-provenance.patch",
+      "sha256": "436a8c7365b5e6cec546427509814c41e4610a0501c84a04df1ea6aa5d2471de",
+      "size": 8774
+    },
+    {
+      "path": "096-talent-table-read.patch",
+      "sha256": "f646f57bacd93d8f1d9464708682da9e28c6f31a3f34b7a7c28e768120c5bddb",
+      "size": 1295
+    }
+  ],
+  "bridge": [
+    {
+      "path": "cmd/sourcehost/initial_energy.go",
+      "sha256": "e2bb3cd32a1092867a762b80d0c5011d05336904920fb7313ef6151a61859703",
+      "size": 3415
+    },
+    {
+      "path": "cmd/sourcehost/main.go",
+      "sha256": "9dc01b61573dd118302e0219e25dfbb7296ab4135c3b421682afa62009aec906",
+      "size": 7436
+    },
+    {
+      "path": "cmd/sourcehost/phase_observation.go",
+      "sha256": "0c5447e26d166a0b4700e5d31818dc47e97e5873ded41e38e5ecc5425ffe9e24",
+      "size": 3629
+    },
+    {
+      "path": "cmd/sourcehost/rng_policy.go",
+      "sha256": "2d8d46234fff0f21e80f6d3880f8e6e1e857cbf096994f7c69bcdc0d48b13092",
+      "size": 1521
+    },
+    {
+      "path": "pkg/avatar/sourcehost.go",
+      "sha256": "61eca622ed2ac450e835599e43ad8db9a33789f67b7a0fcbb5231d86125a36c5",
+      "size": 3330
+    },
+    {
+      "path": "pkg/core/info/sourcehost_base_panel.go",
+      "sha256": "7b7fd3283c78aad10dd2e97afc277a17a706f3c8e083a8f9cd873bc3be5f808a",
+      "size": 2697
+    },
+    {
+      "path": "pkg/core/info/sourcehost_origin.go",
+      "sha256": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961",
+      "size": 3517
+    },
+    {
+      "path": "pkg/core/info/sourcehost_talent.go",
+      "sha256": "6005d20c40006573ee766a46f6c33195736ab2963e9ae1ccd575736d850f37ab",
+      "size": 1303
+    },
+    {
+      "path": "pkg/core/player/character/sourcehost_healing.go",
+      "sha256": "6176ba55b21e92f667c14ebd37e9172b7625b35ecef133a840fe2f47ecb7e8b3",
+      "size": 1521
+    },
+    {
+      "path": "pkg/core/player/character/sourcehost_talent_level.go",
+      "sha256": "483b7ec70fc52ed146ba2e08f6bd0d101b6f23f36b6de27be9ef648620ae8d2b",
+      "size": 1625
+    },
+    {
+      "path": "pkg/core/player/character/sourcehost_total_atk.go",
+      "sha256": "826bd5f4da269f422fdce5337213bd9d0ab42cdbd4672365ade729c38121c2a8",
+      "size": 492
+    },
+    {
+      "path": "pkg/core/player/character/sourcehost.go",
+      "sha256": "9bf6cf058a685e78e1064c34b0ae54a40fdffd5339a7071676633cfa574c9c7a",
+      "size": 302
+    },
+    {
+      "path": "pkg/core/sourcehost/artifact_additive.go",
+      "sha256": "6d9b4bb2a78e5566f375527bd7568e9287de4f5a2c35d4eddc46a5f4f01cbebd",
+      "size": 2265
+    },
+    {
+      "path": "pkg/core/sourcehost/artifact_resistance.go",
+      "sha256": "1c8bf4bd98b5930f5d052e87ca7c942bc96ac5f2ea2e21232700c22b77318ade",
+      "size": 1780
+    },
+    {
+      "path": "pkg/core/sourcehost/artifact_scalar.go",
+      "sha256": "030160bae84e947ee49f1354bd6e9bdb48753c0e761e6bf4e2d0de11ac0685e3",
+      "size": 2278
+    },
+    {
+      "path": "pkg/core/sourcehost/artifact_snapshot.go",
+      "sha256": "fd5c4346e88fabf58e7b05f5792ceebafbd5a9521f17cfbcda19d76e5f2070b6",
+      "size": 1672
+    },
+    {
+      "path": "pkg/core/sourcehost/attack_pending.go",
+      "sha256": "9c2594dbc12f72579fe9440894027203f1cb03e7baadb364d51880eb76b2eb38",
+      "size": 1278
+    },
+    {
+      "path": "pkg/core/sourcehost/attack.go",
+      "sha256": "6214bcbdc0c99a5c214165f85c68afac4aa8349b675bbca0a14fe0e8541ea8ba",
+      "size": 4852
+    },
+    {
+      "path": "pkg/core/sourcehost/bridge.go",
+      "sha256": "6aab82e8495ed0bf33f2da60242871461bab97c2e9d687e9a3abfc6a3422efd0",
+      "size": 22667
+    },
+    {
+      "path": "pkg/core/sourcehost/character_additive.go",
+      "sha256": "d2d606c62a2149c6e46803f33429c20d55a0b89e01c3e2b6f08d751ae5f38ae7",
+      "size": 2954
+    },
+    {
+      "path": "pkg/core/sourcehost/character_flat.go",
+      "sha256": "5a9fa2104b784aa16d5c69258c558be70813daf389b52ebd57acbc286a56bf5a",
+      "size": 4236
+    },
+    {
+      "path": "pkg/core/sourcehost/character_modifier.go",
+      "sha256": "3391e7d751d2e77e8adbf4aa05916aaa6bd7b56783ad65806a8ac6cf0e564d26",
+      "size": 3727
+    },
+    {
+      "path": "pkg/core/sourcehost/character_multiplier.go",
+      "sha256": "0bfc4cab54e2803b548b04da5cb0e88b8c41810b86fc9405105e7320812e580b",
+      "size": 1673
+    },
+    {
+      "path": "pkg/core/sourcehost/character_scalar.go",
+      "sha256": "e1e7c6ca83d6ceeade95288c5c246fcc3c006888363e7ed6bf2bb09ec01374ba",
+      "size": 2841
+    },
+    {
+      "path": "pkg/core/sourcehost/character_shield.go",
+      "sha256": "f085c0355dd08043e1c1d7527854bb77053774ae08769a44b65292675df99095",
+      "size": 1475
+    },
+    {
+      "path": "pkg/core/sourcehost/cooldown.go",
+      "sha256": "a024676374a362e36df2731302f47ad7a049cde4b3168634a7ba019e668b4eef",
+      "size": 3449
+    },
+    {
+      "path": "pkg/core/sourcehost/drain.go",
+      "sha256": "6d6b1120d7f34db64d90e40e9819067c7a3f67cb9267f5902a19ff0d5093da85",
+      "size": 1246
+    },
+    {
+      "path": "pkg/core/sourcehost/energy.go",
+      "sha256": "196c6c29e17a22d5e4a5aa1f7c5bbd83b50275cd9b4e3d3a5ff886102c7f9a53",
+      "size": 1923
+    },
+    {
+      "path": "pkg/core/sourcehost/healing.go",
+      "sha256": "1b5ec0d10e374cd7603d11f3bb6dff715424c3305fddd9df0f7454cbe89348e4",
+      "size": 4408
+    },
+    {
+      "path": "pkg/core/sourcehost/lunar.go",
+      "sha256": "bc2aa98e05bab97ce715eb0f2a0590fa8a75e7b4c5cd9441a908f676c628d4f7",
+      "size": 3390
+    },
+    {
+      "path": "pkg/core/sourcehost/manual_player_incoming.go",
+      "sha256": "bb3febff02cbce78d9fa4d69e8f5c20d35183653dbd9dc4e107ca92821c3738d",
+      "size": 1719
+    },
+    {
+      "path": "pkg/core/sourcehost/phase.go",
+      "sha256": "0f5eb3bf3b14ebfac361b78aa130b1af93d73136e22610c4113838753b10919d",
+      "size": 1601
+    },
+    {
+      "path": "pkg/core/sourcehost/provenance.go",
+      "sha256": "6d4a073455d3c6513a59bf92dd499c3a95b0d74031cbc636c5aaab7f5e790f43",
+      "size": 2651
+    },
+    {
+      "path": "pkg/core/sourcehost/scalar_provenance.go",
+      "sha256": "45adfcb15b95d7b2aa2b98663af40e52b15900ca455bad469fa426966ed3f35d",
+      "size": 2690
+    },
+    {
+      "path": "pkg/core/sourcehost/shield_bonus.go",
+      "sha256": "892d2d0eb28db8e362d5d9dbbcdda89f14b5705ec378752071539152593c967d",
+      "size": 1494
+    },
+    {
+      "path": "pkg/core/sourcehost/status_lifecycle.go",
+      "sha256": "1b12d3775fcf0827d8d544892c58a516ac17c27d14198ab23fa64a5223973e8c",
+      "size": 2447
+    },
+    {
+      "path": "pkg/core/sourcehost/talent_read.go",
+      "sha256": "73b4db8f105c442df39b247ad3be5ffe05d55cd209b7d68855ef1ff7bac15227",
+      "size": 880
+    },
+    {
+      "path": "pkg/core/sourcehost/weapon_additive.go",
+      "sha256": "64478662d956ecf057f9985bc6188554eb74713e2e56107d8049303cdd00c63c",
+      "size": 1247
+    },
+    {
+      "path": "pkg/enemy/sourcehost_lunar.go",
+      "sha256": "99ea7b918dc9771fd3a034614e12343ede99695c7fbaf223ac1eab27ed00fe46",
+      "size": 2808
+    },
+    {
+      "path": "pkg/enemy/sourcehost.go",
+      "sha256": "1473941f590986b1bbe30baa5d2242a8ae7d8629475581052ae8aded8c31dfad",
+      "size": 4523
+    },
+    {
+      "path": "pkg/simulation/sourcehost_phase.go",
+      "sha256": "fec067dca1959fd65697a7bf7040376bfaa01199efed91aa368a5053c827e44b",
+      "size": 2607
+    }
+  ],
+  "buildScripts": [
+    {
+      "path": "scripts/build-source-host.mjs",
+      "sha256": "7257b80f12465b10cd549c2b8fba258d47da2c95e2cbf76443fa1e1a2c27d251",
+      "size": 15556
+    },
+    {
+      "path": "scripts/common.mjs",
+      "sha256": "b0eb01b5dcd1c662047170af02733ae62ef4468ad3cb77d92c3cd8e9a885c73d",
+      "size": 1991
+    },
+    {
+      "path": "scripts/extract-action-capabilities.go",
+      "sha256": "a11d20240b5b47bfe56d783a28e2977c366fec8dd060253e7ed544de6438cd50",
+      "size": 13091
+    },
+    {
+      "path": "scripts/generate-source-inventory-metadata.mjs",
+      "sha256": "200f5c1cb8766228b9fd9d449230a0b3311df67bee20d6c2b07f386cc8d92554",
+      "size": 11711
+    },
+    {
+      "path": "scripts/generate-talent-registry.mjs",
+      "sha256": "eb68b72d90544e17c0d5bfbff0a8a183b086ff6b1af6d042c33227d68ef6b66e",
+      "size": 2561
+    },
+    {
+      "path": "scripts/instrument-talent-reads.go",
+      "sha256": "9dc29795e43c4e925b633e9d6b0e522013fc4f67a5f65724bffec7e0d94de150",
+      "size": 14363
+    },
+    {
+      "path": "scripts/pins.json",
+      "sha256": "ef47c0f3291ff78b9b00ea702d683d22a47286db4b233adebdb3c1169b08d47c",
+      "size": 1069
+    },
+    {
+      "path": "scripts/prepare-source.mjs",
+      "sha256": "840c99f3ea2cae0f9641256df3fd0c5ce65ac2b784e9ae2c6458b7af8a848bf9",
+      "size": 4383
+    },
+    {
+      "path": "scripts/prepare-toolchain.mjs",
+      "sha256": "ef3b38b106658395286d8d920bb228d7b66c2ab293acb36935db1ee970893a86",
+      "size": 2993
+    },
+    {
+      "path": "scripts/README.md",
+      "sha256": "43bcd60774d62e691e260babeeda255023e51ee17f5d075a25d547431170ebac",
+      "size": 5894
+    }
+  ],
+  "toolchain": {
+    "version": "go version go1.25.0 darwin/arm64",
+    "host": "darwin-arm64",
+    "sourceUrl": "https://go.dev/dl/go1.25.0.darwin-arm64.tar.gz",
+    "releaseMetadataUrl": "https://go.dev/dl/?mode=json&include=all",
+    "archive": {
+      "filename": "go1.25.0.darwin-arm64.tar.gz",
+      "sha256": "544932844156d8172f7a28f77f2ac9c15a23046698b6243f633b0a0b00c0749c",
+      "size": 57906112
+    },
+    "executableSha256": "c812de5f1e8307431c5bce8ebc4887c180827abc5834a72cd640a8a14200a93b"
+  },
+  "build": {
+    "target": "js/wasm",
+    "args": [
+      "build",
+      "-mod=readonly",
+      "-trimpath",
+      "-buildvcs=false",
+      "-o",
+      "<output>/source-host.wasm",
+      "./cmd/sourcehost"
+    ],
+    "goSumSha256": "8f7fb04fadedab87e6392f4eb7f236ab06dfecd4628e5a66504e3996b7e42fe6",
+    "moduleMode": "readonly",
+    "automaticToolchainDownload": false,
+    "moduleMetadataExtraction": "go1.25.0-runtime.modinfo-framing-from-wasm-bytes",
+    "simulatorExecuted": false,
+    "testsExecuted": false
+  },
+  "artifacts": [
+    {
+      "path": "source-host.wasm",
+      "sha256": "63a00b02f6a5fd6af45189718e05f27c74e66a8758d4fe7c8e1ed9dcc66d2acc",
+      "size": 44316502
+    },
+    {
+      "path": "wasm_exec.js",
+      "sha256": "0c949f4996f9a89698e4b5c586de32249c3b69b7baadb64d220073cc04acba14",
+      "size": 16992
+    },
+    {
+      "path": "go-build-info.txt",
+      "sha256": "39e08b0d45122b9882b9ccf69150a3b5bbe70bab041d016fbb57c5688c9494be",
+      "size": 750
+    },
+    {
+      "path": "source-files.json",
+      "sha256": "5464fa26238b5645d4db54f424b5f1a2476a25b52229315450d3cefef1d188fe",
+      "size": 935885
+    },
+    {
+      "path": "talent-table-registry.json",
+      "sha256": "8dc7b3bde29a0956158b66be10eba7ef5a537aaaea58d7b5d367021d48a1f546",
+      "size": 306511
+    },
+    {
+      "path": "talent-read-instrumentation.json",
+      "sha256": "25e72f01876c420aff8fb315fb4c12f9bff94fd61922d48349ed6bd9cc47e8df",
+      "size": 289006
+    },
+    {
+      "path": "inventory-metadata.json",
+      "sha256": "50944313183602f5a78cab12bd3dc4526d85fc4b7e82a8f47e375e1b0e75eea1",
+      "size": 1810182
+    }
+  ],
+  "linkedDependencies": [
+    {
+      "path": "github.com/aclements/go-moremath",
+      "version": "v0.0.0-20210112150236-f10218a38794",
+      "goSum": "h1:xlwdaKcTNVW4PtpQb8aKA4Pjy0CdJHEqvFbAnvR5m2g="
+    },
+    {
+      "path": "github.com/josharian/intern",
+      "version": "v1.0.0",
+      "goSum": "h1:vlS4z54oSdjm0bgjRigI+G1HpF+tI+9rE5LLzOg8HmY="
+    },
+    {
+      "path": "github.com/mailru/easyjson",
+      "version": "v0.7.7",
+      "goSum": "h1:UGYAvKxe3sBsEDzO8ZeWOSlIQfWFlxbzLZe7hwFURr0="
+    },
+    {
+      "path": "github.com/philhofer/fwd",
+      "version": "v1.1.2",
+      "goSum": "h1:bnDivRJ1EWPjUIRXV5KfORO897HTbpFAQddBdE8t7Gw="
+    },
+    {
+      "path": "github.com/tinylib/msgp",
+      "version": "v1.1.9",
+      "goSum": "h1:SHf3yoO2sGA0veCJeCBYLHuttAVFHGm2RHgNodW7wQU="
+    },
+    {
+      "path": "google.golang.org/protobuf",
+      "version": "v1.34.2",
+      "goSum": "h1:6xV6lTsCfpGD21XK49h7MhtcApnLqkfYgPcdHftf6hg="
+    }
+  ],
+  "licenses": {
+    "files": [
+      {
+        "path": "licenses/gcsim-MIT.txt",
+        "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+        "size": 1067,
+        "owner": "github.com/genshinsim/gcsim",
+        "version": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "sourcePath": "LICENSE"
+      },
+      {
+        "path": "licenses/go-BSD.txt",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453,
+        "owner": "Go Authors",
+        "version": "go1.25.0",
+        "sourcePath": "LICENSE"
+      },
+      {
+        "path": "licenses/go-PATENTS.txt",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303,
+        "owner": "Go Authors",
+        "version": "go1.25.0",
+        "sourcePath": "PATENTS"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/crypto/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/crypto/LICENSE"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/crypto/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/crypto/PATENTS"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/net/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/net/LICENSE"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/net/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/net/PATENTS"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/sys/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/sys/LICENSE"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/sys/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/sys/PATENTS"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/text/LICENSE",
+        "sha256": "911f8f5782931320f5b8d1160a76365b83aea6447ee6c04fa6d5591467db9dad",
+        "size": 1453,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/text/LICENSE"
+      },
+      {
+        "path": "licenses/go-vendor/golang.org/x/text/PATENTS",
+        "sha256": "96f408bfae65bf137fc2525d3ecb030271c50c1e90799f87abf8846d8dd505cc",
+        "size": 1303,
+        "owner": "Go bundled vendor notices (inclusive inventory)",
+        "version": "go1.25.0",
+        "sourcePath": "src/vendor/golang.org/x/text/PATENTS"
+      },
+      {
+        "path": "licenses/README.md",
+        "sha256": "ecccabdb54c18c4b933a7880db830f824f258bd4e42476b93c3daf09b3456dea",
+        "size": 1711,
+        "owner": "source-host packaging notices",
+        "version": null,
+        "sourcePath": "README.md"
+      },
+      {
+        "path": "licenses/dependencies/github.com__aclements__go-moremath@v0.0.0-20210112150236-f10218a38794/LICENSE",
+        "sha256": "b73277f7730993ef8e7f80aed83e5309762fed4d77eced982abb2c00657c074d",
+        "size": 1479,
+        "owner": "github.com/aclements/go-moremath",
+        "version": "v0.0.0-20210112150236-f10218a38794",
+        "sourcePath": "LICENSE"
+      },
+      {
+        "path": "licenses/dependencies/github.com__josharian__intern@v1.0.0/license.md",
+        "sha256": "ad754e4f7d16f789dd0694828254cb4011928025b0d500339a5c4eded5a0c346",
+        "size": 1077,
+        "owner": "github.com/josharian/intern",
+        "version": "v1.0.0",
+        "sourcePath": "license.md"
+      },
+      {
+        "path": "licenses/dependencies/github.com__mailru__easyjson@v0.7.7/LICENSE",
+        "sha256": "87baa92c3100cf37441761262d622db99492ee386a063460d4676143db49af57",
+        "size": 1057,
+        "owner": "github.com/mailru/easyjson",
+        "version": "v0.7.7",
+        "sourcePath": "LICENSE"
+      },
+      {
+        "path": "licenses/dependencies/github.com__philhofer__fwd@v1.1.2/LICENSE.md",
+        "sha256": "430da36bd967b28fc662f05e9245306da10941e93911052114a20ef10e4410f8",
+        "size": 1061,
+        "owner": "github.com/philhofer/fwd",
+        "version": "v1.1.2",
+        "sourcePath": "LICENSE.md"
+      },
+      {
+        "path": "licenses/dependencies/github.com__tinylib__msgp@v1.1.9/LICENSE",
+        "sha256": "17df22e31ef6a84f70909eed5185f41443a03dd05b14e8dec319d5c2bd7d7b3b",
+        "size": 1145,
+        "owner": "github.com/tinylib/msgp",
+        "version": "v1.1.9",
+        "sourcePath": "LICENSE"
+      },
+      {
+        "path": "licenses/dependencies/google.golang.org__protobuf@v1.34.2/LICENSE",
+        "sha256": "4835612df0098ca95f8e7d9e3bffcb02358d435dbb38057c844c99d7f725eb20",
+        "size": 1479,
+        "owner": "google.golang.org/protobuf",
+        "version": "v1.34.2",
+        "sourcePath": "LICENSE"
+      }
+    ],
+    "missingDependencyLicenseTexts": [],
+    "reviewStatus": "texts-collected-not-a-legal-clearance",
+    "resourceBoundary": "The source-host build does not grant rights to upstream game images, fonts, names or data. See licenses/README.md."
+  }
+}

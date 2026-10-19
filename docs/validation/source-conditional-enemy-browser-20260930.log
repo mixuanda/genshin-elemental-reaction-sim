@@ -1,0 +1,41 @@
+[WebServer] (node:42588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:42589) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-conditional-and-enemy-task.spec.ts:75:1 › conditional finite skills and Nilou enemy-local task close with actual branch evidence (9.4s)
+
+
+  1) [chromium] › apps/web/e2e/source-conditional-and-enemy-task.spec.ts:75:1 › conditional finite skills and Nilou enemy-local task close with actual branch evidence 
+
+    Error: stellar nilouQ: ["回调任务 #1 的攻击身份或即时派发不符。","回调任务 #2 的攻击身份或即时派发不符。","初击队列 #28 的攻击身份或 +91 帧派发不符。"]
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      127 |         const replays = included.map(hit => replaySourceHostHit(hit.calculation.originalCapture).difference);
+      128 |         expect(analysis.finiteCast?.contract?.id, `${lane} ${spec.key} contract`).toBe(spec.contractId);
+    > 129 |         expect(analysis.completeCast, `${lane} ${spec.key}: ${JSON.stringify(analysis.finiteCast?.reasons)}`).toBe(true);
+          |                                                                                                               ^
+      130 |         expect(replays, `${lane} ${spec.key} replay differences`).toEqual(replays.map(() => 0));
+      131 |         expect(analysis.total, `${lane} ${spec.key} component subtotal`).toBeCloseTo(
+      132 |           included.reduce((sum, hit) => sum + hit.calculation.originalCapture.application.appliedDamage, 0), 8);
+        at map (/Users/evan/Documents/gidps/apps/web/e2e/source-conditional-and-enemy-task.spec.ts:129:111)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-conditional-and-enemy-task.spec.ts:118:30
+
+    Error Context: test-results/source-conditional-and-ene-7e0f5-with-actual-branch-evidence-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-conditional-and-ene-7e0f5-with-actual-branch-evidence-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-conditional-and-ene-7e0f5-with-actual-branch-evidence-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-conditional-and-enemy-task.spec.ts:75:1 › conditional finite skills and Nilou enemy-local task close with actual branch evidence 

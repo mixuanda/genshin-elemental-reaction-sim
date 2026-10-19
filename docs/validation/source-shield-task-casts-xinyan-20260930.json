@@ -1,0 +1,61 @@
+{
+  "batch": 116,
+  "owner": "event_sites_b",
+  "scope": "Private Xinyan E/Q source instrumentation patches and source-backed contract proposal. No frozen source edits, native/core changes, builds, tests, or runtime validation.",
+  "source_roots": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-XZWitQ/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch116/classic/receipt.json",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "e3a4007eb395aecb9fab77cfdecf8fdd8cc6867ebe348d7d0169a5af1daea0dd"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-wrBc8S/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch116/stellar/receipt.json",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeJsonSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "7d55c532e11fe116e36fd2d4a85c392c19a21d37f9eb9ad4df3c0603b7553488"
+    }
+  },
+  "patches": {
+    "classic": {"path": "/Users/evan/Library/Caches/gidps-source-host/116-event-sites-b/xinyan-classic.patch", "sha256": "fb8239a435c2eebb7e416380800d43a3805dbc50cbed1c787cee0c73862ad2f1", "gitApplyCheck": "passed against frozen pre-116 classic root"},
+    "stellar": {"path": "/Users/evan/Library/Caches/gidps-source-host/116-event-sites-b/xinyan-stellar.patch", "sha256": "fb8239a435c2eebb7e416380800d43a3805dbc50cbed1c787cee0c73862ad2f1", "gitApplyCheck": "passed against frozen pre-116 Stellar root"},
+    "patches_equal": true
+  },
+  "source_refs": [
+    {"file": "internal/characters/xinyan/skill.go", "sha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79", "refs": ["50-60: E hit callback counts each real hit and schedules the existing 13-frame upgrade task", "62-66: E initial level-1 shield task at 28 frames only when the existing shield lookup is nil", "99-122: recurring Core shield-DoT task and its three existing gameplay gates", "138-182: shared updateShield; level-3 first Core task is queued before allocating and adding the actual shield at line 177"]},
+    {"file": "internal/characters/xinyan/burst.go", "sha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7", "refs": ["95-97: C2 level-3 shield task at 43 frames", "99-111: two C2 extra attacks queued at 65 and 83 frames; these remain cast-owned direct attacks"]},
+    {"file": "internal/characters/xinyan/shield.go", "classicSha256": "489b0a8f481517f03a754f14408b1e3396ed3d2db0b510e458109d9fce5a29d7", "stellarSha256": "b0f0e07a771ecfff68189307ad7639fa91ccfa7229906e14dca8e234c02ac0e7", "refs": ["13-25: every update constructs a new xinyanShield pointer", "28-38: expiry/break resets mutable shield level"], "laneDifference": "Classic omits Element in the field-by-field template construction; Stellar explicitly sets Element=Pyro. Untouched by these patches."}
+  ],
+  "instrumentation_sites": {
+    "hitCallbackSiteId": "xinyan.skill.shield-hit-callback",
+    "characterTaskProducerSites": ["xinyan.skill.initial-shield-task", "xinyan.skill.hit-shield-upgrade-task", "xinyan.burst.c2-shield-task"],
+    "shieldBirthSites": ["xinyan.skill.initial-shield-birth", "xinyan.skill.hit-shield-upgrade-birth", "xinyan.burst.c2-shield-birth"],
+    "shieldCoreTaskSites": ["xinyan.shield.dot-first-task", "xinyan.shield.dot-next-task"],
+    "shieldQueueEmitSiteId": "xinyan.shield.dot.attack",
+    "ability": "Sweeping Fervor (DoT)",
+    "attackTag": "AttackTagElementalArt"
+  },
+  "facts": {
+    "abilityInvocation": {"xinyan.skill.initial-shield-present": "bool from the original single shield Get; true means E does not queue its initial shield task"},
+    "hitCallback": {"xinyan.skill.hit-count": "the already-updated callback-local hit counter"},
+    "hitUpgradeProducer": {
+      "xinyan.skill.hit-count": "shared callback count read at delayed task execution, matching original closure semantics",
+      "xinyan.skill.shield-level": "existing level read once and used by both original branch tests",
+      "xinyan.skill.level2-threshold": "existing requirement read once and used by the original branch test",
+      "xinyan.skill.level3-threshold": "existing requirement read once and used by the original branch test",
+      "xinyan.skill.birth-level": "0 if no Add; 2 or 3 for the actual selected upgrade branch"
+    },
+    "initialAndQProducer": {"xinyan.skill.initial-shield-birth-count": "1 after the initial task calls updateShield/Add", "xinyan.burst.c2-shield-birth-count": "1 after the Q C2 task calls updateShield/Add"},
+    "shieldTaskProducer": {"xinyan.shield.dot.source-frame": "captured src", "xinyan.shield.dot.level": "already-read level after the existing nonnil gate", "xinyan.shield.dot.tick-source": "already-read shieldTickSrc after the existing level-3 gate", "xinyan.shield.dot.attack-count": "0 at task entry, 1 only after the original queue branch"}
+  },
+  "contract_proposal": {
+    "E": "Accept the Skill invocation only with its direct E source entry and the existing initialShieldPresent fact; include actual shield births only through the explicit initial/upgrade producer and corresponding birth sites. The upgrade task retains the exact hit callback parent, observed hit count and selected birth level. Do not require a shield birth for E when the existing branch does not create one.",
+    "Q_C2": "Accept the C2 shield character task and actual level-3 birth site as Q shield creation. Keep the two 65/83 C2 extra pulses as direct Q invocation queues; they are not shield-instance periodic emissions.",
+    "periodicDoT": "Consume each exact ShieldProducer rooted at the bound first task and its recursive next-task children; allow 0-or-1 queue attack per task based on the existing gates. Every emitted row must use ability Sweeping Fervor (DoT), tag AttackTagElementalArt, and emit site xinyan.shield.dot.attack.",
+    "replacementSemantics": "The native owner instance remains the producer chain owner. The original game task only checks that some XinyanSkill shield is installed, shieldLevel==3, and shieldTickSrc==captured src. Therefore an old task can pass against a replacement shield when these source gates happen to match (including a same-frame src collision). Record the independently observed gateInstanceId; never add an ownerInstanceId==gateInstanceId gameplay/contract gate.",
+    "taskAncestry": "Use explicit SourceHostQueueHitCallbackCharTask for the 13-frame task to retain parentHitCallbackId at registration; when it runs, birth ownership is the normal producer. Queue the first 120-frame Core task at its original pre-Add location and bind its producer ID to the exact just-added shield afterward. Recursive tasks inherit the exact active shield producer owner."
+  },
+  "validation": "Only git apply --check was run against each frozen root. No build/tests were run as requested."
+}

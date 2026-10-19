@@ -1,0 +1,13 @@
+$ npx vitest run packages/schemas/src/random-weapon-proc-integrity.test.ts
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  10:28:41
+   Duration  1.25s (transform 690ms, setup 0ms, import 881ms, tests 313ms, environment 0ms)
+
+
+exit=0
+wall_seconds=1.6589850410819054

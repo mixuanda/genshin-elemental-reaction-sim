@@ -1,4 +1,40 @@
+import { EnemyShieldHost, type EnemyShieldPhaseTask } from "./enemy-shield-host";
+import { weaponHitStackTraceForDamageEvent } from "./weapon-hit-stack-trace";
+import { WeaponHitStackRuntime, type WeaponHitStackRuntimeDecision } from "./weapon-hit-stack-runtime";
+import { getWeaponHitStackRule, type WeaponHitStackEvent } from "./weapon-hit-stack-model";
+import { SourceNormalChainRuntime, sourceNormalChainDefinitions, type SourceNormalChainDecision } from "./source-normal-chain";
+import type { SourceNormalChainLogEntry } from "@genshin-dps-lab/schemas";
+import { ArtifactBuffRuntime, type ArtifactBuffRuntimeDecision } from "./artifact-buff-runtime";
+import { ARTIFACT_BUFF_ORDINARY_REACTIONS, type ArtifactBuffEvent, type ArtifactBuffDelayedApplication, type ArtifactBuffOrdinaryReaction } from "@genshin-dps-lab/reaction-formulas";
+import { PlayerShieldRuntime, playerShieldStrengthBonus, calculatePlayerShieldHpDamage } from "./player-shield-runtime";
+import { LunarArtifactRuntime } from "./lunar-artifact-runtime";
+import { MoonlightArtifactRuntime } from "./moonlight-artifact-runtime";
+import type { LunarArtifactExecutionOptions } from "@genshin-dps-lab/schemas";
+import { calculateActionCondition } from "./action-condition";
+import { PeriodicEntityRuntime, calculatePeriodicHealing, type LivePeriodicEntity } from "./periodic-entity";
+import type { PeriodicEntityDefinition, PeriodicEntityLogEntry, ActionConditionLogEntry } from "@genshin-dps-lab/schemas";
+import { calculateHealthChange } from "./player-health";
+import { calculatePlayerMaxHpChange } from "./player-max-hp";
+import type { HealthChangeDefinition, PlayerHealthEvent } from "@genshin-dps-lab/schemas";
+import { StaminaRuntime } from "./stamina";
+import { FavoniusRuntime } from "./favonius";
+import { IndependentWeaponProcRuntime, hasRandomWeaponProc, hasStatefulWeaponProc, hasMessengerWeaponProc, hasDelayedWeaponProc, type PendingWeaponProcContext } from "./weapon-proc";
+import { ThrillingTalesRuntime, THRILLING_TALES_PROFILE } from "./thrilling-tales";
+import { SacrificialRuntime } from "./sacrificial";
+import { createSerialSkillCooldown, startSerialSkillCooldown, resetSerialSkillCooldown, recoverSerialSkillCooldown, serialSkillCooldownRemaining, serialSkillCooldownWorker, type SerialSkillCooldownState } from "@genshin-dps-lab/reaction-formulas";
+import { getWeaponProcDefinition } from "@genshin-dps-lab/reaction-formulas";
+import { calculateStatConversion } from "./stat-conversion";
+import { NormalHitEnergyRuntime, type NormalHitEnergyDamageInput } from "./normal-hit-energy";
+import { LunarMixedRuntime, validateLunarMixedProfile, type LunarMixedQueueTask, type LunarMixedSimulationResult } from "./lunar-mixed-runtime";
+import { LunarMixedV2Runtime, validateLunarMixedV2Profile, type LunarMixedV2QueueTask, type LunarMixedV2SimulationResult } from "./lunar-mixed-v2-runtime";
+import { StellarSwirlRuntime, validateStellarSwirlProfile, type StellarSwirlQueueTask, type StellarSwirlExecutionOrder, type StellarSwirlSimulationResult } from "./stellar-swirl-runtime";
+import { StellarConductRuntime, validateStellarConductProfile, executeStellarConductAdjustment, type StellarConductPanelSnapshot, type StellarConductSimulationResult } from "./stellar-conduct-runtime";
+import { StellarArtifactRuntime } from "./stellar-artifact-runtime";
+import { LunarBloomRuntime, validateLunarBloomProfile, type LunarBloomRuntimeOptions, type LunarBloomSimulationResult } from "./lunar-bloom-runtime";
+import { SpecialCriticalSampler } from "./special-random";
 import {
+  actionEventPriority,
+  getRuntimeSkillCooldownActors,
   assertTrustedReactionDeliveryResultReferences,
   assertTrustedSimulationResult,
   CALLBACK_SUBSCRIBER_OUTCOME_VERIFICATION,
@@ -28,6 +64,8 @@ import {
   type AdditiveReactionFactors,
   type AmplifyingReaction,
   type ActionDefinition,
+  type ActorPoseDefinition,
+  type SummonDefinition,
   type ActiveStatusSnapshot,
   type AnyElementalApplication,
   type AuraElement,
@@ -40,6 +78,9 @@ import {
   type CallbackSubscriberAttemptV153,
   type CallbackSubscriberOutcomeV153,
   type CharacterStats,
+  type SourceSnapshotLogEntry,
+  type PlayerShieldInputEvent,
+  type PlayerShieldDecision,
   type CrystallizeReaction,
   type CrystallizeReactionAudit,
   type DamageEvent,
@@ -77,6 +118,7 @@ import {
   type SimConfig,
   type SimulationEvent,
   type SimulationOptions,
+  type SimulationExecutionAudit,
   type SimulationResult,
   type SimulationRunManifest,
   type TargetClockLogEntry,
@@ -111,6 +153,8 @@ import {
 } from "./aura";
 import {
   calculateParticleEnergy,
+  ENERGY_COMPARISON_EPSILON,
+  quantizeEnergy,
   resolveParticleCount,
   SeededRandom
 } from "./energy";
@@ -123,6 +167,17 @@ import {
   clamp,
   type DamageCalculationInput
 } from "./formulas";
+import { calculateDamageTrace, calculateTransformativeDamageTrace } from "./calculator-formula";
+import { capturePhaseCheckpoint, phaseCheckpointBlockers } from "./phase-checkpoint";
+import { particleRandomness, type RandomExecutionCapturedState } from "./random-checkpoint";
+import { ordinaryReactionFeatures } from "./ordinary-aura-checkpoint";
+import type { PeriodicReactionHostState } from "./periodic-reaction-checkpoint";
+import { TargetHealthRuntime } from "./target-health";
+import { ArtifactEventRuntime, NightsoulBurstRuntime, ARTIFACT_EVENT_PROFILE, type ArtifactEventDecision, type ArtifactEnergyTickPayload } from "./artifact-runtime";
+import { ArtifactDamageRuntime, artifactDamageTrace, type ArtifactDamageDecision, type ArtifactSongConvertPayload } from "./artifact-damage-runtime";
+import { captureTargetPhaseV2State } from "./target-phase-checkpoint";
+import { LunarChargedRuntime, validateLunarChargedProfile, type LunarChargedSimulationResult } from "./lunar-charged-runtime";
+import { LunarCrystallizeRuntime, validateLunarCrystallizeProfile, type LunarCrystallizeSimulationResult } from "./lunar-crystallize-runtime";
 import { MinHeap } from "./min-heap";
 import type {
   DamageFlatComponents,
@@ -138,6 +193,7 @@ import {
   compileLegalTimeline,
   type RuntimeEnergyFailure
 } from "./legal-timeline";
+import { assertSourceActionContract, assertSourceActionExecution } from "./source-action-library";
 import {
   calcCrystallizeShield,
   CRYSTALLIZE_CONSTANTS,
@@ -200,7 +256,28 @@ import {
 } from "./callback-plugins";
 
 export const EVENT_PRIORITY = {
+  enemyShieldPhase: -2,
+  sourceNormalChainSwapStart: 8,
+  playerMaxHpExpiry: -1,
+  playerShieldExpiry: -0.5,
+  playerShieldInput: 2,
+  artifactEnergyTick: 2,
+  artifactSongConvert: 2,
+  artifactBuffApply: 2,
+  nightsoulBurstCallback: 3,
+  skillCooldownStart: -1,
+  skillCooldownRecover: -1,
+  weaponHitStackCallback: 3,
+  weaponProcCallback: 3,
+  weaponProcDelayedSnapshot: 3,
   action: 0,
+  energyCost: 2,
+  healthChange: 2,
+  periodicEntitySpawn: 2,
+  periodicEntityTick: 2,
+  normalHitEnergy: 3.5,
+  summonSpawn: 2,
+  summonExpiry: 2,
   targetTask: 0.5,
   targetDecay: 0.75,
   buff: 1,
@@ -208,7 +285,11 @@ export const EVENT_PRIORITY = {
   energy: 2,
   particleSpawn: 2,
   particleReceive: 2,
+  sourceSnapshot: 2.5,
   hit: 3,
+  stellarSwirlTask: 3,
+  lunarMixedTask: 3,
+  lunarMixedV2Task: 3,
   quickenBloomFollowup: 3,
   periodicReactionExpiry: 2,
   electroChargedCleanup: 2,
@@ -229,6 +310,14 @@ export const EVENT_PRIORITY = {
   periodicReactionWane: 6,
   crystallizePickup: 7
 } as const;
+
+const lunarChargedRuntimeSink = Symbol("lunar-charged-runtime-sink");
+const lunarCrystallizeRuntimeSink = Symbol("lunar-crystallize-runtime-sink");
+const stellarConductRuntimeSink = Symbol("stellar-conduct-runtime-sink");
+const lunarBloomRuntimeSink = Symbol("lunar-bloom-runtime-sink");
+const stellarSwirlRuntimeSink = Symbol("stellar-swirl-runtime-sink");
+const lunarMixedRuntimeSink = Symbol("lunar-mixed-runtime-sink");
+const lunarMixedV2RuntimeSink = Symbol("lunar-mixed-v2-runtime-sink");
 
 export interface SimulationRuntimeOptions extends SimulationOptions {
   plugins?: readonly SimulationRuntimePluginV153[];
@@ -254,8 +343,6 @@ export function projectBloomBurningFuelExpiry(
 }
 
 const GEOMETRY_EPSILON = 1e-9;
-const ENERGY_COMPARISON_EPSILON = 1e-9;
-const ENERGY_DECIMAL_PLACES = 12;
 
 function resolveEnemyBaseResistance(
   target: SimulationResult["enemyTargets"][number],
@@ -713,6 +800,10 @@ interface ActionEventPayload {
   cycle: number;
 }
 
+interface DelayedEnergyCostPayload { actorId: string; actionId: string; actionLogIndex: number; energyCost: number; }
+interface SummonSpawnPayload extends ActionEventPayload { summon: SummonDefinition; actionTimeSeconds: number; }
+interface ActiveTimedSummon extends SummonSpawnPayload { instanceId: string; spawnFrame: number; expiresAtFrame: number; attackFrame: number; snapshots: Record<string, CharacterStats | undefined>; actorPose: ActorPoseDefinition | undefined; thrillingTalesSnapshotStatuses?: Record<string, ActiveStatusSnapshot[]>; }
+
 interface BuffEventPayload {
   actorId: string;
   buff: BuffDefinition;
@@ -739,10 +830,13 @@ interface ParticleSpawnEventPayload {
   cycle: number;
   triggerLogId?: number;
   triggerHitId?: string;
+  favoniusLogId?: number;
+  origin?: NonNullable<SimulationResult["particleEvents"][number]["origin"]>;
 }
 
 interface ParticleReceiveEventPayload {
   particleEventId: number;
+  declaredDrop?: true;
 }
 
 interface HitEventPayload {
@@ -778,6 +872,12 @@ interface HitEventPayload {
   targetCount: number;
   hitGroupId: string;
   snapshots: Record<string, CharacterStats | undefined>;
+  sourceSnapshots?: { main?: number; reaction?: number; flatSources?: Record<number, number> };
+  periodicFlatSnapshots?: Record<string, CharacterStats | undefined>;
+  periodicEntityContext?: { entity: LivePeriodicEntity; tickIndex: number; tickFrame: number };
+  weaponProcLogId?: number;
+  weaponProcContext?: PendingWeaponProcContext;
+  thrillingTalesSnapshotStatuses?: Record<string, ActiveStatusSnapshot[]>;
   cycle: number;
 }
 
@@ -1080,16 +1180,64 @@ interface ActiveCrystallizeShield {
 interface PlayerHpRuntimeState {
   actorId: string;
   maxHp: number;
+  initialMaxHp: number;
+  totalMaxHpAdjustment: number;
   initialHp: number;
   currentHp: number;
+  initialBondOfLife?: number;
+  currentBondOfLife?: number;
   totalIncomingDamage: number;
   totalAbsorbedDamage: number;
   totalHpDamage: number;
+  totalHealing: number;
+  totalOverheal: number;
+  totalHpConsumed: number;
   hitCount: number;
   zeroHpReached: boolean;
 }
 
+interface HealthChangePayload { change: HealthChangeDefinition; sourceActorId: string; actionLogIndex: number; }
+
+interface PeriodicSpawnPayload { action: ActionDefinition; actionLogIndex: number; cycle: number; definition: PeriodicEntityDefinition; }
+interface PeriodicTickPayload { entity: LivePeriodicEntity; tickIndex: number; }
+interface SkillCooldownTaskPayload { actorId: string; actionId: string; abilityId: string; timelineCommandIndex: number; recoveryFrames: number; workerGeneration?: number; }
+interface WeaponProcCallbackPayload { actorId: string; parentDamageEventId: number; targetId: string; attackTag: NonNullable<HitDefinition["attackTag"]> | null; damage: number; cycle: number;
+  hitWeakPoint?: boolean;
+  sourceActionId?: string; sourceHitId?: string; parentHitFrame?: number; parentEventPriority?: number; parentEventSequence?: number; }
+interface WeaponProcDelayedSnapshotPayload {
+  actorId: string; targetId: string; parentDamageEventId: number; cycle: number; weaponProcLogId: number;
+  triggerFrame: number; coefficient: number; sourceActionId: string; sourceHitId: string;
+  parentEventPriority: number; parentHitFrame: number;
+}
+interface NightsoulBurstCallbackPayload { parentDamageEventId: number; sourceActorId: string; sourceActionId: string; sourceHitId: string; targetId: string; parentHitFrame: number; parentEventPriority: number; parentEventSequence: number; element: Element; cycle: number; }
+
+interface SourceSnapshotPayload { action: ActionDefinition; cycle: number; actionLogIndex: number; ownerId: string; relativeFrame: number; snapshotLogId: number; }
+
 type InternalEventBase =
+  | { type: "enemyShieldPhase"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: EnemyShieldPhaseTask }
+  | { type: "weaponHitStackCallback"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: { input: Extract<WeaponHitStackEvent, {kind:"enemy-damage"}> } }
+  | { type: "sourceNormalChainSwapStart"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: { actorId: string; timelineCommandIndex: number } }
+  | { type: "artifactBuffApply"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: { task: ArtifactBuffDelayedApplication; parentArtifactBuffLogId: number } }
+  | { type: "playerShieldInput"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: { input: PlayerShieldInputEvent } }
+  | { type: "playerShieldExpiry"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: Record<string, never> }
+  | { type: "sourceSnapshot"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: SourceSnapshotPayload }
+  | { type: "playerMaxHpExpiry"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: Record<string, never> }
+  | { type: "artifactEnergyTick"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: ArtifactEnergyTickPayload }
+  | { type: "artifactSongConvert"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: ArtifactSongConvertPayload }
+  | { type: "nightsoulBurstCallback"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: NightsoulBurstCallbackPayload }
+  | { type: "weaponProcDelayedSnapshot"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: WeaponProcDelayedSnapshotPayload }
+  | { type: "weaponProcCallback"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: WeaponProcCallbackPayload }
+  | { type: "skillCooldownStart" | "skillCooldownRecover"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: SkillCooldownTaskPayload }
+  | { type: "periodicEntitySpawn"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: PeriodicSpawnPayload }
+  | { type: "periodicEntityTick"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: PeriodicTickPayload }
+  | { type: "healthChange"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: HealthChangePayload }
+  | { type: "normalHitEnergy"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: NormalHitEnergyDamageInput }
+  | { type: "energyCost"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: DelayedEnergyCostPayload }
+  | { type: "summonSpawn"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: SummonSpawnPayload }
+  | { type: "summonExpiry"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: { instanceId: string } }
+  | { type: "stellarSwirlTask"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: StellarSwirlQueueTask }
+  | { type: "lunarMixedTask"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: LunarMixedQueueTask }
+  | { type: "lunarMixedV2Task"; timeSeconds: number; frame: number; priority: number; sequence: number; payload: LunarMixedV2QueueTask }
   | SimulationEvent<ActionEventPayload>
   | SimulationEvent<BuffEventPayload>
   | SimulationEvent<DebuffEventPayload>
@@ -1222,10 +1370,6 @@ function safeNumber(value: number | undefined, fallback = 0): number {
 
 function round(value: number, digits = 2): number {
   return Number(value.toFixed(digits));
-}
-
-function quantizeEnergy(value: number): number {
-  return round(value, ENERGY_DECIMAL_PLACES);
 }
 
 function assertNonNegativeFixedEnergyGains(config: SimConfig): void {
@@ -1879,19 +2023,40 @@ function simulateConfig(
   resultConfig: SimConfig = config,
   timelineExecution?: TimelineExecution
 ): SimulationResult {
+  const normalChainDefinitions = sourceNormalChainDefinitions(resultConfig.sourceAbilityBindings);
+  const sourceNormalChainRuntime = normalChainDefinitions.length ? new SourceNormalChainRuntime(normalChainDefinitions) : undefined;
+  const sourceNormalChainLog: SourceNormalChainLogEntry[] = [];
+  const periodicEntitiesEnabled = [...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => (action.periodicEntities?.length ?? 0) > 0);
+  const healthChangesEnabled = periodicEntitiesEnabled || [...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => (action.healthChanges?.length ?? 0) > 0);
+  const actionConditionsEnabled = [...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => action.conditionalHitGroups?.length);
+  const explicitSourceSnapshotsEnabled = [...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => action.hits?.some(hit => hit.snapshotFrame !== undefined || hit.flatSources?.some(source => source.snapshotFrame !== undefined)));
+  const explicitActionPhasesEnabled = [...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => action.actionPhase !== undefined);
+  const actionConditionLog: ActionConditionLogEntry[] = [];
+  const periodicEntityRuntime = new PeriodicEntityRuntime();
+  const periodicEntityLog: PeriodicEntityLogEntry[] = [];
+  const staminaRuntime = config.staminaModel === undefined ? undefined : new StaminaRuntime(config.staminaModel);
+  const hasExplicitCriticalIneligibility = config.rotation.some((action) => action.hits?.some((hit) => hit.critEligible === false));
+  const hasExplicitWeakPoint = config.rotation.some(action => action.hits?.some(hit => hit.hitWeakPoint !== undefined));
+  const requestedExecution = explicitSourceSnapshotsEnabled || hasExplicitCriticalIneligibility || hasExplicitWeakPoint || config.favoniusModel !== undefined || config.weaponProcModel !== undefined || config.thrillingTalesModel !== undefined || config.sacrificialModel !== undefined || config.artifactDamageModel !== undefined || config.weaponHitStackModel !== undefined || config.stellarArtifactModel !== undefined || config.moonlightArtifactModel !== undefined
+    ? { ...runtimeOptions.execution, captureHits: true }
+    : runtimeOptions.execution;
   const options: ResolvedSimulationRuntimeOptions = {
     energyMode: runtimeOptions.energyMode ?? "configured",
     critMode: runtimeOptions.critMode ?? "average",
     compatibilityMode:
       runtimeOptions.compatibilityMode ??
-      (timelineExecution ||
+      (healthChangesEnabled || actionConditionsEnabled || explicitActionPhasesEnabled || timelineExecution || hasRandomWeaponProc(config.weaponProcModel) || hasStatefulWeaponProc(config.weaponProcModel) || hasMessengerWeaponProc(config.weaponProcModel) || hasDelayedWeaponProc(config.weaponProcModel) ||
       config.targetTaskModel.mode === "target-phase-v1" ||
       config.targetTaskModel.mode === "target-phase-v2" ||
       config.targetTaskModel.mode === "target-phase-v3"
         ? "legal-frame-v1"
         : "legacy-v0.1"),
-    randomSeed: runtimeOptions.randomSeed ?? config.randomSeed
+    randomSeed: runtimeOptions.randomSeed ?? config.randomSeed,
+    ...(requestedExecution === undefined ? {} : { execution: deepClone(requestedExecution) })
   };
+  if (config.playerShieldModel !== undefined && options.compatibilityMode !== "legal-frame-v1") throw new Error("Player shields require compatibilityMode legal-frame-v1.");
+  if (explicitSourceSnapshotsEnabled && options.compatibilityMode !== "legal-frame-v1") throw new Error("Explicit source snapshots require compatibilityMode legal-frame-v1.");
+  if (options.compatibilityMode === "legal-frame-v1") options.flatStatBuffSemantics = "canonical-v1";
   if (
     (config.targetTaskModel.mode === "target-phase-v1" ||
       config.targetTaskModel.mode === "target-phase-v2" ||
@@ -1943,7 +2108,7 @@ function simulateConfig(
       pluginCapabilities,
       pluginCallbackSubscriptions
     })
-  );
+  ) as unknown as SimulationRunManifest;
   const damagePluginsByManifestIndex = new Map(
     instantiateDamagePlugins(pluginDefinitions).map((plugin) => [
       plugin.pluginManifestIndex,
@@ -1967,14 +2132,64 @@ function simulateConfig(
     callbackBusEnabled,
   );
   const random = new SeededRandom(options.randomSeed);
+  const particleTriggerRandom = new SeededRandom(`${options.randomSeed}\u0000particle-trigger-v1`);
+  let particleTriggerDrawCount = 0;
+  const criticalRandomSeed = `${options.randomSeed}:critical-hit-v1`;
+  const criticalRandom = new SeededRandom(criticalRandomSeed);
+  let criticalDrawCount = 0;
+  const executionOptions = options.execution;
+  const specialHost = executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed ||
+    executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom;
+  if (config.stellarArtifactModel !== undefined) {
+    if (!executionOptions?.stellarConduct && !executionOptions?.stellarSwirl) throw new Error("固定a7星辉圣遗物只可接入已实现的星导／星扩散特殊宿主。");
+    if (executionOptions?.stellarSwirl && config.stellarArtifactModel.allowGuideSourceConflict !== true) throw new Error("星扩散指南宿主与固定a7源码冲突；启用星辉圣遗物混合参考配置必须显式确认来源冲突。");
+  }
+  if (config.moonlightArtifactModel !== undefined && !executionOptions?.lunarCharged && !executionOptions?.lunarCrystallize && !executionOptions?.lunarBloom && !executionOptions?.lunarMixed && !executionOptions?.lunarMixedV2) throw new Error("固定a7月曜圣遗物仅支持五个月曜特殊宿主。");
+  if ((executionOptions?.stellarConduct || executionOptions?.stellarSwirl) && config.artifactBuffModel?.actors.some(actor => actor.effectId === "instructor-4pc" || actor.effectId === "gilded-4pc")) {
+    throw new Error("教官／饰金的星辉特殊反应回调尚无来源时序认证。");
+  }
+  if ((executionOptions?.lunarBloom || executionOptions?.lunarMixedV2) && config.artifactBuffModel?.actors.some(actor => actor.effectId === "paradise-4pc")) {
+    throw new Error("乐园普通绽放与月绽放的反应加成不同；当前普通圣遗物回调尚不能认证月绽放条款。");
+  }
+  if (specialHost && config.artifactDamageModel?.actors.some(actor => actor.effectId === "song-of-days-past-4pc")) {
+    throw new Error("昔时之歌的五次伤害加成尚未认证月曜／星辉直接能力的 OnEnemyHit 标签。");
+  }
+  if (config.enemyShieldModel !== undefined && (executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom)) throw new Error("当前敌盾宿主仅接入普通直接伤害；特殊反应尚无削盾、生命伤害和接触回调的完整宿主。");
+  if (config.weaponHitStackModel !== undefined) {
+    if (options.compatibilityMode !== "legal-frame-v1") throw new Error("武器叠层需要实际合法帧时间线。");
+    if (config.weaponHitStackModel.actors.some(actor => getWeaponHitStackRule(actor.weaponId).family === "royal") && options.critMode === "average" && executionOptions?.criticalSampling !== "seeded-random-v1") throw new Error("宗室叠层需要实际暴击反馈：使用带种子随机暴击、全部暴击或全部不暴击。");
+  }
+  if (config.targetHealthModel !== undefined &&
+      (executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom)) {
+    throw new Error("声明敌人生命尚未接入月曜／星辉独立伤害管线；不能只扣除普通命中的生命而忽略特殊伤害。");
+  }
+  if (config.favoniusModel !== undefined) {
+    if (options.critMode === "average" && executionOptions?.criticalSampling !== "seeded-random-v1") {
+      throw new Error("西风触发需要实际二元暴击结果：请选择随机暴击、全部暴击或全部不暴击；平均伤害不能代替触发事件。");
+    }
+    if (executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom) {
+      throw new Error("西风触发尚未接入月曜／星辉特殊宿主回调；请使用普通团队模拟。");
+    }
+  }
+  if (config.weaponProcModel !== undefined &&
+      (executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom)) {
+    throw new Error("独立武器追击仅接入普通伤害回调，尚未接入月曜／星辉特殊宿主。");
+  }
+  if ((hasRandomWeaponProc(config.weaponProcModel) || hasStatefulWeaponProc(config.weaponProcModel) || hasMessengerWeaponProc(config.weaponProcModel) || hasDelayedWeaponProc(config.weaponProcModel)) && options.compatibilityMode !== "legal-frame-v1") {
+    throw new Error("随机／状态／弱点武器追击的实际同相位 FIFO 回调需要 legal-frame-v1 帧时钟。");
+  }
+  if (config.sacrificialModel !== undefined &&
+      (executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom)) {
+    throw new Error("祭礼技能重置仅接入普通合法轮转与普通伤害回调。");
+  }
+  const captureResolvedHits = executionOptions !== undefined &&
+    (executionOptions.captureHits !== false || executionOptions.detailedTraces === true || executionOptions.criticalSampling !== undefined);
+  const resolvedHitContexts = new Map<number, SimulationExecutionAudit["hits"][number]>();
   const crystallizeRandom = new SeededRandom(
     `${options.randomSeed}:crystallize-shard-position-v1`
   );
-  const dendroCoreManager = new DendroCoreManager(
-    new SeededRandom(
-      `${options.randomSeed}:dendro-core-position-v1`
-    )
-  );
+  const dendroCoreRandom = new SeededRandom(`${options.randomSeed}:dendro-core-position-v1`);
+  const dendroCoreManager = new DendroCoreManager(dendroCoreRandom);
   const actorPoses = deepClone(config.actorPoses ?? []);
   const actorPoseById = new Map(
     actorPoses.map((pose) => [pose.actorId, pose])
@@ -2338,6 +2553,12 @@ function simulateConfig(
             target.id,
             new AuraEngine({
               ...config.reactionEngine!,
+              ...(options.execution?.lunarCharged === undefined ? {} : { lunarChargedConversion: true }),
+              ...(options.execution?.lunarCrystallize === undefined ? {} : { lunarCrystallizeConversion: true }),
+              ...(options.execution?.stellarConduct === undefined ? {} : { stellarConductConversion: true }),
+              ...(options.execution?.stellarSwirl === undefined ? {} : { stellarSwirlConversion: true }),
+              ...(options.execution?.lunarMixed === undefined ? {} : { lunarChargedConversion: true, lunarCrystallizeConversion: true, lunarMixedConversion: true }),
+              ...(options.execution?.lunarMixedV2 === undefined ? {} : { lunarChargedConversion: true, lunarCrystallizeConversion: true, lunarMixedConversion: true, lunarDendroConversion: true }),
               reactionOwnedElementalApplicationModel:
                 config.reactionOwnedElementalApplicationModel,
               ...(targetPhaseV2Enabled
@@ -2655,7 +2876,26 @@ function simulateConfig(
   const characters = new Map(
     config.characters.map((character) => [character.id, character])
   );
+  const normalHitEnergyRuntime = config.normalHitEnergyModel === undefined ? undefined : new NormalHitEnergyRuntime({ seed: options.randomSeed, actors: config.normalHitEnergyModel.actors });
+  const favoniusRuntime = config.favoniusModel === undefined ? undefined : new FavoniusRuntime(options.randomSeed, config.favoniusModel);
+  const weaponProcRuntime = config.weaponProcModel === undefined ? undefined : new IndependentWeaponProcRuntime(config.weaponProcModel, options.randomSeed);
+  const thrillingTalesRuntime = config.thrillingTalesModel === undefined ? undefined : new ThrillingTalesRuntime(config.thrillingTalesModel);
+  const sacrificialRuntime = config.sacrificialModel === undefined ? undefined : new SacrificialRuntime(options.randomSeed, config.sacrificialModel);
+  const artifactEventRuntime = config.artifactEventModel === undefined ? undefined : new ArtifactEventRuntime(config.artifactEventModel, config.characters.map(character => character.id));
+  const weaponHitStackRuntime = config.weaponHitStackModel === undefined ? undefined : new WeaponHitStackRuntime(config.weaponHitStackModel);
+  const artifactBuffRuntime = config.artifactBuffModel === undefined ? undefined : new ArtifactBuffRuntime(config.artifactBuffModel, config.characters);
+  const stellarArtifactRuntime = config.stellarArtifactModel === undefined ? undefined : new StellarArtifactRuntime(config.stellarArtifactModel, config.characters.map(character => character.id));
+  const artifactDamageRuntime = config.artifactDamageModel === undefined ? undefined : new ArtifactDamageRuntime(config.artifactDamageModel, config.characters.map(character => character.id), options.randomSeed);
+  const nightsoulBurstRuntime = config.nightsoulBurstModel === undefined ? undefined : new NightsoulBurstRuntime(config.nightsoulBurstModel);
+  const sourceAbilityById = new Map((resultConfig.timeline?.abilities ?? []).map(ability => [ability.id, ability]));
+  const runtimeSkillActors = getRuntimeSkillCooldownActors(resultConfig);
+  const runtimeSkillAbilities = new Map((resultConfig.timeline?.abilities ?? []).filter(ability => ability.kind === "skill" && runtimeSkillActors.has(ability.actorId)).map(ability => [ability.id, ability]));
+  const skillCooldownStates = new Map<string, SerialSkillCooldownState>();
+  for (const ability of runtimeSkillAbilities.values()) if (!skillCooldownStates.has(ability.actorId)) skillCooldownStates.set(ability.actorId, createSerialSkillCooldown(ability.maxCharges ?? 1));
+  const thrillingTalesSnapshots = new WeakMap<Record<string, CharacterStats | undefined>, Record<string, ActiveStatusSnapshot[]>>();
   const energies = new Map<string, number>();
+  const reservedEnergy = new Map<string, number>();
+  const activeTimedSummons = new Map<string, ActiveTimedSummon>();
   const energyStats = new Map<string, EnergySummary>();
   const fixedEnergyCooldownReadyFrames = new Map<string, number>();
   const particleCooldownReadyFrames = new Map<string, number>();
@@ -2692,6 +2932,20 @@ function simulateConfig(
   }
 
   const frameNative = options.compatibilityMode === "legal-frame-v1";
+  // Preserve only tasks actually scheduled by the supported ordinary runtime.
+  // The execution loop still stops at duration; public withinSimulation remains
+  // an observation flag, including false for retained future tasks.
+  const retainedOrdinaryReactionQueue = config.schemaVersion === CURRENT_SCHEMA_VERSION && frameNative &&
+    config.reactionEngine !== undefined && config.targetClockModel.mode === "disabled" &&
+    (config.targetTaskModel.mode === "target-phase-v2" || config.targetTaskModel.mode === "legacy-event-heap-v1") &&
+    !(executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom);
+  const retainedReactionTaskTypes = new Set<InternalEvent["type"]>([
+    "periodicReactionTick", "periodicReactionWane", "periodicReactionExpiry", "electroChargedCleanup",
+    "burningTick", "burningFuelExpiry", "dendroCoreSpawn", "dendroCoreExpiry", "crystallizeShardSpawn",
+    "crystallizeShardExpiry", "crystallizeShieldExpiry", "reactionDamage", "quickenBloomFollowup",
+    "frozenExpiry", "quickenExpiry", "reactionDamageGroupReset", "targetDecay",
+  ]);
+  const periodicCheckpointRuntimeBlockers = new Set<string>();
   const queue = new MinHeap<InternalEvent>((left, right) => {
     const timeOrder = frameNative
       ? left.frame - right.frame
@@ -2704,6 +2958,8 @@ function simulateConfig(
     );
   });
   let sequence = 0;
+  let executingEvent: Pick<InternalEvent, "frame" | "priority" | "sequence"> | undefined;
+  let nextExecutionIntraSequence = (): number => 0;
   let freezeBrokenCallbackTaskSequence = 1_000_000_000;
   const freezeBrokenCallbackCountByTriggerSequence = new Map<number, number>();
   const push = <TPayload>(
@@ -2712,13 +2968,25 @@ function simulateConfig(
     payload: TPayload,
     priorityOverride?: number
   ): number | null => {
-    if (timeSeconds <= config.duration + 1e-9) {
+    // Deterministic shared E checkpoints retain the real future worker. Keep the
+    // existing Sacrificial stream's truncated audit sequence unchanged; its RNG
+    // still independently prevents a complete deterministic checkpoint.
+    const preserveFutureSkillTask = (type === "skillCooldownStart" || type === "skillCooldownRecover") &&
+      sacrificialRuntime?.actor((payload as SkillCooldownTaskPayload).actorId) === undefined;
+    const preserveDeclaredDrop = (type === "particleSpawn" && (payload as ParticleSpawnEventPayload).origin !== undefined) ||
+      (type === "particleReceive" && (payload as ParticleReceiveEventPayload).declaredDrop === true);
+    if (timeSeconds <= config.duration + 1e-9 || (retainedOrdinaryReactionQueue && retainedReactionTaskTypes.has(type)) || preserveFutureSkillTask || preserveDeclaredDrop || type === "artifactEnergyTick" || type === "artifactSongConvert" || type === "artifactBuffApply" || type === "playerMaxHpExpiry" || type === "sourceSnapshot" || type === "sourceNormalChainSwapStart" || type === "playerShieldInput" || type === "playerShieldExpiry" || type === "enemyShieldPhase") {
       const frame = toFrame(timeSeconds);
       const eventSequence = sequence++;
+      const basePriority = priorityOverride ?? EVENT_PRIORITY[type];
+      // Selected action acceptance follows existing frame tasks. Its own zero-offset
+      // effects (and their same-frame descendants) retain a separate later phase.
+      const priority = executingEvent !== undefined && frame === executingEvent.frame && executingEvent.priority >= 8 && basePriority < 8
+        ? basePriority + 10 : basePriority;
       queue.push({
         timeSeconds: frameNative ? frame / 60 : timeSeconds,
         frame,
-        priority: priorityOverride ?? EVENT_PRIORITY[type],
+        priority,
         type,
         payload,
         sequence: eventSequence
@@ -2818,7 +3086,7 @@ function simulateConfig(
   ): void => {
     if (
       !targetPhaseV2Enabled ||
-      globalFrame > Math.round(config.duration * 60)
+      (!retainedOrdinaryReactionQueue && globalFrame > Math.round(config.duration * 60))
     ) {
       return;
     }
@@ -2886,11 +3154,17 @@ function simulateConfig(
         continue;
       }
       const timeSeconds = cycleStart + action.at;
+      const chainSwap = sourceNormalChainRuntime === undefined || action.timelineCommandIndex === undefined ? undefined
+        : timelineExecution?.commandResults.find(row => row.commandIndex === action.timelineCommandIndex && row.commandType === "swap" && row.status !== "rejected");
+      if (chainSwap?.startFrame !== null && chainSwap?.startFrame !== undefined) {
+        push(chainSwap.startFrame / 60, "sourceNormalChainSwapStart", { actorId: action.actorId, timelineCommandIndex: action.timelineCommandIndex! });
+      }
       if (timeSeconds <= config.duration) {
-        push(timeSeconds, "action", { action, cycle });
+        push(timeSeconds, "action", { action, cycle }, actionEventPriority(action));
       }
     }
   }
+  for (const input of config.playerShieldModel?.events ?? []) push(input.frame / 60, "playerShieldInput", { input });
   if (timelineExecution !== undefined && resultConfig.timeline !== undefined) {
     for (const commandResult of timelineExecution.commandResults) {
       if (
@@ -2918,6 +3192,54 @@ function simulateConfig(
   const activeDebuffs: ActiveDebuff[] = [];
   const activeTargetDebuffs: ActiveTargetDebuff[] = [];
   const damageEvents: DamageEvent[] = [];
+  const targetHealthRuntime = config.targetHealthModel === undefined ? undefined : new TargetHealthRuntime(config.targetHealthModel);
+  const enemyShieldHost = config.enemyShieldModel === undefined ? undefined : new EnemyShieldHost(config.enemyShieldModel, {
+    consumeApplication: ({ frame, sourceActorId, targetId, application }) => {
+      const engine = auraEngines?.get(targetId);
+      if (engine === undefined) throw new Error("敌盾必须使用该目标已有的实际附着 ICD 引擎。");
+      return engine.consumeConfiguredApplicationOnly(frame, sourceActorId, application);
+    },
+  });
+  for (const task of enemyShieldHost?.tasks() ?? []) push(task.frame / 60, "enemyShieldPhase", task, task.priority);
+
+  const scheduleDeclaredDrop = (
+    drop: { id: string; element: ParticleDefinition["element"]; kind: NonNullable<ParticleDefinition["kind"]>; count: number; travelFrames: number; sourceRef: string },
+    origin: NonNullable<SimulationResult["particleEvents"][number]["origin"]>,
+    spawnTimeSeconds: number,
+    cycle: number,
+  ): void => {
+    push(spawnTimeSeconds, "particleSpawn", {
+      actorId: origin.kind === "external" ? `external:${drop.id}` : `enemy:${origin.targetId}`,
+      actionId: `declared-drop:${drop.id}`, actionName: drop.sourceRef,
+      particle: { id: drop.id, element: drop.element, kind: drop.kind, count: drop.count, spawnOffset: 0,
+        travelTime: drop.travelFrames / 60, source: drop.sourceRef },
+      particleIndex: 0, cycle, origin,
+    } satisfies ParticleSpawnEventPayload);
+  };
+  const settleTargetHealth = (damageEvent: DamageEvent, attackTag = "reaction"): void => {
+    enemyShieldHost?.assertSupportedDelivery(damageEvent.targetId, damageEvent.kind);
+    if (weaponHitStackRuntime !== undefined && damageEvent.mechanicsStatus !== "mechanics-truncated" && damageEvent.reactionAudit.mechanicsTruncation === null) {
+      const captured = resolvedHitContexts.get(damageEvent.id);
+      const critical = damageEvent.kind === "transformative-reaction" ? false : captured?.critical.outcome === "expected" ? null : captured?.critical.outcome === "critical";
+      push(damageEvent.timeSeconds, "weaponHitStackCallback", { input: { kind: "enemy-damage", frame: damageEvent.frame, sourceActorId: damageEvent.sourceActorId, activeCharacterId: damageEvent.activeCharacterId, parentDamageEventId: damageEvent.id, targetId: damageEvent.targetId, attackTag, element: damageEvent.element, damage: damageEvent.finalDamage, critical } }, damageEvent.eventPriority);
+    }
+    const healthLogCount = targetHealthRuntime?.log.length ?? 0;
+    for (const drop of targetHealthRuntime?.settle(damageEvent) ?? []) {
+      scheduleDeclaredDrop(drop.definition, drop.origin, drop.timeSeconds, drop.cycle);
+    }
+    const health = targetHealthRuntime?.log[healthLogCount];
+    if (health?.defeated) recordArtifactKill(damageEvent, health.id);
+    if (nightsoulBurstRuntime !== undefined && damageEvent.element !== "physical" && damageEvent.mechanicsStatus !== "mechanics-truncated" && damageEvent.reactionAudit.mechanicsTruncation === null) {
+      push(damageEvent.timeSeconds, "nightsoulBurstCallback", { parentDamageEventId: damageEvent.id, sourceActorId: damageEvent.sourceActorId,
+        sourceActionId: damageEvent.actionId, sourceHitId: damageEvent.hitId, targetId: damageEvent.targetId,
+        parentHitFrame: damageEvent.frame, parentEventPriority: damageEvent.eventPriority, parentEventSequence: damageEvent.eventSequence,
+        element: damageEvent.element, cycle: damageEvent.cycle } satisfies NightsoulBurstCallbackPayload, damageEvent.eventPriority);
+    }
+  };
+  for (const drop of config.targetHealthModel?.externalDrops ?? []) {
+    scheduleDeclaredDrop(drop, { kind: "external", dropId: drop.id, targetId: null,
+      targetHealthLogId: null, damageEventId: null, sourceRef: drop.sourceRef }, drop.frame / 60, 0);
+  }
   const directDamageGroupLog: SimulationResult["directDamageGroupLog"] = [];
   const elementalApplicationIcdLog:
     SimulationResult["elementalApplicationIcdLog"] = [];
@@ -3885,6 +4207,9 @@ function simulateConfig(
     [];
   const playerDamageEvents: SimulationResult["playerDamageEvents"] =
     [];
+  const playerHealthEvents: PlayerHealthEvent[] = [];
+  const playerMaxHpEvents: NonNullable<SimulationResult["playerMaxHpEvents"]> = [];
+  const scheduledMaxHpExpiryFrames = new Set<number>();
   const playerHpTimeline: SimulationResult["playerHpTimeline"] = {
     version: "1.0.0",
     points: []
@@ -3948,11 +4273,20 @@ function simulateConfig(
       playerHpStateByActorId.set(character.id, {
         actorId: character.id,
         maxHp: maxHpCalculation.maxHp,
+        initialMaxHp: maxHpCalculation.maxHp,
+        totalMaxHpAdjustment: 0,
         initialHp,
         currentHp: initialHp,
+        ...(config.bondOfLifeModel === undefined ? {} : {
+          initialBondOfLife: maxHpCalculation.maxHp * config.bondOfLifeModel.characters.find(actor => actor.actorId === character.id)!.initialRatio,
+          currentBondOfLife: maxHpCalculation.maxHp * config.bondOfLifeModel.characters.find(actor => actor.actorId === character.id)!.initialRatio,
+        }),
         totalIncomingDamage: 0,
         totalAbsorbedDamage: 0,
         totalHpDamage: 0,
+        totalHealing: 0,
+        totalOverheal: 0,
+        totalHpConsumed: 0,
         hitCount: 0,
         zeroHpReached: initialHp === 0
       });
@@ -4118,7 +4452,7 @@ function simulateConfig(
         invalidatedReason: null,
       });
       resetLogIdByTask.set(task, resetLogId);
-      if (task.withinSimulation) {
+      if (task.withinSimulation || retainedOrdinaryReactionQueue) {
         queue.push({
           type: "reactionDamageGroupReset",
           timeSeconds: task.resetAtFrame / 60,
@@ -4381,6 +4715,33 @@ function simulateConfig(
   };
   const skippedActions: SimulationResult["skippedActions"] = [];
   const actionLog: SimulationResult["actionLog"] = [];
+  const playerShieldRuntime = config.playerShieldModel === undefined ? undefined : new PlayerShieldRuntime();
+  const playerShieldLog: NonNullable<SimulationResult["playerShieldLog"]> = [];
+  const playerShieldExpiryFrames = new Set<number>();
+  const recordPlayerShieldDecision = (event: { frame: number; timeSeconds: number; priority: number; sequence: number }, intraEventSequence: number, decision: PlayerShieldDecision, playerDamageEventId: number | null = null): number => {
+    const id = playerShieldLog.length;
+    playerShieldLog.push({ ...decision, id, frame: event.frame, timeSeconds: event.timeSeconds, eventPriority: event.priority,
+      eventSequence: event.sequence, intraEventSequence, playerDamageEventId });
+    return id;
+  };
+  const sourceSnapshotLog: SourceSnapshotLogEntry[] = [];
+  const sourceSnapshotIds = new Map<string, number>();
+  const statConversionLog: NonNullable<SimulationResult["statConversionLog"]> = [];
+  const favoniusLog: NonNullable<SimulationResult["favoniusLog"]> = [];
+  const weaponProcLog: NonNullable<SimulationResult["weaponProcLog"]> = [];
+  const thrillingTalesLog: NonNullable<SimulationResult["thrillingTalesLog"]> = [];
+  const sacrificialLog: NonNullable<SimulationResult["sacrificialLog"]> = [];
+  const skillCooldownLog: NonNullable<SimulationResult["skillCooldownLog"]> = [];
+  const weaponProcLifecycleLog: NonNullable<SimulationResult["weaponProcLifecycleLog"]> = [];
+  const artifactEventLog: NonNullable<SimulationResult["artifactEventLog"]> = [];
+  const weaponHitStackLog: NonNullable<SimulationResult["weaponHitStackLog"]> = [];
+  const artifactBuffLog: NonNullable<SimulationResult["artifactBuffLog"]> = [];
+  const artifactDamageLog: NonNullable<SimulationResult["artifactDamageLog"]> = [];
+  const nightsoulBurstLog: NonNullable<SimulationResult["nightsoulBurstLog"]> = [];
+  const normalHitEnergyLog: NonNullable<SimulationResult["normalHitEnergyLog"]> = [];
+  const liveConversions = new Map<string, NonNullable<SimulationResult["statConversionLog"]>[number]>();
+  const energyCostLog: NonNullable<SimulationResult["energyCostLog"]> = [];
+  const summonLog: NonNullable<SimulationResult["summonLog"]> = [];
   const energyLog: SimulationResult["energyLog"] = [];
   const particleEvents: SimulationResult["particleEvents"] = [];
   const particleTriggerLog: SimulationResult["particleTriggerLog"] = [];
@@ -4396,6 +4757,73 @@ function simulateConfig(
     resultConfig.timeline?.initialActiveCharacterId ??
     config.characters[0]?.id ??
     null;
+  const appendWeaponHitStackDecisions = (decisions: WeaponHitStackRuntimeDecision[]): void => {
+    const queueEvent = executingEvent!;
+    for (const decision of decisions) {
+      if (decision.outcome === "actual-critical-required") throw new Error("宗室回调缺少实际暴击结果，不能使用期望伤害推进叠层。");
+      weaponHitStackLog.push({ ...decision, id: weaponHitStackLog.length, frame: queueEvent.frame, timeSeconds: queueEvent.frame / 60,
+        eventPriority: queueEvent.priority, eventSequence: queueEvent.sequence, intraEventSequence: nextExecutionIntraSequence() });
+    }
+  };
+  const weaponStackShielded = (actorId: string, frame: number): boolean =>
+    (playerShieldRuntime?.captureState().shields.some(shield => shield.hp > 0 && frame < shield.expiresAtFrame &&
+      (shield.target.kind === "actor" ? shield.target.actorId === actorId : activeCharacterId === actorId)) ?? false) ||
+    (activeCharacterId === actorId && activeCrystallizeShield !== null && activeCrystallizeShield.currentBaseHp > 0 && frame < activeCrystallizeShield.expiresAtFrame);
+  type ArtifactBuffLinks = Partial<Pick<NonNullable<SimulationResult["artifactBuffLog"]>[number], "actionLogIndex" | "parentDamageEventId" | "playerHealthEventId" | "reactionTaskLogId" | "parentArtifactBuffLogId">>;
+  const appendArtifactBuffDecisions = (decisions: ArtifactBuffRuntimeDecision[], links: ArtifactBuffLinks = {}, next = nextExecutionIntraSequence): void => {
+    if (decisions.length === 0) return;
+    const event = executingEvent!;
+    for (const decision of decisions) {
+      const id = artifactBuffLog.length;
+      for (const removal of decision.removals) {
+        for (let index = activeBuffs.length - 1; index >= 0; index--) {
+          const buff = activeBuffs[index]!;
+          if (buff.targetId === removal.receiverId && buff.key === `${removal.key}:${removal.receiverId}`) activeBuffs.splice(index, 1);
+        }
+      }
+      for (const application of decision.applications) {
+        const key = `${application.key}:${application.receiverId}`;
+        const existing = activeBuffs.find(buff => buff.key === key && buff.stat === application.stat);
+        if (application.operation === "update" && existing !== undefined) existing.value = application.value;
+        else {
+          for (let index = activeBuffs.length - 1; index >= 0; index--) if (activeBuffs[index]!.key === key && activeBuffs[index]!.stat === application.stat) activeBuffs.splice(index, 1);
+          activeBuffs.push({ key, actorId: application.sourceActorId, targetId: application.receiverId,
+            stat: application.stat, value: application.value, start: application.startFrame / 60,
+            end: application.expiresFrame / 60, label: application.key });
+        }
+      }
+      artifactBuffLog.push({ ...decision, id, frame: event.frame, timeSeconds: event.frame / 60,
+        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: next(),
+        actionLogIndex: null, parentDamageEventId: null, playerHealthEventId: null, reactionTaskLogId: null,
+        parentArtifactBuffLogId: null, ...links });
+      for (const task of decision.delayedApplications) push(task.applyFrame / 60, "artifactBuffApply", { task, parentArtifactBuffLogId: id });
+    }
+  };
+  const handleArtifactBuff = (event: ArtifactBuffEvent, links: ArtifactBuffLinks = {}, next = nextExecutionIntraSequence): void => {
+    appendArtifactBuffDecisions(artifactBuffRuntime?.handle(event) ?? [], links, next);
+  };
+  const artifactReactionBonus = (actorId: string, reaction: string, frame: number): number => {
+    const read = artifactBuffRuntime?.reactionBonus(actorId, reaction, frame);
+    if (read === undefined) return 0;
+    appendArtifactBuffDecisions(read.decisions);
+    return read.value;
+  };
+  const handleArtifactReactions = (reactions: readonly string[], sourceActorId: string, frame: number, links: ArtifactBuffLinks, targetIsEnemy = true): void => {
+    for (const reaction of reactions) if (ARTIFACT_BUFF_ORDINARY_REACTIONS.includes(reaction as ArtifactBuffOrdinaryReaction)) {
+      handleArtifactBuff({ kind: "reaction", frame, sourceActorId, activeCharacterId, reaction: reaction as ArtifactBuffOrdinaryReaction, targetIsEnemy }, links);
+    }
+  };
+  const lunarArtifactOptions = executionOptions?.lunarCharged ?? executionOptions?.lunarCrystallize ?? executionOptions?.lunarBloom ?? executionOptions?.lunarMixed ?? executionOptions?.lunarMixedV2;
+  if (config.moonlightArtifactModel !== undefined && lunarArtifactOptions?.moonsignLevel !== undefined && lunarArtifactOptions.moonsignLevel !== config.moonlightArtifactModel.moonsignLevel) throw new Error("月曜四件套的月兆等级必须一致。");
+  if (config.moonlightArtifactModel?.actors.some(actor => lunarArtifactOptions?.artifacts?.some(other => other.actorId === actor.actorId))) throw new Error("同一角色不能同时佩戴两套已建模月曜四件套。");
+  const moonlightArtifactRuntime = config.moonlightArtifactModel === undefined ? undefined : new MoonlightArtifactRuntime(config.moonlightArtifactModel, config.characters.map(actor => actor.id), activeCharacterId);
+  const effectiveLunarMoonsign = lunarArtifactOptions?.moonsignLevel ?? config.moonlightArtifactModel?.moonsignLevel;
+  const lunarArtifactRuntime = lunarArtifactOptions?.artifacts?.length || moonlightArtifactRuntime !== undefined
+    ? new LunarArtifactRuntime({ ...lunarArtifactOptions, ...(effectiveLunarMoonsign === undefined ? {} : { moonsignLevel: effectiveLunarMoonsign }) }, config.characters.map(actor => actor.id), activeCharacterId, moonlightArtifactRuntime) : undefined;
+  if (lunarArtifactRuntime?.needsCompletedSwap && resultConfig.timeline === undefined) throw new Error("月曜前台／换人条款需要显式合法时间轴，以实际完成换人为准。");
+  // Source Player.Tick completes swaps before the same-frame global Lunar tasks.
+  const pendingLunarSwapFrames = new Set(lunarArtifactRuntime?.needsCompletedSwap
+    ? timelineExecution!.commandResults.filter(row => row.commandType === "swap" && row.status !== "rejected" && row.endFrame !== null).map(row => row.endFrame!) : []);
   const recordEnergyCurve = (
     frame: number,
     timeSeconds: number,
@@ -4815,7 +5243,7 @@ function simulateConfig(
     if (periodicLog !== undefined) {
       periodicLog.reactionDamageLogId = reactionDamageLogId;
     }
-    if (!withinSimulation) return;
+    if (!withinSimulation && !retainedOrdinaryReactionQueue) return;
     push(frame / 60, "reactionDamage", {
       reaction: "electroCharged",
       damageElement: "electro",
@@ -4915,7 +5343,7 @@ function simulateConfig(
       burningLog.reactionDamageLogId = reactionDamageLogId;
     }
     const eventPriority = burningDamagePriorityForTarget(targetId);
-    if (!withinSimulation) {
+    if (!withinSimulation && !retainedOrdinaryReactionQueue) {
       return {
         reactionDamageLogId,
         eventPriority,
@@ -5455,13 +5883,65 @@ function simulateConfig(
       if (buff.targetId !== characterId || !BUFF_STATS.has(buff.stat)) continue;
       const compatibilityStats = stats as CharacterStats &
         Partial<Record<BuffStat, number>>;
-      compatibilityStats[buff.stat] =
-        safeNumber(compatibilityStats[buff.stat]) + buff.value;
+      const stat = options.flatStatBuffSemantics === "canonical-v1"
+        ? buff.stat === "atkFlat" ? "flatAtk" : buff.stat === "hpFlat" ? "flatHp" : buff.stat === "defFlat" ? "flatDef" : buff.stat
+        : buff.stat;
+      compatibilityStats[stat] = safeNumber(compatibilityStats[stat]) + buff.value;
+    }
+    for (const conversion of liveConversions.values()) {
+      if (actionLog[conversion.actionLogIndex]?.actorId === characterId && toFrame(timeSeconds) < conversion.expiresAtFrame) stats.flatAtk += conversion.appliedValue;
+    }
+    const weaponStackValues = weaponHitStackRuntime?.peekValues(characterId, toFrame(timeSeconds), weaponStackShielded(characterId, toFrame(timeSeconds))).values;
+    if (weaponStackValues !== undefined) {
+      stats.atkPct += weaponStackValues.atkPct; stats.defPct += weaponStackValues.defPct;
+      stats.critRate += weaponStackValues.critRate; stats.dmgBonus += weaponStackValues.dmgBonus;
+    }
+    const stellarArtifactStats = stellarArtifactRuntime?.statBonuses(characterId, toFrame(timeSeconds));
+    if (stellarArtifactStats !== undefined) {
+      stats.atkPct += stellarArtifactStats.atkPct;
+      stats.critRate += stellarArtifactStats.critRate;
+    }
+    const moonlightArtifactStats = moonlightArtifactRuntime?.statBonuses(characterId, toFrame(timeSeconds));
+    if (moonlightArtifactStats !== undefined) {
+      stats.critRate += moonlightArtifactStats.critRate;
+      stats.em += moonlightArtifactStats.em;
     }
     stats.critRate = clamp(stats.critRate, 0, 1);
     stats.defIgnore = clamp(stats.defIgnore, 0, 1);
     return stats;
   };
+  const sampleStats = (actorId: string, timeSeconds: number): CharacterStats | undefined => {
+    appendWeaponHitStackDecisions(weaponHitStackRuntime?.handle({kind:"stats-sample",frame:toFrame(timeSeconds),actorId,shielded:weaponStackShielded(actorId,toFrame(timeSeconds))}) ?? []);
+    thrillingTalesRuntime?.markStatsSample(actorId, toFrame(timeSeconds));
+    appendArtifactBuffDecisions(artifactBuffRuntime?.markStatsSample(actorId, toFrame(timeSeconds)) ?? []);
+    return computeStats(actorId, timeSeconds);
+  };
+  const syncPlayerMaxHp = (event: { frame: number; timeSeconds: number; priority: number; sequence: number }, cause: "buff-apply" | "buff-expire"): void => {
+    if (config.playerMaxHpModel === undefined) return;
+    for (const [actorIndex, actor] of config.characters.entries()) {
+      const state = playerHpStateByActorId.get(actor.id)!;
+      const stats = computeStats(actor.id, event.timeSeconds)!;
+      const maxHpAfter = calcPlayerMaxHp({ baseHp: stats.baseHp, hpPct: stats.hpPct, flatHp: stats.flatHp }).maxHp;
+      if (state.maxHp === maxHpAfter) continue;
+      const calculation = calculatePlayerMaxHpChange({ hpBefore: state.currentHp, maxHpBefore: state.maxHp, maxHpAfter,
+        statsAfter: { baseHp: stats.baseHp, hpPct: stats.hpPct, flatHp: stats.flatHp },
+        ...(state.currentBondOfLife === undefined ? {} : { bondOfLifeBefore: state.currentBondOfLife }) });
+      const id = playerMaxHpEvents.length;
+      playerMaxHpEvents.push({ id, frame: event.frame, timeSeconds: event.timeSeconds, eventPriority: event.priority,
+        eventSequence: event.sequence, intraEventSequence: actorIndex * 2, actorId: actor.id, cause, ...calculation });
+      state.maxHp = maxHpAfter;
+      state.currentHp = calculation.hpAfter;
+      state.totalMaxHpAdjustment += calculation.hpAdjustment;
+      playerHpTimeline.points.push({ id: playerHpTimeline.points.length, frame: event.frame, timeSeconds: event.timeSeconds,
+        eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: actorIndex * 2 + 1,
+        operation: "max-hp-change", actorId: actor.id, playerDamageEventId: null, playerMaxHpEventId: id,
+        maxHp: maxHpAfter, hpBefore: calculation.hpBefore, hpAfter: calculation.hpAfter, hpRatioAfter: calculation.hpRatioAfter });
+    }
+  };
+  const currentThrillingTalesStatuses = (actorId: string): ActiveStatusSnapshot[] => activeBuffs
+    .filter(buff => buff.targetId === actorId && buff.key === `ttds:${actorId}`)
+    .map(buff => ({ key: buff.key, kind: "buff", sourceActorId: buff.actorId, targetId: buff.targetId,
+      stat: buff.stat, value: buff.value, startTimeSeconds: buff.start, endTimeSeconds: buff.end, label: buff.label }));
 
   const resolvePlayerReactionSelfDamage = ({
     reaction,
@@ -5647,6 +6127,7 @@ function simulateConfig(
           incomingElement: damageElement,
           shieldElement: shieldAtHit.element,
           currentBaseHp: shieldAtHit.currentBaseHp,
+          ...(playerShieldRuntime === undefined ? {} : { shieldStrengthBonus: playerShieldStrengthBonus(playerShieldRuntime.captureState(), frame) }),
           elementalMasteryBonus:
             shieldAtHit.calculation.elementalMasteryBonus
         });
@@ -5752,19 +6233,18 @@ function simulateConfig(
       }
     }
 
-    const hpResolutionBase = applyPlayerHpDamage({
-      currentHp: hpState.currentHp,
-      maxHp: hpState.maxHp,
-      incomingDamage: shieldResolution.damageAfterShield
-    });
-    const hpResolution: SimulationResult["playerDamageEvents"][number]["hpResolution"] =
-      {
-        zeroHpPolicy: "clamp-and-continue",
-        ...hpResolutionBase
-      };
+    const genericShieldDecision = playerShieldRuntime?.absorb({ frame, operation: "reaction-hit", targetActorId,
+      activeCharacterId: activeCharacterId!, incomingDamage, incomingElement: damageElement, crystallizeDamageAfter: shieldResolution.damageAfterShield });
+    const playerShieldLogId = genericShieldDecision === undefined ? undefined : recordPlayerShieldDecision(
+      { frame, timeSeconds, priority: eventPriority, sequence: eventSequence }, nextIntraEventSequence(), genericShieldDecision, playerDamageEventId);
+    const hpResolution: SimulationResult["playerDamageEvents"][number]["hpResolution"] = playerShieldRuntime === undefined
+      ? { zeroHpPolicy: "clamp-and-continue", ...applyPlayerHpDamage({ currentHp: hpState.currentHp, maxHp: hpState.maxHp, incomingDamage: shieldResolution.damageAfterShield }) }
+      : calculatePlayerShieldHpDamage({ currentHp: hpState.currentHp, maxHp: hpState.maxHp, incomingDamage: genericShieldDecision!.damageAfterShield! }).resolution;
+    if (playerShieldLogId !== undefined) playerShieldLog[playerShieldLogId]!.hpResolution = hpResolution;
     const playerDamageEvent: SimulationResult["playerDamageEvents"][number] =
       {
         id: playerDamageEventId,
+        ...(playerShieldLogId === undefined ? {} : { playerShieldLogId }),
         frame,
         timeSeconds,
         eventPriority,
@@ -5807,7 +6287,7 @@ function simulateConfig(
     hpState.currentHp = hpResolution.currentHpAfter;
     hpState.totalIncomingDamage += incomingDamage;
     hpState.totalAbsorbedDamage +=
-      shieldResolution.absorbedDamage;
+      genericShieldDecision?.absorbedDamage ?? shieldResolution.absorbedDamage;
     hpState.totalHpDamage += hpResolution.actualLoss;
     hpState.hitCount += 1;
     hpState.zeroHpReached ||= hpResolution.currentHpAfter === 0;
@@ -5920,6 +6400,7 @@ function simulateConfig(
         `Dendro-core damage source "${damageSourceActorId}" could not be resolved.`
       );
     }
+    if (decision.reaction === "hyperbloom" || decision.reaction === "burgeon") lunarArtifactRuntime?.reactionTriggered(damageSourceActorId, removalFrame, decision.reaction);
     const removalLogId = dendroCoreLog.length;
     const reactionDamageLogId = reactionDamageLog.length;
     const withinSimulation =
@@ -6021,7 +6502,7 @@ function simulateConfig(
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
-    if (withinSimulation) {
+    if (withinSimulation || retainedOrdinaryReactionQueue) {
       push(decision.damageFrame / 60, "reactionDamage", {
         reaction: decision.reaction,
         damageElement: "dendro",
@@ -6165,7 +6646,7 @@ function simulateConfig(
       });
       dendroCoreLogIds.push(dendroCoreLogId);
       dendroCoreIds.push(reservation.coreId);
-      if (withinSimulation) {
+      if (withinSimulation || retainedOrdinaryReactionQueue) {
         push(reservation.spawnFrame / 60, "dendroCoreSpawn", {
           reservation
         } satisfies DendroCoreSpawnEventPayload);
@@ -6703,6 +7184,7 @@ function simulateConfig(
     nextIntraEventSequence: () => number;
   }): number | null => {
     if (!audit.triggered) return null;
+    if (audit.scheduled) reactionBonus += artifactReactionBonus(actorId, "shatter", triggerFrame);
     const reactionDamageLogId = reactionDamageLog.length;
     const withinSimulation =
       audit.scheduled &&
@@ -6745,7 +7227,11 @@ function simulateConfig(
       reactionStatusLogIds: [],
       damageGroupDecisions: []
     });
-    if (!withinSimulation) return null;
+    if (!withinSimulation && (!retainedOrdinaryReactionQueue || !audit.scheduled)) return null;
+    if (recursiveShatterDeliveryEnabled && !withinSimulation) {
+      periodicCheckpointRuntimeBlockers.add("递归碎冰的源内联伤害落在观察窗外，尚未导出可继续的内联任务状态。");
+      return null;
+    }
     if (recursiveShatterDeliveryEnabled) {
       return settleRecursiveShatterDamage({
         actorId,
@@ -6851,6 +7337,7 @@ function simulateConfig(
     triggerFrame: number;
   }): void => {
     for (const audit of audits) {
+      const sampledReactionBonus = reactionBonus + (audit.scheduled ? artifactReactionBonus(actorId, audit.reaction, triggerFrame) : 0);
       const attacks = [
         {
           scheduleKind: "swirl-self" as const,
@@ -6921,7 +7408,7 @@ function simulateConfig(
           reactionStatusLogIds: [],
           damageGroupDecisions: []
         });
-        if (!withinSimulation) continue;
+        if (!withinSimulation && (!retainedOrdinaryReactionQueue || !audit.scheduled)) continue;
         push(attack.damageFrame / 60, "reactionDamage", {
           reaction: audit.reaction,
           damageElement: audit.swirledElement,
@@ -6940,7 +7427,7 @@ function simulateConfig(
           baseMultiplier: attack.baseMultiplier,
           stats: deepClone(stats),
           elementalMastery: stats.em,
-          reactionBonus,
+          reactionBonus: sampledReactionBonus,
           sourceBuffStatuses: deepClone(sourceBuffStatuses),
           snapshot,
           cycle,
@@ -6955,7 +7442,7 @@ function simulateConfig(
             scheduleKind: attack.scheduleKind,
             reaction: audit.reaction,
             reactionBonusDelta:
-              reactionBonus - stats.reactionBonus
+              sampledReactionBonus - stats.reactionBonus
           }
         } satisfies ReactionDamageEventPayload);
       }
@@ -7125,7 +7612,7 @@ function simulateConfig(
         fuelExpiresAtFrame: burningReaction.fuelExpiresAtFrame,
         stats: deepClone(stats),
         elementalMastery: stats.em,
-        reactionBonus,
+        reactionBonus: reactionBonus + artifactReactionBonus(actorId, "burning", frame),
         sourceBuffStatuses: deepClone(sourceBuffStatuses),
         // Burning always snapshots the triggering frame's live stats. It must
         // not inherit an action-snapshot mode from the attack that started or
@@ -7445,7 +7932,7 @@ function simulateConfig(
       const reactionBonusDelta =
         reactionBonus - stats.reactionBonus;
       const liveReactionBonus =
-        liveReactionStats.reactionBonus + reactionBonusDelta;
+        liveReactionStats.reactionBonus + reactionBonusDelta + (transformativeReaction.scheduled ? artifactReactionBonus(actorId, transformativeReaction.reaction, frame) : 0);
       const liveReactionSourceBuffStatuses = activeBuffs
         .filter((buff) => buff.targetId === actorId)
         .map((buff) => ({
@@ -7501,7 +7988,7 @@ function simulateConfig(
         reactionStatusLogIds: [],
         damageGroupDecisions: []
       });
-      if (withinSimulation) {
+      if (withinSimulation || (retainedOrdinaryReactionQueue && transformativeReaction.scheduled)) {
         push(
           transformativeReaction.damageFrame / 60,
           "reactionDamage",
@@ -7724,7 +8211,7 @@ function simulateConfig(
       elementalMastery: livePeriodicStats.em,
       reactionBonus:
         livePeriodicStats.reactionBonus +
-        periodicReactionBonusDelta,
+        periodicReactionBonusDelta + artifactReactionBonus(actorId, "electroCharged", frame),
       sourceBuffStatuses: deepClone(
         livePeriodicSourceBuffStatuses
       ),
@@ -7814,6 +8301,16 @@ function simulateConfig(
         end: timeSeconds + buff.duration,
         label: buff.label ?? buff.key ?? buff.stat
       });
+    }
+    if (config.playerMaxHpModel !== undefined) {
+      if ((buff.stat === "hpPct" || buff.stat === "hpFlat") && buff.duration > 0) {
+        const expiryFrame = toFrame(timeSeconds + buff.duration);
+        if (!scheduledMaxHpExpiryFrames.has(expiryFrame)) {
+          scheduledMaxHpExpiryFrames.add(expiryFrame);
+          push(expiryFrame / 60, "playerMaxHpExpiry", {});
+        }
+      }
+      syncPlayerMaxHp({ ...executingEvent!, timeSeconds }, "buff-apply");
     }
   };
 
@@ -8368,6 +8865,7 @@ function simulateConfig(
       buffs: buffLabels,
       debuffs: debuffLabels
     });
+    settleTargetHealth(damageEvents[childDamageEventId]!);
     reactionLog.damageEventIds.push(childDamageEventId);
     targetResolution.damageEventId = childDamageEventId;
     targetResolution.potentialDamage = potentialDamage;
@@ -8466,13 +8964,16 @@ function simulateConfig(
         particle.id ?? `${action.id}:particle-${particleIndex}`;
       const source = particle.source ?? `${action.name}:${particleId}`;
       const triggerLogId = particleTriggerLog.length;
+      const probability = trigger.probability;
+      const roll = probability !== undefined && hitConfirmAllowed && !blockedByInternalCooldown ? particleTriggerRandom.next() : null;
+      const drawIndex = roll === null ? null : particleTriggerDrawCount++;
       const blockedReason = !landed
         ? ("TARGET_MISS" as const)
         : !hitConfirmAllowed
           ? ("TARGET_HIT_CONFIRM_BLOCKED" as const)
         : blockedByInternalCooldown
           ? ("INTERNAL_COOLDOWN" as const)
-          : null;
+          : roll !== null && probability !== undefined && roll >= probability ? ("PROBABILITY_FAILED" as const) : null;
       particleTriggerLog.push({
         id: triggerLogId,
         frame,
@@ -8487,6 +8988,7 @@ function simulateConfig(
         checkedTargetIds: [...checkedTargetIds],
         confirmedTargetIds: [...confirmedTargetIds],
         triggered: blockedReason === null,
+        ...(probability === undefined ? {} : { probability, roll, drawIndex, rngStream: "particle-trigger-v1" as const }),
         blockedReason,
         internalCooldownKey: internalCooldown?.key ?? null,
         internalCooldownDurationFrames,
@@ -8581,6 +9083,7 @@ function simulateConfig(
         element
       );
       if (removalDecision === null) continue;
+      handleArtifactReactions([element === "electro" ? "hyperbloom" : "burgeon"], actorId, frame, { parentDamageEventId: triggerDamageEventIds[0] ?? null }, false);
       const scheduled = scheduleDendroCoreDamage({
         decision: removalDecision,
         damageSourceActorId: actorId,
@@ -8665,6 +9168,7 @@ function simulateConfig(
     landed,
     hitConfirmAllowed,
     resolvedGeometry,
+    eventPriority,
     eventSequence,
     nextIntraEventSequence
   }: {
@@ -8685,6 +9189,7 @@ function simulateConfig(
     landed: boolean;
     hitConfirmAllowed: boolean;
     resolvedGeometry: ResolvedWorldHitGeometry | null;
+    eventPriority: number;
     eventSequence: number;
     nextIntraEventSequence: () => number;
   }): void => {
@@ -8701,7 +9206,7 @@ function simulateConfig(
         hitResolutionLogId: targetResolutionId,
         frame,
         landed,
-        eventPriority: EVENT_PRIORITY.hit,
+        eventPriority,
         eventSequence,
         intraEventSequence: nextIntraEventSequence()
       });
@@ -8760,7 +9265,7 @@ function simulateConfig(
         cycle,
         frame,
         eventType: "hit",
-        eventPriority: EVENT_PRIORITY.hit,
+        eventPriority,
         eventSequence,
         nextIntraEventSequence
       });
@@ -8827,11 +9332,985 @@ function simulateConfig(
     return true;
   };
 
+  const phaseCheckpoints: SimulationExecutionAudit["phaseCheckpoints"] = [];
+  const requestedCheckpointFrames = [...new Set(executionOptions?.checkpointFrames ?? [])].sort((left, right) => left - right);
+  let nextCheckpointIndex = 0;
+  const randomParticles = particleRandomness({ ...config, ...(resultConfig.timeline === undefined ? {} : { timeline: resultConfig.timeline }) });
+  const reactionCheckpointFeatures = ordinaryReactionFeatures({ ...config, ...(resultConfig.timeline === undefined ? {} : { timeline: resultConfig.timeline }) });
+  const captureRandomExecution = (): RandomExecutionCapturedState => ({
+    ...(retainedOrdinaryReactionQueue && reactionCheckpointFeatures.dendroCore ? { dendroCorePosition: dendroCoreRandom.captureState() } : {}),
+    ...(retainedOrdinaryReactionQueue && reactionCheckpointFeatures.crystallize ? { crystallizePosition: crystallizeRandom.captureState() } : {}),
+    ...(randomParticles.count ? { particleCount: random.captureState() } : {}),
+    ...(randomParticles.trigger ? { particleTrigger: particleTriggerRandom.captureState() } : {}),
+    ...(executionOptions?.criticalSampling === undefined ? {} : { critical: criticalRandom.captureState() }),
+    ...(normalHitEnergyRuntime === undefined ? {} : { normalHitEnergy: normalHitEnergyRuntime.captureState() }),
+    ...(favoniusRuntime === undefined ? {} : { favonius: favoniusRuntime.captureState() }),
+    ...(sacrificialRuntime === undefined ? {} : { sacrificial: sacrificialRuntime.captureState() }),
+    ...(hasRandomWeaponProc(config.weaponProcModel) ? { weaponProc: weaponProcRuntime!.captureState().random! } : {}),
+    ...(config.artifactDamageModel?.actors.some(actor => actor.effectId === "echoes-4pc") ? { artifactDamage: artifactDamageRuntime!.captureState().random! } : {}),
+  });
+  const checkpointBlockers = new Set(phaseCheckpointBlockers({ ...config, ...(resultConfig.timeline === undefined ? {} : { timeline: resultConfig.timeline }) }, {
+    randomState: captureRandomExecution(),
+    sourceNormalChainStateAvailable: sourceNormalChainRuntime !== undefined,
+    auraEnginePresent: auraEngines !== null,
+    ordinaryAuraStateAvailable: auraEngines !== null,
+    directDamageGroupStateAvailable: true,
+    targetPhaseV2StateAvailable: config.targetTaskModel.mode === "target-phase-v2",
+    targetClockPresent: targetClocks !== null,
+    pluginsPresent: pluginDefinitions.length > 0,
+    nonPeriodicReactionStateAvailable: auraEngines !== null,
+    periodicReactionStateAvailable: auraEngines !== null && retainedOrdinaryReactionQueue,
+    delayedEnergyStateAvailable: true,
+    timedSummonStateAvailable: true,
+    statConversionStateAvailable: true,
+    staminaStateAvailable: staminaRuntime !== undefined,
+    healthActionStateAvailable: true,
+    periodicEntityStateAvailable: true,
+    actionConditionStateAvailable: true,
+    weaponProcStateAvailable: weaponProcRuntime !== undefined,
+    thrillingTalesStateAvailable: thrillingTalesRuntime !== undefined,
+    skillCooldownStateAvailable: runtimeSkillActors.size > 0,
+    artifactEventStateAvailable: artifactEventRuntime !== undefined,
+    artifactDamageStateAvailable: artifactDamageRuntime !== undefined,
+    weaponHitStackStateAvailable: weaponHitStackRuntime !== undefined,
+    artifactBuffStateAvailable: artifactBuffRuntime !== undefined,
+    playerShieldStateAvailable: playerShieldRuntime !== undefined,
+    nightsoulBurstStateAvailable: nightsoulBurstRuntime !== undefined,
+  }));
+  if (executionOptions?.lunarCharged || executionOptions?.lunarCrystallize || executionOptions?.lunarMixed || executionOptions?.lunarMixedV2 || executionOptions?.stellarConduct || executionOptions?.stellarSwirl || executionOptions?.lunarBloom) checkpointBlockers.add("特殊反应注入与其私有运行时尚未纳入完整检查点。");
+  if (stellarArtifactRuntime !== undefined) checkpointBlockers.add("星辉圣遗物动态窗口尚未纳入相位检查点；完整特殊结果只能从初态重执行。");
+  if (moonlightArtifactRuntime !== undefined) checkpointBlockers.add("月曜圣遗物动态窗口尚未纳入相位检查点；完整特殊结果只能从初态重执行。");
+  const checkpointCapabilityBlockers = [...checkpointBlockers];
+  const capturePendingCheckpointsThrough = (frame: number): void => {
+    while (nextCheckpointIndex < requestedCheckpointFrames.length && requestedCheckpointFrames[nextCheckpointIndex]! <= frame) {
+      const tick = requestedCheckpointFrames[nextCheckpointIndex++]!;
+      const captured = capturePhaseCheckpoint({
+        tick,
+        randomState: captureRandomExecution(),
+        ...(sourceNormalChainRuntime === undefined ? {} : { sourceNormalChainState: sourceNormalChainRuntime.captureState() }),
+        ...(staminaRuntime === undefined ? {} : { staminaState: staminaRuntime.captureBefore(tick) }),
+        cumulativeDamage: damageEvents.reduce((sum, damageEvent) => sum + damageEvent.finalDamage, 0),
+        config,
+        ...(timelineExecution === undefined || resultConfig.timeline === undefined ? {} : { timelineExecution, timelineConfig: resultConfig.timeline }),
+        energies,
+        reservedEnergy,
+        activeTimedSummons,
+        periodicEntityState: periodicEntityRuntime.captureState(),
+        actionConditionLog,
+        ...(weaponProcRuntime === undefined ? {} : { weaponProcState: weaponProcRuntime.captureState() }),
+        ...(thrillingTalesRuntime === undefined ? {} : { thrillingTalesState: thrillingTalesRuntime.captureState() }),
+        ...(runtimeSkillActors.size === 0 ? {} : { skillCooldownState: skillCooldownStates }),
+        ...(artifactEventRuntime === undefined ? {} : { artifactEventState: artifactEventRuntime.captureState() }),
+        ...(weaponHitStackRuntime === undefined ? {} : { weaponHitStackState: weaponHitStackRuntime.captureState() }),
+        ...(artifactBuffRuntime === undefined ? {} : { artifactBuffState: artifactBuffRuntime.captureState() }),
+        ...(artifactDamageRuntime === undefined ? {} : { artifactDamageState: artifactDamageRuntime.captureState() }),
+        ...(playerShieldRuntime === undefined ? {} : { playerShieldState: playerShieldRuntime.captureState() }),
+        ...(nightsoulBurstRuntime === undefined ? {} : { nightsoulBurstState: nightsoulBurstRuntime.captureState() }),
+        ...(config.targetTaskModel.mode === "target-phase-v2" ? {
+          targetPhaseV2State: captureTargetPhaseV2State({ lastProcessedFrame: executingEvent?.frame ?? null,
+            scheduledDecayKeys: scheduledTargetDecayKeys, completedDecayKeys: completedTargetDecayKeys,
+            states: targetPhaseV2StateByKey.values() }),
+        } : {}),
+        ...(auraEngines === null ? {} : {
+          ordinaryAuraState: new Map([...auraEngines].map(([targetId, engine]) => [targetId, engine.captureOrdinaryState(true, retainedOrdinaryReactionQueue)])),
+          auraObservationState: targetStateTimelineRecorder.captureObservationState(),
+          ...(retainedOrdinaryReactionQueue ? { periodicReactionState: {
+            periodicSources: activePeriodicReactionSources, burningSources: activeBurningSources,
+            periodicExpiryKeys: periodicReactionExpiryScheduleKeys, burningExpiryKeys: burningFuelExpiryScheduleKeys,
+            cleanupTasks: reactionTaskLog, periodicHistory: periodicReactionLog,
+            dendroCore: dendroCoreManager.captureState(), dendroSources: dendroCoreRuntimeSources,
+            shards: activeCrystallizeShards, shield: activeCrystallizeShield,
+            nextShardId: nextCrystallizeShardId, nextShieldId: nextCrystallizeShieldId,
+            inlineBurningDeliveries: burningRootInlineDeliveryByReactionDamageLogId.size,
+          } satisfies PeriodicReactionHostState } : {}),
+          nonPeriodicReactionState: { frozenSources: activeFrozenStateSources, quickenSources: activeQuickenStateSources, frozenExpiryScheduleKeys, quickenExpiryScheduleKeys, damageGroups: reactionDamageGroupEngine.captureState(), pendingFreezeBrokenCallbacks: pendingFreezeBrokenCallbacks.size },
+        }),
+        ...([...config.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(source => source.hits?.some(hit => hit.directDamageGroup !== undefined)) ? {
+          directDamageGroupState: new Map([...directDamageGroupEngines].map(([targetId, engine]) => [targetId, engine.captureState()])),
+        } : {}),
+        liveConversions,
+        sourceSnapshotLog,
+        actionLog,
+        fixedEnergyCooldownReadyFrames,
+        particleCooldownReadyFrames,
+        activeBuffs,
+        activeDebuffs,
+        activeTargetDebuffs,
+        activeCharacterId,
+        pendingEvents: queue.snapshot(),
+        particleEvents,
+        playerHpStateByActorId,
+        unsupportedState: [...checkpointCapabilityBlockers, ...periodicCheckpointRuntimeBlockers]
+      });
+      if (captured.checkpoint !== null) phaseCheckpoints.push(captured.checkpoint);
+      for (const reason of captured.blockers) checkpointBlockers.add(reason);
+    }
+  };
+  const lunarMixedV2Options = options.execution?.lunarMixedV2;
+  const specialCriticalSampler = executionOptions?.criticalSampling === "seeded-random-v1" &&
+    (executionOptions.lunarCharged || executionOptions.lunarCrystallize || executionOptions.lunarBloom || executionOptions.lunarMixed || executionOptions.lunarMixedV2)
+    ? new SpecialCriticalSampler(options.randomSeed) : undefined;
+  const specialCriticalInputs = specialCriticalSampler === undefined ? {} : { criticalSampler: specialCriticalSampler };
+  const lunarMixedV2Runtime = lunarMixedV2Options === undefined ? undefined : new LunarMixedV2Runtime({
+    ...specialCriticalInputs,
+    ...(lunarArtifactRuntime === undefined ? {} : { artifactRuntime: lunarArtifactRuntime }),
+    config, options: lunarMixedV2Options, target: enemyTargets[0]!, aura: auraEngines!.get(enemyTargets[0]!.id)!, critMode: options.critMode,
+    snapshot: (actorId, frame) => {
+      const stats = computeStats(actorId, frame / 60);
+      if (stats === undefined) throw new Error(`Missing mixed Lunar v2 contribution stats for ${actorId}`);
+      return stats;
+    },
+    resistance: (element, frame) => resolveEnemyBaseResistance(enemyTargets[0]!, element) - getDebuffState(frame / 60, element, 0, enemyTargets[0]!.id).resShred,
+    beforeWake: frame => recordNaturalAuraExpiries(frame, true),
+    scheduleTask: task => { push(task.frame / 60, "lunarMixedV2Task", task, task.kind === "state-wake" ? 2.5 : task.kind === "ability-consume" ? 2.75 : 3); },
+    consumption: (order, mutation) => {
+      targetStateTimelineRecorder.recordEvent({ frame: order.frame, timeSeconds: order.frame / 60, targetId: enemyTargets[0]!.id, targetName: enemyTargets[0]!.name,
+        cause: "lunar-charged-consumption", eventType: "hit", eventPriority: order.priority, eventSequence: order.sequence, intraEventSequence: 0,
+        reaction: "none", reactions: [], primaryDamageEventId: null, links: [], ...mutation });
+    }
+  });
+  const lunarMixedOptions = options.execution?.lunarMixed;
+  const lunarMixedRuntime = lunarMixedOptions === undefined ? undefined : new LunarMixedRuntime({
+    ...specialCriticalInputs,
+    ...(lunarArtifactRuntime === undefined ? {} : { artifactRuntime: lunarArtifactRuntime }),
+    config, options: lunarMixedOptions, target: enemyTargets[0]!, aura: auraEngines!.get(enemyTargets[0]!.id)!, critMode: options.critMode,
+    snapshot: (actorId, frame) => {
+      const stats = computeStats(actorId, frame / 60);
+      if (stats === undefined) throw new Error(`Missing mixed Lunar contribution stats for ${actorId}`);
+      return stats;
+    },
+    resistance: (element, frame) => resolveEnemyBaseResistance(enemyTargets[0]!, element) - getDebuffState(frame / 60, element, 0, enemyTargets[0]!.id).resShred,
+    beforeWake: frame => recordNaturalAuraExpiries(frame, true),
+    scheduleTask: task => { push(task.frame / 60, "lunarMixedTask", task, task.kind === "state-wake" ? 2.5 : 3); },
+    consumption: (order, mutation) => {
+      targetStateTimelineRecorder.recordEvent({ frame: order.frame, timeSeconds: order.frame / 60, targetId: enemyTargets[0]!.id, targetName: enemyTargets[0]!.name,
+        cause: "lunar-charged-consumption", eventType: "hit", eventPriority: order.priority, eventSequence: order.sequence, intraEventSequence: 0,
+        reaction: "none", reactions: [], primaryDamageEventId: null, links: [], ...mutation });
+    }
+  });
+  const lunarOptions = options.execution?.lunarCharged;
+  const lunarRuntime = lunarOptions === undefined ? undefined : new LunarChargedRuntime({
+    ...specialCriticalInputs,
+    ...(lunarArtifactRuntime === undefined ? {} : { artifactRuntime: lunarArtifactRuntime }),
+    config, options: lunarOptions, target: enemyTargets[0]!, aura: auraEngines!.get(enemyTargets[0]!.id)!, critMode: options.critMode,
+    snapshot: (actorId, frame) => {
+      const stats = computeStats(actorId, frame / 60);
+      if (stats === undefined) throw new Error(`Missing LC contribution stats for ${actorId}`);
+      return stats;
+    },
+    resistance: (frame) => resolveEnemyBaseResistance(enemyTargets[0]!, "electro") - getDebuffState(frame / 60, "electro", 0, enemyTargets[0]!.id).resShred,
+    beforeWake: (frame) => recordNaturalAuraExpiries(frame, true),
+    consumption: (frame, mutation) => {
+      targetStateTimelineRecorder.recordEvent({
+        frame, timeSeconds: frame / 60, targetId: enemyTargets[0]!.id, targetName: enemyTargets[0]!.name,
+        cause: "lunar-charged-consumption", eventType: "hit", eventPriority: -1, eventSequence: sequence++, intraEventSequence: 0,
+        reaction: "none", reactions: [], primaryDamageEventId: null, links: [], ...mutation
+      });
+    }
+  });
+  const lunarCrystallizeOptions = options.execution?.lunarCrystallize;
+  const lunarCrystallizeRuntime = lunarCrystallizeOptions === undefined ? undefined : new LunarCrystallizeRuntime({
+    ...specialCriticalInputs,
+    ...(lunarArtifactRuntime === undefined ? {} : { artifactRuntime: lunarArtifactRuntime }),
+    config, options: lunarCrystallizeOptions, target: enemyTargets[0]!, aura: auraEngines!.get(enemyTargets[0]!.id)!, critMode: options.critMode,
+    snapshot: (actorId, frame) => {
+      const stats = computeStats(actorId, frame / 60);
+      if (stats === undefined) throw new Error(`Missing Lunar-Crystallize contribution stats for ${actorId}`);
+      return stats;
+    },
+    resistance: (frame) => resolveEnemyBaseResistance(enemyTargets[0]!, "geo") - getDebuffState(frame / 60, "geo", 0, enemyTargets[0]!.id).resShred,
+    beforeWake: (frame) => recordNaturalAuraExpiries(frame, true)
+  });
+  const stellarConductOptions = options.execution?.stellarConduct;
+  const stellarConductRuntime = stellarConductOptions === undefined ? undefined : new StellarConductRuntime({ config, options: stellarConductOptions, targetId: enemyTargets[0]!.id, beforeWake: (frame) => recordNaturalAuraExpiries(frame, true), ...(stellarArtifactRuntime === undefined ? {} : { artifactRuntime: stellarArtifactRuntime }) });
+  let lastLunarBloomActionAnimationUntil = 0;
+  const stellarActionPanels = new WeakMap<Record<string, CharacterStats | undefined>, StellarConductPanelSnapshot>();
+  const lunarBloomOptions = options.execution?.lunarBloom;
+  const lunarBloomRuntime = lunarBloomOptions === undefined ? undefined : new LunarBloomRuntime({
+    ...specialCriticalInputs,
+    ...(lunarArtifactRuntime === undefined ? {} : { artifactRuntime: lunarArtifactRuntime }),
+    config, options: { ...lunarBloomOptions, ...(lunarBloomOptions.abilities === undefined ? { abilities: [] } : { abilities: lunarBloomOptions.abilities }) }, target: enemyTargets[0]!, critMode: options.critMode,
+    snapshot: (actorId, frame) => {
+      const stats = computeStats(actorId, frame / 60);
+      if (stats === undefined) throw new Error(`Missing Lunar-Bloom contribution stats for ${actorId}`);
+      return stats;
+    },
+    resistance: (frame) => resolveEnemyBaseResistance(enemyTargets[0]!, "dendro") - getDebuffState(frame / 60, "dendro", 0, enemyTargets[0]!.id).resShred,
+    beforeWake: (frame) => recordNaturalAuraExpiries(frame, true)
+  });
+  const stellarSwirlOptions = options.execution?.stellarSwirl;
+  let stellarSwirlExecutionOrder: StellarSwirlExecutionOrder | undefined;
+  const stellarSwirlRuntime = stellarSwirlOptions === undefined ? undefined : new StellarSwirlRuntime({
+    config, options: stellarSwirlOptions, target: enemyTargets[0]!, critMode: options.critMode,
+    ...(stellarArtifactRuntime === undefined ? {} : { artifactRuntime: stellarArtifactRuntime }),
+    snapshot: (actorId, frame) => {
+      const stats = computeStats(actorId, frame / 60);
+      if (stats === undefined) throw new Error(`Missing Stellar-Swirl contribution stats for ${actorId}`);
+      return stats;
+    },
+    resistance: (element, frame) => resolveEnemyBaseResistance(enemyTargets[0]!, element) - getDebuffState(frame / 60, element, 0, enemyTargets[0]!.id).resShred,
+    auraAt: (frame) => auraEngines!.get(enemyTargets[0]!.id)!.getAuraStateAt(frame),
+    beforeWake: (frame) => recordNaturalAuraExpiries(frame, true),
+    scheduleTask: (task) => { push(task.frame / 60, "stellarSwirlTask", task, task.kind === "state-wake" ? 2.5 : 3); },
+    applyCryo: (intent) => {
+      const target = enemyTargets[0]!;
+      const mutation = auraEngines!.get(target.id)!.applyStellarSwirlCryoAt(intent.deliveryFrame, intent.ownerId);
+      if (stellarSwirlExecutionOrder === undefined) throw new Error("Stellar-Swirl Cryo delivery requires its current main-heap task");
+      targetStateTimelineRecorder.recordEvent({
+        frame: intent.deliveryFrame, timeSeconds: intent.deliveryFrame / 60, targetId: target.id, targetName: target.name,
+        cause: "stellar-swirl-attachment", eventType: "hit", eventPriority: stellarSwirlExecutionOrder.priority, eventSequence: stellarSwirlExecutionOrder.sequence, intraEventSequence: 0,
+        reaction: "none", reactions: [], primaryDamageEventId: null, links: [], ...mutation
+      });
+      return { frame: intent.deliveryFrame, ownerId: intent.ownerId, targetId: target.id, applied: true, element: "cryo", gaugeUnits: 1, auraBefore: mutation.auraBefore, auraAfter: mutation.auraAfter };
+    }
+  });
+  const snapshotAction = (action: ActionDefinition, timeSeconds: number, sampledHits: readonly HitDefinition[] = []): Record<string, CharacterStats | undefined> => {
+    const snapshotIds = new Set([action.actorId]);
+    for (const hit of action.hits ?? []) {
+      snapshotIds.add(hit.scalingOwnerId ?? action.actorId);
+      for (const source of hit.flatSources ?? []) snapshotIds.add(source.ownerId ?? action.actorId);
+    }
+    const snapshots: Record<string, CharacterStats | undefined> = {};
+    const sampledIds = new Set(sampledHits.length ? [action.actorId] : []);
+    for (const hit of sampledHits) {
+      sampledIds.add(hit.scalingOwnerId ?? action.actorId);
+      for (const source of hit.flatSources ?? []) if (source.snapshotFrame === undefined) sampledIds.add(source.ownerId ?? action.actorId);
+    }
+    const thrillingTalesStatuses: Record<string, ActiveStatusSnapshot[]> = {};
+    if (stellarConductRuntime) stellarActionPanels.set(snapshots, stellarConductRuntime.panelSnapshot(toFrame(timeSeconds)));
+    for (const characterId of snapshotIds) {
+      snapshots[characterId] = sampledIds.has(characterId) ? sampleStats(characterId, timeSeconds) : computeStats(characterId, timeSeconds);
+      if (thrillingTalesRuntime !== undefined) thrillingTalesStatuses[characterId] = currentThrillingTalesStatuses(characterId);
+    }
+    if (thrillingTalesRuntime !== undefined) thrillingTalesSnapshots.set(snapshots, thrillingTalesStatuses);
+    return snapshots;
+  };
+  const scheduleSourceSnapshot = (action: ActionDefinition, cycle: number, timeSeconds: number, ownerId: string, relativeFrame: number): number => {
+    const actionLogIndex = actionLog.length - 1;
+    const acceptedAction = actionLog[actionLogIndex];
+    if (acceptedAction?.actionId !== action.id || acceptedAction.actorId !== action.actorId || acceptedAction.cycle !== cycle) throw new Error("Source sampling must be scheduled by its accepted action.");
+    if (actionLogIndex < 0) throw new Error("Source sampling requires an accepted action instance.");
+    const key = JSON.stringify([actionLogIndex, ownerId, relativeFrame]);
+    const existing = sourceSnapshotIds.get(key);
+    if (existing !== undefined) return existing;
+    const id = sourceSnapshotLog.length;
+    const frame = toFrame(timeSeconds) + relativeFrame;
+    const eventPriority = relativeFrame === 0 && action.actionPhase === "after-frame-tasks-v1" ? 12.5 : EVENT_PRIORITY.sourceSnapshot;
+    sourceSnapshotLog.push({ id, actionLogIndex, actionId: action.id, sourceActorId: action.actorId, ownerId, cycle, relativeFrame,
+      frame, timeSeconds: frame / 60, status: "pending", eventPriority, eventSequence: null, stats: null, activeBuffs: [] });
+    sourceSnapshotIds.set(key, id);
+    push(frame / 60, "sourceSnapshot", { action, cycle, actionLogIndex, ownerId, relativeFrame, snapshotLogId: id } satisfies SourceSnapshotPayload);
+    return id;
+  };
+  const sampledSource = (id: number): SourceSnapshotLogEntry & { stats: CharacterStats } => {
+    const row = sourceSnapshotLog[id];
+    if (row?.status !== "sampled" || row.stats === null) throw new Error(`Source sample ${id} was not executed before delivery.`);
+    return row as SourceSnapshotLogEntry & { stats: CharacterStats };
+  };
+  const scheduleActionHits = (
+    action: ActionDefinition, cycle: number, timeSeconds: number,
+    snapshots: Record<string, CharacterStats | undefined>, sourceActorPose: ActorPoseDefinition | undefined,
+    includeHit: (hit: HitDefinition) => boolean,
+    periodicTick: HitEventPayload["periodicEntityContext"] = undefined,
+    weaponProcLogId?: number,
+    weaponProcContext?: PendingWeaponProcContext,
+  ): void => {
+    (action.hits ?? []).forEach((hit, hitIndex) => {
+      if (!includeHit(hit)) return;
+        const sourceSnapshots: NonNullable<HitEventPayload["sourceSnapshots"]> = {};
+        if (hit.snapshotFrame !== undefined) {
+          sourceSnapshots.main = scheduleSourceSnapshot(action, cycle, timeSeconds, hit.scalingOwnerId ?? action.actorId, hit.snapshotFrame);
+          sourceSnapshots.reaction = scheduleSourceSnapshot(action, cycle, timeSeconds, action.actorId, hit.snapshotFrame);
+        }
+        for (const [sourceIndex, source] of (hit.flatSources ?? []).entries()) {
+          const relativeFrame = source.snapshotFrame ?? hit.snapshotFrame;
+          if (relativeFrame === undefined) continue;
+          (sourceSnapshots.flatSources ??= {})[sourceIndex] = scheduleSourceSnapshot(action, cycle, timeSeconds, source.ownerId ?? hit.scalingOwnerId ?? action.actorId, relativeFrame);
+        }
+        const hitTimeSeconds = timeSeconds + hit.offset;
+        const hitFrame = toFrame(hitTimeSeconds);
+        const geometry = hit.geometry;
+
+        const resolvedGeometry =
+          geometry === undefined
+            ? undefined
+            : resolveWorldHitGeometry(geometry, sourceActorPose);
+        const targetPlans: Array<{
+          targeting?: HitTargeting;
+          targetingSource: "default" | "scripted" | "geometry";
+          targetPosition: { x: number; y: number } | null;
+          sourceActorPosition: { x: number; y: number } | null;
+          sourceActorFacingDegrees: number | null;
+          geometryKind:
+            | "circle"
+            | "rectangle"
+            | "capsule"
+            | "sector"
+            | null;
+          geometryCoordinateSpace:
+            | "world"
+            | "actor-local"
+            | null;
+          geometryOrigin: { x: number; y: number } | null;
+          geometryStart: { x: number; y: number } | null;
+          geometryEnd: { x: number; y: number } | null;
+          geometryRadius: number | null;
+          geometryHalfWidth: number | null;
+          geometryHalfHeight: number | null;
+          geometryRotationDegrees: number | null;
+          geometryDirectionDegrees: number | null;
+          geometryAngleDegrees: number | null;
+          geometryDistance: number | null;
+          geometryThreshold: number | null;
+          resolvedGeometry: ResolvedWorldHitGeometry | null;
+        }> =
+          geometry === undefined
+            ? (
+                hit.targeting === undefined
+                  ? [undefined]
+                  : "mode" in hit.targeting
+                    ? hit.targeting.targets
+                    : [hit.targeting]
+              ).map((targeting) => ({
+                ...(targeting === undefined ? {} : { targeting }),
+                targetingSource:
+                  targeting === undefined ? "default" : "scripted",
+                targetPosition: resolveTargetPosition(
+                  targeting?.targetId ?? "enemy-0",
+                  hitFrame
+                ),
+                sourceActorPosition:
+                  sourceActorPose === undefined
+                    ? null
+                    : deepClone(sourceActorPose.position),
+                sourceActorFacingDegrees:
+                  sourceActorPose?.facingDegrees ?? null,
+                geometryKind: null,
+                geometryCoordinateSpace: null,
+                geometryOrigin: null,
+                geometryStart: null,
+                geometryEnd: null,
+                geometryRadius: null,
+                geometryHalfWidth: null,
+                geometryHalfHeight: null,
+                geometryRotationDegrees: null,
+                geometryDirectionDegrees: null,
+                geometryAngleDegrees: null,
+                geometryDistance: null,
+                geometryThreshold: null,
+                resolvedGeometry: null
+              }))
+            : enemyTargets.map((target) => {
+                if (resolvedGeometry === undefined) {
+                  throw new Error(
+                    "Geometry resolution unexpectedly lost its shape."
+                  );
+                }
+                const targetPosition = resolveTargetPosition(
+                  target.id,
+                  hitFrame
+                );
+                if (targetPosition === null) {
+                  throw new Error(
+                    `Target "${target.id}" passed geometry schema validation without a position.`
+                  );
+                }
+                const geometryResolution = resolveHitGeometry(
+                  resolvedGeometry,
+                  targetPosition,
+                  target.hitboxRadius
+                );
+                return {
+                  targeting: {
+                    targetId: target.id,
+                    outcome: geometryResolution.landed
+                      ? "landed"
+                      : "miss",
+                    ...(geometryResolution.landed
+                      ? {}
+                      : { reason: geometryResolution.missReason })
+                  },
+                  targetingSource: "geometry",
+                  targetPosition,
+                  sourceActorPosition:
+                    sourceActorPose === undefined
+                      ? null
+                      : deepClone(sourceActorPose.position),
+                  sourceActorFacingDegrees:
+                    sourceActorPose?.facingDegrees ?? null,
+                  geometryKind: resolvedGeometry.kind,
+                  geometryCoordinateSpace:
+                    geometry.coordinateSpace ?? "world",
+                  geometryOrigin:
+                    resolvedGeometry.kind === "capsule"
+                      ? null
+                      : deepClone(resolvedGeometry.origin),
+                  geometryStart:
+                    resolvedGeometry.kind === "capsule"
+                      ? deepClone(resolvedGeometry.start)
+                      : null,
+                  geometryEnd:
+                    resolvedGeometry.kind === "capsule"
+                      ? deepClone(resolvedGeometry.end)
+                      : null,
+                  geometryRadius:
+                    resolvedGeometry.kind === "circle" ||
+                    resolvedGeometry.kind === "capsule" ||
+                    resolvedGeometry.kind === "sector"
+                      ? resolvedGeometry.radius
+                      : null,
+                  geometryHalfWidth:
+                    resolvedGeometry.kind === "rectangle"
+                      ? resolvedGeometry.halfWidth
+                      : null,
+                  geometryHalfHeight:
+                    resolvedGeometry.kind === "rectangle"
+                      ? resolvedGeometry.halfHeight
+                      : null,
+                  geometryRotationDegrees:
+                    resolvedGeometry.kind === "rectangle"
+                      ? resolvedGeometry.rotationDegrees
+                      : null,
+                  geometryDirectionDegrees:
+                    resolvedGeometry.kind === "sector"
+                      ? resolvedGeometry.directionDegrees
+                      : null,
+                  geometryAngleDegrees:
+                    resolvedGeometry.kind === "sector"
+                      ? resolvedGeometry.angleDegrees
+                      : null,
+                  geometryDistance: geometryResolution.distance,
+                  geometryThreshold: geometryResolution.threshold,
+                  resolvedGeometry: deepClone(resolvedGeometry)
+                };
+              });
+        const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
+        targetPlans.forEach((targetPlan, targetIndex) => {
+          push(hitTimeSeconds, "hit", {
+            actorId: action.actorId,
+            action,
+            hit,
+            hitIndex,
+            ...targetPlan,
+            targetIndex,
+            targetCount: targetPlans.length,
+            hitGroupId,
+            snapshots,
+            ...(Object.keys(sourceSnapshots).length ? { sourceSnapshots } : {}),
+            ...(periodicTick === undefined ? {} : { periodicFlatSnapshots: snapshots, periodicEntityContext: periodicTick }),
+            ...(weaponProcLogId === undefined ? {} : { weaponProcLogId }),
+            ...(weaponProcContext === undefined ? {} : { weaponProcContext }),
+            ...(hit.snapshot === "action" && thrillingTalesSnapshots.has(snapshots) ? { thrillingTalesSnapshotStatuses: thrillingTalesSnapshots.get(snapshots)! } : {}),
+            cycle
+          });
+        });
+      });
+  };
+  const appendArtifactDamageDecision = (event: Pick<InternalEvent, "frame" | "timeSeconds" | "priority" | "sequence">,
+    intraEventSequence: number, decision: ArtifactDamageDecision,
+    source: { sourceActorId: string; targetId: string | null; parentDamageEventId?: number; hitResolutionLogId?: number; playerHealthEventId?: number; parentLogId?: number }): number => {
+    const id = artifactDamageLog.length;
+    artifactDamageLog.push({ ...decision, id, frame: event.frame, timeSeconds: event.timeSeconds,
+      eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence, activeCharacterId,
+      parentDamageEventId: null, hitResolutionLogId: null, playerHealthEventId: null, parentLogId: null, ...source });
+    return id;
+  };
+  const applyPlayerHealth = (payload: HealthChangePayload, event: { frame: number; timeSeconds: number; priority: number; sequence: number },
+    derived?: { periodicEntityLogId: number; trace: unknown[] }): void => {
+      let healthIntraEventSequence = 0;
+      const nextIntraEventSequence = () => healthIntraEventSequence++;
+      const { change, sourceActorId, actionLogIndex } = payload;
+      const targets = change.target.kind === "party" ? config.characters.map(actor => actor.id)
+        : [change.target.kind === "self" ? sourceActorId : change.target.kind === "actor" ? change.target.actorId : activeCharacterId!];
+      for (const targetActorId of targets) {
+        const hpState = playerHpStateByActorId.get(targetActorId)!;
+        const calculation = calculateHealthChange(change, hpState.currentHp, hpState.maxHp,
+          config.bondOfLifeModel === undefined ? undefined : { mode: config.bondOfLifeModel.mode, debtBefore: hpState.currentBondOfLife! });
+        const playerHealthEventId = playerHealthEvents.length;
+        playerHealthEvents.push({ id: playerHealthEventId, frame: event.frame, timeSeconds: event.timeSeconds,
+          eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: nextIntraEventSequence(),
+          actionLogIndex, sourceActorId, targetActorId, changeId: change.id, operation: change.operation, ...calculation,
+          ...(derived === undefined ? {} : { periodicEntityLogId: derived.periodicEntityLogId, trace: [...derived.trace, ...calculation.trace] }) });
+        hpState.currentHp = calculation.hpAfter;
+        if (calculation.bondOfLife !== undefined) hpState.currentBondOfLife = calculation.bondOfLife.debtAfter;
+        if (change.operation === "heal") {
+          hpState.totalHealing += calculation.actualChange;
+          hpState.totalOverheal += calculation.overheal;
+        } else if (change.operation === "consume") hpState.totalHpConsumed += calculation.actualChange;
+        hpState.zeroHpReached ||= calculation.hpAfter === 0;
+        playerHpTimeline.points.push({ id: playerHpTimeline.points.length, frame: event.frame, timeSeconds: event.timeSeconds,
+          eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: nextIntraEventSequence(),
+          operation: change.operation, actorId: targetActorId, playerDamageEventId: null, playerHealthEventId,
+          maxHp: hpState.maxHp, hpBefore: calculation.hpBefore, hpAfter: calculation.hpAfter,
+          hpRatioAfter: calculation.hpAfter / hpState.maxHp });
+        if (calculation.bondOfLife?.sourceEventEmitted) handleArtifactBuff({ kind: "bond-of-life-change", frame: event.frame,
+          actorId: targetActorId, amount: calculation.bondOfLife.sourceCallbackAmount }, { playerHealthEventId }, nextIntraEventSequence);
+        if (change.operation === "consume") handleArtifactBuff({ kind: "hp-drain", frame: event.frame,
+          amount: calculation.requestedAmount }, { playerHealthEventId }, nextIntraEventSequence);
+        if (change.operation === "heal") {
+          const recorded = artifactDamageRuntime?.onHeal(event.frame, sourceActorId, calculation.requestedAmount);
+          if (recorded !== undefined) {
+            const parentLogId = appendArtifactDamageDecision(event, nextIntraEventSequence(), recorded.decision,
+              { sourceActorId, targetId: targetActorId, playerHealthEventId });
+            if (recorded.startsWindow) push((event.frame + 360) / 60, "artifactSongConvert",
+              { actorId: sourceActorId, sourceFrame: event.frame, parentLogId } satisfies ArtifactSongConvertPayload);
+          }
+        }
+      }
+  };
+  const snapshotWeaponDelivery = (
+    event: Pick<InternalEvent, "frame" | "timeSeconds" | "priority" | "sequence">,
+    payload: { actorId: string; targetId: string; cycle: number; weaponProcLogId: number; triggerFrame: number; coefficient: number },
+    deliveryIndex = 0,
+  ): void => {
+    const { actorId, targetId, cycle, weaponProcLogId, triggerFrame, coefficient } = payload;
+    const actor = weaponProcRuntime!.actor(actorId)!;
+    const definition = getWeaponProcDefinition(actor.weaponId)!;
+    const snapshot = deepClone(sampleStats(actorId, event.timeSeconds)!);
+    const buffs: ActiveStatusSnapshot[] = activeBuffs.filter(buff => buff.targetId === actorId).map(buff => ({
+      key: buff.key, kind: "buff", sourceActorId: buff.actorId, targetId: buff.targetId, stat: buff.stat,
+      value: buff.value, startTimeSeconds: buff.start, endTimeSeconds: buff.end, label: buff.label,
+    }));
+    const origin = definition.targetMode === "circle" ? resolveTargetPosition(targetId, event.frame) : null;
+    if (definition.targetMode === "circle" && origin === null) throw new Error("武器范围追击缺少实际取样目标位置。");
+    const log = weaponProcLog[weaponProcLogId]!;
+    if (deliveryIndex === 0) {
+      if (definition.snapshotTiming === "delivery") log.snapshotEventSequence = event.sequence;
+      log.triggerSnapshot = deepClone(snapshot);
+      log.triggerBuffStatuses = deepClone(buffs);
+      log.origin = origin === null ? null : deepClone(origin);
+    }
+    const deliveryOffset = definition.damageOffsetsFrames?.[deliveryIndex] ?? definition.damageDelayFrames;
+    const actionId = `weapon-proc:${actorId}:${weaponProcLogId}${deliveryIndex === 0 ? "" : `:tick-${deliveryIndex}`}`;
+    const delayedSnapshot = definition.snapshotTiming === "delivery";
+    const procHit: HitDefinition = { id: `${actionId}:hit`, label: `${definition.weaponName}追击`,
+      offset: delayedSnapshot ? 0 : deliveryOffset / 60,
+      scaling: coefficient, scalingStat: definition.scalingStat, element: "physical", attackTag: "proc",
+      snapshot: "action", dmgBonus: actor.physicalDamageBonus,
+      ...(definition.forcedCrit ? { hitWeakPoint: true } : {}),
+      ...(definition.targetMode === "circle"
+        ? { geometry: { kind: "circle", coordinateSpace: "world", origin: origin!, radius: definition.radius! } }
+        : { targeting: { targetId, outcome: "landed" } }),
+    };
+    const action: ActionDefinition = { id: actionId, actorId, name: `${definition.weaponName}追击`,
+      at: event.timeSeconds, once: true, hits: [procHit] };
+    scheduleActionHits(action, cycle, event.timeSeconds, { [actorId]: snapshot }, undefined, () => true, undefined, weaponProcLogId,
+      { actor: deepClone(actor), triggerFrame, triggerBuffStatuses: deepClone(buffs),
+        ...(definition.damageOffsetsFrames === undefined && !delayedSnapshot ? {} : {
+          deliveryIndex, deliveryFrame: triggerFrame + deliveryOffset, snapshotFrame: event.frame }),
+        ...(log.random === undefined ? {} : { random: deepClone(log.random), selectedCoefficient: coefficient,
+          cooldownFrames: log.cooldownFrames, cooldownExpiresFrameAfter: log.cooldownExpiresFrameAfter,
+          ...(log.triggerAura === undefined ? {} : { triggerAura: deepClone(log.triggerAura) }) }),
+        ...(log.stateBefore === undefined ? {} : { stateBefore: deepClone(log.stateBefore), stateAfter: deepClone(log.stateAfter!),
+          selectedCoefficient: coefficient, cooldownFrames: log.cooldownFrames, cooldownExpiresFrameAfter: log.cooldownExpiresFrameAfter }) });
+  };
+  // The archived perception implementation keeps one snapshot for the entire
+  // ball and selects a new target only after an actual enemy damage callback.
+  const eyeProcSnapshots = new Map<number, { stats: CharacterStats; buffs: ActiveStatusSnapshot[] }>();
+  const eyeBounceUntil = new Map<string, number>();
+  const eyeAdvancedActions = new Set<string>();
+  const selectEyeTarget = (center: { x: number; y: number }, frame: number): string | null => {
+    let nearest: { id: string; distanceSquared: number } | null = null;
+    for (const target of enemyTargets) {
+      if (targetHealthRuntime?.isDefeated(target.id)) continue;
+      if ((eyeBounceUntil.get(target.id) ?? -1) >= frame) continue;
+      const position = resolveTargetPosition(target.id, frame);
+      if (position === null) continue;
+      const distanceSquared = (position.x - center.x) ** 2 + (position.y - center.y) ** 2;
+      if (distanceSquared > (8 + target.hitboxRadius) ** 2) continue;
+      if (nearest === null || distanceSquared < nearest.distanceSquared) nearest = { id: target.id, distanceSquared };
+    }
+    return nearest?.id ?? null;
+  };
+  const scheduleEyeBounce = (event: Pick<InternalEvent, "frame" | "timeSeconds" | "priority" | "sequence">,
+    payload: { actorId: string; targetId: string; cycle: number; weaponProcLogId: number; triggerFrame: number; coefficient: number },
+    bounceIndex: number): void => {
+    const selected = payload.targetId;
+    eyeBounceUntil.set(selected, event.frame + 36);
+    const actor = weaponProcRuntime!.actor(payload.actorId)!;
+    const snapshot = eyeProcSnapshots.get(payload.weaponProcLogId)!;
+    const impactFrame = event.frame + 10;
+    const origin = resolveTargetPosition(selected, event.frame);
+    if (origin === null) throw new Error("昭心弹射目标缺少实际选中帧位置。");
+    const actionId = `weapon-proc:${payload.actorId}:${payload.weaponProcLogId}${bounceIndex === 0 ? "" : `:bounce-${bounceIndex}`}`;
+    const hit: HitDefinition = { id: `${actionId}:hit`, label: "昭心追击", offset: 10 / 60,
+      scaling: payload.coefficient, scalingStat: "atk", element: "physical", attackTag: "proc", snapshot: "action",
+      dmgBonus: actor.physicalDamageBonus, geometry: { kind: "circle", coordinateSpace: "world", origin, radius: .6 } };
+    const action: ActionDefinition = { id: actionId, actorId: payload.actorId, name: "昭心追击", at: event.timeSeconds, once: true, hits: [hit] };
+    const log = weaponProcLog[payload.weaponProcLogId]!;
+    if (bounceIndex === 0) {
+      log.triggerSnapshot = deepClone(snapshot.stats);
+      log.triggerBuffStatuses = deepClone(snapshot.buffs);
+      log.origin = deepClone(origin);
+    }
+    scheduleActionHits(action, payload.cycle, event.timeSeconds, { [payload.actorId]: snapshot.stats }, undefined, () => true,
+      undefined, payload.weaponProcLogId, { actor: deepClone(actor), triggerFrame: payload.triggerFrame,
+        deliveryIndex: bounceIndex, deliveryFrame: impactFrame, snapshotFrame: payload.triggerFrame,
+        triggerBuffStatuses: deepClone(snapshot.buffs), selectedCoefficient: payload.coefficient,
+        cooldownFrames: log.cooldownFrames, cooldownExpiresFrameAfter: log.cooldownExpiresFrameAfter });
+  };
+  const executeWeaponProcCallback = (event: Pick<InternalEvent, "frame" | "timeSeconds" | "priority" | "sequence">, payload: WeaponProcCallbackPayload): void => {
+    const { actorId, parentDamageEventId, targetId, attackTag, damage, cycle } = payload;
+    const actor = weaponProcRuntime!.actor(actorId)!;
+    const decision = weaponProcRuntime!.onDamage({ actorId, frame: event.frame, parentDamageEventId, targetId,
+      activeCharacterId, attackTag, damage, ...(payload.hitWeakPoint === undefined ? {} : { hitWeakPoint: payload.hitWeakPoint }) }, () => {
+      const aura = auraEngines!.get(targetId)!.getAuraStateAt(event.frame);
+      return { cryo: aura.some(entry => entry.element === "cryo"), frozen: aura.some(entry => entry.element === "frozen") };
+    });
+    const definition = getWeaponProcDefinition(actor.weaponId)!;
+    const id = weaponProcLog.length;
+    const triggered = decision.outcome === "triggered";
+    const delayedSnapshot = definition.snapshotTiming === "delivery";
+    const procActionId = triggered ? `weapon-proc:${actorId}:${id}` : null;
+    weaponProcLog.push({ ...decision, id, timeSeconds: event.timeSeconds, eventPriority: event.priority, eventSequence: event.sequence,
+      procActionId, procHitId: procActionId === null ? null : `${procActionId}:hit`,
+      damageFrame: triggered ? event.frame + definition.damageDelayFrames : null,
+      ...(definition.damageOffsetsFrames === undefined && !delayedSnapshot ? {} : {
+        snapshotFrame: triggered ? event.frame + (delayedSnapshot ? definition.damageDelayFrames : 0) : null }),
+      ...(delayedSnapshot ? { snapshotEventSequence: null } : {}),
+      triggerSnapshot: null, triggerBuffStatuses: [], origin: null, radius: definition.radius, damageEventIds: [], hitResolutionIds: [],
+    });
+    if (!triggered) return;
+    const delivery = { actorId, targetId, cycle, weaponProcLogId: id, triggerFrame: event.frame, coefficient: decision.coefficient };
+    if (actor.weaponId === "eyeofperception") {
+      const activePose = activeCharacterId === null ? undefined : actorPoseById.get(activeCharacterId);
+      if (activePose === undefined) throw new Error("昭心初击选敌缺少当前前台角色位置。");
+      eyeProcSnapshots.set(id, { stats: deepClone(sampleStats(actorId, event.timeSeconds)!),
+        buffs: activeBuffs.filter(buff => buff.targetId === actorId).map(buff => ({ key: buff.key, kind: "buff", sourceActorId: buff.actorId,
+          targetId: buff.targetId, stat: buff.stat, value: buff.value, startTimeSeconds: buff.start, endTimeSeconds: buff.end, label: buff.label })) });
+      const initialTarget = selectEyeTarget(activePose.position, event.frame);
+      if (initialTarget !== null) scheduleEyeBounce(event, { ...delivery, targetId: initialTarget }, 0);
+      else { weaponProcLog[id]!.procActionId = null; weaponProcLog[id]!.procHitId = null; weaponProcLog[id]!.damageFrame = null; }
+      return;
+    }
+    if (delayedSnapshot) {
+      push((event.frame + definition.damageDelayFrames) / 60, "weaponProcDelayedSnapshot", { ...delivery,
+        parentDamageEventId, sourceActionId: payload.sourceActionId!, sourceHitId: payload.sourceHitId!,
+        parentHitFrame: event.frame, parentEventPriority: event.priority });
+    } else {
+      // Each source QueueAttack(..., snapshotDelay=0, ...) samples here, even
+      // when its delivery is several seconds later. Geometry is fixed here too.
+      for (let index = 0; index < (definition.damageOffsetsFrames?.length ?? 1); index++) snapshotWeaponDelivery(event, delivery, index);
+    }
+  };
+  const recordNormalChain = (event: Pick<InternalEvent,"frame"|"timeSeconds"|"priority"|"sequence">,
+    decision: SourceNormalChainDecision | undefined, timelineCommandIndex: number,
+    action?: ActionDefinition, actionLogIndex: number | null = null): void => {
+    if (!decision) return;
+    sourceNormalChainLog.push({ ...decision, id: sourceNormalChainLog.length, frame: event.frame, timeSeconds: event.timeSeconds,
+      eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: 0,
+      actionId: action?.id ?? null, sourceAbilityId: action?.sourceAbilityId ?? null, timelineCommandIndex, actionLogIndex });
+  };
+  const recordSkillCooldown = (
+    event: Pick<InternalEvent, "frame" | "timeSeconds" | "priority" | "sequence">,
+    actorId: string,
+    operation: "start" | "recover" | "reset" | "stale-worker",
+    stateAfter: SerialSkillCooldownState,
+    task: SkillCooldownTaskPayload | null,
+    sacrificialLogId: number | null = null,
+    artifactEventLogId?: number,
+  ): number => {
+    const stateBefore = skillCooldownStates.get(actorId)!;
+    const id = skillCooldownLog.length;
+    skillCooldownLog.push({ id, actorId, actionId: task?.actionId ?? null, abilityId: task?.abilityId ?? null,
+      timelineCommandIndex: task?.timelineCommandIndex ?? null, frame: event.frame, timeSeconds: event.timeSeconds,
+      eventPriority: event.priority, eventSequence: event.sequence, operation,
+      workerGeneration: task?.workerGeneration ?? null, sacrificialLogId,
+      ...(artifactEventLogId === undefined ? {} : { artifactEventLogId }),
+      stateBefore: deepClone(stateBefore), stateAfter: deepClone(stateAfter) });
+    skillCooldownStates.set(actorId, stateAfter);
+    const worker = serialSkillCooldownWorker(stateAfter);
+    if (worker !== null && stateBefore.workerGeneration !== stateAfter.workerGeneration) {
+      const head = stateAfter.queue[0]!;
+      const sourceAction = config.rotation.find(action => action.id === head.castId)!;
+      push(worker.frame / 60, "skillCooldownRecover", { actorId, actionId: head.castId, abilityId: head.abilityId,
+        timelineCommandIndex: sourceAction.timelineCommandIndex!, recoveryFrames: head.recoveryFrames, workerGeneration: worker.generation });
+    }
+    return id;
+  };
+  type ArtifactSource = Pick<NonNullable<SimulationResult["artifactEventLog"]>[number],
+    "kind" | "sourceActionId" | "actionLogIndex" | "particleEventId" | "targetHealthLogId" | "nightsoulBurstLogId" | "parentArtifactEventLogId" | "receiverId" | "tickIndex">;
+  const artifactSource = (kind: ArtifactSource["kind"], sourceActionId: string | null, extra: Partial<ArtifactSource> = {}): ArtifactSource => ({
+    kind, sourceActionId, actionLogIndex: null, particleEventId: null, targetHealthLogId: null, nightsoulBurstLogId: null,
+    parentArtifactEventLogId: null, receiverId: null, tickIndex: null, ...extra,
+  });
+  const appendArtifactDecision = (event: Pick<InternalEvent, "frame" | "timeSeconds" | "priority" | "sequence">,
+    decision: ArtifactEventDecision, source: ArtifactSource): number => {
+    const id = artifactEventLog.length;
+    const { gains, ...audit } = decision;
+    const row: NonNullable<SimulationResult["artifactEventLog"]>[number] = { ...audit, ...source, id,
+      frame: event.frame, timeSeconds: event.timeSeconds, eventPriority: event.priority, eventSequence: event.sequence,
+      activeCharacterId, energyLogIds: [], skillCooldownLogId: null };
+    artifactEventLog.push(row);
+    for (const gain of gains) {
+      const character = characters.get(gain.receiverId)!;
+      const before = energies.get(gain.receiverId) ?? 0;
+      const after = round(clamp(before + gain.amount, 0, character.energyMax), 12);
+      const gainedEnergy = round(after - before, 12);
+      const wastedEnergy = round(gain.amount - gainedEnergy, 12);
+      energies.set(gain.receiverId, after);
+      const summary = energyStats.get(gain.receiverId)!;
+      summary.gained = round(summary.gained + gainedEnergy, 12);
+      summary.fixedGained = round(summary.fixedGained + gainedEnergy, 12);
+      summary.wasted = round(summary.wasted + wastedEnergy, 12);
+      const energyLogId = energyLog.length;
+      const energySource = `artifact:${decision.effectId}`;
+      energyLog.push({ id: energyLogId, artifactEventLogId: id, kind: "fixed", frame: event.frame, timeSeconds: event.timeSeconds,
+        sourceActorId: decision.actorId, sourceActionId: source.sourceActionId!, source: energySource,
+        receiverId: gain.receiverId, activeCharacterId, isOnField: activeCharacterId === gain.receiverId,
+        energyBefore: before, rawEnergy: gain.amount, finalEnergy: gain.amount, gainedEnergy, wastedEnergy, energyAfter: after,
+        spawnFrame: null, receiveFrame: event.frame, particleElement: null, particleKind: null, particleCount: null,
+        isSameElement: null, energyRecharge: 1, fieldMultiplier: 1, baseEnergyPerParticle: null,
+        applied: true, blockedReason: null, internalCooldownKey: null, internalCooldownDurationFrames: null, internalCooldownReadyFrame: null });
+      row.energyLogIds.push(energyLogId);
+      recordEnergyCurve(event.frame, event.timeSeconds, "fixed", gain.receiverId, energySource);
+    }
+    if (decision.outcome === "skill-reset") {
+      row.skillCooldownLogId = recordSkillCooldown(event, decision.actorId, "reset",
+        resetSerialSkillCooldown(skillCooldownStates.get(decision.actorId)!, event.frame), null, null, id);
+    }
+    return id;
+  };
+  const recordArtifactKill = (damage: DamageEvent, healthLogId: number): void => {
+    const event = { frame: damage.frame, timeSeconds: damage.timeSeconds, priority: damage.eventPriority, sequence: damage.eventSequence };
+    for (const decision of artifactEventRuntime?.onTargetDied(damage.frame, activeCharacterId, damage.sourceActorId) ?? []) {
+      appendArtifactDecision(event, decision, artifactSource("target-died", damage.actionId, { targetHealthLogId: healthLogId }));
+    }
+  };
   while (queue.size > 0) {
+    const lunarHorizon = Math.min(queue.peek()!.frame, Math.round(config.duration * 60));
+    const beforePendingSwap = lunarHorizon - Number(pendingLunarSwapFrames.has(lunarHorizon));
+    if (beforePendingSwap >= 0) {
+      lunarRuntime?.advanceThrough(beforePendingSwap);
+      lunarBloomRuntime?.advanceThrough(beforePendingSwap);
+      lunarCrystallizeRuntime?.advanceThrough(beforePendingSwap);
+    }
+    stellarConductRuntime?.advanceThrough(lunarHorizon);
+    capturePendingCheckpointsThrough(Math.min(queue.peek()!.frame, Math.round(config.duration * 60)));
     const event = queue.pop();
     if (!event) break;
+    executingEvent = event;
     const timeSeconds = event.timeSeconds;
     if (timeSeconds > config.duration + 1e-9) break;
+    let intraEventSequence = 0;
+    const nextIntraEventSequence = (): number =>
+      intraEventSequence++;
+    nextExecutionIntraSequence = nextIntraEventSequence;
+    if (event.type === "artifactBuffApply") {
+      handleArtifactBuff({ kind: "delayed-buff", frame: event.frame, task: event.payload.task }, { parentArtifactBuffLogId: event.payload.parentArtifactBuffLogId });
+      continue;
+    }
+    if (event.type === "playerShieldExpiry") {
+      playerShieldExpiryFrames.delete(event.frame);
+      const decision = playerShieldRuntime!.expire(event.frame);
+      if (decision.callbacks.length) recordPlayerShieldDecision(event, nextIntraEventSequence(), decision);
+      continue;
+    }
+    if (event.type === "playerShieldInput") {
+      const { input } = event.payload;
+      if (input.kind === "incoming-hit") {
+        const targetActorId = input.target.kind === "actor" ? input.target.actorId : activeCharacterId!;
+        const hpState = playerHpStateByActorId.get(targetActorId)!;
+        const decision = playerShieldRuntime!.absorb({ frame: event.frame, operation: "incoming-hit", inputEvent: input,
+          targetActorId, activeCharacterId: activeCharacterId!, incomingDamage: input.incomingDamage,
+          incomingElement: input.element, crystallizeDamageAfter: input.incomingDamage });
+        const id = recordPlayerShieldDecision(event, nextIntraEventSequence(), decision);
+        const hp = calculatePlayerShieldHpDamage({ currentHp: hpState.currentHp, maxHp: hpState.maxHp, incomingDamage: decision.damageAfterShield! }).resolution;
+        playerShieldLog[id]!.hpResolution = hp;
+        hpState.currentHp = hp.currentHpAfter;
+        hpState.totalIncomingDamage += input.incomingDamage;
+        hpState.totalAbsorbedDamage += decision.absorbedDamage!;
+        hpState.totalHpDamage += hp.actualLoss;
+        hpState.hitCount += 1;
+        hpState.zeroHpReached ||= hp.currentHpAfter === 0;
+        playerHpTimeline.points.push({ id: playerHpTimeline.points.length, frame: event.frame, timeSeconds,
+          eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: nextIntraEventSequence(),
+          operation: "shield-hit", actorId: targetActorId, playerShieldLogId: id, playerDamageEventId: null,
+          maxHp: hp.maxHp, hpBefore: hp.currentHpBefore, hpAfter: hp.currentHpAfter, hpRatioAfter: hp.hpRatioAfter });
+      } else {
+        const decision = playerShieldRuntime!.apply(input, event.frame, input.kind === "grant" ? computeStats(input.ownerId, timeSeconds) : undefined);
+        recordPlayerShieldDecision(event, nextIntraEventSequence(), decision);
+        if (input.kind === "grant") {
+          const expiryFrame = event.frame + input.durationFrames;
+          if (!playerShieldExpiryFrames.has(expiryFrame)) {
+            playerShieldExpiryFrames.add(expiryFrame);
+            push(expiryFrame / 60, "playerShieldExpiry", {});
+          }
+        }
+      }
+      continue;
+    }
+    if (event.type === "sourceSnapshot") {
+      const { ownerId, snapshotLogId } = event.payload;
+      const stats = sampleStats(ownerId, timeSeconds);
+      if (stats === undefined) throw new Error(`Source sample owner "${ownerId}" is missing.`);
+      const row = sourceSnapshotLog[snapshotLogId]!;
+      row.status = "sampled";
+      row.eventPriority = event.priority;
+      row.eventSequence = event.sequence;
+      row.stats = deepClone(stats);
+      row.activeBuffs = activeBuffs.filter(buff => buff.targetId === ownerId).map(buff => ({
+        key: buff.key, kind: "buff", sourceActorId: buff.actorId, targetId: buff.targetId, stat: buff.stat,
+        value: buff.value, startTimeSeconds: buff.start, endTimeSeconds: buff.end, label: buff.label
+      }));
+      continue;
+    }
+    if (event.type === "playerMaxHpExpiry") {
+      cleanup(timeSeconds);
+      syncPlayerMaxHp(event, "buff-expire");
+      continue;
+    }
+    if (event.type === "artifactSongConvert") {
+      const { actorId, parentLogId } = event.payload;
+      appendArtifactDamageDecision(event, nextIntraEventSequence(), artifactDamageRuntime!.convert(event.frame, actorId),
+        { sourceActorId: actorId, targetId: null, parentLogId });
+      continue;
+    }
+    if (event.type === "artifactEnergyTick") {
+      const task = event.payload;
+      appendArtifactDecision(event, { actorId: task.actorId, effectId: task.effectId,
+        sourceProfileId: ARTIFACT_EVENT_PROFILE.id, sourceRef: ARTIFACT_EVENT_PROFILE.sourceRefs[task.effectId],
+        outcome: "energy-granted", cooldownExpiresFrameBefore: null, cooldownExpiresFrameAfter: null, exileRecipients: [],
+        gains: [{ receiverId: task.receiverId, amount: task.amount }] },
+        artifactSource("exile-tick", task.sourceActionId, { parentArtifactEventLogId: task.parentArtifactEventLogId,
+          receiverId: task.receiverId, tickIndex: task.tickIndex }));
+      continue;
+    }
+    if (event.type === "nightsoulBurstCallback") {
+      const payload = event.payload;
+      const id = nightsoulBurstLog.length;
+      const decision = nightsoulBurstRuntime!.onElementalDamage(event.frame);
+      nightsoulBurstLog.push({ ...decision, natlanActorIds: [...decision.natlanActorIds], id, frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence,
+        parentDamageEventId: payload.parentDamageEventId, sourceActorId: payload.sourceActorId, targetId: payload.targetId, activeCharacterId });
+      if (decision.outcome === "triggered") for (const artifactDecision of artifactEventRuntime?.onNightsoulBurst() ?? []) {
+        appendArtifactDecision(event, artifactDecision, artifactSource("nightsoul-burst", payload.sourceActionId, { nightsoulBurstLogId: id }));
+      }
+      continue;
+    }
+    if (event.type === "weaponHitStackCallback") { appendWeaponHitStackDecisions(weaponHitStackRuntime!.handle({ ...event.payload.input, activeCharacterId })); continue; }
+    if (event.type === "weaponProcCallback") { executeWeaponProcCallback(event, event.payload); continue; }
+    if (event.type === "weaponProcDelayedSnapshot") { snapshotWeaponDelivery(event, event.payload); continue; }
+    if (event.type === "skillCooldownStart" || event.type === "skillCooldownRecover") {
+      const task = event.payload;
+      const state = skillCooldownStates.get(task.actorId)!;
+      const next = event.type === "skillCooldownStart"
+        ? startSerialSkillCooldown(state, event.frame, { castId: task.actionId, abilityId: task.abilityId, recoveryFrames: task.recoveryFrames })
+        : recoverSerialSkillCooldown(state, event.frame, task.workerGeneration!);
+      recordSkillCooldown(event, task.actorId, event.type === "skillCooldownStart" ? "start" : next === state ? "stale-worker" : "recover", next, task);
+      continue;
+    }
+    staminaRuntime?.advanceThrough(event.frame);
+    if (event.type === "healthChange") { applyPlayerHealth(event.payload, event); continue; }
+
+    if (event.type === "normalHitEnergy") {
+      const decision = normalHitEnergyRuntime!.onDamage(event.payload);
+      const actor = characters.get(decision.actorId)!;
+      const energyBefore = quantizeEnergy(energies.get(actor.id) ?? 0);
+      const energyAfter = quantizeEnergy(Math.min(actor.energyMax, energyBefore + decision.energyRequested));
+      const gainedEnergy = quantizeEnergy(energyAfter - energyBefore);
+      const wastedEnergy = quantizeEnergy(decision.energyRequested - gainedEnergy);
+      energies.set(actor.id, energyAfter);
+      const summary = energyStats.get(actor.id)!;
+      summary.gained = quantizeEnergy(summary.gained + gainedEnergy);
+      summary.fixedGained = quantizeEnergy(summary.fixedGained + gainedEnergy);
+      summary.wasted = quantizeEnergy(summary.wasted + wastedEnergy);
+      normalHitEnergyLog.push({ ...decision, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, energyBefore, energyAfter, gainedEnergy, wastedEnergy });
+      if (decision.energyRequested > 0) recordEnergyCurve(event.frame, timeSeconds, "fixed", actor.id, `normal-hit-energy:${decision.damageEventId}`);
+      continue;
+    }
+    if (event.type === "energyCost") {
+      const { actorId, actionId, actionLogIndex, energyCost } = event.payload;
+      const energyBefore = quantizeEnergy(energies.get(actorId) ?? 0);
+      const energyAfter = quantizeEnergy(Math.max(0, energyBefore - energyCost));
+      const reservedBefore = quantizeEnergy(reservedEnergy.get(actorId) ?? 0);
+      const reservedAfter = quantizeEnergy(Math.max(0, reservedBefore - energyCost));
+      energies.set(actorId, energyAfter);
+      reservedEnergy.set(actorId, reservedAfter);
+      const summary = energyStats.get(actorId)!;
+      summary.spent = quantizeEnergy(summary.spent + energyBefore - energyAfter);
+      energyCostLog.push({ operation: "debit", actionLogIndex, frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, energyCost, energyBefore, energyAfter, reservedBefore, reservedAfter });
+      recordEnergyCurve(event.frame, timeSeconds, "spend", actorId, `${actionId}:energy-cost`);
+      continue;
+    }
+    if (event.type === "periodicEntitySpawn") {
+      const { action, actionLogIndex, cycle, definition } = event.payload;
+      const { entity, replaced } = periodicEntityRuntime.spawn(action, actionLogIndex, cycle, definition, event.frame);
+      periodicEntityLog.push({ id: periodicEntityLog.length, operation: replaced === undefined ? "spawn" : "replace",
+        instanceId: entity.instanceId, definitionId: definition.id, actorId: action.actorId, actionLogIndex,
+        frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence,
+        generation: entity.generation, spawnFrame: entity.spawnFrame, expiresAtFrame: entity.expiresAtFrame,
+        ...(replaced === undefined ? {} : { replacedInstanceId: replaced.instanceId }) });
+      push((event.frame + definition.firstTickDelayFrames) / 60, "periodicEntityTick", { entity, tickIndex: 0 });
+      continue;
+    }
+    if (event.type === "periodicEntityTick") {
+      cleanup(timeSeconds);
+      const { entity, tickIndex } = event.payload;
+      const { definition, action, actionLogIndex, cycle } = entity;
+      const baseLog = { instanceId: entity.instanceId, definitionId: definition.id, actorId: action.actorId, actionLogIndex,
+        frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence,
+        generation: entity.generation, spawnFrame: entity.spawnFrame, expiresAtFrame: entity.expiresAtFrame, tickIndex };
+      if (!periodicEntityRuntime.isLive(entity)) {
+        periodicEntityLog.push({ id: periodicEntityLog.length, ...baseLog, operation: "cancelled-tick" });
+        continue;
+      }
+      const owner = playerHpStateByActorId.get(action.actorId)!;
+      const ownerStats = computeStats(action.actorId, timeSeconds)!;
+      const healing = calculatePeriodicHealing(definition, { maxHp: owner.maxHp, currentHp: owner.currentHp, em: ownerStats.em });
+      const periodicEntityLogId = periodicEntityLog.length;
+      periodicEntityLog.push({ id: periodicEntityLogId, ...baseLog, operation: "tick", healing, healthEventId: playerHealthEvents.length });
+      const change: HealthChangeDefinition = { id: `${definition.id}:heal:${tickIndex}`, label: `${definition.label}治疗`, frameOffset: event.frame - actionLog[actionLogIndex]!.frame,
+        target: { kind: "active" }, source: { kind: "source", refs: definition.sourceRefs }, operation: "heal", amount: { basis: "fixed", value: healing.baseHealing },
+        healingBonus: healing.healingBonus, incomingHealingBonus: healing.incomingHealingBonus };
+      const snapshots = snapshotAction(action, timeSeconds);
+      applyPlayerHealth({ change, sourceActorId: action.actorId, actionLogIndex }, event, { periodicEntityLogId, trace: healing.trace });
+      const hitIds = new Set(definition.hitIds);
+      scheduleActionHits(action, cycle, (event.frame + definition.hitDelayFrames) / 60, snapshots, actorPoseById.get(activeCharacterId ?? action.actorId),
+        hit => hit.id !== undefined && hitIds.has(hit.id), { entity, tickIndex, tickFrame: event.frame });
+      if (periodicEntityRuntime.finishTick(entity, event.frame)) {
+        periodicEntityLog.push({ id: periodicEntityLog.length, ...baseLog, operation: "expire" });
+      } else push((event.frame + definition.intervalFrames) / 60, "periodicEntityTick", { entity, tickIndex: tickIndex + 1 });
+      continue;
+    }
+    if (event.type === "summonSpawn") {
+      cleanup(timeSeconds);
+      const { action, cycle, summon, actionTimeSeconds } = event.payload;
+      const instanceId = `${action.id}:${cycle}:${summon.id}:${toFrame(actionTimeSeconds)}`;
+      const snapshots = snapshotAction(action, timeSeconds, (action.hits ?? []).filter(hit => hit.snapshotFrame === undefined && hit.snapshot === "action" && summon.hitIds.includes(hit.id ?? "")));
+      const actorPose = actorPoseById.get(action.actorId);
+      const entity: ActiveTimedSummon = { ...event.payload, instanceId, spawnFrame: event.frame, expiresAtFrame: event.frame + summon.lifetimeFrames, attackFrame: event.frame + summon.lifetimeFrames + summon.expiryAttackDelayFrames, snapshots, actorPose: actorPose === undefined ? undefined : deepClone(actorPose),
+        ...(thrillingTalesSnapshots.has(snapshots) ? { thrillingTalesSnapshotStatuses: thrillingTalesSnapshots.get(snapshots)! } : {}) };
+      activeTimedSummons.set(instanceId, entity);
+      summonLog.push({ id: summonLog.length, instanceId, summonId: summon.id, actorId: action.actorId, actionId: action.id, cycle, operation: "spawn", frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, spawnFrame: entity.spawnFrame, expiresAtFrame: entity.expiresAtFrame, attackFrame: entity.attackFrame, snapshotFrame: entity.spawnFrame, hitIds: [...summon.hitIds], snapshot: deepClone(snapshots[action.actorId]!) });
+      push(entity.expiresAtFrame / 60, "summonExpiry", { instanceId });
+      continue;
+    }
+    if (event.type === "summonExpiry") {
+      const entity = activeTimedSummons.get(event.payload.instanceId)!;
+      const { action, cycle, summon } = entity;
+      activeTimedSummons.delete(entity.instanceId);
+      summonLog.push({ id: summonLog.length, instanceId: entity.instanceId, summonId: summon.id, actorId: action.actorId, actionId: action.id, cycle, operation: "expire", frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, spawnFrame: entity.spawnFrame, expiresAtFrame: entity.expiresAtFrame, attackFrame: entity.attackFrame, snapshotFrame: entity.spawnFrame, hitIds: [...summon.hitIds], snapshot: deepClone(entity.snapshots[action.actorId]!) });
+      const hitIds = new Set(summon.hitIds);
+      scheduleActionHits(action, cycle, entity.actionTimeSeconds, entity.snapshots, entity.actorPose, hit => hit.id !== undefined && hitIds.has(hit.id));
+      continue;
+    }
+    if (event.type === "lunarMixedV2Task") {
+      cleanup(timeSeconds);
+      lunarMixedV2Runtime!.runScheduledTask(event.payload, { frame: event.frame, priority: event.priority, sequence: event.sequence });
+      continue;
+    }
+    if (event.type === "lunarMixedTask") {
+      cleanup(timeSeconds);
+      lunarMixedRuntime!.runScheduledTask(event.payload, { frame: event.frame, priority: event.priority, sequence: event.sequence });
+      continue;
+    }
+    if (event.type === "stellarSwirlTask") {
+      cleanup(timeSeconds);
+      stellarSwirlExecutionOrder = { frame: event.frame, priority: event.priority, sequence: event.sequence };
+      stellarSwirlRuntime!.runScheduledTask(event.payload, stellarSwirlExecutionOrder);
+      stellarSwirlExecutionOrder = undefined;
+      continue;
+    }
     if (event.type === "freezeBrokenCallback") {
       const { freezeBrokenAttackLogId } =
         event.payload as FreezeBrokenCallbackEventPayload;
@@ -9059,9 +10538,18 @@ function simulateConfig(
       continue;
     }
     cleanup(timeSeconds);
-    let intraEventSequence = 0;
-    const nextIntraEventSequence = (): number =>
-      intraEventSequence++;
+
+    if (event.type === "enemyShieldPhase") {
+      const definition = config.enemyShieldModel!.definitions.find(row => row.id === config.enemyShieldModel!.events[event.payload.inputIndex]!.definitionId)!;
+      enemyShieldHost!.handlePhase(event.payload, { frame: event.frame, eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: 0, sourceEventId: `enemy-shield-phase:${event.payload.inputEventId}` }, auraEngines!.get(definition.targetId)!.getAuraStateAt(event.frame));
+      continue;
+    }
+
+    if (event.type === "sourceNormalChainSwapStart") {
+      const { timelineCommandIndex } = event.payload;
+      recordNormalChain(event, sourceNormalChainRuntime!.reset(activeCharacterId!, "swap-start-reset"), timelineCommandIndex);
+      continue;
+    }
 
     if (event.type === "targetDecay") {
       const { targetId } =
@@ -9074,16 +10562,52 @@ function simulateConfig(
       const { action, cycle } = event.payload as ActionEventPayload;
       const actor = characters.get(action.actorId);
       if (!actor) continue;
+      const previousActiveCharacterId = activeCharacterId;
+      if (normalHitEnergyRuntime !== undefined && activeCharacterId !== null && activeCharacterId !== actor.id) {
+        normalHitEnergyLog.push({ ...normalHitEnergyRuntime.onSwap(event.frame, actor.id), timeSeconds, eventPriority: event.priority, eventSequence: event.sequence });
+      }
       activeCharacterId = actor.id;
+      if (previousActiveCharacterId !== actor.id) handleArtifactBuff({ kind: "swap", frame: event.frame, previousActorId: previousActiveCharacterId, nextActorId: actor.id }, { actionLogIndex: actionLog.length });
+      if (lunarArtifactRuntime !== undefined && previousActiveCharacterId !== actor.id) {
+        if (lunarArtifactRuntime.needsCompletedSwap) {
+          const command = timelineExecution?.commandResults.find(row => row.commandIndex === action.timelineCommandIndex);
+          if (command?.commandType !== "swap" || command.status === "rejected" || command.endFrame !== event.frame) throw new Error("月曜前台／换人状态变化缺少实际完成的换人指令。");
+        }
+        lunarArtifactRuntime.completedSwap(actor.id, event.frame);
+        pendingLunarSwapFrames.delete(event.frame);
+        // Materialize the deferred global task after actual swap completion,
+        // while preserving its captured state for later projectile delivery.
+        lunarRuntime?.advanceThrough(event.frame);
+        lunarBloomRuntime?.advanceThrough(event.frame);
+        lunarCrystallizeRuntime?.advanceThrough(event.frame);
+      }
       const energyCost = quantizeEnergy(
         Math.max(0, safeNumber(action.energyCost))
       );
       const currentEnergy = quantizeEnergy(
         Math.max(0, energies.get(actor.id) ?? 0)
       );
+      const availableEnergy = quantizeEnergy(Math.max(0, currentEnergy - (reservedEnergy.get(actor.id) ?? 0)));
+      const thrillingTalesDecision = thrillingTalesRuntime?.onSwap({ frame: event.frame,
+        previousActorId: previousActiveCharacterId, nextActorId: actor.id });
+      if (thrillingTalesDecision !== undefined) {
+        const command = action.timelineCommandIndex === undefined ? undefined : timelineExecution?.commandResults.find(row => row.commandIndex === action.timelineCommandIndex);
+        if (resultConfig.timeline !== undefined && (command?.commandType !== "swap" || command.status === "rejected" || command.endFrame !== event.frame)) {
+          throw new Error("讨龙合法轮转切换缺少实际完成的换人指令。");
+        }
+        const energyRejected = energyCost > availableEnergy + ENERGY_COMPARISON_EPSILON;
+        thrillingTalesLog.push({ ...thrillingTalesDecision, id: thrillingTalesLog.length, frame: event.frame, timeSeconds,
+          eventPriority: event.priority, eventSequence: event.sequence, actionId: action.id, cycle,
+          timelineCommandIndex: action.timelineCommandIndex ?? null, actionLogIndex: energyRejected ? null : actionLog.length,
+          skippedActionIndex: energyRejected ? skippedActions.length : null,
+          swapKind: resultConfig.timeline === undefined ? "legacy-implicit" : "legal-completed" });
+        if (thrillingTalesDecision.outcome === "applied") addBuff(event.frame / 60, thrillingTalesDecision.ownerId,
+          { key: "ttds", label: "讨龙英杰谭", target: thrillingTalesDecision.recipientId, stat: "atkPct",
+            value: thrillingTalesDecision.coefficient, duration: THRILLING_TALES_PROFILE.durationFrames / 60 });
+      }
       if (
         energyCost >
-        currentEnergy + ENERGY_COMPARISON_EPSILON
+        availableEnergy + ENERGY_COMPARISON_EPSILON
       ) {
         skippedActions.push({
           time: timeSeconds,
@@ -9091,9 +10615,9 @@ function simulateConfig(
           actorId: actor.id,
           actionId: action.id,
           action: action.name,
-          reason: `能量不足 ${round(currentEnergy, 1)}/${energyCost}`,
+          reason: `能量不足 ${round(availableEnergy, 1)}/${energyCost}`,
           reasonCode: "INSUFFICIENT_ENERGY",
-          energyBefore: currentEnergy,
+          energyBefore: availableEnergy,
           energyCost,
           cycle,
           ...(action.timelineCommandIndex === undefined
@@ -9108,12 +10632,41 @@ function simulateConfig(
         continue;
       }
 
+      if (action.staminaCost !== undefined && staminaRuntime !== undefined) {
+        if (staminaRuntime.available < action.staminaCost.amount) throw new Error(`合法时间线与实际体力状态不一致：${action.id}`);
+        staminaRuntime.accept(action.staminaCost, event.frame, actor.id, action.timelineCommandIndex ?? null, action.id);
+      }
+
+      if (stellarSwirlRuntime !== undefined && action.timelineCommandIndex !== undefined) {
+        const command = resultConfig.timeline?.commands[action.timelineCommandIndex];
+        if (stellarSwirlRuntime.highJump.airborne !== null && command?.type !== "plunge") {
+          throw new Error(`星旋腾空与合法时间线不一致：${action.id} 不是下落动作。`);
+        }
+        const airborneAction = { frame: event.frame, actorId: actor.id,
+          sourceEventId: `action:${action.id}:${cycle}:${event.sequence}`, timelineCommandIndex: action.timelineCommandIndex,
+          executionOrder: { frame: event.frame, priority: event.priority, sequence: event.sequence } };
+        if (command?.type === "jump") stellarSwirlRuntime.jump(airborneAction);
+        if (command?.type === "plunge") stellarSwirlRuntime.plunge(airborneAction);
+      }
+
+      const lunarAbilityRuntime = lunarBloomRuntime ?? lunarMixedV2Runtime;
+      const lunarAbilityDeclarations = lunarBloomOptions?.abilities ?? lunarMixedV2Options?.abilities;
+      if (lunarAbilityRuntime !== undefined) {
+        if (event.frame < lunarAbilityRuntime.declaredAnimationUntil) throw new Error("月露涤荡完整 124 帧动画期间不可切换或启动其他动作。");
+        if (lunarAbilityDeclarations?.some(declaration => declaration.sourceAbilityId === action.sourceAbilityId && declaration.actorId === actor.id)) {
+          if (event.frame < lastLunarBloomActionAnimationUntil) throw new Error("月露涤荡此来源配置要求上一动作完整结束后的闲置起手，不能推定取消连携。");
+          lunarAbilityRuntime.startDeclaredAbility({ frame: event.frame, actorId: actor.id, sourceAbilityId: action.sourceAbilityId!, sourceEventId: `action:${action.id}:${cycle}:${event.sequence}`, fromState: "idle" });
+        }
+        lastLunarBloomActionAnimationUntil = Math.max(lastLunarBloomActionAnimationUntil, action.animationEndFrame ?? event.frame);
+      }
+
       // Costs within the explicit comparison tolerance are legal, but their
       // floating-point excess must never create negative energy. Account for
       // the amount actually removed so actionLog and energyStats remain an
       // exact replay pair.
+      const deferredCost = energyCost > 0 && (action.energyCostFrame ?? 0) > 0;
       const energyAfterCost = quantizeEnergy(
-        Math.max(0, currentEnergy - energyCost)
+        Math.max(0, currentEnergy - (deferredCost ? 0 : energyCost))
       );
       const energySpent = quantizeEnergy(
         currentEnergy - energyAfterCost
@@ -9125,7 +10678,7 @@ function simulateConfig(
           energySummary.spent + energySpent
         );
       }
-      if (energyCost > 0) {
+      if (energyCost > 0 && !deferredCost) {
         recordEnergyCurve(
           event.frame,
           timeSeconds,
@@ -9157,17 +10710,76 @@ function simulateConfig(
           : { animationEndFrame: action.animationEndFrame })
       });
 
-      const snapshotIds = new Set([actor.id]);
-      for (const hit of action.hits ?? []) {
-        snapshotIds.add(hit.scalingOwnerId ?? actor.id);
-        for (const source of hit.flatSources ?? []) {
-          snapshotIds.add(source.ownerId ?? actor.id);
+      if (sourceNormalChainRuntime !== undefined && action.timelineCommandIndex !== undefined) {
+        const command = resultConfig.timeline!.commands[action.timelineCommandIndex]!;
+        const decision = command.type === "swap" ? sourceNormalChainRuntime.reset(actor.id, "swap-complete-reset")
+          : sourceNormalChainRuntime.acceptAction({ actorId: actor.id, kind: command.type,
+            ...(action.sourceAbilityId === undefined ? {} : { sourceAbilityId: action.sourceAbilityId }) });
+        recordNormalChain(event, decision, action.timelineCommandIndex, action, actionLog.length - 1);
+      }
+
+      if (action.sourceAbilityId !== undefined && sourceAbilityById.get(action.sourceAbilityId)?.kind === "burst") {
+        handleArtifactBuff({ kind: "burst", frame: event.frame, sourceActorId: actor.id, activeCharacterId }, { actionLogIndex: actionLog.length - 1 });
+        for (const decision of artifactEventRuntime?.onBurst(event.frame, activeCharacterId) ?? []) {
+          const id = appendArtifactDecision(event, decision, artifactSource("burst", action.id, { actionLogIndex: actionLog.length - 1 }));
+          if (decision.outcome !== "activated") continue;
+          // Queue the actual receiver tasks, including work beyond observation.
+          // Their final F+360 energy arrives even though the effect is expiring.
+          for (const recipient of decision.exileRecipients) for (const [index, delay] of ARTIFACT_EVENT_PROFILE.exile.tickFrames.entries()) {
+            push((event.frame + delay) / 60, "artifactEnergyTick", { actorId: decision.actorId, effectId: "exile-4pc",
+              receiverId: recipient.actorId, amount: ARTIFACT_EVENT_PROFILE.exile.energy,
+              sourceActionId: action.id, sourceFrame: event.frame, parentArtifactEventLogId: id, tickIndex: index + 1, cycle } satisfies ArtifactEnergyTickPayload);
+          }
         }
       }
-      const snapshots: Record<string, CharacterStats | undefined> = {};
-      for (const characterId of snapshotIds) {
-        snapshots[characterId] = computeStats(characterId, timeSeconds);
+      if (action.sourceAbilityId !== undefined && sourceAbilityById.get(action.sourceAbilityId)?.kind === "skill") {
+        for (const decision of weaponProcRuntime?.onLifecycle("skill", event.frame, activeCharacterId) ?? []) {
+          weaponProcLifecycleLog.push({ ...decision, id: weaponProcLifecycleLog.length, timeSeconds, eventPriority: event.priority,
+            eventSequence: event.sequence, actionLogIndex: actionLog.length - 1, particleEventId: null });
+        }
       }
+
+      const skillAbility = action.sourceAbilityId === undefined ? undefined : runtimeSkillAbilities.get(action.sourceAbilityId);
+      if (skillAbility !== undefined) {
+        const state = skillCooldownStates.get(actor.id)!;
+        if (state.availableCharges <= 0) throw new Error(`实际共享战技充能与合法前缀反馈不一致：${action.id}`);
+        const task: SkillCooldownTaskPayload = { actorId: actor.id, actionId: action.id, abilityId: skillAbility.id,
+          timelineCommandIndex: action.timelineCommandIndex!, recoveryFrames: skillAbility.chargeRecoveryFrames ?? skillAbility.cooldownFrames };
+        if ((skillAbility.cooldownStartFrame ?? 0) > 0) push((event.frame + skillAbility.cooldownStartFrame!) / 60, "skillCooldownStart", task);
+        else recordSkillCooldown(event, actor.id, "start", startSerialSkillCooldown(state, event.frame,
+          { castId: task.actionId, abilityId: task.abilityId, recoveryFrames: task.recoveryFrames }), task);
+      }
+
+      const excludedConditionalHitIds = new Set<string>();
+      for (const group of action.conditionalHitGroups ?? []) {
+        const hp = playerHpStateByActorId.get(actor.id)!;
+        const decision = calculateActionCondition(group, hp);
+        actionConditionLog.push({ id: actionConditionLog.length, actionLogIndex: actionLog.length - 1,
+          actorId: actor.id, actionId: action.id, groupId: group.id,
+          frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence,
+          ownerCurrentHp: hp.currentHp, ownerMaxHp: hp.maxHp, thresholdRatio: group.thresholdRatio,
+          selected: decision.selected, hitIds: [...group.hitIds], trace: decision.trace });
+        if (!decision.selected) for (const hitId of group.hitIds) excludedConditionalHitIds.add(hitId);
+      }
+
+      if (deferredCost) {
+        const reservedBefore = quantizeEnergy(reservedEnergy.get(actor.id) ?? 0);
+        const reservedAfter = quantizeEnergy(reservedBefore + energyCost);
+        reservedEnergy.set(actor.id, reservedAfter);
+        const actionLogIndex = actionLog.length - 1;
+        energyCostLog.push({ operation: "reserve", actionLogIndex, frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, energyCost, energyBefore: currentEnergy, energyAfter: currentEnergy, reservedBefore, reservedAfter });
+        push(timeSeconds + action.energyCostFrame! / 60, "energyCost", { actorId: actor.id, actionId: action.id, actionLogIndex, energyCost });
+      }
+      for (const definition of action.statConversions ?? []) {
+        const snapshot = computeStats(actor.id, timeSeconds)!;
+        const converted = calculateStatConversion(definition, snapshot);
+        const row = { id: statConversionLog.length, actionLogIndex: actionLog.length - 1, key: definition.key, frame: event.frame, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, expiresAtFrame: event.frame + definition.durationFrames, sourceValue: converted.sourceValue, appliedValue: converted.appliedValue, snapshot: deepClone(snapshot) };
+        statConversionLog.push(row);
+        liveConversions.set(`${actor.id}:${definition.key}`, row);
+      }
+      const boundSnapshotHits = new Set([...(action.summons ?? []).flatMap(summon => summon.hitIds), ...(action.periodicEntities ?? []).flatMap(entity => entity.hitIds)]);
+      const snapshots = snapshotAction(action, timeSeconds, (action.hits ?? []).filter(hit => hit.snapshotFrame === undefined && hit.snapshot === "action" &&
+        (hit.id === undefined || !boundSnapshotHits.has(hit.id) && !excludedConditionalHitIds.has(hit.id))));
 
       for (const gain of action.energyGains ?? []) {
         push(timeSeconds + safeNumber(gain.offset), "energy", {
@@ -9204,180 +10816,17 @@ function simulateConfig(
           debuff
         });
       }
-      (action.hits ?? []).forEach((hit, hitIndex) => {
-        const hitTimeSeconds = timeSeconds + hit.offset;
-        const hitFrame = toFrame(hitTimeSeconds);
-        const geometry = hit.geometry;
-        const sourceActorPose = actorPoseById.get(actor.id);
-        const resolvedGeometry =
-          geometry === undefined
-            ? undefined
-            : resolveWorldHitGeometry(geometry, sourceActorPose);
-        const targetPlans: Array<{
-          targeting?: HitTargeting;
-          targetingSource: "default" | "scripted" | "geometry";
-          targetPosition: { x: number; y: number } | null;
-          sourceActorPosition: { x: number; y: number } | null;
-          sourceActorFacingDegrees: number | null;
-          geometryKind:
-            | "circle"
-            | "rectangle"
-            | "capsule"
-            | "sector"
-            | null;
-          geometryCoordinateSpace:
-            | "world"
-            | "actor-local"
-            | null;
-          geometryOrigin: { x: number; y: number } | null;
-          geometryStart: { x: number; y: number } | null;
-          geometryEnd: { x: number; y: number } | null;
-          geometryRadius: number | null;
-          geometryHalfWidth: number | null;
-          geometryHalfHeight: number | null;
-          geometryRotationDegrees: number | null;
-          geometryDirectionDegrees: number | null;
-          geometryAngleDegrees: number | null;
-          geometryDistance: number | null;
-          geometryThreshold: number | null;
-          resolvedGeometry: ResolvedWorldHitGeometry | null;
-        }> =
-          geometry === undefined
-            ? (
-                hit.targeting === undefined
-                  ? [undefined]
-                  : "mode" in hit.targeting
-                    ? hit.targeting.targets
-                    : [hit.targeting]
-              ).map((targeting) => ({
-                ...(targeting === undefined ? {} : { targeting }),
-                targetingSource:
-                  targeting === undefined ? "default" : "scripted",
-                targetPosition: resolveTargetPosition(
-                  targeting?.targetId ?? "enemy-0",
-                  hitFrame
-                ),
-                sourceActorPosition:
-                  sourceActorPose === undefined
-                    ? null
-                    : deepClone(sourceActorPose.position),
-                sourceActorFacingDegrees:
-                  sourceActorPose?.facingDegrees ?? null,
-                geometryKind: null,
-                geometryCoordinateSpace: null,
-                geometryOrigin: null,
-                geometryStart: null,
-                geometryEnd: null,
-                geometryRadius: null,
-                geometryHalfWidth: null,
-                geometryHalfHeight: null,
-                geometryRotationDegrees: null,
-                geometryDirectionDegrees: null,
-                geometryAngleDegrees: null,
-                geometryDistance: null,
-                geometryThreshold: null,
-                resolvedGeometry: null
-              }))
-            : enemyTargets.map((target) => {
-                if (resolvedGeometry === undefined) {
-                  throw new Error(
-                    "Geometry resolution unexpectedly lost its shape."
-                  );
-                }
-                const targetPosition = resolveTargetPosition(
-                  target.id,
-                  hitFrame
-                );
-                if (targetPosition === null) {
-                  throw new Error(
-                    `Target "${target.id}" passed geometry schema validation without a position.`
-                  );
-                }
-                const geometryResolution = resolveHitGeometry(
-                  resolvedGeometry,
-                  targetPosition,
-                  target.hitboxRadius
-                );
-                return {
-                  targeting: {
-                    targetId: target.id,
-                    outcome: geometryResolution.landed
-                      ? "landed"
-                      : "miss",
-                    ...(geometryResolution.landed
-                      ? {}
-                      : { reason: geometryResolution.missReason })
-                  },
-                  targetingSource: "geometry",
-                  targetPosition,
-                  sourceActorPosition:
-                    sourceActorPose === undefined
-                      ? null
-                      : deepClone(sourceActorPose.position),
-                  sourceActorFacingDegrees:
-                    sourceActorPose?.facingDegrees ?? null,
-                  geometryKind: resolvedGeometry.kind,
-                  geometryCoordinateSpace:
-                    geometry.coordinateSpace ?? "world",
-                  geometryOrigin:
-                    resolvedGeometry.kind === "capsule"
-                      ? null
-                      : deepClone(resolvedGeometry.origin),
-                  geometryStart:
-                    resolvedGeometry.kind === "capsule"
-                      ? deepClone(resolvedGeometry.start)
-                      : null,
-                  geometryEnd:
-                    resolvedGeometry.kind === "capsule"
-                      ? deepClone(resolvedGeometry.end)
-                      : null,
-                  geometryRadius:
-                    resolvedGeometry.kind === "circle" ||
-                    resolvedGeometry.kind === "capsule" ||
-                    resolvedGeometry.kind === "sector"
-                      ? resolvedGeometry.radius
-                      : null,
-                  geometryHalfWidth:
-                    resolvedGeometry.kind === "rectangle"
-                      ? resolvedGeometry.halfWidth
-                      : null,
-                  geometryHalfHeight:
-                    resolvedGeometry.kind === "rectangle"
-                      ? resolvedGeometry.halfHeight
-                      : null,
-                  geometryRotationDegrees:
-                    resolvedGeometry.kind === "rectangle"
-                      ? resolvedGeometry.rotationDegrees
-                      : null,
-                  geometryDirectionDegrees:
-                    resolvedGeometry.kind === "sector"
-                      ? resolvedGeometry.directionDegrees
-                      : null,
-                  geometryAngleDegrees:
-                    resolvedGeometry.kind === "sector"
-                      ? resolvedGeometry.angleDegrees
-                      : null,
-                  geometryDistance: geometryResolution.distance,
-                  geometryThreshold: geometryResolution.threshold,
-                  resolvedGeometry: deepClone(resolvedGeometry)
-                };
-              });
-        const hitGroupId = `${action.id}:${cycle}:${hitIndex}:${toFrame(hitTimeSeconds)}`;
-        targetPlans.forEach((targetPlan, targetIndex) => {
-          push(hitTimeSeconds, "hit", {
-            actorId: actor.id,
-            action,
-            hit,
-            hitIndex,
-            ...targetPlan,
-            targetIndex,
-            targetCount: targetPlans.length,
-            hitGroupId,
-            snapshots,
-            cycle
-          });
-        });
-      });
+      for (const change of action.healthChanges ?? []) {
+        push(timeSeconds + change.frameOffset / 60, "healthChange", { change, sourceActorId: actor.id, actionLogIndex: actionLog.length - 1 });
+      }
+      const boundSummonHits = new Set([...(action.summons ?? []).flatMap(summon => summon.hitIds), ...(action.periodicEntities ?? []).flatMap(entity => entity.hitIds)]);
+      scheduleActionHits(action, cycle, timeSeconds, snapshots, actorPoseById.get(actor.id), hit => hit.id === undefined || (!boundSummonHits.has(hit.id) && !excludedConditionalHitIds.has(hit.id)));
+      for (const definition of action.periodicEntities ?? []) {
+        push(timeSeconds + definition.spawnFrame / 60, "periodicEntitySpawn", { action, cycle, definition, actionLogIndex: actionLog.length - 1 });
+      }
+      for (const summon of action.summons ?? []) {
+        push(timeSeconds + summon.spawnFrame / 60, "summonSpawn", { action, cycle, summon, actionTimeSeconds: timeSeconds });
+      }
       continue;
     }
 
@@ -9497,6 +10946,12 @@ function simulateConfig(
               ...taskResult.bloomReaction,
               selfDamageStatus: playerSelfDamageStatus
             };
+      if (bloomReaction !== null) handleArtifactReactions(["bloom"], sourceActorId, event.frame, { parentDamageEventId: triggerDamageEventId, reactionTaskLogId });
+      if (bloomReaction !== null) lunarArtifactRuntime?.reactionTriggered(sourceActorId, event.frame, "bloom");
+      if (bloomReaction !== null && lunarMixedV2Runtime !== undefined) moonlightArtifactRuntime?.onLunarReaction(event.frame, "lunarBloom", sourceActorId, triggerDamageEventId);
+      if (lunarMixedV2Runtime !== undefined && bloomReaction !== null) {
+        lunarMixedV2Runtime.bloom({ frame: event.frame, sourceActorId, sourceEventId: `reaction-task:${reactionTaskLogId}`, attackId: triggerHitGroupId, targetId, element: triggerElement, gaugeUnits: bloomReaction.sourceGaugeUnitsBefore });
+      }
       const taskIntraEventSequence =
         nextIntraEventSequence();
       const quickenStateLogIds =
@@ -10371,7 +11826,9 @@ function simulateConfig(
         particleIndex,
         cycle,
         triggerLogId,
-        triggerHitId
+        triggerHitId,
+        favoniusLogId,
+        origin
       } = event.payload as ParticleSpawnEventPayload;
       const particleCount = resolveParticleCount(particle.count, random);
       const receiveTimeSeconds =
@@ -10400,11 +11857,13 @@ function simulateConfig(
         particleCount,
         receivedWithinSimulation,
         cycle,
+        ...(origin === undefined ? {} : { origin }),
         triggerLogId: triggerLogId ?? null,
         triggerHitId: triggerHitId ?? null
       });
-      if (receivedWithinSimulation) {
-        push(receiveTimeSeconds, "particleReceive", { particleEventId });
+      if (favoniusLogId !== undefined) favoniusLog[favoniusLogId]!.particleEventId = particleEventId;
+      if (receivedWithinSimulation || origin !== undefined) {
+        push(receiveTimeSeconds, "particleReceive", { particleEventId, ...(origin === undefined ? {} : { declaredDrop: true as const }) });
       }
       continue;
     }
@@ -10490,6 +11949,13 @@ function simulateConfig(
           particle.source
         );
       }
+      for (const decision of weaponProcRuntime?.onLifecycle("particle-received", event.frame, activeCharacterId) ?? []) {
+        weaponProcLifecycleLog.push({ ...decision, id: weaponProcLifecycleLog.length, timeSeconds, eventPriority: event.priority,
+          eventSequence: event.sequence, actionLogIndex: null, particleEventId });
+      }
+      for (const decision of artifactEventRuntime?.onParticleReceived(event.frame, activeCharacterId) ?? []) {
+        appendArtifactDecision(event, decision, artifactSource("particle-received", particle.sourceActionId, { particleEventId }));
+      }
       continue;
     }
 
@@ -10533,13 +11999,11 @@ function simulateConfig(
         expectedExpiryFrame
       );
       if (
-        targetPhaseV3Enabled &&
+        targetPhaseV2Enabled &&
         result.operation === "stale"
       ) {
-        // A callback-owned before-Reactable application can invalidate the
-        // queued lifecycle wake in the same target phase. Stale wakes are not
-        // authoritative Aura boundaries and therefore own no v3 timeline
-        // point or Reactable.Tick transition.
+        // Refresh, consumption, or a before-Reactable callback can invalidate
+        // a queued expiry. Stale V2/V3 wakes own no Aura boundary or Tick transition.
         continue;
       }
       const targetStateTimelinePointId =
@@ -11211,6 +12675,11 @@ function simulateConfig(
         generation,
         expectedExpiryFrame
       );
+      if (targetPhaseV2Enabled && result.operation === "stale") {
+        // Wane, refresh, or an earlier expiry can invalidate this queued token.
+        // A stale wake changes no EC state and owns no Reactable.Tick boundary.
+        continue;
+      }
       const targetStateTimelinePointId =
         targetStateTimelineRecorder.result().points.length;
       targetStateTimelineRecorder.recordEvent({
@@ -12548,11 +14017,12 @@ function simulateConfig(
         dendroCoreContext === undefined
           ? scheduledElementalMastery
           : stats.em;
+      if (dendroCoreContext !== undefined) lunarArtifactRuntime?.ordinaryReactionRead(actorId, event.frame);
       const reactionBonus =
         dendroCoreContext === undefined
           ? scheduledReactionBonus
           : stats.reactionBonus +
-            dendroCoreContext.reactionBonusDelta;
+            dendroCoreContext.reactionBonusDelta + artifactReactionBonus(actorId, reaction, event.frame);
       const sourceBuffStatuses =
         dendroCoreContext === undefined
           ? scheduledSourceBuffStatuses
@@ -12791,7 +14261,7 @@ function simulateConfig(
         }
         const selection = selectNearestDendroCoreTarget(
           centerPosition,
-          enemyTargets.map((target) => ({
+          enemyTargets.filter(target => !targetHealthRuntime?.isDefeated(target.id)).map((target) => ({
             targetId: target.id,
             position: resolveTargetPosition(target.id, event.frame),
             hitboxRadius: target.hitboxRadius
@@ -12945,6 +14415,10 @@ function simulateConfig(
       spatialPlans.forEach((plan, targetIndex) => {
         const targetProfile = enemyTargetById.get(plan.targetId);
         if (!targetProfile) return;
+        if (targetHealthRuntime?.isDefeated(plan.targetId)) {
+          plan.landed = false;
+          plan.reason = "TARGET_DEFEATED";
+        }
         const targetAuraEngine =
           auraEngines?.get(plan.targetId) ?? null;
         const targetTaskPhaseEntry = ensureTargetTaskPhase({
@@ -13499,6 +14973,7 @@ function simulateConfig(
           pendingReactionDamageEventId =
             damageEvents.length + 1;
         }
+        if (nestedShatterState?.audit.triggered) handleArtifactReactions(["shatter"], actorId, event.frame, { parentDamageEventId: pendingReactionDamageEventId });
         nestedShatterState?.mutations.forEach((mutation) => {
           const shatterTriggered =
             mutation.operation === "shatter-consume";
@@ -13963,6 +15438,7 @@ function simulateConfig(
             label: debuff.label
           }))
         ];
+        if (propagatedReactionAudit !== null && propagatedReactionAudit.mechanicsTruncation === null) handleArtifactReactions(propagatedReactionAudit.reactions, actorId, event.frame, { parentDamageEventId: pendingReactionDamageEventId });
         const calculation = calcTransformativeReactionDamage({
           characterLevel: sourceActor.level,
           elementalMastery,
@@ -13997,7 +15473,7 @@ function simulateConfig(
               elementalMastery: liveReactionStats.em,
               reactionBonus:
                 liveReactionStats.reactionBonus +
-                scheduledReactionBonusDelta
+                scheduledReactionBonusDelta + artifactReactionBonus(actorId, additiveReaction.reaction, event.frame)
             });
           additiveReactionFactors = {
             reaction: additiveCalculation.reaction,
@@ -14050,6 +15526,7 @@ function simulateConfig(
             liveReactionStats.reactionBonus +
             swirlContext.reactionBonusDelta;
         }
+        if (amplifyingReaction !== "none") amplifyingReactionBonus += artifactReactionBonus(actorId, amplifyingReaction, event.frame);
         const amplifyingFactors =
           calcAmplifyingReactionMultiplier({
             reaction: amplifyingReaction,
@@ -14281,6 +15758,8 @@ function simulateConfig(
           buffs: buffLabels,
           debuffs: debuffLabels
         });
+        settleTargetHealth(damageEvents[damageEventId]!);
+        moonlightArtifactRuntime?.onEnemyDamage(event.frame, actorId, damageElement, damageEventId);
         reactionTriggerDamageEventIds.push(damageEventId);
         reactionLog.damageEventIds.push(damageEventId);
         if (
@@ -14761,7 +16240,7 @@ function simulateConfig(
     const {
       actorId,
       action,
-      hit,
+      hit: configuredHit,
       hitIndex,
       targeting,
       targetingSource,
@@ -14786,8 +16265,17 @@ function simulateConfig(
       targetCount,
       hitGroupId,
       snapshots,
+      periodicFlatSnapshots,
+      sourceSnapshots,
+      weaponProcLogId,
+      weaponProcContext,
+      thrillingTalesSnapshotStatuses,
       cycle
     } = event.payload as HitEventPayload;
+    const infusionConversion = configuredHit.infusion === undefined ? undefined : liveConversions.get(`${actorId}:${configuredHit.infusion.statusKey}`);
+    const hit = configuredHit.infusion !== undefined && infusionConversion !== undefined && event.frame < infusionConversion.expiresAtFrame
+      ? { ...configuredHit, element: configuredHit.infusion.element, application: configuredHit.infusion.application }
+      : configuredHit;
     const scalingOwnerId = hit.scalingOwnerId ?? actorId;
     const creditOwnerId = hit.creditId ?? actorId;
     const sourceActor = characters.get(actorId);
@@ -14827,7 +16315,8 @@ function simulateConfig(
       mechanicsTruncatedBefore
         ? "mechanics-truncated"
         : "authoritative";
-    const targetOutcome = targeting?.outcome ?? "landed";
+    const targetDefeated = targetHealthRuntime?.isDefeated(targetId) ?? false;
+    const targetOutcome = targetDefeated ? "miss" : targeting?.outcome ?? "landed";
     const activeTargetPhase = targetPhaseTimeline.find(
       (phase) =>
         phase.targetId === targetId &&
@@ -14857,13 +16346,9 @@ function simulateConfig(
       elementalApplicationIcdLogId: null,
       frame: event.frame,
       timeSeconds,
-      ...(targetPhaseAuditEnabled
-        ? {
-            eventPriority: event.priority,
-            eventSequence: event.sequence,
-            intraEventSequence
-          }
-        : {}),
+      eventPriority: event.priority,
+      eventSequence: event.sequence,
+      intraEventSequence: nextIntraEventSequence(),
       cycle,
       sourceActorId: actorId,
       sourceActionId: action.id,
@@ -14897,7 +16382,7 @@ function simulateConfig(
       outcome: targetOutcome,
       landed,
       reason:
-        targeting?.reason ??
+        (targetDefeated ? "TARGET_DEFEATED" : targeting?.reason) ??
         (targetEffectSource === "target-phase"
           ? activeTargetPhase?.reason ?? null
           : null),
@@ -14919,6 +16404,7 @@ function simulateConfig(
         : { sourceAbilityId: action.sourceAbilityId })
     };
     hitResolutionLog.push(targetResolution);
+    if (weaponProcLogId !== undefined) weaponProcLog[weaponProcLogId]!.hitResolutionIds.push(targetResolutionId);
     appendTargetTaskPhaseReference(
       targetTaskPhaseEntry,
       "hitResolutionLogIds",
@@ -14963,6 +16449,7 @@ function simulateConfig(
         landed: false,
         hitConfirmAllowed: false,
         resolvedGeometry,
+        eventPriority: event.priority,
         eventSequence: event.sequence,
         nextIntraEventSequence
       });
@@ -14996,13 +16483,14 @@ function simulateConfig(
               );
             })();
 
-    const stats =
+    const mainSourceSnapshot = sourceSnapshots?.main === undefined ? undefined : sampledSource(sourceSnapshots.main);
+    const stats = mainSourceSnapshot !== undefined ? deepClone(mainSourceSnapshot.stats) :
       hit.snapshot === "action"
         ? deepClone(
             snapshots[scalingOwnerId] ??
-              computeStats(scalingOwnerId, timeSeconds)
+              sampleStats(scalingOwnerId, timeSeconds)
           )
-        : computeStats(scalingOwnerId, timeSeconds);
+        : sampleStats(scalingOwnerId, timeSeconds);
     if (!stats) {
       throw new Error(
         `Resolved scaling owner "${scalingOwnerId}" has no runtime stats for hit "${hitId}".`
@@ -15013,20 +16501,22 @@ function simulateConfig(
     const scalingValue = calcTotalStat(stats, scalingStat);
     let flatDamage = safeNumber(hit.flat);
     const flatDetails: DamageEvent["flatDetails"] = [];
-    for (const source of hit.flatSources ?? []) {
+    for (const [sourceIndex, source] of (hit.flatSources ?? []).entries()) {
       const sourceId = source.ownerId ?? scalingOwnerId;
-      const sourceStats =
+      const sourceSnapshotLogId = sourceSnapshots?.flatSources?.[sourceIndex];
+      const sourceStats = (sourceSnapshotLogId === undefined ? undefined : sampledSource(sourceSnapshotLogId).stats) ?? periodicFlatSnapshots?.[sourceId] ?? (
         hit.snapshot === "action"
           ? deepClone(
-              snapshots[sourceId] ?? computeStats(sourceId, timeSeconds)
+              snapshots[sourceId] ?? sampleStats(sourceId, timeSeconds)
             )
-          : computeStats(sourceId, timeSeconds);
+          : sampleStats(sourceId, timeSeconds));
       if (!sourceStats) continue;
       const sourceStat = source.stat ?? "atk";
       const sourceValue = calcTotalStat(sourceStats, sourceStat);
       const amount = sourceValue * source.multiplier;
       flatDamage += amount;
       flatDetails.push({
+        ...(sourceSnapshotLogId === undefined ? {} : { sourceSnapshotLogId }),
         ownerId: sourceId,
         stat: sourceStat,
         multiplier: source.multiplier,
@@ -15045,18 +16535,18 @@ function simulateConfig(
       targetProfile,
       element
     );
-    const effectiveResistance =
-      baseResistance -
-      debuffState.resShred -
-      safeNumber(hit.resShred);
+    const stellarPanel = stellarConductRuntime === undefined ? undefined : hit.snapshot === "action" ? stellarActionPanels.get(snapshots) ?? stellarConductRuntime.panelSnapshot(event.frame) : stellarConductRuntime.panelSnapshot(event.frame);
+    const stellarAdjustment = stellarConductRuntime?.adjustment(event.frame, element, stellarPanel!, stats.dmgBonus + safeNumber(hit.dmgBonus), baseResistance, debuffState.resShred + safeNumber(hit.resShred));
+    const stellarCalculation = stellarAdjustment === undefined ? undefined : executeStellarConductAdjustment(stellarAdjustment);
+    const effectiveResistance = stellarCalculation?.effectiveResistance ?? (baseResistance - debuffState.resShred - safeNumber(hit.resShred));
     const effectiveDefenseReduction = clamp(
       debuffState.defReduction + safeNumber(hit.defReduction),
       -1,
       0.9
     );
     const activeStatuses: ActiveStatusSnapshot[] = [
-      ...activeBuffs
-        .filter((buff) => buff.targetId === scalingOwnerId)
+      ...(mainSourceSnapshot !== undefined ? deepClone(mainSourceSnapshot.activeBuffs) : weaponProcLogId === undefined ? activeBuffs
+        .filter((buff) => buff.targetId === scalingOwnerId && !(thrillingTalesRuntime !== undefined && hit.snapshot === "action" && buff.key === `ttds:${scalingOwnerId}`))
         .map((buff) => ({
           key: buff.key,
           kind: "buff" as const,
@@ -15067,7 +16557,9 @@ function simulateConfig(
           startTimeSeconds: buff.start,
           endTimeSeconds: buff.end,
           label: buff.label
-        })),
+        })) : deepClone(weaponProcContext!.triggerBuffStatuses)),
+      ...(mainSourceSnapshot === undefined && thrillingTalesRuntime !== undefined && weaponProcLogId === undefined && hit.snapshot === "action"
+        ? deepClone(thrillingTalesSnapshotStatuses?.[scalingOwnerId] ?? []) : []),
       ...debuffState.relevantDebuffs.map((debuff) => ({
         key: debuff.key,
         kind: "debuff" as const,
@@ -15086,12 +16578,34 @@ function simulateConfig(
     const enemyStateBeforeHit = {
       level: targetProfile.level,
       baseResistance,
-      resistanceShred: debuffState.resShred + safeNumber(hit.resShred),
+      resistanceShred: debuffState.resShred + safeNumber(hit.resShred) + (stellarAdjustment?.physicalResistanceReduction ?? 0),
       effectiveResistance,
       baseDefenseReduction: targetProfile.defReduction,
       effectiveDefenseReduction
     };
+    // A force shield owns its elemental budget. It consumes the ordinary target ICD
+    // once but must not masquerade as an ordinary Aura or create ordinary reaction side effects.
+    const enemyShieldPrepared = !mechanicsTruncatedBefore && enemyShieldHost !== undefined
+      ? enemyShieldHost.prepareDirectHit({ frame: event.frame, eventPriority: event.priority, eventSequence: event.sequence, intraEventSequence: targetIndex,
+          sourceEventId: `damage:${damageEvents.length}`, sourceActorId: actorId, sourceActionId: action.id, hitId,
+          damageEventId: damageEvents.length, hitResolutionLogId: targetResolutionId, targetId, element, hit, sourceRefs: [],
+          liveAura: auraEngine?.getAuraStateAt(event.frame) ?? [], targetEffects: { damageAllowed, auraAllowed, hitConfirmAllowed } }) : null;
+    if (enemyShieldPrepared !== null) {
+      const pendingConsumers: string[] = [];
+      if (config.weaponHitStackModel?.actors.some(row => row.actorId === actorId)) pendingConsumers.push("武器叠层 OnEnemyDamage");
+      if (config.weaponProcModel?.actors.some(row => row.actorId === actorId)) pendingConsumers.push("独立武器追击回调");
+      if (hit.attackTag === "skill" && config.sacrificialModel?.actors.some(row => row.actorId === actorId)) pendingConsumers.push("祭礼伤害回调");
+      if (config.normalHitEnergyModel !== undefined && hit.normalHitEnergyTag !== undefined) pendingConsumers.push("普攻随机能量回调");
+      if (element !== "physical" && config.nightsoulBurstModel !== undefined) pendingConsumers.push("夜魂迸发伤害回调");
+      if (config.artifactDamageModel !== undefined) pendingConsumers.push("圣遗物命中／伤害回调");
+      if (enemyShieldPrepared.reaction !== "none" && config.artifactBuffModel?.actors.some(row => row.actorId === actorId && ["instructor-4pc", "gilded-4pc"].includes(row.effectId))) pendingConsumers.push("圣遗物护盾反应回调");
+      if (pluginDefinitions.length > 0) pendingConsumers.push("插件命中／伤害回调");
+      if (action.particles?.some(particle => particle.trigger?.kind === "hit-confirm" && particle.trigger.hitIds.includes(hitId))) pendingConsumers.push("技能命中产球资格");
+      if (pendingConsumers.length) throw new Error(`本次真实盾接触尚未来源验证以下回调资格：${pendingConsumers.join("、")}；不能用生命伤害 0 代替各机制的接触规则。`);
+    }
+    const preReactionSourceStats = computeStats(actorId, timeSeconds);
     const shatterState =
+      enemyShieldPrepared === null &&
       auraEngine !== null &&
       auraAllowed &&
       !mechanicsTruncatedBefore
@@ -15115,6 +16629,16 @@ function simulateConfig(
     const pendingDirectDamageEventId =
       damageEvents.length +
       (recursiveShatterWillSettle ? 1 : 0);
+    if (shatterState?.audit.triggered) handleArtifactReactions(["shatter"], actorId, event.frame, { parentDamageEventId: pendingDirectDamageEventId });
+    const artifactDamageDecisions = artifactDamageRuntime !== undefined && hitConfirmAllowed &&
+      configuredDirectDamageGroupMultiplier * directDamageGroupSequenceMultiplier > 0
+      ? artifactDamageRuntime.onEnemyHit({ frame: event.frame, sourceActorId: actorId, activeCharacterId,
+          attackTag: hit.attackTag ?? null, currentAttack: () => calcTotalStat(computeStats(actorId, timeSeconds)!, "atk") }) : [];
+    for (const decision of artifactDamageDecisions) {
+      flatDamage += decision.flatDamage;
+      appendArtifactDamageDecision(event, nextIntraEventSequence(), decision,
+        { sourceActorId: actorId, targetId, parentDamageEventId: pendingDirectDamageEventId, hitResolutionLogId: targetResolutionId });
+    }
     shatterState?.mutations.forEach((mutation) => {
       const shatterTriggered =
         mutation.operation === "shatter-consume";
@@ -15257,7 +16781,7 @@ function simulateConfig(
               frame: event.frame,
               sourceActorId: actorId,
               element,
-              ...(hit.application === undefined
+              ...(hit.application === undefined || enemyShieldPrepared !== null
                 ? {}
                 : { application: hit.application }),
               ...(hit.reactionOverride === undefined
@@ -15275,7 +16799,61 @@ function simulateConfig(
             };
     const reactionAudit =
       projectPlayerSelfDamageStatus(rawReactionAudit);
+    if (auraEngine !== null && reactionAudit.mechanicsTruncation === null) handleArtifactReactions(reactionAudit.reactions, actorId, event.frame, { parentDamageEventId: pendingDirectDamageEventId });
+    if (auraEngine !== null && reactionAudit.mechanicsTruncation === null && reactionAudit.icdAllowed === true) {
+      const lunarCallbacks: Array<"lunarCharged" | "lunarCrystallize"> = [];
+      if ((lunarRuntime || lunarMixedRuntime || lunarMixedV2Runtime) && auraEngine.didLastApplicationTriggerLunarCharged()) lunarCallbacks.push("lunarCharged");
+      if ((lunarCrystallizeRuntime || lunarMixedRuntime || lunarMixedV2Runtime) && auraEngine.didLastApplicationTriggerLunarCrystallize()) lunarCallbacks.push("lunarCrystallize");
+      if (lunarCallbacks.length > 0) {
+        reactionAudit.specialReactions = lunarCallbacks;
+        for (const reaction of lunarCallbacks) handleArtifactBuff({ kind: "reaction", frame: event.frame,
+          sourceActorId: actorId, activeCharacterId, reaction, targetIsEnemy: true }, { parentDamageEventId: pendingDirectDamageEventId });
+        for (const reaction of lunarCallbacks) moonlightArtifactRuntime?.onLunarReaction(event.frame, reaction, actorId, pendingDirectDamageEventId);
+      }
+    }
+    if (reactionAudit.catalyzeReaction?.additive !== null && reactionAudit.catalyzeReaction?.additive !== undefined) lunarArtifactRuntime?.ordinaryReactionRead(actorId, event.frame);
+    if (reactionAudit.icdAllowed === true && reactionAudit.bloomReactions.some(reaction => reaction.reaction === "bloom")) lunarArtifactRuntime?.reactionTriggered(actorId, event.frame, "bloom");
+    if (reactionAudit.icdAllowed === true && reactionAudit.bloomReactions.some(reaction => reaction.reaction === "bloom") && (lunarBloomRuntime !== undefined || lunarMixedV2Runtime !== undefined)) moonlightArtifactRuntime?.onLunarReaction(event.frame, "lunarBloom", actorId, pendingDirectDamageEventId);
+    if (lunarMixedV2Runtime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true) {
+      if (element === "hydro" || element === "electro" || element === "geo") {
+        const geoResolution = auraEngine.getLastLunarMixedGeoResolution();
+        lunarMixedV2Runtime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+          gaugeUnits: reactionAudit.applicationGaugeUnits!, auraBefore: reactionAudit.auraBefore ?? [], auraAfter: reactionAudit.auraAfter ?? [],
+          lunarCharged: auraEngine.didLastApplicationTriggerLunarCharged(), lunarCrystallize: auraEngine.didLastApplicationTriggerLunarCrystallize(), ...(geoResolution === undefined ? {} : { geoResolution }) });
+      }
+      if ((element === "hydro" || element === "electro" || element === "dendro") && reactionAudit.bloomReactions.length > 0) {
+        lunarMixedV2Runtime.bloom({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element, gaugeUnits: reactionAudit.applicationGaugeUnits! });
+      }
+    }
+    if (lunarMixedRuntime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true && (element === "hydro" || element === "electro" || element === "geo")) {
+      const geoResolution = auraEngine.getLastLunarMixedGeoResolution();
+      lunarMixedRuntime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+        gaugeUnits: reactionAudit.applicationGaugeUnits!, auraBefore: reactionAudit.auraBefore ?? [], auraAfter: reactionAudit.auraAfter ?? [],
+        lunarCharged: auraEngine.didLastApplicationTriggerLunarCharged(), lunarCrystallize: auraEngine.didLastApplicationTriggerLunarCrystallize(), ...(geoResolution === undefined ? {} : { geoResolution }) });
+    }
+    if (lunarRuntime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true && (element === "hydro" || element === "electro")) {
+      lunarRuntime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+        gaugeUnits: reactionAudit.applicationGaugeUnits!, auraBefore: reactionAudit.auraBefore ?? [], converted: auraEngine.didLastApplicationTriggerLunarCharged() });
+    }
+    if (lunarCrystallizeRuntime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true && (element === "hydro" || element === "geo")) {
+      lunarCrystallizeRuntime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+        gaugeUnits: reactionAudit.applicationGaugeUnits!, auraBefore: reactionAudit.auraBefore ?? [], converted: auraEngine.didLastApplicationTriggerLunarCrystallize() });
+    }
+    if (stellarConductRuntime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true && (element === "cryo" || element === "electro")) {
+      stellarConductRuntime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+        gaugeUnits: reactionAudit.applicationGaugeUnits!, converted: auraEngine.didLastApplicationTriggerStellarConduct() });
+    }
+    if (lunarBloomRuntime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true && (element === "hydro" || element === "dendro")) {
+      lunarBloomRuntime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+        gaugeUnits: reactionAudit.applicationGaugeUnits!, actualIcdAllowed: true, ordinaryBloomCreated: reactionAudit.bloomReactions.some(reaction => reaction.reaction === "bloom") });
+    }
+    if (stellarSwirlRuntime !== undefined && auraEngine !== null && reactionAudit.icdAllowed === true && element === "anemo") {
+      const converted = auraEngine.didLastApplicationTriggerStellarSwirl();
+      stellarSwirlRuntime.application({ frame: event.frame, sourceActorId: actorId, sourceEventId: `damage:${pendingDirectDamageEventId}`, attackId: hitGroupId, targetId, element,
+        gaugeUnits: reactionAudit.applicationGaugeUnits!, actualIcdAllowed: true, auraBefore: reactionAudit.auraBefore ?? [], converted, ordinaryReactionReplacementApplied: converted });
+    }
     const elementalApplicationIcdDecision =
+      enemyShieldPrepared !== null ? enemyShieldPrepared.applicationDecision :
       hit.application === undefined
         ? null
         : !auraAllowed
@@ -15375,7 +16953,7 @@ function simulateConfig(
           elementalMastery: reactionSourceStats.em,
           reactionBonus:
             reactionSourceStats.reactionBonus +
-            safeNumber(hit.reactionBonus)
+            safeNumber(hit.reactionBonus) + artifactReactionBonus(actorId, additiveReaction.reaction, event.frame)
         });
       additiveReactionFactors = {
         reaction: additiveCalculation.reaction,
@@ -15409,14 +16987,15 @@ function simulateConfig(
     let amplifyingReactionBonus =
       stats.reactionBonus + safeNumber(hit.reactionBonus);
     if (amplifyingReaction !== "none") {
+      lunarArtifactRuntime?.ordinaryReactionRead(actorId, event.frame);
       const liveReactionSourceStats = computeStats(
         actorId,
         timeSeconds
       );
-      const reactionSourceSnapshot =
+      const reactionSourceSnapshot = sourceSnapshots?.reaction !== undefined ? sampledSource(sourceSnapshots.reaction).stats :
         hit.snapshot === "action"
           ? snapshots[actorId]
-          : liveReactionSourceStats;
+          : preReactionSourceStats;
       if (
         liveReactionSourceStats === undefined ||
         reactionSourceSnapshot === undefined
@@ -15431,7 +17010,7 @@ function simulateConfig(
       // lands. scalingOwnerId only selects the ordinary direct-damage panel.
       amplifyingElementalMastery = reactionSourceSnapshot.em;
       amplifyingReactionBonus =
-        liveReactionSourceStats.reactionBonus + safeNumber(hit.reactionBonus);
+        liveReactionSourceStats.reactionBonus + safeNumber(hit.reactionBonus) + artifactReactionBonus(actorId, amplifyingReaction, event.frame);
     }
     if (
       config.schemaVersion === CURRENT_SCHEMA_VERSION &&
@@ -15448,7 +17027,7 @@ function simulateConfig(
       flatDamage:
         flatDamageComponents.ordinaryFlatDamage +
         flatDamageComponents.additiveReactionFlatDamage,
-      damageBonus: stats.dmgBonus + safeNumber(hit.dmgBonus),
+      damageBonus: stellarCalculation?.damageBonus ?? (stats.dmgBonus + safeNumber(hit.dmgBonus)),
       characterLevel: scalingOwner.level,
       enemyLevel: targetProfile.level,
       defenseReduction: effectiveDefenseReduction,
@@ -15457,6 +17036,7 @@ function simulateConfig(
       critRate: stats.critRate + safeNumber(hit.critRate),
       critDamage: stats.critDmg + safeNumber(hit.critDmg),
       critMode: options.critMode,
+      ...(hit.hitWeakPoint === undefined ? {} : { hitWeakPoint: hit.hitWeakPoint }),
       reaction: amplifyingReaction,
       elementalMastery: amplifyingElementalMastery,
       reactionBonus: amplifyingReactionBonus,
@@ -15474,6 +17054,7 @@ function simulateConfig(
       groupMultiplier: configuredDirectDamageGroupMultiplier
     };
     const pluginMultiplierTrace: SimulationResult["directDamageGroupLog"][number]["pluginMultiplierTrace"] = [];
+    let pluginCriticalModeOverride = false;
     for (const [pluginManifestIndex, definition] of pluginDefinitions.entries()) {
       const inputMultiplier = damageInput.groupMultiplier;
       const plugin = damagePluginsByManifestIndex.get(pluginManifestIndex);
@@ -15523,6 +17104,9 @@ function simulateConfig(
         additiveReactionFactors !== null,
         config.schemaVersion
       );
+      if (pluginChanges !== undefined && Object.prototype.hasOwnProperty.call(pluginChanges, "critMode")) {
+        pluginCriticalModeOverride = true;
+      }
       damageInput = appliedChanges.damageInput;
       flatDamageComponents =
         appliedChanges.flatDamageComponents;
@@ -15555,7 +17139,43 @@ function simulateConfig(
       groupMultiplier: effectiveDirectDamageGroupMultiplier
     };
 
-    const calculation = calcDamage(damageInput);
+    const critical: SimulationExecutionAudit["hits"][number]["critical"] = {
+      mode: "configured",
+      eligible: hit.critEligible !== false,
+      outcome: "expected",
+      roll: null,
+      drawIndex: null
+    };
+    if (hit.hitWeakPoint === true) {
+      damageInput = { ...damageInput, critMode: "allCrit" };
+      critical.outcome = "critical";
+    } else if (!critical.eligible) {
+      damageInput = { ...damageInput, critMode: "noCrit" };
+      critical.outcome = "ineligible";
+    } else if (executionOptions?.criticalSampling === "seeded-random-v1" && !pluginCriticalModeOverride) {
+      critical.mode = "seeded-random-v1";
+      critical.drawIndex = criticalDrawCount++;
+      critical.roll = criticalRandom.next();
+      const sampledCritical = critical.roll < clamp(damageInput.critRate, 0, 1);
+      critical.outcome = sampledCritical ? "critical" : "noncritical";
+      damageInput = { ...damageInput, critMode: sampledCritical ? "allCrit" : "noCrit" };
+    } else {
+      critical.outcome = damageInput.critMode === "allCrit" ? "critical" : damageInput.critMode === "noCrit" ? "noncritical" : "expected";
+    }
+    const calculation = executionOptions?.detailedTraces === true
+      ? calculateDamageTrace(damageInput)
+      : calcDamage(damageInput);
+    if (captureResolvedHits) {
+      resolvedHitContexts.set(damageEvents.length, {
+        eventId: damageEvents.length,
+        inputKind: "ordinary",
+        input: deepClone(damageInput),
+        critical,
+        ...(stellarAdjustment === undefined ? {} : { stellarConduct: stellarAdjustment }),
+        ...(executionOptions?.detailedTraces === true && "trace" in calculation && Array.isArray(calculation.trace) ? { trace: deepClone([...artifactDamageTrace(artifactDamageDecisions), ...(stellarCalculation?.trace ?? []), ...calculation.trace]) } : {})
+      });
+    }
+    if (stellarAdjustment) stellarConductRuntime!.fieldInfluences.push({ ...stellarAdjustment, eventId: damageEvents.length, frame: event.frame, element });
     const factors = calculation.factors;
     const buffLabels = activeStatuses
       .filter((status) => status.kind === "buff")
@@ -15565,8 +17185,9 @@ function simulateConfig(
       .map((status) => status.label);
     const snapshot = hit.snapshot ?? "hit";
     const damageEventId = damageEvents.length;
+    const enemyShieldSettlement = enemyShieldPrepared === null ? undefined : enemyShieldHost!.settleDirect(enemyShieldPrepared, damageInput, calculation.finalDamage);
     const targetDamageMultiplier =
-      damageAllowed && !mechanicsTruncatedBefore ? 1 : 0;
+      damageAllowed && !mechanicsTruncatedBefore && enemyShieldSettlement === undefined ? 1 : 0;
     const finalDamage =
       calculation.finalDamage * targetDamageMultiplier;
     const displayDamage = Math.round(finalDamage);
@@ -15632,11 +17253,14 @@ function simulateConfig(
     });
     damageEvents.push({
       id: damageEventId,
+      ...(enemyShieldSettlement === undefined ? {} : { enemyShieldLogId: enemyShieldSettlement.hostLog.id }),
       elementalApplicationIcdLogId: null,
       kind: "direct",
       eventPriority: event.priority,
       eventSequence: event.sequence,
-      parentDamageEventId: null,
+      parentDamageEventId: weaponProcLogId === undefined ? null : weaponProcLog[weaponProcLogId]!.parentDamageEventId,
+      ...(weaponProcLogId === undefined ? {} : { weaponProcLogId }),
+      ...(hit.hitWeakPoint === undefined ? {} : { hitWeakPoint: hit.hitWeakPoint }),
       sourceActorId: actorId,
       scalingOwnerId,
       creditOwnerId,
@@ -15675,6 +17299,7 @@ function simulateConfig(
       snapshot,
       cycle,
       flatDetails,
+      ...(sourceSnapshots?.main === undefined ? {} : { sourceSnapshotLogId: sourceSnapshots.main }),
       ...(action.timelineCommandIndex === undefined
         ? {}
         : { timelineCommandIndex: action.timelineCommandIndex }),
@@ -15720,7 +17345,10 @@ function simulateConfig(
       buffs: buffLabels,
       debuffs: debuffLabels
     });
+    settleTargetHealth(damageEvents[damageEventId]!, hit.attackTag ?? "none");
+    moonlightArtifactRuntime?.onEnemyDamage(event.frame, actorId, element, damageEventId);
     targetResolution.damageEventId = damageEventId;
+    if (weaponProcLogId !== undefined) weaponProcLog[weaponProcLogId]!.damageEventIds.push(damageEventId);
     targetResolution.potentialDamage = calculation.finalDamage;
     targetResolution.finalDamage = finalDamage;
     targetResolution.displayDamage = displayDamage;
@@ -15744,6 +17372,7 @@ function simulateConfig(
         elementalApplicationIcdLogId;
       damageEvents[damageEventId]!.elementalApplicationIcdLogId =
         elementalApplicationIcdLogId;
+      if (enemyShieldSettlement !== undefined) enemyShieldHost!.linkApplicationLog(enemyShieldSettlement.hostLog.id, elementalApplicationIcdLogId);
     }
     recordTargetMechanicsTruncation({
       audit: reactionAudit,
@@ -15758,6 +17387,55 @@ function simulateConfig(
       eventPriority: event.priority,
       eventSequence: event.sequence
     });
+    if (weaponProcLogId !== undefined && weaponProcLog[weaponProcLogId]!.weaponId === "eyeofperception" &&
+        !eyeAdvancedActions.has(action.id)) {
+      eyeAdvancedActions.add(action.id);
+      const bounceIndex = Number(/:bounce-(\d+)$/.exec(action.id)?.[1] ?? 0);
+      if (bounceIndex < 4) {
+        const center = resolveTargetPosition(targetId, event.frame);
+        if (center !== null) {
+          const selected = selectEyeTarget(center, event.frame);
+          if (selected !== null) scheduleEyeBounce(event, { actorId, targetId: selected, cycle,
+            weaponProcLogId, triggerFrame: weaponProcLog[weaponProcLogId]!.frame,
+            coefficient: weaponProcLog[weaponProcLogId]!.coefficient }, bounceIndex + 1);
+        }
+      }
+    }
+    if (sacrificialRuntime?.actor(actorId) !== undefined && !mechanicsTruncatedBefore && reactionAudit.mechanicsTruncation === null) {
+      const decision = sacrificialRuntime.onDamage({ actorId, frame: event.frame, damageEventId, activeCharacterId,
+        attackTag: hit.attackTag ?? null, damage: finalDamage,
+        getSkillCooldown: () => serialSkillCooldownRemaining(skillCooldownStates.get(actorId)!, event.frame) });
+      const id = sacrificialLog.length;
+      const skillCooldownLogId = decision.outcome === "triggered"
+        ? recordSkillCooldown(event, actorId, "reset", resetSerialSkillCooldown(skillCooldownStates.get(actorId)!, event.frame), null, id) : null;
+      sacrificialLog.push({ ...decision, id, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, skillCooldownLogId });
+    }
+    const weaponProcActor = weaponProcRuntime?.actor(actorId);
+    if (weaponProcActor !== undefined && !mechanicsTruncatedBefore && reactionAudit.mechanicsTruncation === null) {
+      const definition = getWeaponProcDefinition(weaponProcActor.weaponId)!;
+      const payload: WeaponProcCallbackPayload = { actorId, parentDamageEventId: damageEventId, targetId, attackTag: hit.attackTag ?? null, damage: finalDamage, cycle,
+        ...(definition.requiresWeakPoint ? { hitWeakPoint: hit.hitWeakPoint! } : {}),
+        ...(definition.lifecycleKind === undefined && !definition.requiresWeakPoint && definition.randomTrigger === undefined && definition.snapshotTiming !== "delivery" ? {} : { sourceActionId: action.id, sourceHitId: hitId, parentHitFrame: event.frame,
+          parentEventPriority: event.priority, parentEventSequence: event.sequence }) };
+      if (definition.randomTrigger !== undefined || definition.lifecycleKind !== undefined || definition.requiresWeakPoint) push(timeSeconds, "weaponProcCallback", payload, event.priority);
+      else executeWeaponProcCallback(event, payload);
+    }
+    const favoniusActor = favoniusRuntime?.actor(actorId);
+    if (favoniusActor !== undefined && enemyShieldSettlement === undefined) {
+      if (critical.outcome === "expected") throw new Error("西风伤害回调收到了平均暴击结果，不能据此生成触发能量。");
+      const decision = favoniusRuntime!.onDamage({ actorId, frame: event.frame, damageEventId, activeCharacterId,
+        damage: finalDamage, critical: critical.outcome === "critical" });
+      const favoniusLogId = favoniusLog.length;
+      favoniusLog.push({ ...decision, id: favoniusLogId, timeSeconds, eventPriority: event.priority, eventSequence: event.sequence, particleEventId: null });
+      if (decision.outcome === "triggered") {
+        push(timeSeconds, "particleSpawn", { actorId, actionId: action.id, actionName: action.name, cycle, particleIndex: 0, favoniusLogId,
+          particle: { id: `favonius:${actorId}:${damageEventId}`, source: `favonius:${favoniusActor.weaponId}`,
+            element: "neutral", count: 3, kind: "particle", spawnOffset: 0, travelTime: favoniusActor.particleDelayFrames / 60 } });
+      }
+    }
+    if (normalHitEnergyRuntime !== undefined && hit.normalHitEnergyTag !== undefined) {
+      push(timeSeconds, "normalHitEnergy", { frame: event.frame, actorId, attackTag: hit.normalHitEnergyTag, damageEventId, hitGroupId });
+    }
     if (reactionAudit.mechanicsTruncation === null) {
       if (reactionAudit.bloomReactions.length > 0) {
         scheduleBloomCoreSpawns({
@@ -15960,6 +17638,8 @@ function simulateConfig(
           `Reaction source stats for "${actorId}" could not be resolved.`
         );
       }
+      const sampledReactionBonus = reactionSourceStats.reactionBonus + safeNumber(hit.reactionBonus) +
+        (transformativeReaction.scheduled ? artifactReactionBonus(actorId, transformativeReaction.reaction, event.frame) : 0);
       const reactionDamageLogId = reactionDamageLog.length;
       const withinSimulation =
         transformativeReaction.scheduled &&
@@ -16002,7 +17682,7 @@ function simulateConfig(
           reactionStatusLogIds: [],
         damageGroupDecisions: []
       });
-      if (withinSimulation) {
+      if (withinSimulation || (retainedOrdinaryReactionQueue && transformativeReaction.scheduled)) {
         push(
           transformativeReaction.damageFrame / 60,
           "reactionDamage",
@@ -16036,9 +17716,7 @@ function simulateConfig(
             baseMultiplier: transformativeReaction.baseMultiplier,
             stats: deepClone(reactionSourceStats),
             elementalMastery: reactionSourceStats.em,
-            reactionBonus:
-              reactionSourceStats.reactionBonus +
-              safeNumber(hit.reactionBonus),
+            reactionBonus: sampledReactionBonus,
             sourceBuffStatuses: activeBuffs
               .filter((buff) => buff.targetId === actorId)
               .map((buff) => ({
@@ -16251,7 +17929,7 @@ function simulateConfig(
           elementalMastery: reactionSourceStats.em,
           reactionBonus:
             reactionSourceStats.reactionBonus +
-            safeNumber(hit.reactionBonus),
+            safeNumber(hit.reactionBonus) + artifactReactionBonus(actorId, "electroCharged", event.frame),
           sourceBuffStatuses,
           snapshot: "hit",
           cycle
@@ -16336,11 +18014,27 @@ function simulateConfig(
       landed: true,
       hitConfirmAllowed,
       resolvedGeometry,
+      eventPriority: event.priority,
       eventSequence: event.sequence,
       nextIntraEventSequence
     });
   }
 
+  if (lunarMixedV2Runtime) {
+    lunarMixedV2Runtime.finish(Math.round(config.duration * 60));
+    (runtimeOptions as SimulationRuntimeOptions & { [lunarMixedV2RuntimeSink]?: (runtime: LunarMixedV2Runtime) => void })[lunarMixedV2RuntimeSink]?.(lunarMixedV2Runtime);
+  }
+  if (lunarMixedRuntime) (runtimeOptions as SimulationRuntimeOptions & { [lunarMixedRuntimeSink]?: (runtime: LunarMixedRuntime) => void })[lunarMixedRuntimeSink]?.(lunarMixedRuntime);
+  if (stellarSwirlRuntime) (runtimeOptions as SimulationRuntimeOptions & { [stellarSwirlRuntimeSink]?: (runtime: StellarSwirlRuntime) => void })[stellarSwirlRuntimeSink]?.(stellarSwirlRuntime);
+  lunarRuntime?.advanceThrough(Math.round(config.duration * 60));
+  stellarConductRuntime?.advanceThrough(Math.round(config.duration * 60));
+  lunarBloomRuntime?.advanceThrough(Math.round(config.duration * 60));
+  if (stellarConductRuntime) (runtimeOptions as SimulationRuntimeOptions & { [stellarConductRuntimeSink]?: (runtime: StellarConductRuntime) => void })[stellarConductRuntimeSink]?.(stellarConductRuntime);
+  if (lunarBloomRuntime) (runtimeOptions as SimulationRuntimeOptions & { [lunarBloomRuntimeSink]?: (runtime: LunarBloomRuntime) => void })[lunarBloomRuntimeSink]?.(lunarBloomRuntime);
+  lunarCrystallizeRuntime?.advanceThrough(Math.round(config.duration * 60));
+  if (lunarRuntime !== undefined) (runtimeOptions as SimulationRuntimeOptions & { [lunarChargedRuntimeSink]?: (runtime: LunarChargedRuntime) => void })[lunarChargedRuntimeSink]?.(lunarRuntime);
+  if (lunarCrystallizeRuntime !== undefined) (runtimeOptions as SimulationRuntimeOptions & { [lunarCrystallizeRuntimeSink]?: (runtime: LunarCrystallizeRuntime) => void })[lunarCrystallizeRuntimeSink]?.(lunarCrystallizeRuntime);
+  capturePendingCheckpointsThrough(Math.round(config.duration * 60));
   for (const character of config.characters) {
     const summary = energyStats.get(character.id);
     if (summary) summary.final = energies.get(character.id) ?? 0;
@@ -16539,26 +18233,28 @@ function simulateConfig(
       });
       playerHpSummaries.push({
         actorId: character.id,
-        maxHp: hpState.maxHp,
+        maxHp: hpState.initialMaxHp,
+        ...(config.playerMaxHpModel === undefined ? {} : { finalMaxHp: hpState.maxHp, totalMaxHpAdjustment: hpState.totalMaxHpAdjustment }),
         initialHp: hpState.initialHp,
         finalHp: hpState.currentHp,
+        ...(config.bondOfLifeModel === undefined ? {} : { initialBondOfLife: hpState.initialBondOfLife!, finalBondOfLife: hpState.currentBondOfLife! }),
         totalIncomingDamage:
           hpState.totalIncomingDamage,
         totalAbsorbedDamage:
           hpState.totalAbsorbedDamage,
         totalHpDamage: hpState.totalHpDamage,
+        ...(healthChangesEnabled ? { totalHealing: hpState.totalHealing, totalOverheal: hpState.totalOverheal, totalHpConsumed: hpState.totalHpConsumed } : {}),
         hitCount: hpState.hitCount,
         zeroHpReached: hpState.currentHp === 0
       });
     }
   }
-  const totalPlayerDamageTaken = playerDamageEvents.reduce(
+  const totalReactionSelfDamageTaken = playerDamageEvents.reduce(
     (sum, playerDamageEvent) =>
       sum + playerDamageEvent.finalDamage,
     0
   );
-  const totalReactionSelfDamageTaken =
-    totalPlayerDamageTaken;
+  const totalPlayerDamageTaken = totalReactionSelfDamageTaken + playerShieldLog.reduce((sum, row) => sum + (row.operation === "incoming-hit" ? row.hpResolution!.actualLoss : 0), 0);
   recordNaturalAuraExpiries(durationFrame, true);
   const auraEndStates: SimulationResult["auraEndStates"] =
     enemyTargets.map((target) => ({
@@ -16888,6 +18584,42 @@ function simulateConfig(
   }
   const parsedTargetPhaseLog = targetPhaseLog;
 
+  const executionAudit: SimulationExecutionAudit | undefined = executionOptions === undefined ? undefined : {
+    version: "execution-audit-v1",
+    hits: captureResolvedHits ? damageEvents.map((damageEvent) => {
+      if (damageEvent.kind === "direct") {
+        const captured = resolvedHitContexts.get(damageEvent.id);
+        if (!captured) throw new Error(`Missing resolved calculation input for damage event ${damageEvent.id}.`);
+        return captured;
+      }
+      const factors = damageEvent.transformativeReactionFactors;
+      if (!factors) throw new Error(`Missing transformative calculation input for damage event ${damageEvent.id}.`);
+      const input = {
+        characterLevel: factors.characterLevel,
+        elementalMastery: factors.elementalMastery,
+        reactionBonus: factors.reactionBonus,
+        baseMultiplier: factors.baseMultiplier,
+        effectiveResistance: factors.effectiveResistance
+      };
+      return {
+        eventId: damageEvent.id,
+        inputKind: "transformative" as const,
+        input,
+        critical: { mode: "configured" as const, eligible: false, outcome: "ineligible" as const, roll: null, drawIndex: null },
+        ...(executionOptions.detailedTraces === true ? { trace: calculateTransformativeDamageTrace(input).trace } : {})
+      };
+    }) : [],
+    phaseCheckpoints,
+    checkpointCoverage: {
+      complete: requestedCheckpointFrames.length > 0 && checkpointBlockers.size === 0 && phaseCheckpoints.length === requestedCheckpointFrames.length,
+      missingDimensions: requestedCheckpointFrames.length > 0 && checkpointBlockers.size > 0
+        ? ["energy", "cooldownsAndCharges", "buffsAndDebuffs", "entities", "auras", "resourcesAndHp", "icdAndTriggerHistory", "pendingEvents", "activeCharacterAndActionPhase"] : [],
+      reasons: requestedCheckpointFrames.length === 0 ? ["本次未请求完整相位检查点。"] : [...checkpointBlockers]
+    },
+    criticalSampling: executionOptions.criticalSampling === undefined ? null : {
+      algorithm: "mulberry32-v1", seed: criticalRandomSeed, drawCount: criticalDrawCount
+    }
+  };
   const simulationResult: SimulationResult = {
     schemaVersion: CURRENT_SCHEMA_VERSION,
     engineVersion: config.engineVersion,
@@ -16907,6 +18639,8 @@ function simulateConfig(
     config: resultConfig,
     actorPoses,
     enemyTargets,
+    ...(targetHealthRuntime === undefined ? {} : { targetHealthLog: targetHealthRuntime.log, targetHealthSummaries: targetHealthRuntime.summaries() }),
+    ...(enemyShieldHost === undefined ? {} : { enemyShieldLog: enemyShieldHost.log, enemyShieldState: enemyShieldHost.captureState(), totalPotentialDamage: damageEvents.reduce((sum, row) => sum + row.potentialDamage, 0) }),
     damageEvents,
     hitEvents: damageEvents,
     directDamageGroupLog,
@@ -16938,6 +18672,10 @@ function simulateConfig(
     crystallizeShieldTimeline,
     playerHitResolutionLog,
     playerDamageEvents,
+    ...(healthChangesEnabled ? { playerHealthEvents } : {}),
+    ...(config.playerMaxHpModel === undefined ? {} : { playerMaxHpEvents }),
+    ...(periodicEntitiesEnabled ? { periodicEntityLog } : {}),
+    ...(actionConditionsEnabled ? { actionConditionLog } : {}),
     playerHpTimeline,
     playerHpSummaries,
     playerSelfDamageStatus,
@@ -16947,6 +18685,26 @@ function simulateConfig(
     targetMotionTimeline,
     skippedActions,
     actionLog,
+    ...(staminaRuntime === undefined ? {} : { stamina: staminaRuntime.finish(Math.round(config.duration * 60)) }),
+    ...(resultConfig.normalHitEnergyModel === undefined ? {} : { normalHitEnergyLog }),
+    ...(resultConfig.favoniusModel === undefined ? {} : { favoniusLog }),
+    ...(resultConfig.weaponProcModel === undefined ? {} : { weaponProcLog }),
+    ...(hasStatefulWeaponProc(resultConfig.weaponProcModel) ? { weaponProcLifecycleLog } : {}),
+    ...(resultConfig.thrillingTalesModel === undefined ? {} : { thrillingTalesLog }),
+    ...(resultConfig.sacrificialModel === undefined ? {} : { sacrificialLog }),
+    ...(resultConfig.artifactEventModel === undefined ? {} : { artifactEventLog }),
+    ...(playerShieldRuntime === undefined ? {} : { playerShieldLog, playerShieldState: playerShieldRuntime.captureState() }),
+    ...(explicitSourceSnapshotsEnabled ? { sourceSnapshotLog } : {}),
+    ...(sourceNormalChainRuntime === undefined ? {} : { sourceNormalChainLog, sourceNormalChainState: sourceNormalChainRuntime.captureState() }),
+    ...(weaponHitStackRuntime === undefined ? {} : { weaponHitStackLog, weaponHitStackState: weaponHitStackRuntime.captureState() }),
+    ...(artifactBuffRuntime === undefined ? {} : { artifactBuffLog, artifactBuffState: artifactBuffRuntime.captureState() }),
+    ...(moonlightArtifactRuntime === undefined ? {} : { moonlightArtifactLog: moonlightArtifactRuntime.log }),
+    ...(artifactDamageRuntime === undefined ? {} : { artifactDamageLog, artifactDamageState: artifactDamageRuntime.captureState() }),
+    ...(resultConfig.nightsoulBurstModel === undefined ? {} : { nightsoulBurstLog }),
+    ...(runtimeSkillActors.size === 0 ? {} : { skillCooldownLog }),
+    ...([...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => (action.statConversions?.length ?? 0) > 0) ? { statConversionLog } : {}),
+    ...([...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => (action.energyCostFrame ?? 0) > 0) ? { energyCostLog } : {}),
+    ...([...resultConfig.rotation, ...(resultConfig.timeline?.abilities ?? [])].some(action => (action.summons?.length ?? 0) > 0) ? { summonLog } : {}),
     energyStats: Object.fromEntries(energyStats),
     energyLog,
     particleEvents,
@@ -16969,8 +18727,15 @@ function simulateConfig(
     targetStateTimeline,
     auraInitialStates,
     auraEndStates,
+    ...(executionAudit === undefined ? {} : { executionAudit }),
     ...(timelineExecution === undefined ? {} : { timelineExecution })
   };
+  if (weaponHitStackRuntime !== undefined && executionOptions?.detailedTraces === true) {
+    for (const captured of simulationResult.executionAudit?.hits ?? []) {
+      const damage = simulationResult.damageEvents[captured.eventId];
+      if (damage !== undefined && captured.trace !== undefined) captured.trace = [...weaponHitStackTraceForDamageEvent(simulationResult, damage), ...captured.trace];
+    }
+  }
   // Frozen reference facets still own the exact through-1.49 compact
   // ReactionA/B wire. Feed those validators a lossless nested projection;
   // the current 1.50 task-order proof validates the enriched decisions and
@@ -17036,6 +18801,7 @@ function simulateConfig(
       schemaVersion: simulationResult.config.schemaVersion,
       engineVersion: simulationResult.config.engineVersion,
       duration: simulationResult.config.duration,
+      rotation: simulationResult.config.rotation,
       enemy: {
         ...(simulationResult.config.enemy.targets === undefined
           ? {}
@@ -17124,7 +18890,8 @@ function simulateConfig(
         : {
             timeline: {
               mode: simulationResult.config.timeline.mode,
-              fps: simulationResult.config.timeline.fps
+              fps: simulationResult.config.timeline.fps,
+              abilities: simulationResult.config.timeline.abilities
             }
           }),
       reactionDeliveryModel:
@@ -17133,7 +18900,9 @@ function simulateConfig(
         simulationResult.config
           .electroChargedPropagationModel
     },
+    actionLog: simulationResult.actionLog,
     damageEvents: simulationResult.damageEvents,
+    ...(simulationResult.weaponProcLog === undefined ? {} : { weaponProcLog: simulationResult.weaponProcLog }),
     reactionDamageLog: simulationResult.reactionDamageLog,
     ...(validatesNearbyElectroChargedPropagation
       ? {
@@ -17381,6 +19150,25 @@ function simulateConfig(
   return simulationResult;
 }
 
+/** Read actual prefix transitions; never infer a reset from its probability or a final expiry. */
+function earliestRuntimeSkillFrame(
+  rows: NonNullable<SimulationResult["skillCooldownLog"]>, actorId: string, requestedFrame: number,
+  actionPriority: number, maxCharges: number, durationFrames: number,
+): number {
+  let candidate = requestedFrame;
+  let available = maxCharges;
+  let finalState = createSerialSkillCooldown(maxCharges);
+  for (const row of rows) {
+    if (row.actorId !== actorId) continue;
+    const beforeRequest = row.frame < candidate || row.frame === candidate && row.eventPriority <= actionPriority;
+    if (!beforeRequest && available > 0) return candidate;
+    if (!beforeRequest) candidate = row.frame + Number(row.eventPriority > actionPriority);
+    available = row.stateAfter.availableCharges;
+    finalState = row.stateAfter;
+  }
+  return available > 0 ? candidate : Math.max(candidate, serialSkillCooldownWorker(finalState)?.frame ?? durationFrames + 1);
+}
+
 function simulateLegalTimeline(
   config: SimConfig,
   runtimeOptions: SimulationRuntimeOptions
@@ -17391,6 +19179,9 @@ function simulateLegalTimeline(
   }
 
   const runtimeEnergyFailures = new Map<number, RuntimeEnergyFailure>();
+  const runtimeSkillReadyFrames = new Map<number, number>();
+  const runtimeStellarSwirlJumps = new Map<number, { actorId: string; frame: number }>();
+  const runtimeSkillActors = getRuntimeSkillCooldownActors(config);
   const skippedByCommand = new Map<
     number,
     SimulationResult["skippedActions"][number]
@@ -17409,6 +19200,20 @@ function simulateLegalTimeline(
     commandIndex += 1
   ) {
     const command = timeline.commands[commandIndex];
+    if (command?.type === "jump" && runtimeOptions.execution?.stellarSwirl !== undefined) {
+      const prefix = compileLegalTimeline(config, { runtimeEnergyFailures, runtimeSkillReadyFrames,
+        runtimeStellarSwirlJumps, stopAfterCommandIndex: commandIndex });
+      const probeOptions: SimulationRuntimeOptions & { [stellarSwirlRuntimeSink]: (runtime: StellarSwirlRuntime) => void } = {
+        ...legalRuntimeOptions,
+        [stellarSwirlRuntimeSink]: runtime => {
+          const used = runtime.log.find(row => row.type === "high-jump-use" &&
+            row.details.timelineCommandIndex === commandIndex && row.details.allowed === true);
+          if (used) runtimeStellarSwirlJumps.set(commandIndex, { actorId: command.actorId, frame: used.frame });
+        }
+      };
+      simulateConfig(prefix.config, probeOptions, config, prefix.execution);
+      continue;
+    }
     if (
       command === undefined ||
       command.type === "wait" ||
@@ -17417,10 +19222,27 @@ function simulateLegalTimeline(
       continue;
     }
     const ability = abilities.get(command.abilityId);
-    if (!ability || (ability.energyCost ?? 0) <= 0) continue;
+    if (!ability) continue;
+    if (ability.kind === "skill" && runtimeSkillActors.has(ability.actorId)) {
+      const provisional = compileLegalTimeline(config, { runtimeEnergyFailures, runtimeSkillReadyFrames, runtimeStellarSwirlJumps,
+        provisionalSkillCommandIndex: commandIndex, stopAfterCommandIndex: commandIndex });
+      const request = provisional.execution.commandResults.find(row => row.commandIndex === commandIndex);
+      if (request?.startFrame === null || request === undefined || request.status === "rejected") {
+        runtimeSkillReadyFrames.set(commandIndex, 0);
+        continue;
+      }
+      const before = compileLegalTimeline(config, { runtimeEnergyFailures, runtimeSkillReadyFrames, runtimeStellarSwirlJumps, stopAfterCommandIndex: commandIndex - 1 });
+      const probe = simulateConfig(before.config, legalRuntimeOptions, config, before.execution);
+      const readyFrame = earliestRuntimeSkillFrame(probe.skillCooldownLog!, ability.actorId, request.startFrame,
+        actionEventPriority(ability), ability.maxCharges ?? 1, Math.round(config.duration * 60));
+      runtimeSkillReadyFrames.set(commandIndex, readyFrame);
+    }
+    if ((ability.energyCost ?? 0) <= 0) continue;
 
     const prefix = compileLegalTimeline(config, {
       runtimeEnergyFailures,
+      runtimeSkillReadyFrames,
+      runtimeStellarSwirlJumps,
       stopAfterCommandIndex: commandIndex
     });
     const probe = simulateConfig(
@@ -17443,8 +19265,11 @@ function simulateLegalTimeline(
   }
 
   const compiled = compileLegalTimeline(config, {
-    runtimeEnergyFailures
+    runtimeEnergyFailures,
+    runtimeSkillReadyFrames,
+    runtimeStellarSwirlJumps
   });
+  assertSourceActionExecution(config, compiled.execution);
   const result = simulateConfig(
     compiled.config,
     legalRuntimeOptions,
@@ -17470,7 +19295,30 @@ export function simulate(
   rawConfig: unknown,
   runtimeOptions: SimulationRuntimeOptions = {}
 ): SimulationResult {
+  if (runtimeOptions.execution?.lunarMixedV2 !== undefined && !(lunarMixedV2RuntimeSink in runtimeOptions)) throw new Error("Use simulateLunarMixedV2Profile for the complete shared-state result.");
+  if (runtimeOptions.execution?.lunarMixed !== undefined && !(lunarMixedRuntimeSink in runtimeOptions)) throw new Error("Use simulateLunarMixedProfile for the complete shared-state result.");
+  if (runtimeOptions.execution?.lunarCharged !== undefined && !(lunarChargedRuntimeSink in runtimeOptions)) throw new Error("Use simulateLunarChargedProfile for the complete combined damage result.");
+  if (runtimeOptions.execution?.lunarCrystallize !== undefined && !(lunarCrystallizeRuntimeSink in runtimeOptions)) throw new Error("Use simulateLunarCrystallizeProfile for the complete combined damage result.");
+  if (runtimeOptions.execution?.stellarConduct !== undefined && !(stellarConductRuntimeSink in runtimeOptions)) throw new Error("Use simulateStellarConductProfile for its full field audit.");
+  if (runtimeOptions.execution?.lunarBloom !== undefined && !(lunarBloomRuntimeSink in runtimeOptions)) throw new Error("Use simulateLunarBloomProfile for the combined result.");
+  if (runtimeOptions.execution?.stellarSwirl !== undefined && !(stellarSwirlRuntimeSink in runtimeOptions)) throw new Error("Use simulateStellarSwirlProfile for the complete combined result.");
   const config = migrateConfig(rawConfig);
+  if ((config.artifactEventModel !== undefined || config.artifactDamageModel !== undefined || config.nightsoulBurstModel !== undefined) && runtimeOptions.compatibilityMode === "legacy-v0.1") {
+    throw new Error("圣遗物事件与夜魂迸发需要 legal-frame-v1 真实帧时钟。");
+  }
+  // Ordinary artifact burst, pickup, heal and enemy-hit callbacks already run in
+  // the shared queue. Special contributors also read its live buffed stats.
+  // Nightsoul Burst still needs a delivery callback for special damage itself.
+  if (config.nightsoulBurstModel !== undefined &&
+      (runtimeOptions.execution?.lunarCharged || runtimeOptions.execution?.lunarCrystallize || runtimeOptions.execution?.lunarMixed ||
+       runtimeOptions.execution?.lunarMixedV2 || runtimeOptions.execution?.stellarConduct || runtimeOptions.execution?.stellarSwirl || runtimeOptions.execution?.lunarBloom)) {
+    throw new Error("夜魂迸发尚未接入月曜／星辉特殊伤害交付回调。");
+  }
+  if ((hasRandomWeaponProc(config.weaponProcModel) || hasStatefulWeaponProc(config.weaponProcModel) || hasMessengerWeaponProc(config.weaponProcModel) || hasDelayedWeaponProc(config.weaponProcModel)) && runtimeOptions.compatibilityMode === "legacy-v0.1") {
+    throw new Error("随机／状态／弱点武器追击的实际同相位 FIFO 回调需要 legal-frame-v1 帧时钟。");
+  }
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1" && [...config.rotation, ...(config.timeline?.abilities ?? [])].some(action => action.healthChanges?.length || action.periodicEntities?.length || action.conditionalHitGroups?.length || action.actionPhase !== undefined)) throw new Error("healthChanges / periodicEntities / actionPhase / conditionalHitGroups 需要 legal-frame-v1 的同帧事件顺序，不支持 legacy-v0.1 秒时钟。");
+  assertSourceActionContract(config, runtimeOptions);
   assertNonNegativeFixedEnergyGains(config);
   if (
     (config.targetTaskModel.mode === "target-phase-v1" ||
@@ -17488,4 +19336,154 @@ export function simulate(
   return assertTrustedSimulationResult(
     simulateConfig(config, runtimeOptions)
   );
+}
+
+/** Independent special deliveries do not enter the ordinary DamageEvent queue.
+ * A stack holder may still use every ordinary callback in this shared run,
+ * but its own special OnEnemyDamage or full contributor Stats read needs a
+ * separately authenticated delivery/read hook before that result can leave. */
+function assertSpecialWeaponStackCallbacks(config: SimConfig, events: ReadonlyArray<{
+  frame: number; ownerId: string; context: { contributors: ReadonlyArray<{ id: string }> };
+}>): void {
+  const holders = new Set(config.weaponHitStackModel?.actors.map(actor => actor.actorId) ?? []);
+  if (holders.size === 0) return;
+  for (const event of events) {
+    const affected = [event.ownerId, ...event.context.contributors.map(contributor => contributor.id)]
+      .find(actorId => holders.has(actorId));
+    if (affected !== undefined) throw new Error(`武器叠层持有者 ${affected} 在第 ${event.frame} 帧参与独立月曜／星辉伤害；该段 OnEnemyDamage 与完整 Stats 读取尚未接入普通武器回调及结果重放。`);
+  }
+}
+
+/** Complete versioned composite; direct damage and real LC events share one live run. */
+export function simulateLunarChargedProfile(
+  rawConfig: unknown,
+  options: SimulationRuntimeOptions & LunarArtifactExecutionOptions & { party: NonNullable<NonNullable<SimulationOptions["execution"]>["lunarCharged"]>["party"] }
+): LunarChargedSimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, artifacts, moonsignLevel, ...runtimeOptions } = options;
+  const lunarCharged = { ...(runtimeOptions.execution?.lunarCharged?.artifacts === undefined ? {} : { artifacts: runtimeOptions.execution.lunarCharged.artifacts }), ...(runtimeOptions.execution?.lunarCharged?.moonsignLevel === undefined ? {} : { moonsignLevel: runtimeOptions.execution.lunarCharged.moonsignLevel }), ...(artifacts === undefined ? {} : { artifacts }), ...(moonsignLevel === undefined ? {} : { moonsignLevel }), profileId: "lunar-charged-reference-v1" as const, party };
+  validateLunarChargedProfile(config, lunarCharged);
+  assertExclusiveSpecialProfile(runtimeOptions, "lunarCharged");
+  if (runtimeOptions.execution?.lunarCrystallize !== undefined) throw new Error("月感电与月结晶参考配置必须分别运行，当前不支持混合专属状态。");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1") throw new Error("月感电参考模式要求 legal-frame-v1：普通事件和雷云必须共用 60 FPS 整数帧。");
+  if (runtimeOptions.plugins?.length) throw new Error("月感电参考模式尚未定义插件对特殊贡献者的修改接口。");
+  let completed: LunarChargedRuntime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [lunarChargedRuntimeSink]: (runtime: LunarChargedRuntime) => void } = {
+    ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, lunarCharged },
+    [lunarChargedRuntimeSink]: (runtime) => { completed = runtime; }
+  };
+  const baseResult = simulate(config, runOptions);
+  if (completed === undefined) throw new Error("LC runtime did not complete");
+  const result = (completed as LunarChargedRuntime).result(baseResult);
+  assertSpecialWeaponStackCallbacks(config, result.specialDamageEvents);
+  return result;
+}
+
+export function simulateLunarCrystallizeProfile(
+  rawConfig: unknown,
+  options: SimulationRuntimeOptions & LunarArtifactExecutionOptions & { party: NonNullable<NonNullable<SimulationOptions["execution"]>["lunarCrystallize"]>["party"] }
+): LunarCrystallizeSimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, artifacts, moonsignLevel, ...runtimeOptions } = options;
+  const lunarCrystallize = { ...(runtimeOptions.execution?.lunarCrystallize?.artifacts === undefined ? {} : { artifacts: runtimeOptions.execution.lunarCrystallize.artifacts }), ...(runtimeOptions.execution?.lunarCrystallize?.moonsignLevel === undefined ? {} : { moonsignLevel: runtimeOptions.execution.lunarCrystallize.moonsignLevel }), ...(artifacts === undefined ? {} : { artifacts }), ...(moonsignLevel === undefined ? {} : { moonsignLevel }), profileId: "lunar-crystallize-reference-v1" as const, party };
+  validateLunarCrystallizeProfile(config, lunarCrystallize);
+  assertExclusiveSpecialProfile(runtimeOptions, "lunarCrystallize");
+  if (runtimeOptions.execution?.lunarCharged !== undefined) throw new Error("月感电与月结晶参考配置必须分别运行，当前不支持混合专属状态。");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1") throw new Error("月结晶参考模式要求 legal-frame-v1：普通事件、月笼取样与投射必须共用 60 FPS 整数帧。");
+  if (runtimeOptions.plugins?.length) throw new Error("月结晶参考模式尚未定义插件对特殊贡献者的修改接口。");
+  let completed: LunarCrystallizeRuntime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [lunarCrystallizeRuntimeSink]: (runtime: LunarCrystallizeRuntime) => void } = {
+    ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, lunarCrystallize },
+    [lunarCrystallizeRuntimeSink]: (runtime) => { completed = runtime; }
+  };
+  const baseResult = simulate(config, runOptions);
+  if (completed === undefined) throw new Error("Lunar-Crystallize runtime did not complete");
+  const result = (completed as LunarCrystallizeRuntime).result(baseResult);
+  assertSpecialWeaponStackCallbacks(config, result.specialDamageEvents);
+  return result;
+}
+
+
+export function simulateStellarConductProfile(rawConfig: unknown, options: SimulationRuntimeOptions & { party: NonNullable<NonNullable<SimulationOptions["execution"]>["stellarConduct"]>["party"] }): StellarConductSimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, ...runtimeOptions } = options;
+  const stellarConduct = { profileId: "stellar-conduct-reference-v1" as const, party };
+  validateStellarConductProfile(config, stellarConduct);
+  assertExclusiveSpecialProfile(runtimeOptions, "stellarConduct");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1" || runtimeOptions.plugins?.length) throw new Error("星导领域参考模式要求 legal-frame-v1，暂不接插件对领域状态的修改。");
+  let completed: StellarConductRuntime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [stellarConductRuntimeSink]: (runtime: StellarConductRuntime) => void } = { ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, stellarConduct }, [stellarConductRuntimeSink]: runtime => { completed = runtime; } };
+  const baseResult = simulate(config, runOptions);
+  if (!completed) throw new Error("Stellar-Conduct runtime did not complete");
+  return (completed as StellarConductRuntime).result(baseResult);
+}
+
+export function simulateLunarBloomProfile(rawConfig: unknown, options: SimulationRuntimeOptions & LunarArtifactExecutionOptions & { party: LunarBloomRuntimeOptions["party"]; abilities?: NonNullable<LunarBloomRuntimeOptions["abilities"]> }): LunarBloomSimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, abilities, artifacts, moonsignLevel, ...runtimeOptions } = options;
+  const lunarBloom: LunarBloomRuntimeOptions = { ...(runtimeOptions.execution?.lunarBloom?.artifacts === undefined ? {} : { artifacts: runtimeOptions.execution.lunarBloom.artifacts }), ...(runtimeOptions.execution?.lunarBloom?.moonsignLevel === undefined ? {} : { moonsignLevel: runtimeOptions.execution.lunarBloom.moonsignLevel }), ...(artifacts === undefined ? {} : { artifacts }), ...(moonsignLevel === undefined ? {} : { moonsignLevel }), profileId: "lunar-bloom-reference-v1", party, ...(abilities === undefined ? {} : { abilities }) };
+  if (abilities?.length && !config.timeline) throw new Error("显式月露涤荡来源能力要求合法帧 timeline，不能按旧 rotation 名称推定动作。");
+  validateLunarBloomProfile(config, lunarBloom);
+  assertExclusiveSpecialProfile(runtimeOptions, "lunarBloom");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1" || runtimeOptions.plugins?.length) throw new Error("月绽放参考配置要求 legal-frame-v1、无插件；尚未接入特殊暴击后的被动反馈。");
+  let completed: LunarBloomRuntime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [lunarBloomRuntimeSink]: (runtime: LunarBloomRuntime) => void } = { ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, lunarBloom }, [lunarBloomRuntimeSink]: runtime => { completed = runtime; } };
+  const baseResult = simulate(config, runOptions);
+  if (!completed) throw new Error("Lunar-Bloom runtime did not complete");
+  const result = (completed as LunarBloomRuntime).result(baseResult);
+  assertSpecialWeaponStackCallbacks(config, result.specialDamageEvents);
+  return result;
+}
+
+function assertExclusiveSpecialProfile(options: SimulationRuntimeOptions, chosen: string): void {
+  for (const key of ["lunarCharged", "lunarCrystallize", "stellarConduct", "lunarBloom", "stellarSwirl", "lunarMixed", "lunarMixedV2"] as const) if (key !== chosen && options.execution?.[key] !== undefined) throw new Error("不得并列叠加独立参考配置；共享 Lunar 请使用显式 mixed 入口，Stellar 混合尚未实现。");
+}
+
+export function simulateLunarMixedV2Profile(rawConfig: unknown, options: SimulationRuntimeOptions & LunarArtifactExecutionOptions & { party: NonNullable<NonNullable<SimulationOptions["execution"]>["lunarMixedV2"]>["party"]; abilities?: NonNullable<LunarBloomRuntimeOptions["abilities"]> }): LunarMixedV2SimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, abilities, artifacts, moonsignLevel, ...runtimeOptions } = options;
+  const lunarMixedV2 = { ...(runtimeOptions.execution?.lunarMixedV2?.artifacts === undefined ? {} : { artifacts: runtimeOptions.execution.lunarMixedV2.artifacts }), ...(runtimeOptions.execution?.lunarMixedV2?.moonsignLevel === undefined ? {} : { moonsignLevel: runtimeOptions.execution.lunarMixedV2.moonsignLevel }), ...(artifacts === undefined ? {} : { artifacts }), ...(moonsignLevel === undefined ? {} : { moonsignLevel }), profileId: "lunar-mixed-reference-v2" as const, party, ...(abilities === undefined ? {} : { abilities }) };
+  validateLunarMixedV2Profile(config, lunarMixedV2);
+  assertExclusiveSpecialProfile(runtimeOptions, "lunarMixedV2");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1" || runtimeOptions.plugins?.length) throw new Error("混合 Lunar v2 参考配置要求 legal-frame-v1、无插件；尚未接入特殊暴击后的被动反馈。");
+  let completed: LunarMixedV2Runtime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [lunarMixedV2RuntimeSink]: (runtime: LunarMixedV2Runtime) => void } = { ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, lunarMixedV2 }, [lunarMixedV2RuntimeSink]: runtime => { completed = runtime; } };
+  const baseResult = simulate(config, runOptions);
+  if (!completed) throw new Error("Mixed Lunar v2 runtime did not complete");
+  const result = (completed as LunarMixedV2Runtime).resultV2(baseResult);
+  assertSpecialWeaponStackCallbacks(config, result.specialDamageEvents);
+  return result;
+}
+
+export function simulateLunarMixedProfile(rawConfig: unknown, options: SimulationRuntimeOptions & LunarArtifactExecutionOptions & { party: NonNullable<NonNullable<SimulationOptions["execution"]>["lunarMixed"]>["party"] }): LunarMixedSimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, artifacts, moonsignLevel, ...runtimeOptions } = options;
+  const lunarMixed = { ...(runtimeOptions.execution?.lunarMixed?.artifacts === undefined ? {} : { artifacts: runtimeOptions.execution.lunarMixed.artifacts }), ...(runtimeOptions.execution?.lunarMixed?.moonsignLevel === undefined ? {} : { moonsignLevel: runtimeOptions.execution.lunarMixed.moonsignLevel }), ...(artifacts === undefined ? {} : { artifacts }), ...(moonsignLevel === undefined ? {} : { moonsignLevel }), profileId: "lunar-mixed-reference-v1" as const, party };
+  validateLunarMixedProfile(config, lunarMixed);
+  assertExclusiveSpecialProfile(runtimeOptions, "lunarMixed");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1" || runtimeOptions.plugins?.length) throw new Error("混合 Lunar 参考配置要求 legal-frame-v1、无插件；尚未接入特殊暴击后的被动反馈。");
+  let completed: LunarMixedRuntime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [lunarMixedRuntimeSink]: (runtime: LunarMixedRuntime) => void } = { ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, lunarMixed }, [lunarMixedRuntimeSink]: runtime => { completed = runtime; } };
+  const baseResult = simulate(config, runOptions);
+  if (!completed) throw new Error("Mixed Lunar runtime did not complete");
+  const result = (completed as LunarMixedRuntime).result(baseResult);
+  assertSpecialWeaponStackCallbacks(config, result.specialDamageEvents);
+  return result;
+}
+
+/** Explicit guide-reference execution: fixed-source conflicts remain visible in every result. */
+export function simulateStellarSwirlProfile(rawConfig: unknown, options: SimulationRuntimeOptions & { party: NonNullable<NonNullable<SimulationOptions["execution"]>["stellarSwirl"]>["party"] }): StellarSwirlSimulationResult {
+  const config = migrateConfig(rawConfig);
+  const { party, ...runtimeOptions } = options;
+  const stellarSwirl = { profileId: "stellar-swirl-guide-reference-v1" as const, party };
+  validateStellarSwirlProfile(config, stellarSwirl);
+  assertExclusiveSpecialProfile(runtimeOptions, "stellarSwirl");
+  if (runtimeOptions.compatibilityMode === "legacy-v0.1" || runtimeOptions.plugins?.length || runtimeOptions.execution?.criticalSampling) throw new Error("星扩散指南参考配置要求 legal-frame-v1、无插件；特殊贡献者仅支持精确期望／全部暴击／全部不暴击。");
+  let completed: StellarSwirlRuntime | undefined;
+  const runOptions: SimulationRuntimeOptions & { [stellarSwirlRuntimeSink]: (runtime: StellarSwirlRuntime) => void } = { ...runtimeOptions, compatibilityMode: "legal-frame-v1", execution: { ...runtimeOptions.execution, captureHits: true, stellarSwirl }, [stellarSwirlRuntimeSink]: runtime => { completed = runtime; } };
+  const baseResult = simulate(config, runOptions);
+  if (!completed) throw new Error("Stellar-Swirl runtime did not complete");
+  const result = (completed as StellarSwirlRuntime).result(baseResult);
+  assertSpecialWeaponStackCallbacks(config, result.specialDamageEvents);
+  return result;
 }

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.068,
+  "log": "docs/validation/source-character-overrides-diff-check-20260928.log"
+}

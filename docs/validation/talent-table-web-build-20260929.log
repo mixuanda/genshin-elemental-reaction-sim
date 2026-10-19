@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-formula.ts(280,19): error TS2349: This expression is not callable.
+  Type 'CalculationTraceNode[]' has no call signatures.
+packages/sim-core/src/source-host-formula.ts(280,19): error TS2448: Block-scoped variable 'prefixTrace' used before its declaration.
+packages/sim-core/src/source-host-formula.ts(280,19): error TS2454: Variable 'prefixTrace' is used before being assigned.

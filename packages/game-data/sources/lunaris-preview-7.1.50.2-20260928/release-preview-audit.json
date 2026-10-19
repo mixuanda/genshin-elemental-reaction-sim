@@ -1,0 +1,30 @@
+{
+  "checkedAtUtc": "2026-09-28T02:16:21Z",
+  "officialReleaseObservation": {
+    "version": "7.1",
+    "status": "released",
+    "sourceUrl": "https://genshin.hoyoverse.com/en/news/detail/166383",
+    "sourceUrlAlt": "https://genshin.hoyoverse.com/en/news/396",
+    "observation": "Official HoYoverse update-detail search result says Version 7.1 update details and gives publication date 2026-09-23; official news index currently lists 7.1 Phase I preview/events and the in-game event announcement."
+  },
+  "providerObservation": {
+    "sourceUrl": "https://api.lunaris.moe/data/version.json",
+    "providerVersion": "7.1.50.2",
+    "lastModified": "Sun, 27 Sep 2026 02:20:32 GMT",
+    "timestamp": 1790589600,
+    "versionListIncludes72V1": false,
+    "interpretation": "Provider-side version string only; does not establish game version 7.2 or beta ordinal V1. The matching charlist endpoint returns 139 entries; compared to the archived 7.1.50 observation, the charlist bytes are changed, and all four sampled Mitya/Valeriy EN/CHS files also have new hashes."
+  },
+  "previewTarget72V1": {
+    "confirmed": false,
+    "reason": "No official source identifies provider 7.1.50.2 as 7.2 V1. Exact provider-version endpoints /data/7.2/charlist.json and /data/7.2.0/charlist.json returned HTTP 404 during this check; those misses are not proof no 7.2 V1 data is publicly available elsewhere."
+  },
+  "communityUpstreamCheck": {
+    "repositoryUrl": "https://github.com/theBowja/genshin-db",
+    "headCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "commitTime": "2026-09-21T20:39:46Z",
+    "observation": "Current HEAD matches the already observed 7.1 projection; no new release candidate surfaced there."
+  },
+  "license": "No upstream data redistribution license confirmed; preserve privately in this source archive and do not apply the offline mirror license.",
+  "handling": "Raw immutable source observation only. No candidate bundle, normalization, promotion, active pointer change, or test/build."
+}

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "data-discovery-review-v1",
+  "generatedAt": "2026-09-28T18:04:17.608Z",
+  "sourceDiscovery": {
+    "attemptedAt": "2026-09-28T18:04:16.466Z",
+    "status": "failed",
+    "stage": "source-discovery",
+    "results": [
+      {
+        "url": "http://127.0.0.1:1/synthetic-unreachable",
+        "retrievedAt": "2026-09-28T18:04:16.464Z",
+        "httpStatus": null,
+        "error": "TypeError: fetch failed"
+      }
+    ],
+    "failureCount": 1
+  },
+  "candidateReview": {
+    "schemaVersion": "data-candidate-run-v1",
+    "attemptedAt": "2026-09-28T18:04:16.589Z",
+    "completedAt": "2026-09-28T18:04:17.498Z",
+    "status": "failed",
+    "stage": "resolve-upstream",
+    "candidateId": null,
+    "sourceCommit": null,
+    "sourceProjectionSha256": null,
+    "candidateManifestPath": null,
+    "normalization": {
+      "status": "not-completed",
+      "error": null
+    },
+    "comparison": null,
+    "failureCount": 1,
+    "error": "Error: git ls-remote failed: synthetic git failure",
+    "partialCapturePath": null
+  },
+  "failureHistory": {
+    "count": 2,
+    "recent": [
+      {
+        "at": "2026-09-28T18:04:16.466Z",
+        "stage": "source-discovery-fetch",
+        "error": "TypeError: fetch failed",
+        "url": "http://127.0.0.1:1/synthetic-unreachable"
+      },
+      {
+        "at": "2026-09-28T18:04:17.498Z",
+        "stage": "resolve-upstream",
+        "error": "Error: git ls-remote failed: synthetic git failure",
+        "sourceCommit": null,
+        "partialCapturePath": null
+      }
+    ]
+  },
+  "projectStatusAutoUpdated": false
+}

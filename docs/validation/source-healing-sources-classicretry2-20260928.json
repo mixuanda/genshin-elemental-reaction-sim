@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.344,
+  "log": "docs/validation/source-healing-sources-classicretry2-20260928.log"
+}

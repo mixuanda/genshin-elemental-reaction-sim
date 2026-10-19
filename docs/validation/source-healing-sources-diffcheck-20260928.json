@@ -1,0 +1,10 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.053,
+  "log": "docs/validation/source-healing-sources-diffcheck-20260928.log"
+}

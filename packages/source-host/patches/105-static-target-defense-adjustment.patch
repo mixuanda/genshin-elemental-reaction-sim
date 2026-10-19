@@ -1,0 +1,95 @@
+diff --git a/pkg/core/info/enemy.go b/pkg/core/info/enemy.go
+--- a/pkg/core/info/enemy.go
++++ b/pkg/core/info/enemy.go
+@@ -14,6 +14,7 @@
+ 	ParticleDropCount     float64                `json:"particle_drop_count"`
+ 	ParticleElement       attributes.Element     `json:"particle_element"`
+ 	FreezeResist          float64                `json:"freeze_resist"`
++	DefenseAdjustment     float64                `json:"defense_adjustment,omitempty"`
+ 	ParticleDrops         []*model.MonsterHPDrop `json:"-"`
+ 	HpBase                float64                `json:"-"`
+ 	HpGrowCurve           model.GrowCurveType    `json:"-"`
+diff --git a/pkg/gcs/parser/parseTarget.go b/pkg/gcs/parser/parseTarget.go
+--- a/pkg/gcs/parser/parseTarget.go
++++ b/pkg/gcs/parser/parseTarget.go
+@@ -3,6 +3,7 @@
+ import (
+ 	"errors"
+ 	"fmt"
++	"math"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -13,6 +14,7 @@
+ func parseTarget(p *Parser) (parseFn, error) {
+ 	var err error
+ 	var r info.EnemyProfile
++	hasDefenseAdjustment := false
+ 	r.Resist = make(map[attributes.Element]float64)
+ 	r.ParticleElement = attributes.NoElement
+ 	for n := p.next(); n.Typ != ast.ItemEOF; n = p.next() {
+@@ -56,9 +58,14 @@
+ 				if err != nil {
+ 					return nil, err
+ 				}
++				defenseAdjustment := r.DefenseAdjustment
+ 				err = enemy.ConfigureTarget(&r, item.Val, params)
+ 				if err != nil {
+ 					return nil, err
++				}
++				if hasDefenseAdjustment {
++					r.DefenseAdjustment = defenseAdjustment
++					r.Modified = true
+ 				}
+ 				p.res.Settings.DamageMode = true
+ 			case "freeze_resist":
+@@ -70,6 +77,20 @@
+ 					return nil, err
+ 				}
+ 				r.FreezeResist = v
++				r.Modified = true
++			case "def_adjustment":
++				if _, err := p.consume(ast.ItemAssign); err != nil {
++					return nil, err
++				}
++				v, err := p.parseFloat64Const()
++				if err != nil {
++					return nil, err
++				}
++				if math.IsNaN(v) || math.IsInf(v, 0) || v < -1 || v > 0.9 {
++					return nil, fmt.Errorf("target def_adjustment must be finite and between -1 and 0.9, got %v", v)
++				}
++				r.DefenseAdjustment = v
++				hasDefenseAdjustment = true
+ 				r.Modified = true
+ 			default:
+ 				return nil, fmt.Errorf("<target> bad token at line %v - %v: %v", n.Line, n.Pos, n)
+diff --git a/pkg/enemy/mods.go b/pkg/enemy/mods.go
+--- a/pkg/enemy/mods.go
++++ b/pkg/enemy/mods.go
+@@ -156,11 +156,11 @@
+ 		logDetails = make([]any, 0, 3*len(e.mods))
+ 	}
+ 
+-	var r float64
++	r := e.prof.DefenseAdjustment
+ 	var read *info.SourceHostScalarRead
+ 	if e.Core.SourceHost != nil {
+ 		target := int(e.Key())
+-		read = e.Core.SourceHost.NewScalarRead("defense-adjustment", 0, nil, &target, "")
++		read = e.Core.SourceHost.NewScalarRead("defense-adjustment", r, nil, &target, "")
+ 	}
+ 	for _, v := range e.mods {
+ 		m, ok := v.(*info.DefMod)
+diff --git a/pkg/enemy/sourcehost_phase.go b/pkg/enemy/sourcehost_phase.go
+--- a/pkg/enemy/sourcehost_phase.go
++++ b/pkg/enemy/sourcehost_phase.go
+@@ -36,7 +36,7 @@
+ 		}
+ 		mods = append(mods, row)
+ 	}
+-	state := map[string]any{"target": target, "level": e.Level, "resists": resists, "hp": e.hp, "maxHp": e.maxhp, "frozenFrames": e.frozenFrames, "modifiers": mods, "particleDropIndex": e.particleDropIndex}
++	state := map[string]any{"target": target, "level": e.Level, "defenseAdjustmentBase": e.prof.DefenseAdjustment, "resists": resists, "hp": e.hp, "maxHp": e.maxhp, "frozenFrames": e.frozenFrames, "modifiers": mods, "particleDropIndex": e.particleDropIndex}
+ 	drops := []map[string]any{}
+ 	for _, drop := range e.prof.ParticleDrops {
+ 		if drop == nil {

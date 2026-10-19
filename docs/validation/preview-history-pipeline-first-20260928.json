@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/game-data/src/update-pipeline.test.ts",
+    "-t",
+    "isolates preview workspaces"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.498,
+  "log": "docs/validation/preview-history-pipeline-first-20260928.log"
+}

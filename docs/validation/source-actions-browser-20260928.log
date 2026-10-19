@@ -1,0 +1,39 @@
+[WebServer] (node:85997) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:85998) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-action-capabilities.spec.ts:5:1 › 角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复 (1.2s)
+
+
+  1) [chromium] › apps/web/e2e/source-action-capabilities.spec.ts:5:1 › 角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复 
+
+    Error: expect(received).toHaveLength(expected)
+
+    Expected length: 4
+    Received length: 5
+    Received array:  [{"appliedDamage": 1609.831987036225, "attackId": 1, "calculationId": 1, "damageMode": false, "frame": 28, "hpAfter": 0, "hpBefore": 0, "id": 2, "isCrit": false, "rawDamage": 1609.831987036225, "targetKey": 1}, {"appliedDamage": 3201.614607826495, "attackId": 2, "calculationId": 3, "damageMode": false, "frame": 73, "hpAfter": 0, "hpBefore": 0, "id": 4, "isCrit": true, "rawDamage": 3201.614607826495, "targetKey": 1}, {"appliedDamage": 4539.20879712472, "attackId": 3, "calculationId": 5, "damageMode": false, "frame": 74, "hpAfter": 0, "hpBefore": 0, "id": 6, "isCrit": true, "rawDamage": 4539.20879712472, "targetKey": 1}, {"appliedDamage": 3764.618348944871, "attackId": 4, "calculationId": 7, "damageMode": false, "frame": 124, "hpAfter": 0, "hpBefore": 0, "id": 8, "isCrit": true, "rawDamage": 3764.618348944871, "targetKey": 1}, {"appliedDamage": 4950.679563567582, "attackId": 5, "calculationId": 9, "damageMode": false, "frame": 186, "hpAfter": 0, "hpBefore": 0, "id": 10, "isCrit": true, "rawDamage": 4950.679563567582, "targetKey": 1}]
+
+      29 |   const actions = (result.result as { characters: Array<{ action_events: Array<{ action: string }> }> }).characters[0]!.action_events;
+      30 |   expect(actions.filter(action => action.action === "attack")).toHaveLength(4);
+    > 31 |   expect(result.applications).toHaveLength(4);
+         |                               ^
+      32 |   await writeFile("docs/validation/source-action-capabilities-20260928.result.json", JSON.stringify(result, null, 2));
+      33 |   await page.locator("#source-host-open-calculator").click();
+      34 |   await expect(page.locator("#calc-source-host-capture")).toContainText("差值 0");
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-action-capabilities.spec.ts:31:31
+
+    Error Context: test-results/source-action-capabilities-角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-action-capabilities-角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-action-capabilities-角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-action-capabilities.spec.ts:5:1 › 角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复 

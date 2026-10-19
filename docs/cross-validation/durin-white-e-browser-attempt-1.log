@@ -1,0 +1,58 @@
+
+> genshin-dps-lab@1.0.0 test:e2e
+> playwright test --grep Durin white E
+
+[WebServer] (node:22618) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [plugin builtin:vite-reporter] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[WebServer] (node:22653) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:22656) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/simulator.spec.ts:5341:1 › renders the source-audited Durin white E branch and state transition (5.6s)
+
+
+  1) [chromium] › apps/web/e2e/simulator.spec.ts:5341:1 › renders the source-audited Durin white E branch and state transition 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('#auraTimelineBody tr').first().locator('td').nth(5)
+    Expected: "无"
+    Received: "火 1U"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for locator('#auraTimelineBody tr').first().locator('td').nth(5)
+        14 × locator resolved to <td>火 1U</td>
+           - unexpected value "火 1U"
+
+
+      5477 |   await expect(auraRow.locator("td").nth(3)).toHaveText("通过");
+      5478 |   await expect(auraRow.locator("td").nth(4)).toContainText("冰");
+    > 5479 |   await expect(auraRow.locator("td").nth(5)).toHaveText("无");
+           |                                              ^
+      5480 |   await expect(auraRow.locator("td").nth(6)).toContainText("冰");
+      5481 |   await expect(auraRow.locator("td").nth(7)).toContainText("融化");
+      5482 |   await expect(auraRow.locator("td").nth(8)).toHaveText("无");
+        at /private/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-durin-correction-7638ps4n/apps/web/e2e/simulator.spec.ts:5479:46
+
+    Error Context: test-results/simulator-renders-the-sour-9496d-branch-and-state-transition-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-renders-the-sour-9496d-branch-and-state-transition-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-renders-the-sour-9496d-branch-and-state-transition-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/simulator.spec.ts:5341:1 › renders the source-audited Durin white E branch and state transition 

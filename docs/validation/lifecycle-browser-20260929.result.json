@@ -1,0 +1,105 @@
+{
+  "receipts": [
+    {
+      "lane": "classic",
+      "artifact": {
+        "wasmSha256": "ad3b673122ada0e792f060d2482a9a7f74c9a2934b603559ce7191d6140e1dcc",
+        "wasmBytes": 43485058
+      },
+      "applications": 38,
+      "creationSequence": 2,
+      "collectionHits": 2,
+      "originalRawTotal": 1966.0871939310314,
+      "replayDifference": 0,
+      "statusOwnerSequence": 1,
+      "statusOwnerHits": 6,
+      "statusOwnerTotal": 2403.863077651348,
+      "statusOwnerReplayDifference": 0,
+      "statusInstances": [
+        1
+      ],
+      "lifecycleObservationFrame": 720,
+      "statusEndStates": {
+        "active-at-end": 4,
+        "replaced": 12,
+        "expired-at-end": 6
+      },
+      "pendingStages": 0,
+      "rainswordCreationUnknown": true,
+      "rainswordTriggerKnown": true,
+      "gameplayUnchanged": true
+    },
+    {
+      "lane": "stellar",
+      "artifact": {
+        "wasmSha256": "7b57fdd9b1e948eee832964ba567a7b283f0c7facf3f8cfac33b6483e24f4025",
+        "wasmBytes": 65604093
+      },
+      "applications": 38,
+      "creationSequence": 2,
+      "collectionHits": 2,
+      "originalRawTotal": 1966.0871939310314,
+      "replayDifference": 0,
+      "statusOwnerSequence": 1,
+      "statusOwnerHits": 6,
+      "statusOwnerTotal": 2403.863077651348,
+      "statusOwnerReplayDifference": 0,
+      "statusInstances": [
+        1
+      ],
+      "lifecycleObservationFrame": 720,
+      "statusEndStates": {
+        "active-at-end": 4,
+        "replaced": 12,
+        "expired-at-end": 6
+      },
+      "pendingStages": 0,
+      "rainswordCreationUnknown": true,
+      "rainswordTriggerKnown": true,
+      "gameplayUnchanged": true
+    },
+    {
+      "lane": "classic",
+      "scenario": "truncated-core-attack",
+      "lifecycleObservationFrame": 30,
+      "applications": 0,
+      "pending": [
+        {
+          "id": 1,
+          "stage": "application",
+          "queuedFrame": 1,
+          "dueFrame": 52,
+          "attackId": 1,
+          "origin": {
+            "creationActionSequence": 1,
+            "triggerActionSequence": 1,
+            "via": "action"
+          }
+        }
+      ]
+    },
+    {
+      "lane": "stellar",
+      "scenario": "truncated-core-attack",
+      "lifecycleObservationFrame": 30,
+      "applications": 0,
+      "pending": [
+        {
+          "id": 1,
+          "stage": "application",
+          "queuedFrame": 1,
+          "dueFrame": 52,
+          "attackId": 1,
+          "origin": {
+            "creationActionSequence": 1,
+            "triggerActionSequence": 1,
+            "via": "action"
+          }
+        }
+      ]
+    }
+  ],
+  "pageErrors": [],
+  "collectionRoundtrip": true,
+  "editedTotal": 2136.111260020432
+}

@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.gcsl",
+    "-out",
+    "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.result.json",
+    "-sample",
+    "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-24T03:05:37.279674+00:00",
+  "elapsedSeconds": 0.21073783398605883,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 20.00 seconds (min: 20.00 max: 20.00 std: 0.00)\nAverage 254.06 damage over 20.00 seconds, resulting in 13 dps (min: 12.70 max: 12.70 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 13679379115129225248 to docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.gcsl",
+      "bytes": 630,
+      "sha256": "f546b79c4c8be92e2623e28df0374312d382aa15d980ce02d6a7b4b72b5664d7"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.result.json",
+      "bytes": 17148,
+      "sha256": "5110de206c1a0c63da3a5fd609b742d860189f507fc5537313a3f99c91b9bee4"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.sample.json",
+      "bytes": 66216,
+      "sha256": "d40de61d113e7c79623b75b73659b02a42571bd0d53ebf161ebe7e409a4fb5a3"
+    }
+  ]
+}

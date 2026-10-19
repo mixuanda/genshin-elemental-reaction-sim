@@ -1,0 +1,37 @@
+{
+  "notice": "合成输入机制验证，非真实角色输出",
+  "options": {
+    "party": [
+      {
+        "actorId": "h",
+        "characterKey": "barbara"
+      },
+      {
+        "actorId": "g",
+        "characterKey": "zibai"
+      }
+    ],
+    "compatibilityMode": "legal-frame-v1",
+    "critMode": "average"
+  },
+  "classicDamage": 2158.875,
+  "lunarCrystallizeDamage": 10393.290602901818,
+  "totalDamage": 12552.165602901818,
+  "totalDps": 1255.2165602901819,
+  "snapshotFrames": [
+    31,
+    43,
+    55
+  ],
+  "eventFrames": [
+    41,
+    53,
+    65
+  ],
+  "eventDamage": [
+    3464.4302009672724,
+    3464.4302009672724,
+    3464.4302009672724
+  ],
+  "sourceKey": "gdl-v2-fnv1a32-9315f7ac"
+}

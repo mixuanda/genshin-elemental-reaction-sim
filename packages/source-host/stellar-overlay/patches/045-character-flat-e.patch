@@ -1,0 +1,1046 @@
+--- a/internal/characters/aino/burst.go
++++ b/internal/characters/aino/burst.go
+@@ -7,6 +7,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ var burstFrames []int
+@@ -59,7 +60,23 @@
+ 			} else {
+ 				pos = info.CalcRandomPointFromCenter(burstArea.Shape.Pos(), 1.5, 9, c.Core.Rand)
+ 			}
+-			ai.FlatDmg = c.a4Dmg()
++			if c.Core.SourceHost != nil {
++				rule := "char-flat-aino-burst-zero"
++				state := map[string]any{}
++				var reads []*info.SourceHostStatRead
++				if c.Base.Ascension >= 4 {
++					em, read := c.StatWithProvenance(attributes.EM)
++					rule = "char-flat-aino-burst-a4"
++					state["em"] = em
++					reads = append(reads, read)
++				}
++				full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++					state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++				ai.FlatDmg = full
++				sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++			} else {
++				ai.FlatDmg = c.a4Dmg()
++			}
+ 			// TODO: Aino burst travel time
+ 			c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(pos, nil, radius), 0, 10)
+ 		}, i+burstStart)
+--- a/internal/characters/aino/cons.go
++++ b/internal/characters/aino/cons.go
+@@ -7,6 +7,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/enemy"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+@@ -98,7 +99,13 @@
+ 		}
+ 		c.AddStatus(c2IcdKey, 5*60, true)
+ 
+-		em := c.Stat(attributes.EM)
++		var em float64
++		var firstRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			em, firstRead = c.StatWithProvenance(attributes.EM)
++		} else {
++			em = c.Stat(attributes.EM)
++		}
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       "Cool Your Jets Ducky (C2)",
+@@ -109,7 +116,23 @@
+ 			Element:    attributes.Hydro,
+ 			Durability: 25,
+ 			Mult:       0.25,
+-			FlatDmg:    em + c.a4Dmg(),
++		}
++		if c.Core.SourceHost != nil {
++			rule := "char-flat-aino-c2-zero-a4"
++			state := map[string]any{"emFirst": em}
++			reads := []*info.SourceHostStatRead{firstRead}
++			if c.Base.Ascension >= 4 {
++				emSecond, secondRead := c.StatWithProvenance(attributes.EM)
++				rule = "char-flat-aino-c2-a4"
++				state["emSecond"] = emSecond
++				reads = append(reads, secondRead)
++			}
++			full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++				state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++			ai.FlatDmg = full
++			sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++		} else {
++			ai.FlatDmg = em + c.a4Dmg()
+ 		}
+ 
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(e, nil, 1.5), 0, 10)
+--- a/internal/characters/arlecchino/attack.go
++++ b/internal/characters/arlecchino/attack.go
+@@ -11,6 +11,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ var (
+@@ -135,7 +136,23 @@
+ 				naIndex = 1
+ 				ai.Element = attributes.Pyro
+ 				ai.IgnoreInfusion = true
+-				ai.FlatDmg += c.bondBonus()
++				if c.Core.SourceHost != nil {
++					c1Bonus := 0.0
++					if c.Base.Cons >= 1 {
++						c1Bonus = 1.0
++					}
++					talent := c.TalentLvlAttack()
++					hpDebt := c.CurrentHPDebt()
++					maxHP, hpRead := c.MaxHPWithProvenance()
++					totalAtk, atkRead := c.TotalAtkWithProvenance()
++					full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-arlecchino-na-bond", ai.FlatDmg,
++						map[string]any{"talent": talent, "c1Bonus": c1Bonus, "hpDebt": hpDebt, "maxHp": maxHP, "totalAtk": totalAtk},
++						[]*info.SourceHostStatRead{hpRead, atkRead}, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++					ai.FlatDmg = full
++					sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++				} else {
++					ai.FlatDmg += c.bondBonus()
++				}
+ 			}
+ 
+ 			var ap info.AttackPattern
+--- a/internal/characters/arlecchino/burst.go
++++ b/internal/characters/arlecchino/burst.go
+@@ -6,7 +6,9 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
++	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ const (
+@@ -44,7 +46,30 @@
+ 
+ 	c.QueueCharTask(func() {
+ 		// the BoL can change during the burst
+-		ai.FlatDmg += c.c6Amount()
++		if c.Core.SourceHost != nil {
++			rule := "char-flat-arlecchino-burst-c6-zero"
++			state := map[string]any{}
++			var reads []*info.SourceHostStatRead
++			if c.Base.Cons >= 6 {
++				// Preserve the helper's original ATK, debt, HP order and its log.
++				var totalAtk, hpDebt, maxHP float64
++				var atkRead, hpRead *info.SourceHostStatRead
++				totalAtk, atkRead = c.TotalAtkWithProvenance()
++				hpDebt = c.CurrentHPDebt()
++				maxHP, hpRead = c.MaxHPWithProvenance()
++				amt := totalAtk * 7.0 * hpDebt / maxHP
++				c.Core.Log.NewEvent("Arlecchino C6 dmg add", glog.LogCharacterEvent, c.Index()).Write("amt", amt)
++				rule = "char-flat-arlecchino-burst-c6"
++				state = map[string]any{"totalAtk": totalAtk, "hpDebt": hpDebt, "maxHp": maxHP}
++				reads = []*info.SourceHostStatRead{atkRead, hpRead}
++			}
++			full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++				state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++			ai.FlatDmg = full
++			sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++		} else {
++			ai.FlatDmg += c.c6Amount()
++		}
+ 		c.Core.QueueAttack(ai, skillArea, 0, 0)
+ 	}, burstHitmarks)
+ 
+--- a/internal/characters/ayato/ayato.go
++++ b/internal/characters/ayato/ayato.go
+@@ -8,6 +8,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ type char struct {
+@@ -86,8 +87,22 @@
+ 			return ds
+ 		}
+ 		// add namisen stack
+-		flatdmg := c.MaxHP() * skillpp[c.TalentLvlSkill()] * float64(c.stacks)
+-		ai.FlatDmg += flatdmg
++		var flatdmg float64
++		if c.Core.SourceHost != nil {
++			maxHP, hpRead := c.MaxHPWithProvenance()
++			talent := c.TalentLvlSkill()
++			stacks := c.stacks
++			prior := ai.FlatDmg
++			full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-ayato-namisen", prior,
++				map[string]any{"maxHp": maxHP, "talent": talent, "stacks": stacks},
++				[]*info.SourceHostStatRead{hpRead}, &ds, sourcehost.CharacterFlatPrior(ai, &ds))
++			flatdmg = maxHP * skillpp[talent] * float64(stacks)
++			ai.FlatDmg = full
++			sourcehost.CharacterFlatAttach(ai, &ds, id, full)
++		} else {
++			flatdmg = c.MaxHP() * skillpp[c.TalentLvlSkill()] * float64(c.stacks)
++			ai.FlatDmg += flatdmg
++		}
+ 		c.Core.Log.NewEvent("namisen add damage", glog.LogCharacterEvent, c.Index()).
+ 			Write("damage_added", flatdmg).
+ 			Write("stacks", c.stacks).
+--- a/internal/characters/columbina/skill.go
++++ b/internal/characters/columbina/skill.go
+@@ -10,6 +10,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/enemy"
+ )
+ 
+@@ -239,7 +240,23 @@
+ 
+ 	for _, delay := range skillHitmarks[maxReaction] {
+ 		c.QueueCharTask(func() {
+-			ai.FlatDmg = c.c4OnGravityTickFlatDMG(maxReaction)
++			amt, maxHP, hpRead := c.c4OnGravityTickFlatDMG(maxReaction)
++			if c.Core.SourceHost != nil {
++				rule := "char-flat-columbina-c4-zero"
++				state := map[string]any{}
++				var reads []*info.SourceHostStatRead
++				if hpRead != nil {
++					rule = "char-flat-columbina-c4-hp"
++					state = map[string]any{"maxHp": maxHP, "reaction": int(maxReaction)}
++					reads = []*info.SourceHostStatRead{hpRead}
++				}
++				full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++					state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++				ai.FlatDmg = full
++				sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++			} else {
++				ai.FlatDmg = amt
++			}
+ 			c.Core.QueueAttack(ai, ap, 0, travel)
+ 		}, delay)
+ 	}
+--- a/internal/characters/columbina/cons.go
++++ b/internal/characters/columbina/cons.go
+@@ -189,21 +189,32 @@
+ 	}
+ }
+ 
+-func (c *char) c4OnGravityTickFlatDMG(reaction lunarReaction) float64 {
++func (c *char) c4OnGravityTickFlatDMG(reaction lunarReaction) (float64, float64, *info.SourceHostStatRead) {
+ 	if c.Base.Cons < 4 {
+-		return 0.0
++		return 0.0, 0.0, nil
+ 	}
+ 
+ 	c.AddEnergy(c4Key, 4)
+ 	if c.StatusIsActive(c4IcdKey) {
+-		return 0.0
++		return 0.0, 0.0, nil
+ 	}
+ 	c.AddStatus(c4IcdKey, 15*60, true)
++	if c.Core.SourceHost != nil {
++		maxHP, read := c.MaxHPWithProvenance()
++		switch reaction {
++		case LunarCharge, LunarCrystallize:
++			return 0.125 * maxHP, maxHP, read
++		case LunarBloom:
++			return 0.025 * maxHP, maxHP, read
++		default:
++			panic("unreachable: columbina c4 called with unknown reaction")
++		}
++	}
+ 	switch reaction {
+ 	case LunarCharge, LunarCrystallize:
+-		return 0.125 * c.MaxHP()
++		return 0.125 * c.MaxHP(), 0.0, nil
+ 	case LunarBloom:
+-		return 0.025 * c.MaxHP()
++		return 0.025 * c.MaxHP(), 0.0, nil
+ 	default:
+ 		panic("unreachable: columbina c4 called with unknown reaction")
+ 	}
+--- a/internal/characters/cyno/attack.go
++++ b/internal/characters/cyno/attack.go
+@@ -9,6 +9,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ var (
+@@ -143,8 +144,24 @@
+ 			HitlagHaltFrames:   attackBHitlagHaltFrame[c.normalBCounter][i],
+ 			CanBeDefenseHalted: attackBDefHalt[c.normalBCounter][i],
+ 			Mult:               mult[c.TalentLvlBurst()],
+-			FlatDmg:            c.a4NormalAttack(),
+ 			IgnoreInfusion:     true,
++		}
++		if c.Core.SourceHost != nil {
++			rule := "char-flat-cyno-na-zero"
++			state := map[string]any{}
++			var reads []*info.SourceHostStatRead
++			if c.Base.Ascension >= 4 {
++				em, read := c.StatWithProvenance(attributes.EM)
++				rule = "char-flat-cyno-na-a4"
++				state["em"] = em
++				reads = []*info.SourceHostStatRead{read}
++			}
++			full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++				state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++			ai.FlatDmg = full
++			sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++		} else {
++			ai.FlatDmg = c.a4NormalAttack()
+ 		}
+ 		if c.normalBCounter == 2 {
+ 			ai.StrikeType = attacks.StrikeTypeBlunt
+--- a/internal/characters/cyno/skill.go
++++ b/internal/characters/cyno/skill.go
+@@ -7,6 +7,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ const (
+@@ -114,7 +115,23 @@
+ 		// Apply the extra hit
+ 		ai.Abil = "Duststalker Bolt"
+ 		ai.Mult = 1.0
+-		ai.FlatDmg = c.a4Bolt()
++		if c.Core.SourceHost != nil {
++			rule := "char-flat-cyno-skill-bolt-zero"
++			state := map[string]any{}
++			var reads []*info.SourceHostStatRead
++			if c.Base.Ascension >= 4 {
++				em, read := c.StatWithProvenance(attributes.EM)
++				rule = "char-flat-cyno-skill-bolt-a4"
++				state["em"] = em
++				reads = []*info.SourceHostStatRead{read}
++			}
++			full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++				state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++			ai.FlatDmg = full
++			sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++		} else {
++			ai.FlatDmg = c.a4Bolt()
++		}
+ 		ai.AttackTag = attacks.AttackTagElementalArtHold
+ 		ai.ICDTag = attacks.ICDTagElementalArt
+ 		ai.ICDGroup = attacks.ICDGroupCynoBolt
+--- a/internal/characters/cyno/cons.go
++++ b/internal/characters/cyno/cons.go
+@@ -8,6 +8,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/enemy"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+@@ -174,9 +175,25 @@
+ 			Durability:   25,
+ 			IsDeployable: true,
+ 			Mult:         1.0,
+-			FlatDmg:      c.a4Bolt(),
+-		}
+-
++		}
++
++		if c.Core.SourceHost != nil {
++			rule := "char-flat-cyno-c6-bolt-zero"
++			state := map[string]any{}
++			var reads []*info.SourceHostStatRead
++			if c.Base.Ascension >= 4 {
++				em, read := c.StatWithProvenance(attributes.EM)
++				rule = "char-flat-cyno-c6-bolt-a4"
++				state["em"] = em
++				reads = []*info.SourceHostStatRead{read}
++			}
++			full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), rule, ai.FlatDmg,
++				state, reads, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++			ai.FlatDmg = full
++			sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++		} else {
++			ai.FlatDmg = c.a4Bolt()
++		}
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewCircleHit(
+--- a/internal/characters/emilie/cons.go
++++ b/internal/characters/emilie/cons.go
+@@ -7,6 +7,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/enemy"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+@@ -130,7 +131,16 @@
+ 	default:
+ 		return
+ 	}
+-	ai.FlatDmg += c.TotalAtk() * 3
++	if c.Core.SourceHost != nil {
++		totalAtk, atkRead := c.TotalAtkWithProvenance()
++		full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-emilie-c6", ai.FlatDmg,
++			map[string]any{"totalAtk": totalAtk}, []*info.SourceHostStatRead{atkRead},
++			nil, sourcehost.CharacterFlatPrior(ai, nil))
++		ai.FlatDmg = full
++		sourcehost.CharacterFlatAttach(ai, nil, id, full)
++	} else {
++		ai.FlatDmg += c.TotalAtk() * 3
++	}
+ 	ai.Element = attributes.Dendro
+ 	ai.IgnoreInfusion = true
+ }
+--- a/internal/characters/hutao/skill.go
++++ b/internal/characters/hutao/skill.go
+@@ -9,6 +9,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/enemy"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+@@ -146,7 +147,16 @@
+ 		}
+ 		// if cons 2, add flat dmg
+ 		if c.Base.Cons >= 2 {
+-			ai.FlatDmg += c.MaxHP() * 0.1
++			if c.Core.SourceHost != nil {
++				maxHP, hpRead := c.MaxHPWithProvenance()
++				full, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-hutao-c2-blood-blossom", ai.FlatDmg,
++					map[string]any{"maxHp": maxHP}, []*info.SourceHostStatRead{hpRead},
++					nil, sourcehost.CharacterFlatPrior(&ai, nil))
++				ai.FlatDmg = full
++				sourcehost.CharacterFlatAttach(&ai, nil, id, full)
++			} else {
++				ai.FlatDmg += c.MaxHP() * 0.1
++			}
+ 		}
+ 		c.Core.QueueAttack(ai, combat.NewSingleTargetHit(trg.Key()), 0, 0)
+ 
+--- a/internal/characters/jahoda/burst.go
++++ b/internal/characters/jahoda/burst.go
+@@ -176,7 +176,18 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    ele,
+ 			Durability: 25,
+-			FlatDmg:    burstSkill[c.TalentLvlBurst()] * c.TotalAtk() * c.a1DmgMult,
++		}
++		if c.Core.SourceHost == nil {
++			ai.FlatDmg = burstSkill[c.TalentLvlBurst()] * c.TotalAtk() * c.a1DmgMult
++		} else {
++			level := c.TalentLvlBurst()
++			atk, read := c.TotalAtkWithProvenance()
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, nil)
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-jahoda-robot", ai.FlatDmg,
++				map[string]any{"talentLevel": level, "totalAtk": atk, "a1DmgMult": c.a1DmgMult},
++				[]*info.SourceHostStatRead{read}, nil, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
+ 		}
+ 
+ 		switch ele {
+--- a/internal/characters/kinich/asc.go
++++ b/internal/characters/kinich/asc.go
+@@ -68,12 +68,21 @@
+ 	}, "kinich-a4")
+ }
+ 
+-func (c *char) a4Amount() float64 {
++func (c *char) a4Amount(ai *info.AttackInfo) {
+ 	if c.Base.Ascension < 4 {
+-		return 0.0
++		return
+ 	}
+ 	stacks := c.Tag(a4StackKey)
+ 	c.SetTag(a4StackKey, 0)
+ 	c.DeleteStatus(a4StackKey)
+-	return 3.2 * float64(stacks) * c.TotalAtk()
++	if c.Core.SourceHost == nil {
++		ai.FlatDmg = 3.2 * float64(stacks) * c.TotalAtk()
++		return
++	}
++	atk, read := c.TotalAtkWithProvenance()
++	prior := c.Core.SourceHost.CharacterFlatPrior(ai, nil)
++	value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-kinich-a4-cannon", ai.FlatDmg,
++		map[string]any{"stacks": stacks, "totalAtk": atk}, []*info.SourceHostStatRead{read}, nil, prior)
++	ai.FlatDmg = value
++	c.Core.SourceHost.CharacterFlatAttach(ai, nil, id, value)
+ }
+--- a/internal/characters/kinich/skill.go
++++ b/internal/characters/kinich/skill.go
+@@ -132,8 +132,8 @@
+ 		Element:        attributes.Dendro,
+ 		Durability:     25,
+ 		Mult:           scalespikerCannon[c.TalentLvlSkill()],
+-		FlatDmg:        c.a4Amount(),
+-	}
++	}
++	c.a4Amount(&ai)
+ 
+ 	target := c.Core.Combat.PrimaryTarget()
+ 	radius := 3.0
+--- a/internal/characters/mavuika/attack.go
++++ b/internal/characters/mavuika/attack.go
+@@ -169,7 +169,7 @@
+ 	}
+ 
+ 	c.QueueCharTask(func() {
+-		ai.FlatDmg = c.burstBuffNA() + c.c2BikeNA()
++		c.setBikeFlat(&ai, "normal")
+ 		c.Core.QueueAttack(ai, ap, 0, 0)
+ 		c.reduceNightsoulPoints(1)
+ 	}, delay)
+--- a/internal/characters/mavuika/burst.go
++++ b/internal/characters/mavuika/burst.go
+@@ -66,9 +66,9 @@
+ 			Element:        attributes.Pyro,
+ 			Durability:     25,
+ 			Mult:           burst[c.TalentLvlBurst()],
+-			FlatDmg:        c.burstBuffSunfell() + c.c2BikeQ(),
+ 			HitlagFactor:   0.01,
+ 		}
++		c.setBikeFlat(&ai, "sunfell")
+ 		ap := combat.NewCircleHitOnTarget(
+ 			c.Core.Combat.Player(),
+ 			info.Point{Y: 2.5},
+--- a/internal/characters/mavuika/charge.go
++++ b/internal/characters/mavuika/charge.go
+@@ -415,8 +415,8 @@
+ 			HitlagFactor:     0.01,
+ 			HitlagHaltFrames: 0.04 * 60,
+ 			IgnoreInfusion:   true,
+-			FlatDmg:          c.burstBuffCA() + c.c2BikeCA(),
+-		}
++		}
++		c.setBikeFlat(&ai, "final")
+ 
+ 		radius := 4.0
+ 		if c.StatusIsActive(burstKey) {
+@@ -478,8 +478,8 @@
+ 		// HitlagHaltFrames: 0.03 * 60,
+ 		IsDeployable:   true,
+ 		IgnoreInfusion: true,
+-		FlatDmg:        c.burstBuffCA() + c.c2BikeCA(),
+-	}
++	}
++	c.setBikeFlat(&ai, "cyclic")
+ 	return ai
+ }
+ 
+--- /dev/null
++++ b/internal/characters/mavuika/flat.go
+@@ -0,0 +1,60 @@
++package mavuika
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++// setBikeFlat follows the original left-to-right helper order. Each live ATK
++// getter has its own provenance receipt; a skipped branch never reads ATK.
++func (c *char) setBikeFlat(ai *info.AttackInfo, kind string) {
++	var leftRule, zeroRule, rightRule string
++	switch kind {
++	case "normal":
++		leftRule, zeroRule, rightRule = "char-flat-mavuika-normal-burst", "char-flat-mavuika-normal-zero", "char-flat-mavuika-normal-c2"
++	case "sunfell":
++		leftRule, zeroRule, rightRule = "char-flat-mavuika-sunfell-burst", "char-flat-mavuika-sunfell-zero", "char-flat-mavuika-sunfell-c2"
++	case "final":
++		leftRule, zeroRule, rightRule = "char-flat-mavuika-final-burst", "char-flat-mavuika-final-zero", "char-flat-mavuika-final-c2"
++	case "cyclic":
++		leftRule, zeroRule, rightRule = "char-flat-mavuika-cyclic-burst", "char-flat-mavuika-cyclic-zero", "char-flat-mavuika-cyclic-c2"
++	}
++	if c.Core.SourceHost == nil {
++		switch kind {
++		case "normal":
++			ai.FlatDmg = c.burstBuffNA() + c.c2BikeNA()
++		case "sunfell":
++			ai.FlatDmg = c.burstBuffSunfell() + c.c2BikeQ()
++		case "final", "cyclic":
++			ai.FlatDmg = c.burstBuffCA() + c.c2BikeCA()
++		}
++		return
++	}
++	host := c.Core.SourceHost
++	if c.StatusIsActive(burstKey) {
++		stacks := c.burstStacks
++		level := c.TalentLvlBurst()
++		atk, read := c.TotalAtkWithProvenance()
++		prior := host.CharacterFlatPrior(ai, nil)
++		value, id := host.CharacterFlatCompute(c.Index(), leftRule, ai.FlatDmg,
++			map[string]any{"burstStacks": stacks, "talentLevel": level, "totalAtk": atk},
++			[]*info.SourceHostStatRead{read}, nil, prior)
++		ai.FlatDmg = value
++		host.CharacterFlatAttach(ai, nil, id, value)
++	} else {
++		prior := host.CharacterFlatPrior(ai, nil)
++		value, id := host.CharacterFlatCompute(c.Index(), zeroRule, ai.FlatDmg,
++			map[string]any{}, nil, nil, prior)
++		ai.FlatDmg = value
++		host.CharacterFlatAttach(ai, nil, id, value)
++	}
++	if c.Base.Cons < 2 {
++		return
++	}
++	if c.armamentState != bike {
++		return
++	}
++	atk, read := c.TotalAtkWithProvenance()
++	prior := host.CharacterFlatPrior(ai, nil)
++	value, id := host.CharacterFlatCompute(c.Index(), rightRule, ai.FlatDmg,
++		map[string]any{"totalAtk": atk}, []*info.SourceHostStatRead{read}, nil, prior)
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, nil, id, value)
++}
+--- a/internal/characters/nicole/asc.go
++++ b/internal/characters/nicole/asc.go
+@@ -115,17 +115,24 @@
+ 	c.c6OnUpgrade(char)
+ }
+ 
+-func (c *char) hexereiOnProjection(char *character.CharWrapper) float64 {
++func (c *char) hexereiOnProjection(char *character.CharWrapper, ai *info.AttackInfo, ruleID string) {
+ 	if !c.IsHexerei {
+-		return 0
++		return
+ 	}
+ 	if c.Core.Player.GetHexereiCount() < 2 {
+-		return 0
++		return
+ 	}
+-
+ 	if !char.IsHexerei {
+-		return 0
++		return
+ 	}
+-
+-	return c.TotalAtk() * 3
++	if c.Core.SourceHost == nil {
++		ai.FlatDmg = c.TotalAtk() * 3
++		return
++	}
++	atk, read := c.TotalAtkWithProvenance()
++	prior := c.Core.SourceHost.CharacterFlatPrior(ai, nil)
++	value, id := c.Core.SourceHost.CharacterFlatComputeForActor(char.Index(), c.Index(), ruleID, ai.FlatDmg,
++		map[string]any{"totalAtk": atk}, []*info.SourceHostStatRead{read}, nil, prior)
++	ai.FlatDmg = value
++	c.Core.SourceHost.CharacterFlatAttach(ai, nil, id, value)
+ }
+--- a/internal/characters/nicole/burst.go
++++ b/internal/characters/nicole/burst.go
+@@ -161,8 +161,8 @@
+ 				StrikeType: attacks.StrikeTypeDefault,
+ 				Element:    char.Base.Element,
+ 				Mult:       burstProjection[c.TalentLvlBurst()],
+-				FlatDmg:    c.hexereiOnProjection(char),
+ 			}
++			c.hexereiOnProjection(char, &ai, "char-flat-nicole-burst-projection")
+ 
+ 			apFn, ok := projectionHitbox[char.Base.Key]
+ 			if !ok {
+--- a/internal/characters/nicole/cons.go
++++ b/internal/characters/nicole/cons.go
+@@ -53,8 +53,8 @@
+ 				StrikeType: attacks.StrikeTypeDefault,
+ 				Element:    char.Base.Element,
+ 				Mult:       6,
+-				FlatDmg:    c.hexereiOnProjection(char),
+ 			}
++			c.hexereiOnProjection(char, &ai, "char-flat-nicole-c1-projection")
+ 
+ 			ap := combat.NewCircleHitOnTarget(t, nil, 4.5)
+ 
+--- a/internal/characters/razor/burst.go
++++ b/internal/characters/razor/burst.go
+@@ -109,7 +109,16 @@
+ 		}
+ 
+ 		if c.IsHexerei {
+-			ai.FlatDmg += 0.7 * c.TotalAtk()
++			if c.Core.SourceHost == nil {
++				ai.FlatDmg += 0.7 * c.TotalAtk()
++			} else {
++				atk, read := c.TotalAtkWithProvenance()
++				prior := c.Core.SourceHost.CharacterFlatPrior(&ai, nil)
++				value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-razor-hexerei-wolf", ai.FlatDmg,
++					map[string]any{"totalAtk": atk}, []*info.SourceHostStatRead{read}, nil, prior)
++				ai.FlatDmg = value
++				c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
++			}
+ 		}
+ 
+ 		ap := combat.NewCircleHitOnTarget(
+--- a/internal/characters/sayu/burst.go
++++ b/internal/characters/sayu/burst.go
+@@ -64,7 +64,16 @@
+ 
+ 	if c.Base.Cons >= 6 {
+ 		// TODO: is it snapshots?
+-		d.Info.FlatDmg += atk * min(d.Snapshot.Stats[attributes.EM]*0.002, 4.0)
++		em := d.Snapshot.Stats[attributes.EM]
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&d.Info, &d.Snapshot)
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-sayu-c6-daruma", d.Info.FlatDmg,
++				map[string]any{"atk": atk, "em": em}, nil, &d.Snapshot, prior)
++			d.Info.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&d.Info, &d.Snapshot, id, value)
++		} else {
++			d.Info.FlatDmg += atk * min(em*0.002, 4.0)
++		}
+ 		heal += min(d.Snapshot.Stats[attributes.EM]*3, 6000)
+ 	}
+ 
+--- a/internal/characters/varesa/varesa.go
++++ b/internal/characters/varesa/varesa.go
+@@ -19,6 +19,7 @@
+ 	exitNS            bool
+ 	a1Src             int
+ 	a1Atk             float64
++	a1AtkSourceID     int
+ 	a4Stacks          *stacks.MultipleRefreshNoRemove
+ 	usedShortBurst    bool
+ }
+--- a/internal/characters/varesa/asc.go
++++ b/internal/characters/varesa/asc.go
+@@ -19,7 +19,14 @@
+ 		if c.a1Src != src {
+ 			return
+ 		}
+-		c.a1Atk = c.TotalAtk()
++		if host := c.Core.SourceHost; host != nil {
++			atk, read := c.TotalAtkWithProvenance()
++			c.a1Atk, c.a1AtkSourceID = host.CharacterFlatCompute(c.Index(), "char-flat-varesa-a1-atk-cache", 0,
++				map[string]any{"totalAtk": atk}, []*info.SourceHostStatRead{read}, nil, nil)
++		} else {
++			c.a1Atk = c.TotalAtk()
++			c.a1AtkSourceID = 0
++		}
+ 		c.updateA1Bonus(src)
+ 	}, 0.1*60)
+ }
+@@ -31,18 +38,30 @@
+ 	c.AddStatus(a1Status, 5*60, true)
+ }
+ 
+-func (c *char) a1PlungeBonus() float64 {
++func (c *char) a1PlungeBonus() (float64, int, bool) {
+ 	if c.Base.Ascension < 1 {
+-		return 0.0
++		return 0.0, 0, false
+ 	}
+ 	if !c.StatusIsActive(a1Status) {
+-		return 0.0
++		return 0.0, 0, false
+ 	}
+ 	mult := 0.5
+ 	if c.Base.Cons >= 1 || c.nightsoulState.HasBlessing() {
+ 		mult = 1.8
+ 	}
+-	return mult * c.a1Atk
++	if host := c.Core.SourceHost; host != nil {
++		rule := "char-flat-varesa-a1-helper-no-source"
++		valueSources := map[string]int{}
++		hasSource := c.a1AtkSourceID != 0
++		if hasSource {
++			rule = "char-flat-varesa-a1-helper"
++			valueSources["a1Atk"] = c.a1AtkSourceID
++		}
++		value, id := host.CharacterFlatCompute(c.Index(), rule, 0,
++			map[string]any{"mult": mult, "a1Atk": c.a1Atk}, nil, nil, nil, valueSources)
++		return value, id, hasSource
++	}
++	return mult * c.a1Atk, 0, false
+ }
+ 
+ func (c *char) a1Cancel(a info.AttackCB) {
+--- a/internal/characters/varesa/cons.go
++++ b/internal/characters/varesa/cons.go
+@@ -64,17 +64,25 @@
+ 	c.AddStatus(c4Status, 15*60, true)
+ }
+ 
+-func (c *char) c4FlatBonus() float64 {
++func (c *char) c4FlatBonus() (float64, int) {
+ 	if c.Base.Cons < 4 {
+-		return 0
++		return 0, 0
+ 	}
+ 	if !c.StatusIsActive(c4Status) {
+-		return 0
++		return 0, 0
+ 	}
+-	bonus := min(c.TotalAtk()*5, 20000)
++	var bonus float64
++	var flatID int
++	if c.Core.SourceHost != nil {
++		totalAtk, read := c.TotalAtkWithProvenance()
++		bonus, flatID = c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-varesa-c4-helper", 0,
++			map[string]any{"totalAtk": totalAtk}, []*info.SourceHostStatRead{read}, nil, nil)
++	} else {
++		bonus = min(c.TotalAtk()*5, 20000)
++	}
+ 	c.Core.Log.NewEventBuildMsg(glog.LogCharacterEvent, c.Index(), "varesa c4 flat dmg bonus").
+ 		Write("bonus", bonus)
+-	return bonus
++	return bonus, flatID
+ }
+ 
+ func (c *char) c4CB(a info.AttackCB) {
+--- a/internal/characters/varesa/burst.go
++++ b/internal/characters/varesa/burst.go
+@@ -94,6 +94,9 @@
+ 		c.a1()
+ 	}
+ 
++	var a1Bonus float64
++	var a1ID int
++	var a1HasSource bool
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           kablamAbil,
+@@ -107,7 +110,25 @@
+ 		Durability:     25,
+ 		Mult:           kablam[c.TalentLvlBurst()],
+ 		HitlagFactor:   0.1,
+-		FlatDmg:        c.a1PlungeBonus(),
++		FlatDmg: func() float64 {
++			a1Bonus, a1ID, a1HasSource = c.a1PlungeBonus()
++			return a1Bonus
++		}(),
++	}
++	if host := c.Core.SourceHost; host != nil {
++		rule := "char-flat-varesa-kablam-zero"
++		valueSources := map[string]int{}
++		if a1ID != 0 {
++			rule = "char-flat-varesa-kablam-a1-no-source"
++			if a1HasSource {
++				rule = "char-flat-varesa-kablam-a1"
++			}
++			valueSources["a1Bonus"] = a1ID
++		}
++		value, id := host.CharacterFlatCompute(c.Index(), rule, 0,
++			map[string]any{"a1Bonus": a1Bonus}, nil, nil, host.CharacterFlatPrior(&ai, nil), valueSources)
++		ai.FlatDmg = value
++		host.CharacterFlatAttach(&ai, nil, id, value)
+ 	}
+ 
+ 	c.Core.Tasks.Add(func() {
+--- a/internal/characters/varesa/plunge.go
++++ b/internal/characters/varesa/plunge.go
+@@ -147,6 +147,40 @@
+ 	}
+ }
+ 
++// recordPlungeFlat preserves the source's A1 then C4 helper order; each
++// valueSource points only to a helper that actually produced a formula record.
++func (c *char) recordPlungeFlat(ai *info.AttackInfo, a1Bonus float64, a1ID int, a1HasSource bool, c4Bonus float64, c4ID int) {
++	host := c.Core.SourceHost
++	if host == nil {
++		return
++	}
++	rule := "char-flat-varesa-plunge-zero"
++	valueSources := map[string]int{}
++	switch {
++	case a1ID != 0 && c4ID != 0:
++		rule = "char-flat-varesa-plunge-a1-no-source-c4"
++		if a1HasSource {
++			rule = "char-flat-varesa-plunge-a1-c4"
++		}
++		valueSources["a1Bonus"] = a1ID
++		valueSources["c4Bonus"] = c4ID
++	case a1ID != 0:
++		rule = "char-flat-varesa-plunge-a1-no-source"
++		if a1HasSource {
++			rule = "char-flat-varesa-plunge-a1"
++		}
++		valueSources["a1Bonus"] = a1ID
++	case c4ID != 0:
++		rule = "char-flat-varesa-plunge-c4"
++		valueSources["c4Bonus"] = c4ID
++	}
++	value, id := host.CharacterFlatCompute(c.Index(), rule, 0,
++		map[string]any{"a1Bonus": a1Bonus, "c4Bonus": c4Bonus}, nil, nil,
++		host.CharacterFlatPrior(ai, nil), valueSources)
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, nil, id, value)
++}
++
+ func (c *char) highPlungeCA(p map[string]int) action.Info {
+ 	collision, ok := p["collision"]
+ 	if !ok {
+@@ -157,6 +191,9 @@
+ 		c.plungeCollision(collisionHitmark)
+ 	}
+ 
++	var a1Bonus, c4Bonus float64
++	var a1ID, c4ID int
++	var a1HasSource bool
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "High Plunge",
+@@ -168,9 +205,14 @@
+ 		Element:        attributes.Electro,
+ 		Durability:     25,
+ 		Mult:           highPlunge[c.TalentLvlAttack()],
+-		FlatDmg:        c.a1PlungeBonus() + c.c4FlatBonus(),
+-		HitlagFactor:   0.1,
+-	}
++		FlatDmg: func() float64 {
++			a1Bonus, a1ID, a1HasSource = c.a1PlungeBonus()
++			c4Bonus, c4ID = c.c4FlatBonus()
++			return a1Bonus + c4Bonus
++		}(),
++		HitlagFactor: 0.1,
++	}
++	c.recordPlungeFlat(&ai, a1Bonus, a1ID, a1HasSource, c4Bonus, c4ID)
+ 
+ 	hitmark := highPlungeHitmark
+ 	c.exitNS = false
+@@ -219,6 +261,9 @@
+ 		c.plungeCollision(collisionHitmark)
+ 	}
+ 
++	var a1Bonus, c4Bonus float64
++	var a1ID, c4ID int
++	var a1HasSource bool
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "High Plunge",
+@@ -230,9 +275,14 @@
+ 		Element:        attributes.Electro,
+ 		Durability:     25,
+ 		Mult:           highPlunge[c.TalentLvlAttack()],
+-		FlatDmg:        c.a1PlungeBonus() + c.c4FlatBonus(),
+-		HitlagFactor:   0.1,
+-	}
++		FlatDmg: func() float64 {
++			a1Bonus, a1ID, a1HasSource = c.a1PlungeBonus()
++			c4Bonus, c4ID = c.c4FlatBonus()
++			return a1Bonus + c4Bonus
++		}(),
++		HitlagFactor: 0.1,
++	}
++	c.recordPlungeFlat(&ai, a1Bonus, a1ID, a1HasSource, c4Bonus, c4ID)
+ 
+ 	hitmark := xianyunHighPlungeHitmark
+ 	c.exitNS = false
+@@ -281,6 +331,9 @@
+ 		c.plungeCollision(collisionHitmark)
+ 	}
+ 
++	var a1Bonus, c4Bonus float64
++	var a1ID, c4ID int
++	var a1HasSource bool
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "Low Plunge",
+@@ -292,9 +345,14 @@
+ 		Element:        attributes.Electro,
+ 		Durability:     25,
+ 		Mult:           lowPlunge[c.TalentLvlAttack()],
+-		FlatDmg:        c.a1PlungeBonus() + c.c4FlatBonus(),
+-		HitlagFactor:   0.1,
+-	}
++		FlatDmg: func() float64 {
++			a1Bonus, a1ID, a1HasSource = c.a1PlungeBonus()
++			c4Bonus, c4ID = c.c4FlatBonus()
++			return a1Bonus + c4Bonus
++		}(),
++		HitlagFactor: 0.1,
++	}
++	c.recordPlungeFlat(&ai, a1Bonus, a1ID, a1HasSource, c4Bonus, c4ID)
+ 
+ 	hitmark := xianyunLowPlungeHitmark
+ 	c.exitNS = false
+--- a/internal/characters/yaemiko/stellar.go
++++ b/internal/characters/yaemiko/stellar.go
+@@ -51,26 +51,34 @@
+ 	return 10 * 60
+ }
+ 
+-func (c *char) revelationEnhanceDMG() (float64, info.AttackCBFunc) {
++func (c *char) revelationEnhanceDMG() (float64, info.AttackCBFunc, int) {
+ 	if !c.revelation {
+-		return 0, nil
++		return 0, nil, 0
+ 	}
+ 
+ 	if !c.StatusIsActive(revelationKey) {
+-		return 0, nil
++		return 0, nil, 0
+ 	}
+ 
+ 	if c.StatusIsActive(revelationICDKey) {
+-		return 0, nil
++		return 0, nil, 0
+ 	}
+ 
+ 	c.AddStatus(revelationICDKey, 2.5*60, true)
+ 
+ 	c.DeleteStatus(revelationKey)
+ 
+-	dmg := 0.8 * c.TotalAtk()
++	var dmg float64
++	var flatID int
++	if c.Core.SourceHost != nil {
++		atk, read := c.TotalAtkWithProvenance()
++		dmg, flatID = c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-yaemiko-revelation", 0,
++			map[string]any{"atk": atk}, []*info.SourceHostStatRead{read}, nil, nil)
++	} else {
++		dmg = 0.8 * c.TotalAtk()
++	}
+ 	if !c.isRadianceSSC() {
+-		return dmg, nil
++		return dmg, nil, flatID
+ 	}
+ 
+ 	done := false
+@@ -102,7 +110,7 @@
+ 		c.Core.QueueAttack(ai, ap, 12, 12)
+ 	}
+ 
+-	return dmg, cb
++	return dmg, cb, flatID
+ }
+ 
+ func (c *char) isRadianceSSC() bool {
+--- a/internal/characters/yaemiko/kitsune.go
++++ b/internal/characters/yaemiko/kitsune.go
+@@ -123,7 +123,7 @@
+ 			c.Core.Log.NewEvent("sky kitsune tick at level", glog.LogCharacterEvent, c.Index()).
+ 				Write("sakura level", lvl)
+ 
+-			flatDmg, revCB := c.revelationEnhanceDMG()
++			flatDmg, revCB, flatID := c.revelationEnhanceDMG()
+ 
+ 			ai := info.AttackInfo{
+ 				Abil:             "Sesshou Sakura Tick",
+@@ -137,6 +137,9 @@
+ 				Durability:       25,
+ 				FlatDmg:          flatDmg,
+ 				IgnoreDefPercent: c.c6DefIgnore(),
++			}
++			if flatID != 0 {
++				c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flatDmg)
+ 			}
+ 
+ 			c.Core.QueueAttack(

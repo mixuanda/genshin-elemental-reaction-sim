@@ -1,0 +1,687 @@
+{
+  "schemaVersion": "source-artifact-events-validation-v1",
+  "scenarios": {
+    "healingConfig": "options iteration=1 duration=20;\nbarbara char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nbarbara add weapon=\"magicguide\" refine=1 lvl=90/90;\nbarbara add set=\"songofdayspast\" count=4;\nbarbara add stats hp=4000 cr=0.2 cd=0.4;\nkokomi char lvl=90/90 cons=0 talent=1,1,1;\nkokomi add weapon=\"magicguide\" refine=1 lvl=90/90;\nkokomi add set=\"oceanhuedclam\" count=4;\nkokomi add stats hp=4000 cr=0.2 cd=0.4;\nkeqing char lvl=90/90 cons=0 talent=1,1,1;\nkeqing add weapon=\"favoniussword\" refine=1 lvl=90/90;\nkeqing add set=\"echoesofanoffering\" count=4;\nkeqing add stats atk=200 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0.6,2.4;\nactive kokomi;\nkokomi skill;\nbarbara burst;\nkeqing attack:6;\nwait(360);\nkeqing attack:6;\nwait(120);",
+    "stellarConfig": "options iteration=1 duration=16;\nodette char lvl=90/90 cons=0 talent=1,1,1;\nodette add weapon=\"magicguide\" refine=1 lvl=90/90;\nodette add set=\"heartofthefurnace\" count=4;\nodette add stats atk=200 em=100 cr=0.2 cd=0.4;\nsucrose char lvl=90/90 cons=0 talent=1,1,1;\nsucrose add weapon=\"magicguide\" refine=1 lvl=90/90;\nsucrose add set=\"scarletproof\" count=4;\nsucrose add stats atk=200 em=100 cr=0.2 cd=0.4;\nkaeya char lvl=90/90 cons=0 talent=1,1,1;\nkaeya add weapon=\"favoniussword\" refine=1 lvl=90/90;\nkaeya add set=\"blizzardstrayer\" count=4;\nkaeya add stats atk=200 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add set=\"disenchantmentindeepshadow\" count=4;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0.6,2.4;\nactive odette;\nodette skill;\nkaeya skill;\nsucrose skill;\nodette skill;\nsucrose attack:3;\nfischl skill;\nodette attack:3;\nwait(300);"
+  },
+  "runs": [
+    {
+      "variant": "classic",
+      "scenario": "healing",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "a8cfa04ac4ddeeaa1e7f54bdbe36fe65e045da2bce8bd5c8855e2577e4e44e15",
+      "calculations": 116,
+      "applications": 50,
+      "ruleCounts": {
+        "dynamic-songofdayspast-2pc-heal": 2,
+        "const-oceanhuedclam-2pc-heal": 2,
+        "dynamic-echoes-2pc-atkp": 43,
+        "oceanhuedclam": 4,
+        "echoes": 10,
+        "songofdayspast": 5
+      },
+      "additive": [
+        {
+          "id": 14,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 3338.7434652096,
+          "value": 3004.86911868864,
+          "componentScope": "queued-attack",
+          "frame": 205,
+          "consumerIds": [
+            17,
+            18
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": 21,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 269,
+          "consumerIds": [
+            26
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 24,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 269,
+          "consumerIds": [
+            27
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 41,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 316,
+          "consumerIds": [
+            46
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 44,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 316,
+          "consumerIds": [
+            47
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 75,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 450,
+          "consumerIds": [
+            80
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 78,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 450,
+          "consumerIds": [
+            81
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 82,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 3338.7434652096,
+          "value": 3004.86911868864,
+          "componentScope": "queued-attack",
+          "frame": 451,
+          "consumerIds": [
+            85,
+            86
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": 95,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 3338.7434652096,
+          "value": 3004.86911868864,
+          "componentScope": "queued-attack",
+          "frame": 691,
+          "consumerIds": [
+            98,
+            99
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": 105,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 820,
+          "consumerIds": [
+            111
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 108,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 820,
+          "consumerIds": [
+            112
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 114,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            122
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 116,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            122
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 118,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            123
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 120,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            123
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 125,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 878,
+          "consumerIds": [
+            132
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 127,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 878,
+          "consumerIds": [
+            132
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 130,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 878,
+          "consumerIds": [
+            133
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 148,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 1669.3717326048,
+          "value": 1502.43455934432,
+          "componentScope": "queued-attack",
+          "frame": 931,
+          "consumerIds": [
+            151,
+            152
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        }
+      ],
+      "echoesPaths": {
+        "rolled-proc": 5,
+        "active-window": 5
+      },
+      "songRemaining": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "ohcQueue": {
+        "id": 14,
+        "sourceFrame": 205,
+        "consumerFrames": [
+          206,
+          206
+        ],
+        "targetKeys": [
+          1,
+          2
+        ],
+        "queueDelayFrames": 1
+      },
+      "editedHit": {
+        "applicationId": 26,
+        "calculationId": 21,
+        "originalValue": 782.011775503,
+        "editedValue": 852.011775503,
+        "originalDamage": 558.1318586136048,
+        "editedDamage": 589.6318586136048,
+        "restoredText": "原来源附加值 782.011775503；实验公式值 852.011775503。在原命中输入上替换这一项后的公式伤害 589.6318586136048；相对原命中差值 31.5。真实 Go 触发窗口与排队回执仍是捕获时状态。阶段数值公式来歆余响四件：幽谷祝祀附加伤害852.011776(sourceValue × 0.7)展开：来歆余响四件：幽谷祝祀附加伤害的计算与解释已应用独立数值实验；原 Go 触发窗口、随机数、剩余次数、排队和属性回执均未改写。共享公式将本次本次实际总攻击力乘以 0.7；原生触发门、状态窗口、次数与排队时序由固定 Go 源码决定。符号公式(sourceValue × 0.7)实际代入与中间结果(1217.15967929 × 0.7) = 852.011776sourceValue用户独立实验输入；原始 Go sourceValue 与 statRead 保持不变数值：1217.15967929 ATK；来源：user-edited-artifact-additive-experiment本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/echoes/echoes.go计算规则 artifactAdditive.21.edit.flatDamage · 完整精度 852.011775503；后续步骤读取完整精度，页面格式化不会改变计算。本项实验的联动伤害步骤阶段数值公式来歆余响两件：攻击力0.180.18展开：来歆余响两件：攻击力的计算与解释已应用来源两件套返回18%攻击力。 触发、状态更新与生命周期仍由固定 Go 宿主执行。符号公式0.18实际代入与中间结果0.18 = 0.18本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/echoes/echoes.go计算规则 artifactScalar.19.dynamic-echoes-2pc-atkp · 完整精度 0.18；后续步骤读取完整精度，页面格式化不会改变计算。无属性：本次读取起点0base展开：无属性：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.0 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。防御力百分比：本次读取起点0base展开：防御力百分比：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.1 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。固定防御力：本次读取起点0base展开：固定防御力：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.2 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。固定生命值：本次读取起点0base展开：固定生命值：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.3 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。生命值百分比：本次读取起点0base展开：生命值百分比：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.4 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。固定攻击力：本次读取起点200base展开：固定攻击力：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果200 = 200base本次 getter 实际复制的起始属性数值：200 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.5 · 完整精度 200；后续步骤读取完整精度，页面格式化不会改变计算。攻击力百分比：本次读取起点0base展开：攻击力百分比：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.6 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。充能效率：本次读取起点1.612532base展开：充能效率：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果1.6125318020000001 = 1.612532base本次 getter 实际复制的起始属性数值：1.6125318020000001 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.7 · 完整精度 1.6125318020000001；后续步骤读取完整精度，页面格式化不会改变计算。元素精通：本次读取起点0base展开：元素精通：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.8 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。暴击率：本次读取起点0.25base展开：暴击率：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0.25 = 0.25base本次 getter 实际复制的起始属性数值：0.25 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.9 · 完整精度 0.25；后续步骤读取完整精度，页面格式化不会改变计算。暴击伤害：本次读取起点1.284base展开：暴击伤害：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果1.284 = 1.284base本次 getter 实际复制的起始属性数值：1.284 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.10 · 完整精度 1.284；后续步骤读取完整精度，页面格式化不会改变计算。治疗加成：本次读取起点0base展开：治疗加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.11 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。火元素伤害加成：本次读取起点0base展开：火元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.12 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。水元素伤害加成：本次读取起点0base展开：水元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.13 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。冰元素伤害加成：本次读取起点0base展开：冰元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.14 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。雷元素伤害加成：本次读取起点0base展开：雷元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.15 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。风元素伤害加成：本次读取起点0base展开：风元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.16 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。岩元素伤害加成：本次读取起点0base展开：岩元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.17 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。草元素伤害加成：本次读取起点0base展开：草元素伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.18 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。物理伤害加成：本次读取起点0base展开：物理伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.19 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。攻击速度：本次读取起点0base展开：攻击速度：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.20 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。通用伤害加成：本次读取起点0base展开：通用伤害加成：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.21 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。基础属性分隔符：本次读取起点0base展开：基础属性分隔符：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.22 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。基础生命值：本次读取起点13,103.124624base展开：基础生命值：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果13103.1246236 = 13,103.124624base本次 getter 实际复制的起始属性数值：13103.1246236 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.23 · 完整精度 13103.1246236；后续步骤读取完整精度，页面格式化不会改变计算。基础攻击力：本次读取起点777.253966base展开：基础攻击力：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果777.2539655 = 777.253966base本次 getter 实际复制的起始属性数值：777.2539655 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.24 · 完整精度 777.2539655；后续步骤读取完整精度，页面格式化不会改变计算。基础防御力：本次读取起点799.296545base展开：基础防御力：本次读取起点的计算与解释已应用stats 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果799.2965448000001 = 799.296545base本次 getter 实际复制的起始属性数值：799.2965448000001 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\"}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.base.25 · 完整精度 799.2965448000001；后续步骤读取完整精度，页面格式化不会改变计算。echoes-2pc → 攻击力百分比0.18(before + delta)展开：echoes-2pc → 攻击力百分比的计算与解释已应用原始修饰器 echoes-2pc 的实际贡献相加；读取帧 269，到期帧 -1（-1 表示永久），Extra=false。符号公式(before + delta)实际代入与中间结果(0 + 0.18) = 0.18before按原列表顺序执行到此项前的累计属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-290上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\",\"modifierKey\":\"echoes-2pc\",\"expiryBefore\":-1,\"expiryAfter\":-1,\"extra\":false,\"affectedByHitlag\":false}delta原 Amount 实际使用的共享装备公式返回值；对应公式 ID 已保存数值：0.18 面板数值；来源：source-host-artifact-scalar · artifactScalar.19.dynamic-echoes-2pc-atkp上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"stats\",\"modifierKey\":\"echoes-2pc\",\"expiryBefore\":-1,\"expiryAfter\":-1,\"extra\":false,\"affectedByHitlag\":false}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.modifier.0.add.6.6 · 完整精度 0.18；后续步骤读取完整精度，页面格式化不会改变计算。echoes-2pc：本次返回贡献11展开：echoes-2pc：本次返回贡献的计算与解释已应用子节点按来源原始顺序执行各非零属性加法；计数仅用于展示，不参与伤害公式。符号公式1实际代入与中间结果1 = 1本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.modifier.0 · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。帧 269 属性读取完成11展开：帧 269 属性读取完成的计算与解释已应用已按记录执行原始加法并核对实际结果；闭包依赖表示真实嵌套调用，不推断其内部代数关系。符号公式1实际代入与中间结果1 = 1本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-290.complete · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。无属性：本次读取起点0base展开：无属性：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.0 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。防御力百分比：本次读取起点0base展开：防御力百分比：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.1 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。固定防御力：本次读取起点0base展开：固定防御力：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.2 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。固定生命值：本次读取起点0base展开：固定生命值：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.3 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。生命值百分比：本次读取起点0base展开：生命值百分比：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.4 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。固定攻击力：本次读取起点200base展开：固定攻击力：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果200 = 200base本次 getter 实际复制的起始属性数值：200 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.5 · 完整精度 200；后续步骤读取完整精度，页面格式化不会改变计算。攻击力百分比：本次读取起点0.18base展开：攻击力百分比：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0.18 = 0.18base本次 getter 实际复制的起始属性数值：0.18 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.6 · 完整精度 0.18；后续步骤读取完整精度，页面格式化不会改变计算。充能效率：本次读取起点1.612532base展开：充能效率：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果1.6125318020000001 = 1.612532base本次 getter 实际复制的起始属性数值：1.6125318020000001 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.7 · 完整精度 1.6125318020000001；后续步骤读取完整精度，页面格式化不会改变计算。元素精通：本次读取起点0base展开：元素精通：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.8 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。暴击率：本次读取起点0.25base展开：暴击率：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0.25 = 0.25base本次 getter 实际复制的起始属性数值：0.25 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.9 · 完整精度 0.25；后续步骤读取完整精度，页面格式化不会改变计算。暴击伤害：本次读取起点1.284base展开：暴击伤害：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果1.284 = 1.284base本次 getter 实际复制的起始属性数值：1.284 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.10 · 完整精度 1.284；后续步骤读取完整精度，页面格式化不会改变计算。治疗加成：本次读取起点0base展开：治疗加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.11 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。火元素伤害加成：本次读取起点0base展开：火元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.12 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。水元素伤害加成：本次读取起点0base展开：水元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.13 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。冰元素伤害加成：本次读取起点0base展开：冰元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.14 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。雷元素伤害加成：本次读取起点0base展开：雷元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.15 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。风元素伤害加成：本次读取起点0base展开：风元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.16 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。岩元素伤害加成：本次读取起点0base展开：岩元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.17 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。草元素伤害加成：本次读取起点0base展开：草元素伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.18 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。物理伤害加成：本次读取起点0base展开：物理伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.19 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。攻击速度：本次读取起点0base展开：攻击速度：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.20 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。通用伤害加成：本次读取起点0base展开：通用伤害加成：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.21 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。基础属性分隔符：本次读取起点0base展开：基础属性分隔符：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果0 = 0base本次 getter 实际复制的起始属性数值：0 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.22 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。基础生命值：本次读取起点13,103.124624base展开：基础生命值：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果13103.1246236 = 13,103.124624base本次 getter 实际复制的起始属性数值：13103.1246236 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.23 · 完整精度 13103.1246236；后续步骤读取完整精度，页面格式化不会改变计算。基础攻击力：本次读取起点777.253966base展开：基础攻击力：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果777.2539655 = 777.253966base本次 getter 实际复制的起始属性数值：777.2539655 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.24 · 完整精度 777.2539655；后续步骤读取完整精度，页面格式化不会改变计算。基础防御力：本次读取起点799.296545base展开：基础防御力：本次读取起点的计算与解释已应用attack-mods 在帧 269 读取的起点；单属性/选定属性 getter 的其他槽位不代表完整面板。符号公式base实际代入与中间结果799.2965448000001 = 799.296545base本次 getter 实际复制的起始属性数值：799.2965448000001 面板数值；来源：source-host-observed-modifier · actor-2-read-292上下文：{\"readFrame\":269,\"actorIndex\":2,\"readKind\":\"attack-mods\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.base.25 · 完整精度 799.2965448000001；后续步骤读取完整精度，页面格式化不会改变计算。帧 269 属性读取完成00展开：帧 269 属性读取完成的计算与解释已应用已按记录执行原始加法并核对实际结果；闭包依赖表示真实嵌套调用，不推断其内部代数关系。符号公式0实际代入与中间结果0 = 0本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/blizzard/blizzard.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go计算规则 sourceStats.22.actor-2-read-292.complete · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。resistance：读取起点0.1base展开：resistance：读取起点的计算与解释已应用帧 269 的实际读取起点；没有重新执行来源 getter。符号公式base实际代入与中间结果0.1 = 0.1base本次来源 getter 实际起始值数值：0.1 倍率 / 比例；来源：source-host-observed-scalar · scalar-read-13上下文：{\"frame\":269,\"scalarKind\":\"resistance\",\"actorIndex\":2,\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go计算规则 sourceScalar.22.scalar-read-13.base · 完整精度 0.1；后续步骤读取完整精度，页面格式化不会改变计算。resistance：实际输出0.1output展开：resistance：实际输出的计算与解释已应用已核对每次来源加法与上限，闭包内部仅表示为观测边界。符号公式output实际代入与中间结果0.1 = 0.1output本次 getter 进入共享公式的实际值数值：0.1 倍率 / 比例；来源：source-host-observed-scalar · scalar-read-13上下文：{\"frame\":269,\"scalarKind\":\"resistance\",\"actorIndex\":2,\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go计算规则 sourceScalar.22.scalar-read-13.complete · 完整精度 0.1；后续步骤读取完整精度，页面格式化不会改变计算。defense-adjustment：读取起点0base展开：defense-adjustment：读取起点的计算与解释已应用帧 269 的实际读取起点；没有重新执行来源 getter。符号公式base实际代入与中间结果0 = 0base本次来源 getter 实际起始值数值：0 倍率 / 比例；来源：source-host-observed-scalar · scalar-read-14上下文：{\"frame\":269,\"scalarKind\":\"defense-adjustment\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go计算规则 sourceScalar.22.scalar-read-14.base · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。来源标量上限0min(before, limit)展开：来源标量上限的计算与解释已应用来源在本次调用点执行 min；保留实际调用顺序。符号公式min(before, limit)实际代入与中间结果min(0, 0.9) = 0before已按原顺序求和的数值数值：0 倍率 / 比例；来源：source-host-observed-scalar · scalar-read-14上下文：{\"frame\":269,\"scalarKind\":\"defense-adjustment\",\"targetKey\":1}limit来源实际使用的上限数值：0.9 倍率 / 比例；来源：source-host-observed-scalar · scalar-read-14上下文：{\"frame\":269,\"scalarKind\":\"defense-adjustment\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go计算规则 sourceScalar.22.scalar-read-14.transform.0 · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。defense-adjustment：实际输出0output展开：defense-adjustment：实际输出的计算与解释已应用已核对每次来源加法与上限，闭包内部仅表示为观测边界。符号公式output实际代入与中间结果0 = 0output本次 getter 进入共享公式的实际值数值：0 倍率 / 比例；来源：source-host-observed-scalar · scalar-read-14上下文：{\"frame\":269,\"scalarKind\":\"defense-adjustment\",\"targetKey\":1}本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go计算规则 sourceScalar.22.scalar-read-14.complete · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。来歆余响四件：幽谷祝祀附加伤害852.011776(sourceValue × 0.7)展开：来歆余响四件：幽谷祝祀附加伤害的计算与解释已应用独立数值实验；原 Go 触发窗口、随机数、剩余次数、排队和属性回执均未改写。共享公式将本次本次实际总攻击力乘以 0.7；原生触发门、状态窗口、次数与排队时序由固定 Go 源码决定。符号公式(sourceValue × 0.7)实际代入与中间结果(1217.15967929 × 0.7) = 852.011776sourceValue用户独立实验输入；原始 Go sourceValue 与 statRead 保持不变数值：1217.15967929 ATK；来源：user-edited-artifact-additive-experiment本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/echoes/echoes.go计算规则 artifactAdditive.21.edit.flatDamage · 完整精度 852.011775503；后续步骤读取完整精度，页面格式化不会改变计算。编辑后的最终缩放属性1,117.159679scalingValue展开：编辑后的最终缩放属性的计算与解释条件假定这是从实际命中派生的独立编辑计算；读取用户编辑的最终属性，不冒充原始来源快照的属性分解。符号公式scalingValue实际代入与中间结果1117.15967929 = 1,117.159679scalingValue本次编辑后直接输入的最终缩放属性数值：1117.15967929 面板数值；来源：用户编辑的最终数值本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.gohttps://library.keqingmains.com/combat-mechanics/damage/damage-formula计算规则 sourceScalingStat · 完整精度 1117.15967929；后续步骤读取完整精度，页面格式化不会改变计算。来源天赋基数及基础伤害加成458.281244(scaling × scalingValue × (1 + baseDamageBonus))展开：来源天赋基数及基础伤害加成的计算与解释已应用按来源攻击字段顺序执行 倍率×属性×(1+基础伤害加成)，FlatDmg 在共享普通伤害核心中单独相加。符号公式(scaling × scalingValue × (1 + baseDamageBonus))实际代入与中间结果(0.41022 × 1117.15967929 × (1 + 0)) = 458.281244scaling本次实际攻击倍率数值：0.41022 倍率 / 比例；来源：来源宿主实际计算上下文scalingValue本次实际使用的缩放属性数值：1117.15967929 面板数值；来源：来源宿主实际计算上下文baseDamageBonus来源 BaseDmgBonus；只乘天赋倍率项，不乘 FlatDmg数值：0 倍率 / 比例；来源：来源宿主实际计算上下文本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.gohttps://library.keqingmains.com/combat-mechanics/damage/damage-formula计算规则 sourceTalentBase · 完整精度 458.28124363834377；后续步骤读取完整精度，页面格式化不会改变计算。本击实际圣遗物附加基数852.011776(componentValue × appliedMultiplier)展开：本击实际圣遗物附加基数的计算与解释已应用Go 原生圣遗物回调实际应用共享返回值；海染泡沫在排队帧计算，可由后续多个目标命中使用。符号公式(componentValue × appliedMultiplier)实际代入与中间结果(852.011775503 × 1) = 852.011776componentValue共享核心圣遗物组件 #21 的实际返回值数值：852.011775503 伤害；来源：来源宿主实际计算上下文appliedMultiplier原生回调将附加值直接加进 FlatDmg；倍数固定为 1数值：1 倍率 / 比例；来源：来源宿主实际计算上下文本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.gohttps://library.keqingmains.com/combat-mechanics/damage/damage-formula计算规则 componentApplication.21 · 完整精度 852.011775503；后续步骤读取完整精度，页面格式化不会改变计算。来源最终附加基数852.011776flatDamage展开：来源最终附加基数的计算与解释已应用数值复现读取已捕获的最终加算基数；已链接的前置反应或武器分项可独立重算，其余来源未被补造为完整表达式。符号公式flatDamage实际代入与中间结果852.011775503 = 852.011776flatDamage来源攻击在本次回调时实际 FlatDmg 合计数值：852.011775503 伤害；来源：来源宿主实际计算上下文本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.gohttps://library.keqingmains.com/combat-mechanics/damage/damage-formula计算规则 sourceFlatDamage · 完整精度 852.011775503；后续步骤读取完整精度，页面格式化不会改变计算。固定抽样的反事实暴击判定0(if critRoll ≤ clamp(critRate, 0, 1) then 1 else 0)展开：固定抽样的反事实暴击判定的计算与解释已应用保留捕获的同一随机数，用编辑后的暴击率作反事实比较；不是来源实际运行的新结果。符号公式(if critRoll ≤ clamp(critRate, 0, 1) then 1 else 0)实际代入与中间结果(if 0.2732986786850464 ≤ clamp(0.25, 0, 1) then 1 else 0) = 0critRoll来源宿主已实际消耗的随机数；这里不抽样数值：0.2732986786850464 probability；来源：来源宿主实际计算上下文critRate本击来源最终暴击率，比较时限制在 0 至 1数值：0.25 倍率 / 比例；来源：来源宿主实际计算上下文本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.gohttps://library.keqingmains.com/combat-mechanics/damage/damage-formula计算规则 sourceCritOutcome · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。天赋基础伤害458.281244(scaling × scalingValue)展开：天赋基础伤害的计算与解释已应用指定缩放面板乘以有效天赋系数。符号公式(scaling × scalingValue)实际代入与中间结果(1 × 458.28124363834377) = 458.281244scaling天赋倍率数值：1 倍率 / 比例；来源：calculation-contextscalingValue用于缩放的面板数值数值：458.28124363834377 面板数值；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 talentDamage · 完整精度 458.28124363834377；后续步骤读取完整精度，页面格式化不会改变计算。加入附加基础伤害1,310.293019(talentDamage + flatDamage)展开：加入附加基础伤害的计算与解释已应用附加基础伤害在天赋缩放后相加；它不是固定攻击力，不再乘天赋系数。符号公式(talentDamage + flatDamage)实际代入与中间结果(458.28124363834377 + 852.011775503) = 1,310.293019talentDamage天赋基础伤害数值：458.28124363834377 伤害；来源：previous-step · talentDamageflatDamage附加基础伤害数值：852.011775503 伤害；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 baseDamage · 完整精度 1310.2930191413438；后续步骤读取完整精度，页面格式化不会改变计算。伤害加成乘区1(1 + damageBonus)展开：伤害加成乘区的计算与解释已应用只使用此伤害实例适用的伤害加成。符号公式(1 + damageBonus)实际代入与中间结果(1 + 0) = 1damageBonus适用伤害加成数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 damageBonusMultiplier · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。伤害加成后1,310.293019(baseDamage × damageBonusMultiplier)展开：伤害加成后的计算与解释已应用加入附加基础伤害后，再乘伤害加成乘区。符号公式(baseDamage × damageBonusMultiplier)实际代入与中间结果(1310.2930191413438 × 1) = 1,310.293019baseDamage附加后基础伤害数值：1310.2930191413438 伤害；来源：previous-step · baseDamagedamageBonusMultiplier伤害加成乘数数值：1 倍率 / 比例；来源：previous-step · damageBonusMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterBonus · 完整精度 1310.2930191413438；后续步骤读取完整精度，页面格式化不会改变计算。防御无视限制0clamp(defenseIgnore, 0, 1)展开：防御无视限制的计算与解释已应用防御无视按当前历史规则限制在 0 到 100%。符号公式clamp(defenseIgnore, 0, 1)实际代入与中间结果clamp(0, 0, 1) = 0defenseIgnore防御无视比例数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 defenseIgnore · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。有符号防御调整0clamp(defenseAdjustment, (-1), 0.9)展开：有符号防御调整的计算与解释已应用此兼容字段用负数表示减防：-0.30 即降低 30%。小于 -0.90 超出当前来源确认范围，不能标记为已验证。符号公式clamp(defenseAdjustment, (-1), 0.9)实际代入与中间结果clamp(0, (-1), 0.9) = 0defenseAdjustment有符号防御调整数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 defenseAdjustment · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。敌人防御乘区0.5((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))展开：敌人防御乘区的计算与解释已应用人物与敌人等级共同决定防御比例；此兼容字段以 1 加有符号防御调整表示敌方剩余防御。符号公式((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))实际代入与中间结果((90 + 100) / ((90 + 100) + ((90 + 100) × (1 + 0) × (1 − 0)))) = 0.5characterLevel角色等级数值：90 等级；来源：calculation-contextenemyLevel敌人等级数值：90 等级；来源：calculation-contextdefenseAdjustment有符号防御调整数值：0 倍率 / 比例；来源：previous-step · defenseAdjustmentdefenseIgnore防御无视比例数值：0 倍率 / 比例；来源：previous-step · defenseIgnore本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 defenseMultiplier · 完整精度 0.5；后续步骤读取完整精度，页面格式化不会改变计算。防御乘区后655.14651(afterBonus × defenseMultiplier)展开：防御乘区后的计算与解释已应用抗性结算前先乘敌人防御乘区。符号公式(afterBonus × defenseMultiplier)实际代入与中间结果(1310.2930191413438 × 0.5) = 655.14651afterBonus伤害加成后数值数值：1310.2930191413438 伤害；来源：previous-step · afterBonusdefenseMultiplier防御乘数数值：0.5 倍率 / 比例；来源：previous-step · defenseMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterDefense · 完整精度 655.1465095706719；后续步骤读取完整精度，页面格式化不会改变计算。敌人抗性分支0.9(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))展开：敌人抗性分支的计算与解释已应用负抗性使用减半分支；0 至 75% 使用线性分支；至少 75% 使用倒数分支。符号公式(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))实际代入与中间结果(if 0.1 < 0 then (1 − (0.1 / 2)) else (if 0.1 < 0.75 then (1 − 0.1) else (1 / ((4 × 0.1) + 1)))) = 0.9resistance对应元素有效抗性数值：0.1 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 resistanceMultiplier · 完整精度 0.9；后续步骤读取完整精度，页面格式化不会改变计算。抗性乘区后589.631859(afterDefense × resistanceMultiplier)展开：抗性乘区后的计算与解释已应用对当前伤害元素的有效抗性乘区进行结算。符号公式(afterDefense × resistanceMultiplier)实际代入与中间结果(655.1465095706719 × 0.9) = 589.631859afterDefense防御结算后伤害数值：655.1465095706719 伤害；来源：previous-step · afterDefenseresistanceMultiplier抗性乘数数值：0.9 倍率 / 比例；来源：previous-step · resistanceMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterResistance · 完整精度 589.6318586136048；后续步骤读取完整精度，页面格式化不会改变计算。有效暴击率0.25clamp(critRate, 0, 1)展开：有效暴击率的计算与解释已应用暴击概率限制在 0 到 1；超出范围不会产生额外暴击概率。符号公式clamp(critRate, 0, 1)实际代入与中间结果clamp(0.25, 0, 1) = 0.25critRate暴击率数值：0.25 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 critRate · 完整精度 0.25；后续步骤读取完整精度，页面格式化不会改变计算。有效暴击伤害1.284max(0, critDamage)展开：有效暴击伤害的计算与解释已应用普通暴击伤害增幅不低于 0。符号公式max(0, critDamage)实际代入与中间结果max(0, 1.284) = 1.284critDamage暴击伤害增幅数值：1.284 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 critDamage · 完整精度 1.284；后续步骤读取完整精度，页面格式化不会改变计算。非暴击乘数11展开：非暴击乘数的计算与解释已应用非暴击分支乘数为 1。符号公式1实际代入与中间结果1 = 1critRate暴击率数值：0.25 倍率 / 比例；来源：previous-step · critRatecritDamage暴击伤害增幅数值：1.284 倍率 / 比例；来源：previous-step · critDamage本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 nonCriticalMultiplier · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。增幅反应精通加成00展开：增幅反应精通加成的计算与解释不适用符合元素条件的蒸发或融化使用对应精通增幅；无增幅反应时不适用。符号公式0实际代入与中间结果0 = 0elementalMastery元素精通数值：0 面板数值；来源：calculation-context适用条件：reaction.none本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 amplifyingEmBonus · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。增幅反应乘数1(reactionBase × (1 + elementalMasteryBonus + reactionBonus))展开：增幅反应乘数的计算与解释不适用反应基础倍率乘精通与反应专属加成；假设反应成立并不证明实战附着与 ICD 覆盖。符号公式(reactionBase × (1 + elementalMasteryBonus + reactionBonus))实际代入与中间结果(1 × (1 + 0 + 0)) = 1reactionBase增幅基础倍率数值：1 倍率 / 比例；来源：calculation-contextelementalMasteryBonus精通反应加成数值：0 倍率 / 比例；来源：calculation-contextreactionBonus反应专属加成数值：0 倍率 / 比例；来源：calculation-context适用条件：reaction.none本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 reactionMultiplier · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。暴击分支伤害589.631859(afterResistance × critMultiplier)展开：暴击分支伤害的计算与解释已应用执行当前非暴击、暴击或期望分支；保留模拟器既有的浮点运算顺序。符号公式(afterResistance × critMultiplier)实际代入与中间结果(589.6318586136048 × 1) = 589.631859afterResistance抗性结算后伤害数值：589.6318586136048 伤害；来源：previous-step · afterResistancecritMultiplier所选暴击乘数数值：1 倍率 / 比例；来源：previous-step · nonCriticalMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterCritical · 完整精度 589.6318586136048；后续步骤读取完整精度，页面格式化不会改变计算。反应结算后589.631859(afterCritical × reactionMultiplier)展开：反应结算后的计算与解释不适用对这一个伤害实例应用反应，不向其他段数传播假设。符号公式(afterCritical × reactionMultiplier)实际代入与中间结果(589.6318586136048 × 1) = 589.631859afterCritical暴击分支结果数值：589.6318586136048 伤害；来源：previous-step · afterCriticalreactionMultiplier反应乘数数值：1 倍率 / 比例；来源：previous-step · reactionMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterReaction · 完整精度 589.6318586136048；后续步骤读取完整精度，页面格式化不会改变计算。本分支最终伤害589.631859(afterReaction × groupMultiplier)展开：本分支最终伤害的计算与解释已应用再应用当前已定义的独立伤害组倍率，得到此分支最终值。符号公式(afterReaction × groupMultiplier)实际代入与中间结果(589.6318586136048 × 1) = 589.631859afterReaction反应后伤害数值：589.6318586136048 伤害；来源：previous-step · afterReactiongroupMultiplier独立伤害组倍率数值：1 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 finalDamage · 完整精度 589.6318586136048；后续步骤读取完整精度，页面格式化不会改变计算。来源最终提升倍率589.631859(sharedDamage × (1 + elevation))展开：来源最终提升倍率的计算与解释已应用以与来源相同的最后一步乘法顺序应用 Elevation，避免提前合并倍率造成另一计算顺序。符号公式(sharedDamage × (1 + elevation))实际代入与中间结果(589.6318586136048 × (1 + 0)) = 589.631859sharedDamage共享伤害核心输出，已包含实际暴击、增幅及伤害组倍率数值：589.6318586136048 伤害；来源：shared-core-execution · finalDamageelevation来源本击 Elevation；在伤害组倍率后独立相乘数值：0 倍率 / 比例；来源：来源宿主实际计算上下文本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.gohttps://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.gohttps://library.keqingmains.com/combat-mechanics/damage/damage-formula计算规则 sourceElevation · 完整精度 589.6318586136048；后续步骤读取完整精度，页面格式化不会改变计算。"
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "healing",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "0bc341a5252657a1ece650cc959016db6828ed0a54894a3b3afb38a6ec7c7d82",
+      "calculations": 116,
+      "applications": 50,
+      "ruleCounts": {
+        "dynamic-songofdayspast-2pc-heal": 2,
+        "const-oceanhuedclam-2pc-heal": 2,
+        "dynamic-echoes-2pc-atkp": 43,
+        "oceanhuedclam": 4,
+        "echoes": 10,
+        "songofdayspast": 5
+      },
+      "additive": [
+        {
+          "id": 14,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 3338.7434652096,
+          "value": 3004.86911868864,
+          "componentScope": "queued-attack",
+          "frame": 205,
+          "consumerIds": [
+            17,
+            18
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": 21,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 269,
+          "consumerIds": [
+            26
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 24,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 269,
+          "consumerIds": [
+            27
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 41,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 316,
+          "consumerIds": [
+            46
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 44,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 316,
+          "consumerIds": [
+            47
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 75,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 450,
+          "consumerIds": [
+            80
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 78,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 450,
+          "consumerIds": [
+            81
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 82,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 3338.7434652096,
+          "value": 3004.86911868864,
+          "componentScope": "queued-attack",
+          "frame": 451,
+          "consumerIds": [
+            85,
+            86
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": 95,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 3338.7434652096,
+          "value": 3004.86911868864,
+          "componentScope": "queued-attack",
+          "frame": 691,
+          "consumerIds": [
+            98,
+            99
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        },
+        {
+          "id": 105,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 820,
+          "consumerIds": [
+            111
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 108,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 820,
+          "consumerIds": [
+            112
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 114,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            122
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 116,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            122
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 118,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            123
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 120,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 846,
+          "consumerIds": [
+            123
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 125,
+          "ruleId": "songofdayspast",
+          "sourceValue": 15000,
+          "value": 1200,
+          "componentScope": "same-hit",
+          "frame": 878,
+          "consumerIds": [
+            132
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 127,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 878,
+          "consumerIds": [
+            132
+          ],
+          "targetKeys": [
+            1
+          ]
+        },
+        {
+          "id": 130,
+          "ruleId": "echoes",
+          "sourceValue": 1117.15967929,
+          "value": 782.011775503,
+          "componentScope": "same-hit",
+          "frame": 878,
+          "consumerIds": [
+            133
+          ],
+          "targetKeys": [
+            2
+          ]
+        },
+        {
+          "id": 148,
+          "ruleId": "oceanhuedclam",
+          "sourceValue": 1669.3717326048,
+          "value": 1502.43455934432,
+          "componentScope": "queued-attack",
+          "frame": 931,
+          "consumerIds": [
+            151,
+            152
+          ],
+          "targetKeys": [
+            1,
+            2
+          ]
+        }
+      ],
+      "echoesPaths": {
+        "rolled-proc": 5,
+        "active-window": 5
+      },
+      "songRemaining": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "ohcQueue": {
+        "id": 14,
+        "sourceFrame": 205,
+        "consumerFrames": [
+          206,
+          206
+        ],
+        "targetKeys": [
+          1,
+          2
+        ],
+        "queueDelayFrames": 1
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "0bc341a5252657a1ece650cc959016db6828ed0a54894a3b3afb38a6ec7c7d82",
+      "calculations": 523,
+      "applications": 100,
+      "ruleCounts": {
+        "dynamic-heart-of-the-furnace-2pc-atkp": 93,
+        "dynamic-scarletproof-2pc-atkp": 17,
+        "const-blizzard-2pc-cryo-p": 14,
+        "dynamic-disenchantmentindeepshadow-2pc-atkp": 3,
+        "const-blizzard-4pc-cryo-cr": 38,
+        "dynamic-scarletproof-4pc-cr": 15,
+        "dynamic-scarletproof-4pc-stellar-swirl": 24,
+        "dynamic-heart-of-the-furnace-4pc-atkp": 66,
+        "dynamic-heart-of-the-furnace-4pc-stellar-react": 60,
+        "dynamic-disenchantmentindeepshadow-4pc-cr-a7": 33
+      },
+      "snapshot": {
+        "effectSourceActorIndex": 2,
+        "beneficiaryActorIndex": 0,
+        "targetKey": 1,
+        "calculationId": 21,
+        "terminalCalculationId": 86,
+        "terminalApplicationId": 90,
+        "scalarIds": [
+          19
+        ],
+        "statStepKeys": [
+          "bs-4pc-lunarcharge"
+        ],
+        "replayDifference": 0
+      },
+      "disenchantmentSnapshotCount": 0
+    }
+  ],
+  "pageErrors": []
+}

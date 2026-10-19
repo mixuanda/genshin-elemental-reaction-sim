@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "source-owned-entities-browser-v1",
+  "measurements": {
+    "rawPath": "docs/validation/source-owned-entities-team-20260929.capture.json",
+    "nativeResultArchived": true,
+    "entities": [
+      {
+        "id": 1,
+        "siteId": "amber.skill.bunny",
+        "triggerCount": 1,
+        "producerCount": 0,
+        "endedFrame": 530,
+        "endReason": "expired"
+      },
+      {
+        "id": 2,
+        "siteId": "yaoyao.skill.yuegui",
+        "triggerCount": 10,
+        "producerCount": 10,
+        "endedFrame": 688,
+        "endReason": "expired"
+      }
+    ],
+    "yaoyao": {
+      "thinkCount": 10,
+      "megaThinkIndexes": [
+        2,
+        5
+      ],
+      "flightCount": 10,
+      "applications": 12,
+      "sharedTotal": 4277.550401222926
+    },
+    "amber": {
+      "applications": 1,
+      "sharedTotal": 738.3152411002368,
+      "explosionAttackId": 14
+    },
+    "yae": {
+      "entryKitsuneCount": 3,
+      "applications": 4,
+      "sharedTotal": 7015.053499813503,
+      "roots": 4
+    },
+    "combinedOwnedSubtotal": 12030.919142136665,
+    "nativeTotalDamage": 18546.079767718868,
+    "collectionImportExportSame": true,
+    "missingProducerCloses": false,
+    "missingExplosionDispatchCloses": false,
+    "missingYaeEntryFactCapturable": false
+  },
+  "pageErrors": [],
+  "scope": "One classic three-character native run. Finite sums follow exact Amber and Yaoyao gadget roots plus Yae Q roots, excluding unrelated applications."
+}

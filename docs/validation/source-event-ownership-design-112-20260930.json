@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 1,
+  "kind": "read-only native design audit",
+  "lanes": {
+    "classic": "/tmp/gidps-source-host-cache/build-Jv0OeE/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-pasFAn/source"
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "pkg/core/event/event.go": "479329d3b02c74c37d50d0a236a5863fc6f177ae688e6f5b308c99bd02097d8d",
+      "pkg/core/info/sourcehost_origin.go": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961",
+      "pkg/enemy/attack.go": "9923d6cd10bb2a834553d776dcf6dde983540134d2a9cc5799f978e2cd39d6a5",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "internal/characters/xinyan/burst.go": "08a2d49862e67c377e9a3d21d35135a6b8f1089f021a6acdc6399bc3e76716f6"
+    },
+    "stellar": {
+      "pkg/core/event/event.go": "517a2ebd63a41f5455129b280957621a42b1ed2ce1a4b01c70418cb82157b16f",
+      "pkg/core/info/sourcehost_origin.go": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961",
+      "pkg/enemy/attack.go": "9923d6cd10bb2a834553d776dcf6dde983540134d2a9cc5799f978e2cd39d6a5",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "internal/characters/xinyan/burst.go": "08a2d49862e67c377e9a3d21d35135a6b8f1089f021a6acdc6399bc3e76716f6"
+    }
+  },
+  "nativeFacts": [
+    {
+      "source": "pkg/core/event/event.go:95-221",
+      "fact": "Handler currently stores immutable registration origin with each hook. Subscribe replaces the last matching key slot, Unsubscribe sets matching functions to nil, Emit runs nonnil slots in slice order, and EmitObserved runs only eligible observational slots while counting skipped gameplay hooks. No emission or registration identity is exported."
+    },
+    {
+      "source": "pkg/enemy/attack.go:83-113,271-283",
+      "fact": "The per-target damage task calls applyDamage first. A lethal DamageMode hit emits OnTargetDied inside applyDamage; Applied and OnEnemyDamage follow. OnEnemyDamage uses EmitObserved when hit confirmation is blocked. The per-target AttackEvent carries attackId and dispatchId."
+    },
+    {
+      "source": "pkg/core/combat/enemy.go:31-35",
+      "fact": "Manual KillEnemy emits OnTargetDied with an empty AttackEvent. Its attack and dispatch identity must remain unknown."
+    },
+    {
+      "source": "pkg/core/info/sourcehost_origin.go:60-79",
+      "fact": "BeginEvent already preserves hook registration ancestry and triggering status owner/action sequence, with parentAttackId from the AttackEvent; it does not preserve dispatchId, targetKey, or emission/listener identity."
+    }
+  ],
+  "proposedAbi": {
+    "scope": "Observation of actual OnEnemyDamage and OnTargetDied emissions and listener calls; later event types can reuse the same tracker. Arrays present as [] when empty. These are evidence, not a full-cast flag.",
+    "eventEmissions": {
+      "required": ["id:int", "eventType:int", "mode:'gameplay'|'observed'", "frame:int", "targetKey:int", "listenerIds:int[]", "suppressedListenerIds:int[]", "completedFrame:int"],
+      "optional": ["parentQueueId:int", "parentAttackId:int", "parentDispatchId:int", "parentEmissionId:int"],
+      "semantics": "Allocate at actual Emit/EmitObserved entry; derive parent IDs only from the actual AttackEvent argument, queueId from its existing sidecar, targetKey from the actual target argument. The manual KillEnemy path leaves all parent IDs absent. Append a listener ID before each actual callback call and a suppressed ID for each nonnil gameplay listener skipped by EmitObserved; nil unsubscribed slots are not active listeners. A nested emission gets its own ID and optional parentEmissionId."
+    },
+    "eventListenerCalls": {
+      "required": ["id:int", "emissionId:int", "registrationId:int", "slotIndex:int", "eventType:int", "key:string", "startedFrame:int", "completedFrame:int", "queuedAttacks:array"],
+      "optional": ["siteId:string", "entryFacts:record<string,number>"],
+      "queuedAttackItem": ["queueId:int", "attackId?:int", "frame:int", "emitSiteId:string", "ability:string", "attackTagName:string"],
+      "semantics": "Only invoked hooks receive call rows. Each row surrounds the original v.f(args...) without replacing the function, so callbacks that return without emitting still have one completed call and zero children. Explicit audited emit-site wrappers link only actual children to this call."
+    },
+    "eventRegistrations": {
+      "required": ["id:int", "eventType:int", "slotIndex:int", "key:string", "createdFrame:int", "origin:SourceHostOrigin", "state:'active'|'replaced'|'unsubscribed'"],
+      "optional": ["endedFrame:int", "siteId:string"],
+      "semantics": "Allocate only on actual Subscribe/SubscribeWithPhase. Replacing the last matching key ends its prior registration ID; Unsubscribe ends each matching nonnil registration ID. This distinguishes a stable Init hook from a later hook with the same key. Future eligibility is not inferred from absence of emissions."
+    },
+    "eventProducers": {
+      "required": ["id:int", "siteId:string", "listenerCallId:int", "taskId:int", "queuedFrame:int", "state:'pending'|'completed'", "queuedAttacks:array"],
+      "optional": ["runFrame:int", "completedFrame:int"],
+      "semantics": "For source-audited listener callbacks that schedule delayed intrinsic attacks, register at the actual Core.Tasks.Add site, link to the exact listener call, then use the existing task ledger for run/pending identity. Attack emit sites inside the task attach via this producer ID. Do not attach all task or attack activity under a global event merely because it runs nearby."
+    }
+  },
+  "minimalNativeInsertionPoints": [
+    "pkg/core/event/event.go: allocate registration IDs at subscribe; end at replace/unsubscribe; allocate emission IDs and call/suppression census inside Emit/EmitObserved around existing v.f(args...) without altering hook phase descriptors or callback order.",
+    "cmd/sourcehost/main.go: bind one observational tracker using the existing Bridge.Frame and Origin; export arrays from bridge result. Keep tracker fields out of reflective phase projection.",
+    "pkg/core/sourcehost/attack.go: add a private active event-listener/producer reference and explicit pending event emit site to the existing queuedAttackReference capture, leaving AttackID/dispatch timing untouched.",
+    "pkg/core: small source-site helpers for label-current-listener, queue event-owned attack, and queue event-owned task; helpers call the same original QueueAttack/Core.Tasks.Add exactly once."
+  ],
+  "candidateClassification": [
+    {
+      "family": "Baizhu C2 OnEnemyDamage",
+      "source": "internal/characters/baizhu/cons.go:25-73",
+      "type": "direct event listener child",
+      "exactBehavior": "Init-time OnEnemyDamage hook checks active character actor and C2 ICD status; an eligible call queues one Splice attack plus a healing task, then refreshes ICD. The listener's registration creation is Init/unknown, and the trigger hit may be any active ally, so it is not owned by Baizhu E. Tag this one attack queue site and record the actual 0/1 result per listener call.",
+      "persistentBoundary": "C2 can attach makeC6CB to Splice. That callback summons a shield; subsequent Spiritvein damage belongs to the exact shield lifecycle, not the original OnEnemyDamage call alone."
+    },
+    {
+      "family": "Tartaglia OnTargetDied Riptide Burst",
+      "source": "internal/characters/tartaglia/riptide.go:252-287; pkg/enemy/mods.go:14-30,65-74",
+      "type": "event listener plus delayed event producer, state-gated",
+      "exactBehavior": "Init-time death hook requires an enemy with active riptideKey, then schedules Core.Tasks.Add delay 5. That callback queues one Riptide Burst attack; C2 also gains energy. Track one exact listener call, one actual task, and its emitted attack.",
+      "persistentBoundary": "Enemy AddStatus currently has no SourceHostStatusOwner instance receipt. Event parent identifies the lethal hit, but not the attack that applied the earlier Riptide status. Add separate enemy-status instance owner/lifecycle before attributing the burst to an earlier cast or certifying closure. Manual KillEnemy has no attack/dispatch parent."
+    },
+    {
+      "family": "Xinyan C2 Q pulses and level-3 shield DoT",
+      "source": "internal/characters/xinyan/burst.go:94-127; internal/characters/xinyan/skill.go:103-126,174-179; internal/characters/xinyan/shield.go:27-38",
+      "type": "direct Q attacks plus shield-owned recurring generator, not event listener",
+      "exactBehavior": "At C2, Burst directly queues two extra shield-pulse attacks with hitmarks 65 and 83, independently of Event.Handler. Level-3 shield DoT recursively schedules 120-frame tasks while the shield exists, shieldLevel is 3, and shieldTickSrc matches. Shield expiry or break resets shieldLevel.",
+      "persistentBoundary": "This family needs a shield instance/activation owner and exact task/expiry/break receipts. Event-emission tracking alone must not claim its pulses or recurring DoT as event-owned."
+    }
+  ],
+  "closureRules": [
+    "A completed listener call proves only the attacks explicitly queued during that call. A pending event producer remains open until its actual task callback returns and its tagged attack dispatch/application closes.",
+    "An Init/global hook can receive future emissions; its presence cannot block or certify completion of any particular E/Q without a source-audited owned status/entity/shield activation contract.",
+    "Do not treat current lethal hit's attackId as ownership of an earlier enemy status; it is only the event trigger.",
+    "Do not infer listener activity from key/name, actor, AttackTag, frame proximity, queue emptiness, or absence of future events."
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "imported-team-library-validation-v1",
+  "fixture": "synthetic GOOD v3 with two mapped sword weapons, explicitly empty artifact lists, and one missing Q talent; no account or damage execution",
+  "batch": {
+    "replacedMemberKeys": [
+      "kamisatoayaka",
+      "kaeya"
+    ],
+    "disabledSourceKey": "Lisa",
+    "originalWeapons": [
+      "coolsteel",
+      "coolsteel"
+    ]
+  },
+  "presets": {
+    "aId": "ffaf78fa-31cc-4796-a91b-889500aa0910",
+    "bId": "f24c1d7e-9d12-4668-b2cb-4865d5318233",
+    "aActionKinds": [
+      "skill",
+      "burst"
+    ],
+    "bActionKinds": [
+      "skill",
+      "burst",
+      "attack"
+    ],
+    "bDurationSeconds": 18,
+    "selectedWithoutLoadingPreservedB": true,
+    "exportedAndReloadedA": true,
+    "survivedRefresh": true,
+    "classicStellarIsolated": true
+  },
+  "merge": {
+    "changedActor": "kaeya",
+    "newWeapon": "harbingerofdawn",
+    "actionKindsPreserved": [
+      "skill",
+      "burst"
+    ],
+    "namedPresetUnchanged": true
+  },
+  "generatedScript": "# 我的导入队伍\n# Source: classic b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541\n# Five artifact-piece stat contributions only; source resolves character, weapon and set effects.\n# Startup: full; no energy bypass or per-cycle refill.\n# Execution profile: source-action-delay-v1 mode=ideal swap_delay=0 attack_delay=0 charge_delay=0 skill_delay=0 burst_delay=0 jump_delay=0 dash_delay=0 aim_delay=0\noptions iteration=1 duration=30 swap_delay=0 attack_delay=0 charge_delay=0 skill_delay=0 burst_delay=0 jump_delay=0 dash_delay=0 aim_delay=0;\n\nkamisatoayaka char lvl=90/90 cons=0 talent=8,8,8;\nkamisatoayaka add weapon=\"coolsteel\" refine=1 lvl=90/90;\n\nkaeya char lvl=90/90 cons=0 talent=8,8,8;\nkaeya add weapon=\"coolsteel\" refine=1 lvl=90/90;\n\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive kamisatoayaka;\n\nkamisatoayaka skill;\nkaeya burst;\n",
+  "pageErrors": []
+}

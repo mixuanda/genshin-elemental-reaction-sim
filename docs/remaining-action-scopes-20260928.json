@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-28",
+  "scope": "Static read-only audit of current v29 partial action classification and current runtime pointer; no generator/build/test run.",
+  "currentEvidence": {
+    "runtimeSelectionFile": "packages/game-data/manifests/runtime/current.ts",
+    "runtimeSelectionSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "pointersFile": "packages/game-data/manifests/pointers.json",
+    "pointersSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.29+durin.8",
+    "coverageFile": "packages/game-data/src/generated/classified-hit-coverage.json",
+    "charactersWithHits": 124,
+    "classifiedHitTemplates": 1271,
+    "completeActions": 713,
+    "partialActions": 24,
+    "blockedMappings": 0,
+    "independentNumericallyVerified": 0,
+    "independentMechanicsVerified": 0,
+    "reading": "1271/713/24/0 describe the v29 generated mapping classification only; they do not mean complete character mechanics, executable team sequence, or game verification. The runtime active verified pointer remains null."
+  },
+  "sourceBasis": {
+    "partialIdList": "docs/research/actual-partial-paths-20260928.json (24 IDs; same mappingVersion)",
+    "scopeDetails": "docs/remaining-action-implementation-20260928.json (same 24 IDs, formula/current UI/missing fields), plus current code paths named below",
+    "fixedSourceAvailability": "The six characters represented here (Kachina, Nefer, Lohen, Linnea, Sandrone, Alyosha) have no character-specific package in pinned b4 or a7 Go source; archived v29 coefficient/state material can support formula terms but cannot prove action eligibility, order, frames, events, or hit count."
+  },
+  "partialGroups": [
+    {
+      "groupId": "observed-plunge-low-high-eight",
+      "count": 8,
+      "members": [
+        "lohen-plunge-low-observed-base",
+        "lohen-plunge-high-observed-base",
+        "linnea-plunge-low-observed-base",
+        "linnea-plunge-high-observed-base",
+        "sandrone-plunge-low-observed-base",
+        "sandrone-plunge-high-observed-base",
+        "alyosha-plunge-low-observed-base",
+        "alyosha-plunge-high-observed-base"
+      ],
+      "formulaAndCurrentCode": "Shared observed-plunge formula/UI in packages/sim-core/src/observed-plunge-formulas.ts and apps/web/src/calculator-observed-plunge-controls.ts / calculator-source-cast-controls.ts keeps observed collision components separate from low/high landing components. It does not infer height, count, frames, or contacts.",
+      "stillRequiredInput": [
+        "Record each actual collision opportunity and whether it contacted the selected target, plus actual landing contact and low/high landing choice.",
+        "Confirm C0, no external infusion, and no reaction for the specified physical-source template.",
+        "For multi-hit panels, state that stats stayed stable or supply per-hit snapshots."
+      ],
+      "codeGap": "No generic formula gap found for the defined observed components. Do not implement eight separate character formulas or promote the static partial classification. Add code only for a concrete missing observation/control capability, not a guessed schedule.",
+      "externalEvidence": "An actual ordered action/contact observation is required for a complete-cast claim; fixed source offers no character-specific execution schedule for these six characters.",
+      "classification": "Eight of the 24 partial action IDs, not eight formulas known to be absent; runtime complete-cast is conditional on supplied valid observations."
+    },
+    {
+      "groupId": "single-plunge-collision-five",
+      "count": 5,
+      "members": [
+        "kachina-plunge-collision",
+        "lohen-plunge-collision-base",
+        "linnea-plunge-collision-base",
+        "sandrone-plunge-collision-base",
+        "alyosha-plunge-collision-base"
+      ],
+      "formulaAndCurrentCode": "Each mapping contains a single sourced plunge-collision coefficient and selected-hit calculation; these are distinct from the eight low/high observed landing templates.",
+      "stillRequiredInput": [
+        "Whether this actual collision contacted the chosen target, target and final panel; use an explicit selected hit.",
+        "Element/state where conditional; Alyosha collision has no A4 (A4 affects skill/burst)."
+      ],
+      "codeGap": "Single collision formula is available; no need to infer the full plunge or add default hit count/height. Whole-action calculation additionally needs the observed collision opportunities and landing handled by the observed-plunge workflow.",
+      "externalEvidence": "For a complete plunge: ordered collision count/contact, landing contact, C0/no external infusion/no reaction, stable multi-hit panel or per-hit snapshots.",
+      "classification": "A partial action can still calculate its explicitly selected single collision component."
+    },
+    {
+      "groupId": "kachina-skill-branches-and-lifecycle",
+      "count": 3,
+      "members": [
+        "kachina-skill-riding-single-pulse",
+        "kachina-skill-independent-single-pulse",
+        "kachina-skill-observed-lifecycle"
+      ],
+      "formulaAndCurrentCode": "Two one-pulse Geo/ATK branches and an observed two-pulse Drill lifecycle are mapped. apps/web/src/calculator-kachina-controls.ts accepts an actual ordered event log and optional hit-panel snapshots; no automatic movement or expiry schedule is asserted.",
+      "stillRequiredInput": [
+        "For single pulse: riding vs independent Drill branch, actual contact, hit panel, A4/Nightsoul state.",
+        "For lifecycle: actual ordered deployment/pulse/expiry events and per-hit panel snapshots as needed."
+      ],
+      "codeGap": "Lifecycle event-entry UI already exists; no duplicate recorder or fixed default timing. A missing code task must be narrowed to a specific unavailable state binding; current audit does not identify a missing coefficient formula.",
+      "externalEvidence": "Observed branch and pulse/contact timing; fixed b4/a7 has no Kachina action package."
+    },
+    {
+      "groupId": "nefer-rush-state",
+      "count": 1,
+      "members": [
+        "nefer-skill-rush"
+      ],
+      "formulaAndCurrentCode": "Single ordinary E rush formula and C0-C6 hit context are mapped; apps/web/src/calculator-nefer-phantasm-controls.ts provides user-entered phantasm state, but does not autonomously create/consume resource or schedule effects.",
+      "stillRequiredInput": [
+        "Actual veil/resource snapshot, effective EM/uptime, C2 stack acquisition relative to initial hit, C4 target RES reduction and residual window, final panel."
+      ],
+      "codeGap": "A full action/lifecycle path needs event-state binding for resource creation/absorption, C2 first-hit order, refresh and C4 application/expiry. Preserve ordinary rush formula separately from phantasm charged multiplier.",
+      "externalEvidence": "Actual resource and event order/timing; no fixed b4/a7 Nefer action package."
+    },
+    {
+      "groupId": "lohen-resource-action",
+      "count": 1,
+      "members": [
+        "lohen-skill-etch-resource"
+      ],
+      "formulaAndCurrentCode": "ATK × mapped E coefficient × (1 + 0.004 × Will consumed); createLohenWillFormula and the explicit/observed resource ledger in apps/web/src/calculator-character-resource-controls.ts already exist.",
+      "stillRequiredInput": [
+        "Starting Will, complete ordered resource events through the hit, same-frame order, cooldown/action identity, hit-time panel and talent."
+      ],
+      "codeGap": "Formula and ledger exist; no automatic character/team action generator exists. Missing observed events must remain required input instead of fabricated ledger entries.",
+      "externalEvidence": "Actual Will event sequence and same-frame ordering; no fixed b4/a7 Lohen package."
+    },
+    {
+      "groupId": "linnea-pummeler-pair",
+      "count": 1,
+      "members": [
+        "linnea-lumi-pummeler-pair"
+      ],
+      "formulaAndCurrentCode": "Selected two-hit DEF-scaled Geo Pummeler pair and A1 RES formula are present in optimizer-linnea mappings and observed-special component formulas.",
+      "stillRequiredInput": [
+        "Moon Sign, Lumi presence, target proximity, final DEF/panel for the selected pair."
+      ],
+      "codeGap": "For a complete 25-second summon, a state/event ledger must bind supply, form switch, E/Q reset/expiry, range and attack events to individual hits. The two-hit formula itself is present.",
+      "externalEvidence": "Actual summon resource/form/attack event ordering and contacts; no fixed b4/a7 Linnea package."
+    },
+    {
+      "groupId": "sandrone-charged-state",
+      "count": 3,
+      "members": [
+        "sandrone-charged-sweepdmg-component",
+        "sandrone-charged-beamdmg-component",
+        "sandrone-charged-overdrivedmg-component"
+      ],
+      "formulaAndCurrentCode": "Single ordinary Cryo sweep, beam and overdrive components plus six standalone special Conduct/Swirl components have mapped formulas in optimizer-additional-mappings and packages/sim-core/src/observed-special-component-formulas.ts.",
+      "stillRequiredInput": [
+        "Actual hit/panel and C0 no-radiance state for selected ordinary hit; overdrive additionally requires observed heat and threshold state."
+      ],
+      "codeGap": "Full charge-state calculation needs a user-observed Heat/Decoding/Radiance event editor, hit-count/interval binding, and Stellar substitution event ordering; one component formula is not an entire charged cycle.",
+      "externalEvidence": "Heat change and 100/50 threshold crossings, sweep/beam hit count and timing, actual Stellar-Conduct/Swirl replacement events; no fixed b4/a7 Sandrone package."
+    },
+    {
+      "groupId": "alyosha-c0-q-components",
+      "count": 2,
+      "members": [
+        "alyosha-burst-field-tick",
+        "alyosha-burst-tugarin-bite"
+      ],
+      "formulaAndCurrentCode": "One Q field tick and one Tugarin bite formulas include sourced A4; apps/web/src/calculator-alyosha-observed-controls.ts and packages/sim-core/src/alyosha-observed-lifecycle.ts already provide a C0 ordered event ledger.",
+      "stillRequiredInput": [
+        "Actual selected field tick/bite, Q/mark/precision event history through that moment, precision at hit, ATK/ER panel; do not infer tick/bite count or timing."
+      ],
+      "codeGap": "Current C0 ledger exists; further code should bind only a demonstrated missing event/result path. Higher constellations/Stellar/full action schedule are separate scope.",
+      "externalEvidence": "Observed Q/mark/precision event log and actual tick/bite timing; no fixed b4/a7 Alyosha package."
+    }
+  ],
+  "separatePartialAndSpecialComponentDenominators": {
+    "eightObservedLowHighTemplates": 8,
+    "remainingPartialActionIds": 16,
+    "standaloneSpecialComponents": {
+      "count": 8,
+      "classification": "Separate from the 24 partial action IDs in classified-hit-coverage.json.",
+      "members": [
+        "linnea-lumi-heavy-overdrive-hammer-component",
+        "linnea-lumi-million-ton-crush-component",
+        "sandrone-charged-beam-stellar-conduct-component",
+        "sandrone-charged-beam-stellar-swirl-component",
+        "sandrone-skill-prism-stellar-conduct-component",
+        "sandrone-skill-prism-stellar-swirl-component",
+        "sandrone-burst-ray-stellar-conduct-component",
+        "sandrone-burst-ray-stellar-swirl-component"
+      ],
+      "reading": "Actual special reaction components have individual formulas but remain component/partial and require their actual triggering event; they are not extra complete-action counts or evidence that the containing lifecycle exists."
+    }
+  },
+  "implementationDirection": [
+    "Keep the eight observed low/high plunge templates separate from the other 16 partial action IDs; the shared formula/observation workflow already covers their defined math.",
+    "For Nefer, Linnea, and Sandrone, the broad local-code gap is observed event/state binding for source-documented resource, summon, or charged cycles; implement editors only around concrete event fields, and require observed values/timing.",
+    "For Kachina and Alyosha, event-entry infrastructure already exists; request the missing observation state and bind it to the selected action rather than duplicate the ledger.",
+    "For Lohen, the Will formula/ledger already exists; require complete observed input.",
+    "No missing formula in this inventory justifies adding default hit counts, frames, resource values, or automatic schedules. The partial denominator should stay intact until mapping requirements and evidence actually close."
+  ],
+  "verificationBoundary": "Source/archive formula availability and local calculator code are not current-game execution evidence. No active verified snapshot exists; preview data remains a separate partial observed snapshot and does not supply action events for these mappings.",
+  "subsequentImplementation": {
+    "report": "docs/observed-lifecycles-and-candidate-20260928.zh-CN.md",
+    "note": "The partialGroups codeGap descriptions above are the pre-implementation audit. This subsequent batch added the three listed optional observed-state bindings; static classification and complete-cycle evidence boundaries remain unchanged."
+  }
+}

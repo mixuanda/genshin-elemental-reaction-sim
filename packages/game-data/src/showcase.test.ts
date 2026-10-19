@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { runtimeDatasetMetadata } from "./runtime-metadata";
 import {
   createGraduationBuildPlaceholder,
   parseEnkaShowcase,
@@ -139,7 +140,7 @@ describe("Enka showcase adapter", () => {
     const resolved = resolveShowcaseCatalog(imported);
     expect(resolved).toMatchObject({
       catalogSchemaVersion: "1.0.0",
-      catalogPatch: "6.7",
+      catalogPatch: runtimeDatasetMetadata.gameVersion,
       catalogVerificationStatus: "provisional",
       diagnostics: {
         unmatchedAvatarIds: [],

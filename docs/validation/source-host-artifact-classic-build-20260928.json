@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 5.534,
+  "log": "docs/validation/source-host-artifact-classic-build-20260928.log"
+}

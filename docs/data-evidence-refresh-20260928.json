@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAtUtc": "2026-09-28T11:13:14Z",
+  "scope": "Focused read-only refresh of the configured official release evidence, pinned genshin-db upstream, and the already-used Lunaris provider version index. No ingestion, pointer change, or verification promotion.",
+  "localBaseline": {
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "latestObservedOfficialRelease": "7.1",
+    "lastAttemptedSyncUtc": "2026-09-28T02:29:19.724Z",
+    "lastSuccessfulSyncUtc": "2026-09-28T02:29:19.724Z",
+    "lastSyncStatus": "success",
+    "localPreviewProviderVersion": "7.1.50.2",
+    "localExpectedInventory": {
+      "characters": "124 of 124 under the project's Traveler identity convention; complete for this independent 7.1 scope",
+      "artifactSets": "63 of 63; complete for this independent 7.1 scope",
+      "weapons": "252 independently named ordinary weapons versus 255 imported records including three explained quest variants; overall completeness remains partial"
+    },
+    "readFrom": [
+      "packages/game-data/manifests/pointers.json",
+      "packages/game-data/manifests/observations.json",
+      "packages/game-data/manifests/sync-state.json",
+      "packages/game-data/src/update-schema.ts",
+      "packages/game-data/src/update-status.ts",
+      "docs/update-status.md"
+    ]
+  },
+  "externalObservations": [
+    {
+      "id": "official-71-index",
+      "url": "https://genshin.hoyoverse.com/tr/news/detail/166383",
+      "method": "Public web search index of the publisher's Turkish update-detail page",
+      "observedAtUtc": "2026-09-28T11:11:53Z",
+      "contentRead": "Indexed title identifies Version 7.1 update details, publication 2026-09-23, and maintenance start 2026-09-23 06:00 UTC+8. This corroborates the already-recorded 7.1 release identity; it is not an independently archived full article.",
+      "rawArticleSha256": null,
+      "limitation": "The direct article URL returned HTTP 200 but only an 11,355-byte application shell (SHA-256 95c2141c6fb094e9bb8f33a03fa3a57db719ca0a9e6e85196edcd36b13a49a67), with no 7.1 notice body or maintenance date in the returned HTML. Do not treat that shell hash as an article hash."
+    },
+    {
+      "id": "genshin-db-head",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/commits/HEAD",
+      "method": "Public GitHub repository API, HTTP 200",
+      "observedAtUtc": "2026-09-28T11:11:52Z",
+      "contentRead": "HEAD remains 49a6544a6c6ae36089cb42fa591fc46f01de8bcf, committed 2026-09-21T20:39:46Z; this matches the repository revision already pinned for the local 7.1 projection.",
+      "responseSha256": "cc899364daea7dd3f17baedea7f92991c555e80f5f29a42e3446314561650c6f",
+      "limitation": "An unchanged community repository HEAD does not certify game mechanics, a full live-game roster, or any 7.2 V1 preview."
+    },
+    {
+      "id": "genshin-db-latest-release",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/releases/latest",
+      "humanReadableUrl": "https://github.com/theBowja/genshin-db/releases/tag/v5.2.14",
+      "method": "Public GitHub repository API, HTTP 200; release page also read",
+      "observedAtUtc": "2026-09-28T11:11:52Z",
+      "contentRead": "Latest release is v5.2.14, titled Genshin 7.1 update, published 2026-09-21T20:38:35Z. No newer release identity surfaced in this endpoint.",
+      "responseSha256": "25f77605af931736992403489997f5c8f538d5e8c9bbaad3bcd66f174e89ca5d",
+      "limitation": "The release label is the upstream community package's label, not an official 7.2 V1 mapping or field-level verification."
+    },
+    {
+      "id": "lunaris-version-index",
+      "url": "https://api.lunaris.moe/data/version.json",
+      "method": "Existing public provider JSON endpoint, HTTP 200",
+      "observedAtUtc": "2026-09-28T11:11:52Z",
+      "contentRead": "The provider now reports latest version 7.1.51, changed from the locally archived 7.1.50.2. Its 49-entry versions array contains 7.1.51, 7.1.50.2, and 7.1.50, but no string beginning 7.2.",
+      "responseSha256": "e749c84a53bc1ecda55ca42aec8e732a43c3021e167ed782b455032e2e6d635f",
+      "httpLastModified": "Mon, 28 Sep 2026 10:15:46 GMT",
+      "providerTimestamp": 1791194400,
+      "providerTimestampUtc": "2026-10-05T10:00:00Z",
+      "limitation": "The provider timestamp is later than this observation and its meaning is undocumented here; it is not a release or beta date. The 7.1.51 label alone does not establish equivalence to 7.2 V1."
+    },
+    {
+      "id": "lunaris-7151-charlist",
+      "url": "https://api.lunaris.moe/data/7.1.51/charlist.json",
+      "method": "Existing provider's public charlist endpoint, HTTP 200",
+      "observedAtUtc": "2026-09-28T11:12:15Z",
+      "contentRead": "The JSON has 139 keyed entries, including separate Traveler element forms. Its 73,817 bytes are byte-for-byte identical to the locally archived 7.1.50.2 charlist (same SHA-256). No character-by-character data or other categories were fetched for 7.1.51.",
+      "responseSha256": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc",
+      "httpLastModified": "Mon, 28 Sep 2026 01:11:19 GMT",
+      "limitation": "This is a provider listing with form variants, not an independent complete 7.2 V1 roster or a full character, weapon, and artifact snapshot."
+    }
+  ],
+  "conclusions": {
+    "releasedIdentity": "7.1 remains supported by the indexed official update detail and the previously recorded publisher/storefront observation. The direct official article body was not obtained in this refresh.",
+    "preview72V1Identity": "unconfirmed",
+    "preview72V1CompleteRoster": "unavailable from the limited refreshed sources",
+    "currentProviderDelta": "A new 7.1.51 version label appeared; its charlist is unchanged from 7.1.50.2. This is a candidate for separate future inspection, not evidence of a new game-version mapping.",
+    "failureLedger": "The local last sync is successful. Current public GitHub and Lunaris endpoints returned HTTP 200; historical DNS/403/502 failures in earlier research should not be described as a current broad outage. The current official article direct fetch yielded only an application shell, while the search index exposes a notice snippet. The remaining main blocker is missing authoritative 7.2 V1 identity and version-specific completeness evidence."
+  },
+  "conflictsOrUnresolvedQuestions": [
+    "Provider label 7.1.51 is newer than archived 7.1.50.2, but neither the provider index nor the official notice maps it to 7.2 V1.",
+    "Provider timestamp resolves to 2026-10-05T10:00:00Z, later than retrieval; do not infer its semantics.",
+    "Official page search index exposes update text while direct HTTP/web open returns only an application shell; complete official article bytes remain uncaptured.",
+    "The local independent 7.1 weapon inventory is still classified partial; the new provider charlist cannot close that or establish a full 7.2 V1 inventory."
+  ],
+  "nextEvidenceStep": "Seek a source that explicitly binds an immutable provider revision to 7.2 V1 and states its content scope. If one becomes available, first archive its raw public bytes and revision metadata as an isolated candidate, then compare its version-specific roster with an independent inventory before considering any pointer change."
+}

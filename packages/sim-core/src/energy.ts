@@ -5,6 +5,12 @@ import type {
   ParticleKind
 } from "@genshin-dps-lab/schemas";
 
+/** Shared precision for execution checks and ER capacity proofs. */
+export const ENERGY_COMPARISON_EPSILON = 1e-9;
+export function quantizeEnergy(value: number): number {
+  return Number(value.toFixed(12));
+}
+
 function fnv1a32(value: string): number {
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {
@@ -12,6 +18,13 @@ function fnv1a32(value: string): number {
     hash = Math.imul(hash, 0x01000193);
   }
   return hash >>> 0;
+}
+
+export interface SeededRandomState {
+  algorithm: "fnv1a32-mulberry32-v1";
+  state: number;
+  accumulator: number;
+  drawCount: number;
 }
 
 /**
@@ -22,13 +35,41 @@ function fnv1a32(value: string): number {
  */
 export class SeededRandom {
   private state: number;
+  private drawCount = 0;
 
   constructor(seed: string) {
     this.state = fnv1a32(seed);
   }
 
+  captureState(): SeededRandomState {
+    return { algorithm: "fnv1a32-mulberry32-v1", state: this.state >>> 0, accumulator: this.state, drawCount: this.drawCount };
+  }
+
+  static fromState(input: unknown): SeededRandom {
+    if (typeof input !== "object" || input === null || Array.isArray(input)) {
+      throw new TypeError("Random state must be an object");
+    }
+    const saved = input as Partial<SeededRandomState>;
+    if (saved.algorithm !== "fnv1a32-mulberry32-v1") throw new Error("Unsupported random state algorithm");
+    if (typeof saved.state !== "number" || !Number.isInteger(saved.state) || saved.state < 0 || saved.state > 0xffffffff) {
+      throw new RangeError("Random state must be an unsigned 32-bit integer");
+    }
+    if (typeof saved.accumulator !== "number" || !Number.isFinite(saved.accumulator) || !Number.isInteger(saved.accumulator) ||
+        (saved.accumulator >>> 0) !== saved.state) {
+      throw new RangeError("Random accumulator must be a finite integer matching the unsigned state");
+    }
+    if (typeof saved.drawCount !== "number" || !Number.isSafeInteger(saved.drawCount) || saved.drawCount < 0) {
+      throw new RangeError("Random draw count must be a nonnegative safe integer");
+    }
+    const random = new SeededRandom("");
+    random.state = saved.accumulator;
+    random.drawCount = saved.drawCount;
+    return random;
+  }
+
   next(): number {
     let value = (this.state += 0x6d2b79f5);
+    this.drawCount += 1;
     value = Math.imul(value ^ (value >>> 15), value | 1);
     value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
     return ((value ^ (value >>> 14)) >>> 0) / 4294967296;

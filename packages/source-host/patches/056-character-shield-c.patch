@@ -1,0 +1,272 @@
+--- a/internal/characters/noelle/skill.go
++++ b/internal/characters/noelle/skill.go
+@@ -44,8 +44,14 @@
+ 
+ 	// add shield first
+ 	defFactor := snap.Stats.TotalDEF()
+-	shieldhp := shieldFlat[c.TalentLvlSkill()] + shieldDef[c.TalentLvlSkill()]*defFactor
+-	c.Core.Player.Shields.Add(c.newShield(shieldhp, shield.NoelleSkill, 720))
++	flat := shieldFlat[c.TalentLvlSkill()]
++	ratio := shieldDef[c.TalentLvlSkill()]
++	shieldhp := flat + ratio*defFactor
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldhp, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-noelle-skill", map[string]any{"flat": flat, "ratio": ratio, "totalDef": defFactor}, nil, &snap)
++	}
++	c.Core.Player.Shields.Add(c.newShield(shieldhp, shield.NoelleSkill, 720, shieldHPID))
+ 
+ 	// activate shield timer, on expiry explode
+ 	c.shieldTimer = c.Core.F + 720 // 12 seconds
+--- a/internal/characters/noelle/asc.go
++++ b/internal/characters/noelle/asc.go
+@@ -41,15 +41,22 @@
+ 		snap := c.Snapshot(&ai)
+ 
+ 		// add shield
++		totalDef := snap.Stats.TotalDEF()
++		shieldHP := totalDef * 4
++		shieldHPID := 0
++		if c.Core.SourceHost != nil {
++			shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-noelle-a1", map[string]any{"totalDef": totalDef}, nil, &snap)
++		}
+ 		c.Core.Player.Shields.Add(&shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     active.Index(),
+-			Src:        c.Core.F,
+-			ShieldType: shield.NoelleA1,
+-			Name:       "Devotion (Shield)",
+-			HP:         snap.Stats.TotalDEF() * 4,
+-			Ele:        attributes.Cryo,
+-			Expires:    c.Core.F + 1200, // 20 sec
++			ActorIndex:     c.Index(),
++			Target:         active.Index(),
++			Src:            c.Core.F,
++			ShieldType:     shield.NoelleA1,
++			Name:           "Devotion (Shield)",
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Cryo,
++			Expires:        c.Core.F + 1200, // 20 sec
+ 		})
+ 	}, "noelle-a1")
+ }
+--- a/internal/characters/noelle/shield.go
++++ b/internal/characters/noelle/shield.go
+@@ -10,7 +10,7 @@
+ 	c *char
+ }
+ 
+-func (c *char) newShield(base float64, t shield.Type, dur int) *noelleShield {
++func (c *char) newShield(base float64, t shield.Type, dur int, hpID int) *noelleShield {
+ 	n := &noelleShield{}
+ 	n.Tmpl = &shield.Tmpl{}
+ 	n.ActorIndex = c.Index()
+@@ -19,6 +19,7 @@
+ 	n.ShieldType = t
+ 	n.Name = "Noelle Skill"
+ 	n.HP = base
++	n.SourceHostHPID = hpID
+ 	n.Expires = c.Core.F + dur
+ 	n.c = c
+ 	return n
+--- a/internal/characters/xinyan/skill.go
++++ b/internal/characters/xinyan/skill.go
+@@ -52,16 +52,16 @@
+ 		hitOpponents++
+ 		c.QueueCharTask(func() {
+ 			if hitOpponents >= c.shieldLevel3Requirement && c.shieldLevel < 3 {
+-				c.updateShield(3, defFactor)
++				c.updateShield(3, defFactor, &snap, 0)
+ 			} else if hitOpponents >= c.shieldLevel2Requirement && c.shieldLevel < 2 {
+-				c.updateShield(2, defFactor)
++				c.updateShield(2, defFactor, &snap, 0)
+ 			}
+ 		}, skillShieldStart-skillHitmark)
+ 	}
+ 
+ 	if c.Core.Player.Shields.Get(shield.XinyanSkill) == nil {
+ 		c.QueueCharTask(func() {
+-			c.updateShield(1, defFactor)
++			c.updateShield(1, defFactor, &snap, 0)
+ 		}, skillShieldStart)
+ 	}
+ 	c.Core.QueueAttack(
+@@ -135,22 +135,45 @@
+ 	}
+ }
+ 
+-func (c *char) updateShield(level int, defFactor float64) {
++func (c *char) updateShield(level int, defFactor float64, snapshot *info.Snapshot, defFactorID int) {
+ 	previousLevel := c.shieldLevel
+ 	c.shieldLevel = level
+ 	shieldhp := 0.0
++	shieldHPID := 0
++	ruleID := ""
++	flat := 0.0
++	ratio := 0.0
+ 
+ 	switch c.shieldLevel {
+ 	case 1:
+-		shieldhp = shieldLevel1Flat[c.TalentLvlSkill()] + shieldLevel1[c.TalentLvlSkill()]*defFactor
++		flat = shieldLevel1Flat[c.TalentLvlSkill()]
++		ratio = shieldLevel1[c.TalentLvlSkill()]
++		ruleID = "char-shield-xinyan-skill-level-1"
+ 	case 2:
+-		shieldhp = shieldLevel2Flat[c.TalentLvlSkill()] + shieldLevel2[c.TalentLvlSkill()]*defFactor
++		flat = shieldLevel2Flat[c.TalentLvlSkill()]
++		ratio = shieldLevel2[c.TalentLvlSkill()]
++		ruleID = "char-shield-xinyan-skill-level-2"
+ 	case 3:
+-		shieldhp = shieldLevel3Flat[c.TalentLvlSkill()] + shieldLevel3[c.TalentLvlSkill()]*defFactor
++		flat = shieldLevel3Flat[c.TalentLvlSkill()]
++		ratio = shieldLevel3[c.TalentLvlSkill()]
++		ruleID = "char-shield-xinyan-skill-level-3"
++		if defFactorID != 0 {
++			ruleID = "char-shield-xinyan-burst-level-3"
++		}
++	}
++	shieldhp = flat + ratio*defFactor
++	if c.Core.SourceHost != nil && ruleID != "" {
++		if defFactorID != 0 {
++			shieldhp, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), ruleID, map[string]any{"flat": flat, "ratio": ratio, "defFactor": defFactor}, nil, nil, map[string]int{"defFactor": defFactorID})
++		} else {
++			shieldhp, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), ruleID, map[string]any{"flat": flat, "ratio": ratio, "totalDef": defFactor}, nil, snapshot)
++		}
++	}
++	if c.shieldLevel == 3 {
+ 		c.shieldTickSrc = c.Core.F
+ 		c.Core.Tasks.Add(c.shieldDot(c.Core.F), 2*60)
+ 	}
+-	shd := c.newShield(shieldhp, shield.XinyanSkill, 12*60)
++	shd := c.newShield(shieldhp, shield.XinyanSkill, 12*60, shieldHPID)
+ 	c.Core.Player.Shields.Add(shd)
+ 	c.Core.Log.NewEvent("update shield level", glog.LogCharacterEvent, c.Index()).
+ 		Write("previousLevel", previousLevel).
+--- a/internal/characters/xinyan/burst.go
++++ b/internal/characters/xinyan/burst.go
+@@ -87,9 +87,13 @@
+ 
+ 	if c.Base.Cons >= 2 {
+ 		// TODO: snapshot timing?
+-		defFactor := c.TotalDef(false)
++		defFactor, defRead := c.TotalDefWithProvenance(false)
++		defFactorID := 0
++		if c.Core.SourceHost != nil {
++			defFactor, defFactorID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-xinyan-burst-def", map[string]any{"defFactor": defFactor}, []*info.SourceHostStatRead{defRead}, nil)
++		}
+ 		c.QueueCharTask(func() {
+-			c.updateShield(3, defFactor)
++			c.updateShield(3, defFactor, nil, defFactorID)
+ 		}, burstShieldStart)
+ 
+ 		// C2 causes extra pulses of level 3 shield DoT
+--- a/internal/characters/xinyan/shield.go
++++ b/internal/characters/xinyan/shield.go
+@@ -10,7 +10,7 @@
+ 	c *char
+ }
+ 
+-func (c *char) newShield(base float64, t shield.Type, dur int) *xinyanShield {
++func (c *char) newShield(base float64, t shield.Type, dur int, hpID int) *xinyanShield {
+ 	n := &xinyanShield{}
+ 	n.Tmpl = &shield.Tmpl{}
+ 	n.ActorIndex = c.Index()
+@@ -19,6 +19,7 @@
+ 	n.ShieldType = t
+ 	n.Name = "Xinyan Skill"
+ 	n.HP = base
++	n.SourceHostHPID = hpID
+ 	n.Expires = c.Core.F + dur
+ 	n.c = c
+ 	return n
+--- a/internal/characters/diona/skill.go
++++ b/internal/characters/diona/skill.go
+@@ -92,9 +92,18 @@
+ 	if pawCount == 5 {
+ 		bonus = 1.75 // bonus if firing off 5
+ 	}
+-	shdHp := (pawShieldPer[c.TalentLvlSkill()]*c.MaxHP() + pawShieldFlat[c.TalentLvlSkill()]) * bonus
++	per := pawShieldPer[c.TalentLvlSkill()]
++	maxHP, hpRead := c.MaxHPWithProvenance()
++	flat := pawShieldFlat[c.TalentLvlSkill()]
++	shdHp := (per*maxHP + flat) * bonus
++	c2 := 0
+ 	if c.Base.Cons >= 2 {
+ 		shdHp *= 1.15
++		c2 = 1
++	}
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shdHp, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-diona-paws", map[string]any{"ratio": per, "maxHp": maxHP, "flat": flat, "pawCount": pawCount, "c2": c2}, []*info.SourceHostStatRead{hpRead}, nil)
+ 	}
+ 	skillSrc := c.Core.F
+ 	// call back to generate shield on hit
+@@ -119,20 +128,22 @@
+ 				shd, _ = exist.(*shield.Tmpl)
+ 				if shd.Src != skillSrc {
+ 					shd.HP = shdHp
++					shd.SourceHostHPID = shieldHPID
+ 					shd.Src = skillSrc
+ 					shd.Expires += dur
+ 				}
+ 				shd.Expires += dur
+ 			} else {
+ 				shd = &shield.Tmpl{
+-					ActorIndex: c.Index(),
+-					Target:     -1,
+-					Src:        skillSrc,
+-					ShieldType: shield.DionaSkill,
+-					Name:       "Icy Paws (Shield)",
+-					HP:         shdHp,
+-					Ele:        attributes.Cryo,
+-					Expires:    c.Core.F + dur, // 15 sec
++					ActorIndex:     c.Index(),
++					Target:         -1,
++					Src:            skillSrc,
++					ShieldType:     shield.DionaSkill,
++					Name:           "Icy Paws (Shield)",
++					HP:             shdHp,
++					SourceHostHPID: shieldHPID,
++					Ele:            attributes.Cryo,
++					Expires:        c.Core.F + dur, // 15 sec
+ 				}
+ 			}
+ 
+--- a/internal/characters/zhongli/shield.go
++++ b/internal/characters/zhongli/shield.go
+@@ -11,9 +11,16 @@
+ )
+ 
+ func (c *char) addJadeShield() {
+-	shield := shieldBase[c.TalentLvlSkill()] + shieldPer[c.TalentLvlSkill()]*c.MaxHP()
++	flat := shieldBase[c.TalentLvlSkill()]
++	per := shieldPer[c.TalentLvlSkill()]
++	maxHP, hpRead := c.MaxHPWithProvenance()
++	shieldHP := flat + per*maxHP
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-zhongli-jade", map[string]any{"flat": flat, "ratio": per, "maxHp": maxHP}, []*info.SourceHostStatRead{hpRead}, nil)
++	}
+ 
+-	c.Core.Player.Shields.Add(c.newShield(shield, 1200))
++	c.Core.Player.Shields.Add(c.newShield(shieldHP, 1200, shieldHPID))
+ 	c.Tags["shielded"] = 1
+ 
+ 	// add resist mod whenever we get a shield
+@@ -46,7 +53,7 @@
+ 	c.Tags["a1"] = 0
+ }
+ 
+-func (c *char) newShield(base float64, dur int) *shd {
++func (c *char) newShield(base float64, dur int, hpID int) *shd {
+ 	n := &shd{}
+ 	n.Tmpl = &shield.Tmpl{}
+ 	n.ActorIndex = c.Index()
+@@ -55,6 +62,7 @@
+ 	n.ShieldType = shield.ZhongliJadeShield
+ 	n.Ele = attributes.Geo
+ 	n.HP = base
++	n.SourceHostHPID = hpID
+ 	n.Name = "Zhongli Skill"
+ 	n.Expires = c.Core.F + dur
+ 	n.c = c

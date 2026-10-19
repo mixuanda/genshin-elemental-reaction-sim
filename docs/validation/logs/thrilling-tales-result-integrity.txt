@@ -1,0 +1,52 @@
+$ npx vitest run packages/schemas/src/thrilling-tales-result-integrity.test.ts
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/schemas/src/thrilling-tales-result-integrity.test.ts (1 test | 1 failed) 41ms
+   × replays an actual TTDS transfer and preserves the already-included share across calculator JSON 41ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/schemas/src/thrilling-tales-result-integrity.test.ts > replays an actual TTDS transfer and preserves the already-included share across calculator JSON
+AssertionError: expected 632.7 to be 740 // Object.is equality
+
+- Expected
++ Received
+
+- 740
++ 632.7
+
+ ❯ packages/schemas/src/thrilling-tales-result-integrity.test.ts:19:29
+     17|   expect(event.statsBeforeDamage.atkPct).toBe(0.48);
+     18|   // The source percentage multiplies the recipient's base ATK once.
+     19|   expect(event.finalDamage).toBe(1000 * (1 + 0.48) * 0.5);
+       |                             ^
+     20|   const replay = replaySimulationHit(parseSimulationHit(serializeSimul…
+     21|   expect(replay.difference).toBe(0);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  08:29:34
+   Duration  891ms (transform 613ms, setup 0ms, import 791ms, tests 41ms, environment 0ms)
+
+
+EXIT_CODE=1
+WALL_SECONDS=1.315
+
+RETEST_AFTER_EXPLICIT_NEUTRAL_ENEMY_FIXTURE
+$ npx vitest run packages/schemas/src/thrilling-tales-result-integrity.test.ts
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  08:29:51
+   Duration  1.03s (transform 621ms, setup 0ms, import 800ms, tests 169ms, environment 0ms)
+
+
+EXIT_CODE=0
+WALL_SECONDS=1.433

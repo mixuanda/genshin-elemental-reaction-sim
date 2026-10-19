@@ -140,6 +140,8 @@ export interface ImportedWeapon {
 export interface ImportedShowcaseCharacter {
   avatarId: number;
   level: number;
+  /** Explicit propMap[1002].val; missing data is not inferred from character level. */
+  ascension?: number | null;
   constellation: number;
   skillLevels: Record<string, number>;
   skillLevelBonuses: Record<string, number>;

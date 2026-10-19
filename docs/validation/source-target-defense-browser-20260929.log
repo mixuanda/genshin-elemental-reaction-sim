@@ -1,0 +1,47 @@
+[WebServer] (node:68268) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:68269) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-target-defense.spec.ts:18:1 › one native Kaeya skill preserves each target DEF profile through formula, replay and team draft (5.9s)
+
+
+  1) [chromium] › apps/web/e2e/source-target-defense.spec.ts:18:1 › one native Kaeya skill preserves each target DEF profile through formula, replay and team draft 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#calc-source-single-skill [data-source-single-skill]').locator('[data-single-status]')
+    Expected substring: "已导入单动作输入 JSON"
+    Received string:    "已载入本地参考构筑；请核对构筑并运行一次动作。"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#calc-source-single-skill [data-source-single-skill]').locator('[data-single-status]')
+        14 × locator resolved to <p role="status" aria-live="polite" data-single-status="">已载入本地参考构筑；请核对构筑并运行一次动作。</p>
+           - unexpected value "已载入本地参考构筑；请核对构筑并运行一次动作。"
+
+
+      39 |       name: 'kaeya-first-target.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(firstInput)),
+      40 |     });
+    > 41 |     await expect(panel.locator('[data-single-status]')).toContainText('已导入单动作输入 JSON');
+         |                                                         ^
+      42 |     const scene = panel.locator('[data-target-scene]');
+      43 |     await scene.locator('[data-target-scene-action="add"]').click();
+      44 |     const second = scene.locator('[data-target-scene-target="1"]');
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-target-defense.spec.ts:41:57
+
+    Error Context: test-results/source-target-defense-one--8cc10-rmula-replay-and-team-draft-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-target-defense-one--8cc10-rmula-replay-and-team-draft-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-target-defense-one--8cc10-rmula-replay-and-team-draft-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-target-defense.spec.ts:18:1 › one native Kaeya skill preserves each target DEF profile through formula, replay and team draft 

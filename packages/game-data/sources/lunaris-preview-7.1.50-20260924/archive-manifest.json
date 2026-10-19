@@ -1,0 +1,35 @@
+{
+  "archive": "source.json.gz",
+  "sha256": "4b586f1bee225378ffe46b72a344e1fb1e35baff412045a1978d20c0de38e086",
+  "bytes": 216666,
+  "rawFiles": [
+    {
+      "file": "version.json",
+      "matches": true
+    },
+    {
+      "file": "charlist.json",
+      "matches": true
+    },
+    {
+      "file": "mitya.en.json",
+      "matches": true
+    },
+    {
+      "file": "valeriy.en.json",
+      "matches": true
+    },
+    {
+      "file": "mitya.chs.json",
+      "matches": true
+    },
+    {
+      "file": "valeriy.chs.json",
+      "matches": true
+    },
+    {
+      "file": "lunaris-app.js",
+      "matches": true
+    }
+  ]
+}

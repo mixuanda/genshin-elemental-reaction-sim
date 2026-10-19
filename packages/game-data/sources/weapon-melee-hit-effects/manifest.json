@@ -1,0 +1,303 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "weapon-melee-hit-effects",
+  "verification": "provisional",
+  "gcsimCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "reviewedCandidates": 11,
+  "supportedNumericHitRules": 9,
+  "retrievedAt": "2026-09-23T12:16:58.666048+00:00",
+  "notes": [
+    "Reuses exact previously archived source bytes when available; file paths are relative to this manifest.",
+    "Only additive ordinary-hit damage base and tag-filtered critical properties; independent weapon procs remain separate unimplemented events.",
+    "Refinement coefficient arrays were manually transcribed from fixed source and compared with all five active catalog ranks; no project tests/build were run."
+  ],
+  "files": [
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__claymore__redhorn__redhorn.go.txt",
+      "upstreamPath": "internal/weapons/claymore/redhorn/redhorn.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/redhorn/redhorn.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/redhorn/redhorn.go",
+      "sha256": "3cbad8aa02bcadc743b752d25d8660caa8e1e81f554d7b8206fead8dbd987ba9",
+      "bytes": 1659,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__redhornstonethresher.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/redhornstonethresher.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/redhornstonethresher.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/redhornstonethresher.json",
+      "sha256": "b4739bc044cbabd5f6dff2cd6eedb10e11d05a9a006e5a0ae0a1ba9ba27143e7",
+      "bytes": 5749,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__sword__foliar__foliar.go.txt",
+      "upstreamPath": "internal/weapons/sword/foliar/foliar.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/foliar/foliar.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/foliar/foliar.go",
+      "sha256": "e3c6ec3401a23ce61500b992e9f184e92bd202837f9dbf976a47657c4d31df37",
+      "bytes": 2577,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__lightoffoliarincision.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/lightoffoliarincision.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lightoffoliarincision.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lightoffoliarincision.json",
+      "sha256": "cbd134a3c589593ec5fda49684d27b9f270c44e60365016fbb62d717e9913ad4",
+      "bytes": 6482,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "raw/gcsim/internal/weapons/sword/cinnabar/cinnnabar.go",
+      "upstreamPath": "internal/weapons/sword/cinnabar/cinnnabar.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/cinnabar/cinnnabar.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/cinnabar/cinnnabar.go",
+      "bytes": 1898,
+      "sha256": "80b3aecb76fd4fb22f652b171a8e09b3c370c4d6de1d15b2d6f1550bc55ed5d6",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "source": "genshin-db",
+      "file": "raw/genshin-db/src/data/ChineseSimplified/weapons/cinnabarspindle.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/cinnabarspindle.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/cinnabarspindle.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/cinnabarspindle.json",
+      "bytes": 4171,
+      "sha256": "da4c06bba7b094763d07702a9e54c7023e0e8ef972b7a6f4e3a0ba5c12178ef8",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__sword__festering__festering.go.txt",
+      "upstreamPath": "internal/weapons/sword/festering/festering.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/festering/festering.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/festering/festering.go",
+      "sha256": "27931c1fef196aae8d5dfb9d90f0a23ef5678326e667939be77709be6056d9d0",
+      "bytes": 1035,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__festeringdesire.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/festeringdesire.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/festeringdesire.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/festeringdesire.json",
+      "sha256": "aa0affce4e9f79cbcd73b56c0976b4b066c3270e601dff657b71ce49a81d1843",
+      "bytes": 3978,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__sword__wolffang__wolffang.go.txt",
+      "upstreamPath": "internal/weapons/sword/wolffang/wolffang.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/wolffang/wolffang.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/wolffang/wolffang.go",
+      "sha256": "7edd32ef6ed3756165f484c38f8baa2430cabe334b352b315582355bbbb929ad",
+      "bytes": 2860,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__wolffang.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/wolffang.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/wolffang.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/wolffang.json",
+      "sha256": "88c4696557267c4edaa1ff4a3757c1eb0e5b34243c1687e4c3cda65a63ee3343",
+      "bytes": 7393,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__sword__fleuvecendreferryman__fleuvecendreferryman.go.txt",
+      "upstreamPath": "internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go",
+      "sha256": "538efc88ce829e8905b83fedfc5299cf60edde9866b353e5ba8cd43d37b9fdcb",
+      "bytes": 1763,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__fleuvecendreferryman.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/fleuvecendreferryman.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fleuvecendreferryman.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fleuvecendreferryman.json",
+      "sha256": "a8fa07c42549a6e2a00b609da7a783e5f15966db97a6c3b908558b22bf28ace6",
+      "bytes": 5901,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__sword__calamityofeshu__calamityofeshu.go.txt",
+      "upstreamPath": "internal/weapons/sword/calamityofeshu/calamityofeshu.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/calamityofeshu/calamityofeshu.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/calamityofeshu/calamityofeshu.go",
+      "sha256": "34dc842904d4a0a558e4cc919489c09585b9c98391c2976cbd7e324481757416",
+      "bytes": 1133,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__calamityofeshu.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/calamityofeshu.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/calamityofeshu.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/calamityofeshu.json",
+      "sha256": "72a018611091f4b53eeb0c49483e5f1a7b2fec74626d31c8881f172c431b24f1",
+      "bytes": 5981,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__sword__athameartis__athameartis.go.txt",
+      "upstreamPath": "internal/weapons/sword/athameartis/athameartis.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go",
+      "sha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+      "bytes": 3767,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__athameartis.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/athameartis.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/athameartis.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/athameartis.json",
+      "sha256": "bf158ff8740ff63d02aa26f04d1237372104db5288a36f646a139cac22ae86fb",
+      "bytes": 9017,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/internal__weapons__claymore__fruitfulhook__fruitfulhook.go.txt",
+      "upstreamPath": "internal/weapons/claymore/fruitfulhook/fruitfulhook.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/fruitfulhook/fruitfulhook.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/fruitfulhook/fruitfulhook.go",
+      "sha256": "23237bf2a321875027319c1a744357870cd8e2d41be96a88dbe7b80cbf8bc505",
+      "bytes": 2061,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__fruitfulhook.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/fruitfulhook.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fruitfulhook.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fruitfulhook.json",
+      "sha256": "c6ea068c3da618a1d73705fb702913ffc0383c0a27984bc9fdf1e794c7b50f47",
+      "bytes": 6635,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "raw/gcsim/internal/weapons/sword/sturdybone/sturdybone.go",
+      "upstreamPath": "internal/weapons/sword/sturdybone/sturdybone.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sturdybone/sturdybone.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sturdybone/sturdybone.go",
+      "bytes": 2043,
+      "sha256": "487a7c139b21d2c20e006c5c94acca01b13ae23140a6220374011ed2cafbce3a",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "source": "genshin-db",
+      "file": "raw/genshin-db/src/data/ChineseSimplified/weapons/sturdybone.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/sturdybone.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sturdybone.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sturdybone.json",
+      "bytes": 7116,
+      "sha256": "eb7d98093ea4c97e2c3a52f55534fbbb1da75e36c878c58f9421370f7b54e116",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "source": "gcsim",
+      "file": "raw/gcsim/internal/weapons/sword/skyward/skyward.go",
+      "upstreamPath": "internal/weapons/sword/skyward/skyward.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/skyward/skyward.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/skyward/skyward.go",
+      "bytes": 2840,
+      "sha256": "d5e4fc78672216871e58d9ccf0dace98a1517c89dd36da35826afea151a02156",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "source": "genshin-db",
+      "file": "raw/genshin-db/src/data/ChineseSimplified/weapons/skywardblade.json",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/skywardblade.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/skywardblade.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/skywardblade.json",
+      "bytes": 5596,
+      "sha256": "5e399583ceb27c1fb5145f7e9a14c651c7bc4d78eea427d29bb4d96bb540addc",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "source": "gcsim",
+      "file": "raw/gcsim/pkg/core/player/character/stats.go",
+      "upstreamPath": "pkg/core/player/character/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "license": "MIT",
+      "reusedArchive": false
+    },
+    {
+      "upstreamPath": "pkg/core/attributes/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "bytes": 1677,
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/pkg__core__attributes__stats.go.txt",
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "gcsim",
+      "file": "../weapon-extended-effects/gcsim/LICENSE.txt",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "license": "MIT",
+      "reusedArchive": true
+    },
+    {
+      "source": "genshin-db",
+      "file": "../weapon-extended-effects/genshin-db/LICENSE.txt",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "bytes": 1065,
+      "license": "MIT",
+      "reusedArchive": true
+    }
+  ]
+}

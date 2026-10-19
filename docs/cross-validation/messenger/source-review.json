@@ -1,0 +1,103 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceRoot": "/tmp/gidps-gcsim-b4ae769",
+  "extractedTreeIsNotGitCheckout": true,
+  "files": [
+    {
+      "path": "internal/weapons/bow/messenger/messenger.go",
+      "bytes": 1961,
+      "sha256": "e3725f9579e2745f8e97b8a2f4479301b51dc961eebafe5668099549951953ba",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/messenger/messenger.go"
+    },
+    {
+      "path": "internal/characters/amber/aimed.go",
+      "bytes": 3091,
+      "sha256": "9584af861c32b8d9f89d4457179b868e90fb0f2d394a57e6eff679e6b935d8c4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/aimed.go"
+    },
+    {
+      "path": "internal/characters/amber/asc.go",
+      "bytes": 1386,
+      "sha256": "b057956e4b9f49703d118c7317a54cafe76a937c98249a15ba65946bcc36cd84",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/asc.go"
+    },
+    {
+      "path": "internal/characters/amber/amber.go",
+      "bytes": 1022,
+      "sha256": "d3f63fd6c99d4d93c7502ea6b327762d460c47c9211bc5f23299b17318f08c04",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/amber.go"
+    },
+    {
+      "path": "internal/characters/amber/zz_amber.dm.go",
+      "bytes": 2772,
+      "sha256": "62e6b1a0f66e54f456dd515c34aa46ca83bcc7115ef918d1aabf81a725b14901",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/zz_amber.dm.go"
+    },
+    {
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/combat.go"
+    },
+    {
+      "path": "pkg/core/attacks/aim.go",
+      "bytes": 365,
+      "sha256": "c8bd86a11af5875e0a6399560819f6c42a7afcdd3202570bc28921050b82c292",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/aim.go"
+    },
+    {
+      "path": "pkg/core/attacks/attack.go",
+      "bytes": 1484,
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go"
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+    },
+    {
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "path": "pkg/core/energy.go",
+      "bytes": 2639,
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "path": "pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go"
+    },
+    {
+      "path": "pkg/simulation/simulation.go",
+      "bytes": 2049,
+      "sha256": "aaa938c5f5cfbf478c4570abab32211f295a378247e087b9a36afbcf53f768a1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/simulation.go"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-target-scene.spec.ts(128,11): error TS2375: Type '{ schemaVersion: 1; source: { hostVariant: SourceHostVariant; revision: string; }; name: string; members: SourceTeamMember[]; actions: ({ actorId: string; kind: "skill"; repeat: number; } | { ...; })[]; ... 5 more ...; primaryTargetIndex: number; }' is not assignable to type 'SourceTeamDraft' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'additionalTargets' are incompatible.
+    Type 'SourceTargetProfile[] | undefined' is not assignable to type 'SourceTargetProfile[]'.
+      Type 'undefined' is not assignable to type 'SourceTargetProfile[]'.
+apps/web/src/source-single-skill-panel.ts(72,81): error TS2375: Type 'SourceSingleSkillDraft' is not assignable to type 'SourceTargetSceneInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'additionalTargets' are incompatible.
+    Type 'SourceTargetProfile[] | undefined' is not assignable to type 'SourceTargetProfile[]'.
+      Type 'undefined' is not assignable to type 'SourceTargetProfile[]'.
+apps/web/src/source-single-skill.ts(52,9): error TS2375: Type '{ schemaVersion: 1; source: { hostVariant: SourceHostVariant; revision: string; }; name: string; members: SourceTeamMember[]; actions: ({ actorId: string; kind: SourceCharacterActionKind; repeat: number; params?: Record<...>; } | { ...; })[]; ... 5 more ...; startup: "custom" | ... 1 more ... | "zero"; }' is not assignable to type 'SourceTeamDraft' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'additionalTargets' are incompatible.
+    Type 'SourceTargetProfile[] | undefined' is not assignable to type 'SourceTargetProfile[]'.
+      Type 'undefined' is not assignable to type 'SourceTargetProfile[]'.
+packages/sim-core/src/source-host-target-summary.ts(191,7): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-target-summary.ts(192,7): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-target-summary.ts(194,5): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-target-summary.ts(195,5): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-target-summary.ts(196,5): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-target-summary.ts(197,5): error TS2412: Type 'number | undefined' is not assignable to type 'number' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the type of the target.
+  Type 'undefined' is not assignable to type 'number'.

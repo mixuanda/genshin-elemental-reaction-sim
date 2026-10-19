@@ -1,0 +1,92 @@
+{
+  "status": "prepared-before-external-execution",
+  "evidenceStatus": "fixed-source-assumed",
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "scope": "six-hit Q plus one N1..N4 chain; no changing buffs, hitlag or expiry boundary in this initial fixture",
+  "character": {
+    "id": "noelle",
+    "level": 1,
+    "maxLevel": 20,
+    "ascension": 0,
+    "constellation": 0,
+    "talents": [
+      1,
+      1,
+      1
+    ],
+    "baseHp": 1012.088,
+    "characterBaseAtk": 16.0272,
+    "weaponBaseAtk": 23.245,
+    "baseAtk": 39.2722,
+    "baseDef": 66.95325,
+    "em": 0,
+    "critRate": 0,
+    "critDamage": 0.5,
+    "energyRecharge": 1,
+    "initialEnergy": 60
+  },
+  "burstConversion": {
+    "nonExtraDefSnapshot": 66.95325,
+    "coefficient": 0.4,
+    "addedAttack": 26.7813,
+    "effectiveAttack": 66.0535,
+    "assumedSnapshotOffset": 0,
+    "sourceExpiryOffset": 980
+  },
+  "expectedActionFrames": [
+    1,
+    84,
+    122,
+    168,
+    199
+  ],
+  "hits": [
+    {
+      "label": "Q24",
+      "frame": 25,
+      "multiplier": 0.672,
+      "formula": "66.0535 * .672 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "13.86551490309278350515463918"
+    },
+    {
+      "label": "Q65",
+      "frame": 66,
+      "multiplier": 0.928,
+      "formula": "66.0535 * .928 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "19.14761581855670103092783505"
+    },
+    {
+      "label": "N1",
+      "frame": 111,
+      "multiplier": 0.7912,
+      "formula": "66.0535 * .7912 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "16.32499314185567010309278350"
+    },
+    {
+      "label": "N2",
+      "frame": 146,
+      "multiplier": 0.73358,
+      "formula": "66.0535 * .73358 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "15.13610777174226804123711340"
+    },
+    {
+      "label": "N3",
+      "frame": 187,
+      "multiplier": 0.86258,
+      "formula": "66.0535 * .86258 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "17.79779143617525773195876289"
+    },
+    {
+      "label": "N4",
+      "frame": 240,
+      "multiplier": 1.13434,
+      "formula": "66.0535 * 1.13434 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "23.40507168924742268041237114"
+    }
+  ],
+  "binary": {
+    "path": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "sha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+    "bytes": 33775666
+  }
+}

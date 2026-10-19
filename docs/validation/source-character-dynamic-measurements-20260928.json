@@ -1,0 +1,297 @@
+{
+  "schemaVersion": "source-character-dynamic-measurements-v1",
+  "checks": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.374,
+      "log": "docs/validation/source-character-dynamic-classic-build-20260928.log"
+    },
+    {
+      "command": [
+        "node",
+        "packages/game-data/scripts/update-data.mjs",
+        "status",
+        "--write",
+        "--output",
+        "packages/game-data/src/generated/update-status.json"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.717,
+      "log": "docs/validation/source-character-dynamic-data-status-20260928.log"
+    },
+    {
+      "command": [
+        "node",
+        "packages/game-data/scripts/update-data.mjs",
+        "status",
+        "--write",
+        "--output",
+        "packages/game-data/src/generated/update-status.json"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.724,
+      "log": "docs/validation/source-character-dynamic-data-status-final-20260928.log",
+      "purpose": "Reflect new official-page index observation after source observation metadata changed."
+    },
+    {
+      "command": [
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-dynamic.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 3.457,
+      "log": "docs/validation/source-character-dynamic-e2e-20260928.log"
+    },
+    {
+      "command": [
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-dynamic.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 7.267,
+      "log": "docs/validation/source-character-dynamic-e2e-retry1-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.16,
+      "log": "docs/validation/source-character-dynamic-stellar-build-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.699,
+      "log": "docs/validation/source-character-dynamic-web-build-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.719,
+      "log": "docs/validation/source-character-dynamic-web-build-retry1-20260928.log"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.078,
+      "scope": "tracked diff only; untracked files are not covered",
+      "log": "docs/validation/source-character-dynamic-tracked-diff-check-20260928.log"
+    }
+  ],
+  "resultFile": "docs/validation/source-character-dynamic-20260928.result.json",
+  "runs": [
+    {
+      "variant": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "336f071a34874311cdeea043e7ef56b28457b7c267656fc0f374d155fc572370",
+      "observedRules": {
+        "char-dyn-raiden-a4-electrop": 41,
+        "char-dyn-bennett-burst-atk": 13,
+        "char-dyn-yoimiya-a1": 3,
+        "char-dyn-yoimiya-a4": 1,
+        "char-dyn-itto-burst-atk": 1
+      },
+      "observedA1Stacks": [
+        4,
+        6
+      ],
+      "bennett": {
+        "id": 4,
+        "value": 490.5956752280001,
+        "baseAtk": 645.5206253000001
+      },
+      "yoimiyaA4": {
+        "id": 70,
+        "value": 0.18,
+        "stacks": 8
+      },
+      "ittoQ": {
+        "id": 80,
+        "value": 1119.2019668390762,
+        "multiplier": 0.576,
+        "defense": 1943.0589702067296,
+        "huskSupportIds": [
+          79
+        ]
+      },
+      "raidenA4": {
+        "count": 41,
+        "id": 1,
+        "frame": 0,
+        "value": 0.4505072792,
+        "nonExtraER": 2.126268198,
+        "readId": "actor-3-read-1"
+      },
+      "reuse": [
+        {
+          "frame": 385,
+          "applicationId": 205
+        },
+        {
+          "frame": 385,
+          "applicationId": 206
+        },
+        {
+          "frame": 429,
+          "applicationId": 263
+        },
+        {
+          "frame": 429,
+          "applicationId": 264
+        },
+        {
+          "frame": 462,
+          "applicationId": 303
+        },
+        {
+          "frame": 462,
+          "applicationId": 304
+        }
+      ],
+      "selected": {
+        "applicationId": 205,
+        "rawDamage": 1804.3113722207872,
+        "replayDifference": 0,
+        "supportingIds": [
+          70,
+          79,
+          80,
+          150,
+          202
+        ]
+      },
+      "calculations": 1054,
+      "applications": 20
+    },
+    {
+      "variant": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "94a6756787ff9ad68fff8979f46dff485f41eb652f9d232444d295c3b9bd8969",
+      "observedRules": {
+        "char-dyn-raiden-a4-electrop": 41,
+        "char-dyn-bennett-burst-atk": 13,
+        "char-dyn-yoimiya-a1": 3,
+        "char-dyn-yoimiya-a4": 1,
+        "char-dyn-itto-burst-atk": 1
+      },
+      "observedA1Stacks": [
+        4,
+        6
+      ],
+      "bennett": {
+        "id": 4,
+        "value": 490.5956752280001,
+        "baseAtk": 645.5206253000001
+      },
+      "yoimiyaA4": {
+        "id": 70,
+        "value": 0.18,
+        "stacks": 8
+      },
+      "ittoQ": {
+        "id": 80,
+        "value": 1119.2019668390762,
+        "multiplier": 0.576,
+        "defense": 1943.0589702067296,
+        "huskSupportIds": [
+          79
+        ]
+      },
+      "raidenA4": {
+        "count": 41,
+        "id": 1,
+        "frame": 0,
+        "value": 0.4505072792,
+        "nonExtraER": 2.126268198,
+        "readId": "actor-3-read-1"
+      },
+      "reuse": [
+        {
+          "frame": 385,
+          "applicationId": 205
+        },
+        {
+          "frame": 385,
+          "applicationId": 206
+        },
+        {
+          "frame": 429,
+          "applicationId": 263
+        },
+        {
+          "frame": 429,
+          "applicationId": 264
+        },
+        {
+          "frame": 462,
+          "applicationId": 303
+        },
+        {
+          "frame": 462,
+          "applicationId": 304
+        }
+      ],
+      "selected": {
+        "applicationId": 205,
+        "rawDamage": 1804.3113722207872,
+        "replayDifference": 0,
+        "supportingIds": [
+          70,
+          79,
+          80,
+          150,
+          202
+        ]
+      },
+      "calculations": 1054,
+      "applications": 20
+    }
+  ],
+  "incomingSaved": {
+    "applicationId": 398,
+    "shieldAbsorbed": 5066.769647346,
+    "stateCalculationIds": [
+      389,
+      390,
+      391,
+      395
+    ],
+    "supportRuleIds": [
+      "bolide-2pc-shield",
+      "tenacity-4pc-shield"
+    ],
+    "replayDifference": 0
+  },
+  "preview": {
+    "newPreview": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "priorPreview": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+    "released": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34"
+  },
+  "pageErrors": []
+}

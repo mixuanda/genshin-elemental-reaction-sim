@@ -1,0 +1,11 @@
+[WebServer] (node:62817) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:62818) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"runs":[{"lane":"stellar","scenario":"field","scalarRules":{"char-scalar-chongyun-c2-a7":4,"char-scalar-mona-c1":1,"char-scalar-diona-c6-heal":2},"consumers":{"char-scalar-chongyun-c2-a7":4,"char-scalar-mona-c1":1,"char-scalar-diona-c6-heal":2},"selected":{"chongyun-c2":{"scalarId":47,"consumerId":48,"value":-0.15,"frame":57,"replayDifference":0},"diona-c6":{"scalarId":221,"consumerId":222,"value":0.3,"frame":553,"replayDifference":0},"mona-c1":{"scalarId":188,"consumerId":189,"value":0.15,"frame":374,"replayDifference":0}}},{"lane":"stellar","scenario":"bloom","scalarRules":{"char-scalar-furina-burst-heal-ratio":1,"char-scalar-nilou-a4-initial":1,"char-scalar-nilou-a4-update":32,"char-scalar-furina-burst-heal":30,"char-scalar-baizhu-a4-bloom-family":2},"consumers":{"char-scalar-furina-burst-heal-ratio":30,"char-scalar-nilou-a4-initial":0,"char-scalar-nilou-a4-update":6,"char-scalar-furina-burst-heal":30,"char-scalar-baizhu-a4-bloom-family":2},"selected":{"furina-q-heal":{"scalarId":437,"consumerId":438,"value":0.00021015753509851589,"frame":914,"replayDifference":0},"nilou-a4":{"scalarId":145,"consumerId":150,"value":2.101897915809985,"frame":539,"replayDifference":0},"baizhu-a4":{"scalarId":313,"consumerId":314,"value":0.610585796318832,"frame":770,"replayDifference":0}}}],"pageErrors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-character-scalar.spec.ts:75:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay (3.8s)
+
+  1 passed (4.7s)

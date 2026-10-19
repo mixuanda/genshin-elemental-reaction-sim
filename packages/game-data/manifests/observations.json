@@ -1,0 +1,18 @@
+{
+  "latestObservedOfficialRelease": {
+    "version": "7.1",
+    "observedAt": "2026-09-28T02:35:53Z",
+    "sourceUrls": [
+      "https://genshin.hoyoverse.com/de/news/detail/166383",
+      "https://genshin.hoyoverse.com/m/es/news/detail/166383"
+    ],
+    "evidenceNote": "2026-09-28重新检索发行商官网7.1更新详情：德语/西班牙语索引正文列出2026-09-23 06:00 UTC+8更新安排。英文详情直接获取失败，官方新闻索引直开无可读正文；此记录是官方页面的搜索索引观察，不声称已归档官网完整原文字节。提供方7.1.50.2仍未被证明等同7.2 V1。"
+  },
+  "officialNextCandidates": [],
+  "unavailableTargets": [
+    {
+      "target": "7.2 V1 exact version identity",
+      "reason": "已取得真实7.1.50与7.1.50.2两份不可变预览快照及结构化修订差异，但未找到其等同7.2 V1或具体测试迭代序号的一手证明；按提供方版本隔离保存，不擅自改名。"
+    }
+  ]
+}

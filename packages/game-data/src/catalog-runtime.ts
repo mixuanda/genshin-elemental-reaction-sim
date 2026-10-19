@@ -2,7 +2,7 @@ import {
   gameDataRuntimeIndexSchema,
   type GameDataRuntimeIndex
 } from "@genshin-dps-lab/schemas";
-import rawIndex from "./generated/catalog-index.zh-CN.json";
+import { activeCatalogIndexData as rawIndex } from "../manifests/runtime/current";
 
 export const gameDataRuntimeIndex: GameDataRuntimeIndex =
   gameDataRuntimeIndexSchema.parse(rawIndex as unknown);

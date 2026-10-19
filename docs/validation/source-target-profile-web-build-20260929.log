@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-target-profile.spec.ts(94,12): error TS18046: 'hpRun.result.result' is of type 'unknown'.
+apps/web/e2e/source-target-profile.spec.ts(95,12): error TS18046: 'hpRun.result.result' is of type 'unknown'.
+apps/web/e2e/source-target-profile.spec.ts(167,12): error TS18046: 'teamRun.result' is of type 'unknown'.
+apps/web/e2e/source-target-profile.spec.ts(176,29): error TS18046: 'hpRun.result.result' is of type 'unknown'.

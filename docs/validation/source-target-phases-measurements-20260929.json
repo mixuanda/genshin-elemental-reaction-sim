@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "source-target-phases-measurements-v1",
+  "batch": "106",
+  "date": "2026-09-29",
+  "baselineHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "commands": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.372
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.854
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.115
+    },
+    "focused-unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-target-phase.test.ts",
+        "packages/sim-core/src/source-host-target-application.test.ts"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 1.227
+    },
+    "focused-unit-fixed": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-target-phase.test.ts",
+        "packages/sim-core/src/source-host-target-application.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.484
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 3.353
+    },
+    "web-build-fixed": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.5
+    },
+    "web-build-receipt-fixed": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.405
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-phases.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 62.531
+    },
+    "browser-receipt-fixed": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-phases.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.694
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-target-phases-browser-v1",
+    "measurements": {
+      "rawPath": "/tmp/gidps-target-phases.json",
+      "actualFrame": 29,
+      "byTarget": [
+        {
+          "targetIndex": 0,
+          "targetKey": 1,
+          "phaseId": null,
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 1161.8921525418264,
+          "hpLoss": 0,
+          "auraApplied": true,
+          "applicationCalculationId": null,
+          "targetPhaseEffects": null
+        },
+        {
+          "targetIndex": 1,
+          "targetKey": 2,
+          "phaseId": "immune-at-29",
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 0,
+          "hpLoss": 0,
+          "auraApplied": true,
+          "applicationCalculationId": 17,
+          "targetPhaseEffects": {
+            "hitCallbacksSkipped": 0,
+            "onEnemyHitGameplaySkipped": 0,
+            "onEnemyHitObserversEmitted": 0,
+            "onEnemyDamageGameplaySkipped": 0,
+            "onEnemyDamageObserversEmitted": 0
+          }
+        },
+        {
+          "targetIndex": 2,
+          "targetKey": 3,
+          "phaseId": "aura-block-at-29",
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 1161.8921525418264,
+          "hpLoss": 0,
+          "auraApplied": false,
+          "applicationCalculationId": 26,
+          "targetPhaseEffects": {
+            "hitCallbacksSkipped": 0,
+            "onEnemyHitGameplaySkipped": 0,
+            "onEnemyHitObserversEmitted": 0,
+            "onEnemyDamageGameplaySkipped": 0,
+            "onEnemyDamageObserversEmitted": 0
+          }
+        },
+        {
+          "targetIndex": 3,
+          "targetKey": 4,
+          "phaseId": "hit-confirm-block-at-29",
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 1161.8921525418264,
+          "hpLoss": 0,
+          "auraApplied": true,
+          "applicationCalculationId": 35,
+          "targetPhaseEffects": {
+            "hitCallbacksSkipped": 3,
+            "onEnemyHitGameplaySkipped": 0,
+            "onEnemyHitObserversEmitted": 0,
+            "onEnemyDamageGameplaySkipped": 2,
+            "onEnemyDamageObserversEmitted": 1
+          }
+        },
+        {
+          "targetIndex": 4,
+          "targetKey": 5,
+          "phaseId": null,
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 1161.8921525418264,
+          "hpLoss": 0,
+          "auraApplied": true,
+          "applicationCalculationId": null,
+          "targetPhaseEffects": null
+        },
+        {
+          "targetIndex": 5,
+          "targetKey": 6,
+          "phaseId": null,
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 1161.8921525418264,
+          "hpLoss": 0,
+          "auraApplied": true,
+          "applicationCalculationId": null,
+          "targetPhaseEffects": null
+        }
+      ],
+      "total": {
+        "rawDamage": 6971.352915250958,
+        "appliedDamage": 5809.460762709132
+      },
+      "replays": [
+        {
+          "applicationId": 9,
+          "rawDifference": 0,
+          "appliedDifference": 0,
+          "applicationDifference": null
+        },
+        {
+          "applicationId": 18,
+          "rawDifference": 0,
+          "appliedDifference": 0,
+          "applicationDifference": 0
+        },
+        {
+          "applicationId": 27,
+          "rawDifference": 0,
+          "appliedDifference": 0,
+          "applicationDifference": 0
+        },
+        {
+          "applicationId": 36,
+          "rawDifference": 0,
+          "appliedDifference": 0,
+          "applicationDifference": 0
+        },
+        {
+          "applicationId": 37,
+          "rawDifference": 0,
+          "appliedDifference": 0,
+          "applicationDifference": null
+        },
+        {
+          "applicationId": 45,
+          "rawDifference": 0,
+          "appliedDifference": 0,
+          "applicationDifference": null
+        }
+      ],
+      "teamDraftPreserved": true,
+      "formulaScreenshot": "docs/validation/source-target-phases-immune-formula-20260929.png"
+    },
+    "pageErrors": [],
+    "scope": "One classic native Kaeya E at frame 29 against six colocated synthetic target-phase scenarios. Half-open windows, native aura logs, outgoing damage and target application remain separate receipts; team draft was compiled without a second native run."
+  },
+  "capture": {
+    "path": "docs/validation/source-target-phases-20260929.capture.json",
+    "bytes": 201841,
+    "sha256": "76344295139492f5a1ac15e6d89786feb17560653e7050a545230df5de49f82b"
+  },
+  "executionArtifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 44804331,
+      "sha256": "7fcd5387b53cc0e2fb39bfe57f636d23b9d1c6fcb5e3983630f7ae47e1ab0ee3"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 68444049,
+      "sha256": "409f6c0e56572ada9c29ef5b42a3b7fa38b51139f19b424625a5712af0e82154"
+    }
+  ],
+  "unchangedDataArtifacts": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "executionNotes": [
+    "Classic and stellar native builds executed concurrently, once per lane. Registry regenerated once; table/site counts unchanged.",
+    "First unit run: 5/6 passed; cross-builder targetApplication.hpLoss child reference failed. Same six tests passed after correction. Synthetic immune fixture now retains hpBefore as hpAfter.",
+    "First Web build failed at new request-kind exclusions and E2E unknown result typing; corrected Web build passed. After browser-discovered receipt/request confusion was fixed, final Web build passed.",
+    "First browser command invoked the native scene, but result creation rejected receipt targetKey fields passed to a strict request schema. No accepted/exported run from that attempt; 62.531 s includes assertion timeout, not simulation runtime.",
+    "Same browser case passed after normalizing receipt to request identity. One accepted archived classic run, six applications. Two native invocations across failure and retry; team phase JSON roundtrip did not run a second team simulation.",
+    "No full test suite, no new data discovery, no commit, push or deployment."
+  ],
+  "limitations": [
+    "User-declared target scenarios, not verified game enemy invulnerability or shield mechanics.",
+    "Stellar compiled only; runtime browser evidence is classic. All six native targets use fixed-duration mode and have no HP loss; HP cap is a synthetic arithmetic unit case.",
+    "Native sample demonstrates incoming Cryo attachment suppression, half-open window boundaries, three skipped AttackCB callbacks, two skipped OnEnemyDamage gameplay subscribers and one preserved damage observer. It does not independently sample pre-existing aura decay, ICD reset/carryover, shatter, every reaction family or every gameplay hook.",
+    "Future/pending target phase offsets are included in phase state code; no new native phase-convergence runtime claim.",
+    "Six outgoing and applied replays are exact in saved context; edited calculation freezes captured phase and pre-hit HP and does not rerun later world state.",
+    "activeVerified remains null; verified coverage, completeCast and overall goal not promoted."
+  ],
+  "implementationFiles": {
+    "profileAndEditors": [
+      "apps/web/src/source-target-phase-controls.ts",
+      "apps/web/src/source-target-profile.ts",
+      "apps/web/src/source-target-profile-controls.ts",
+      "apps/web/src/source-target-scene.ts",
+      "apps/web/src/source-team-builder.ts",
+      "apps/web/src/source-single-skill.ts",
+      "apps/web/src/source-single-skill-panel.ts"
+    ],
+    "sharedFormulaAndContext": [
+      "packages/sim-core/src/source-host-target-phase.ts",
+      "packages/sim-core/src/source-host-target-application.ts",
+      "packages/sim-core/src/source-host-wire.ts",
+      "packages/sim-core/src/source-host-formula.ts",
+      "packages/sim-core/src/source-host-capture.ts",
+      "packages/sim-core/src/source-host-action-collection.ts",
+      "packages/sim-core/src/source-host-reexecution.ts",
+      "packages/sim-core/src/index.ts"
+    ],
+    "resultAndExecution": [
+      "apps/web/src/source-host-target-phase-panel.ts",
+      "apps/web/src/source-host-calculator.ts",
+      "apps/web/src/source-host-panel.ts",
+      "apps/web/src/source-host-worker.ts",
+      "apps/web/src/source-host-batch.ts",
+      "apps/web/src/source-host-startup-analysis.ts",
+      "apps/web/src/source-host-energy-analysis.ts"
+    ],
+    "native": [
+      "packages/source-host/patches/106-target-phases.patch",
+      "packages/source-host/stellar-overlay/build.mjs",
+      "packages/source-host/go/cmd/sourcehost/main.go",
+      "packages/source-host/go/cmd/sourcehost/target_phases.go",
+      "packages/source-host/go/pkg/core/info/sourcehost_target_phase.go",
+      "packages/source-host/go/pkg/core/sourcehost/bridge.go",
+      "packages/source-host/go/pkg/core/sourcehost/target_phase.go",
+      "packages/source-host/stellar-overlay/go/cmd/sourcehost/main.go",
+      "packages/source-host/stellar-overlay/go/cmd/sourcehost/target_phases.go",
+      "packages/source-host/stellar-overlay/go/pkg/core/info/sourcehost_target_phase.go",
+      "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/bridge.go",
+      "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/target_phase.go"
+    ],
+    "focusedChecks": [
+      "packages/sim-core/src/source-host-target-phase.test.ts",
+      "packages/sim-core/src/source-host-target-application.test.ts",
+      "apps/web/e2e/source-target-phases.spec.ts"
+    ]
+  },
+  "nativeReceiptSummary": {
+    "declaredWindows": 5,
+    "calculations": 48,
+    "applications": 6,
+    "targetApplicationCalculations": 3,
+    "totalDamage": 5809.460762709132,
+    "observationWindow": {
+      "policy": "duration-or-native",
+      "configuredEndFrame": 360,
+      "actualEndFrame": 360,
+      "endReason": "duration"
+    },
+    "phaseObservation": null
+  }
+}

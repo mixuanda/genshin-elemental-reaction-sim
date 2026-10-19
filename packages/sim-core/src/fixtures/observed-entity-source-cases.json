@@ -1,0 +1,1892 @@
+{
+  "description": "Source-permitted synthetic fixtures, not claimed in-game observations. Use ascension 6, C0, effective primary talent 9; panel HP20000 and ATK2000 where relevant. No production compiler was executed to create these fixtures.",
+  "contexts": {
+    "observed-klee-burst-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 746,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "wave-1-1": true,
+        "wave-1-2": true,
+        "wave-1-3": true,
+        "wave-2-1": true,
+        "wave-2-2": true,
+        "wave-2-3": true,
+        "wave-3-1": true,
+        "wave-3-2": true,
+        "wave-3-3": true,
+        "wave-4-1": true,
+        "wave-4-2": true,
+        "wave-4-3": true,
+        "wave-5-1": true,
+        "wave-5-2": true,
+        "wave-5-3": true,
+        "wave-6-1": true,
+        "wave-6-2": true,
+        "wave-6-3": true
+      },
+      "klee": {
+        "waves": [
+          {
+            "extraAt12": false,
+            "extraAt24": false
+          },
+          {
+            "extraAt12": false,
+            "extraAt24": false
+          },
+          {
+            "extraAt12": false,
+            "extraAt24": false
+          },
+          {
+            "extraAt12": false,
+            "extraAt24": false
+          },
+          {
+            "extraAt12": false,
+            "extraAt24": false
+          },
+          {
+            "extraAt12": false,
+            "extraAt24": false
+          }
+        ],
+        "onFieldUntilEndConfirmed": true
+      }
+    },
+    "observed-kamisatoayato-burst-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 1189,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "droplet-1": true,
+        "droplet-2": false,
+        "droplet-3": false,
+        "droplet-4": true,
+        "droplet-5": false,
+        "droplet-6": false,
+        "droplet-7": true,
+        "droplet-8": false,
+        "droplet-9": false,
+        "droplet-10": true,
+        "droplet-11": false,
+        "droplet-12": false,
+        "droplet-13": true,
+        "droplet-14": false,
+        "droplet-15": false,
+        "droplet-16": true,
+        "droplet-17": false,
+        "droplet-18": false,
+        "droplet-19": true,
+        "droplet-20": false,
+        "droplet-21": false,
+        "droplet-22": true,
+        "droplet-23": false,
+        "droplet-24": false,
+        "droplet-25": true,
+        "droplet-26": false,
+        "droplet-27": false,
+        "droplet-28": true,
+        "droplet-29": false,
+        "droplet-30": false,
+        "droplet-31": true,
+        "droplet-32": false,
+        "droplet-33": false,
+        "droplet-34": true,
+        "droplet-35": false,
+        "droplet-36": false
+      },
+      "ayato": {
+        "selections": {
+          "droplet-1": {
+            "frame": 101,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-2": {
+            "frame": 131,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-3": {
+            "frame": 161,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-4": {
+            "frame": 191,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-5": {
+            "frame": 221,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-6": {
+            "frame": 251,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-7": {
+            "frame": 281,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-8": {
+            "frame": 311,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-9": {
+            "frame": 341,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-10": {
+            "frame": 371,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-11": {
+            "frame": 401,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-12": {
+            "frame": 431,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-13": {
+            "frame": 461,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-14": {
+            "frame": 491,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-15": {
+            "frame": 521,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-16": {
+            "frame": 551,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-17": {
+            "frame": 581,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-18": {
+            "frame": 611,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-19": {
+            "frame": 641,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-20": {
+            "frame": 671,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-21": {
+            "frame": 701,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-22": {
+            "frame": 731,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-23": {
+            "frame": 761,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-24": {
+            "frame": 791,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-25": {
+            "frame": 821,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-26": {
+            "frame": 851,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-27": {
+            "frame": 881,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-28": {
+            "frame": 911,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-29": {
+            "frame": 941,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-30": {
+            "frame": 971,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-31": {
+            "frame": 1001,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-32": {
+            "frame": 1031,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-33": {
+            "frame": 1061,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-34": {
+            "frame": 1091,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "droplet-35": {
+            "frame": 1121,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "droplet-36": {
+            "frame": 1151,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          }
+        }
+      }
+    },
+    "observed-layla-skill-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 739,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "initial": true,
+        "volley-1-star-1": true,
+        "volley-1-star-2": true,
+        "volley-1-star-3": true,
+        "volley-1-star-4": true
+      },
+      "layla": {
+        "shieldEndFrame": 739,
+        "shieldLifetimeConfirmed": true,
+        "skillEvents": [],
+        "burstHitEvents": [],
+        "allStarEventsRecorded": true,
+        "targetChecks": {
+          "volley-1-check-1": {
+            "targetId": "enemy-1",
+            "closestWithin10Confirmed": true
+          },
+          "volley-1-check-2": {
+            "targetId": "enemy-1",
+            "closestWithin10Confirmed": true
+          },
+          "volley-1-check-3": {
+            "targetId": "enemy-1",
+            "closestWithin10Confirmed": true
+          },
+          "volley-1-check-4": {
+            "targetId": "enemy-1",
+            "closestWithin10Confirmed": true
+          },
+          "volley-1-check-5": {
+            "targetId": "enemy-1",
+            "closestWithin10Confirmed": true
+          }
+        }
+      },
+      "sharedState": {
+        "actualMaxHPAtScaling": 20000,
+        "includedAdditiveBaseDamage": 0
+      }
+    },
+    "observed-yaoyao-burst-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 373,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "initial": true,
+        "pet-1-throw-1": true,
+        "pet-1-throw-2": true,
+        "pet-1-throw-3": true,
+        "pet-1-throw-4": true,
+        "pet-2-throw-1": true,
+        "pet-2-throw-2": true,
+        "pet-2-throw-3": true,
+        "pet-3-throw-1": true,
+        "pet-3-throw-2": true,
+        "a1-360": true
+      },
+      "skillTalentLevel": 9,
+      "yaoyao": {
+        "noPreexistingYuegui": true,
+        "onFieldUntilEndConfirmed": true,
+        "movementStates": [
+          {
+            "startFrame": 0,
+            "endFrame": 357,
+            "activeActorId": "caster",
+            "state": "other"
+          },
+          {
+            "startFrame": 358,
+            "endFrame": 360,
+            "activeActorId": "caster",
+            "state": "dash"
+          }
+        ],
+        "throws": {
+          "pet-1-throw-1": {
+            "frame": 133,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-1-throw-2": {
+            "frame": 193,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-1-throw-3": {
+            "frame": 253,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-1-throw-4": {
+            "frame": 313,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-2-throw-1": {
+            "frame": 191,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-2-throw-2": {
+            "frame": 251,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-2-throw-3": {
+            "frame": 311,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-3-throw-1": {
+            "frame": 250,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "pet-3-throw-2": {
+            "frame": 310,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true,
+            "activeHpRatio": 1,
+            "activeActorId": "caster"
+          },
+          "a1-360": {
+            "frame": 360,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          }
+        }
+      }
+    },
+    "observed-furina-skill-ousia-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 1754,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "initial": true,
+        "chevalmarin-1": true,
+        "crabaletta-1": true,
+        "usher-1": true,
+        "chevalmarin-2": true,
+        "chevalmarin-3": true,
+        "usher-2": true,
+        "chevalmarin-4": true,
+        "crabaletta-2": true,
+        "chevalmarin-5": true,
+        "usher-3": true,
+        "chevalmarin-6": true,
+        "chevalmarin-7": true,
+        "usher-4": true,
+        "crabaletta-3": true,
+        "chevalmarin-8": true,
+        "chevalmarin-9": true,
+        "usher-5": true,
+        "chevalmarin-10": true,
+        "crabaletta-4": true,
+        "chevalmarin-11": true,
+        "usher-6": true,
+        "chevalmarin-12": true,
+        "chevalmarin-13": true,
+        "usher-7": true,
+        "crabaletta-5": true,
+        "chevalmarin-14": true,
+        "chevalmarin-15": true,
+        "usher-8": true,
+        "chevalmarin-16": true,
+        "chevalmarin-17": true,
+        "crabaletta-6": true,
+        "usher-9": true
+      },
+      "sharedState": {
+        "actualMaxHPAtScaling": 20000,
+        "includedDamageBonus": 0,
+        "includedAdditiveBaseDamage": 0
+      },
+      "furina": {
+        "ousiaThroughoutConfirmed": true,
+        "salonTicks": {
+          "chevalmarin": [
+            90,
+            188,
+            286,
+            383,
+            481,
+            578,
+            676,
+            773,
+            871,
+            969,
+            1066,
+            1164,
+            1261,
+            1359,
+            1457,
+            1554,
+            1652,
+            1749,
+            1847
+          ],
+          "usher": [
+            93,
+            295,
+            497,
+            699,
+            901,
+            1103,
+            1305,
+            1507,
+            1710,
+            1912
+          ],
+          "crabaletta": [
+            90,
+            403,
+            717,
+            1031,
+            1345,
+            1659,
+            1973
+          ]
+        },
+        "partyAtLaunch": {
+          "chevalmarin-1": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 20000,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 20000,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 20000,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 20000,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "crabaletta-1": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 19680.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 19680.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 19680.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 19680.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-1": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 18960.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 18960.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 18960.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 18960.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-2": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 18480.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 18480.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 18480.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 18480.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-3": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 18160.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 18160.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 18160.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 18160.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-2": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 17840.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 17840.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 17840.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 17840.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-4": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 17360.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 17360.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 17360.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 17360.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "crabaletta-2": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 17040.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 17040.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 17040.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 17040.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-5": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 16320.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 16320.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 16320.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 16320.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-3": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 16000.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 16000.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 16000.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 16000.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-6": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 15520.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 15520.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 15520.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 15520.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-7": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 15200.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 15200.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 15200.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 15200.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-4": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 14880.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 14880.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 14880.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 14880.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "crabaletta-3": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 14400.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 14400.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 14400.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 14400.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-8": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 13680.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 13680.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 13680.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 13680.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-9": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 13360.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 13360.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 13360.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 13360.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-5": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 13040.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 13040.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 13040.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 13040.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-10": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 12560.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 12560.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 12560.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 12560.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "crabaletta-4": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 12240.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 12240.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 12240.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 12240.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-11": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 11520.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 11520.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 11520.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 11520.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-6": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 11200.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 11200.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 11200.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 11200.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-12": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 10720.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 10720.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 10720.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 10720.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-13": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 10400.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 10400.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 10400.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 10400.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-7": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 10080.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 10080.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 10080.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 10080.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "crabaletta-5": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-14": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-15": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-8": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-16": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-17": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "crabaletta-6": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "usher-9": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          },
+          "chevalmarin-18": {
+            "activeActorId": "caster",
+            "activeInBurstAnimation": false,
+            "completePartyConfirmed": true,
+            "members": [
+              {
+                "actorId": "caster",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-1",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-2",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              },
+              {
+                "actorId": "ally-3",
+                "currentHP": 9600.0,
+                "maxHP": 20000
+              }
+            ]
+          }
+        },
+        "a4FirstRefreshFrame": 0,
+        "a4MaxHPByRefreshFrame": {
+          "0": 20000,
+          "30": 20000,
+          "60": 20000,
+          "90": 20000,
+          "120": 20000,
+          "150": 20000,
+          "180": 20000,
+          "210": 20000,
+          "240": 20000,
+          "270": 20000,
+          "300": 20000,
+          "330": 20000,
+          "360": 20000,
+          "390": 20000,
+          "420": 20000,
+          "450": 20000,
+          "480": 20000,
+          "510": 20000,
+          "540": 20000,
+          "570": 20000,
+          "600": 20000,
+          "630": 20000,
+          "660": 20000,
+          "690": 20000,
+          "720": 20000,
+          "750": 20000,
+          "780": 20000,
+          "810": 20000,
+          "840": 20000,
+          "870": 20000,
+          "900": 20000,
+          "930": 20000,
+          "960": 20000,
+          "990": 20000,
+          "1020": 20000,
+          "1050": 20000,
+          "1080": 20000,
+          "1110": 20000,
+          "1140": 20000,
+          "1170": 20000,
+          "1200": 20000,
+          "1230": 20000,
+          "1260": 20000,
+          "1290": 20000,
+          "1320": 20000,
+          "1350": 20000,
+          "1380": 20000,
+          "1410": 20000,
+          "1440": 20000,
+          "1470": 20000,
+          "1500": 20000,
+          "1530": 20000,
+          "1560": 20000,
+          "1590": 20000,
+          "1620": 20000,
+          "1650": 20000,
+          "1680": 20000,
+          "1710": 20000,
+          "1740": 20000,
+          "1770": 20000
+        },
+        "maxHPByScalingFrame": {
+          "0": 20000,
+          "90": 20000,
+          "93": 20000,
+          "188": 20000,
+          "286": 20000,
+          "295": 20000,
+          "383": 20000,
+          "403": 20000,
+          "481": 20000,
+          "497": 20000,
+          "578": 20000,
+          "676": 20000,
+          "699": 20000,
+          "717": 20000,
+          "773": 20000,
+          "871": 20000,
+          "901": 20000,
+          "969": 20000,
+          "1031": 20000,
+          "1066": 20000,
+          "1103": 20000,
+          "1164": 20000,
+          "1261": 20000,
+          "1305": 20000,
+          "1345": 20000,
+          "1359": 20000,
+          "1457": 20000,
+          "1507": 20000,
+          "1554": 20000,
+          "1652": 20000,
+          "1659": 20000,
+          "1710": 20000,
+          "1749": 20000
+        }
+      }
+    },
+    "observed-emilie-skill-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 1336,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "initial": true,
+        "arkhe": true,
+        "case-1-1": true,
+        "case-2-1": true,
+        "case-3-1": true,
+        "case-3-2": true,
+        "case-4-1": true,
+        "case-4-2": true,
+        "case-5-1": true,
+        "case-5-2": true,
+        "case-6-1": true,
+        "case-6-2": true,
+        "case-7-1": true,
+        "case-7-2": true,
+        "case-8-1": true,
+        "case-8-2": true,
+        "case-9-1": true,
+        "case-9-2": true,
+        "case-10-1": true,
+        "case-10-2": true,
+        "case-11-1": true,
+        "case-11-2": true,
+        "case-12-1": true,
+        "case-12-2": true,
+        "case-13-1": true,
+        "case-13-2": true,
+        "case-14-1": true,
+        "case-14-2": true,
+        "a1-1": true,
+        "a1-2": true,
+        "a1-3": true
+      },
+      "sharedState": {
+        "actualAtkAtHit": 2000,
+        "targetBurningAtHit": true,
+        "includedDamageBonus": 0
+      },
+      "emilie": {
+        "caseTravelFrames": 5,
+        "burningHistoryComplete": true,
+        "burningWithin20": [
+          {
+            "startFrame": 0,
+            "endFrame": 1336,
+            "burningPresent": true
+          }
+        ],
+        "arkheReady": true
+      }
+    },
+    "observed-emilie-burst-c0": {
+      "casterId": "caster",
+      "targetId": "enemy-1",
+      "freshCastConfirmed": true,
+      "noHitlag": true,
+      "noInterruption": true,
+      "noReplacement": true,
+      "fullObservedLifetime": true,
+      "observedThroughFrame": 1626,
+      "statsStableAcrossHits": true,
+      "targetContacts": {
+        "burst-1": true,
+        "burst-2": false,
+        "burst-3": false,
+        "burst-4": true,
+        "burst-5": false,
+        "burst-6": false,
+        "burst-7": true,
+        "burst-8": false,
+        "burst-9": false,
+        "case-1-1": true,
+        "case-2-1": true,
+        "case-3-1": true,
+        "case-3-2": true,
+        "case-4-1": true,
+        "case-4-2": true,
+        "case-5-1": true,
+        "case-5-2": true,
+        "case-6-1": true,
+        "case-6-2": true,
+        "case-7-1": true,
+        "case-7-2": true,
+        "case-8-1": true,
+        "case-8-2": true,
+        "case-9-1": true,
+        "case-9-2": true,
+        "case-10-1": true,
+        "case-10-2": true,
+        "case-11-1": true,
+        "case-11-2": true,
+        "case-12-1": true,
+        "case-12-2": true,
+        "case-13-1": true,
+        "case-13-2": true,
+        "case-14-1": true,
+        "case-14-2": true,
+        "a1-1": true,
+        "a1-2": true,
+        "a1-3": true
+      },
+      "sharedState": {
+        "actualAtkAtHit": 2000,
+        "targetBurningAtHit": true,
+        "includedDamageBonus": 0
+      },
+      "emilie": {
+        "caseTravelFrames": 5,
+        "burningHistoryComplete": true,
+        "burningWithin20": [
+          {
+            "startFrame": 0,
+            "endFrame": 1626,
+            "burningPresent": true
+          }
+        ],
+        "burstSelections": {
+          "burst-1": {
+            "frame": 114,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "burst-2": {
+            "frame": 132,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "burst-3": {
+            "frame": 150,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "burst-4": {
+            "frame": 168,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "burst-5": {
+            "frame": 186,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "burst-6": {
+            "frame": 204,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "burst-7": {
+            "frame": 222,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": "enemy-1",
+            "completeRosterConfirmed": true
+          },
+          "burst-8": {
+            "frame": 240,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          },
+          "burst-9": {
+            "frame": 258,
+            "inRangeTargetIds": [
+              "enemy-1"
+            ],
+            "selectedTargetId": null,
+            "completeRosterConfirmed": true
+          }
+        }
+      },
+      "skillTalentLevel": 9
+    }
+  }
+}

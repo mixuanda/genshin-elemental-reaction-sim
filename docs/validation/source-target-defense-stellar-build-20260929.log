@@ -1,0 +1,14 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs
+
+{
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "verifiedBlobCount": 4283,
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "79222f88d7b8166e52552bb356744dd220e1e54187e39fce7dd165affffca0d5",
+    "bytes": 68412968
+  },
+  "manifest": "/Users/evan/Documents/gidps/packages/source-host/stellar-overlay/dist/manifest.json"
+}

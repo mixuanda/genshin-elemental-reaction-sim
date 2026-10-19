@@ -1,0 +1,56 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts (3 tests | 2 failed) 24ms
+     × establishes a continuous aura-v9 Vaporize cycle with live raw gauge, ICD and damage-group windows 9ms
+     × captures before same-frame reset/hit and rejects unsupported future, initial, infusion and stochastic domains 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts > actual ordinary Aura and ICD checkpoints > establishes a continuous aura-v9 Vaporize cycle with live raw gauge, ICD and damage-group windows
+AssertionError: 配置校验失败：
+- reactionEngine: aura-v9 requires timeline.mode legal-frame-v1 at 60 FPS
+- targetTaskModel: aura-v9 requires targetTaskModel.mode target-phase-v2
+- reactionEngine: aura-v1 through aura-v9 currently require timeline.mode legal-frame-v1
+- enemy.targets: aura-v9 requires enemy.targets and a position for every registered target
+- rotation.1.hits.0.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks: expected 'blocked' to be 'steady-state-established' // Object.is equality
+
+Expected: "steady-state-established"
+Received: "blocked"
+
+ ❯ packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts:25:54
+     23|   it("establishes a continuous aura-v9 Vaporize cycle with live raw ga…
+     24|     const actual = simulateWithStartup(fixture(), { mode: "steady-stat…
+     25|     expect(actual.status, actual.reasons.join("; ")).toBe("steady-stat…
+       |                                                      ^
+     26|     expect(actual.result!.executionAudit!.checkpointCoverage).toMatchO…
+     27|     expect(actual.measurement!.totalDamage).toBeCloseTo(1250);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts > actual ordinary Aura and ICD checkpoints > captures before same-frame reset/hit and rejects unsupported future, initial, infusion and stochastic domains
+ConfigMigrationError: 配置校验失败：
+- reactionEngine: aura-v9 requires timeline.mode legal-frame-v1 at 60 FPS
+- targetTaskModel: aura-v9 requires targetTaskModel.mode target-phase-v2
+- reactionEngine: aura-v1 through aura-v9 currently require timeline.mode legal-frame-v1
+- enemy.targets: aura-v9 requires enemy.targets and a position for every registered target
+- rotation.1.hits.0.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33604:11
+    33602|   if (!parsed.success) {
+    33603|     const issues = formatZodError(parsed.error);
+    33604|     throw new ConfigMigrationError(
+       |           ^
+    33605|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33606|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35031:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18148:18
+ ❯ packages/sim-core/src/__tests__/ordinary-aura-phase-checkpoint.test.ts:74:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  05:24:31
+   Duration  849ms (transform 592ms, setup 0ms, import 762ms, tests 24ms, environment 0ms)
+

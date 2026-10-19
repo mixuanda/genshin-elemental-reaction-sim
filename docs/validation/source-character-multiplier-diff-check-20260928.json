@@ -1,0 +1,10 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.057,
+  "log": "docs/validation/source-character-multiplier-diff-check-20260928.log"
+}

@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "focused-test-transcription-v1",
+  "transcribed": true,
+  "source": "Earlier exec_command tool result in this task; no test rerun for this receipt",
+  "command": "npx vitest run packages/game-data/src/character-mappings/optimizer-kachina-mappings.test.ts",
+  "workdir": "/Users/evan/Documents/gidps",
+  "exitCode": 0,
+  "wallSeconds": 5.453136833,
+  "runnerReported": {
+    "version": "vitest 4.1.10",
+    "startLocalTime": "01:30:55",
+    "startLocalDate": "2026-09-29",
+    "timezone": "Asia/Hong_Kong",
+    "durationSeconds": 4.88,
+    "testFilesPassed": 1,
+    "testFilesTotal": 1,
+    "testsPassed": 6,
+    "testsTotal": 6,
+    "transformSeconds": 3.64,
+    "importSeconds": 4.71,
+    "testsMilliseconds": 80
+  },
+  "observedOutput": "RUN  v4.1.10 /Users/evan/Documents/gidps\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  01:30:55\n   Duration  4.88s (transform 3.64s, setup 0ms, import 4.71s, tests 80ms, environment 0ms)"
+}

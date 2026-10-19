@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:50330) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Remaining source calculator browser measurements {"independentSpecial":{"nonCritical":13085.498637473689,"critical":26170.997274947378,"expected":19628.247956210533},"editedSpecial":{"nonCritical":13256.710769178952,"critical":26513.421538357903,"expected":19885.06615376843},"restoredSpecialFinal":{"nonCritical":2332.911655005951,"critical":4395.205558031212,"expected":2436.026350157214},"independentNoelleCollision":{"nonCritical":671.2902,"critical":1342.5804,"expected":1006.9353000000001},"completeNoellePlunge":{"nonCritical":2347.8903,"critical":4695.7806,"expected":3521.8354500000005}}
+  ✓  1 [chromium] › apps/web/e2e/remaining-source-calculator.spec.ts:44:1 › an independent mixed-source special hit and an observed Noelle plunge use normal controls and retain their shared calculations (1.2s)
+
+  1 passed (1.5s)
+
+wall_seconds=2.016

@@ -1,0 +1,8 @@
+options iteration=1 duration=4 workers=1 hitlag=false;
+amber char lvl=1/20 cons=0 talent=1,1,1;
+amber add weapon="huntersbow" refine=1 lvl=1/20;
+amber add stats cr=-0.05;
+target lvl=90 resist=0.1 pos=0,2 radius=2;
+active amber;
+amber attack:5;
+wait(240);

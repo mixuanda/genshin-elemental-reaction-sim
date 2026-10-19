@@ -1,0 +1,35 @@
+diff --git a/pkg/core/player/shield/template.go b/pkg/core/player/shield/template.go
+--- a/pkg/core/player/shield/template.go
++++ b/pkg/core/player/shield/template.go
+@@ -5,16 +5,22 @@
+ type SourceHostDamageFunc func(*Tmpl, float64, attributes.Element, float64) (float64, float64)
+ 
+ type Tmpl struct {
+-	SourceHostDamage SourceHostDamageFunc
+-	ActorIndex int
+-	Target     int
+-	Name       string
+-	Src        int
+-	ShieldType Type
+-	Ele        attributes.Element
+-	HP         float64
+-	Expires    int
++	SourceHostDamage  SourceHostDamageFunc
++	SourceHostHPID    int
++	SourceHostBonusID int
++	ActorIndex        int
++	Target            int
++	Name              string
++	Src               int
++	ShieldType        Type
++	Ele               attributes.Element
++	HP                float64
++	Expires           int
+ }
++
++// SourceHostHPSource identifies the actual creation, refresh, or most recent
++// OnDamage HP calculation of this live shield.
++func (t *Tmpl) SourceHostHPSource() int { return t.SourceHostHPID }
+ 
+ func (t *Tmpl) ShieldOwner() int {
+ 	return t.ActorIndex

@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-execution-profiles.ts(34,82): error TS7053: Element implicitly has an 'any' type because expression of type 'SourceExecutionProfileMode' can't be used to index type 'Record<"conservative" | "ideal" | "practical", Record<"aim_delay" | "attack" | "burst" | "charge" | "dash" | "jump" | "skill" | "swap", number>>'.
+  Property 'custom' does not exist on type 'Record<"conservative" | "ideal" | "practical", Record<"aim_delay" | "attack" | "burst" | "charge" | "dash" | "jump" | "skill" | "swap", number>>'.

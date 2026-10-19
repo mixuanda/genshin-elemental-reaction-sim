@@ -1,0 +1,75 @@
+package sturdybone
+
+import (
+	"fmt"
+
+	"github.com/genshinsim/gcsim/pkg/core"
+	"github.com/genshinsim/gcsim/pkg/core/action"
+	"github.com/genshinsim/gcsim/pkg/core/attacks"
+	"github.com/genshinsim/gcsim/pkg/core/attributes"
+	"github.com/genshinsim/gcsim/pkg/core/event"
+	"github.com/genshinsim/gcsim/pkg/core/glog"
+	"github.com/genshinsim/gcsim/pkg/core/info"
+	"github.com/genshinsim/gcsim/pkg/core/player/character"
+)
+
+const (
+	buffKey = "sturdy-bone"
+)
+
+type Weapon struct {
+	Index int
+}
+
+func (w *Weapon) SetIndex(idx int) { w.Index = idx }
+func (w *Weapon) Init() error      { return nil }
+
+// Sprint or Alternate Sprint Stamina Consumption decreased by 15%.
+// Additionally, after using Sprint or Alternate Sprint, Normal Attack DMG is increased by 32% of ATK.
+// This effect expires after triggering 18 times or 7s.
+func NewWeapon(c *core.Core, char *character.CharWrapper, p info.WeaponProfile) (info.Weapon, error) {
+	w := &Weapon{}
+	r := p.Refine
+
+	c.Player.AddStamPercentMod(buffKey, -1, func(a action.Action) (float64, bool) {
+		return -0.15, false
+	})
+
+	naDmg := 0.12 + 0.4*float64(r)
+	c.Events.Subscribe(event.OnDash, func(args ...any) {
+		if c.Player.Active() != char.Index() {
+			return
+		}
+
+		char.SetTag(buffKey, 18)
+		char.AddStatus(buffKey, 7*60, true)
+	}, fmt.Sprintf("sturdybone-%v", char.Base.Key.String()))
+
+	c.Events.Subscribe(event.OnEnemyHit, func(args ...any) {
+		if c.Player.Active() != char.Index() {
+			return
+		}
+
+		atk := args[1].(*info.AttackEvent)
+		if atk.Info.ActorIndex != char.Index() {
+			return
+		}
+		if atk.Info.AttackTag != attacks.AttackTagNormal {
+			return
+		}
+
+		if !char.StatusIsActive(buffKey) || char.Tag(buffKey) == 0 {
+			return
+		}
+
+		dmgAdded := char.Stat(attributes.ATK) * naDmg
+		atk.Info.FlatDmg += dmgAdded
+
+		char.SetTag(buffKey, char.Tag(buffKey)-1)
+
+		c.Log.NewEvent("sturdy bone buff", glog.LogPreDamageMod, char.Index()).
+			Write("damage_added", dmgAdded).
+			Write("remaining_stacks", char.Tags[buffKey])
+	}, fmt.Sprintf("sturdybone-%v", char.Base.Key.String()))
+	return w, nil
+}

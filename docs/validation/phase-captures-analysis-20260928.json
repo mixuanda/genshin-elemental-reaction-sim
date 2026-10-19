@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-phase-analysis.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.594
+}

@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "gcsimRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogRevision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "recordedAt": "2026-09-23T22:28:26.851926+00:00",
+  "localArchivePath": "packages/game-data/sources/weapon-procs/source.json.gz",
+  "localArchiveSha256": "b3a6b709f619e1b96ea2b22c1ecaad4aa1ef7100eb6f9f99bf9943627f5711aa",
+  "sourceSha256": {
+    "gcsim/internal/weapons/spear/halberd/halberd.go": "56b33f8e9fc5c4cea783231d45b8421e8556071dfa4c834a16c1405ef6ab1d8c",
+    "genshin-db/src/data/ChineseSimplified/weapons/halberd.json": "d94e36fc93da7e379aeae239d80613ba5d54d6c3c031f8b3538bee0357e811f3",
+    "gcsim/internal/weapons/catalyst/ashgraven/ashgraven.go": "a2ba3e0625efb19cd5336871f19023e39763c0d67cd3b56b0440c2d9afb49ef6",
+    "genshin-db/src/data/ChineseSimplified/weapons/ashgravendrinkinghorn.json": "e5cf46b23783fea9388037397f9b62d1b3d332ef2fb5ebea034b0c53567ae1fa",
+    "gcsim/internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go": "d16358e9179a1c20b74c98ba81b160b7e64bf92b96a571eb07086d529e805a77",
+    "genshin-db/src/data/ChineseSimplified/weapons/sequenceofsolitude.json": "57dc059a88389440a2050c130ad2852c2adb57071b063229ced717aef5d72eb6",
+    "gcsim/LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "gcsim/pkg/core/attack.go": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+    "gcsim/pkg/enemy/attack.go": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+    "gcsim/pkg/enemy/damage.go": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+    "gcsim/internal/template/character/character.go": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+    "genshin-db/LICENSE": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1"
+  },
+  "weapons": [
+    {
+      "weaponId": "weapon:13302",
+      "itemId": 13302,
+      "weaponName": "钺矛",
+      "slug": "halberd",
+      "scalingStat": "atk",
+      "coefficients": [
+        1.6,
+        2,
+        2.4,
+        2.8,
+        3.2
+      ],
+      "nominalCooldownFrames": 600,
+      "damageDelayFrames": 1,
+      "requiresOnField": false,
+      "triggerAttackTags": [
+        "normal"
+      ],
+      "targetMode": "single",
+      "radius": null,
+      "sourcePath": "internal/weapons/spear/halberd/halberd.go",
+      "catalogPath": "src/data/ChineseSimplified/weapons/halberd.json",
+      "coefficientSourceExpression": "1.20 + float64(r)*0.40"
+    },
+    {
+      "weaponId": "weapon:14427",
+      "itemId": 14427,
+      "weaponName": "苍纹角杯",
+      "slug": "ashgravendrinkinghorn",
+      "scalingStat": "hp",
+      "coefficients": [
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "nominalCooldownFrames": 900,
+      "damageDelayFrames": 1,
+      "requiresOnField": true,
+      "triggerAttackTags": [],
+      "targetMode": "circle",
+      "radius": 3,
+      "sourcePath": "internal/weapons/catalyst/ashgraven/ashgraven.go",
+      "catalogPath": "src/data/ChineseSimplified/weapons/ashgravendrinkinghorn.json",
+      "coefficientSourceExpression": "0.3 + float64(r)*0.1"
+    },
+    {
+      "weaponId": "weapon:15432",
+      "itemId": 15432,
+      "weaponName": "冷寂迸音",
+      "slug": "sequenceofsolitude",
+      "scalingStat": "hp",
+      "coefficients": [
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "nominalCooldownFrames": 900,
+      "damageDelayFrames": 1,
+      "requiresOnField": true,
+      "triggerAttackTags": [],
+      "targetMode": "circle",
+      "radius": 3,
+      "sourcePath": "internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go",
+      "catalogPath": "src/data/ChineseSimplified/weapons/sequenceofsolitude.json",
+      "coefficientSourceExpression": "0.3 + float64(r)*0.1"
+    }
+  ],
+  "comparedRefinementPositions": 15,
+  "maximumAbsoluteDifference": 0,
+  "scope": "One actual physical proc against one known target. Trigger eligibility, nominal source cooldown and +1 callback frame are source metadata, not a standalone automatic timeline."
+}

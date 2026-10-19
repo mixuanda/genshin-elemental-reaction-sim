@@ -1,0 +1,311 @@
+{
+  "schemaVersion": "source-hit-callbacks-measurements-v1",
+  "asOf": "2026-09-30",
+  "batchDate": "2026-09-29",
+  "dateNote": "Implementation started September 29 HKT and validation completed September 30; per-command and runtime archive filenames retain the batch date.",
+  "scope": "111 exact per-target native callback batches and source-audited child attack closure, shared with the standalone calculator. Fixed-source evidence, not game verification.",
+  "commands": [
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.68,
+      "log": "docs/validation/source-hit-callbacks-classic-build-20260929.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 13.279,
+      "log": "docs/validation/source-hit-callbacks-stellar-build-20260929.log"
+    },
+    {
+      "name": "registry",
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.229,
+      "log": "docs/validation/source-hit-callbacks-registry-20260929.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.775,
+      "log": "docs/validation/source-hit-callbacks-typecheck-20260929.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.11,
+      "log": "docs/validation/source-hit-callbacks-web-build-20260929.log"
+    },
+    {
+      "name": "offline-regression",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-producer-declarations.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.289,
+      "log": "docs/validation/source-hit-callbacks-offline-regression-20260929.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-hit-callbacks.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 10.217,
+      "log": "docs/validation/source-hit-callbacks-browser-20260929.log"
+    },
+    {
+      "name": "web-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.425,
+      "log": "docs/validation/source-hit-callbacks-web-build-final-20260929.log"
+    },
+    {
+      "name": "browser-replay",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-hit-callbacks.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.491,
+      "log": "docs/validation/source-hit-callbacks-browser-replay-20260929.log",
+      "environment": {
+        "GIDPS_PREBUILT": "1",
+        "GIDPS_REUSE_HIT_CALLBACK_CAPTURE": "1"
+      }
+    }
+  ],
+  "counts": {
+    "distinctSkillContracts": 60,
+    "producerPlanEntries": 51,
+    "producerSiteIds": 63,
+    "newContracts": 3,
+    "expandedExistingContracts": 1,
+    "nativeRunsThisBatch": 1,
+    "browserCases": 1,
+    "browserAttempts": 2,
+    "offlineTests": 1,
+    "historicalCapturesReused": 4
+  },
+  "runtime": {
+    "schemaVersion": "source-hit-callbacks-browser-v1",
+    "measurements": {
+      "nativeRunPerformed": false,
+      "rawPath": "docs/validation/source-hit-callbacks-team-20260929.capture.json",
+      "nativeResultArchived": true,
+      "invocations": {
+        "dori": {
+          "id": 1,
+          "actionSequence": 1,
+          "params": {}
+        },
+        "mika": {
+          "id": 2,
+          "actionSequence": 3,
+          "params": {
+            "hold": 1
+          }
+        },
+        "baizhu": {
+          "id": 3,
+          "actionSequence": 5,
+          "params": {}
+        },
+        "navia": {
+          "id": 4,
+          "actionSequence": 7,
+          "params": {
+            "hold": 31
+          }
+        }
+      },
+      "callbackBatches": 34,
+      "callbacks": 23,
+      "auditedCallbackCounts": {
+        "dori": 2,
+        "mika": 1,
+        "baizhu": 6,
+        "navia": 2
+      },
+      "childAttackCounts": {
+        "dori": 3,
+        "mika": 1,
+        "baizhu": 6,
+        "navia": 1
+      },
+      "naviaSelectedEnemyCount": 2,
+      "applications": {
+        "dori": {
+          "count": 8,
+          "subtotal": 2351.6251669063295,
+          "expectedRoots": 4,
+          "completedRoots": 4
+        },
+        "mika": {
+          "count": 2,
+          "subtotal": 321.13439068838403,
+          "expectedRoots": 2,
+          "completedRoots": 2
+        },
+        "baizhu": {
+          "count": 14,
+          "subtotal": 5941.130255119439,
+          "expectedRoots": 7,
+          "completedRoots": 7
+        },
+        "navia": {
+          "count": 6,
+          "subtotal": 7783.105580503631,
+          "expectedRoots": 4,
+          "completedRoots": 4
+        }
+      },
+      "combinedSubtotal": 16396.995393217785,
+      "nativeTotalDamage": 24210.004293217797,
+      "collectionImportExportSame": true,
+      "missingBatchCloses": false,
+      "missingCallbackCloses": false,
+      "missingNaviaProducerFactCloses": false
+    },
+    "pageErrors": [],
+    "scope": "One classic four-character run with two nearby targets. Closure uses actual per-target hit callback batches and audited child queues; unrelated applications remain excluded."
+  },
+  "runtimeDetails": {
+    "lifecycleObservationFrame": 720,
+    "teamApplicationCount": 34,
+    "selectedApplicationCount": 30,
+    "maxSelectedHitReplayDifference": 0,
+    "evidence": "Each selected application is asserted exact-zero shared formula replay in the passing case; browser retry reused the unchanged first-run native capture.",
+    "firstAttemptResult": "docs/validation/source-hit-callbacks-team-initial-20260929.result.json"
+  },
+  "artifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 44985469,
+      "sha256": "6ef0cc1d9b808d5883ba5e9de976427801ef8bf76772cf5f342abb90aee03dd1"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 69552032,
+      "sha256": "8e2ae3cafbdd1e3175942b2756ef0093e02f3185536d33f7fff4c2402137c165"
+    },
+    {
+      "path": "packages/source-host/patches/111-hit-callbacks.patch",
+      "bytes": 1701,
+      "sha256": "4e47c048bf38883ee1088f7d08bd081dd2ccdaef226cfbaf58eea4bce2950107"
+    },
+    {
+      "path": "packages/source-host/patches/111-hit-callback-sites.patch",
+      "bytes": 5738,
+      "sha256": "8e5f0ef10c6192ea0c29dcbf5ce4c30cd221e0f6a9562c4020cc0bafed4d904a"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/111-hit-callback-sites.patch",
+      "bytes": 5738,
+      "sha256": "bf61e3b2c6c3c8f45ff81464af70c509fd76b12999d51dcea0fa6b573a307114"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-producer-plans.json",
+      "bytes": 56224,
+      "sha256": "12a800504f08644c5a9c0d8e9e01a0285087786ac32b68df64ddfe756b7832f2"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-producer-contracts.json",
+      "bytes": 56475,
+      "sha256": "736b494cf7d8fe96799140f183ced6dfdeee9ae0b0ea1c74fd9157c00186a499"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-hit-callback-analysis.ts",
+      "bytes": 20955,
+      "sha256": "a4a19c2908f1ccc5d8d83e9765aec8ea446bab7eae3fed707fa731daf7b27128"
+    },
+    {
+      "path": "docs/validation/source-hit-callbacks-team-20260929.capture.json",
+      "bytes": 2232003,
+      "sha256": "904f1efe4180c2ad9fd35774562e13d965d36406be5c4911323d31fa46cd5627"
+    },
+    {
+      "path": "docs/validation/source-hit-callbacks-design-20260929.json",
+      "bytes": 18042,
+      "sha256": "43d2d7b50d42b61624b51cfa1b6bc35f94c999add67df4de2e7285d11d147f10"
+    },
+    {
+      "path": "docs/validation/source-hit-callbacks-dori-mika-audit-20260929.json",
+      "bytes": 12381,
+      "sha256": "5c17623daa8b3bbb49d2f27978adb4de8f44ba16630e68c969c6fd95703880d0"
+    },
+    {
+      "path": "docs/validation/source-hit-callbacks-b-audit-20260929.json",
+      "bytes": 25900,
+      "sha256": "1cfe7dd2e790dbec2e38fc1ed0303012faaa36571bae43741be7dc2f6957e83d"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "repairs": [
+    {
+      "failure": "First browser case rejected Mika application 40 because its existing metadata remained press-only and lacked hitCallbackContract.",
+      "repair": "Updated the existing metadata, exact audit evidence, correct press/hold names and callback capability. Final production build and saved-capture browser replay passed; no second native simulation.",
+      "firstExitCode": 1
+    }
+  ],
+  "limits": [
+    "One classic 12-second, two-target native run covers Dori C1 E, Mika hold=1 E, Baizhu C0 E and Navia C2 hold=31 E. Stellar was built only.",
+    "Geometry misses, dead targets, blocked hit-confirm policy, negative hold values, other constellations and overlapping Baizhu casts have source-rule evidence, not additional native runtime samples.",
+    "Three missing-receipt/fact negatives modify archived output offline and do not represent independently executed truncated simulations.",
+    "Baizhu C2/C6 event and shield lifetimes remain unsupported for complete E closure; Childe Q is not registered pending death/status event ownership.",
+    "Released/preview/verified pointers are unchanged. No full test suite, per-character matrix, data promotion, commit, push or deployment.",
+    "Master goal remains active; all five broad code/source/external evidence categories remain tracked."
+  ]
+}

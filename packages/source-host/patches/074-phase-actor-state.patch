@@ -1,0 +1,427 @@
+diff --git a/internal/template/character/sourcehost_phase_state.go b/internal/template/character/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/internal/template/character/sourcehost_phase_state.go
+@@ -0,0 +1,40 @@
++package character
++
++import (
++	"fmt"
++
++	"github.com/genshinsim/gcsim/pkg/core/action"
++)
++
++// SourceHostTemplatePhaseState reads the shared character implementation's cooldown
++// queues and HP fields without calling Cooldown or any modifier computation.
++func (c *Character) SourceHostTemplatePhaseState() (map[string]any, []string) {
++	cooldowns := make([]map[string]any, 0, len(c.ActionCD))
++	var gaps []string
++	for index := range c.ActionCD {
++		queue := append([]int(nil), c.cdQueue[index]...)
++		workerPresent := c.cdCurrentQueueWorker[index] != nil
++		remaining := 0
++		if len(queue) > 0 {
++			remaining = c.cdQueueWorkerStartedAt[index] + queue[0] - c.Core.F
++		}
++		cooldowns = append(cooldowns, map[string]any{
++			"action":                   action.Action(index).String(),
++			"actionCD":                 c.ActionCD[index],
++			"availableCharges":         c.AvailableCDCharge[index],
++			"additionalCharges":        c.additionalCDCharge[index],
++			"queueDurations":           queue,
++			"workerStartedAgo":         c.Core.F - c.cdQueueWorkerStartedAt[index],
++			"currentCooldownRemaining": remaining,
++			"workerPresent":            workerPresent,
++		})
++		if workerPresent {
++			gaps = append(gaps, fmt.Sprintf("character[%d].cooldown[%d] worker callback", c.Index(), index))
++		}
++	}
++	return map[string]any{
++		"cooldowns":     cooldowns,
++		"storedHPRatio": c.currentHPRatio,
++		"storedHPDebt":  c.currentHPDebt,
++	}, gaps
++}
+diff --git a/pkg/core/action/sourcehost_phase_state.go b/pkg/core/action/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/action/sourcehost_phase_state.go
+@@ -0,0 +1,35 @@
++package action
++
++// SourceHostPhaseState copies animation progress without advancing queued work
++// or invoking character-specific animation rules.
++func (a *Info) SourceHostPhaseState() (map[string]any, []string) {
++	queued := make([]map[string]any, 0, len(a.queued))
++	for _, item := range a.queued {
++		queued = append(queued, map[string]any{"remainingTime": item.delay - a.TimePassed})
++	}
++	state := map[string]any{
++		"animationLength":      a.AnimationLength,
++		"canQueueAfter":        a.CanQueueAfter,
++		"state":                a.State.String(),
++		"timePassed":           a.TimePassed,
++		"normalizedTimePassed": a.NormalizedTimePassed,
++		"queuedActions":        queued,
++	}
++	var gaps []string
++	if a.Frames != nil {
++		gaps = append(gaps, "animation.Frames callback")
++	}
++	if a.FramePausedOnHitlag != nil {
++		gaps = append(gaps, "animation.FramePausedOnHitlag callback")
++	}
++	if a.OnRemoved != nil {
++		gaps = append(gaps, "animation.OnRemoved callback")
++	}
++	if a.UseNormalizedTime != nil {
++		gaps = append(gaps, "animation.UseNormalizedTime callback")
++	}
++	if len(a.queued) > 0 {
++		gaps = append(gaps, "animation queued action callbacks")
++	}
++	return state, gaps
++}
+diff --git a/pkg/core/player/animation/sourcehost_phase_state.go b/pkg/core/player/animation/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/animation/sourcehost_phase_state.go
+@@ -0,0 +1,21 @@
++package animation
++
++// SourceHostPhaseState reads stored animation fields; it does not call the
++// action's CanUse, CanQueueNext or Tick methods.
++func (h *AnimationHandler) SourceHostPhaseState() (map[string]any, []string) {
++	frame := *h.f
++	state := map[string]any{
++		"characterIndex":       h.char,
++		"startedAgo":           frame - h.started,
++		"lastAction":           h.lastAct.String(),
++		"state":                h.state.String(),
++		"stateExpiryRemaining": h.stateExpiry - frame,
++		"active":               h.aniEvt != nil,
++	}
++	if h.aniEvt == nil {
++		return state, nil
++	}
++	info, gaps := h.aniEvt.SourceHostPhaseState()
++	state["actionInfo"] = info
++	return state, gaps
++}
+diff --git a/pkg/core/player/character/sourcehost_phase_state.go b/pkg/core/player/character/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/character/sourcehost_phase_state.go
+@@ -0,0 +1,137 @@
++package character
++
++import (
++	"fmt"
++	"sort"
++)
++
++// SourceHostPhaseState copies the common character wrapper. In particular it
++// does not call Stats, Cooldown, Charges, Snapshot, or mod Amount closures.
++func (c *CharWrapper) SourceHostPhaseState() (map[string]any, []string) {
++	tags := make(map[string]int, len(c.Tags))
++	for key, value := range c.Tags {
++		tags[key] = value
++	}
++	baseStats := make([]float64, len(c.BaseStats))
++	copy(baseStats, c.BaseStats[:])
++	setKeys := make([]string, 0, len(c.Equip.Sets))
++	setCounts := make(map[string]int, len(c.Equip.Sets))
++	for key, set := range c.Equip.Sets {
++		name := key.String()
++		setKeys = append(setKeys, name)
++		setCounts[name] = set.GetCount()
++	}
++	sort.Strings(setKeys)
++	sets := make([]map[string]any, 0, len(setKeys))
++	for _, key := range setKeys {
++		sets = append(sets, map[string]any{"key": key, "count": setCounts[key]})
++	}
++	mods := make([]map[string]any, 0, len(c.mods))
++	var gaps []string
++	for index, mod := range c.mods {
++		kind := fmt.Sprintf("%T", mod)
++		expiry := mod.Expiry()
++		remaining := expiry - *c.f
++		if expiry == -1 {
++			remaining = -1
++		}
++		entry := map[string]any{
++			"key": mod.Key(), "kind": kind, "expiryRemaining": remaining,
++			"active":           expiry == -1 || expiry > *c.f,
++			"affectedByHitlag": mod.AffectedByHitlag(),
++		}
++		switch typed := mod.(type) {
++		case *Status:
++			entry["duration"] = typed.Dur
++		case *StatMod:
++			entry["duration"] = typed.Dur
++			entry["affectedStat"] = typed.AffectedStat.String()
++			entry["extra"] = typed.Extra
++			if typed.Amount != nil {
++				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++			}
++		case *AttackMod:
++			entry["duration"] = typed.Dur
++			if typed.Amount != nil {
++				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++			}
++		case *CooldownMod:
++			entry["duration"] = typed.Dur
++			if typed.Amount != nil {
++				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++			}
++		case *DamageReductionMod:
++			entry["duration"] = typed.Dur
++			if typed.Amount != nil {
++				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++			}
++		case *HealBonusMod:
++			entry["duration"] = typed.Dur
++			if typed.Amount != nil {
++				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++			}
++		case *ReactBonusMod:
++			entry["duration"] = typed.Dur
++			if typed.Amount != nil {
++				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++			}
++		default:
++			gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d] private implementation", c.index, index))
++		}
++		mods = append(mods, entry)
++	}
++	state := map[string]any{
++		"index":          c.index,
++		"implementation": fmt.Sprintf("%T", c.Character),
++		"base": map[string]any{
++			"key": c.Base.Key.String(), "element": c.Base.Element.String(),
++			"level": c.Base.Level, "maxLevel": c.Base.MaxLevel,
++			"ascension": c.Base.Ascension, "constellation": c.Base.Cons,
++			"rarity": c.Base.Rarity,
++		},
++		"weapon": map[string]any{
++			"key": c.Weapon.Key.String(), "level": c.Weapon.Level,
++			"maxLevel": c.Weapon.MaxLevel, "refinement": c.Weapon.Refine,
++			"class": c.Weapon.Class.String(),
++		},
++		"talents":       c.Talents,
++		"artifactSets":  sets,
++		"characterZone": int(c.CharZone), "characterBody": int(c.CharBody),
++		"normalConstellation": c.NormalCon, "skillConstellation": c.SkillCon,
++		"burstConstellation": c.BurstCon, "hasArkhe": c.HasArkhe,
++		"isHexerei": c.IsHexerei, "moonsign": c.Moonsign,
++		"particleDelay": c.ParticleDelay,
++		"energy":        c.Energy, "energyMax": c.EnergyMax,
++		"hpRatio": c.CurrentHPRatio(), "hpDebt": c.CurrentHPDebt(),
++		"startHP": c.StartHP, "startHPRatio": c.StartHPRatio,
++		"normalHitNum": c.NormalHitNum, "normalCounter": c.NormalCounter,
++		"tags": tags, "baseStats": baseStats, "modifiers": mods,
++		"remainingDashCD": c.RemainingDashCD, "dashLockout": c.DashLockout,
++		"timePassed": c.TimePassed, "localClockLag": *c.f - c.TimePassed,
++		"frozenFrames": c.frozenFrames,
++	}
++	if concrete, ok := c.Character.(interface {
++		SourceHostTemplatePhaseState() (map[string]any, []string)
++	}); ok {
++		concreteState, concreteGaps := concrete.SourceHostTemplatePhaseState()
++		state["sharedImplementation"] = concreteState
++		gaps = append(gaps, concreteGaps...)
++	} else {
++		gaps = append(gaps, fmt.Sprintf("character[%d] shared cooldown implementation unavailable", c.index))
++	}
++	if c.queue != nil {
++		localTasks, taskGaps := c.queue.SourceHostPhaseState()
++		state["localTasks"] = localTasks
++		gaps = append(gaps, taskGaps...)
++	}
++	// Concrete character, weapon and artifact implementations hold mutable
++	// private state unavailable through their shared interfaces.
++	gaps = append(gaps, fmt.Sprintf("character[%d] concrete implementation private state", c.index))
++	if c.Equip.Weapon != nil {
++		gaps = append(gaps, fmt.Sprintf("character[%d] weapon implementation private state", c.index))
++	}
++	if len(c.Equip.Sets) > 0 {
++		gaps = append(gaps, fmt.Sprintf("character[%d] artifact set implementation private state", c.index))
++	}
++	return state, gaps
++}
+diff --git a/pkg/core/player/infusion/sourcehost_phase_state.go b/pkg/core/player/infusion/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/infusion/sourcehost_phase_state.go
+@@ -0,0 +1,23 @@
++package infusion
++
++// SourceHostPhaseState copies each character's stored infusion without calling
++// Infused, which answers for one attack tag rather than describing the state.
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++	entries := make([]map[string]any, len(h.infusion))
++	for index, inf := range h.infusion {
++		tags := make([]int, len(inf.Tags))
++		for i, tag := range inf.Tags {
++			tags[i] = int(tag)
++		}
++		expiryRemaining := inf.Expiry - float64(*h.f)
++		if inf.Expiry == -1 {
++			expiryRemaining = -1
++		}
++		entries[index] = map[string]any{
++			"characterIndex": index, "key": inf.Key, "element": inf.Ele.String(),
++			"attackTags": tags, "expiryRemaining": expiryRemaining,
++			"canBeOverridden": inf.CanBeOverridden,
++		}
++	}
++	return map[string]any{"entries": entries}, nil
++}
+diff --git a/pkg/core/player/shield/sourcehost_phase_state.go b/pkg/core/player/shield/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/shield/sourcehost_phase_state.go
+@@ -0,0 +1,43 @@
++package shield
++
++import "fmt"
++
++// SourceHostPhaseState copies live shield quantities and bonus-mod metadata.
++// ShieldStrength and ShieldBonus are intentionally not evaluated here.
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++	shields := make([]map[string]any, 0, len(h.shields))
++	var gaps []string
++	for index, item := range h.shields {
++		state := map[string]any{
++			"owner": item.ShieldOwner(), "target": item.ShieldTarget(),
++			"key": item.Key(), "type": int(item.Type()), "description": item.Desc(),
++			"element": item.Element().String(), "hp": item.CurrentHP(),
++			"expiryRemaining": item.Expiry() - *h.f,
++			"implementation":  fmt.Sprintf("%T", item),
++		}
++		if tmpl, ok := item.(*Tmpl); ok {
++			state["sourceHostHPSource"] = tmpl.SourceHostHPID
++			state["sourceHostBonusSource"] = tmpl.SourceHostBonusID
++			if tmpl.SourceHostDamage != nil {
++				gaps = append(gaps, fmt.Sprintf("shield[%d].SourceHostDamage callback", index))
++			}
++		} else {
++			gaps = append(gaps, fmt.Sprintf("shield[%d] custom implementation private state", index))
++		}
++		shields = append(shields, state)
++	}
++	bonusMods := make([]map[string]any, 0, len(h.shieldBonusMods))
++	for index, mod := range h.shieldBonusMods {
++		expiry := mod.Expiry - *h.f
++		if mod.Expiry == -1 {
++			expiry = -1
++		}
++		bonusMods = append(bonusMods, map[string]any{
++			"key": mod.Key, "expiryRemaining": expiry, "active": mod.Expiry == -1 || mod.Expiry > *h.f,
++		})
++		if mod.Amount != nil {
++			gaps = append(gaps, fmt.Sprintf("shield bonus modifier[%d].Amount callback", index))
++		}
++	}
++	return map[string]any{"shields": shields, "bonusModifiers": bonusMods}, gaps
++}
+diff --git a/pkg/core/player/sourcehost_phase_state.go b/pkg/core/player/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/sourcehost_phase_state.go
+@@ -0,0 +1,66 @@
++package player
++
++import (
++	"fmt"
++)
++
++// SourceHostPhaseState copies player-side runtime state without triggering
++// stamina-mod, shield-bonus, action readiness or character-stat calculations.
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++	params := make(map[string]int, len(h.LastAction.Param))
++	for key, value := range h.LastAction.Param {
++		params[key] = value
++	}
++	positions := make(map[string]int, len(h.charPos))
++	for key, value := range h.charPos {
++		positions[key.String()] = value
++	}
++	characters := make([]map[string]any, 0, len(h.chars))
++	var gaps []string
++	for _, char := range h.chars {
++		state, charGaps := char.SourceHostPhaseState()
++		characters = append(characters, state)
++		gaps = append(gaps, charGaps...)
++	}
++	staminaMods := make([]map[string]any, 0, len(h.stamPercentMods))
++	for index, mod := range h.stamPercentMods {
++		remaining := mod.Expiry - *h.F
++		if mod.Expiry == -1 {
++			remaining = -1
++		}
++		staminaMods = append(staminaMods, map[string]any{
++			"key": mod.Key, "expiryRemaining": remaining,
++			"active": mod.Expiry == -1 || mod.Expiry > *h.F,
++		})
++		if mod.Amount != nil {
++			gaps = append(gaps, fmt.Sprintf("player.staminaModifier[%d].Amount callback", index))
++		}
++	}
++	animationState, animationGaps := h.AnimationHandler.SourceHostPhaseState()
++	shieldState, shieldGaps := h.Shields.SourceHostPhaseState()
++	infusionState, infusionGaps := h.Handler.SourceHostPhaseState()
++	gaps = append(gaps, animationGaps...)
++	gaps = append(gaps, shieldGaps...)
++	gaps = append(gaps, infusionGaps...)
++	state := map[string]any{
++		"activeCharacter": h.active, "characterPositions": positions,
++		"characters": characters,
++		"stamina":    h.Stam, "lastStaminaUseAgo": *h.F - h.LastStamUse,
++		"staminaModifiers": staminaMods,
++		"airborneSource":   int(h.airborne),
++		"swapCooldown":     h.SwapCD, "swapInterval": h.SwapICD,
++		"dashCooldownRemaining": h.DashCDExpirationFrame - *h.F,
++		"dashLockout":           h.DashLockout,
++		"lastAction": map[string]any{
++			"usedAgo": *h.F - h.LastAction.UsedAt, "type": h.LastAction.Type.String(),
++			"parameters": params, "characterIndex": h.LastAction.Char,
++		},
++		"verdantDew":                h.verdantDew,
++		"verdantDewExpiryRemaining": h.verdantDewExpiryFrame - *h.F,
++		"partialDewCount":           h.partialDewCount,
++		"moonridgeDew":              h.moonridgeDew,
++		"animation":                 animationState, "infusions": infusionState, "shields": shieldState,
++		"hitlagEnabled": h.EnableHitlag,
++	}
++	return state, gaps
++}
+diff --git a/pkg/core/status/sourcehost_phase_state.go b/pkg/core/status/sourcehost_phase_state.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/status/sourcehost_phase_state.go
+@@ -0,0 +1,22 @@
++package status
++
++import "sort"
++
++// SourceHostPhaseState includes retained expired entries because their presence
++// can affect a later refresh, even when Duration would currently return zero.
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++	keys := make([]string, 0, len(h.status))
++	for key := range h.status {
++		keys = append(keys, key)
++	}
++	sort.Strings(keys)
++	entries := make([]map[string]any, 0, len(keys))
++	for _, key := range keys {
++		entry := h.status[key]
++		entries = append(entries, map[string]any{
++			"key": key, "expiryRemaining": entry.expiry - *h.f,
++			"active": entry.expiry > *h.f,
++		})
++	}
++	return map[string]any{"entries": entries}, nil
++}

@@ -1,0 +1,814 @@
+{
+  "schemaVersion": 1,
+  "title": "Released playable equipment IDs absent from pinned a7 source-host inventory",
+  "generatedAt": "2026-09-28",
+  "method": {
+    "comparison": "Released dataset weapon itemId and artifact numericId compared by exact integer equality with a7 inventory-metadata.json packages[kind].resolved.sourceGameId. Names, slugs and counts are not used to establish matches.",
+    "eligibility": "7.1 released snapshot; weapon rows with ordinary playable eligibility are included. Three documented quest-trial Isshin variants are excluded from the playable weapon set. Every artifactSet row in the released snapshot is included.",
+    "typedModelAudit": "Searched package TypeScript/TSX model source for exact slugs and followed matching conditional/extended/polearm/equipment rule code. Raw imported source trees, generated data and optimizer copies are not counted as current typed model implementations."
+  },
+  "releasedDataset": {
+    "snapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "snapshotMetadataPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/metadata.json",
+    "catalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "catalogIndexPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+    "supplementalPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+    "inventory": {
+      "activeWeaponRows": 255,
+      "excludedTaskTrialWeaponIds": [
+        11419,
+        11420,
+        11421
+      ],
+      "playableWeaponsCompared": 252,
+      "artifactSetsCompared": 63
+    }
+  },
+  "sourceHost": {
+    "repository": "genshinsim/gcsim",
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+    "inventoryMetadataPath": "apps/web/public/source-host-stellar/inventory-metadata.json",
+    "pinnedSourceTreeArchivePath": "packages/source-host/stellar-overlay/source-tree.json.gz",
+    "registeredWeapons": 241,
+    "registeredArtifacts": 55
+  },
+  "summary": {
+    "playableWeaponsMissing": 11,
+    "artifactSetsMissing": 8,
+    "totalMissing": 19,
+    "missingWeaponsWithCurrentTypedModelRefs": 5,
+    "missingWeaponsWithNoDirectTypedModelRef": 6,
+    "missingArtifactSetsWithExistingTypedRuleOrDescription": 8
+  },
+  "excludedTaskTrialWeapons": [
+    {
+      "id": "weapon:11419",
+      "sourceGameId": 11419,
+      "slug": "prizedisshinblade",
+      "name": "「一心传」名刀",
+      "releasedDatasetStatus": "released historical quest-only trial variant; excluded from ordinary playable inventory",
+      "evidence": [
+        "docs/research/release-inventory-2026-09-23.md#补充-255-与-252-的任务武器口径差异",
+        "packages/game-data/src/equipment-build.ts:102"
+      ]
+    },
+    {
+      "id": "weapon:11420",
+      "sourceGameId": 11420,
+      "slug": "prizedisshinblade-01",
+      "name": "「一心传」名刀",
+      "releasedDatasetStatus": "released historical quest-only trial variant; excluded from ordinary playable inventory",
+      "evidence": [
+        "docs/research/release-inventory-2026-09-23.md#补充-255-与-252-的任务武器口径差异",
+        "packages/game-data/src/equipment-build.ts:102"
+      ]
+    },
+    {
+      "id": "weapon:11421",
+      "sourceGameId": 11421,
+      "slug": "prizedisshinblade-02",
+      "name": "「一心传」名刀",
+      "releasedDatasetStatus": "released historical quest-only trial variant; excluded from ordinary playable inventory",
+      "evidence": [
+        "docs/research/release-inventory-2026-09-23.md#补充-255-与-252-的任务武器口径差异",
+        "packages/game-data/src/equipment-build.ts:102"
+      ]
+    }
+  ],
+  "missingPlayableWeapons": [
+    {
+      "id": "weapon:11435",
+      "sourceGameId": 11435,
+      "slug": "hereticsmoltenblade",
+      "name": "熔猎异端之刃",
+      "releasePatch": "7.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/weapon-extended-effects.ts",
+          "line": 135,
+          "scope": "manual active window and 0–18 tier ATK formula; automatic movement-tier mapping and exit removal not implemented",
+          "source": "packages/game-data/sources/weapon-extended-effects/optimizer/libs__gi__sheets__src__Weapons__Sword__HereticsMoltenBlade__index.tsx.txt:18-40"
+        }
+      ],
+      "typedModelSearch": "Manual-tier fixed Optimizer formula added after the initial ID inventory; a7 source-host registration remains absent.",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/39",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/39",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 11435",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:11437",
+      "sourceGameId": 11437,
+      "slug": "newbough",
+      "name": "新枝",
+      "releasePatch": "7.1",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [],
+      "typedModelSearch": "No direct typed weapon-effect reference found",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/41",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/41",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 11437",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:11438",
+      "sourceGameId": 11438,
+      "slug": "silverlight",
+      "name": "银釭",
+      "releasePatch": "7.1",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [],
+      "typedModelSearch": "No direct typed weapon-effect reference found",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/42",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/42",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 11438",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:11520",
+      "sourceGameId": 11520,
+      "slug": "whitelakefrostfeather",
+      "name": "白湖冬羽",
+      "releasePatch": "7.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/weapon-extended-effects.ts",
+          "line": 200,
+          "status": "stacked attack term can consume supplied stack count; specialized damage and energy return remain blocked"
+        }
+      ],
+      "typedModelSearch": "Partial typed support; see blockers in referenced source file",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/59",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/59",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 11520",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:11522",
+      "sourceGameId": 11522,
+      "slug": "beyondthechrysalis",
+      "name": "蝶变",
+      "releasePatch": "7.1",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [],
+      "typedModelSearch": "No direct typed weapon-effect reference found",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/61",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/61",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 11522",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:12516",
+      "sourceGameId": 12516,
+      "slug": "ateaspoonoftranscendence",
+      "name": "超越之匙",
+      "releasePatch": "6.7",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/weapon-extended-effects.ts",
+          "line": 222,
+          "status": "static attack term exists; charged-hit lunar damage and timed stacks remain blocked"
+        }
+      ],
+      "typedModelSearch": "Partial typed support; see blockers in referenced source file",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/106",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/106",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 12516",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:13436",
+      "sourceGameId": 13436,
+      "slug": "songofthevigil",
+      "name": "戍望谣歌",
+      "releasePatch": "7.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/weapon-polearm-effects.ts",
+          "line": 124,
+          "status": "windowed attack term can consume supplied active window; reaction energy and cooldown event remain blocked"
+        }
+      ],
+      "typedModelSearch": "Partial typed support; see blockers in referenced source file",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/136",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/136",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 13436",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:14435",
+      "sourceGameId": 14435,
+      "slug": "clashofkings",
+      "name": "群王局戏",
+      "releasePatch": "7.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/weapon-conditioned-expansion.ts",
+          "line": 112,
+          "status": "conditional expansion accepts a supplied active flag; trigger, window extension and cooldown remain blocked"
+        }
+      ],
+      "typedModelSearch": "Partial typed support; see blockers in referenced source file",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/182",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/182",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 14435",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:14437",
+      "sourceGameId": 14437,
+      "slug": "wintersheavyheart",
+      "name": "凝雪沉心",
+      "releasePatch": "7.1",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [],
+      "typedModelSearch": "No direct typed weapon-effect reference found",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/184",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/184",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 14437",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:14524",
+      "sourceGameId": 14524,
+      "slug": "hymnofthemaelstrom",
+      "name": "漩流颂歌",
+      "releasePatch": "7.1",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [],
+      "typedModelSearch": "No direct typed weapon-effect reference found",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/204",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/204",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 14524",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "weapon:15437",
+      "sourceGameId": 15437,
+      "slug": "breezebornerefrain",
+      "name": "柔风游弦",
+      "releasePatch": "7.1",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "simulationStatus": "metadata-only"
+      },
+      "playableScope": "ordinary-playable-weapon",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this itemId",
+      "existingTypedModelEvidence": [],
+      "typedModelSearch": "No direct typed weapon-effect reference found",
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+          "pointer": "/weapons/242",
+          "role": "released dataset item, ID, name, release patch and passive text"
+        },
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog-index.json",
+          "pointer": "/weapons/242",
+          "role": "released eligibility/simulationStatus"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=weapon].resolved.sourceGameId == 15437",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    }
+  ],
+  "missingArtifactSets": [
+    {
+      "id": "artifact-set:10004",
+      "sourceGameId": 10004,
+      "slug": "tinymiracle",
+      "name": "奇迹",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 241,
+          "status": "2-piece self-resistance description is present but marked not-modeled; 4-piece timed resistance trigger is not in executable outgoing-damage rules"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/3",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 10004",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:10010",
+      "sourceGameId": 10010,
+      "slug": "adventurer",
+      "name": "冒险家",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 208,
+          "status": "2-piece flat-HP rule is present; 4-piece chest healing is not modeled here"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/9",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 10010",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:10011",
+      "sourceGameId": 10011,
+      "slug": "luckydog",
+      "name": "幸运儿",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 209,
+          "status": "2-piece flat-DEF rule is present; 4-piece mora healing is not modeled here"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/10",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 10011",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:10013",
+      "sourceGameId": 10013,
+      "slug": "travelingdoctor",
+      "name": "游医",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 244,
+          "status": "2-piece incoming-healing description is present and marked not-modeled; 4-piece burst healing not modeled here"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/12",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 10013",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:15009",
+      "sourceGameId": 15009,
+      "slug": "prayersforillumination",
+      "name": "祭火之人",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 246,
+          "status": "one-piece status-duration description is present and marked not-modeled"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/24",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 15009",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:15010",
+      "sourceGameId": 15010,
+      "slug": "prayersfordestiny",
+      "name": "祭水之人",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 246,
+          "status": "one-piece status-duration description is present and marked not-modeled"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/25",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 15010",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:15011",
+      "sourceGameId": 15011,
+      "slug": "prayersforwisdom",
+      "name": "祭雷之人",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 247,
+          "status": "one-piece status-duration description is present and marked not-modeled"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/26",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 15011",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    },
+    {
+      "id": "artifact-set:15013",
+      "sourceGameId": 15013,
+      "slug": "prayerstospringtime",
+      "name": "祭冰之人",
+      "releasePatch": "1.0",
+      "releasedDatasetStatus": {
+        "releaseStatus": "released",
+        "processingStatus": "parsed",
+        "executableEffects": []
+      },
+      "playableScope": "released-artifact-set",
+      "a7SourceHost": "no registered package with resolved.sourceGameId equal to this numericId",
+      "existingTypedModelEvidence": [
+        {
+          "path": "packages/game-data/src/equipment-effects.ts",
+          "line": 247,
+          "status": "one-piece status-duration description is present and marked not-modeled"
+        }
+      ],
+      "primaryEvidence": [
+        {
+          "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+          "pointer": "/artifactSets/27",
+          "role": "released dataset ID, name, set-piece descriptions and processing/effect status"
+        },
+        {
+          "path": "apps/web/public/source-host-stellar/inventory-metadata.json",
+          "lookup": "packages[kind=artifact].resolved.sourceGameId == 15013",
+          "role": "a7 pinned registration inventory; no match"
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/source-tree.json.gz",
+          "role": "pinned a7 source tree archive; package cannot be named for an absent registration"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "The a7 inventory is pinned host registration/parser/localization evidence; absence here establishes no matching registered package by sourceGameId, not absence of other upstream code or mechanics.",
+    "Released status is separate from numeric and mechanic verification. The selected 7.1 metadata records numericEvidenceStatus unchecked and mechanicEvidenceStatus missing.",
+    "Existing TS entries are recorded as implemented evidence only to the exact extent described at the referenced line. No behavior was inferred from passive text."
+  ]
+}

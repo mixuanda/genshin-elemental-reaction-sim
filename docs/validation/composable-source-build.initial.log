@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "artifactDamageLog" | "artifactDamageState" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | ... 15 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: sourceSnapshotLog" | "Expected: literal string: artifactDamageLog, Actual: literal string: sourceSnapshotLog" | ... 21 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: sourceSnapshotLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: sourceSnapshotLog" | "Expected: literal string: artifactDamageLog, Actual: literal string: sourceSnapshotLog" | ... 21 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: sourceSnapshotLog"'.

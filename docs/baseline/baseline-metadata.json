@@ -1,0 +1,615 @@
+{
+  "capturedAt": "2026-09-22T14:29:49Z",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "branch": "main",
+  "tree": "72bd69a8c54a3e115685c7ee52f5862064c70f55",
+  "selectedBaseline": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-baseline-kjlvbhfr",
+  "initialStatus": "clean (git status --short empty before this audit created files)",
+  "archiveComparison": [
+    {
+      "path": "/Users/evan/Downloads/Archive.zip",
+      "bytes": 71339336,
+      "sha256": "10a6ea0cdba8b2c17c36471d6ec6ce64f5446882eb73c801d3e31c8d9e9dbd25",
+      "entries": [
+        {
+          "path": "Turotial Questions on Nov 27.pdf",
+          "bytes": 69424,
+          "sha256": "d6336d79e1ad5ca9847f5fc2eadf97cd6df6dd5a16b48b33b54e0ded48f60da4",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Turotial Questions on Nov 27.pdf",
+          "bytes": 5050,
+          "sha256": "8222f10dfed42339469506fa0940f704bcb579fca4778e4920df352b55d84189",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "tutorial_1113.pdf",
+          "bytes": 211325,
+          "sha256": "d185be4f6963da06791dd763c3fa36618f531ffab52088e4891e43efce9d5e13",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._tutorial_1113.pdf",
+          "bytes": 4992,
+          "sha256": "689dcc1d1526b2036ee82bd89d8c00c9168095d056e84b36c93ba71390f74c82",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Tutorial Problems on Nov 13.pdf",
+          "bytes": 65722,
+          "sha256": "640f06d5bf243ce26f4b6ecaffb5d32e0585c658e833363ce6ad13350d96e065",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Tutorial Problems on Nov 13.pdf",
+          "bytes": 5056,
+          "sha256": "08c7324d93d0ec31ee97991e31bd7c602fab3fca811f055f7d0524a2fffa20e4",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Solutions for Tutorial on Oct 30.pdf",
+          "bytes": 249763,
+          "sha256": "c07308a0b6317e352944b6247a2be41b8331f983ce13a1d6a24ccc8467482d8e",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Solutions for Tutorial on Oct 30.pdf",
+          "bytes": 5070,
+          "sha256": "f2cb325f197ff163c1830820494f79e2fb3879a12740679b25096c39d59507d4",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Tutorial Questions Oct 30.pdf",
+          "bytes": 76404,
+          "sha256": "6c1e55902d5c2e8d101199d6f707ac9f9a62d1d77fbf572aeef42e388bb12a00",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Tutorial Questions Oct 30.pdf",
+          "bytes": 5040,
+          "sha256": "66e54263e16a375ff675086203b5ec3cf2e97fc12d774526785a13a9ff369fe8",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Tutorial Solution Oct. 23(1).pdf",
+          "bytes": 1065874,
+          "sha256": "926755bc1974e158dad0b13a75f9117ae893cb099a8bdb1472761ab3fca40401",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Tutorial Solution Oct. 23(1).pdf",
+          "bytes": 5062,
+          "sha256": "0994ec8a9f54ca1d9e24ac7264caba3b60f90cfbd821fbf00eb547164309aaa5",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Tutorial Questions on Oct. 23.pdf",
+          "bytes": 135911,
+          "sha256": "0e2f28b7d6afea79bd2404016945d007f21e3e53f9f1e4cbcd0eb8f73ba3a349",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Tutorial Questions on Oct. 23.pdf",
+          "bytes": 5052,
+          "sha256": "c9a95279ee124ab86a8705b4732246bbfb7bdafc4d22c33305459a6fca2c0787",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Solution for tutorial on Oct 9.pdf",
+          "bytes": 1980633,
+          "sha256": "5afa3c6dcc77cc63308c897bbea48debf4a04bdbb9d9b159bab920efda7dedf1",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Solution for tutorial on Oct 9.pdf",
+          "bytes": 5066,
+          "sha256": "fa4535ad9516a010651071529aebf09354e7b3d2b473c8d23ba97068c0abf405",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Tutorial questions on Oct 9.pdf",
+          "bytes": 383507,
+          "sha256": "02a378cce486b70786827108b208db074e6139650f23d4c85a3aa10ad0f65a03",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Tutorial questions on Oct 9.pdf",
+          "bytes": 5048,
+          "sha256": "afdb64c0638032dd882908ad03dce40aff22ec0c9450ec67b392359dcb9f4794",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 C_Tutorial on Oct 2(1).pdf",
+          "bytes": 134185,
+          "sha256": "3b9724760f7da1c4a46caedf4bcfb94a463dfba922927d5c77e48755bddb7b2a",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 C_Tutorial on Oct 2(1).pdf",
+          "bytes": 5080,
+          "sha256": "4a5caa1cd5a31f830e44d6bb3557056dea5e1e1c9c2a504cb2b34b8a7901bd46",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 C_Tutorial on Oct 2.pdf",
+          "bytes": 112170,
+          "sha256": "c80d293808ea0b4e908c38841ac495609f86c91189ae9fb4a3a275b78018cfab",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 C_Tutorial on Oct 2.pdf",
+          "bytes": 5050,
+          "sha256": "deb76a27d16faca0bf51fed3afe4cbb10d551570453d9be4c9aea8e00bf5e685",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Solution for Tutorial Question on Sep 25 (1).pdf",
+          "bytes": 519984,
+          "sha256": "5f667ee06195f6a90140070acbf20d911afa81791f5f197aec2fc0d5577196d4",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Solution for Tutorial Question on Sep 25 (1).pdf",
+          "bytes": 5130,
+          "sha256": "e91047c4947fe1da0694ddf16a33a3fde412beff87e4488700f027f627885cfd",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Tutorial Question on Sep 25.pdf",
+          "bytes": 245201,
+          "sha256": "f94a15c205d7d39531443b48cb9a0eceb6aa6364aa26083be68096e52198b190",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Tutorial Question on Sep 25.pdf",
+          "bytes": 5052,
+          "sha256": "593c8eb1019954d501ba6227f46450aefc5b0fa648144bfa7cea0a619df8ddd3",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Solution for Tuto_3 (1).pdf",
+          "bytes": 442294,
+          "sha256": "cb6ff5782d83528361e8226bd83e65e006d76bdcd937b517ce2b54b11af6052b",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Solution for Tuto_3 (1).pdf",
+          "bytes": 5068,
+          "sha256": "b7a916d387bc3fe58cafd02b86b285f5cffd82ef42f65b99953d8e3f53a5035a",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH 1010 C Tutorial Question-Sep 18(2).pdf",
+          "bytes": 149331,
+          "sha256": "096fdb615f596ec1a6456bbdb4110c634215bd6fa3ee2c16b280e4a152b779a7",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH 1010 C Tutorial Question-Sep 18(2).pdf",
+          "bytes": 5096,
+          "sha256": "7d938caed0a15ed3dced104e36db35d996afc578f1652c85d858ad856d5f5b8d",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Solution for tutorial on Sep 11.pdf",
+          "bytes": 478134,
+          "sha256": "a746ed685b2ecd70507347696d64ad73c2215ad7a774a27960518c54790a2759",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Solution for tutorial on Sep 11.pdf",
+          "bytes": 5068,
+          "sha256": "3246851ef71164efbdbfb8bf6e19d25df6c7ae990c09e587028ad8d9aeed3f13",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH 1010C_Tutorial question_Sep 10.pdf",
+          "bytes": 112300,
+          "sha256": "da9aa574467b0a15681b8441c33584e41dbd74564b2c21a5ca32132d7b16305b",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH 1010C_Tutorial question_Sep 10.pdf",
+          "bytes": 5064,
+          "sha256": "90a95895343b022331227ec1e1cf859e02cce5ada8bacdd3ce6ec54540c360ad",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH 1010C_Tutorial Note_Sep 4.pdf",
+          "bytes": 423257,
+          "sha256": "3cae6392d176ebfbac52126536a52ae033fc634e6d3da4313774324b6013c258",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH 1010C_Tutorial Note_Sep 4.pdf",
+          "bytes": 5050,
+          "sha256": "04ba8903441330fadd8fd5e5fa5b3057c38dda7781a29051b664a8cc357c7ac7",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 (2021 May).pdf",
+          "bytes": 893174,
+          "sha256": "45d16afc40b41e128444813a5c1be59d2af86878dc14dcbbacaffecd703ad51b",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 (2021 May).pdf",
+          "bytes": 5036,
+          "sha256": "2e37c27dfb2b2f40387ef0011863469fcf043421e4c972e4a5d7b78b48249c9e",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 (2021 Dec).pdf",
+          "bytes": 95996,
+          "sha256": "e7f8ebf6da72ef67c2bb3323cbcb37a61fc26c6e3a199d0791f33b836949d902",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 (2021 Dec).pdf",
+          "bytes": 5040,
+          "sha256": "acf0bd5d27cedfca75b68355a54e6c0080c5a79f32a10f2913684e8dfc57fefa",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 (2022 May).pdf",
+          "bytes": 158052,
+          "sha256": "81babcfe7b07663ace1c66593b93e3ca8b32b96662dc9303a2dae5a2fcc0a2e3",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 (2022 May).pdf",
+          "bytes": 5032,
+          "sha256": "b9c7fe23efe85ea1822ddf8dfb61972b6a5eb65f621289bb27b30791fa1361d1",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 (2022 Dec).pdf",
+          "bytes": 98185,
+          "sha256": "12a627aa15abc6bbf61d164de45e720b8bbb7680e5085f8e3544eb75bad2dcfc",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 (2022 Dec).pdf",
+          "bytes": 5036,
+          "sha256": "b2a0ca67c94986bde6589d8cd02917cac7e635ee0b267bdba720d35a79049957",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010 (2nd-term) 2022-23.pdf",
+          "bytes": 923591,
+          "sha256": "48cfc2a704c2e62c0f25c5c857e2261550c32073e24063fbe6846d229cfe7c27",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010 (2nd-term) 2022-23.pdf",
+          "bytes": 5048,
+          "sha256": "ef1cfb6ca1dda3eb7f8e368a6cc0b1bc3f083b025e4420ba44c6ccb197782771",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010A.pdf",
+          "bytes": 663563,
+          "sha256": "ab3af9f503aede7655fb72d7e4df1bbfba418f83ae3cfb4eb4ac07a36ec8047a",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010A.pdf",
+          "bytes": 4992,
+          "sha256": "b397378c2733db507ed511c0e774c537292a6ba49c3c6f0a934960c2ae436dcd",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010I.pdf",
+          "bytes": 59561,
+          "sha256": "81dbf7201387f3a39effb7dc9f2c0ba7379ffe74dd71369ecec47ecff2bc7484",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010I.pdf",
+          "bytes": 4988,
+          "sha256": "2d8470f65ff9710ba223c592d8edcf396200dcc72eb85b914c3d37ab4dba2c35",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "MATH1010A(1).pdf",
+          "bytes": 336176,
+          "sha256": "122655f649504987ea384bce5df99e9be57cf8a5e2fccd777fb0e7f1057e0624",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._MATH1010A(1).pdf",
+          "bytes": 5010,
+          "sha256": "5e82c903322d09f3740098066475a459ccb342beb677da97f18548a562cb0f69",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "HW1.pdf",
+          "bytes": 179145,
+          "sha256": "6a7735202abec09c8fdcfe04630b706892bcfc37e512992fc23d42a578ce73c4",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._HW1.pdf",
+          "bytes": 563,
+          "sha256": "1056e7594ea61cf1711a50d2173c7382f1fae9ad3667eb1ea68420bf4cdb4b44",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_9.pdf",
+          "bytes": 588463,
+          "sha256": "06c68569cb44ec6e9acde57c53f835bb48757db860e5450cd9756622332301c7",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_9.pdf",
+          "bytes": 571,
+          "sha256": "928ec75ac7a71a7ff4da7b52cdb6fecea9282dbf43944f1d911ecdf46d5d3272",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_8.pdf",
+          "bytes": 399605,
+          "sha256": "74cc9281bf8734f6739a35115d10aeac77a606cde3cc0cbd8b2d777211dc68be",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_8.pdf",
+          "bytes": 571,
+          "sha256": "4b00c1a825fece8d10cfb040372b25e98464b8d50ac6f4eabb84fc133bd7aa12",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_7.pdf",
+          "bytes": 552616,
+          "sha256": "61216b3a6603b0f7b9c750cf5e8f428c3af0dc5c8bcde3740aaec737139c7ebb",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_7.pdf",
+          "bytes": 571,
+          "sha256": "14be86b4c87b6e0e38b57612d067d32ac2e907295bd8485b4be5e5f00fa5dd85",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_6.pdf",
+          "bytes": 566173,
+          "sha256": "c6e09484302b85843347fba5c66bba6573c9de2bdfdd41cf4d243e1ebe792b4e",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_6.pdf",
+          "bytes": 571,
+          "sha256": "2ce67ff174cbb91fd321e2a20adf97e42f69fb8c95513098d810c457d06d0b11",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_5.pdf",
+          "bytes": 399903,
+          "sha256": "ceb825a3972b3fe8eb178ce101bc7c06b7a02e94d81e7e86301c1492b5ea7367",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_5.pdf",
+          "bytes": 571,
+          "sha256": "9181fc5f8d249ae2105add26d2d19781ca2ca90512f397dbd6be711332783646",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_4.pdf",
+          "bytes": 138450,
+          "sha256": "5f5d642b330795075a9731761ea2eff1ad9f45f8b943fa0092e7eae0eb26d14e",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_4.pdf",
+          "bytes": 571,
+          "sha256": "c8494036cfa671d4c2423ccf4a806f8e458efae5135f735d86c4ae34b136f937",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_3.pdf",
+          "bytes": 183907,
+          "sha256": "d49bd20be3b2ca47b139f484ffca37ab5905d4b211a0b035196edc2c12b646d9",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_3.pdf",
+          "bytes": 571,
+          "sha256": "558c3d4702a57744e4eef945ff481df0044f5588e077a4ed1359e213f0b7d8e6",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_2.pdf",
+          "bytes": 71306,
+          "sha256": "cc415ba37bb61d21d3f00752344edae1b0040559086005948f1c329d1910f7f9",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_2.pdf",
+          "bytes": 571,
+          "sha256": "3ae10c964782c2053f70fe21d2dd47c3ba2860c8ee509a93043812f229c8b7d3",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "exercise_1.pdf",
+          "bytes": 55654,
+          "sha256": "dbafa78d2edd5fd7223ba367da48dc1fbb37b7257022f848b1cb75e4f191e1cd",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._exercise_1.pdf",
+          "bytes": 571,
+          "sha256": "b7bb97cc664b1b6cf562a8c9b4b12c30c759e1ea99416c0bc365d06af6086634",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "main_note.pdf",
+          "bytes": 5453781,
+          "sha256": "caf73bfc61bab4c4cf83f154d580763dbf3b3431f82caf7df66cb6da83b129e3",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._main_note.pdf",
+          "bytes": 569,
+          "sha256": "50b740deaa7d890d8da906fed4884d3becdc9123239df8e873d0dec34e0c3d96",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 5. Integration and Applications.pdf",
+          "bytes": 12053224,
+          "sha256": "56a0ab5c318b1842dc6a86e37cad76504bb5f3a9f2cbdd832d2ff4bbe428b6f8",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 5. Integration and Applications.pdf",
+          "bytes": 5076,
+          "sha256": "f75b97bf5ce6415e7fd7dd83ac9fb7ef398ec9b0288da0c9cb5897d5fd976615",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 4. Differentiation (Part 3).pdf",
+          "bytes": 1251522,
+          "sha256": "f515adf9eff7706d08d9d9132017fa20770fac41325e54fb0ac5210733151472",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 4. Differentiation (Part 3).pdf",
+          "bytes": 5092,
+          "sha256": "7747b5ea45420903d96f9c7a862ed05bd1e373196f4b054a66b163810c8ba6f2",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 4. Applications of Differentiation (Part 2).pdf",
+          "bytes": 10271546,
+          "sha256": "c7c5421d1ba3bc286a302b9ed444f8b7335e82cd339cb29038aaebd95c1fe8bc",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 4. Applications of Differentiation (Part 2).pdf",
+          "bytes": 5132,
+          "sha256": "a39e65d09a3efccd549b7b05e0d96d8d302ea4179ccd00d90f79070cb5442671",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 4. Applications of Differentiation (Part 1).pdf",
+          "bytes": 8827518,
+          "sha256": "84f489f3d640de940fbbcf5858d06241d8bb249b98dd1e532731fe6f0dd165c4",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 4. Applications of Differentiation (Part 1).pdf",
+          "bytes": 5132,
+          "sha256": "4212eee1b6e57dc1c32751ac7f3e0b03735f2dbea0720fa75ac1eabfb0a6ba73",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 3. Differentiation.pdf",
+          "bytes": 4106304,
+          "sha256": "b44d3a051d676dbb17f4353bdb61d6b3889d38f78d9c9d3f986c6bf0059ff2ea",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 3. Differentiation.pdf",
+          "bytes": 5042,
+          "sha256": "4959e2c7deb32a476c0f0ac61a746ebe9cafc5ebc943a42e6fb4f390edc5008c",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 2. Limits of Functions and Continuity.pdf",
+          "bytes": 15858586,
+          "sha256": "f4dba633e9fec9b188246af9334ae382acbf349cff7d4480f8f0fef2a5f1d831",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 2. Limits of Functions and Continuity.pdf",
+          "bytes": 5112,
+          "sha256": "6afbcb17baab756995a8cfff638c55a7cc8b12fe02a8d314cbcb94509c6bd8c0",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "Chapter 1. Limits of Sequences.pdf",
+          "bytes": 10263857,
+          "sha256": "006e905abc19aa643db3c9acff324d284cefdc6bc39aceb8b7963bae2da52de0",
+          "matchingLegacyPath": null
+        },
+        {
+          "path": "__MACOSX/._Chapter 1. Limits of Sequences.pdf",
+          "bytes": 5066,
+          "sha256": "2142d171e66e5226ee9993483f31e145ca6b4dcbb15861d62aa3e751fc668048",
+          "matchingLegacyPath": null
+        }
+      ]
+    },
+    {
+      "path": "/Users/evan/Downloads/genshin-dps-lab.zip",
+      "bytes": 286075,
+      "sha256": "9106a8e8d553b9fbe4f881b5bce9d98810acefa23ae234403e37da02148a4aab",
+      "entries": [
+        {
+          "path": "genshin-dps-lab/serve.sh",
+          "bytes": 167,
+          "sha256": "c35fd42c2971533f025b724441a219bc87da07405e21ec912ded60daf951098f",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/serve.sh"
+        },
+        {
+          "path": "genshin-dps-lab/app.js",
+          "bytes": 40096,
+          "sha256": "05bc98a39466c9e5d0e80c41f3f53f2e9503e9fd145bc0fd949d3a91b4692a53",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/app.js"
+        },
+        {
+          "path": "genshin-dps-lab/styles.css",
+          "bytes": 8326,
+          "sha256": "298fe2ae0ad9010c35fb039e13b09b74e82e7c97bb0f9a6d37f95df5d70a42f8",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/styles.css"
+        },
+        {
+          "path": "genshin-dps-lab/README.md",
+          "bytes": 1654,
+          "sha256": "13aa021f7bdb840c0dd18f26c959eb58b6e25e3e4e7d3cd31462b7939872401a",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/README.md"
+        },
+        {
+          "path": "genshin-dps-lab/index.html",
+          "bytes": 7169,
+          "sha256": "d9d35624250486a45f38983a3c9004cd69f67fb93cb37fc51e6ed78f3b29fbc1",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/index.html"
+        },
+        {
+          "path": "genshin-dps-lab/TECHNICAL_DESIGN.md",
+          "bytes": 3013,
+          "sha256": "27cf4e2274270ec495b30c55ef8ec547ea829368aef2cc26c2097f6ff9fd5474",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/TECHNICAL_DESIGN.md"
+        },
+        {
+          "path": "genshin-dps-lab/preview.png",
+          "bytes": 273130,
+          "sha256": "209ee85ca783d9dfd66b952666a0fe076be04829dc5c898c9e4275e405ea9cc7",
+          "matchingLegacyPath": "legacy/v0.1-vanilla/preview.png"
+        }
+      ]
+    }
+  ],
+  "masterPromptSha256": "54f4068825f203192593c3134c79e0ef27c34dafb27753020fb40db3bd7e6855",
+  "referencedPaths": {
+    "apps/web/src/components/SingleSkillCalculator.tsx": false,
+    "packages/core/src/damage.ts": false,
+    "packages/core/src/explain.ts": false,
+    "packages/core/src/types.ts": false,
+    "packages/core/src/levelMultipliers.ts": false,
+    "packages/core/src/reactions": false,
+    "packages/data/src/cli/generateCurrentDataset.ts": false,
+    "packages/data/src/generated/currentDataset.generated.ts": false,
+    "packages/enka": false,
+    "packages/shared": false
+  },
+  "node": "v24.15.0",
+  "npm": "11.12.1",
+  "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+  "machine": "arm64",
+  "dependencyIsolation": "Individual third-party dependency links reuse installed packages; @genshin-dps-lab workspace links point exclusively to git-archive baseline packages. Initial convenience node_modules root symlink was detected as insufficient before accepting results; all checks rerun with this isolation.",
+  "checksCompletedAt": "2026-09-22T14:35:46.123100+00:00",
+  "cpu": "Apple M5 Max",
+  "logicalCpuCount": "18"
+}

@@ -1,0 +1,147 @@
+--- a/internal/characters/chongyun/skill.go
++++ b/internal/characters/chongyun/skill.go
+@@ -136,7 +136,13 @@
+ 				case action.ActionSkill,
+ 					action.ActionBurst,
+ 					action.ActionSpecialSkill:
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-chongyun-c2-a7", map[string]any{"action": int(a)}, nil)
++					}
+ 					return -0.15
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-chongyun-c2-a7", map[string]any{"action": int(a)}, nil)
+ 				}
+ 				return 0
+ 			},
+--- a/internal/characters/columbina/burst.go
++++ b/internal/characters/columbina/burst.go
+@@ -99,7 +99,11 @@
+ 				if c.Core.Combat.Debug {
+ 					c.Core.Log.NewEventBuildMsg(glog.LogCharacterEvent, char.Index(), "Adding columbina burst react bonus")
+ 				}
+-				return burstBuff[c.TalentLvlBurst()]
++				talent := c.TalentLvlBurst()
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-columbina-burst-lunar", map[string]any{"talent": talent}, nil)
++				}
++				return burstBuff[talent]
+ 			},
+ 		})
+ 	}
+--- a/internal/characters/diona/cons.go
++++ b/internal/characters/diona/cons.go
+@@ -55,6 +55,9 @@
+ 						if c.Core.Flags.LogDebug {
+ 							c.Core.Log.NewEvent("diona c6 incomming heal bonus activated", glog.LogCharacterEvent, c.Index())
+ 						}
++						if c.Core.SourceHost != nil {
++							return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-diona-c6-heal", map[string]any{}, nil)
++						}
+ 						return 0.3
+ 					},
+ 				})
+--- a/internal/characters/dori/cons.go
++++ b/internal/characters/dori/cons.go
+@@ -50,6 +50,9 @@
+ 		active.AddHealBonusMod(character.HealBonusMod{
+ 			Base: modifier.NewBaseWithHitlag("dori-c4-healbonus", 48),
+ 			Amount: func() float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-dori-c4-heal", map[string]any{}, nil)
++				}
+ 				return 0.5
+ 			},
+ 		})
+--- a/internal/characters/flins/asc.go
++++ b/internal/characters/flins/asc.go
+@@ -34,6 +34,9 @@
+ 			case attacks.AttackTagReactionLunarCharge:
+ 			default:
+ 				return 0
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-flins-a1-lunarcharged", map[string]any{}, nil)
+ 			}
+ 			return 0.2
+ 		},
+--- a/internal/characters/furina/burst.go
++++ b/internal/characters/furina/burst.go
+@@ -125,7 +125,12 @@
+ 	}, "furina-fanfare-on-heal")
+ 
+ 	burstDMGRatio := burstFanfareDMGRatio[c.TalentLvlBurst()]
+-	burstHealRatio := burstFanfareHBRatio[c.TalentLvlBurst()]
++	healTalent := c.TalentLvlBurst()
++	burstHealRatio := burstFanfareHBRatio[healTalent]
++	healRatioID := 0
++	if c.Core.SourceHost != nil {
++		burstHealRatio, healRatioID = c.Core.SourceHost.CharacterScalarCreate(c.Index(), "furina-burst-heal-buff", "char-scalar-furina-burst-heal-ratio", map[string]any{"talent": healTalent}, nil)
++	}
+ 	for _, char := range c.Core.Player.Chars() {
+ 		char.AddAttackMod(character.AttackMod{
+ 			Base: modifier.NewBase("furina-burst-damage-buff", -1),
+@@ -146,7 +151,11 @@
+ 			Base: modifier.NewBase("furina-burst-heal-buff", -1),
+ 			Amount: func() float64 {
+ 				if c.StatusIsActive(burstKey) {
+-					return min(c.curFanfare, c.maxQFanfare) * burstHealRatio
++					fanfare, fanfareCap := c.curFanfare, c.maxQFanfare
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-furina-burst-heal", map[string]any{"fanfare": fanfare, "fanfareCap": fanfareCap, "talentRatio": burstHealRatio}, nil, map[string]int{"talentRatio": healRatioID})
++					}
++					return min(fanfare, fanfareCap) * burstHealRatio
+ 				}
+ 				return 0
+ 			},
+--- a/internal/characters/kaveh/burst.go
++++ b/internal/characters/kaveh/burst.go
+@@ -61,7 +61,11 @@
+ 				Base: modifier.NewBaseWithHitlag(burstDmgBonusKey, burstDuration),
+ 				Amount: func(ai info.AttackInfo) float64 {
+ 					if ai.AttackTag == attacks.AttackTagBloom {
+-						return burstDmgBonus[c.TalentLvlBurst()]
++						talent := c.TalentLvlBurst()
++						if c.Core.SourceHost != nil {
++							return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-kaveh-burst-bloom", map[string]any{"talent": talent}, nil)
++						}
++						return burstDmgBonus[talent]
+ 					}
+ 					return 0
+ 				},
+--- a/internal/characters/kaveh/cons.go
++++ b/internal/characters/kaveh/cons.go
+@@ -49,6 +49,9 @@
+ 		Base: modifier.NewBase("kaveh-c4", -1),
+ 		Amount: func(ai info.AttackInfo) float64 {
+ 			if ai.AttackTag == attacks.AttackTagBloom {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-kaveh-c4-bloom", map[string]any{}, nil)
++				}
+ 				return 0.6
+ 			}
+ 			return 0
+--- a/internal/characters/lauma/cons.go
++++ b/internal/characters/lauma/cons.go
+@@ -94,6 +94,9 @@
+ 			Amount: func(atk info.AttackInfo) float64 {
+ 				if atk.AttackTag != attacks.AttackTagDirectLunarBloom {
+ 					return 0
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-lauma-c2-lunarbloom", map[string]any{}, nil)
+ 				}
+ 				return 0.4
+ 			},
+--- a/internal/characters/qiqi/asc.go
++++ b/internal/characters/qiqi/asc.go
+@@ -36,6 +36,9 @@
+ 		active.AddHealBonusMod(character.HealBonusMod{
+ 			Base: modifier.NewBaseWithHitlag("qiqi-a1", 8*60),
+ 			Amount: func() float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-qiqi-a1-heal", map[string]any{}, nil)
++				}
+ 				return .2
+ 			},
+ 		})

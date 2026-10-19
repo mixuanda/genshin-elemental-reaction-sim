@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-flat.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 51.446,
+  "log": "docs/validation/source-character-flat-e2e-retry3-20260928.log"
+}

@@ -1,0 +1,194 @@
+--- a/internal/template/minazuki/minazuki.go
++++ b/internal/template/minazuki/minazuki.go
+@@ -24,6 +24,7 @@
+ 	statusKey   string
+ 	icdKey      string
+ 	triggerFunc func()
++	sourceHostGeneratorSite string
+ 	core        *core.Core
+ 	tickerFreq  int
+ 
+@@ -79,6 +80,14 @@
+ 		w.triggerFunc = triggerFunc
+ 		w.tickerFreq = tickerFreq
+ 		w.core = c
++		return nil
++	}
++}
++
++// WithSourceHostGeneratorSite names only source-audited persistent emitters.
++func WithSourceHostGeneratorSite(siteID string) Config {
++	return func(w *Watcher) error {
++		w.sourceHostGeneratorSite = siteID
+ 		return nil
+ 	}
+ }
+@@ -148,7 +157,7 @@
+ 				Write("icd_key", w.icdKey)
+ 			return
+ 		}
+-		w.triggerWithStatusOwner()
++		w.triggerWithStatusOwner("state-change")
+ 		w.core.Log.NewEventBuildMsg(glog.LogCharacterEvent, c.Index(), w.abil, " triggered on state change").
+ 			Write("state", next).
+ 			Write("icd", c.StatusExpiry(w.icdKey)).
+@@ -162,14 +171,12 @@
+ // triggerWithStatusOwner binds the active status instance only for work
+ // created by this trigger. The Init-installed callback ancestry and the
+ // later normal-attack trigger remain independent in the origin record.
+-func (w *Watcher) triggerWithStatusOwner() {
+-	if w.core.SourceHost == nil {
+-		w.triggerFunc()
+-		return
+-	}
+-	end := w.core.SourceHost.Origin.BeginStatusOwner(w.caster.SourceHostStatusOwner(w.statusKey))
+-	w.triggerFunc()
+-	end()
++func (w *Watcher) triggerWithStatusOwner(kind string) {
++	siteID := ""
++	if w.sourceHostGeneratorSite != "" {
++		siteID = w.sourceHostGeneratorSite + "." + kind
++	}
++	w.caster.SourceHostTriggerOwnedGenerator(siteID, w.statusKey, kind, w.triggerFunc)
+ }
+ 
+ func (w *Watcher) queueTick(src int) {
+@@ -225,7 +232,7 @@
+ 			Write("state", state).
+ 			Write("icd", c.StatusExpiry(w.statusKey))
+ 		// we can trigger a wave here b/c we're in normal state still and src is still the same
+-		w.triggerWithStatusOwner()
++		w.triggerWithStatusOwner("ticker")
+ 		// in theory this should not hit an icd?
+ 		// use the hitlag affected queue for this
+ 		w.queueTick(src)
+--- a/internal/characters/xingqiu/burst.go
++++ b/internal/characters/xingqiu/burst.go
+@@ -52,7 +52,7 @@
+ 		dur += 3
+ 	}
+ 	dur *= 60
+-	c.AddStatus(burstKey, dur+33, true) // add 33f for anim
++	c.SourceHostAddOwnedGeneratorStatus("xingqiu.burst.raincutter-status", burstKey, dur+33, true) // add 33f for anim
+ 	c.applyOrbital(dur, burstHitmark)
+ 
+ 	c.burstCounter = 0
+@@ -127,7 +127,8 @@
+ 
+ 	snap := c.Snapshot(&ai)
+ 	for i := 0; i < c.numSwords; i++ {
+-		c.Core.QueueAttackWithSnap(
++		c.Core.SourceHostQueueOwnedAttackWithSnap(
++			"xingqiu.burst.rainsword",
+ 			ai,
+ 			snap,
+ 			combat.NewCircleHit(
+--- a/internal/characters/xingqiu/xingqiu.go
++++ b/internal/characters/xingqiu/xingqiu.go
+@@ -37,6 +37,7 @@
+ 
+ 	w, err := minazuki.New(
+ 		minazuki.WithMandatory(keys.Xingqiu, "xingqiu burst", burstKey, burstICDKey, 60, c.summonSwordWave, c.Core),
++		minazuki.WithSourceHostGeneratorSite("xingqiu.burst.raincutter"),
+ 		minazuki.WithAnimationDelayCheck(info.AnimationXingqiuN0StartDelay, c.shouldDelay),
+ 	)
+ 	if err != nil {
+--- a/internal/characters/yelan/burst.go
++++ b/internal/characters/yelan/burst.go
+@@ -68,8 +68,8 @@
+ 	)
+ 
+ 	// TODO: check if we need to add f to this
+-	c.Core.Tasks.Add(func() {
+-		c.AddStatus(burstKey, 15*60, false)
++	c.Core.SourceHostQueueTask("yelan.burst.activate", c.Index(), func() {
++		c.SourceHostAddOwnedGeneratorStatus("yelan.burst.dice-status", burstKey, 15*60, false)
+ 		c.a4() // TODO: does this call need to be delayed?
+ 	}, burstHitmark)
+ 	if c.Base.Cons >= 6 { // C6 passive, lasts 20 seconds
+@@ -114,7 +114,8 @@
+ 	c.recordSourceFlat(&ai, nil, "char-flat-yelan-burstdice", 0, map[string]any{"talent": flatLevel, "maxHp": hp}, flatRead)
+ 	snap := c.Snapshot(&ai)
+ 	for i := range 3 {
+-		c.Core.QueueAttackWithSnap(
++		c.Core.SourceHostQueueOwnedAttackWithSnap(
++			"yelan.burst.dice",
+ 			ai,
+ 			snap,
+ 			combat.NewCircleHit(
+@@ -135,7 +136,8 @@
+ 		c.recordSourceFlat(&ai, nil, "char-flat-yelan-c2", priorFlat, map[string]any{"maxHp": hp}, flatRead)
+ 		c.c2icd = c.Core.F + 1.8*60
+ 		// TODO: frames timing on this?
+-		c.Core.QueueAttack(
++		c.Core.SourceHostQueueOwnedAttack(
++			"yelan.burst.c2-dice",
+ 			ai,
+ 			combat.NewCircleHit(
+ 				c.Core.Combat.Player(),
+--- a/internal/characters/yelan/yelan.go
++++ b/internal/characters/yelan/yelan.go
+@@ -60,6 +60,7 @@
+ 
+ 	w, err := minazuki.New(
+ 		minazuki.WithMandatory(keys.Yelan, "yelan burst", burstKey, burstICDKey, 60, c.burstWaveWrapper, c.Core),
++		minazuki.WithSourceHostGeneratorSite("yelan.burst.dice"),
+ 		minazuki.WithAnimationDelayCheck(info.AnimationYelanN0StartDelay, c.shouldDelay),
+ 	)
+ 	if err != nil {
+--- a/internal/characters/yelan/skill.go
++++ b/internal/characters/yelan/skill.go
+@@ -108,7 +108,7 @@
+ 		}
+ 		// TODO: icd on this??
+ 		if c.StatusIsActive(burstKey) {
+-			c.summonExquisiteThrow()
++			c.SourceHostTriggerOwnedGenerator("yelan.burst.dice.skill-hit", burstKey, "skill-hit", c.summonExquisiteThrow)
+ 			c.Core.Log.NewEvent("yelan burst on skill", glog.LogCharacterEvent, c.Index())
+ 		}
+ 	}
+--- a/internal/characters/thoma/burst.go
++++ b/internal/characters/thoma/burst.go
+@@ -56,7 +56,7 @@
+ 		d = 18
+ 	}
+ 
+-	c.AddStatus(burstKey, d*60, true)
++	c.SourceHostAddOwnedGeneratorStatus("thoma.burst.oyoroi-status", burstKey, d*60, true)
+ 
+ 	// C4: restore 15 energy
+ 	if c.Base.Cons >= 4 {
+@@ -107,7 +107,8 @@
+ 		c.genShield("Thoma Burst", shieldamt, shieldID, true)
+ 		done = true
+ 	}
+-	c.Core.QueueAttack(
++	c.Core.SourceHostQueueOwnedAttack(
++		"thoma.burst.collapse",
+ 		ai,
+ 		combat.NewBoxHitOnTarget(c.Core.Combat.Player(), nil, 4.5, 8),
+ 		0,
+--- a/internal/characters/thoma/thoma.go
++++ b/internal/characters/thoma/thoma.go
+@@ -47,6 +47,7 @@
+ 
+ 	w, err := minazuki.New(
+ 		minazuki.WithMandatory(keys.Thoma, "thoma burst", burstKey, burstICDKey, 60, c.summonFieryCollapse, c.Core),
++		minazuki.WithSourceHostGeneratorSite("thoma.burst.collapse"),
+ 		minazuki.WithAnimationDelayCheck(info.AnimationXingqiuN0StartDelay, c.shouldDelay),
+ 	)
+ 	if err != nil {
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -167,6 +167,11 @@
+ 				v.Type().Name() == "SourceHostStatRead" && field.Name == "BasePanel" {
+ 				continue
+ 			}
++			// The source-audited watcher site is trace metadata, not gameplay state.
++			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/internal/template/minazuki" &&
++				v.Type().Name() == "Watcher" && field.Name == "sourceHostGeneratorSite" {
++				continue
++			}
+ 			qualifiedName := v.Type().PkgPath() + "." + v.Type().Name() + "." + field.Name
+ 			fields[field.Name] = r.read(v.Field(i), path+"."+field.Name, qualifiedName, depth+1)
+ 		}

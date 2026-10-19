@@ -1,0 +1,47 @@
+[WebServer] (node:22484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:22485) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/calculator-aggregation.spec.ts:20:1 › a sourced two-strike skill shows complete and selected composition, updates its subtotal, and restores the exported aggregation (7.5s)
+
+
+  1) [chromium] › apps/web/e2e/calculator-aggregation.spec.ts:20:1 › a sourced two-strike skill shows complete and selected composition, updates its subtotal, and restores the exported aggregation 
+
+    Error: expect(locator).toHaveText(expected) failed
+
+    Locator:  locator('[data-cast-aggregation]').getByTestId('cast-aggregation-expected')
+    Expected: "3,491.42"
+    Received: "3,491.424"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveText" with timeout 5000ms
+      - waiting for locator('[data-cast-aggregation]').getByTestId('cast-aggregation-expected')
+        14 × locator resolved to <div class="value" data-testid="cast-aggregation-expected">…</div>
+           - unexpected value "3,491.424"
+
+
+       97 |     complete.result.aggregation.components.map(row => row.damage!.expected),
+       98 |   );
+    >  99 |   await expect(cast.getByTestId("cast-aggregation-expected")).toHaveText(display(edited.result.totals!.expected));
+          |                                                               ^
+      100 |
+      101 |   const document = await downloadJson<CalculatorDocument>(page, '[data-action="export"]');
+      102 |   expect(document.selectedHitIds).toEqual(hitIds);
+        at /Users/evan/Documents/gidps/apps/web/e2e/calculator-aggregation.spec.ts:99:63
+
+    Error Context: test-results/calculator-aggregation-a-s-b860b-es-the-exported-aggregation-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calculator-aggregation-a-s-b860b-es-the-exported-aggregation-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calculator-aggregation-a-s-b860b-es-the-exported-aggregation-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/calculator-aggregation.spec.ts:20:1 › a sourced two-strike skill shows complete and selected composition, updates its subtotal, and restores the exported aggregation 

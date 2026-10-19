@@ -1,0 +1,10 @@
+[WebServer] (node:26879) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:26880) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-talent-table.spec.ts:51:1 › both native lanes replay an indexed talent-table read and preserve it through a scaling edit (10.0s)
+
+  1 passed (11.2s)

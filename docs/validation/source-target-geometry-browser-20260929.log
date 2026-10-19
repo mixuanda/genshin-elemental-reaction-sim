@@ -1,0 +1,10 @@
+[WebServer] (node:53438) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:53439) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-target-geometry.spec.ts:27:1 › explicit source target geometry changes actual Kaeya contact and survives both editors (3.8s)
+
+  1 passed (5.0s)

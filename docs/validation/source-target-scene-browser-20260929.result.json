@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "source-target-scene-browser-v1",
+  "measurements": {
+    "single": {
+      "rawPath": "/tmp/gidps-target-scene-single.json",
+      "primaryTargetIndex": 1,
+      "initialDefaultTargetKey": 1,
+      "primaryTargetKey": 2,
+      "totalRawDamage": 1807.387792842841,
+      "rows": [
+        {
+          "declarationIndex": 0,
+          "targetKey": 1,
+          "rawDamage": 1161.8921525418264,
+          "appliedDamage": 1161.8921525418264,
+          "hitCount": 1
+        },
+        {
+          "declarationIndex": 1,
+          "targetKey": 2,
+          "rawDamage": 645.4956403010146,
+          "appliedDamage": 645.4956403010146,
+          "hitCount": 1
+        },
+        {
+          "declarationIndex": 2,
+          "targetKey": 3,
+          "rawDamage": 0,
+          "appliedDamage": 0,
+          "hitCount": 0
+        }
+      ],
+      "replayDifferences": [
+        0,
+        0
+      ]
+    },
+    "team": {
+      "rawPath": "/tmp/gidps-target-scene-team.json",
+      "primaryTargetIndex": 2,
+      "initialDefaultTargetKey": 1,
+      "primaryTargetKey": 3,
+      "totalRawDamage": 1807.387792842841,
+      "primaryRawDamage": 0,
+      "replayDifferences": [
+        0,
+        0
+      ],
+      "sameNativeApplications": true,
+      "copiedAndRemovedDraftRestored": true,
+      "sceneScreenshot": "docs/validation/source-target-scene-diagram-20260929.png",
+      "summaryScreenshot": "docs/validation/source-target-scene-summary-20260929.png"
+    }
+  },
+  "pageErrors": [],
+  "scope": "Two classic Kaeya E native runs with the same three-target GCSL and seed; only the statistics target changes. Initial native default target and primary reporting remain distinct."
+}

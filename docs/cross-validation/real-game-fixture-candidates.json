@@ -1,0 +1,348 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-09-23T06:30:28.334851+00:00",
+  "classification": "source-backed-game",
+  "verification": "provisional",
+  "numericEvidenceStatus": "cross-checked",
+  "sourceIndependence": "Two separately maintained source artifacts can share upstream game data. Exact agreement is not two independent live-game observations.",
+  "gameVersion": {
+    "catalogueLabel": "6.7",
+    "meaning": "Historical supplied catalogue label only; not a newly verified current game version.",
+    "activeVerifiedDataset": false
+  },
+  "scope": {
+    "characterId": "character:10000015",
+    "characterName": "凯亚",
+    "level": 1,
+    "ascension": 0,
+    "constellation": 0,
+    "weaponId": "weapon:11101",
+    "weaponName": "无锋剑",
+    "weaponLevel": 1,
+    "weaponAscension": 0,
+    "refinementRepresentation": 1,
+    "refinementMeaning": "Weapon has no refinement passive; no R2-R5 invented.",
+    "artifacts": [],
+    "enemy": {
+      "kind": "custom-conditioned-target",
+      "level": 1,
+      "relevantResistance": 0.1,
+      "defenseReduction": 0,
+      "defenseIgnore": 0,
+      "aura": "none",
+      "shield": false,
+      "invulnerability": false
+    },
+    "talentLevel": 1,
+    "buffs": [],
+    "partyResonance": false,
+    "critRate": 0.05,
+    "critDamage": 0.5,
+    "attribution": "Frostgnaw one-cast includes its sole direct hit; normal example includes only N1. No particles, teammates, reaction events or unrelated hits enter the damage total."
+  },
+  "passiveScopeEvidence": [
+    {
+      "name": "Cold-Blooded Strike",
+      "status": "locked at ascension 0",
+      "effect": "Healing after Frostgnaw; does not alter this direct damage."
+    },
+    {
+      "name": "Glacial Heart",
+      "status": "locked at ascension 0",
+      "effect": "Conditional extra particle generation; no damage multiplier."
+    },
+    {
+      "name": "Hidden Strength",
+      "status": "not applicable to hit damage",
+      "effect": "Sprint stamina only."
+    },
+    {
+      "name": "Dull Blade weapon passive",
+      "status": "no effect exists in cited weapon definition"
+    },
+    {
+      "name": "Constellations",
+      "status": "none unlocked at C0"
+    }
+  ],
+  "fixedSourceArtifacts": [
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/character.dm.go",
+      "retrievedAt": "2026-09-23T06:25:30.895421+00:00",
+      "bytes": 436821,
+      "sha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/weapon.dm.go",
+      "retrievedAt": "2026-09-23T06:25:32.928048+00:00",
+      "bytes": 410160,
+      "sha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/curve.dm.go",
+      "retrievedAt": "2026-09-23T06:25:34.295057+00:00",
+      "bytes": 24758,
+      "sha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/basestat.go",
+      "retrievedAt": "2026-09-23T06:25:35.175354+00:00",
+      "bytes": 3278,
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kaeya/skill.go",
+      "retrievedAt": "2026-09-23T06:25:36.216790+00:00",
+      "bytes": 3079,
+      "sha256": "bd9256ab028e839f74ff6bd6f4df9e1783a6e0247459223ce7b22eb92f9b49fd",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kaeya/attack.go",
+      "retrievedAt": "2026-09-23T06:25:36.971993+00:00",
+      "bytes": 3018,
+      "sha256": "83f8e951f5be873b1181a36f0a6360a13e1b665b9ac5372f6694f471c8051bb9",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kaeya/zz_kaeya.dm.go",
+      "retrievedAt": "2026-09-23T06:25:39.265886+00:00",
+      "bytes": 3674,
+      "sha256": "5e5e835dce839033ed0f1ad45ebf4561aca286b9d0c455128f57b15a18e94351",
+      "localArtifactMatchesRemote": true
+    },
+    {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dullblade/dullblade.go",
+      "retrievedAt": "2026-09-23T06:25:40.360526+00:00",
+      "bytes": 392,
+      "sha256": "2b877396304d4f3a9a246b96f00d88b0c01e4763c911718c86306068de04630c",
+      "localArtifactMatchesRemote": true
+    }
+  ],
+  "localCatalogue": {
+    "path": "packages/game-data/src/generated/catalog.zh-CN.json",
+    "sha256": "92eb478fbe1f84292c12b8a623e43233d233973563d4519a5af68192247094df",
+    "sourceCommit": "1bab2cdba4d218fd5caa46b5f54e7884ee8359a2",
+    "sourceVersion": "5.2.12",
+    "sourceSha256": "ed67decfbb3785be5c62b0eda1ed5433cae210fa98e107641defa2fb576488e0"
+  },
+  "mechanicsSources": [
+    {
+      "url": "https://library.keqingmains.com/characters/cryo/kaeya",
+      "accessedAt": "2026-09-23T06:30:28.335889+00:00",
+      "usedFor": [
+        "Cryo Skill identity",
+        "normal attack identity",
+        "passive applicability",
+        "base critical stats"
+      ],
+      "caveat": "Displayed rounded percentages and base ATK were not reparsed as exact calculator inputs."
+    },
+    {
+      "url": "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+      "accessedAt": "2026-09-23T06:30:28.335893+00:00",
+      "usedFor": [
+        "ordinary damage formula",
+        "ATK composition",
+        "defense multiplier",
+        "resistance branch",
+        "critical and expected policies"
+      ]
+    }
+  ],
+  "manualMethod": {
+    "implementation": "Python decimal.Decimal, constructed directly from decimal strings",
+    "formula": "(18.6984+23.245)*talentCoefficient*(101/(101+101))*(1-0.1)*critMultiplier",
+    "critMultipliers": {
+      "nonCritical": "1",
+      "critical": "1.5",
+      "expected": "1.025"
+    },
+    "independentOfCalculatorCore": true,
+    "floatComparisonAbsoluteTolerance": 1e-10
+  },
+  "fixtures": [
+    {
+      "fixtureId": "game-kaeya-frostgnaw-lv1",
+      "coefficientField": "talent-set:kaeya.combat2.parameters.param1[0]",
+      "coefficient": "1.912",
+      "manualSteps": [
+        {
+          "formula": "characterATK + weaponATK",
+          "substitution": "18.6984 + 23.245",
+          "result": "41.9434"
+        },
+        {
+          "formula": "ATK * talentCoefficient",
+          "substitution": "41.9434 * 1.912",
+          "result": "80.1957808"
+        },
+        {
+          "formula": "(characterLevel+100)/((characterLevel+100)+(enemyLevel+100))",
+          "substitution": "101 / (101 + 101)",
+          "result": "0.5"
+        },
+        {
+          "formula": "baseDamage * defenseMultiplier",
+          "substitution": "80.1957808 * 0.5",
+          "result": "40.09789040"
+        },
+        {
+          "formula": "1-resistance",
+          "substitution": "1-0.1",
+          "result": "0.9"
+        },
+        {
+          "formula": "afterDEF * resistanceMultiplier",
+          "substitution": "40.09789040 * 0.9",
+          "result": "36.088101360"
+        },
+        {
+          "formula": "nonCritical * (1+critDamage)",
+          "substitution": "36.088101360 * 1.5",
+          "result": "54.1321520400"
+        },
+        {
+          "formula": "nonCritical * (1+critRate*critDamage)",
+          "substitution": "36.088101360 * (1+0.05*0.5)",
+          "result": "36.990303894000"
+        },
+        {
+          "formula": "(1-critRate)*nonCritical + critRate*critical",
+          "substitution": "0.95*36.088101360+0.05*54.1321520400",
+          "result": "36.990303894000"
+        }
+      ],
+      "expected": {
+        "nonCritical": "36.088101360",
+        "critical": "54.1321520400",
+        "expected": "36.990303894000"
+      }
+    },
+    {
+      "fixtureId": "game-kaeya-normal-1-lv1",
+      "coefficientField": "talent-set:kaeya.combat1.parameters.param1[0]",
+      "coefficient": "0.5375",
+      "manualSteps": [
+        {
+          "formula": "characterATK + weaponATK",
+          "substitution": "18.6984 + 23.245",
+          "result": "41.9434"
+        },
+        {
+          "formula": "ATK * talentCoefficient",
+          "substitution": "41.9434 * 0.5375",
+          "result": "22.54457750"
+        },
+        {
+          "formula": "(characterLevel+100)/((characterLevel+100)+(enemyLevel+100))",
+          "substitution": "101 / (101 + 101)",
+          "result": "0.5"
+        },
+        {
+          "formula": "baseDamage * defenseMultiplier",
+          "substitution": "22.54457750 * 0.5",
+          "result": "11.272288750"
+        },
+        {
+          "formula": "1-resistance",
+          "substitution": "1-0.1",
+          "result": "0.9"
+        },
+        {
+          "formula": "afterDEF * resistanceMultiplier",
+          "substitution": "11.272288750 * 0.9",
+          "result": "10.1450598750"
+        },
+        {
+          "formula": "nonCritical * (1+critDamage)",
+          "substitution": "10.1450598750 * 1.5",
+          "result": "15.21758981250"
+        },
+        {
+          "formula": "nonCritical * (1+critRate*critDamage)",
+          "substitution": "10.1450598750 * (1+0.05*0.5)",
+          "result": "10.3986863718750"
+        },
+        {
+          "formula": "(1-critRate)*nonCritical + critRate*critical",
+          "substitution": "0.95*10.1450598750+0.05*15.21758981250",
+          "result": "10.3986863718750"
+        }
+      ],
+      "expected": {
+        "nonCritical": "10.1450598750",
+        "critical": "15.21758981250",
+        "expected": "10.3986863718750"
+      }
+    }
+  ],
+  "validation": {
+    "localExactFieldAssertions": "passed",
+    "fixedRemoteSourceArtifactComparisons": "8/8 byte-identical to previously downloaded local source artifacts",
+    "calculatorCoreComparison": "passed",
+    "liveGameObservation": "not performed",
+    "externalGcsimExecution": "not performed",
+    "calculatorCheckKind": "Targeted Node/Vite SSR input schema, three outputs, JSON round-trip and edited critical-rate dependency assertions; no broad test suite executed.",
+    "checkedAt": "2026-09-23T06:32:02.579Z",
+    "comparisons": [
+      {
+        "fixtureId": "game-kaeya-frostgnaw-lv1",
+        "totals": {
+          "nonCritical": 36.088101359999996,
+          "critical": 54.132152039999994,
+          "expected": 36.99030389399999
+        },
+        "absoluteErrors": {
+          "nonCritical": 7.105427357601002e-15,
+          "critical": 7.105427357601002e-15,
+          "expected": 7.105427357601002e-15
+        },
+        "resultVerification": "provisional",
+        "fullTraceNodeCount": 72,
+        "hitTraceNodeCount": 35,
+        "jsonRoundTrip": "passed",
+        "editCritRateFrom": 0.05,
+        "editCritRateTo": 0.15,
+        "editedExpected": 38.794708961999994
+      },
+      {
+        "fixtureId": "game-kaeya-normal-1-lv1",
+        "totals": {
+          "nonCritical": 10.145059875,
+          "critical": 15.217589812499998,
+          "expected": 10.398686371874998
+        },
+        "absoluteErrors": {
+          "nonCritical": 0,
+          "critical": 1.7763568394002505e-15,
+          "expected": 1.7763568394002505e-15
+        },
+        "resultVerification": "provisional",
+        "fullTraceNodeCount": 72,
+        "hitTraceNodeCount": 35,
+        "jsonRoundTrip": "passed",
+        "editCritRateFrom": 0.05,
+        "editCritRateTo": 0.15,
+        "editedExpected": 10.905939365624999
+      }
+    ],
+    "sourceFingerprints": {
+      "packages/sim-core/src/game-worked-example-inputs.ts": "462d40a9923000843f08d280d16f29d31bcce0cc99bc79d7cf72d14dd6400cc7",
+      "packages/sim-core/src/calculator.ts": "8e1a06444de862b600ccfc10aa03d32784aec33e471bc7a0433af760b964cf0b",
+      "packages/sim-core/src/calculator-model.ts": "7054755b63c78d18e5f0d3be40318daa7cc0f5b1f5840210a075ea644a409ba7",
+      "packages/sim-core/src/calculator-formula.ts": "6488c8095cce998fa248ebdd77937391347ed90674e520141610646d51f924b3",
+      "packages/sim-core/src/calculation-trace.ts": "9172a9ef67a1ec13c4ea6d08e105fae7d4e18ddbe709c0dc8d7e9acbe9076ad3"
+    },
+    "sourceStableDuringChecks": true
+  },
+  "remainingBlockers": [
+    "No client-observed damage fixture or independent current-version numerical validation.",
+    "Current verified data channel has not promoted these historical source records.",
+    "Editing character, ascension, talent, weapon, constellations or effects beyond the recorded assumptions requires matching source definitions; this fixture does not grant blanket character readiness."
+  ]
+}

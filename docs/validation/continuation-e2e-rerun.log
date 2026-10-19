@@ -1,0 +1,79 @@
+
+Running 2 tests using 1 worker
+
+(node:88525) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/continuation.spec.ts:106:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile (7.3s)
+(node:88562) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › apps/web/e2e/continuation.spec.ts:160:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries (30.1s)
+
+
+  1) [chromium] › apps/web/e2e/continuation.spec.ts:106:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('#randomSeedInput')
+    Expected: "continuation-critical-20260923"
+    Received: "legacy-default"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" with timeout 5000ms
+      - waiting for locator('#randomSeedInput')
+        8 × locator resolved to <input id="randomSeedInput"/>
+          - unexpected value "discard-this-seed"
+        5 × locator resolved to <input id="randomSeedInput"/>
+          - unexpected value "legacy-default"
+
+
+      143 |   await page.locator("#randomSeedInput").fill("discard-this-seed");
+      144 |   await page.locator("#importInput").setInputFiles({ name: "saved-random-run.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+    > 145 |   await expect(page.locator("#randomSeedInput")).toHaveValue("continuation-critical-20260923");
+          |                                                  ^
+      146 |   await waitForSimulation(page);
+      147 |   await expect(page.locator("#critModeInput")).toHaveValue("seeded-random-v1");
+      148 |   await expect(page.locator("#iterationInput")).toHaveValue("2");
+        at /Users/evan/Documents/gidps/apps/web/e2e/continuation.spec.ts:145:50
+
+    Error Context: test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/continuation.spec.ts:160:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#execution-profile')
+
+
+      172 |   expect(saved).toEqual({ ...original, enemy: { ...original.enemy, resistances } });
+      173 |   await page.locator('.product-nav a[href="/rotation"]').click();
+    > 174 |   await page.locator("#execution-profile").selectOption("custom-input");
+          |                                            ^
+      175 |   await page.locator("#execution-input-delay").fill("3");
+      176 |   await page.locator("#execution-swap-delay").fill("5");
+      177 |   await page.locator("#execution-cancel-delay").fill("7");
+        at /Users/evan/Documents/gidps/apps/web/e2e/continuation.spec.ts:174:44
+
+    Error Context: test-results/continuation-enemy-resista-43bc2-xplicit-scenario-boundaries-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/continuation-enemy-resista-43bc2-xplicit-scenario-boundaries-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/continuation-enemy-resista-43bc2-xplicit-scenario-boundaries-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › apps/web/e2e/continuation.spec.ts:106:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile 
+    [chromium] › apps/web/e2e/continuation.spec.ts:160:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries 

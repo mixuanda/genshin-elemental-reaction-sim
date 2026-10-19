@@ -1,0 +1,153 @@
+--- a/internal/characters/navia/skill.go
++++ b/internal/characters/navia/skill.go
+@@ -181,7 +181,18 @@
+ 				}
+ 				c.Core.Log.NewEvent(fmt.Sprintf("target %v hit %v times", t.Key(), hits), glog.LogCharacterEvent, c.Index())
+ 				// Applies damage based on the hits
+-				ai.Mult = skillshotgun[c.TalentLvlSkill()] * skillMultiplier[hits]
++				base := skillshotgun[c.TalentLvlSkill()]
++				var mult float64
++				multID := 0
++				if c.Core.SourceHost != nil {
++					mult, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-navia-shotgun", ai.Mult, map[string]any{"base": base, "hits": hits}, nil, ai.SourceHostMultiplierID)
++				} else {
++					mult = base * skillMultiplier[hits]
++				}
++				ai.Mult = mult
++				if multID > 0 {
++					c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
++				}
+ 				c.Core.QueueAttackWithSnap(
+ 					ai,
+ 					snap,
+--- a/internal/characters/lauma/skill.go
++++ b/internal/characters/lauma/skill.go
+@@ -153,7 +153,18 @@
+ 		dewCount := min(c.Core.Player.Dew(), 3)
+ 		c.Core.Player.ConsumeDew(dewCount)
+ 
+-		aiDirectLB.Mult = skillHold2[c.TalentLvlSkill()] * float64(dewCount)
++		base := skillHold2[c.TalentLvlSkill()]
++		var mult float64
++		multID := 0
++		if c.Core.SourceHost != nil {
++			mult, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-lauma-dew", aiDirectLB.Mult, map[string]any{"base": base, "dewCount": dewCount}, nil, aiDirectLB.SourceHostMultiplierID)
++		} else {
++			mult = base * float64(dewCount)
++		}
++		aiDirectLB.Mult = mult
++		if multID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&aiDirectLB, multID)
++		}
+ 		c.addMoonSong(dewCount)
+ 
+ 		c.Core.QueueAttack(
+--- a/internal/characters/odette/asc.go
++++ b/internal/characters/odette/asc.go
+@@ -136,3 +136,18 @@
+ 
+ 	return 1.0 + buff
+ }
++
++// a4StellarGlimmerFormula runs at each original Mult write. The disabled
++// branch does not read ATK, matching the native ascension gate.
++func (c *char) a4StellarGlimmerFormula(base float64, a4Rule, noA4Rule string, prior float64, priorID int) (float64, int) {
++	if c.Core.SourceHost == nil {
++		return base * c.a4StellarGlimmerMult(), 0
++	}
++	if c.Base.Ascension < 4 {
++		return c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), noA4Rule, prior,
++			map[string]any{"base": base}, nil, priorID)
++	}
++	totalAtk, read := c.TotalAtkWithProvenance()
++	return c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), a4Rule, prior,
++		map[string]any{"base": base, "totalAtk": totalAtk}, []*info.SourceHostStatRead{read}, priorID)
++}
+--- a/internal/characters/odette/skill.go
++++ b/internal/characters/odette/skill.go
+@@ -128,23 +128,37 @@
+ 	}
+ 
+ 	c.QueueCharTask(func() {
++		finalMultID := 0
+ 		aiFinal := info.AttackInfo{
+-			ActorIndex:       c.Index(),
+-			Abil:             "Coda at Dawn's Tolling" + stellarConductText,
+-			AttackTag:        attacks.AttackTagDirectStellarConduct,
+-			ICDTag:           attacks.ICDTagNone,
+-			ICDGroup:         attacks.ICDGroupDefault,
+-			StrikeType:       attacks.StrikeTypeDefault,
+-			Element:          attributes.Cryo,
+-			Mult:             codaSSC[c.TalentLvlSkill()] * c.a4StellarGlimmerMult(),
++			ActorIndex: c.Index(),
++			Abil:       "Coda at Dawn's Tolling" + stellarConductText,
++			AttackTag:  attacks.AttackTagDirectStellarConduct,
++			ICDTag:     attacks.ICDTagNone,
++			ICDGroup:   attacks.ICDGroupDefault,
++			StrikeType: attacks.StrikeTypeDefault,
++			Element:    attributes.Cryo,
++			Mult: func() float64 {
++				value, id := c.a4StellarGlimmerFormula(codaSSC[c.TalentLvlSkill()],
++					"char-mult-odette-coda-conduct-a4", "char-mult-odette-coda-conduct-no-a4", 0, 0)
++				finalMultID = id
++				return value
++			}(),
+ 			HitlagHaltFrames: 0.04 * 60,
+ 			HitlagFactor:     0.01,
+ 			IgnoreDefPercent: 1,
+ 		}
++		if finalMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&aiFinal, finalMultID)
++		}
+ 		if c.getRadiance() == radianceStellarSwirl {
+ 			aiFinal.Abil = "Coda at Dawn's Tolling" + stellarSwirlText
+ 			aiFinal.AttackTag = attacks.AttackTagDirectStellarSwirl
+-			aiFinal.Mult = codaSSw[c.TalentLvlSkill()] * c.a4StellarGlimmerMult()
++			value, id := c.a4StellarGlimmerFormula(codaSSw[c.TalentLvlSkill()],
++				"char-mult-odette-coda-swirl-a4", "char-mult-odette-coda-swirl-no-a4", aiFinal.Mult, aiFinal.SourceHostMultiplierID)
++			aiFinal.Mult = value
++			if id > 0 {
++				c.Core.SourceHost.CharacterMultiplierAttach(&aiFinal, id)
++			}
+ 		}
+ 
+ 		apFinal := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 4.6)
+@@ -247,7 +261,12 @@
+ 		mults[radianceStellarSwirl] = wingSSw
+ 	}
+ 
+-	aiStellar.Mult = mults[radiance][c.TalentLvlSkill()] * c.a4StellarGlimmerMult()
++	stellarMult, stellarMultID := c.a4StellarGlimmerFormula(mults[radiance][c.TalentLvlSkill()],
++		"char-mult-odette-dance-tick-a4", "char-mult-odette-dance-tick-no-a4", aiStellar.Mult, aiStellar.SourceHostMultiplierID)
++	aiStellar.Mult = stellarMult
++	if stellarMultID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&aiStellar, stellarMultID)
++	}
+ 
+ 	if radiance == radianceStellarConduct {
+ 		aiStellar.AttackTag = attacks.AttackTagDirectStellarConduct
+--- a/internal/characters/odette/cons.go
++++ b/internal/characters/odette/cons.go
+@@ -45,10 +45,20 @@
+ 	switch tag {
+ 	case attacks.AttackTagDirectStellarConduct:
+ 		ai.Abil = "Daybreak Finale (C1)" + stellarConductText
+-		ai.Mult = 3 * c.a4StellarGlimmerMult()
++		value, id := c.a4StellarGlimmerFormula(3,
++			"char-mult-odette-c1-conduct-a4", "char-mult-odette-c1-conduct-no-a4", ai.Mult, ai.SourceHostMultiplierID)
++		ai.Mult = value
++		if id > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, id)
++		}
+ 	case attacks.AttackTagDirectStellarSwirl:
+ 		ai.Abil = "Daybreak Finale (C1)" + stellarSwirlText
+-		ai.Mult = 4.5 * c.a4StellarGlimmerMult()
++		value, id := c.a4StellarGlimmerFormula(4.5,
++			"char-mult-odette-c1-swirl-a4", "char-mult-odette-c1-swirl-no-a4", ai.Mult, ai.SourceHostMultiplierID)
++		ai.Mult = value
++		if id > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, id)
++		}
+ 	}
+ 	ap := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 4.5)
+ 	c.Core.QueueAttack(ai, ap, 0, 0, c.particleCB)

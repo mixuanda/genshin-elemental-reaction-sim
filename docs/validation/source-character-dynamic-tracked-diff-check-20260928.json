@@ -1,0 +1,11 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.078,
+  "scope": "tracked diff only; untracked files are not covered",
+  "log": "docs/validation/source-character-dynamic-tracked-diff-check-20260928.log"
+}

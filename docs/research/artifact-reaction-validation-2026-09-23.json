@@ -1,0 +1,13 @@
+{
+  "recordKind": "transcribed-tool-execution-result",
+  "command": "npx vitest run packages/game-data/src/artifact-reaction-effects.test.ts",
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "exitCode": 0,
+  "testFilesPassed": 1,
+  "testsPassed": 5,
+  "durationMs": 917,
+  "testExecutionMs": 18,
+  "sourceSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "capturedOutput": "RUN v4.1.10 /Users/evan/Documents/gidps\nTest Files 1 passed (1)\nTests 5 passed (5)\nStart at 16:29:54\nDuration 917ms (transform 640ms, setup 0ms, import 847ms, tests 18ms, environment 0ms)\n",
+  "notes": ["This records the successful focused tool run; no additional test execution was performed to create this record.", "It covers four source mappings and one real equipment/shared-core/JSON-final-equivalence path, not all equipment or game mechanics."]
+}

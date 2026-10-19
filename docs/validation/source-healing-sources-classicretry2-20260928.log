@@ -1,0 +1,32 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs
+
+Exporting verified source into /tmp/gidps-source-host-cache/build-NK2r6u/source
+go version go1.25.0 darwin/arm64; building ./cmd/sourcehost once
+# github.com/genshinsim/gcsim/internal/characters/baizhu
+internal/characters/baizhu/burst.go:104:6: declared and not used: bonusRead
+internal/characters/baizhu/cons.go:77:8: declared and not used: bonusRead
+internal/characters/baizhu/skill.go:138:7: declared and not used: bonusRead
+# github.com/genshinsim/gcsim/internal/characters/barbara
+internal/characters/barbara/attack.go:86:8: declared and not used: bonusRead
+internal/characters/barbara/charge.go:64:8: declared and not used: bonusRead
+# github.com/genshinsim/gcsim/internal/characters/dehya
+internal/characters/dehya/asc.go:77:7: declared and not used: bonusRead
+internal/characters/dehya/asc.go:116:7: declared and not used: bonusRead
+internal/characters/dehya/cons.go:120:7: declared and not used: bonusRead
+# github.com/genshinsim/gcsim/internal/characters/chevreuse
+internal/characters/chevreuse/cons.go:149:6: declared and not used: bonusRead
+internal/characters/chevreuse/skill.go:234:6: declared and not used: bonusRead
+# github.com/genshinsim/gcsim/internal/characters/fischl
+internal/characters/fischl/burst.go:81:8: declared and not used: bonusRead
+file:///Users/evan/Documents/gidps/packages/source-host/scripts/common.mjs:19
+  if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed (${result.status})\n${result.stdout ?? ''}${result.stderr ?? ''}`);
+                                 ^
+
+Error: /tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/bin/go build -mod=readonly -trimpath -buildvcs=false -o /tmp/gidps-source-host-cache/build-NK2r6u/dist/source-host.wasm ./cmd/sourcehost failed (1)
+
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/scripts/common.mjs:19:34)
+    at file:///Users/evan/Documents/gidps/packages/source-host/scripts/build-source-host.mjs:108:1
+
+Node.js v24.15.0

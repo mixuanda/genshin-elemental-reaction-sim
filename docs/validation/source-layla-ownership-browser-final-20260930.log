@@ -1,0 +1,10 @@
+[WebServer] (node:66368) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:66369) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-layla-ownership.spec.ts:86:1 › Layla E shield ownership and Q slug contributions close in both source lanes (25.9s)
+
+  1 passed (26.8s)

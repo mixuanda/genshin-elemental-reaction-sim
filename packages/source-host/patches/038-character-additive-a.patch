@@ -1,0 +1,92 @@
+--- a/internal/characters/citlali/cons.go
++++ b/internal/characters/citlali/cons.go
+@@ -43,8 +43,11 @@
+ 			return
+ 		}
+ 		if c.numStellarBlades > 0 {
+-			em := c.Stat(attributes.EM)
++			em, statRead := c.StatWithProvenance(attributes.EM)
+ 			amt := em * 2
++			if c.Core.SourceHost != nil {
++				amt = c.Core.SourceHost.CharacterAdditiveHit(atk, args[0].(info.Target).Key(), "char-add-citlali-c1", c.Index(), map[string]any{"em": em}, statRead)
++			}
+ 			if c.Core.Flags.LogDebug {
+ 				c.Core.Log.NewEvent("Citlali C1 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+ 					Write("before", atk.Info.FlatDmg).
+--- a/internal/characters/clorinde/asc.go
++++ b/internal/characters/clorinde/asc.go
+@@ -69,7 +69,15 @@
+ 				return nil
+ 			}
+ 			totalAtk := atk.Snapshot.Stats.TotalATK()
+-			amt = min(totalAtk*c.a1BuffPercent*float64(c.a1stacks.Count()), c.a1Cap)
++			stackCount := c.a1stacks.Count()
++			amt = min(totalAtk*c.a1BuffPercent*float64(stackCount), c.a1Cap)
++			if c.Core.SourceHost != nil {
++				c2 := 0
++				if c.Base.Cons >= 2 {
++					c2 = 1
++				}
++				amt = c.Core.SourceHost.CharacterAdditiveHit(atk, t.Key(), "char-add-clorinde-a1", c.Index(), map[string]any{"snapshotAtk": totalAtk, "stacks": stackCount, "c2": c2}, nil)
++			}
+ 			atk.Info.FlatDmg += amt
+ 			c.Core.Log.NewEvent("a1 adding flat dmg", glog.LogCharacterEvent, c.Index()).
+ 				Write("amt", amt).
+--- a/internal/characters/durin/cons.go
++++ b/internal/characters/durin/cons.go
+@@ -58,7 +58,11 @@
+ 		consume *= c.c4c1ConsumeMult()
+ 		char.Tags[c1Key] -= consume
+ 
+-		amt := mult * c.TotalAtk()
++		totalAtk, statRead := c.TotalAtkWithProvenance()
++		amt := mult * totalAtk
++		if c.Core.SourceHost != nil {
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, args[0].(info.Target).Key(), "char-add-durin-c1-white", c.Index(), map[string]any{"totalAtk": totalAtk}, statRead)
++		}
+ 
+ 		if c.Core.Flags.LogDebug {
+ 			c.Core.Log.NewEvent("Durin C1 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+@@ -96,7 +100,11 @@
+ 		consume *= c.c4c1ConsumeMult()
+ 		c.Tags[c1Key] -= consume
+ 
+-		amt := mult * c.TotalAtk()
++		totalAtk, statRead := c.TotalAtkWithProvenance()
++		amt := mult * totalAtk
++		if c.Core.SourceHost != nil {
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, args[0].(info.Target).Key(), "char-add-durin-c1-black", c.Index(), map[string]any{"totalAtk": totalAtk}, statRead)
++		}
+ 
+ 		if c.Core.Flags.LogDebug {
+ 			c.Core.Log.NewEvent("Durin C1 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+--- a/internal/characters/escoffier/cons.go
++++ b/internal/characters/escoffier/cons.go
+@@ -110,7 +110,11 @@
+ 			return
+ 		}
+ 
+-		amt := c.TotalAtk() * c2Per
++		totalAtk, statRead := c.TotalAtkWithProvenance()
++		amt := totalAtk * c2Per
++		if c.Core.SourceHost != nil {
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, args[0].(info.Target).Key(), "char-add-escoffier-c2", c.Index(), map[string]any{"totalAtk": totalAtk}, statRead)
++		}
+ 		c.c2Count--
+ 		if c.Core.Flags.LogDebug {
+ 			c.Core.Log.NewEvent("Escoffier C2 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+--- a/internal/characters/faruzan/asc.go
++++ b/internal/characters/faruzan/asc.go
+@@ -49,7 +49,11 @@
+ 
+ 		active := c.Core.Player.ByIndex(atk.Info.ActorIndex)
+ 		if active.StatusIsActive(burstBuffKey) && !c.StatusIsActive(a4ICDKey) {
+-			amt := 0.32 * c.Stat(attributes.BaseATK)
++			baseATK, statRead := c.StatWithProvenance(attributes.BaseATK)
++			amt := 0.32 * baseATK
++			if c.Core.SourceHost != nil {
++				amt = c.Core.SourceHost.CharacterAdditiveHit(atk, args[0].(info.Target).Key(), "char-add-faruzan-a4", c.Index(), map[string]any{"baseAtk": baseATK}, statRead)
++			}
+ 			if c.Core.Flags.LogDebug {
+ 				c.Core.Log.NewEvent("faruzan a4 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+ 					Write("before", atk.Info.FlatDmg).

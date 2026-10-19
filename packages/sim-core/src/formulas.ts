@@ -1,3 +1,4 @@
+import { executeOrdinaryDamage, executeTransformativeDamage, executeAdditiveDamage } from "./calculator-formula";
 import type {
   AdditiveReaction,
   AmplifyingReaction,
@@ -64,6 +65,8 @@ export interface DamageCalculationInput {
   critDamage: number;
   critMode: CritMode;
   reaction: AmplifyingReaction;
+  /** Explicit source hit context; guarantees CRIT without modifying the panel rate. */
+  hitWeakPoint?: boolean | undefined;
   elementalMastery: number;
   reactionBonus: number;
   explicitReactionBase?: number;
@@ -194,91 +197,38 @@ export function calcCritMultiplier(input: CritMultiplierInput): number {
 export function calcTransformativeReactionDamage(
   input: TransformativeReactionDamageInput
 ): TransformativeReactionDamageResult {
-  const levelBaseDamage = resolveReactionLevelBase(
-    input.characterLevel
-  );
+  resolveReactionLevelBase(input.characterLevel);
   requireFinite(input.elementalMastery, "elementalMastery");
   requireFinite(input.reactionBonus, "reactionBonus");
   requireFinite(input.effectiveResistance, "effectiveResistance");
-  if (
-    !Number.isFinite(input.baseMultiplier) ||
-    input.baseMultiplier < 0
-  ) {
-    throw new RangeError(
-      "baseMultiplier must be a finite non-negative number"
-    );
+  if (!Number.isFinite(input.baseMultiplier) || input.baseMultiplier < 0) {
+    throw new RangeError("baseMultiplier must be a finite non-negative number");
   }
-  const elementalMastery = Math.max(0, input.elementalMastery);
-  const elementalMasteryBonus =
-    calcTransformativeEmBonus(elementalMastery);
-  const reactionBonus = Math.max(0, input.reactionBonus);
-  const preResistanceDamage =
-    levelBaseDamage *
-    input.baseMultiplier *
-    (1 + elementalMasteryBonus + reactionBonus);
-  const resistanceMultiplier = calcResistanceMultiplier(
-    input.effectiveResistance
-  );
-  const finalDamage =
-    preResistanceDamage * resistanceMultiplier;
-  requireFiniteResult(
-    preResistanceDamage,
-    "transformative reaction damage"
-  );
-  requireFiniteResult(
-    resistanceMultiplier,
-    "transformative reaction resistance multiplier"
-  );
-  requireFiniteResult(
-    finalDamage,
-    "transformative reaction damage"
-  );
-  return {
-    finalDamage,
-    levelBaseDamage,
-    elementalMasteryBonus,
-    reactionBonus,
-    preResistanceDamage,
-    resistanceMultiplier
-  };
+  try {
+    const { trace: _trace, ...result } = executeTransformativeDamage(input, false);
+    return result;
+  } catch (error) {
+    if (error instanceof RangeError || (error instanceof Error && /result must be a finite/.test(error.message))) throw new RangeError("transformative reaction damage produced a non-finite result");
+    throw error;
+  }
 }
 
 export function calcAdditiveReactionDamage(
   input: AdditiveReactionDamageInput
 ): AdditiveReactionDamageResult {
-  if (
-    input.reaction !== "aggravate" &&
-    input.reaction !== "spread"
-  ) {
-    throw new TypeError(
-      'reaction must be either "aggravate" or "spread"'
-    );
+  if (input.reaction !== "aggravate" && input.reaction !== "spread") {
+    throw new TypeError('reaction must be either "aggravate" or "spread"');
   }
-  const levelBaseDamage = resolveReactionLevelBase(
-    input.characterLevel
-  );
+  resolveReactionLevelBase(input.characterLevel);
   requireFinite(input.elementalMastery, "elementalMastery");
   requireFinite(input.reactionBonus, "reactionBonus");
-  const elementalMastery = Math.max(0, input.elementalMastery);
-  const elementalMasteryBonus =
-    calcAdditiveEmBonus(elementalMastery);
-  const reactionBonus = Math.max(0, input.reactionBonus);
-  const baseMultiplier = resolveAdditiveBaseMultiplier(
-    input.reaction
-  );
-  const flatDamage =
-    levelBaseDamage *
-    baseMultiplier *
-    (1 + elementalMasteryBonus + reactionBonus);
-  requireFiniteResult(flatDamage, "additive reaction damage");
-  return {
-    reaction: input.reaction,
-    levelBaseDamage,
-    baseMultiplier,
-    elementalMasteryBonus,
-    reactionBonus,
-    flatDamage
-  };
+  try {
+    const { trace: _trace, ...result } = executeAdditiveDamage(input, false);
+    return result;
+  } catch (error) {
+    if (error instanceof RangeError || (error instanceof Error && /result must be a finite/.test(error.message))) throw new RangeError("additive reaction damage produced a non-finite result");
+    throw error;
+  }
 }
 
 export function calcAmplifyingReactionMultiplier(
@@ -341,66 +291,6 @@ export function calcAmplifyingReactionMultiplier(
 }
 
 export function calcDamage(input: DamageCalculationInput): DamageCalculationResult {
-  const baseDamage = input.scaling * input.scalingValue + input.flatDamage;
-  const damageBonusMultiplier = 1 + input.damageBonus;
-  const defenseIgnore = clamp(input.defenseIgnore, 0, 1);
-  const defenseReduction = clamp(input.defenseReduction, -1, 0.9);
-  const defenseMultiplier = calcDefenseMultiplier({
-    characterLevel: input.characterLevel,
-    enemyLevel: input.enemyLevel,
-    defenseReduction,
-    defenseIgnore
-  });
-  const resistanceMultiplier = calcResistanceMultiplier(
-    input.effectiveResistance
-  );
-  const critRate = clamp(input.critRate, 0, 1);
-  const critDamage = Math.max(0, input.critDamage);
-  const critMultiplier = calcCritMultiplier({
-    critRate,
-    critDamage,
-    critMode: input.critMode
-  });
-  const reaction = calcAmplifyingReactionMultiplier({
-    reaction: input.reaction,
-    elementalMastery: input.elementalMastery,
-    reactionBonus: input.reactionBonus,
-    ...(input.explicitReactionBase === undefined
-      ? {}
-      : { explicitBase: input.explicitReactionBase })
-  });
-  const finalDamage =
-    baseDamage *
-    damageBonusMultiplier *
-    defenseMultiplier *
-    resistanceMultiplier *
-    critMultiplier *
-    reaction.total *
-    input.groupMultiplier;
-
-  return {
-    finalDamage,
-    factors: {
-      scaling: input.scaling,
-      scalingStat: input.scalingStat,
-      scalingValue: input.scalingValue,
-      flatDamage: input.flatDamage,
-      baseDamage,
-      damageBonus: input.damageBonus,
-      damageBonusMultiplier,
-      defenseIgnore,
-      defenseReduction,
-      defenseMultiplier,
-      effectiveResistance: input.effectiveResistance,
-      resistanceMultiplier,
-      critRate,
-      critDamage,
-      critMultiplier,
-      reactionBase: reaction.base,
-      elementalMasteryBonus: reaction.elementalMasteryBonus,
-      reactionBonus: reaction.reactionBonus,
-      amplifyingReactionMultiplier: reaction.total,
-      groupMultiplier: input.groupMultiplier
-    }
-  };
+  const { trace: _trace, ...result } = executeOrdinaryDamage(input, false);
+  return result;
 }

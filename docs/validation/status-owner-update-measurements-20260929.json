@@ -1,0 +1,221 @@
+{
+  "asOf": "2026-09-29",
+  "scope": "native explicit status activation associations and read-only update review",
+  "checks": {
+    "status-owner-core-unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-action-collection.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.576
+    },
+    "status-owner-classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.897
+    },
+    "status-owner-stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 15.641
+    },
+    "status-owner-update-web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 9.553
+    },
+    "status-owner-update-browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-action-origin.spec.ts",
+        "apps/web/e2e/update-operation-review.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.104
+    },
+    "status-owner-update-browser-final": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-action-origin.spec.ts",
+        "apps/web/e2e/update-operation-review.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.396
+    }
+  },
+  "nativeBrowser": {
+    "receipts": [
+      {
+        "lane": "classic",
+        "artifact": {
+          "wasmSha256": "23204f23a9359ab64c4fa6f7178c0d8ca22882f873a43c4329b2422d2d3d8f16",
+          "wasmBytes": 43444334
+        },
+        "applications": 38,
+        "creationSequence": 2,
+        "collectionHits": 2,
+        "originalRawTotal": 1966.0871939310314,
+        "replayDifference": 0,
+        "statusOwnerSequence": 1,
+        "statusOwnerHits": 6,
+        "statusOwnerTotal": 2403.863077651348,
+        "statusOwnerReplayDifference": 0,
+        "statusInstances": [
+          1
+        ],
+        "rainswordCreationUnknown": true,
+        "rainswordTriggerKnown": true,
+        "gameplayUnchanged": true
+      },
+      {
+        "lane": "stellar",
+        "artifact": {
+          "wasmSha256": "5f0c867e8359224233a09ff22db77a33768df324d2035c64656556d9eba4c5d1",
+          "wasmBytes": 65346785
+        },
+        "applications": 38,
+        "creationSequence": 2,
+        "collectionHits": 2,
+        "originalRawTotal": 1966.0871939310314,
+        "replayDifference": 0,
+        "statusOwnerSequence": 1,
+        "statusOwnerHits": 6,
+        "statusOwnerTotal": 2403.863077651348,
+        "statusOwnerReplayDifference": 0,
+        "statusInstances": [
+          1
+        ],
+        "rainswordCreationUnknown": true,
+        "rainswordTriggerKnown": true,
+        "gameplayUnchanged": true
+      }
+    ],
+    "pageErrors": [],
+    "collectionRoundtrip": true,
+    "editedTotal": 2136.111260020432
+  },
+  "updateBrowser": {
+    "fixture": "docs/validation/update-discovery-fixture-20260929.review.json",
+    "generatedAt": "2026-09-28T18:04:17.608Z",
+    "failureCount": 2,
+    "candidateStatus": "failed",
+    "importDisplayed": true,
+    "invalidImportClearedOutput": true,
+    "pageErrors": [],
+    "remoteWorkflowExecuted": false
+  },
+  "limitations": [
+    "Fixed-source and synthetic evidence only; not game verification.",
+    "Native runtime sample uses Xingqiu; Yelan/Thoma/Fischl C6 share audited watcher code but were not sampled.",
+    "No complete cast lifetime, universal ownership, remote CI run or provider refresh claimed."
+  ],
+  "initialBrowserFailure": "Before any case, Playwright node runtime rejected a direct TS status-module import because generated JSON requires import attributes. Test-only import changed to type-only; both cases then passed.",
+  "dataIdentityHashes": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "dataPipelineChecks": {
+    "schemaVersion": "1.0.0",
+    "evidenceType": "Transcription of commands and outputs already executed in this task; no commands rerun for this receipt.",
+    "focusedUnitCheck": {
+      "command": "./node_modules/.bin/vitest run packages/game-data/src/update-discovery-review.test.ts",
+      "toolExitCode": 0,
+      "vitestOutput": {
+        "testFiles": "1 passed (1)",
+        "tests": "1 passed (1)",
+        "duration": "495ms",
+        "transform": "190ms",
+        "setup": "0ms",
+        "import": "317ms",
+        "testExecution": "5ms",
+        "environment": "0ms"
+      },
+      "scopeNote": "This run preceded the final assertion edit from sourceDiscovery === null to schema round-trip equality. The amended test was not rerun, per instruction."
+    },
+    "syntheticFailureFixture": {
+      "path": "docs/validation/update-discovery-fixture-20260929.review.json",
+      "setup": "Ephemeral observations used http://127.0.0.1:1/synthetic-unreachable; a PATH-injected fake git printed synthetic git failure and exited 42. No provider URL was fetched.",
+      "commands": [
+        {
+          "commandTemplate": "node packages/game-data/scripts/update-data.mjs discover --store <temporary-store>",
+          "observedExitCode": 1
+        },
+        {
+          "commandTemplate": "PATH=<fake-git-dir>:$PATH node packages/game-data/scripts/sync-genshin-db-candidate.mjs --output <temporary-candidates>",
+          "observedExitCode": 1
+        },
+        {
+          "commandTemplate": "node packages/game-data/scripts/update-data.mjs review --store <temporary-store> --candidate-run <temporary-candidates>/run-status.json --output docs/validation/update-discovery-fixture-20260929.review.json --fail-on-errors",
+          "observedExitCode": 1
+        }
+      ],
+      "observedToolOutput": {
+        "discoveryExit": 1,
+        "candidateExit": 1,
+        "reviewExit": 1,
+        "failureHistoryCount": 2,
+        "candidateStage": "resolve-upstream"
+      },
+      "harnessExitCode": 0
+    },
+    "syntheticLocalStatusCheck": {
+      "setup": "Ephemeral unreachable localhost URL, synthetic blocked candidate run receipt and synthetic candidate failure JSONL.",
+      "observedToolOutput": {
+        "syntheticOfflineCheck": "passed",
+        "discoverExit": 1,
+        "reviewFailOnErrorsExit": 1,
+        "statusExit": 0,
+        "combinedFailureCount": 2
+      },
+      "harnessExitCode": 0
+    },
+    "localStatusGeneration": {
+      "command": "node packages/game-data/scripts/update-data.mjs status --store packages/game-data/manifests --write --output packages/game-data/src/generated/update-status.json",
+      "observedExitCode": 0,
+      "measuredCommandWallSeconds": 0.729,
+      "timingSource": "Python time.perf_counter around subprocess.run",
+      "pointerAndRuntimeSelectorHashesUnchanged": true,
+      "sourceDiscoveryStatusAtGeneration": null,
+      "candidateReviewAtGeneration": null,
+      "failureCountAtGeneration": 0,
+      "note": "No provider fetch, coverage generator, README/docs status regeneration or pointer operation."
+    },
+    "syntaxAndWhitespaceChecks": {
+      "commands": [
+        "node --check packages/game-data/scripts/update-data.mjs",
+        "node --check packages/game-data/scripts/sync-genshin-db-candidate.mjs",
+        "git diff --check -- .github/workflows/data-discovery.yml packages/game-data/scripts/update-data.mjs packages/game-data/scripts/sync-genshin-db-candidate.mjs packages/game-data/src/update-status.ts"
+      ],
+      "observedExitCodes": [
+        0,
+        0,
+        0
+      ]
+    }
+  }
+}

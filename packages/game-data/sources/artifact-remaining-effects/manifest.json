@@ -1,0 +1,237 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "source-backed-provisional",
+  "scope": "Five reviewed ordinary hit/reaction clauses; not automatic artifact lifecycles or current-game certification.",
+  "files": [
+    {
+      "source": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "upstreamPath": "internal/artifacts/sojourner/sojourner.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/sojourner/sojourner.go",
+      "retrievedAt": "2026-09-24T06:21:30.856064+00:00",
+      "status": 200,
+      "bytes": 1362,
+      "sha256": "b0a40e56ef1986fcc9496f84017fd1b6c6ab8dd76e180bffc036cba17b5196a3",
+      "matchesPreviouslyAvailableBytes": true,
+      "file": "raw/gcsim/internal/artifacts/sojourner/sojourner.go"
+    },
+    {
+      "source": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "upstreamPath": "internal/artifacts/echoes/echoes.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/echoes/echoes.go",
+      "retrievedAt": "2026-09-24T06:21:30.856424+00:00",
+      "status": 200,
+      "bytes": 3290,
+      "sha256": "49885e3655c7c3065a383c02a8cce196de90853bea4791b8eff8f33be09a38df",
+      "matchesPreviouslyAvailableBytes": true,
+      "file": "raw/gcsim/internal/artifacts/echoes/echoes.go"
+    },
+    {
+      "source": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "upstreamPath": "internal/artifacts/songofdayspast/songofdayspast.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/songofdayspast/songofdayspast.go",
+      "retrievedAt": "2026-09-24T06:21:30.856506+00:00",
+      "status": 200,
+      "bytes": 3153,
+      "sha256": "c7f7965c8111efbeb7efa430fbe7eaf3fe8fa21c4679bf14e0785352e667b7fe",
+      "matchesPreviouslyAvailableBytes": true,
+      "file": "raw/gcsim/internal/artifacts/songofdayspast/songofdayspast.go"
+    },
+    {
+      "source": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "upstreamPath": "internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go",
+      "retrievedAt": "2026-09-24T06:21:30.856565+00:00",
+      "status": 200,
+      "bytes": 2259,
+      "sha256": "9df5bbee6a4ac517d05ef4254292f826a6e636e148525b2037807792af94218e",
+      "matchesPreviouslyAvailableBytes": true,
+      "file": "raw/gcsim/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/ResolutionOfSojourner/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ResolutionOfSojourner/index.tsx",
+      "retrievedAt": "2026-09-24T06:21:31.802186+00:00",
+      "status": 200,
+      "bytes": 1052,
+      "sha256": "516465e59754fb203e2178c83bbb1867f518e8248fca3b6bd806e8bb6fb66586",
+      "file": "raw/optimizer/libs/gi/sheets/src/Artifacts/ResolutionOfSojourner/index.tsx"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/EchoesOfAnOffering/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/EchoesOfAnOffering/index.tsx",
+      "retrievedAt": "2026-09-24T06:21:32.642097+00:00",
+      "status": 200,
+      "bytes": 2012,
+      "sha256": "1bf587512dc18922a57fe1620fcd98f38cd71a1462a685cbf5b0301d6bde8f1d",
+      "file": "raw/optimizer/libs/gi/sheets/src/Artifacts/EchoesOfAnOffering/index.tsx"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/SongOfDaysPast/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/SongOfDaysPast/index.tsx",
+      "retrievedAt": "2026-09-24T06:21:33.718978+00:00",
+      "status": 200,
+      "bytes": 2455,
+      "sha256": "04828f4fdcc83ae53dbfb1e8febf8568524ac4e8fda923bbdf86ba1580a79abb",
+      "file": "raw/optimizer/libs/gi/sheets/src/Artifacts/SongOfDaysPast/index.tsx"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/DisenchantmentInDeepShadow/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/DisenchantmentInDeepShadow/index.tsx",
+      "retrievedAt": "2026-09-24T06:21:35.138900+00:00",
+      "status": 200,
+      "bytes": 2004,
+      "sha256": "3fc19c3e118fef22b3220e29189c60811e424faab38807c7a94991adfd9ad470",
+      "file": "raw/optimizer/libs/gi/sheets/src/Artifacts/DisenchantmentInDeepShadow/index.tsx"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/dataUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/dataUtil.tsx",
+      "retrievedAt": "2026-09-24T06:23:34.486093+00:00",
+      "status": 200,
+      "bytes": 442,
+      "sha256": "3e5f27ace101c16f8afd94f08a1824dd3c6bd62ecc06085409f2fa4860987d28",
+      "file": "raw/optimizer/libs/gi/sheets/src/Artifacts/dataUtil.tsx"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/SheetUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/SheetUtil.tsx",
+      "retrievedAt": "2026-09-24T06:23:23.701720+00:00",
+      "status": 200,
+      "bytes": 2988,
+      "sha256": "255efe2b37ac6282eaf3fb5ada2765414e7bc8c599b83e151c978a05a73d93b6",
+      "file": "raw/optimizer/libs/gi/sheets/src/SheetUtil.tsx"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/wr/src/formula.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "retrievedAt": "2026-09-24T06:23:34.082680+00:00",
+      "status": 200,
+      "bytes": 15340,
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "file": "raw/optimizer/libs/gi/wr/src/formula.ts"
+    },
+    {
+      "source": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "upstreamPath": "internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "retrievedAt": "2026-09-24T06:33:29.128490+00:00",
+      "status": 200,
+      "bytes": 3541,
+      "sha256": "f4fe90daa9f2b85466d0831c9225e63cdb5614371ee353bfe4dcf11f3e0bb862",
+      "matchesPreviouslyAvailableBytes": true,
+      "file": "raw/gcsim/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go"
+    },
+    {
+      "source": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+      "retrievedAt": "2026-09-24T06:33:29.128810+00:00",
+      "status": 200,
+      "bytes": 3631,
+      "sha256": "e8b504efbcf0af685c953d11cf44387c418372cf9efb126ca1efe45fd4cdc5a6",
+      "file": "raw/optimizer/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx"
+    }
+  ],
+  "reusedCatalogFiles": [
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "sha256": "88ed5876205ab5f28554fa4ceb46aa2d24bc7b0a100cee64168d9f18523b6f70",
+      "bytes": 4358,
+      "evidenceRole": "remaining-catalog-clause-inventory",
+      "actualSha256": "88ed5876205ab5f28554fa4ceb46aa2d24bc7b0a100cee64168d9f18523b6f70",
+      "file": "packages/game-data/sources/artifact-additional-effects/genshin-db/src__data__ChineseSimplified__artifacts__resolutionofsojourner.json.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "sha256": "6dcaefd96b1181535594cf64ab4d1f7ce4def16433f7d48098029b82f1eae237",
+      "bytes": 6853,
+      "evidenceRole": "remaining-catalog-clause-inventory",
+      "actualSha256": "6dcaefd96b1181535594cf64ab4d1f7ce4def16433f7d48098029b82f1eae237",
+      "file": "packages/game-data/sources/artifact-additional-effects/genshin-db/src__data__ChineseSimplified__artifacts__echoesofanoffering.json.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "sha256": "a81f2387a2118d4cc9ca7b8ede3c928311cf24bc7524b700de3c0fdd3ebbb715",
+      "bytes": 10069,
+      "evidenceRole": "remaining-catalog-clause-inventory",
+      "actualSha256": "a81f2387a2118d4cc9ca7b8ede3c928311cf24bc7524b700de3c0fdd3ebbb715",
+      "file": "packages/game-data/sources/artifact-additional-effects/genshin-db/src__data__ChineseSimplified__artifacts__songofdayspast.json.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "sha256": "dd4eff9ee56fc251589c9aae868f04a3e6fd9fe52dc2e358ddf4c8e50bb83fe6",
+      "bytes": 11772,
+      "evidenceRole": "catalog-original",
+      "actualSha256": "dd4eff9ee56fc251589c9aae868f04a3e6fd9fe52dc2e358ddf4c8e50bb83fe6",
+      "file": "packages/game-data/sources/artifact-additional-effects/genshin-db/src__data__ChineseSimplified__artifacts__disenchantmentindeepshadow.json.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "sha256": "d04050f7ef7b67f756c3443144d8c4342b838861f8850c1c3f79ee1711c6b5aa",
+      "bytes": 9283,
+      "evidenceRole": "remaining-catalog-clause-inventory",
+      "actualSha256": "d04050f7ef7b67f756c3443144d8c4342b838861f8850c1c3f79ee1711c6b5aa",
+      "file": "packages/game-data/sources/artifact-additional-effects/genshin-db/src__data__ChineseSimplified__artifacts__flowerofparadiselost.json.txt"
+    }
+  ],
+  "licenseReferences": [
+    "packages/game-data/sources/artifact-additional-effects/gcsim/LICENSE.txt",
+    "packages/game-data/sources/weapon-procs/raw/optimizer/LICENSE",
+    "packages/game-data/sources/artifact-additional-effects/genshin-db/LICENSE.txt"
+  ],
+  "newRawFiles": 13,
+  "newRawBytes": 43529,
+  "validation": {
+    "newTestsExecuted": 0,
+    "buildsExecuted": 0,
+    "coverageGenerationExecuted": 0
+  }
+}

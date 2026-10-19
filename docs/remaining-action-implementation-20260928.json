@@ -1,0 +1,490 @@
+{
+  "schemaVersion": "remaining-action-implementation-v1",
+  "asOf": "2026-09-28",
+  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.29+durin.8",
+  "sourceInventory": "docs/research/actual-partial-paths-20260928.json",
+  "basis": "只读核对当前 v29 inventory、活动 character mappings、已有普通 Calculator / observed-plunge / resource-ledger / special-component 代码以及本机固定 b4/a7 character package。",
+  "fixedSourceAvailability": {
+    "b4": "固定源码含通用模拟/角色名册，但未找到 Kachina、Nefer、Lohen、Linnea、Sandrone、Alyosha 的角色专属 Go package。",
+    "a7": "固定源码同样未找到上述六名角色的角色专属 Go package；不得用其他角色的执行日程替代。",
+    "archivedFormulaEvidence": "v29 已有映射系数及固定 Optimizer 证据文件可供公式/状态定义复核；这只能补静态算式与输入范围，不能证明执行次序、帧、周期或事件次数。"
+  },
+  "records": [
+    {
+      "character": "kachina",
+      "skillId": "kachina-plunge-collision",
+      "mappingIds": [
+        "kachina-plunge-collision-hit-1"
+      ],
+      "existingFormulaAndUI": "One physical ATK plunge-collision hit from the normal-attack talent vector.",
+      "missing": [
+        "本次实际碰撞是否接触目标、所选目标/最终面板；若只算本次碰撞，不需推断总碰撞数。完整下落还缺逐次碰撞机会、落地接触、C0/无外部附魔/无反应及多击面板稳定条件。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-kachina-mappings.ts + optimizer-kachina-source-manifest.json",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "kachina",
+      "skillId": "kachina-skill-riding-single-pulse",
+      "mappingIds": [
+        "kachina-skill-riding-single-pulse-hit-1"
+      ],
+      "existingFormulaAndUI": "One Geo/ATK skill pulse in the riding branch, with sourced A4 base-damage formula.",
+      "missing": [
+        "搭乘分支与本次脉冲的实际接触、命中时面板及 A4/Nightsoul 条件；搭乘持续、移动、命中节奏和重复次数没有来源记录。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-kachina-mappings.ts + optimizer-kachina-source-manifest.json",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "kachina",
+      "skillId": "kachina-skill-independent-single-pulse",
+      "mappingIds": [
+        "kachina-skill-independent-single-pulse-hit-1"
+      ],
+      "existingFormulaAndUI": "One Geo/ATK skill pulse in the independent-Drill branch, with sourced A4 base-damage formula.",
+      "missing": [
+        "独立 Drill 分支与本次脉冲实际接触、命中面板及 A4/Nightsoul 条件；部署、移动/接触和重复节奏没有来源记录。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-kachina-mappings.ts + optimizer-kachina-source-manifest.json",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "kachina",
+      "skillId": "kachina-skill-observed-lifecycle",
+      "mappingIds": [
+        "kachina-skill-observed-lifecycle-hit-1",
+        "kachina-skill-observed-lifecycle-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced Geo/ATK pulse components for an explicitly observed complete Drill lifecycle.",
+      "missing": [
+        "编辑器需由用户输入真实有序部署/脉冲/过期事件与逐击快照；缺失观察不得补默认帧、Nightsoul或自动事件。现有代码已有两击日志入口，可继续接验收而非新造行为。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-kachina-mappings.ts + optimizer-kachina-source-manifest.json",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "nefer",
+      "skillId": "nefer-skill-rush",
+      "mappingIds": [
+        "nefer-skill-rush-hit"
+      ],
+      "existingFormulaAndUI": "Single ordinary E rush formula with sourced C0-C6 hit context; formula does not multiply the rush by the separate phantasm charged modifier.",
+      "missing": [
+        "本次突进的帷幕资源快照、满层精通/有效时长、C2取得层数与首击先后、C4目标减抗及残留时段、实际最终面板；不得将独立幻戏重击乘区套用到E。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-skill-mappings.ts + Nefer optimizer source evidence",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-skill-etch-resource",
+      "mappingIds": [
+        "lohen-skill-etch-resource-hit-1"
+      ],
+      "existingFormulaAndUI": "ATK × sourced E talent coefficient × (1 + 0.004 × actual Will consumed); the additive formula factory is createLohenWillFormula.",
+      "missing": [
+        "Will 消耗值或完整观测账本：起始 Will、所有事件顺序/同帧顺序、冷却与实际 action identity、命中时最终面板和天赋；当前单击公式与事件账本已存在，缺的是未观测事件的输入。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; apps/web/src/calculator-character-resource-controls.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-plunge-collision-base",
+      "mappingIds": [
+        "lohen-plunge-collision-base-hit-1"
+      ],
+      "existingFormulaAndUI": "One ATK collision hit using the sourced normal-talent collision coefficient and the mapped conditional element/state.",
+      "missing": [
+        "本次途中碰撞接触目标与实际面板/元素条件；完整下落所需次数、落地、时间和高度均不能从单击公式推出。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; apps/web/src/calculator-character-resource-controls.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-lumi-pummeler-pair",
+      "mappingIds": [
+        "linnea-lumi-pummeler-hit"
+      ],
+      "existingFormulaAndUI": "Two DEF-scaled ordinary Geo hits in one selected Pummeler pair; A1 resistance reduction is wired through createLinneaA1ResistanceReductionFormula.",
+      "missing": [
+        "本次两击的 Moon Sign 等级、Lumi 在场、目标邻近条件、最终 DEF/面板；不缺两击公式，缺的是整次25秒召唤的供能/形态/出击事件和节奏。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-linnea-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-plunge-collision-base",
+      "mappingIds": [
+        "linnea-plunge-collision-base-hit-1"
+      ],
+      "existingFormulaAndUI": "One ATK plunge-collision hit from the normal talent; element follows the selected source condition.",
+      "missing": [
+        "本次碰撞的目标接触与实际面板/元素；不提供整次下落次数、落地或高度推断。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-linnea-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-charged-sweepdmg-component",
+      "mappingIds": [
+        "sandrone-charged-sweepdmg-component-hit-1"
+      ],
+      "existingFormulaAndUI": "One selected ordinary Cryo charged-sweep component from the sourced talent formula.",
+      "missing": [
+        "本次普通 Cryo sweep 的实际命中/面板及 no-radiance C0 状态；完整 charged sweep 的持续、次数与 Stellar 替代事件时序缺失。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-charged-beamdmg-component",
+      "mappingIds": [
+        "sandrone-charged-beamdmg-component-hit-1"
+      ],
+      "existingFormulaAndUI": "One selected ordinary Cryo charged-beam component from the sourced talent formula.",
+      "missing": [
+        "本次普通 Cryo beam 的实际命中/面板及 no-radiance C0 状态；beam 重复间隔/次数和 Stellar-Conduct/Swirl 替代事件时序缺失。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-charged-overdrivedmg-component",
+      "mappingIds": [
+        "sandrone-charged-overdrivedmg-component-hit-1"
+      ],
+      "existingFormulaAndUI": "One selected ordinary Cryo charged-overdrive component from the sourced talent formula.",
+      "missing": [
+        "本次普通 Cryo overdrive 的实际命中/面板、no-radiance C0 状态及进入/退出阈值对应的真实 heat；heat 增减与 charged cycle 时序缺失。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "selected-component-inputs"
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-plunge-collision-base",
+      "mappingIds": [
+        "sandrone-plunge-collision-base-hit-1"
+      ],
+      "existingFormulaAndUI": "One ATK plunge-collision hit from the normal talent; element follows the selected source condition.",
+      "missing": [
+        "本次碰撞的目标接触与实际面板/元素；完整下落次数、落地、帧和高度阈值不在单击条款中。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-plunge-collision-base",
+      "mappingIds": [
+        "alyosha-plunge-collision-base-hit-1"
+      ],
+      "existingFormulaAndUI": "One ATK plunge-collision hit; no A4 modifier is attached because A4 affects skill/burst, not plunge.",
+      "missing": [
+        "本次碰撞是否接触目标与实际面板；此物理碰撞不带 A4。完整下落所需次数/落地不能推断。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; packages/sim-core/src/alyosha-observed-lifecycle.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-burst-field-tick",
+      "mappingIds": [
+        "alyosha-burst-field-tick-hit-1"
+      ],
+      "existingFormulaAndUI": "One sourced Q field tick with createAlyoshaA4BonusFormula automatically attached: 0.0035 × min(100 × ER ratio, 200), when ascension ≥4.",
+      "missing": [
+        "指定真实 field tick、C0已支持的 Q/mark/precision 事件账本、tick时 Precision 和最终 ATK/ER 面板；不可推断 Q 的 tick 数/时间。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; packages/sim-core/src/alyosha-observed-lifecycle.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-burst-tugarin-bite",
+      "mappingIds": [
+        "alyosha-burst-tugarin-bite-hit-1"
+      ],
+      "existingFormulaAndUI": "One sourced Q Tugarin bite with createAlyoshaA4BonusFormula automatically attached: 0.0035 × min(100 × ER ratio, 200), when ascension ≥4.",
+      "missing": [
+        "指定真实 bite、C0已支持的 Q/mark/precision 事件账本、bite时 Precision 和最终 ATK/ER 面板；不可推断 bite 数/时间。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; packages/sim-core/src/alyosha-observed-lifecycle.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-plunge-low-observed-base",
+      "mappingIds": [
+        "lohen-plunge-low-observed-base-hit-1",
+        "lohen-plunge-low-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "用户观察的碰撞机会数与每次目标接触、落地接触、C0/无外部附魔/无反应确认；多击时需确认面板稳定或提供逐击快照。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; apps/web/src/calculator-character-resource-controls.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-plunge-high-observed-base",
+      "mappingIds": [
+        "lohen-plunge-high-observed-base-hit-1",
+        "lohen-plunge-high-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "用户观察的碰撞机会数与每次目标接触、落地接触、C0/无外部附魔/无反应确认；多击时需确认面板稳定或提供逐击快照。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; apps/web/src/calculator-character-resource-controls.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-plunge-low-observed-base",
+      "mappingIds": [
+        "linnea-plunge-low-observed-base-hit-1",
+        "linnea-plunge-low-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "碰撞机会数、逐击目标接触、落地接触、C0/无外部附魔/无反应和多击面板稳定或逐击快照；不需要猜高度阈值或帧。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-linnea-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-plunge-high-observed-base",
+      "mappingIds": [
+        "linnea-plunge-high-observed-base-hit-1",
+        "linnea-plunge-high-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "碰撞机会数、逐击目标接触、落地接触、C0/无外部附魔/无反应和多击面板稳定或逐击快照；不需要猜高度阈值或帧。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-linnea-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-plunge-low-observed-base",
+      "mappingIds": [
+        "sandrone-plunge-low-observed-base-hit-1",
+        "sandrone-plunge-low-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "碰撞机会数、每次目标接触、落地接触、C0/无外部附魔/无反应确认和多击面板稳定或逐击快照。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-plunge-high-observed-base",
+      "mappingIds": [
+        "sandrone-plunge-high-observed-base-hit-1",
+        "sandrone-plunge-high-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "碰撞机会数、每次目标接触、落地接触、C0/无外部附魔/无反应确认和多击面板稳定或逐击快照。"
+      ],
+      "availableEvidenceOrImplementation": "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts; packages/sim-core/src/observed-special-component-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-plunge-low-observed-base",
+      "mappingIds": [
+        "alyosha-plunge-low-observed-base-hit-1",
+        "alyosha-plunge-low-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "碰撞机会数、逐击接触、落地接触、C0/无外部附魔/无反应和多击面板稳定或逐击快照；单击碰撞公式不决定总动作。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; packages/sim-core/src/alyosha-observed-lifecycle.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-plunge-high-observed-base",
+      "mappingIds": [
+        "alyosha-plunge-high-observed-base-hit-1",
+        "alyosha-plunge-high-observed-base-hit-2"
+      ],
+      "existingFormulaAndUI": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "missing": [
+        "碰撞机会数、逐击接触、落地接触、C0/无外部附魔/无反应和多击面板稳定或逐击快照；单击碰撞公式不决定总动作。"
+      ],
+      "availableEvidenceOrImplementation": "apps/web/src/character-source-formulas.ts; packages/sim-core/src/alyosha-observed-lifecycle.ts; packages/sim-core/src/observed-plunge-formulas.ts",
+      "fixedB4A7CharacterImplementation": "角色专属固定 Go action package 未找到；固定来源只能补共享基础状态，不提供这些角色的可靠自动事件日程。",
+      "classificationDisposition": "保持 partial；按这次实际选定/观察的输入计算，不自动升级 completeAction 或 team-ready。",
+      "pathType": "explicit-observation-template"
+    }
+  ],
+  "implementationFamilies": [
+    {
+      "id": "nefer-explicit-resource-debuff-events",
+      "members": [
+        "nefer-skill-rush"
+      ],
+      "canImplementFromArchive": "突进 ATK/EM 系数、帷幕加成条件、C2/C4 相关静态公式与持续文本已归档，可建设普通 Calculator 的显式事件/状态快照编辑，并将实际选中事件绑定到一次 rush。",
+      "stillNeedsUserObservation": "帷幕产生/吸收/消耗、C2 首击前后次序、8秒刷新、C4离场后4.5秒残留何时开始；目前无固定 b4/a7 角色包给出可直接复用日程。",
+      "notReadyRule": "编辑器必须要求实际资源、目标减抗和时序输入；缺失时标 partial/blocked，不设置默认帷幕、减抗或自动时长。"
+    },
+    {
+      "id": "linnea-lumi-event-ledger",
+      "members": [
+        "linnea-lumi-pummeler-pair",
+        "linnea-plunge-collision-base",
+        "linnea-plunge-low-observed-base",
+        "linnea-plunge-high-observed-base"
+      ],
+      "canImplementFromArchive": "Pummeler pair 的两击 DEF/Geo 与 A1 抗性公式，以及 hammer/crush 已有 observed-special formulas；可以实现用户记录的 Lumi 在场、Moon Sign、目标距离、供能/形态和命中事件绑定。",
+      "stillNeedsUserObservation": "25秒召唤内的供能、形态转换、E/Q reset/expiry、目标范围与命中时间/次数。时长本身不决定击数或交替。",
+      "notReadyRule": "只对已观测的两击/事件应用；未提供事件序列时保留已选 Pummeler pair 组件计算，不标整个召唤完整。"
+    },
+    {
+      "id": "sandrone-charged-state-events",
+      "members": [
+        "sandrone-charged-sweepdmg-component",
+        "sandrone-charged-beamdmg-component",
+        "sandrone-charged-overdrivedmg-component",
+        "sandrone-plunge-collision-base",
+        "sandrone-plunge-low-observed-base",
+        "sandrone-plunge-high-observed-base"
+      ],
+      "canImplementFromArchive": "三种 C0 no-radiance charged 分量与六个特殊 Conduct/Swirl 单分量公式均有静态/观察公式，可添加显式 heat/Decoding/Radiance 与组件事件编辑器并绑定单个命中。",
+      "stillNeedsUserObservation": "heat 增减与 100/50 阈值跨越、charged sweep/beam 的次数与间隔、Stellar 替代普通伤害的触发时序。固定 b4/a7 角色执行代码缺失。",
+      "notReadyRule": "用户提供事件日志才可计算被观察分量；不从 charged duration 推算循环或次数，特殊反应分量仍需其自身已发生事件。"
+    },
+    {
+      "id": "explicit-plunge-observation-family",
+      "members": [
+        "alyosha-plunge-collision-base",
+        "alyosha-plunge-high-observed-base",
+        "alyosha-plunge-low-observed-base",
+        "kachina-plunge-collision",
+        "linnea-plunge-collision-base",
+        "linnea-plunge-high-observed-base",
+        "linnea-plunge-low-observed-base",
+        "lohen-plunge-collision-base",
+        "lohen-plunge-high-observed-base",
+        "lohen-plunge-low-observed-base",
+        "sandrone-plunge-collision-base",
+        "sandrone-plunge-high-observed-base",
+        "sandrone-plunge-low-observed-base"
+      ],
+      "canImplementFromArchive": "八个低/高观察模板和共享 observed-plunge AST/页面控件已实现：碰撞系数与不同落地系数分开，当前可按实际接触扩展。",
+      "stillNeedsUserObservation": "碰撞机会数、每一击目标接触、落地接触、C0/无外部附魔/无反应；多击还需面板稳定确认或逐击快照。",
+      "notReadyRule": "静态 completeAction=false 是预期设计。没有新的实现缺口时不应重复开发或将所有八项批量晋升；只在本次完整观察门全部满足时报告该次 complete-cast。"
+    }
+  ],
+  "alreadyCoveredDoNotReimplement": [
+    {
+      "family": "Kachina observed Drill lifecycle",
+      "members": [
+        "kachina-skill-observed-lifecycle"
+      ],
+      "status": "已有普通 Calculator 事件日志编辑器和两-hit映射；缺自动 deployment/movement/expiry/Nightsoul timing。需要补的是具体观察，不是另一套公式或默认日程。"
+    },
+    {
+      "family": "Lohen Will resource",
+      "members": [
+        "lohen-skill-etch-resource"
+      ],
+      "status": "公式与用户事件账本已存在；账本缺项需显式输入，不自动生成 teammate damage/timing。"
+    },
+    {
+      "family": "Alyosha C0 Q/mark lifecycle",
+      "members": [
+        "alyosha-burst-field-tick",
+        "alyosha-burst-tugarin-bite"
+      ],
+      "status": "支持的 C0 用户事件账本及公式绑定已存在；缺事件观察/攻击次数及 C1-C6、Stellar 扩展。"
+    },
+    {
+      "family": "Observed plunge",
+      "members": [
+        "alyosha-plunge-collision-base",
+        "alyosha-plunge-high-observed-base",
+        "alyosha-plunge-low-observed-base",
+        "kachina-plunge-collision",
+        "linnea-plunge-collision-base",
+        "linnea-plunge-high-observed-base",
+        "linnea-plunge-low-observed-base",
+        "lohen-plunge-collision-base",
+        "lohen-plunge-high-observed-base",
+        "lohen-plunge-low-observed-base",
+        "sandrone-plunge-collision-base",
+        "sandrone-plunge-high-observed-base",
+        "sandrone-plunge-low-observed-base"
+      ],
+      "status": "共享输入门、AST扩展和逐击面板快照路径已存在；保留观察条件的 partial 分类。"
+    }
+  ],
+  "nonGoals": [
+    "不改变 15-role/57-action 可组合来源能力 registry 或其独立覆盖分母。",
+    "不把 v29 的 24 个 partial action 机械转换为 completeAction=true。",
+    "不把归档 sheet coefficient、固定 Go 实现、静态 duration 或输入表单当作当前游戏执行/验证证据。",
+    "不升级 team-ready 或 verified；当前 v29 verification 边界不变。"
+  ]
+}

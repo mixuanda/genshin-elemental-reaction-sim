@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/action-library/amber-n5.gcsl",
+    "-out",
+    "docs/cross-validation/action-library/amber-n5.result.json",
+    "-sample",
+    "docs/cross-validation/action-library/amber-n5.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "exitCode": 0,
+  "stdout": "Average duration of 4.00 seconds (min: 4.00 max: 4.00 std: 0.00)\nAverage 29.52 damage over 4.00 seconds, resulting in 7 dps (min: 7.38 max: 7.38 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 14830235535135246011 to docs/cross-validation/action-library/amber-n5.sample.json\n",
+  "stderr": "",
+  "recordedAt": "2026-09-23T08:28:20.025537+00:00",
+  "executedAt": null
+}

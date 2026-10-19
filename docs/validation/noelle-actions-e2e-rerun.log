@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:38283) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/noelle-actions.spec.ts:38:1 › Noelle sourced actions preserve historical Q conversion, C2 and C6 through final JSON and fresh equipment (3.7s)
+
+  1 passed (4.1s)

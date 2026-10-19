@@ -1,0 +1,556 @@
+--- a/internal/characters/aino/cons.go
++++ b/internal/characters/aino/cons.go
+@@ -42,6 +42,9 @@
+ 				if !c.StatusIsActive(c1Key) {
+ 					return nil
+ 				}
++				if c.Core.SourceHost != nil {
++					c.c1Buff[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-aino-c1-em", map[string]any{}, nil)
++				}
+ 				return c.c1Buff
+ 			},
+ 		})
+@@ -52,6 +55,9 @@
+ 		Amount: func() []float64 {
+ 			if !c.StatusIsActive(c1Key) {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				c.c1Buff[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-aino-c1-em", map[string]any{}, nil)
+ 			}
+ 			return c.c1Buff
+ 		},
+--- a/internal/characters/alhaitham/cons.go
++++ b/internal/characters/alhaitham/cons.go
+@@ -35,10 +35,14 @@
+ 	m := make([]float64, attributes.EndStatType)
+ 	m[attributes.EM] = 50
+ 	for range generated {
++		stackNum := c.c2Counter + 1
+ 		c.AddStatMod(character.StatMod{
+-			Base:         modifier.NewBaseWithHitlag(c2ModName(c.c2Counter+1), 480), // 8s
++			Base:         modifier.NewBaseWithHitlag(c2ModName(stackNum), 480), // 8s
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					m[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), fmt.Sprintf("char-vector-alhaitham-c2-%d-em", stackNum), map[string]any{}, nil)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -126,6 +130,10 @@
+ 			c.AddStatMod(character.StatMod{
+ 				Base: modifier.NewBaseWithHitlag(c6key, 360), // 6s
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						m[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-alhaitham-c6-cr", map[string]any{}, nil)
++						m[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-alhaitham-c6-cd", map[string]any{}, nil)
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/arlecchino/cons.go
++++ b/internal/characters/arlecchino/cons.go
+@@ -106,6 +106,10 @@
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			switch atk.Info.AttackTag {
+ 			case attacks.AttackTagElementalBurst, attacks.AttackTagNormal:
++				if c.Core.SourceHost != nil {
++					m[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-arlecchino-c6-cr", map[string]any{}, nil)
++					m[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-arlecchino-c6-cd", map[string]any{}, nil)
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/ayato/burst.go
++++ b/internal/characters/ayato/burst.go
+@@ -45,7 +45,12 @@
+ 
+ 	burstArea := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 10)
+ 	m := make([]float64, attributes.EndStatType)
+-	m[attributes.DmgP] = burstatkp[c.TalentLvlBurst()]
++	burstTalent := c.TalentLvlBurst()
++	m[attributes.DmgP] = burstatkp[burstTalent]
++	burstDmgID := 0
++	if c.Core.SourceHost != nil {
++		m[attributes.DmgP], burstDmgID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "ayato-burst", "char-vector-ayato-burst-dmgp", map[string]any{"talent": burstTalent}, nil)
++	}
+ 	// tick every 0.5s from burstStart
+ 	for i := 0; i < 18*60; i += 30 {
+ 		c.Core.Tasks.Add(func() {
+@@ -75,6 +80,9 @@
+ 				Base: modifier.NewBaseWithHitlag("ayato-burst", 90),
+ 				Amount: func(a *info.AttackEvent, t info.Target) []float64 {
+ 					if a.Info.AttackTag == attacks.AttackTagNormal {
++						if c.Core.SourceHost != nil {
++							return c.Core.SourceHost.CharacterModifierSnapshot(m, burstDmgID)
++						}
+ 						return m
+ 					}
+ 					return nil
+--- a/internal/characters/barbara/cons.go
++++ b/internal/characters/barbara/cons.go
+@@ -24,6 +24,9 @@
+ 			Base:         modifier.NewBase("barbara-c2", skillDuration),
+ 			AffectedStat: attributes.NoStat,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.c2buff[attributes.HydroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-barbara-c2-hydrop", map[string]any{}, nil)
++				}
+ 				return c.c2buff
+ 			},
+ 		})
+--- a/internal/characters/candace/burst.go
++++ b/internal/characters/candace/burst.go
+@@ -149,6 +149,9 @@
+ 			if atk.Info.Element == attributes.Physical || atk.Info.Element == attributes.NoElement {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				m[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-candace-burst-dmgp", map[string]any{}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/chevreuse/cons.go
++++ b/internal/characters/chevreuse/cons.go
+@@ -152,9 +152,14 @@
+ 	m[attributes.PyroP] = 0.20
+ 	m[attributes.ElectroP] = 0.20
+ 
++	stackNum := c.c6StackCounts[char.Index()] + 1
+ 	char.AddStatMod(character.StatMod{
+-		Base: modifier.NewBaseWithHitlag(fmt.Sprintf("chev-c6-%v-stack", c.c6StackCounts[char.Index()]+1), 8*60),
++		Base: modifier.NewBaseWithHitlag(fmt.Sprintf("chev-c6-%v-stack", stackNum), 8*60),
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				m[attributes.PyroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), fmt.Sprintf("char-vector-chevreuse-c6-%d-pyrop", stackNum), map[string]any{}, nil)
++				m[attributes.ElectroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), fmt.Sprintf("char-vector-chevreuse-c6-%d-electrop", stackNum), map[string]any{}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/chiori/asc.go
++++ b/internal/characters/chiori/asc.go
+@@ -195,6 +195,9 @@
+ 		Base:         modifier.NewBaseWithHitlag(a4BuffKey, a4Duration),
+ 		AffectedStat: attributes.GeoP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				c.a4Buff[attributes.GeoP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-chiori-a4-geop", map[string]any{}, nil)
++			}
+ 			return c.a4Buff
+ 		},
+ 	})
+--- a/internal/characters/columbina/cons.go
++++ b/internal/characters/columbina/cons.go
+@@ -111,6 +111,9 @@
+ 		Base:         modifier.NewBase(c2Key, 8*60),
+ 		AffectedStat: attributes.HPP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				c.c2Buff[attributes.HPP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-columbina-c2-hpp", map[string]any{}, nil)
++			}
+ 			return c.c2Buff
+ 		},
+ 	})
+@@ -261,6 +264,9 @@
+ 					default:
+ 						return nil
+ 					}
++					if c.Core.SourceHost != nil {
++						c.c6Buff[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-columbina-c6-lc-cd", map[string]any{}, nil)
++					}
+ 					return c.c6Buff
+ 				},
+ 			})
+@@ -285,6 +291,9 @@
+ 					default:
+ 						return nil
+ 					}
++					if c.Core.SourceHost != nil {
++						c.c6Buff[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-columbina-c6-lb-cd", map[string]any{}, nil)
++					}
+ 					return c.c6Buff
+ 				},
+ 			})
+@@ -310,6 +319,9 @@
+ 					default:
+ 						return nil
+ 					}
++					if c.Core.SourceHost != nil {
++						c.c6Buff[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-columbina-c6-lcr-cd", map[string]any{}, nil)
++					}
+ 					return c.c6Buff
+ 				},
+ 			})
+--- a/internal/characters/cyno/burst.go
++++ b/internal/characters/cyno/burst.go
+@@ -35,6 +35,9 @@
+ 		Base:         modifier.NewBaseWithHitlag(burstKey, 712), // 112f extra duration
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				m[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-cyno-burst-em", map[string]any{}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/cyno/cons.go
++++ b/internal/characters/cyno/cons.go
+@@ -32,6 +32,9 @@
+ 		Amount: func() []float64 {
+ 			if c.Core.Player.CurrentState() != action.NormalAttackState {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				m[attributes.AtkSpd] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-cyno-c1-atkspd", map[string]any{}, nil)
+ 			}
+ 			return m
+ 		},
+--- a/internal/characters/dahlia/asc.go
++++ b/internal/characters/dahlia/asc.go
+@@ -87,6 +87,9 @@
+ 			if c.Core.Player.CurrentState() != action.NormalAttackState {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil && c.attackSpeedCreationID > 0 {
++				return c.Core.SourceHost.CharacterModifierSnapshot(c.attackSpeedBuff, c.attackSpeedCreationID)
++			}
+ 			return c.attackSpeedBuff
+ 		},
+ 	})
+@@ -101,7 +104,12 @@
+ 
+ 		// Calcuate Attack Speed buff (max 20%)
+ 		// If C6, add another 10% Attack Speed
+-		burstAttackSpeed := min(c.MaxHP()*0.001*0.005, 0.2) + c.c6AtkSpd()
++		maxHP, statRead := c.MaxHPWithProvenance()
++		c6Speed := c.c6AtkSpd()
++		burstAttackSpeed := min(maxHP*0.001*0.005, 0.2) + c6Speed
++		if c.Core.SourceHost != nil {
++			burstAttackSpeed, c.attackSpeedCreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), attackSpeedKey, "char-vector-dahlia-a4-atkspd", map[string]any{"maxHp": maxHP, "c6Speed": c6Speed}, statRead)
++		}
+ 		c.attackSpeedBuff[attributes.AtkSpd] = burstAttackSpeed
+ 
+ 		// Update Attack Speed buff after 0.5s (affected by on-fielder hitlag)
+--- a/internal/characters/dahlia/dahlia.go
++++ b/internal/characters/dahlia/dahlia.go
+@@ -15,7 +15,8 @@
+ 	currentBenisonStacks int
+ 	normalAttackCount    int
+ 
+-	attackSpeedBuff []float64
++	attackSpeedCreationID int
++	attackSpeedBuff       []float64
+ }
+ 
+ func NewChar(s *core.Core, w *character.CharWrapper, _ info.CharacterProfile) error {
+--- a/internal/characters/diluc/burst.go
++++ b/internal/characters/diluc/burst.go
+@@ -44,6 +44,9 @@
+ 			Base:         modifier.NewBaseWithHitlag(burstBuffKey, duration),
+ 			AffectedStat: attributes.PyroP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.a4buff[attributes.PyroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-diluc-a4-pyrop", map[string]any{}, nil)
++				}
+ 				return c.a4buff
+ 			},
+ 		})
+--- a/internal/characters/diluc/cons.go
++++ b/internal/characters/diluc/cons.go
+@@ -61,10 +61,17 @@
+ 		}
+ 		c.c2buff[attributes.ATKP] = 0.1 * float64(c.c2stack)
+ 		c.c2buff[attributes.AtkSpd] = 0.05 * float64(c.c2stack)
++		if c.Core.SourceHost != nil {
++			c.c2buff[attributes.ATKP], c.c2ATKPCreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), c2BuffKey, "char-vector-diluc-c2-atkp", map[string]any{"stacks": c.c2stack}, nil)
++			c.c2buff[attributes.AtkSpd], c.c2SpeedCreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), c2BuffKey, "char-vector-diluc-c2-atkspd", map[string]any{"stacks": c.c2stack}, nil)
++		}
+ 		c.AddStatMod(character.StatMod{
+ 			Base:         modifier.NewBaseWithHitlag(c2BuffKey, 600),
+ 			AffectedStat: attributes.NoStat,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierSnapshot(c.c2buff, c.c2ATKPCreationID, c.c2SpeedCreationID)
++				}
+ 				return c.c2buff
+ 			},
+ 		})
+@@ -81,6 +88,9 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalArt {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				c.c4buff[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-diluc-c4-dmgp", map[string]any{}, nil)
++			}
+ 			return c.c4buff
+ 		},
+ 	})
+--- a/internal/characters/diluc/diluc.go
++++ b/internal/characters/diluc/diluc.go
+@@ -15,6 +15,8 @@
+ 	eCounter           int
+ 	a4buff             []float64
+ 	c2buff             []float64
++	c2ATKPCreationID   int
++	c2SpeedCreationID  int
+ 	c2stack            int
+ 	c4buff             []float64
+ 	savedNormalCounter int
+--- a/internal/characters/diona/cons.go
++++ b/internal/characters/diona/cons.go
+@@ -42,6 +42,9 @@
+ 					Base:         modifier.NewBaseWithHitlag("diona-c6", 120),
+ 					AffectedStat: attributes.EM,
+ 					Amount: func() []float64 {
++						if c.Core.SourceHost != nil {
++							c.c6buff[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-diona-c6-em", map[string]any{}, nil)
++						}
+ 						return c.c6buff
+ 					},
+ 				})
+--- a/internal/characters/durin/cons.go
++++ b/internal/characters/durin/cons.go
+@@ -206,7 +206,11 @@
+ 					for i := range c.c2Buff {
+ 						c.c2Buff[i] = 0
+ 					}
+-					c.c2Buff[stat] = 0.5
++					if c.Core.SourceHost != nil {
++						c.c2Buff[stat] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-durin-c2-"+elem.String(), map[string]any{}, nil)
++					} else {
++						c.c2Buff[stat] = 0.5
++					}
+ 					return c.c2Buff
+ 				},
+ 			})
+--- a/internal/characters/emilie/cons.go
++++ b/internal/characters/emilie/cons.go
+@@ -67,6 +67,9 @@
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalArt && atk.Info.Abil != a1Abil {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				m[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-emilie-c1-dmgp", map[string]any{}, nil)
+ 			}
+ 			return m
+ 		},
+--- a/internal/characters/escoffier/cons.go
++++ b/internal/characters/escoffier/cons.go
+@@ -68,6 +68,9 @@
+ 				if ae.Info.Element != attributes.Cryo {
+ 					return nil
+ 				}
++				if c.Core.SourceHost != nil {
++					c.c1Buff[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-escoffier-c1-cd", map[string]any{}, nil)
++				}
+ 				return c.c1Buff
+ 			},
+ 		})
+--- a/internal/characters/eula/skill.go
++++ b/internal/characters/eula/skill.go
+@@ -247,6 +247,9 @@
+ 			Base:         modifier.NewBaseWithHitlag("eula-c1", (6*v+6)*60),
+ 			AffectedStat: attributes.PhyP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.c1buff[attributes.PhyP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-eula-c1-phyp", map[string]any{}, nil)
++				}
+ 				return c.c1buff
+ 			},
+ 		})
+--- a/internal/characters/flins/cons.go
++++ b/internal/characters/flins/cons.go
+@@ -137,6 +137,9 @@
+ 		Base:         modifier.NewBase(c4Key, -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				m[attributes.ATKP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-flins-c4-atkp", map[string]any{}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/freminet/asc.go
++++ b/internal/characters/freminet/asc.go
+@@ -48,6 +48,9 @@
+ 				if !strings.HasPrefix(atk.Info.Abil, pressureBaseName) {
+ 					return nil
+ 				}
++				if c.Core.SourceHost != nil {
++					buff[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-freminet-a4-dmgp", map[string]any{}, nil)
++				}
+ 				return buff
+ 			},
+ 		})
+--- a/internal/characters/freminet/cons.go
++++ b/internal/characters/freminet/cons.go
+@@ -33,6 +33,9 @@
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if !strings.HasPrefix(atk.Info.Abil, pressureBaseName) {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				buff[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-freminet-c1-cr", map[string]any{}, nil)
+ 			}
+ 			return buff
+ 		},
+--- a/internal/characters/gaming/cons.go
++++ b/internal/characters/gaming/cons.go
+@@ -56,6 +56,9 @@
+ 			Base:         modifier.NewBaseWithHitlag(c2Key, 5*60),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					m[attributes.ATKP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-gaming-c2-atkp", map[string]any{}, nil)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -98,6 +101,10 @@
+ 			if atk.Info.Abil != specialPlungeKey {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				m[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-gaming-c6-cr", map[string]any{}, nil)
++				m[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-gaming-c6-cd", map[string]any{}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/gorou/asc.go
++++ b/internal/characters/gorou/asc.go
+@@ -16,6 +16,9 @@
+ 			Base:         modifier.NewBaseWithHitlag(a1Key, 720),
+ 			AffectedStat: attributes.DEFP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.a1Buff[attributes.DEFP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-gorou-a1-defp", map[string]any{}, nil)
++				}
+ 				return c.a1Buff
+ 			},
+ 		})
+--- a/internal/characters/heizou/asc.go
++++ b/internal/characters/heizou/asc.go
+@@ -65,6 +65,9 @@
+ 			Base:         modifier.NewBaseWithHitlag("heizou-a4", dur),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.a4Buff[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-heizou-a4-em", map[string]any{}, nil)
++				}
+ 				return c.a4Buff
+ 			},
+ 		})
+--- a/internal/characters/heizou/cons.go
++++ b/internal/characters/heizou/cons.go
+@@ -25,6 +25,9 @@
+ 			Base:         modifier.NewBaseWithHitlag("heizou-c1", 300), // 5s
+ 			AffectedStat: attributes.AtkSpd,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.c1buff[attributes.AtkSpd] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-heizou-c1-atkspd", map[string]any{}, nil)
++				}
+ 				return c.c1buff
+ 			},
+ 		})
+--- a/internal/characters/hutao/asc.go
++++ b/internal/characters/hutao/asc.go
+@@ -27,6 +27,9 @@
+ 			Base:         modifier.NewBaseWithHitlag(a1BuffKey, 480),
+ 			AffectedStat: attributes.CR,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					c.a1buff[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-hutao-a1-cr", map[string]any{}, nil)
++				}
+ 				return c.a1buff
+ 			},
+ 		})
+@@ -47,6 +50,9 @@
+ 		AffectedStat: attributes.PyroP,
+ 		Amount: func() []float64 {
+ 			if c.CurrentHPRatio() <= 0.5 {
++				if c.Core.SourceHost != nil {
++					c.a4buff[attributes.PyroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-hutao-a4-pyrop", map[string]any{}, nil)
++				}
+ 				return c.a4buff
+ 			}
+ 			return nil
+--- a/internal/characters/hutao/cons.go
++++ b/internal/characters/hutao/cons.go
+@@ -55,6 +55,9 @@
+ 		Base:         modifier.NewBaseWithHitlag("hutao-c6", 600),
+ 		AffectedStat: attributes.CR,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				c.c6buff[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-hutao-c6-cr", map[string]any{}, nil)
++			}
+ 			return c.c6buff
+ 		},
+ 	})
+@@ -86,6 +89,9 @@
+ 				Base:         modifier.NewBaseWithHitlag("hutao-c4", 900),
+ 				AffectedStat: attributes.CR,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						c.c4buff[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-vector-hutao-c4-cr", map[string]any{}, nil)
++					}
+ 					return c.c4buff
+ 				},
+ 			})
+--- a/internal/characters/hutao/hutao.go
++++ b/internal/characters/hutao/hutao.go
+@@ -13,12 +13,13 @@
+ 
+ type char struct {
+ 	*tmpl.Character
+-	a1buff  []float64
+-	a4buff  []float64
+-	ppbuff  []float64
+-	c4buff  []float64
+-	c6buff  []float64
+-	applyA1 bool
++	a1buff       []float64
++	a4buff       []float64
++	ppbuff       []float64
++	ppCreationID int
++	c4buff       []float64
++	c6buff       []float64
++	applyA1      bool
+ 
+ 	burstHealCount  int
+ 	burstHealAmount info.HealInfo
+--- a/internal/characters/hutao/skill.go
++++ b/internal/characters/hutao/skill.go
+@@ -31,10 +31,16 @@
+ }
+ 
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+-	bonus := ppatk[c.TalentLvlSkill()] * c.MaxHP()
+-	maxBonus := c.Stat(attributes.BaseATK) * 4
++	talent := c.TalentLvlSkill()
++	maxHP, maxHPRead := c.MaxHPWithProvenance()
++	baseATK, baseATKRead := c.StatWithProvenance(attributes.BaseATK)
++	bonus := ppatk[talent] * maxHP
++	maxBonus := baseATK * 4
+ 	if bonus > maxBonus {
+ 		bonus = maxBonus
++	}
++	if c.Core.SourceHost != nil {
++		bonus, c.ppCreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), paramitaBuff, "char-vector-hutao-paramita-atk", map[string]any{"talent": talent, "maxHp": maxHP, "baseAtk": baseATK}, maxHPRead, baseATKRead)
+ 	}
+ 	c.ppbuff[attributes.ATK] = bonus
+ 	c.AddStatMod(character.StatMod{
+@@ -42,6 +48,9 @@
+ 		AffectedStat: attributes.ATK,
+ 		Extra:        true,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(c.ppbuff, c.ppCreationID)
++			}
+ 			return c.ppbuff
+ 		},
+ 	})

@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "source-character-shield-validation-v1",
+  "laneFilter": "both",
+  "configs": {
+    "stack": "options iteration=1 duration=15;\nthoma char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nthoma add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nnoelle char lvl=90/90 cons=0 talent=1,1,1;\nnoelle add weapon=\"thebell\" refine=1 lvl=90/90;\nnoelle add stats def=400 cr=0.2 cd=0.4;\nlanyan char lvl=90/90 cons=2 talent=1,1,1;\nlanyan add weapon=\"magicguide\" refine=1 lvl=90/90;\nlanyan add stats atk=300 cr=0.2 cd=0.4;\nkaeya char lvl=90/90 cons=6 talent=1,1,1 +params=[start_energy=100];\nkaeya add weapon=\"favoniussword\" refine=1 lvl=90/90;\nkaeya add stats hp=2000 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nhurt every interval=60,61 amount=300,300 element=physical;\nactive thoma;\nthoma skill;\nthoma burst;\nthoma attack;\nlanyan skill;\nlanyan attack:2;\nkaeya skill;\nkaeya burst;\nnoelle skill;\nwait(60);\npick_up_crystallize(\"any\");\nwait(180);",
+    "lowHp": "options iteration=1 duration=5;\nthoma char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nthoma add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nnoelle char lvl=90/90 cons=0 talent=1,1,1;\nnoelle add weapon=\"thebell\" refine=1 lvl=90/90;\nnoelle add stats def=400 cr=0.2 cd=0.4;\nlanyan char lvl=90/90 cons=2 talent=1,1,1;\nlanyan add weapon=\"magicguide\" refine=1 lvl=90/90;\nlanyan add stats atk=300 cr=0.2 cd=0.4;\nkaeya char lvl=90/90 cons=6 talent=1,1,1 +params=[start_energy=100];\nkaeya add weapon=\"favoniussword\" refine=1 lvl=90/90;\nkaeya add stats hp=2000 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nhurt once interval=60 amount=13000,13000 element=physical;\nactive kaeya;\nwait(180);"
+  },
+  "measurements": [
+    {
+      "lane": "classic",
+      "scene": "stack",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "ba46e9be71b309eb9a1231282541b0569277df239439c47b5cec854214eee6a6",
+      "applications": 42,
+      "playerApplications": 14,
+      "calculations": 266,
+      "observedRules": {
+        "char-shield-thoma-skill-base": 1,
+        "char-shield-thoma-burst-base": 3,
+        "char-shield-thoma-max": 3,
+        "char-shield-thoma-stack": 3,
+        "char-shield-lanyan-base": 3,
+        "char-shield-lanyan-restore-fraction": 1,
+        "char-shield-lanyan-restore": 1,
+        "char-shield-noelle-skill": 1,
+        "char-shield-crystallize-base": 1,
+        "char-shield-crystallize-em": 1,
+        "char-shield-crystallize-bonus-total": 7
+      },
+      "rawPath": "docs/validation/source-character-shield-classic-20260928.result.json",
+      "crystallize": {
+        "baseId": 206,
+        "emId": 207,
+        "bonusId": 220,
+        "consumedHpId": 221,
+        "hitId": 224,
+        "replayDifference": 0
+      },
+      "lineage": {
+        "skillId": 1,
+        "hitId": 12,
+        "consumedHpId": 9,
+        "absorbed": 300,
+        "burstBaseId": 42,
+        "maximumId": 43,
+        "stackId": 44,
+        "noelleId": 166,
+        "lanyanBaseId": 49,
+        "lanyanRestoreFractionId": 73,
+        "lanyanRestoreId": 75,
+        "incomingReplayDifference": 0,
+        "stackReplayDifference": 0
+      },
+      "edit": {
+        "calculationId": 166,
+        "originalDef": 1438.115239525,
+        "editedDef": 1538.115239525,
+        "originalValue": 3070.76948324,
+        "editedValue": 3230.76948324,
+        "originalCaptureUnchanged": true
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "low-hp",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "ba46e9be71b309eb9a1231282541b0569277df239439c47b5cec854214eee6a6",
+      "applications": 0,
+      "playerApplications": 1,
+      "calculations": 5,
+      "observedRules": {
+        "char-shield-bell": 1,
+        "char-shield-noelle-a1": 1,
+        "char-shield-kaeya-c4": 1
+      },
+      "rawPath": "docs/validation/source-character-shield-classic-low-hp-20260928.result.json",
+      "lineage": {
+        "drainHitId": 6,
+        "drainAttempted": 13000,
+        "kaeyaId": 5,
+        "kaeyaHp": 4090.84773708,
+        "bellId": 3,
+        "bellHp": 3412.4190657291037
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "stack",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "ac91cc2b675d249d5c5eb88da9c857195ecc6da722768383dea966d970859ca8",
+      "applications": 42,
+      "playerApplications": 14,
+      "calculations": 266,
+      "observedRules": {
+        "char-shield-thoma-skill-base": 1,
+        "char-shield-thoma-burst-base": 3,
+        "char-shield-thoma-max": 3,
+        "char-shield-thoma-stack": 3,
+        "char-shield-lanyan-base": 3,
+        "char-shield-lanyan-restore-fraction": 1,
+        "char-shield-lanyan-restore": 1,
+        "char-shield-noelle-skill": 1,
+        "char-shield-crystallize-base": 1,
+        "char-shield-crystallize-em": 1,
+        "char-shield-crystallize-bonus-total": 7
+      },
+      "rawPath": "docs/validation/source-character-shield-stellar-20260928.result.json",
+      "crystallize": {
+        "baseId": 206,
+        "emId": 207,
+        "bonusId": 220,
+        "consumedHpId": 221,
+        "hitId": 224,
+        "replayDifference": 0
+      },
+      "lineage": {
+        "skillId": 1,
+        "hitId": 12,
+        "consumedHpId": 9,
+        "absorbed": 300,
+        "burstBaseId": 42,
+        "maximumId": 43,
+        "stackId": 44,
+        "noelleId": 166,
+        "lanyanBaseId": 49,
+        "lanyanRestoreFractionId": 73,
+        "lanyanRestoreId": 75,
+        "incomingReplayDifference": 0,
+        "stackReplayDifference": 0
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "low-hp",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "ac91cc2b675d249d5c5eb88da9c857195ecc6da722768383dea966d970859ca8",
+      "applications": 0,
+      "playerApplications": 1,
+      "calculations": 5,
+      "observedRules": {
+        "char-shield-bell": 1,
+        "char-shield-noelle-a1": 1,
+        "char-shield-kaeya-c4": 1
+      },
+      "rawPath": "docs/validation/source-character-shield-stellar-low-hp-20260928.result.json",
+      "lineage": {
+        "drainHitId": 6,
+        "drainAttempted": 13000,
+        "kaeyaId": 5,
+        "kaeyaHp": 4090.84773708,
+        "bellId": 3,
+        "bellHp": 3412.4190657291037
+      }
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Two short native four-character configurations per source lane; Crystallize generation, pickup and later consumption included; other shield rules remain unsampled."
+}

@@ -1,0 +1,485 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "source-backed-provisional",
+  "repository": "genshinsim/gcsim",
+  "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "recordedAt": "2026-09-25T01:50:29.206863+00:00",
+  "scope": "Traveler Cryo state audit, both gender bindings, ordinary attack conversion, E periodic/coordinated schedules, Q state lock and Stellar field integration. Source evidence only; no game verification or production mapping.",
+  "archivePath": "packages/game-data/sources/traveler-cryo-state/source.json.gz",
+  "archiveSha256": "9846744d0685ba1b0462e839c1c292fe259d8e32d826f20f53f7aab67f2241ad",
+  "archiveBytes": 254974,
+  "archivedFileCount": 39,
+  "pinnedGitTree": {
+    "sha": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "url": "https://api.github.com/repos/genshinsim/gcsim/git/trees/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd?recursive=1",
+    "truncated": false,
+    "responseSha256": "898affa52cb190212170ae84018180e18868cd7b54363270937078bc2a8b141d",
+    "responseArchivedAt": "source.json.gz:provenance.fixedTreeResponseText",
+    "matchesPreviouslyPinnedTreeResponseSha256": true,
+    "verificationMethod": "Every UTF-8 source byte sequence was recomputed as a Git blob and matched to the path and size in the freshly retrieved fixed recursive Git tree before archival."
+  },
+  "localSourceDirectory": "/tmp/gidps-gcsim-a7dc4bf",
+  "localSourceDirectoryKind": "extracted fixed revision tarball; no .git metadata",
+  "recordedTarballProvenance": {
+    "url": "https://codeload.github.com/genshinsim/gcsim/tar.gz/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "sha256": "c0484e23afda76d7b38bb4fb49c2592b4b7bdccc8d549eaf8a4848e37aa55165",
+    "bytes": 64166679,
+    "retrievedAt": "2026-09-23T07:12:17.138350+00:00",
+    "localExtracted": "/tmp/gidps-gcsim-a7dc4bf"
+  },
+  "tarballBytesIndependentlyRehashedThisTask": false,
+  "previousArchive": {
+    "manifestPath": "packages/game-data/sources/traveler-cryo-complete/manifest.json",
+    "archiveSha256": "395201fb05a8dda565a2e19cf849f4b2a7a46efd2adcbe61a6692af59dcd1e12",
+    "archiveSha256Verified": true,
+    "exactSourceTextMatches": 22
+  },
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 35211,
+      "sha256": "bdef457104e8696158ed0f1bf4c165602b8f5db72d6c2f9bf564f21ee90a1906",
+      "expectedGitBlobSha1": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "actualGitBlobSha1": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/LICENSE"
+    },
+    {
+      "path": "LICENSE-MIT",
+      "bytes": 1649,
+      "sha256": "84ef1de717592626af92eec1e4516b1edbf3922f15a2cbbaddfda6634cfa5ace",
+      "expectedGitBlobSha1": "d4b9b3cbb7e7b94c3ed6f1cebbd0a543b120aeda",
+      "actualGitBlobSha1": "d4b9b3cbb7e7b94c3ed6f1cebbd0a543b120aeda",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/LICENSE-MIT",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/LICENSE-MIT"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/asc.go",
+      "bytes": 1406,
+      "sha256": "435b7ede7a1f63909b582701e117479ef44be722db9aaf1b18e48318b78c994a",
+      "expectedGitBlobSha1": "99ebeb118b6ea596a410d98a36880cffcd13590d",
+      "actualGitBlobSha1": "99ebeb118b6ea596a410d98a36880cffcd13590d",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/asc.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/asc.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/attack.go",
+      "bytes": 4366,
+      "sha256": "497be5ff30a1d87b65a49e8cb98c75fcc611c1e6e12aa61c719d83d335328acc",
+      "expectedGitBlobSha1": "3b9ab47766de7aa3df6e1c58f5d4ea31258cc96e",
+      "actualGitBlobSha1": "3b9ab47766de7aa3df6e1c58f5d4ea31258cc96e",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/attack.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/burst.go",
+      "bytes": 3346,
+      "sha256": "35751654ed051f15a9466a9279f9b324896afc341ab22f97181a0fb3b0af13b8",
+      "expectedGitBlobSha1": "b51523486bfc39e35c93f433cd5f6f05f84e2a8d",
+      "actualGitBlobSha1": "b51523486bfc39e35c93f433cd5f6f05f84e2a8d",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/burst.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/burst.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/charge.go",
+      "bytes": 5637,
+      "sha256": "665c0dc5d2be4345536549653caa9488b2f3cf353fb2ee209f390d741e0bc0a7",
+      "expectedGitBlobSha1": "6388c9620bde029a5bf719a52db932ef4865f7ed",
+      "actualGitBlobSha1": "6388c9620bde029a5bf719a52db932ef4865f7ed",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/charge.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/charge.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/cons.go",
+      "bytes": 4243,
+      "sha256": "07b29be679f72afbc13b9af0308a3f085e89151d6894fdeabe153f214cab7909",
+      "expectedGitBlobSha1": "86e41d562897c0d9f5bb041d8995d01955f548cd",
+      "actualGitBlobSha1": "86e41d562897c0d9f5bb041d8995d01955f548cd",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/cons.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/cons.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/plunge.go",
+      "bytes": 5458,
+      "sha256": "c90261c79e9c9c5139c10b33673e0338b26ba6f462e20b444b17931cb9976eb0",
+      "expectedGitBlobSha1": "bdd0979796c82ea04f295d09035b5afd7746bd6c",
+      "actualGitBlobSha1": "bdd0979796c82ea04f295d09035b5afd7746bd6c",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/plunge.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/plunge.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/skill.go",
+      "bytes": 5326,
+      "sha256": "5926cbff74dd914b650d13f9fc3c2eb760ced4c68d99a8a4249836d1c72f2c19",
+      "expectedGitBlobSha1": "4c67e5518bedbc7136ab0b39d9087cd993b46123",
+      "actualGitBlobSha1": "4c67e5518bedbc7136ab0b39d9087cd993b46123",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/skill.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/skill.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/stats.go",
+      "bytes": 4186,
+      "sha256": "686238105e15e1774aab1c2a47ab60fc64b52049fb79bf6d5aec761eafc95ec4",
+      "expectedGitBlobSha1": "ac6c84b922d5a796815f6bb98fae84ce382e5634",
+      "actualGitBlobSha1": "ac6c84b922d5a796815f6bb98fae84ce382e5634",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/stats.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/stellar.go",
+      "bytes": 2429,
+      "sha256": "5d7e1bd5a831686113f3d5d5e77eb3ed3cdb413046039c4bb0610516561c4dd7",
+      "expectedGitBlobSha1": "48bd41e6501eec1fa0b5c0c5d45d6efd2d3475a8",
+      "actualGitBlobSha1": "48bd41e6501eec1fa0b5c0c5d45d6efd2d3475a8",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/stellar.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/stellar.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/travelercryo.go",
+      "bytes": 1699,
+      "sha256": "799b2dfbc005bfd62a84ebdd4f7317b74ff590e3f062c811f8f9aa6456745dcd",
+      "expectedGitBlobSha1": "09b30ee9a0251e1ef15274b2f38cdd949436531f",
+      "actualGitBlobSha1": "09b30ee9a0251e1ef15274b2f38cdd949436531f",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/travelercryo.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/travelercryo.go"
+    },
+    {
+      "path": "internal/characters/traveler/common/storybuffs.go",
+      "bytes": 1779,
+      "sha256": "10d3ee225d7ede860bddfa5cf05b827b7cd3496ffe9091679d4d7a08929082c4",
+      "expectedGitBlobSha1": "4a200edbe93ef5abdf563e3de5c8399fb1eb40ef",
+      "actualGitBlobSha1": "4a200edbe93ef5abdf563e3de5c8399fb1eb40ef",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/storybuffs.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/storybuffs.go"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/aether/aether.go",
+      "bytes": 656,
+      "sha256": "71bfaf46f0b61cf57c818f7ab13a18f06a0f556d9ec2d7a22bedd0a7984c8e7a",
+      "expectedGitBlobSha1": "013e49e947b4ed4165dc662530c65e14fae1710c",
+      "actualGitBlobSha1": "013e49e947b4ed4165dc662530c65e14fae1710c",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/aether/aether.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/aether/aether.go"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/aether/config.yml",
+      "bytes": 3156,
+      "sha256": "3d8f26d6758bd92e7e55f3dadc85ecc6422098bc04393d730d04799002a363e4",
+      "expectedGitBlobSha1": "fc662ef8a7e1d746c55a53373bc013d521c49847",
+      "actualGitBlobSha1": "fc662ef8a7e1d746c55a53373bc013d521c49847",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/aether/config.yml",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/aether/config.yml"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/aether/zz_aethercryo.dm.go",
+      "bytes": 767,
+      "sha256": "633f3f57e5b311fee1307f0c21cfbc94868d7b8b09a201d06eb3079d794415ce",
+      "expectedGitBlobSha1": "40bd8b3496702610d86008bd172c58451aefc26d",
+      "actualGitBlobSha1": "40bd8b3496702610d86008bd172c58451aefc26d",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/aether/zz_aethercryo.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/aether/zz_aethercryo.dm.go"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/lumine/config.yml",
+      "bytes": 4063,
+      "sha256": "58071fe9745486e126834e1ed742c8d6465cc800159d25a2d65c11323353e66c",
+      "expectedGitBlobSha1": "466cdb5e37223e2097b91729911176f021b2ba79",
+      "actualGitBlobSha1": "466cdb5e37223e2097b91729911176f021b2ba79",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/lumine/config.yml",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/lumine/config.yml"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/lumine/lumine.go",
+      "bytes": 656,
+      "sha256": "e61fb48ae6ad1d588f78ff7e27e597a1d90564cf2ad96ba1ff759e995719bb68",
+      "expectedGitBlobSha1": "c6b126ba854c59fb236d58452039139058dbe55d",
+      "actualGitBlobSha1": "c6b126ba854c59fb236d58452039139058dbe55d",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/lumine/lumine.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/lumine/lumine.go"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/lumine/zz_luminecryo.dm.go",
+      "bytes": 861,
+      "sha256": "0a6be3923bbcb2146c743484d28f4edbfa6facbae78baacd55fc7c3add26a5d4",
+      "expectedGitBlobSha1": "a64eb6e55ddfb9910d0aaa2e33a6b7ffac9b4116",
+      "actualGitBlobSha1": "a64eb6e55ddfb9910d0aaa2e33a6b7ffac9b4116",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/lumine/zz_luminecryo.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/cryo/lumine/zz_luminecryo.dm.go"
+    },
+    {
+      "path": "internal/template/character/character.go",
+      "bytes": 5080,
+      "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+      "expectedGitBlobSha1": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "actualGitBlobSha1": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "expectedGitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "actualGitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attack.go"
+    },
+    {
+      "path": "pkg/core/attacks/attack.go",
+      "bytes": 2297,
+      "sha256": "f8f069982bda9f6cfc8e5b100e9cfaf9c5114b5782ac3a7d3623b165c330e614",
+      "expectedGitBlobSha1": "44e59b0e9f4c0bb18b3872683ff9ace6f4781118",
+      "actualGitBlobSha1": "44e59b0e9f4c0bb18b3872683ff9ace6f4781118",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attacks/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attacks/attack.go"
+    },
+    {
+      "path": "pkg/core/attacks/icd_groups.dm.go",
+      "bytes": 16877,
+      "sha256": "d16e93a3db6a6aad861ad08d9188d423ff26a34e1d049828c4e3a7b33f40e10b",
+      "expectedGitBlobSha1": "b1fac6e49b342f7dd33c750f4906665cfc303e1a",
+      "actualGitBlobSha1": "b1fac6e49b342f7dd33c750f4906665cfc303e1a",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attacks/icd_groups.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attacks/icd_groups.dm.go"
+    },
+    {
+      "path": "pkg/core/attributes/stats.go",
+      "bytes": 1677,
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "expectedGitBlobSha1": "cc142a8c7ebd88cf2e212786bc3f260b936fc960",
+      "actualGitBlobSha1": "cc142a8c7ebd88cf2e212786bc3f260b936fc960",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attributes/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attributes/stats.go"
+    },
+    {
+      "path": "pkg/core/combat/attack.go",
+      "bytes": 2494,
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "expectedGitBlobSha1": "b56ff487f078ee302b6bec9a9616697de1dc88e5",
+      "actualGitBlobSha1": "b56ff487f078ee302b6bec9a9616697de1dc88e5",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/attack.go"
+    },
+    {
+      "path": "pkg/core/combat/gadget.go",
+      "bytes": 1673,
+      "sha256": "6169439303933d100ea1780318bce8db586b2f559c7ec114c07681e1bda54701",
+      "expectedGitBlobSha1": "85bb9c1b321a4295c4124345fed0f988f4902dc7",
+      "actualGitBlobSha1": "85bb9c1b321a4295c4124345fed0f988f4902dc7",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/gadget.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/gadget.go"
+    },
+    {
+      "path": "pkg/core/event/event.go",
+      "bytes": 5201,
+      "sha256": "edfda6f51cea27a114318242202f0ce4d4e09a44e22f3f76b6adb775fa875608",
+      "expectedGitBlobSha1": "10d27ad273075ae6824885d2bb0a8290ab0dc731",
+      "actualGitBlobSha1": "10d27ad273075ae6824885d2bb0a8290ab0dc731",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/event/event.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/event/event.go"
+    },
+    {
+      "path": "pkg/core/player/animation/animation.go",
+      "bytes": 3445,
+      "sha256": "5cfed6e7ef6f3d1ac61d88a8c0fd11e914082ec62c3c5591845613580a7bfbe9",
+      "expectedGitBlobSha1": "a3e8b32bcb4cdff141744f4c49ced26fc22a3e20",
+      "actualGitBlobSha1": "a3e8b32bcb4cdff141744f4c49ced26fc22a3e20",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/animation/animation.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/animation/animation.go"
+    },
+    {
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "expectedGitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "actualGitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/hitlag.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9924,
+      "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+      "expectedGitBlobSha1": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c",
+      "actualGitBlobSha1": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "expectedGitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "actualGitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/stats.go"
+    },
+    {
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "expectedGitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "actualGitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/attack.go"
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11119,
+      "sha256": "444bdc0a1578fcdf2b7371e48aa767138975903fb4ee8d956722f6c4f56b22ae",
+      "expectedGitBlobSha1": "6e45b47df855bde0f798600edeed00a44c8d8e1d",
+      "actualGitBlobSha1": "6e45b47df855bde0f798600edeed00a44c8d8e1d",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/damage.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/damage.go"
+    },
+    {
+      "path": "pkg/gadget/gadget.go",
+      "bytes": 1707,
+      "sha256": "2a874bb5a9717883ac177f5edfa5dcae461cd159379d08a1e4fda14fc440b76b",
+      "expectedGitBlobSha1": "9b813ef7115c0b1c42e107abbac56f768e1aeeb1",
+      "actualGitBlobSha1": "9b813ef7115c0b1c42e107abbac56f768e1aeeb1",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/gadget/gadget.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/gadget/gadget.go"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "expectedGitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "actualGitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go"
+    },
+    {
+      "path": "pkg/reactable/reactable.go",
+      "bytes": 11523,
+      "sha256": "8b276ba2ee16549ccf1474bb5effd7749ee9cca98f3426d4593425e29ee7ff4f",
+      "expectedGitBlobSha1": "26a664dfb02ace1ae98e28b9663b64acb5c6edbe",
+      "actualGitBlobSha1": "26a664dfb02ace1ae98e28b9663b64acb5c6edbe",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/reactable.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/reactable.go"
+    },
+    {
+      "path": "pkg/reactable/stellarconduct.go",
+      "bytes": 2453,
+      "sha256": "a2b71bcf3b2e73bb5de25f2e673252b8a1d12cfd3fa613df7c65dd77d8a10260",
+      "expectedGitBlobSha1": "36a4ea8396a25feee70ea0d168c4ec0854be16d3",
+      "actualGitBlobSha1": "36a4ea8396a25feee70ea0d168c4ec0854be16d3",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct.go"
+    },
+    {
+      "path": "pkg/reactable/stellarconduct_gadget.go",
+      "bytes": 4507,
+      "sha256": "c6b6cb0721705d1060e0fb4a0f36873b9bd181a042545e9e01f63476b74347bc",
+      "expectedGitBlobSha1": "5e05e116ff9948abe86fab7b71a36a69eff16818",
+      "actualGitBlobSha1": "5e05e116ff9948abe86fab7b71a36a69eff16818",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+    },
+    {
+      "path": "pkg/reactable/stellarswirl.go",
+      "bytes": 6801,
+      "sha256": "1a90e83efa5034b32747ee4ca3d9a4268d846cf3011159ebf65d619e32499363",
+      "expectedGitBlobSha1": "28a7d5c69a505fd837a7f77388ab93790596198e",
+      "actualGitBlobSha1": "28a7d5c69a505fd837a7f77388ab93790596198e",
+      "gitBlobMatchesTree": true,
+      "sourceUrl": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarswirl.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarswirl.go"
+    }
+  ],
+  "sourceBoundaries": [
+    {
+      "id": "periodic-checks-are-not-locked-mode",
+      "sources": [
+        "internal/characters/traveler/common/cryo/skill.go:105-118",
+        "pkg/core/player/character/hitlag.go:10-34"
+      ],
+      "finding": "Each skill check re-reads current radiance. Stellar-Conduct skips the volley but keeps the next character task; C0 no-hitlag check offsets are 178,354,530,706."
+    },
+    {
+      "id": "coordinated-inclusive-status-and-tail",
+      "sources": [
+        "internal/characters/traveler/common/cryo/skill.go:121-164",
+        "pkg/modifier/modifier.go:117-125",
+        "pkg/core/attack.go:64-96"
+      ],
+      "finding": "Coordinated callbacks require enemy target, current Stellar-Conduct and E status, and inactive 12-frame hitlag-aware ICD; equality remains active. Snapshot at callback+3 and damage at callback+3+travel are already queued without another state/owner-active check."
+    },
+    {
+      "id": "q-lock-versus-hit-time-bonus",
+      "sources": [
+        "internal/characters/traveler/common/cryo/burst.go:49-95",
+        "internal/characters/traveler/common/cryo/stellar.go:24-78",
+        "pkg/enemy/damage.go:199-215"
+      ],
+      "finding": "Q locks radiance, Frostglow and hit count at its +36 character-task callback; each queued hit snapshots there. Separate Stellar base-damage bonus reads Traveler total ATK on hit, and direct Stellar-Conduct reads the attacker Polestar stack tag on hit."
+    },
+    {
+      "id": "source-scope-not-game-verification",
+      "sources": [
+        "internal/characters/traveler/common/cryo/skill.go:32",
+        "internal/characters/traveler/common/cryo/plunge.go:66-76",
+        "internal/characters/traveler/common/cryo/plunge.go:123-134",
+        "internal/characters/traveler/common/cryo/travelercryo.go:40-45"
+      ],
+      "finding": "Male E timing explicitly assumes female values; male plunge is not implemented and female plunge requires the Xianyun airborne state. True Moon defaults enabled unless explicitly disabled."
+    },
+    {
+      "id": "polestar-expiry-subscriber-boundary",
+      "sources": [
+        "pkg/reactable/stellarconduct_gadget.go:57-89",
+        "pkg/gadget/gadget.go:58-64",
+        "pkg/core/combat/gadget.go:24-25"
+      ],
+      "finding": "Polestar listener unsubscribe is attached to OnKill, while natural expiry removes the gadget through OnExpiry without Kill; the fixed source may retain that listener. Retain as a source discrepancy, not a game-verified behavior."
+    }
+  ],
+  "validation": {
+    "sourceIdentityVerificationOnly": true,
+    "allArchivedSourceGitBlobsMatch": true,
+    "testsExecuted": 0,
+    "buildsExecuted": 0,
+    "externalSimulationsExecuted": 0,
+    "gameVerified": false
+  }
+}

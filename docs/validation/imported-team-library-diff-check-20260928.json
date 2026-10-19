@@ -1,0 +1,10 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.063,
+  "log": "docs/validation/imported-team-library-diff-check-20260928.log"
+}

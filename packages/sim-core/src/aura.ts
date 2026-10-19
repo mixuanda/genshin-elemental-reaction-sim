@@ -13,6 +13,7 @@ import type {
   CrystallizeReactionAudit,
   Element,
   AnyElementalApplication,
+  ElementalApplication,
   ElementalApplicationIcdDecision,
   ElementalApplicationIcdDecisionV147,
   ElementalApplicationReactionFixedGcsimDecision,
@@ -418,7 +419,29 @@ export interface ShatterStateResult {
   mutations: ShatterFrozenMutation[];
 }
 
+export interface LunarMixedGeoResolution {
+  frame: number;
+  sourceActorId: string;
+  sourceGaugeUnitsBefore: number;
+  electroCrystallize: CrystallizeReactionAudit | null;
+  sourceGaugeUnitsAfterElectro: number;
+  hydroAuraBefore: AuraStateEntry[];
+  lunarCrystallizeTriggered: boolean;
+  sourceGaugeUnitsSpentOnHydro: number;
+  sourceGaugeUnitsAfter: number;
+}
+
 export interface AuraEngineConfig extends AuraReactionEngineConfig {
+  /** Versioned LC runner only: ordinary EC is replaced before its gauge/task path. */
+  lunarChargedConversion?: boolean;
+  /** Versioned H/Geo profile: replace Hydro Crystallize before shard/GCD creation. */
+  lunarCrystallizeConversion?: boolean;
+  /** Explicit mixed runner: Electro Crystallize precedes Lunar-Crystallize. */
+  lunarMixedConversion?: boolean;
+  /** Mixed v2: resolve LC within the ordinary H/E reaction order, retaining D/Q. */
+  lunarDendroConversion?: boolean;
+  stellarConductConversion?: boolean;
+  stellarSwirlConversion?: boolean;
   freezeResistance?: number;
   /** Simulator/config-owned reaction application policy selection. */
   reactionOwnedElementalApplicationModel?: Readonly<
@@ -929,6 +952,8 @@ export class AuraEngine {
     DeferredReactionOwnedAttachmentToken,
     PendingReactionOwnedAttachment
   >();
+  /** A deferred same-frame cohort is not a complete checkpoint boundary. */
+  private pendingReactionOwnedAttachmentCount = 0;
   /** Latest hit frame observed by any Aura hit entry, including current-state entries. */
   private latestAuraHitFrame = -1;
   private activePublicHitEntry: PublicAuraHitEntryKind | null = null;
@@ -959,6 +984,12 @@ export class AuraEngine {
     null;
 
   constructor(config: AuraEngineConfig) {
+    this.lunarChargedConversion = config.lunarChargedConversion === true;
+    this.lunarCrystallizeConversion = config.lunarCrystallizeConversion === true;
+    this.lunarMixedConversion = config.lunarMixedConversion === true;
+    this.lunarDendroConversion = config.lunarDendroConversion === true;
+    this.stellarConductConversion = config.stellarConductConversion === true;
+    this.stellarSwirlConversion = config.stellarSwirlConversion === true;
     this.mode = config.mode;
     this.targetClock = config.targetClock ?? null;
     this.reactableTickModel =
@@ -1005,8 +1036,128 @@ export class AuraEngine {
     return this.mechanicsTruncation !== null;
   }
 
+  private readonly lunarChargedConversion: boolean;
+  private readonly lunarCrystallizeConversion: boolean;
+  private readonly lunarMixedConversion: boolean;
+  private readonly lunarDendroConversion: boolean;
+  private lastLunarMixedGeo: LunarMixedGeoResolution | undefined;
+  getLastLunarMixedGeoResolution(): LunarMixedGeoResolution | undefined { return this.lastLunarMixedGeo === undefined ? undefined : structuredClone(this.lastLunarMixedGeo); }
+  private readonly stellarConductConversion: boolean;
+  private readonly stellarSwirlConversion: boolean;
+  private lastStellarSwirlTrigger = false;
+
+  didLastApplicationTriggerStellarSwirl(): boolean { return this.lastStellarSwirlTrigger; }
+  private lastStellarConductTrigger = false;
+
+  didLastApplicationTriggerStellarConduct(): boolean { return this.lastStellarConductTrigger; }
+  private lastLunarChargedTrigger = false;
+  private lastLunarCrystallizeTrigger = false;
+
+  didLastApplicationTriggerLunarCharged(): boolean {
+    return this.lastLunarChargedTrigger;
+  }
+
+  didLastApplicationTriggerLunarCrystallize(): boolean {
+    return this.lastLunarCrystallizeTrigger;
+  }
+
+  /** Real no-ICD 1U Cryo from a delivered vortex, in the restricted Cryo/Anemo profile. */
+  applyStellarSwirlCryoAt(frame: number, sourceActorId: string) {
+    if (!this.stellarSwirlConversion) throw new Error("Stellar-Swirl reference conversion is not enabled");
+    this.advanceTo(frame);
+    const auraBefore = this.snapshot();
+    if (auraBefore.some(aura => aura.element !== "cryo")) throw new Error("Stellar-Swirl Cryo delivery only supports the declared Cryo/empty Aura scope");
+    this.attachNormalAura("cryo", 1, sourceActorId);
+    return { auraBefore, auraApplied: [{ element: "cryo" as const, gaugeUnits: 1, sourceActorId }], auraConsumed: [], auraAfter: this.snapshot() };
+  }
+
+  /** LC removes 0.4U from each positive personal Hydro/Electro slot. */
+  consumeLunarChargedGaugeAt(frame: number) {
+    if (!this.lunarChargedConversion) throw new Error("Lunar-Charged conversion is not enabled");
+    this.advanceTo(frame);
+    const auraBefore = this.snapshot();
+    const auraConsumed = (["hydro", "electro"] as const).map((element) => {
+      const mutation = this.reduceAuraGauge(element, 0.4);
+      return { element, gaugeUnits: mutation.consumedGaugeUnits, sourceMutations: mutation.sourceMutations };
+    }).filter((entry) => entry.gaugeUnits > 0);
+    return { auraBefore, auraConsumed, auraAfter: this.snapshot() };
+  }
+
   getCurrentFrame(): number {
     return this.currentFrame;
+  }
+
+  /**
+   * Pure capture of the ordinary attachment / reaction state.
+   * This deliberately does not call advanceTo or the rounded public snapshot.
+   * Periodic fields are opt-in raw state: the host must separately capture
+   * damage sources, queued callbacks and the target clock. Global and target
+   * deadlines retain their original domains, including already-due values.
+   * The caller must also prove that every future input stays in this domain.
+   */
+  captureOrdinaryState(includeNonPeriodicReactions = false, includePeriodicReactions = false) {
+    const blockers: string[] = [];
+    if (this.targetClock !== null) blockers.push("目标时钟状态未包含在普通附着检查点中。");
+    if (this.activePublicHitEntry !== null || this.reentrantPublicHitAttempted || this.currentStateHitFrame !== null || this.targetFrameProjectionOverride !== null) blockers.push("附着检查点不处于完整事件之间的静止边界。");
+    if (this.pendingReactionOwnedAttachmentCount !== 0) blockers.push("同帧扩散附着尚未全部提交，不能捕获完整事件边界。");
+    if (this.mechanicsTruncation !== null) blockers.push("附着执行已发生机制截断。");
+    if (!includePeriodicReactions && (this.electroChargedGeneration !== 0 || this.electroChargedActive || this.pendingElectroChargedCleanups.length || this.electroChargedCleanupResults.length)) blockers.push("感电生命周期与清理状态尚未导出。");
+    if (!includeNonPeriodicReactions && this.frozenGeneration !== 0) blockers.push("冻结衰减与代次状态尚未导出。");
+    if (!includeNonPeriodicReactions && this.quickenGeneration !== 0) blockers.push("激化生命周期尚未导出。");
+    if (!includePeriodicReactions && this.burningGeneration !== 0) blockers.push("燃烧来源、燃料和后续任务尚未导出。");
+    if (!includeNonPeriodicReactions && (this.reactionDamageReadyFrames.size || this.swirlDamageReadyFrames.size || this.shatterDamageReadyFrame !== -1 || (!includePeriodicReactions && this.crystallizeReadyFrame !== -1) || [...this.reactableLifecycleBoundaries.keys()].some(kind => !includePeriodicReactions || kind === "frozen" || kind === "quicken"))) blockers.push("剧变反应冷却或生命周期边界尚未导出。");
+    if (includeNonPeriodicReactions && !includePeriodicReactions && (this.crystallizeReadyFrame !== -1 || [...this.reactableLifecycleBoundaries.keys()].some(kind => kind !== "frozen" && kind !== "quicken"))) blockers.push("结晶或周期反应实体尚未包含在非周期反应检查点中。");
+    if (this.lunarChargedConversion || this.lunarCrystallizeConversion || this.lunarMixedConversion || this.lunarDendroConversion || this.stellarConductConversion || this.stellarSwirlConversion) blockers.push("特殊反应注入的私有状态尚未导出。");
+    if ([...this.auras.keys()].some(element => !["pyro", "hydro", "cryo", "electro", "dendro", ...(includeNonPeriodicReactions ? ["frozen", "quicken"] : []), ...(includePeriodicReactions ? ["burning", "burningFuel"] : [])].includes(element))) blockers.push("存在普通附着之外的特殊 Gauge 状态。");
+    return {
+      version: "ordinary-aura-state-v1" as const,
+      mode: this.mode,
+      reactableTickModel: this.reactableTickModel,
+      reactableLifecycleBoundaries: structuredClone([...this.reactableLifecycleBoundaries.values()]),
+      currentFrame: this.currentFrame,
+      latestAuraHitFrame: this.latestAuraHitFrame,
+      auras: [...this.auras.values()].map(aura => ({
+        element: aura.element, gaugeUnits: aura.gaugeUnits, decayPerFrame: aura.decayPerFrame,
+        ...(aura.sourceSlots === undefined ? {} : { sourceSlots: [...aura.sourceSlots].map(([sourceActorId, gaugeUnits]) => ({ sourceActorId, gaugeUnits })) }),
+      })),
+      applicationIcd: this.elementalApplicationIcdEngine.captureState(),
+      ...(includeNonPeriodicReactions ? { nonPeriodicReactions: {
+        frozenGeneration: this.frozenGeneration, frozenDecayRate: this.frozenDecayRate,
+        quickenGeneration: this.quickenGeneration,
+        reactionDamageReadyFrames: [...this.reactionDamageReadyFrames],
+        swirlDamageReadyFrames: [...this.swirlDamageReadyFrames],
+        shatterDamageReadyFrame: this.shatterDamageReadyFrame,
+      } } : {}),
+      ...(includePeriodicReactions ? { periodicReactions: {
+        electroCharged: {
+          generation: this.electroChargedGeneration,
+          active: this.electroChargedActive,
+          nextTickFrame: this.electroChargedNextTickFrame,
+          cadenceStatus: this.electroChargedCadenceStatus,
+          waneListenerActive: this.electroChargedWaneListenerActive,
+          lastCallbackFrame: this.electroChargedLastCallbackFrame,
+          cadenceByGeneration: [...this.electroChargedCadenceByGeneration].map(([generation, state]) => ({ generation, ...state })),
+          endedBeforeCleanup: structuredClone(this.electroChargedEndedBeforeCleanup),
+          pendingCleanups: structuredClone(this.pendingElectroChargedCleanups),
+          cleanupResults: structuredClone(this.electroChargedCleanupResults),
+        },
+        burning: {
+          generation: this.burningGeneration,
+          damageSourceActorId: this.burningDamageSourceActorId,
+          fuelSourceActorId: this.burningFuelSourceActorId,
+          fuelAttachedFrame: this.burningFuelAttachedFrame,
+          fuelDepletedFrame: this.burningFuelDepletedFrame,
+          fuelDepletedDecayPerFrame: this.burningFuelDepletedDecayPerFrame,
+          nextTickTargetFrame: this.burningNextTickTargetFrame,
+          nextTickIndex: this.burningNextTickIndex,
+          legacyPreDecayTaskFrame: this.legacyPreDecayBurningTaskFrame,
+          lastStop: structuredClone(this.lastBurningStop),
+          lastApplicationIcdDecision: structuredClone(this.lastBurningApplicationIcdDecision),
+        },
+        crystallizeReadyFrame: this.crystallizeReadyFrame,
+      } } : {}),
+      blockers,
+    };
   }
 
   getCurrentTargetFrame(): number {
@@ -4868,6 +5019,11 @@ export class AuraEngine {
     };
   }
 
+  /** Enemy force shields consume the same target-owned application ICD without creating ordinary Aura. */
+  consumeConfiguredApplicationOnly(frame: number, sourceActorId: string, application: ElementalApplication): Readonly<ElementalApplicationIcdDecisionV147> {
+    return this.resolveConfiguredElementalApplication(frame, sourceActorId, application).decision as Readonly<ElementalApplicationIcdDecisionV147>;
+  }
+
   private resolveConfiguredElementalApplication(
     frame: number,
     sourceActorId: string,
@@ -5184,6 +5340,27 @@ export class AuraEngine {
           ? "风元素附着通过 ICD；当前没有可扩散的火/水/冰/雷/冻元素 Aura。"
           : `${swirlReactions.length} 次扩散判定消耗了 Aura；仅通过各元素 6 帧队列 GCD 的判定会排入 1f 自身伤害与 5f 传播攻击。`
     };
+  }
+
+  /** Fixed source Geo order: ordinary Electro shard/GCD, then Hydro conversion. */
+  private processLunarMixedCrystallize(input: AuraHitInput, application: ResolvedElementalApplication, auraBefore: AuraStateEntry[], electroChargedWasActive: boolean): ReactionAudit {
+    const ordinary = (this.auras.get("electro")?.gaugeUnits ?? 0) > AURA_EPSILON
+      ? this.processCrystallize(input, application, auraBefore, electroChargedWasActive) : undefined;
+    const remaining = ordinary?.crystallizeReaction?.sourceGaugeUnitsAfter ?? application.gaugeUnits;
+    const hydroAuraBefore = this.snapshot();
+    const converted = remaining > AURA_EPSILON && (this.auras.get("hydro")?.gaugeUnits ?? 0) > AURA_EPSILON;
+    const mutation = converted ? this.reduceAuraGauge("hydro", remaining * CRYSTALLIZE_AURA_CONSUMPTION_FACTOR) : undefined;
+    const spent = (mutation?.consumedGaugeUnits ?? 0) / CRYSTALLIZE_AURA_CONSUMPTION_FACTOR;
+    this.lastLunarCrystallizeTrigger = converted;
+    this.lastLunarMixedGeo = { frame: input.frame, sourceActorId: input.sourceActorId, sourceGaugeUnitsBefore: application.gaugeUnits, electroCrystallize: ordinary?.crystallizeReaction ?? null, sourceGaugeUnitsAfterElectro: remaining, hydroAuraBefore, lunarCrystallizeTriggered: converted, sourceGaugeUnitsSpentOnHydro: spent, sourceGaugeUnitsAfter: cleanGaugeUnits(Math.max(0, remaining - spent)) };
+    const base: ReactionAudit = ordinary ?? {
+      model: "aura-engine", triggered: false, reaction: "none", reactions: [], unsupportedReactions: [], mechanicsTruncation: null,
+      icdAllowed: true, icdTag: application.icdTag, icdGroup: application.icdGroup, applicationGaugeUnits: application.gaugeUnits,
+      auraBefore, auraApplied: [{ element: "geo", gaugeUnits: application.gaugeUnits, sourceActorId: input.sourceActorId }], auraConsumed: [], auraAfter: hydroAuraBefore,
+      transformativeReaction: null, periodicReaction: null, frozenReaction: null, shatterReaction: null, swirlReactions: [], swirlDamageGroup: null, crystallizeReaction: null, catalyzeReaction: null, burningReaction: null, bloomReactions: []
+    };
+    return { ...base, auraConsumed: [...(base.auraConsumed ?? []), ...(mutation === undefined ? [] : [{ element: "hydro" as const, gaugeUnits: mutation.consumedGaugeUnits, sourceMutations: mutation.sourceMutations }])], auraAfter: this.snapshot(),
+      note: `混合 Lunar：先尝试普通雷结晶（共享 60 帧晶片间隔），剩余岩量 ${remaining}U 再独立尝试月结晶；水分支消耗岩量 ${spent}U。普通水晶片已被替换。` };
   }
 
   private processCrystallize(
@@ -5546,6 +5723,7 @@ export class AuraEngine {
           reactionAudit.applicationGaugeUnits ??
           reactionOwnedNominalGaugeUnits(prepared.input)
       });
+      this.pendingReactionOwnedAttachmentCount += 1;
       return {
         reactionAudit: {
           ...reactionAudit,
@@ -5581,12 +5759,14 @@ export class AuraEngine {
           this.latestAuraHitFrame > pending.frame
         ) {
           this.pendingReactionOwnedAttachments.delete(token);
+          this.pendingReactionOwnedAttachmentCount -= 1;
           throw new Error(
             `Deferred reaction-owned attachment from frame ${pending.frame} expired before commit.`
           );
         }
 
         this.pendingReactionOwnedAttachments.delete(token);
+        this.pendingReactionOwnedAttachmentCount -= 1;
         const auraBefore = this.snapshot();
         this.attachNormalAura(
           pending.element,
@@ -5793,6 +5973,11 @@ export class AuraEngine {
     input: AuraHitInput,
     applicationSource: PreparedApplicationSource
   ): ReactionAudit {
+    this.lastLunarChargedTrigger = false;
+    this.lastLunarCrystallizeTrigger = false;
+    this.lastLunarMixedGeo = undefined;
+    this.lastStellarConductTrigger = false;
+    this.lastStellarSwirlTrigger = false;
     this.latestAuraHitFrame = Math.max(
       this.latestAuraHitFrame,
       input.frame
@@ -5931,6 +6116,79 @@ export class AuraEngine {
         burningReaction: null,
         bloomReactions: [],
         note: `ICD Profile "${application.icdGroup}" 阻止本段附着与反应。`
+      };
+    }
+
+    if (this.stellarSwirlConversion && input.element === "anemo" && (this.auras.get("cryo")?.gaugeUnits ?? 0) > AURA_EPSILON) {
+      this.lastStellarSwirlTrigger = true;
+      const mutation = this.reduceAuraGauge("cryo", application.gaugeUnits * SWIRL_AURA_CONSUMPTION_FACTOR);
+      return {
+        model: "aura-engine", triggered: false, reaction: "none", reactions: [], unsupportedReactions: [],
+        mechanicsTruncation: null, icdAllowed: true, icdTag: application.icdTag, icdGroup: application.icdGroup,
+        applicationGaugeUnits: application.gaugeUnits, auraBefore,
+        auraApplied: [{ element: "anemo", gaugeUnits: application.gaugeUnits, sourceActorId: input.sourceActorId }],
+        auraConsumed: [{ element: "cryo", gaugeUnits: mutation.consumedGaugeUnits, sourceMutations: mutation.sourceMutations }],
+        auraAfter: this.snapshot(), transformativeReaction: null, periodicReaction: null,
+        frozenReaction: null, shatterReaction: null, swirlReactions: [], swirlDamageGroup: null,
+        crystallizeReaction: null, catalyzeReaction: null, burningReaction: null, bloomReactions: [],
+        note: "星扩散指南参考配置：实际 ICD 通过后按 0.5 倍风量消耗冰；普通冰扩散伤害及传播任务已在创建前被替换，初始特殊风伤本身不附着。"
+      };
+    }
+
+    if (this.stellarConductConversion && (input.element === "cryo" || input.element === "electro")) {
+      const other = input.element === "cryo" ? "electro" : "cryo";
+      if ((this.auras.get(other)?.gaugeUnits ?? 0) > AURA_EPSILON) {
+        this.lastStellarConductTrigger = true;
+        const mutation = this.reduceAuraGauge(other, application.gaugeUnits);
+        return {
+          model: "aura-engine", triggered: false, reaction: "none", reactions: [], unsupportedReactions: [],
+          mechanicsTruncation: null, icdAllowed: true, icdTag: application.icdTag, icdGroup: application.icdGroup,
+          applicationGaugeUnits: application.gaugeUnits, auraBefore,
+          auraApplied: [{ element: input.element, gaugeUnits: application.gaugeUnits, sourceActorId: input.sourceActorId }],
+          auraConsumed: [{ element: other, gaugeUnits: mutation.consumedGaugeUnits, sourceMutations: mutation.sourceMutations }],
+          auraAfter: this.snapshot(), transformativeReaction: null, periodicReaction: null,
+          frozenReaction: null, shatterReaction: null, swirlReactions: [], swirlDamageGroup: null,
+          crystallizeReaction: null, catalyzeReaction: null, burningReaction: null, bloomReactions: [],
+          note: "星导参考配置：实际冰雷按 1:1 消耗对方附着，不附着反应后的入射余量；普通超导伤害和普通 12 秒物理减抗已被领域替换。"
+        };
+      }
+    }
+
+    if (this.lunarMixedConversion && input.element === "geo") {
+      return this.processLunarMixedCrystallize(input, application, auraBefore, electroChargedWasActive);
+    }
+
+    if (this.lunarCrystallizeConversion && input.element === "geo" && (this.auras.get("hydro")?.gaugeUnits ?? 0) > AURA_EPSILON) {
+      this.lastLunarCrystallizeTrigger = true;
+      const mutation = this.reduceAuraGauge("hydro", application.gaugeUnits * CRYSTALLIZE_AURA_CONSUMPTION_FACTOR);
+      return {
+        model: "aura-engine", triggered: false, reaction: "none", reactions: [], unsupportedReactions: [],
+        mechanicsTruncation: null, icdAllowed: true, icdTag: application.icdTag, icdGroup: application.icdGroup,
+        applicationGaugeUnits: application.gaugeUnits, auraBefore,
+        auraApplied: [{ element: "geo", gaugeUnits: application.gaugeUnits, sourceActorId: input.sourceActorId }],
+        auraConsumed: [{ element: "hydro", gaugeUnits: mutation.consumedGaugeUnits, sourceMutations: mutation.sourceMutations }],
+        auraAfter: this.snapshot(), transformativeReaction: null, periodicReaction: null,
+        frozenReaction: null, shatterReaction: null, swirlReactions: [], swirlDamageGroup: null,
+        crystallizeReaction: null, catalyzeReaction: null, burningReaction: null, bloomReactions: [],
+        note: "月结晶参考配置：真实岩附着按 0.5 倍入射元素量消耗水附着；普通水结晶晶片与全局晶片间隔已在创建之前被替换。"
+      };
+    }
+
+    if (this.lunarChargedConversion && !this.lunarDendroConversion && (input.element === "hydro" || input.element === "electro")) {
+      const other = input.element === "hydro" ? "electro" : "hydro";
+      this.lastLunarChargedTrigger = (this.auras.get(other)?.gaugeUnits ?? 0) > AURA_EPSILON;
+      this.attachNormalAura(input.element, application.gaugeUnits, input.sourceActorId);
+      return {
+        model: "aura-engine", triggered: false, reaction: "none", reactions: [], unsupportedReactions: [],
+        mechanicsTruncation: null, icdAllowed: true, icdTag: application.icdTag, icdGroup: application.icdGroup,
+        applicationGaugeUnits: application.gaugeUnits, auraBefore,
+        auraApplied: [{ element: input.element, gaugeUnits: application.gaugeUnits, sourceActorId: input.sourceActorId }],
+        auraConsumed: [], auraAfter: this.snapshot(), transformativeReaction: null, periodicReaction: null,
+        frozenReaction: null, shatterReaction: null, swirlReactions: [], swirlDamageGroup: null,
+        crystallizeReaction: null, catalyzeReaction: null, burningReaction: null, bloomReactions: [],
+        note: this.lastLunarChargedTrigger
+          ? "月感电参考配置：元素正常附着；已在普通感电扣量与任务创建之前转换为月感电雷云。"
+          : "月感电参考配置：元素正常附着，尚未形成水雷共存。"
       };
     }
 
@@ -6742,7 +7000,11 @@ export class AuraEngine {
             input.sourceActorId
           );
         }
-        if (this.hasElectroChargedAuras()) {
+        if (this.lunarDendroConversion) {
+          // TryAddLC still refreshes the cloud after an earlier Bloom, but
+          // does not attach Hydro that has already reacted in this attack.
+          this.lastLunarChargedTrigger = true;
+        } else if (this.hasElectroChargedAuras()) {
           const operation = this.electroChargedActive
             ? "refresh"
             : "start";
@@ -6820,7 +7082,7 @@ export class AuraEngine {
         orderedHydroReactions[0] ??
         "none";
       if (
-        orderedHydroReactions.length === 0 &&
+        orderedHydroReactions.length === 0 && !this.lastLunarChargedTrigger &&
         unsupportedReactions.length === 0
       ) {
         this.attachNormalAura(
@@ -6900,14 +7162,15 @@ export class AuraEngine {
             input.sourceActorId
           );
         }
-        electroChargedOperation =
-          this.electroChargedActive ? "refresh" : "start";
-        if (electroChargedOperation === "start") {
-          this.startElectroCharged(input.frame);
+        if (this.lunarDendroConversion) {
+          // LC is non-consuming here; the same incoming Electro budget must
+          // continue into Quicken, including its queued Hydro follow-up.
+          this.lastLunarChargedTrigger = true;
+        } else {
+          electroChargedOperation = this.electroChargedActive ? "refresh" : "start";
+          if (electroChargedOperation === "start") this.startElectroCharged(input.frame);
+          orderedElectroReactions.push("electroCharged");
         }
-        orderedElectroReactions.push(
-          "electroCharged"
-        );
       }
 
       if (
@@ -7147,7 +7410,7 @@ export class AuraEngine {
       automaticReaction =
         orderedElectroReactions[0] ?? "none";
       if (
-        orderedElectroReactions.length === 0 &&
+        orderedElectroReactions.length === 0 && !this.lastLunarChargedTrigger &&
         unsupportedReactions.length === 0
       ) {
         this.attachNormalAura(

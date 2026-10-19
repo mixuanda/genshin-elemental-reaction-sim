@@ -1,6 +1,18 @@
+import type { EnemyShieldModel, EnemyShieldHostState, EnemyShieldHostLogEntry } from "./enemy-shield-schema";
+import type { WeaponHitStackModel, WeaponHitStackCapturedState, WeaponHitStackLogEntry } from "./weapon-hit-stack-model";
+import type { SourceNormalChainLogEntry, SourceNormalChainState } from "./source-normal-chain";
+import type { SourceNormalActionId, SourceNormalStateScope } from "./source-normal-family";
+export type { SourceNormalChainLogEntry, SourceNormalChainState } from "./source-normal-chain";
+import type { ArtifactDamageModel, ArtifactDamageCapturedState, ArtifactDamageLogEntry } from "./artifact-damage-schema";
+import type { ArtifactBuffModel, ArtifactBuffCapturedState, ArtifactBuffLogEntry } from "./artifact-buff-model";
+export type { ArtifactBuffModel, ArtifactBuffCapturedState, ArtifactBuffLogEntry } from "./artifact-buff-model";
+export type { ArtifactDamageModel, ArtifactDamageEffectId, ArtifactDamageState, ArtifactDamageCapturedState, ArtifactDamageLogEntry } from "./artifact-damage-schema";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
   type ClassicReactionFormulaRoot,
+  type LunarArtifactBonus,
+  type SerialSkillCooldownState,
+  type WeaponProcLifecycleState,
 } from "@genshin-dps-lab/reaction-formulas";
 import {
   GCSIM_DAMAGE_GROUP_PROFILE_ID,
@@ -245,8 +257,8 @@ export type EnergyMode = "configured" | "zero" | "full";
 export type CompatibilityMode = "legacy-v0.1" | "legal-frame-v1";
 export type VerificationStatus = "verified" | "provisional" | "user-supplied";
 export type TimelineLegalityMode = "strict" | "wait";
-export type AbilityKind = "skill" | "burst" | "normal" | "charge";
-export type AbilityFollowupKind = AbilityKind | "dash" | "jump" | "swap";
+export type AbilityKind = "skill" | "burst" | "normal" | "charge" | "plunge";
+export type AbilityFollowupKind = AbilityKind | "dash" | "jump" | "swap" | "walk";
 export type AuraElement = Extract<
   Element,
   "pyro" | "cryo" | "hydro" | "electro"
@@ -733,6 +745,8 @@ export interface TargetMotionDefinition {
 }
 
 export interface FlatDamageSource {
+  /** Fixed source sample, in frames after the accepted action starts. */
+  snapshotFrame?: number;
   ownerId?: string;
   stat?: ScalingStat;
   multiplier: number;
@@ -747,6 +761,14 @@ export interface TargetHitlagDefinition {
   /** Enemy Hitlag factor in the inclusive range [0, 1]. */
   factor: number;
 }
+
+export interface HitInfusionDefinition<TApplication = ElementalApplication> {
+  statusKey: string;
+  element: "geo";
+  application: TApplication;
+}
+
+export type HitAttackTag = "normal" | "charged" | "skill" | "burst" | "plunge" | "proc";
 
 export interface HitDefinition<TApplication = ElementalApplication> {
   id?: string;
@@ -767,9 +789,16 @@ export interface HitDefinition<TApplication = ElementalApplication> {
   targeting?: HitTargetingConfig;
   geometry?: HitGeometry;
   application?: TApplication;
+  /** Current-only hit-time element/application selection from an actor-owned conversion. */
+  infusion?: HitInfusionDefinition<TApplication>;
+  normalHitEnergyTag?: "normal" | "extra";
+  attackTag?: HitAttackTag;
+  hitWeakPoint?: boolean;
   reaction?: AmplifyingReaction;
   reactionOverride?: AmplifyingReaction;
   snapshot?: SnapshotMode;
+  /** Overrides the ordinary action/hit clock with an explicit relative sample frame. */
+  snapshotFrame?: number;
   scalingOwnerId?: string;
   creditId?: string;
   flat?: number;
@@ -781,6 +810,8 @@ export interface HitDefinition<TApplication = ElementalApplication> {
   resShred?: number;
   critRate?: number;
   critDmg?: number;
+  /** False disables critical damage and consumes no seeded critical draw. */
+  critEligible?: boolean;
   reactionBonus?: number;
   ampBase?: number;
   /**
@@ -796,8 +827,9 @@ export interface HitDefinition<TApplication = ElementalApplication> {
   groupMultiplier?: number;
 }
 
+export type FrozenHitDefinition<TApplication = ElementalApplication> = Omit<HitDefinition<TApplication>, "infusion" | "normalHitEnergyTag" | "attackTag" | "hitWeakPoint" | "snapshotFrame" | "flatSources"> & { flatSources?: Omit<FlatDamageSource, "snapshotFrame">[] };
 export type LegacyHitDefinitionV146 =
-  HitDefinition<LegacyElementalApplicationV146>;
+  FrozenHitDefinition<LegacyElementalApplicationV146>;
 
 export type BuffStat =
   | "atkFlat"
@@ -872,11 +904,100 @@ export interface ParticleDefinition {
   trigger?: {
     kind: "hit-confirm";
     hitIds: string[];
+    /** Current-only chance after hit confirmation and cooldown checks. */
+    probability?: number;
     internalCooldown?: {
       key: string;
       duration: number;
     };
   };
+}
+
+/** Current fixed-lifetime summon; timing is relative to the action input. */
+export interface SummonDefinition {
+  id: string;
+  label: string;
+  spawnFrame: number;
+  lifetimeFrames: number;
+  expiryAttackDelayFrames: number;
+  hitIds: string[];
+}
+
+/** Source-backed assumed DEF conversion, sampled at the accepted action input. */
+export interface StatConversionDefinition {
+  key: string;
+  label: string;
+  sourceStat: "def";
+  targetStat: "flatAtk";
+  coefficient: number;
+  durationFrames: number;
+  snapshotFrame: 0;
+  evidenceStatus: "fixed-source-assumed";
+  sourceRefs: string[];
+}
+
+export type HealthChangeTarget =
+  | { kind: "self" | "active" | "party" }
+  | { kind: "actor"; actorId: string };
+
+export type HealthChangeDefinition = {
+  id: string;
+  label: string;
+  frameOffset: number;
+  target: HealthChangeTarget;
+  source: StaminaCost["source"];
+} & (
+  | { operation: "heal"; amount: { basis: "fixed" | "target-max-hp"; value: number }; healingBonus: number; incomingHealingBonus: number }
+  | { operation: "consume"; amount: { basis: "fixed" | "target-max-hp" | "target-current-hp"; value: number }; minimumHpRatio: number }
+  | { operation: "bond-add" | "bond-remove"; amount: { basis: "fixed" | "target-max-hp"; value: number } }
+);
+
+export interface PeriodicEntityDefinition {
+  kind: "periodic-active-heal-v1";
+  id: string;
+  label: string;
+  spawnFrame: number;
+  durationFrames: number;
+  firstTickDelayFrames: number;
+  intervalFrames: number;
+  hitDelayFrames: number;
+  hitIds: string[];
+  healing: {
+    ownerHpCoefficient: number;
+    flat: number;
+    ownerEmCoefficient: number;
+    healingBonus: number;
+    incomingHealingBonus: number;
+    lowHpBonus?: { thresholdRatio: number; bonus: number };
+  };
+  sourceRefs: string[];
+}
+
+export interface ConditionalHitGroup {
+  id: string;
+  kind: "owner-hp-at-action-v1";
+  comparison: "lte";
+  thresholdRatio: number;
+  hitIds: string[];
+  sourceRefs: string[];
+}
+
+export interface ActionConditionLogEntry {
+  id: number;
+  actionLogIndex: number;
+  actorId: string;
+  actionId: string;
+  groupId: string;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  ownerCurrentHp: number;
+  ownerMaxHp: number;
+  thresholdRatio: number;
+  selected: boolean;
+  hitIds: string[];
+  trace: unknown[];
 }
 
 export interface ActionDefinition<TApplication = ElementalApplication> {
@@ -889,6 +1010,15 @@ export interface ActionDefinition<TApplication = ElementalApplication> {
   everyNCycles?: number;
   cycleRemainder?: number;
   energyCost?: number;
+  /** Current-only debit delay in frames; omitted or zero spends at input. */
+  energyCostFrame?: number;
+  staminaCost?: StaminaCost;
+  actionPhase?: "after-frame-tasks-v1";
+  conditionalHitGroups?: ConditionalHitGroup[];
+  healthChanges?: HealthChangeDefinition[];
+  periodicEntities?: PeriodicEntityDefinition[];
+  summons?: SummonDefinition[];
+  statConversions?: StatConversionDefinition[];
   hits?: HitDefinition<TApplication>[];
   buffs?: BuffDefinition[];
   debuffs?: DebuffDefinition[];
@@ -903,8 +1033,11 @@ export interface ActionDefinition<TApplication = ElementalApplication> {
 }
 
 export type RotationCommand = ActionDefinition<ElementalApplication>;
+export type FrozenActionDefinition<TApplication = ElementalApplication> = Omit<
+  ActionDefinition<TApplication>, "energyCostFrame" | "staminaCost" | "actionPhase" | "conditionalHitGroups" | "healthChanges" | "periodicEntities" | "summons" | "statConversions" | "hits" | "particles"
+> & { hits?: FrozenHitDefinition<TApplication>[]; particles?: FrozenParticleDefinition[] };
 export type LegacyRotationCommandV146 =
-  ActionDefinition<LegacyElementalApplicationV146>;
+  FrozenActionDefinition<LegacyElementalApplicationV146>;
 
 export type FrameHitDefinition<TApplication = ElementalApplication> = Omit<
   HitDefinition<TApplication>,
@@ -913,8 +1046,9 @@ export type FrameHitDefinition<TApplication = ElementalApplication> = Omit<
   frame: number;
 };
 
+export type FrozenFrameHitDefinition<TApplication = ElementalApplication> = Omit<FrozenHitDefinition<TApplication>, "offset"> & { frame: number };
 export type LegacyFrameHitDefinitionV146 =
-  FrameHitDefinition<LegacyElementalApplicationV146>;
+  FrozenFrameHitDefinition<LegacyElementalApplicationV146>;
 
 export type FrameBuffDefinition = Omit<
   BuffDefinition,
@@ -952,11 +1086,19 @@ export type FrameParticleDefinition = Omit<
   trigger?: {
     kind: "hit-confirm";
     hitIds: string[];
+    probability?: number;
     internalCooldown?: {
       key: string;
       durationFrames: number;
     };
   };
+};
+
+export type FrozenParticleDefinition = Omit<ParticleDefinition, "trigger"> & {
+  trigger?: Omit<NonNullable<ParticleDefinition["trigger"]>, "probability">;
+};
+export type FrozenFrameParticleDefinition = Omit<FrameParticleDefinition, "trigger"> & {
+  trigger?: Omit<NonNullable<FrameParticleDefinition["trigger"]>, "probability">;
 };
 
 export interface TimelineStateGrant {
@@ -987,9 +1129,19 @@ export interface AbilityDefinition<TApplication = ElementalApplication> {
   cancelFrames?: Partial<Record<AbilityFollowupKind, number>>;
   animationEndFrame: number;
   cooldownFrames: number;
+  cooldownStartFrame?: number;
   maxCharges?: number;
   chargeRecoveryFrames?: number;
   energyCost?: number;
+  /** Current-only debit delay in frames relative to the ability input. */
+  energyCostFrame?: number;
+  staminaCost?: StaminaCost;
+  actionPhase?: "after-frame-tasks-v1";
+  conditionalHitGroups?: ConditionalHitGroup[];
+  healthChanges?: HealthChangeDefinition[];
+  periodicEntities?: PeriodicEntityDefinition[];
+  summons?: SummonDefinition[];
+  statConversions?: StatConversionDefinition[];
   hits?: FrameHitDefinition<TApplication>[];
   buffs?: FrameBuffDefinition[];
   debuffs?: FrameDebuffDefinition[];
@@ -998,8 +1150,16 @@ export interface AbilityDefinition<TApplication = ElementalApplication> {
   timelineState?: AbilityTimelineState;
 }
 
+export type FrozenAbilityDefinition<TApplication = ElementalApplication> = Omit<
+  AbilityDefinition<TApplication>, "kind" | "cancelFrames" | "cooldownStartFrame" | "energyCostFrame" | "staminaCost" | "actionPhase" | "conditionalHitGroups" | "healthChanges" | "periodicEntities" | "summons" | "statConversions" | "hits" | "particles"
+> & {
+  kind: "skill" | "burst" | "normal" | "charge";
+  cancelFrames?: Partial<Record<"skill" | "burst" | "normal" | "charge" | "dash" | "jump" | "swap", number>>;
+  hits?: FrozenFrameHitDefinition<TApplication>[];
+  particles?: FrozenFrameParticleDefinition[];
+};
 export type LegacyAbilityDefinitionV146 =
-  AbilityDefinition<LegacyElementalApplicationV146>;
+  FrozenAbilityDefinition<LegacyElementalApplicationV146>;
 
 export interface TimelineWaitCommand {
   type: "wait";
@@ -1012,11 +1172,26 @@ export interface TimelineSwapCommand {
   atFrame?: number;
 }
 
+export interface StaminaCost {
+  amount: number;
+  consumeFrame: number;
+  /** An explicit zero-cost UseStam call still resets the recovery delay. */
+  consumeWhenZero?: boolean;
+  source: { kind: "custom"; note: string } | { kind: "source"; refs: string[] };
+}
+
+export interface StaminaModel {
+  mode: "shared-stamina-v1";
+  profileId: "gcsim-b4ae769-stamina-v1";
+  initialStamina: number;
+}
+
 export interface TimelineMovementCommand {
-  type: "dash" | "jump";
+  type: "dash" | "jump" | "walk";
   actorId: string;
-  /** Explicit provisional action occupancy; stamina and movement physics are not inferred. */
+  /** Explicit provisional action occupancy; movement physics are not inferred. */
   frames: number;
+  staminaCost?: StaminaCost;
   atFrame?: number;
 }
 
@@ -1024,6 +1199,8 @@ export interface TimelineAbilityCommand {
   type: AbilityKind;
   actorId: string;
   abilityId: string;
+  /** Current normal inputs only: resolve the bound chain after actual accepted predecessors. */
+  sourceNormalChain?: "next-v1";
   atFrame?: number;
 }
 
@@ -1050,8 +1227,18 @@ export interface LegalTimelineConfig<TApplication = ElementalApplication> {
   commands: LegalTimelineCommand[];
 }
 
+export type FrozenLegalTimelineCommand =
+  | TimelineWaitCommand
+  | TimelineSwapCommand
+  | (Omit<TimelineMovementCommand, "staminaCost" | "type"> & { type: "dash" | "jump" })
+  | (Omit<TimelineAbilityCommand, "type" | "sourceNormalChain"> & { type: "skill" | "burst" | "normal" | "charge" })
+  | TimelineCrystallizePickupCommand;
+
+export type FrozenLegalTimelineConfig<TApplication = ElementalApplication> = Omit<
+  LegalTimelineConfig<TApplication>, "abilities" | "commands"
+> & { abilities: FrozenAbilityDefinition<TApplication>[]; commands: FrozenLegalTimelineCommand[] };
 export type LegacyLegalTimelineConfigV146 =
-  LegalTimelineConfig<LegacyElementalApplicationV146>;
+  FrozenLegalTimelineConfig<LegacyElementalApplicationV146>;
 
 export interface ConfigMeta {
   name: string;
@@ -1199,8 +1386,8 @@ interface SimConfigCommon<TApplication = ElementalApplication> {
   characters: CharacterProfile[];
   /** Static scenario pose. Actor movement is not inferred in this version. */
   actorPoses?: ActorPoseDefinition[];
-  rotation: ActionDefinition<TApplication>[];
-  timeline?: LegalTimelineConfig<TApplication>;
+  rotation: FrozenActionDefinition<TApplication>[];
+  timeline?: FrozenLegalTimelineConfig<TApplication>;
   reactionEngine?: AuraReactionEngineConfig;
   /** Explicitly versioned player self-damage boundary. */
   playerDamageModel: PlayerDamageModel;
@@ -1316,7 +1503,246 @@ export interface SimConfigV152 extends SimConfigCommon {
 }
 
 /** Current 1.53 config binds both Freeze Broken V3 and its callback bus. */
-export interface SimConfigV153 extends SimConfigCommon {
+export interface NormalHitEnergyModel {
+  mode: "fixed-source-independent-stream-v1";
+  actors: Array<{ actorId: string; weaponType: "sword" | "claymore" | "polearm" | "bow" | "catalyst" }>;
+}
+
+export type FavoniusWeaponId = "favoniussword" | "favoniusgreatsword" | "favoniuslance" | "favoniuswarbow" | "favoniuscodex";
+export interface FavoniusModel {
+  mode: "fixed-source-independent-stream-v1";
+  actors: Array<{ actorId: string; weaponId: FavoniusWeaponId; refinement: number; particleDelayFrames: number }>;
+}
+
+export type WeaponProcWeaponId = "halberd" | "ashgravendrinkinghorn" | "sequenceofsolitude" | "filletblade" | "prototypearchaic" | "snowtombedstarsilver" | "dragonspinespear" | "frostbearer" | "flute" | "debateclub" | "crescentpike" | "endoftheline" | "messenger" | "theviridescenthunt" | "swordofnarzissenkreuz" | "eyeofperception";
+export interface WeaponProcModel {
+  mode: "fixed-source-no-character-hitlag-v1";
+  actors: Array<{
+    actorId: string;
+    weaponId: WeaponProcWeaponId;
+    /** Explicit character eligibility; only Sword of Narzissenkreuz accepts this field. */
+    hasInnateArkhe?: boolean;
+    /** Explicit automatic implementation; the standalone calculator uses conflicting catalog coefficients. */
+    eyeOfPerceptionProfile?: "gcsim-implementation-v1";
+    refinement: number;
+    physicalDamageBonus: number;
+  }>;
+}
+
+export interface ThrillingTalesModel {
+  mode: "fixed-source-no-character-hitlag-v1";
+  actors: Array<{ actorId: string; refinement: number }>;
+}
+
+export type SacrificialWeaponId = "sacrificialsword" | "sacrificialgreatsword" | "sacrificialbow" | "sacrificialfragments";
+export interface SacrificialModel {
+  mode: "fixed-source-no-character-hitlag-v1";
+  actors: Array<{ actorId: string; weaponId: SacrificialWeaponId; refinement: number }>;
+}
+
+export type ArtifactEffectId = "exile-4pc" | "scholar-4pc" | "gambler-4pc" | "scroll-2pc";
+export interface ArtifactEventModel {
+  mode: "fixed-source-no-character-hitlag-v1";
+  actors: Array<{ actorId: string; effectId: ArtifactEffectId }>;
+  partyWeaponTypes?: Array<{ actorId: string; weaponType: NormalHitEnergyWeaponType }>;
+}
+export interface NightsoulBurstModel {
+  mode: "fixed-source-no-character-hitlag-v1";
+  natlanActorIds: string[];
+}
+
+export interface BondOfLifeModel {
+  mode: "gcsim-b4ae769-same-heal-remainder-v1";
+  characters: Array<{ actorId: string; initialRatio: number }>;
+}
+
+export interface BondOfLifeEventAudit {
+  profileId: "gcsim-b4ae769-same-heal-remainder-v1";
+  debtBefore: number;
+  debtAfter: number;
+  absorbedHealing: number;
+  healingAfterDebt: number;
+  requestedDebtDelta: number;
+  actualDebtDelta: number;
+  sourceEventEmitted: boolean;
+  sourceCallbackAmount: number;
+}
+
+export type PlayerShieldTarget = { kind: "active" } | { kind: "actor"; actorId: string };
+export type PlayerShieldInputEvent = {
+  id: string;
+  frame: number;
+  source: { kind: "custom"; note: string };
+} & ({
+  kind: "grant";
+  ownerId: string;
+  typeKey: string;
+  label: string;
+  element: Element;
+  target: PlayerShieldTarget;
+  hp: { flat: number; stat?: ScalingStat; coefficient?: number };
+  durationFrames: number;
+} | {
+  kind: "bonus";
+  key: string;
+  value: number;
+  durationFrames: number | null;
+  consumeOnRead: boolean;
+} | {
+  kind: "incoming-hit";
+  target: PlayerShieldTarget;
+  element: Element;
+  incomingDamage: number;
+});
+export interface PlayerShieldModel {
+  mode: "gcsim-b4ae769-template-v1";
+  events: PlayerShieldInputEvent[];
+}
+export interface PlayerShieldInstance {
+  instanceId: number;
+  definitionId: string;
+  ownerId: string;
+  typeKey: string;
+  label: string;
+  element: Element;
+  target: PlayerShieldTarget;
+  hp: number;
+  expiresAtFrame: number;
+}
+export interface PlayerShieldBonus {
+  key: string;
+  value: number;
+  expiresAtFrame: number | null;
+  consumeOnRead: boolean;
+}
+export interface PlayerShieldState {
+  nextInstanceId: number;
+  shields: PlayerShieldInstance[];
+  bonuses: PlayerShieldBonus[];
+}
+export interface PlayerShieldAbsorptionDetail {
+  instanceId: number;
+  hpBefore: number;
+  absorptionMultiplier: number;
+  effectiveAbsorptionMultiplier: number;
+  capacity: number;
+  hpAfter: number;
+  absorbedDamage: number;
+  damageAfterShield: number;
+  broken: boolean;
+}
+export interface PlayerShieldCallback {
+  kind: "OnOverwrite" | "OnShielded" | "OnExpire" | "OnShieldBreak";
+  instanceId: number;
+  reason: "grant" | "overwrite" | "expire" | "damage";
+}
+export interface PlayerShieldDecision {
+  operation: "grant" | "bonus" | "incoming-hit" | "reaction-hit" | "expire";
+  inputEventId: string | null;
+  inputEvent: PlayerShieldInputEvent | null;
+  ownerStats: CharacterStats | null;
+  targetActorId: string | null;
+  activeCharacterId: string | null;
+  incomingDamage: number | null;
+  incomingElement: Element | null;
+  crystallizeDamageAfter: number | null;
+  capacity: number | null;
+  strengthBonus: number | null;
+  absorbedDamage: number | null;
+  damageAfterShield: number | null;
+  shieldDetails: PlayerShieldAbsorptionDetail[];
+  callbacks: PlayerShieldCallback[];
+  stateBefore: PlayerShieldState;
+  stateAfter: PlayerShieldState;
+}
+export interface PlayerShieldLogEntry extends PlayerShieldDecision {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  playerDamageEventId: number | null;
+  hpResolution?: PlayerHpDamageResolution;
+}
+
+export interface SourceAbilityBinding {
+  abilityId: string;
+  actorId: string;
+  sourceActionId: "amber-q" | "chongyun-q" | "keqing-q" | "aloy-q" | "zhongli-q" | SourceNormalActionId;
+  talentLevel: number;
+  ascension: number;
+  constellation: 0;
+  registryVersion: "gcsim-b4ae769-composable-abilities-v1";
+  stateScope?: SourceNormalStateScope;
+}
+
+export interface SourceSnapshotLogEntry {
+  id: number;
+  actionLogIndex: number;
+  actionId: string;
+  sourceActorId: string;
+  ownerId: string;
+  cycle: number;
+  relativeFrame: number;
+  frame: number;
+  timeSeconds: number;
+  status: "pending" | "sampled";
+  eventPriority: number;
+  eventSequence: number | null;
+  stats: CharacterStats | null;
+  activeBuffs: ActiveStatusSnapshot[];
+}
+
+/** The fixed a7 four-piece callbacks only. Static two-piece ATK belongs in the build baseline. */
+export interface StellarArtifactModel {
+  mode: "fixed-a7-stellar-artifact-4pc-v1";
+  baselineIncludesStaticTwoPiece: true;
+  /** Explicitly acknowledges that the local Stellar Swirl host follows a conflicting guide profile. */
+  allowGuideSourceConflict?: true;
+  actors: Array<{ actorId: string; setId: "artifact-set:15047" | "artifact-set:15048" }>;
+}
+
+/** Fixed-source Lunar four-piece callbacks; static two-piece stats are already in the final panel. */
+export interface MoonlightArtifactModel {
+  mode: "fixed-a7-moonlight-artifact-4pc-v1";
+  baselineIncludesStaticTwoPiece: true;
+  moonsignLevel: 0 | 1 | 2;
+  actors: Array<{ actorId: string; setId: "artifact-set:15041" | "artifact-set:15042" }>;
+}
+/** Core-owned callback ledger for ordinary stat replay. Special deliveries require full-result re-execution. */
+export interface MoonlightArtifactLogEntry {
+  id: number; frame: number; triggerDamageEventId?: number;
+  event: "OnLunarCharged" | "OnLunarCrystallize" | "OnLunarBloom" | "OnEnemyDamage";
+  triggerActorId: string; wearerActorId: string;
+  setId: MoonlightArtifactModel["actors"][number]["setId"];
+  sourceRef: string;
+  applications: Array<{ receiverActorId: string; key: string; value: number; stat: "critRate" | "em" | "reactionBonus"; expiresAtFrame: number; replacedSourceActorId: string | null }>;
+  trace: unknown[];
+}
+
+export interface SimConfigV153 extends Omit<SimConfigCommon, "timeline"> {
+  weaponHitStackModel?: WeaponHitStackModel;
+  artifactBuffModel?: ArtifactBuffModel;
+  stellarArtifactModel?: StellarArtifactModel;
+  moonlightArtifactModel?: MoonlightArtifactModel;
+  playerShieldModel?: PlayerShieldModel;
+  sourceAbilityBindings?: SourceAbilityBinding[];
+  playerMaxHpModel?: { mode: "gcsim-b4ae769-ratio-preserving-v1" };
+  bondOfLifeModel?: BondOfLifeModel;
+  artifactDamageModel?: ArtifactDamageModel;
+  artifactEventModel?: ArtifactEventModel;
+  nightsoulBurstModel?: NightsoulBurstModel;
+  targetHealthModel?: TargetHealthModel;
+  enemyShieldModel?: EnemyShieldModel;
+  rotation: ActionDefinition[];
+  timeline?: LegalTimelineConfig;
+  normalHitEnergyModel?: NormalHitEnergyModel;
+  favoniusModel?: FavoniusModel;
+  weaponProcModel?: WeaponProcModel;
+  thrillingTalesModel?: ThrillingTalesModel;
+  sacrificialModel?: SacrificialModel;
+  staminaModel?: StaminaModel;
   schemaVersion: typeof CALLBACK_BUS_SCHEMA_VERSION;
   engineVersion: typeof CALLBACK_BUS_ENGINE_VERSION;
   reactionFormulaModel: ReactionFormulaModel;
@@ -1349,13 +1775,183 @@ export interface SimulationOptions {
   critMode?: CritMode;
   compatibilityMode?: CompatibilityMode;
   randomSeed?: string;
+  execution?: SimulationExecutionOptions | undefined;
 }
 
-export interface ResolvedSimulationRuntimeOptions {
+/** Opt-in diagnostics and stochastic execution; absence preserves legacy output. */
+export interface SimulationExecutionOptions {
+  captureHits?: boolean | undefined;
+  detailedTraces?: boolean | undefined;
+  criticalSampling?: "seeded-random-v1" | undefined;
+  checkpointFrames?: number[] | undefined;
+  lunarCharged?: LunarChargedExecutionOptions | undefined;
+  lunarCrystallize?: LunarCrystallizeExecutionOptions | undefined;
+  lunarMixed?: LunarMixedExecutionOptions | undefined;
+  lunarMixedV2?: LunarMixedV2ExecutionOptions | undefined;
+  stellarConduct?: StellarConductExecutionOptions | undefined;
+  stellarSwirl?: StellarSwirlExecutionOptions | undefined;
+  lunarBloom?: LunarBloomExecutionOptions | undefined;
+}
+
+export interface LunarExecutionPartyMember {
+  actorId: string;
+  characterKey: string;
+}
+
+export interface LunarExecutionArtifact {
+  actorId: string;
+  kind: LunarArtifactBonus["kind"];
+}
+
+export interface LunarArtifactExecutionOptions {
+  artifacts?: LunarExecutionArtifact[] | undefined;
+  /** Required when an Aubade four-piece set is declared. */
+  moonsignLevel?: 0 | 1 | 2 | undefined;
+}
+
+/** Explicit reference-profile conversion; final special events use a separate result envelope. */
+export interface LunarChargedExecutionOptions extends LunarArtifactExecutionOptions {
+  profileId: "lunar-charged-reference-v1";
+  party: LunarExecutionPartyMember[];
+}
+
+export interface LunarCrystallizeExecutionOptions extends LunarArtifactExecutionOptions {
+  profileId: "lunar-crystallize-reference-v1";
+  party: LunarExecutionPartyMember[];
+}
+
+/** Shared Aura and event-heap execution for the explicit mixed Lunar profile. */
+export interface LunarMixedExecutionOptions extends LunarArtifactExecutionOptions {
+  profileId: "lunar-mixed-reference-v1";
+  party: LunarExecutionPartyMember[];
+}
+
+/** Dendro-capable mixed execution with the existing Moondew ability declarations. */
+export interface LunarMixedV2ExecutionOptions extends LunarArtifactExecutionOptions {
+  profileId: "lunar-mixed-reference-v2";
+  party: LunarExecutionPartyMember[];
+  abilities?: LunarBloomExecutionAbilityDeclaration[] | undefined;
+}
+
+/** Configuration contract; runtime availability is checked by the host runner. */
+export interface StellarConductExecutionOptions {
+  profileId: "stellar-conduct-reference-v1";
+  party: LunarExecutionPartyMember[];
+}
+
+/** Explicit guide-reference execution; special damage retains its own envelope. */
+export interface StellarSwirlExecutionOptions {
+  profileId: "stellar-swirl-guide-reference-v1";
+  party: LunarExecutionPartyMember[];
+}
+
+export interface LunarBloomExecutionAbilityDeclaration {
+  sourceAbilityId: string;
+  actorId: string;
+  abilityKey: "columbina-moondew-cleanse-idle-v1";
+  talentLevel: number;
+  ascension: number;
+  constellation: 0;
+}
+
+/** Configuration contract; runtime availability is checked by the host runner. */
+export interface LunarBloomExecutionOptions extends LunarArtifactExecutionOptions {
+  profileId: "lunar-bloom-reference-v1";
+  party: LunarExecutionPartyMember[];
+  abilities?: LunarBloomExecutionAbilityDeclaration[] | undefined;
+}
+
+export interface FrozenSimulationRuntimeOptions {
   energyMode: EnergyMode;
   critMode: CritMode;
   compatibilityMode: CompatibilityMode;
   randomSeed: string;
+}
+
+export interface ResolvedSimulationRuntimeOptions extends FrozenSimulationRuntimeOptions {
+  execution?: SimulationExecutionOptions | undefined;
+  /** Absent historical results retain the original flat-stat compatibility keys. */
+  flatStatBuffSemantics?: "canonical-v1" | undefined;
+}
+
+/** Exact final ordinary formula input after damage-modifier plugins. */
+export interface CapturedOrdinaryDamageInput {
+  scaling: number;
+  scalingStat: ScalingStat;
+  scalingValue: number;
+  flatDamage: number;
+  damageBonus: number;
+  characterLevel: number;
+  enemyLevel: number;
+  defenseReduction: number;
+  defenseIgnore: number;
+  effectiveResistance: number;
+  critRate: number;
+  critDamage: number;
+  critMode: CritMode;
+  hitWeakPoint?: boolean | undefined;
+  reaction: AmplifyingReaction;
+  elementalMastery: number;
+  reactionBonus: number;
+  explicitReactionBase?: number;
+  groupMultiplier: number;
+}
+
+export interface CapturedTransformativeDamageInput {
+  characterLevel: number;
+  elementalMastery: number;
+  reactionBonus: number;
+  baseMultiplier: number;
+  effectiveResistance: number;
+}
+
+export interface CapturedCriticalDecision {
+  mode: "configured" | "seeded-random-v1";
+  eligible: boolean;
+  outcome: "critical" | "noncritical" | "expected" | "ineligible";
+  roll: number | null;
+  drawIndex: number | null;
+}
+
+export interface CapturedStellarConductAdjustment {
+  snapshotFrame: number;
+  activeCount: number;
+  fieldPresent: boolean;
+  buffExpiresAtFrame: number;
+  baseDamageBonus: number;
+  damageBonus: number;
+  baseResistance: number;
+  ordinaryResistanceShred: number;
+  physicalResistanceReduction: number;
+  sourceRefs: string[];
+}
+
+export type CapturedSimulationHit = {
+  eventId: number;
+  critical: CapturedCriticalDecision;
+  trace?: unknown[];
+  stellarConduct?: CapturedStellarConductAdjustment;
+} & (
+  | { inputKind: "ordinary"; input: CapturedOrdinaryDamageInput }
+  | { inputKind: "transformative"; input: CapturedTransformativeDamageInput }
+);
+
+export type ExecutionCheckpointDimension =
+  | "energy" | "cooldownsAndCharges" | "buffsAndDebuffs" | "entities"
+  | "auras" | "resourcesAndHp" | "icdAndTriggerHistory" | "pendingEvents"
+  | "activeCharacterAndActionPhase";
+
+export interface SimulationExecutionAudit {
+  version: "execution-audit-v1";
+  hits: CapturedSimulationHit[];
+  phaseCheckpoints: Array<{
+    /** State immediately before all queued events at this tick. */
+    tick: number;
+    cumulativeDamage: number;
+    state: Record<ExecutionCheckpointDimension, unknown>;
+  }>;
+  checkpointCoverage: { complete: boolean; missingDimensions: string[]; reasons: string[] };
+  criticalSampling: { algorithm: "mulberry32-v1"; seed: string; drawCount: number } | null;
 }
 
 export type DamagePluginKind = "code" | "declarative";
@@ -1401,7 +1997,7 @@ interface SimulationRunManifestCommon {
   dataVersion: string;
   /** Versioned, non-cryptographic fingerprint of the migrated config. */
   configHash: string;
-  resolvedRuntimeOptions: ResolvedSimulationRuntimeOptions;
+  resolvedRuntimeOptions: FrozenSimulationRuntimeOptions;
   plugins: DamagePluginManifestEntry[];
   reproducibilityKey: string;
 }
@@ -1563,6 +2159,7 @@ export type CallbackBusRoot = CallbackBusRootV1 | CallbackBusRootV2;
 
 /** Current 1.53 manifest binds the selected Freeze Broken and callback roots. */
 export interface SimulationRunManifestV153 extends SimulationRunManifestCommon {
+  resolvedRuntimeOptions: ResolvedSimulationRuntimeOptions;
   version: typeof CALLBACK_BUS_RUN_MANIFEST_VERSION;
   schemaVersion: typeof CALLBACK_BUS_SCHEMA_VERSION;
   engineVersion: typeof CALLBACK_BUS_ENGINE_VERSION;
@@ -1742,6 +2339,8 @@ export interface ReactionAudit {
   reaction: ReactionType;
   /** Ordered reactions observed on this hit; preserves valid multi-reactions. */
   reactions: ReactionType[];
+  /** Lunar conversion callbacks emitted by the actual Aura contact, before special damage delivery. */
+  specialReactions?: Array<"lunarCharged" | "lunarCrystallize">;
   /** Detected but deliberately not executed by the current engine slice. */
   unsupportedReactions: UnsupportedDendroReaction[];
   /**
@@ -2236,6 +2835,7 @@ export interface ReactionStatusEffectDefinition {
 }
 
 export interface FlatDamageDetail {
+  sourceSnapshotLogId?: number;
   ownerId: string;
   stat: ScalingStat;
   multiplier: number;
@@ -2751,7 +3351,7 @@ export interface DamageEventV147 {
   reaction: ReactionType;
   snapshot: SnapshotMode;
   cycle: number;
-  flatDetails: FlatDamageDetail[];
+  flatDetails: Omit<FlatDamageDetail, "sourceSnapshotLogId">[];
   timelineCommandIndex?: number;
   sourceAbilityId?: string;
   actionStartFrame?: number;
@@ -2795,7 +3395,15 @@ export interface DamageEventV148 extends DamageEventV147 {
   elementalApplicationIcdLogId: number | null;
 }
 
-export type DamageEvent = DamageEventV148;
+export interface DamageEventV153 extends Omit<DamageEventV148, "flatDetails"> {
+  enemyShieldLogId?: number;
+  flatDetails: FlatDamageDetail[];
+  sourceSnapshotLogId?: number;
+  weaponProcLogId?: number;
+  hitWeakPoint?: boolean;
+}
+
+export type DamageEvent = DamageEventV153;
 
 export interface SkippedAction {
   time: number;
@@ -2838,7 +3446,70 @@ export interface EnergySummary {
   final: number;
 }
 
+export interface DeclaredParticleDropDefinition {
+  id: string;
+  element: ParticleElement;
+  kind: ParticleKind;
+  count: number;
+  travelFrames: number;
+  sourceRef: string;
+}
+export interface TargetParticleDropDefinition extends DeclaredParticleDropDefinition {
+  trigger: { kind: "hp-threshold"; hpRatio: number } | { kind: "defeat" };
+}
+export interface ExternalParticleDropDefinition extends DeclaredParticleDropDefinition { frame: number }
+export interface TargetHealthDefinition {
+  targetId: string;
+  maxHp: number;
+  initialHp: number;
+  sourceRef: string;
+  drops: TargetParticleDropDefinition[];
+}
+export interface TargetHealthModel {
+  mode: "declared-target-health-v1";
+  targets: TargetHealthDefinition[];
+  externalDrops: ExternalParticleDropDefinition[];
+}
+export interface TargetHealthLogEntry {
+  id: number;
+  targetId: string;
+  damageEventId: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  maxHp: number;
+  hpBefore: number;
+  hpAfter: number;
+  rawDamage: number;
+  effectiveHpDamage: number;
+  overkill: number;
+  defeated: boolean;
+  triggeredDropIds: string[];
+  sourceRef: string;
+  trace: unknown[];
+}
+export interface TargetHealthSummary {
+  targetId: string;
+  maxHp: number;
+  initialHp: number;
+  finalHp: number;
+  totalRawDamage: number;
+  totalEffectiveHpDamage: number;
+  totalOverkill: number;
+  defeatedFrame: number | null;
+}
+export interface DeclaredParticleOrigin {
+  kind: "enemy-hp-threshold" | "enemy-defeat" | "external";
+  dropId: string;
+  targetId: string | null;
+  targetHealthLogId: number | null;
+  damageEventId: number | null;
+  sourceRef: string;
+}
+
 export interface ParticleEventLog {
+  origin?: DeclaredParticleOrigin;
   id: number;
   sourceActorId: string;
   sourceActionId: string;
@@ -2872,7 +3543,11 @@ export interface ParticleTriggerLogEntry {
   confirmedTargetIds: TargetId[];
   triggered: boolean;
   blockedReason:
-    "INTERNAL_COOLDOWN" | "TARGET_MISS" | "TARGET_HIT_CONFIRM_BLOCKED" | null;
+    "INTERNAL_COOLDOWN" | "TARGET_MISS" | "TARGET_HIT_CONFIRM_BLOCKED" | "PROBABILITY_FAILED" | null;
+  probability?: number;
+  roll?: number | null;
+  drawIndex?: number | null;
+  rngStream?: "particle-trigger-v1";
   internalCooldownKey: string | null;
   internalCooldownDurationFrames: number | null;
   internalCooldownReadyFrame: number | null;
@@ -2964,6 +3639,7 @@ export interface TargetMotionTimelineEntry extends TargetMotionDefinition {
 }
 
 export interface EnergyLogEntry {
+  artifactEventLogId?: number;
   id: number;
   kind: "fixed" | "particle";
   frame: number;
@@ -2996,6 +3672,351 @@ export interface EnergyLogEntry {
   internalCooldownKey: string | null;
   internalCooldownDurationFrames: number | null;
   internalCooldownReadyFrame: number | null;
+}
+
+/** Current-only reservation and debit audit; gains remain in EnergyLogEntry. */
+export interface EnergyCostLogEntry {
+  operation: "reserve" | "debit";
+  actionLogIndex: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  energyCost: number;
+  energyBefore: number;
+  energyAfter: number;
+  reservedBefore: number;
+  reservedAfter: number;
+}
+
+/** Current fixed-lifetime summon lifecycle with its spawn-time owner snapshot. */
+export interface SummonLogEntry {
+  id: number;
+  instanceId: string;
+  summonId: string;
+  actorId: string;
+  actionId: string;
+  cycle: number;
+  operation: "spawn" | "expire";
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  spawnFrame: number;
+  expiresAtFrame: number;
+  attackFrame: number;
+  snapshotFrame: number;
+  hitIds: string[];
+  snapshot: CharacterStats;
+}
+
+/** Current apply-only audit of accepted source-stat conversion snapshots. */
+export interface StatConversionLogEntry {
+  id: number;
+  actionLogIndex: number;
+  key: string;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  expiresAtFrame: number;
+  sourceValue: number;
+  appliedValue: number;
+  snapshot: CharacterStats;
+}
+
+export interface PeriodicEntityLogEntry {
+  id: number;
+  operation: "spawn" | "replace" | "tick" | "expire" | "cancelled-tick";
+  instanceId: string;
+  definitionId: string;
+  actorId: string;
+  actionLogIndex: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  generation: number;
+  spawnFrame: number;
+  expiresAtFrame: number;
+  tickIndex?: number;
+  replacedInstanceId?: string;
+  healthEventId?: number;
+  healing?: {
+    ownerMaxHp: number;
+    ownerCurrentHp: number;
+    ownerEm: number;
+    baseHealing: number;
+    healingBonus: number;
+    incomingHealingBonus: number;
+    trace: unknown[];
+  };
+}
+
+export type NormalHitEnergyWeaponType = NormalHitEnergyModel["actors"][number]["weaponType"];
+export interface NormalHitEnergyProbabilityState {
+  actorId: string;
+  weaponType: NormalHitEnergyWeaponType;
+  probability: number;
+}
+interface NormalHitEnergyLogIdentity {
+  sourceProfileId: "gcsim-normal-hit-energy-reference-v1";
+  rngStream: "normal-hit-energy-v1";
+  sourceRef: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go#L30-L89";
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  globalIcdReadyFrameBefore: number;
+  globalIcdReadyFrameAfter: number;
+  drawCountBefore: number;
+  drawCountAfter: number;
+}
+export interface NormalHitEnergyDamageLogEntry extends NormalHitEnergyLogIdentity {
+  kind: "damage";
+  actorId: string;
+  weaponType: NormalHitEnergyWeaponType;
+  attackTag: "normal" | "extra";
+  damageEventId: number;
+  hitGroupId: string | null;
+  outcome: "gained" | "failed-roll" | "icd-blocked";
+  energyRequested: 0 | 1;
+  baselineProbability: number;
+  failureIncrement: number;
+  probabilityBefore: number;
+  probabilityAfter: number;
+  roll: number | null;
+  drawIndex: number | null;
+  icdBlocked: boolean;
+  energyBefore: number;
+  energyAfter: number;
+  gainedEnergy: number;
+  wastedEnergy: number;
+}
+export interface NormalHitEnergySwapLogEntry extends NormalHitEnergyLogIdentity {
+  kind: "swap";
+  activeActorId: string;
+  probabilitiesBefore: NormalHitEnergyProbabilityState[];
+  probabilitiesAfter: NormalHitEnergyProbabilityState[];
+}
+export type NormalHitEnergyLogEntry = NormalHitEnergyDamageLogEntry | NormalHitEnergySwapLogEntry;
+
+/** Source-backed ordinary direct callback audit; its particles use the common energy pipeline. */
+export interface FavoniusLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-favonius-reference-v1";
+  sourceRef: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/favonius.go";
+  rngStream: "favonius-v1";
+  actorId: string;
+  weaponId: FavoniusWeaponId;
+  refinement: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  damageEventId: number;
+  activeCharacterId: string | null;
+  damage: number;
+  critical: boolean;
+  outcome: "zero-damage" | "noncritical" | "off-field" | "cooldown-blocked" | "failed-roll" | "triggered";
+  probability: number;
+  cooldownFrames: number;
+  readyFrameBefore: number;
+  readyFrameAfter: number;
+  roll: number | null;
+  drawIndex: number | null;
+  drawCountBefore: number;
+  drawCountAfter: number;
+  particleEventId: number | null;
+}
+
+export interface WeaponProcLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-independent-weapon-proc-v1" | "gcsim-random-weapon-proc-v1" | "gcsim-stateful-weapon-proc-v1" | "gcsim-messenger-weapon-proc-v1" | "gcsim-delayed-weapon-proc-v1" | "gcsim-eye-of-perception-implementation-v1";
+  sourceRef: string;
+  weaponId: WeaponProcWeaponId;
+  refinement: number;
+  actorId: string;
+  parentDamageEventId: number;
+  targetId: string;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  attackTag: HitAttackTag | null;
+  activeCharacterId: string | null;
+  damage: number;
+  outcome: "triggered" | "wrong-attack-tag" | "off-field" | "cooldown-blocked" | "failed-roll" | "zero-damage" | "note-gained" | "window-inactive" | "not-weak-point";
+  cooldownFrames: number;
+  cooldownExpiresFrameBefore: number | null;
+  cooldownExpiresFrameAfter: number | null;
+  coefficient: number;
+  scalingStat: "atk" | "hp";
+  procActionId: string | null;
+  procHitId: string | null;
+  damageFrame: number | null;
+  /** Planned source snapshot frame for delayed or multi-hit weapon attacks. */
+  snapshotFrame?: number | null;
+  /** Actual delayed task sequence, null until the task executes. */
+  snapshotEventSequence?: number | null;
+  triggerSnapshot: CharacterStats | null;
+  triggerBuffStatuses: ActiveStatusSnapshot[];
+  origin: { x: number; y: number } | null;
+  radius: number | null;
+  damageEventIds: number[];
+  hitResolutionIds: number[];
+  random?: {
+    rngStream: "independent-weapon-proc-v1";
+    probability: number;
+    successComparison: "<" | "<=";
+    roll: number | null;
+    drawIndex: number | null;
+    drawCountBefore: number;
+    drawCountAfter: number;
+  };
+  triggerAura?: { cryo: boolean; frozen: boolean } | null;
+  stateBefore?: WeaponProcLifecycleState;
+  stateAfter?: WeaponProcLifecycleState;
+  hitWeakPoint?: boolean;
+}
+
+export interface WeaponProcLifecycleLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-stateful-weapon-proc-v1";
+  sourceRef: string;
+  actorId: string;
+  weaponId: "flute" | "debateclub" | "crescentpike" | "endoftheline";
+  refinement: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  kind: "skill" | "particle-received";
+  actionLogIndex: number | null;
+  particleEventId: number | null;
+  activeCharacterId: string | null;
+  outcome: "window-activated" | "off-field" | "activation-cooldown-blocked";
+  stateBefore: WeaponProcLifecycleState;
+  stateAfter: WeaponProcLifecycleState;
+}
+
+export interface ThrillingTalesLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-thrilling-tales-v1";
+  sourceRef: string;
+  ownerId: string;
+  recipientId: string;
+  refinement: number;
+  coefficient: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  actionId: string;
+  cycle: number;
+  timelineCommandIndex: number | null;
+  actionLogIndex: number | null;
+  skippedActionIndex: number | null;
+  outcome: "applied" | "owner-cooldown" | "recipient-already-buffed";
+  cooldownExpiresFrameBefore: number | null;
+  cooldownExpiresFrameAfter: number | null;
+  recipientExpiresFrameBefore: number | null;
+  recipientExpiresFrameAfter: number | null;
+  swapKind: "legal-completed" | "legacy-implicit";
+}
+
+export interface SacrificialLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-sacrificial-v1";
+  sourceRef: string;
+  rngStream: "sacrificial-v1";
+  actorId: string;
+  weaponId: SacrificialWeaponId;
+  refinement: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  damageEventId: number;
+  activeCharacterId: string | null;
+  attackTag: HitAttackTag | null;
+  damage: number;
+  probability: number;
+  cooldownFrames: number;
+  cooldownExpiresFrameBefore: number | null;
+  cooldownExpiresFrameAfter: number | null;
+  skillCooldownBefore: number | null;
+  outcome: "off-field" | "attack-tag-blocked" | "cooldown-blocked" | "skill-ready" | "zero-damage" | "failed-roll" | "triggered";
+  roll: number | null;
+  drawIndex: number | null;
+  drawCountBefore: number;
+  drawCountAfter: number;
+  skillCooldownLogId: number | null;
+}
+
+export interface SkillCooldownLogEntry {
+  artifactEventLogId?: number;
+  id: number;
+  actorId: string;
+  actionId: string | null;
+  abilityId: string | null;
+  timelineCommandIndex: number | null;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  operation: "start" | "recover" | "reset" | "stale-worker";
+  workerGeneration: number | null;
+  sacrificialLogId: number | null;
+  stateBefore: SerialSkillCooldownState;
+  stateAfter: SerialSkillCooldownState;
+}
+
+export interface ArtifactEventLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-artifact-events-v1";
+  sourceRef: string;
+  actorId: string;
+  effectId: ArtifactEffectId;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  kind: "burst" | "particle-received" | "target-died" | "nightsoul-burst" | "exile-tick";
+  sourceActionId: string | null;
+  actionLogIndex: number | null;
+  particleEventId: number | null;
+  targetHealthLogId: number | null;
+  nightsoulBurstLogId: number | null;
+  activeCharacterId: string | null;
+  outcome: "activated" | "off-field" | "cooldown-blocked" | "party-effect-active" | "wrong-killer" | "energy-granted" | "skill-reset";
+  cooldownExpiresFrameBefore: number | null;
+  cooldownExpiresFrameAfter: number | null;
+  exileRecipients: Array<{ actorId: string; expiresFrame: number }>;
+  energyLogIds: number[];
+  skillCooldownLogId: number | null;
+  parentArtifactEventLogId: number | null;
+  receiverId: string | null;
+  tickIndex: number | null;
+}
+
+export interface NightsoulBurstLogEntry {
+  id: number;
+  sourceProfileId: "gcsim-nightsoul-burst-v1";
+  sourceRef: string;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  parentDamageEventId: number;
+  sourceActorId: string;
+  targetId: string;
+  activeCharacterId: string | null;
+  natlanActorIds: string[];
+  cooldownFrames: number;
+  cooldownExpiresFrameBefore: number | null;
+  cooldownExpiresFrameAfter: number | null;
+  outcome: "triggered" | "cooldown-blocked";
 }
 
 export interface EnergyCurvePoint {
@@ -3106,6 +4127,8 @@ export type TargetStateTimelineCause =
   | "burning-fuel-expiry"
   | "burning-tick"
   | "reaction-aura-attachment"
+  | "lunar-charged-consumption"
+  | "stellar-swirl-attachment"
   | "target-mechanics-truncation";
 
 export type TargetStateTimelineLink =
@@ -3165,8 +4188,19 @@ export type SimulationEventTypeV150 = Exclude<
 >;
 export type TargetStateTimelineCauseV150 = Exclude<
   TargetStateTimelineCause,
-  "reaction-aura-attachment"
+  "reaction-aura-attachment" | "lunar-charged-consumption" | "stellar-swirl-attachment"
 >;
+export type TargetStateTimelineCauseV152 = Exclude<
+  TargetStateTimelineCause,
+  "lunar-charged-consumption" | "stellar-swirl-attachment"
+>;
+export type TargetStateTimelinePointV152 = Omit<TargetStateTimelinePoint, "cause"> & {
+  cause: TargetStateTimelineCauseV152;
+};
+export interface TargetStateTimelineV152 {
+  version: "1.0.0";
+  points: TargetStateTimelinePointV152[];
+}
 export type TargetStateTimelineLinkV150 = Exclude<
   TargetStateTimelineLink,
   { kind: "basic-reaction-scheduler-log" }
@@ -4200,9 +5234,61 @@ export interface PlayerDamageEventV150 extends Omit<
   damageFactors: PlayerReactionSelfDamageFactorsV150;
 }
 
-export type PlayerDamageEvent = PlayerDamageEventV150;
+export interface PlayerDamageEventV153 extends PlayerDamageEventV150 {
+  playerShieldLogId?: number;
+}
+export type PlayerDamageEvent = PlayerDamageEventV153;
 
-export type PlayerHpTimelineOperation = "initial" | "damage" | "simulation-end";
+export interface PlayerHealthEvent {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  actionLogIndex: number;
+  sourceActorId: string;
+  targetActorId: string;
+  changeId: string;
+  periodicEntityLogId?: number;
+  operation: "heal" | "consume" | "bond-add" | "bond-remove";
+  bondOfLife?: BondOfLifeEventAudit;
+  maxHp: number;
+  hpBefore: number;
+  hpAfter: number;
+  baseAmount: number;
+  bonusMultiplier: number;
+  requestedAmount: number;
+  actualChange: number;
+  overheal: number;
+  minimumHp: number;
+  /** Actual shared calculation-core AST nodes, as in captured hit traces. */
+  trace: unknown[];
+}
+
+export interface PlayerMaxHpEvent {
+  id: number;
+  frame: number;
+  timeSeconds: number;
+  eventPriority: number;
+  eventSequence: number;
+  intraEventSequence: number;
+  actorId: string;
+  cause: "buff-apply" | "buff-expire";
+  maxHpBefore: number;
+  maxHpAfter: number;
+  statsAfter: Pick<CharacterStats, "baseHp" | "hpPct" | "flatHp">;
+  hpBefore: number;
+  hpAfter: number;
+  hpRatioBefore: number;
+  hpRatioAfter: number;
+  hpAdjustment: number;
+  bondOfLifeBefore?: number;
+  bondOfLifeAfter?: number;
+  trace: unknown[];
+}
+
+export type PlayerHpTimelineOperation = "initial" | "shield-hit" | "damage" | "heal" | "consume" | "bond-add" | "bond-remove" | "max-hp-change" | "simulation-end";
 
 export interface PlayerHpTimelinePoint {
   id: number;
@@ -4214,6 +5300,9 @@ export interface PlayerHpTimelinePoint {
   operation: PlayerHpTimelineOperation;
   actorId: string;
   playerDamageEventId: number | null;
+  playerShieldLogId?: number;
+  playerHealthEventId?: number;
+  playerMaxHpEventId?: number;
   maxHp: number;
   hpBefore: number;
   hpAfter: number;
@@ -4228,11 +5317,18 @@ export interface PlayerHpTimeline {
 export interface PlayerHpSummary {
   actorId: string;
   maxHp: number;
+  finalMaxHp?: number;
+  totalMaxHpAdjustment?: number;
   initialHp: number;
   finalHp: number;
   totalIncomingDamage: number;
   totalAbsorbedDamage: number;
   totalHpDamage: number;
+  totalHealing?: number;
+  totalOverheal?: number;
+  totalHpConsumed?: number;
+  initialBondOfLife?: number;
+  finalBondOfLife?: number;
   hitCount: number;
   zeroHpReached: boolean;
 }
@@ -4352,10 +5448,12 @@ export type TimelineFailureCode =
   | "ACTION_OVERLAP"
   | "ABILITY_ON_COOLDOWN"
   | "INSUFFICIENT_ENERGY"
+  | "INSUFFICIENT_STAMINA"
   | "UNKNOWN_ABILITY"
   | "WRONG_ACTIVE_CHARACTER"
   | "ALREADY_ACTIVE"
   | "MISSING_REQUIRED_STATE"
+  | "INVALID_AIRBORNE_ACTION"
   | "OUT_OF_DURATION";
 
 export interface TimelineStateLogEntry {
@@ -4382,7 +5480,7 @@ export interface TimelineFailure {
 
 export interface TimelineAdjustment {
   commandIndex: number;
-  code: "ACTION_OVERLAP" | "ABILITY_ON_COOLDOWN";
+  code: "ACTION_OVERLAP" | "ABILITY_ON_COOLDOWN" | "INSUFFICIENT_STAMINA";
   requestedFrame: number;
   executedFrame: number;
   waitedFrames: number;
@@ -4418,6 +5516,12 @@ export interface TimelineExecution {
   failures: TimelineFailure[];
   stateLog: TimelineStateLogEntry[];
 }
+
+export type FrozenTimelineExecution = Omit<TimelineExecution, "commandResults"> & {
+  commandResults: Array<Omit<TimelineCommandResult, "commandType"> & {
+    commandType: FrozenLegalTimelineCommand["type"];
+  }>;
+};
 
 export interface TargetClockSummary {
   targetId: TargetId;
@@ -4782,7 +5886,34 @@ export interface TargetPhaseV3LogEntryV148 extends Omit<
 
 export type TargetPhaseV3LogEntry = TargetPhaseV3LogEntryV148;
 
+export interface StaminaLogEntry {
+  sequence: number;
+  operation: "spend" | "recover";
+  frame: number;
+  startFrame: number;
+  actorId: string | null;
+  commandIndex: number | null;
+  amount: number;
+  before: number;
+  after: number;
+  formula: string;
+  substitution: string;
+  explanation: string;
+}
+
+export interface StaminaResult {
+  mode: "shared-stamina-v1";
+  profileId: "gcsim-b4ae769-stamina-v1";
+  maximum: 240;
+  initialStamina: number;
+  finalStamina: number;
+  logs: StaminaLogEntry[];
+}
+
 export interface SimulationResult {
+  stamina?: StaminaResult;
+  /** Present only when opt-in execution capture or checkpoints were requested. */
+  executionAudit?: SimulationExecutionAudit;
   schemaVersion: typeof CURRENT_SCHEMA_VERSION;
   engineVersion: typeof CURRENT_ENGINE_VERSION;
   dataVersion: string;
@@ -4802,8 +5933,8 @@ export interface SimulationResult {
   actorPoses: ActorPoseDefinition[];
   /** Effective per-target stats after applying shared enemy defaults. */
   enemyTargets: ResolvedEnemyTargetProfile[];
-  damageEvents: DamageEventV148[];
-  hitEvents: DamageEventV148[];
+  damageEvents: DamageEventV153[];
+  hitEvents: DamageEventV153[];
   /** Ordinary direct-damage sequence and hit-callback decisions. */
   directDamageGroupLog: DirectDamageGroupLogEntry[];
   /** Numeric elemental-application ICD decisions for configured target attempts. */
@@ -4854,6 +5985,8 @@ export interface SimulationResult {
   dendroCoreTimeline: DendroCoreTimeline;
   /** Crystallize shard lifecycle, explicit pickup attempts, and evictions. */
   crystallizeShardLog: CrystallizeShardLogEntry[];
+  /** Dynamic fixed-source Moonlight applications available to base stat integrity replay. */
+  moonlightArtifactLog?: MoonlightArtifactLogEntry[];
   /** Crystallize shield add/overwrite/expiry state transitions. */
   crystallizeShieldLog: CrystallizeShieldLogEntry[];
   /** Core-produced step points for shield visualization. */
@@ -4862,6 +5995,11 @@ export interface SimulationResult {
   playerHitResolutionLog: PlayerHitResolutionLogEntry[];
   /** Player-side HP damage events after resistance and shields. */
   playerDamageEvents: PlayerDamageEvent[];
+  /** Current explicit action healing and HP consumption; separate from damage. */
+  playerHealthEvents?: PlayerHealthEvent[];
+  playerMaxHpEvents?: PlayerMaxHpEvent[];
+  periodicEntityLog?: PeriodicEntityLogEntry[];
+  actionConditionLog?: ActionConditionLogEntry[];
   /** Core-owned, versioned player HP state projection. */
   playerHpTimeline: PlayerHpTimeline;
   /** Per-character player HP aggregates. */
@@ -4880,6 +6018,35 @@ export interface SimulationResult {
   actionLog: ActionLogEntry[];
   energyStats: Record<string, EnergySummary>;
   energyLog: EnergyLogEntry[];
+  energyCostLog?: EnergyCostLogEntry[];
+  summonLog?: SummonLogEntry[];
+  statConversionLog?: StatConversionLogEntry[];
+  normalHitEnergyLog?: NormalHitEnergyLogEntry[];
+  favoniusLog?: FavoniusLogEntry[];
+  weaponProcLog?: WeaponProcLogEntry[];
+  weaponProcLifecycleLog?: WeaponProcLifecycleLogEntry[];
+  thrillingTalesLog?: ThrillingTalesLogEntry[];
+  sacrificialLog?: SacrificialLogEntry[];
+  skillCooldownLog?: SkillCooldownLogEntry[];
+  playerShieldLog?: PlayerShieldLogEntry[];
+  playerShieldState?: PlayerShieldState;
+  sourceSnapshotLog?: SourceSnapshotLogEntry[];
+  sourceNormalChainLog?: SourceNormalChainLogEntry[];
+  sourceNormalChainState?: SourceNormalChainState;
+  artifactDamageLog?: ArtifactDamageLogEntry[];
+  artifactDamageState?: ArtifactDamageCapturedState;
+  weaponHitStackLog?: WeaponHitStackLogEntry[];
+  weaponHitStackState?: WeaponHitStackCapturedState;
+  artifactBuffLog?: ArtifactBuffLogEntry[];
+  artifactBuffState?: ArtifactBuffCapturedState;
+  artifactEventLog?: ArtifactEventLogEntry[];
+  nightsoulBurstLog?: NightsoulBurstLogEntry[];
+  targetHealthLog?: TargetHealthLogEntry[];
+  targetHealthSummaries?: TargetHealthSummary[];
+  enemyShieldLog?: EnemyShieldHostLogEntry[];
+  enemyShieldState?: EnemyShieldHostState;
+  /** Shared damage-core output before enemy force-shield HP blocking. */
+  totalPotentialDamage?: number;
   particleEvents: ParticleEventLog[];
   particleTriggerLog: ParticleTriggerLogEntry[];
   energyCurve: EnergyCurvePoint[];
@@ -4902,7 +6069,61 @@ export interface SimulationResult {
   timelineExecution?: TimelineExecution;
 }
 
+type FrozenPlayerHpTimelinePoint = Omit<PlayerHpTimelinePoint, "operation" | "playerHealthEventId" | "playerMaxHpEventId" | "playerShieldLogId"> & {
+  operation: "initial" | "damage" | "simulation-end";
+};
+type FrozenPlayerHealthResult = {
+  energyLog: Omit<EnergyLogEntry, "artifactEventLogId">[];
+  particleEvents: Omit<ParticleEventLog, "origin">[];
+  timelineExecution?: FrozenTimelineExecution;
+  playerHpTimeline: { version: "1.0.0"; points: FrozenPlayerHpTimelinePoint[] };
+  playerHpSummaries: Omit<PlayerHpSummary, "totalHealing" | "totalOverheal" | "totalHpConsumed" | "initialBondOfLife" | "finalBondOfLife" | "finalMaxHp" | "totalMaxHpAdjustment">[];
+  particleTriggerLog: Array<Omit<ParticleTriggerLogEntry, "probability" | "roll" | "drawIndex" | "rngStream" | "blockedReason"> & {
+    blockedReason: "INTERNAL_COOLDOWN" | "TARGET_MISS" | "TARGET_HIT_CONFIRM_BLOCKED" | null;
+  }>;
+};
+
 type VersionedSimulationResultIdentityFields =
+  | "weaponHitStackLog"
+  | "weaponHitStackState"
+  | "artifactBuffLog"
+  | "artifactBuffState"
+  | "playerShieldLog"
+  | "playerShieldState"
+  | "sourceSnapshotLog"
+  | "sourceNormalChainLog"
+  | "sourceNormalChainState"
+  | "artifactDamageLog"
+  | "artifactDamageState"
+  | "playerMaxHpEvents"
+  | "artifactEventLog"
+  | "nightsoulBurstLog"
+  | "energyLog"
+  | "targetHealthLog"
+  | "targetHealthSummaries"
+  | "enemyShieldLog"
+  | "enemyShieldState"
+  | "totalPotentialDamage"
+  | "particleEvents"
+  | "timelineExecution"
+  | "playerHealthEvents"
+  | "periodicEntityLog"
+  | "actionConditionLog"
+  | "particleTriggerLog"
+  | "playerHpTimeline"
+  | "playerHpSummaries"
+  | "stamina"
+  | "executionAudit"
+  | "energyCostLog"
+  | "summonLog"
+  | "statConversionLog"
+  | "normalHitEnergyLog"
+  | "favoniusLog"
+  | "weaponProcLog"
+  | "weaponProcLifecycleLog"
+  | "thrillingTalesLog"
+  | "sacrificialLog"
+  | "skillCooldownLog"
   | "schemaVersion"
   | "engineVersion"
   | "config"
@@ -4950,7 +6171,7 @@ type FrozenV148NestedResultLogs = {
 export type SimulationResultForV142 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof EC_GLOBAL_CADENCE_SAFETY_SCHEMA_VERSION;
   engineVersion: typeof EC_GLOBAL_CADENCE_SAFETY_ENGINE_VERSION;
   config: SimConfigV142;
@@ -4961,7 +6182,7 @@ export type SimulationResultForV142 = Omit<
 export type SimulationResultForV144 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof BURNING_CALLBACK_DELIVERY_SCHEMA_VERSION;
   engineVersion: typeof BURNING_CALLBACK_DELIVERY_ENGINE_VERSION;
   config: SimConfigV144;
@@ -4972,7 +6193,7 @@ export type SimulationResultForV144 = Omit<
 export type SimulationResultForV145 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof REACTION_FORMULA_ROOT_SCHEMA_VERSION;
   engineVersion: typeof REACTION_FORMULA_ROOT_ENGINE_VERSION;
   config: SimConfigV145;
@@ -4983,7 +6204,7 @@ export type SimulationResultForV145 = Omit<
 export type SimulationResultForV146 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_SCHEMA_VERSION;
   engineVersion: typeof DIRECT_DAMAGE_GROUP_ROOT_ENGINE_VERSION;
   config: SimConfigV146;
@@ -4995,7 +6216,7 @@ export type SimulationResultForV146 = Omit<
 export type SimulationResultForV147 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_SCHEMA_VERSION;
   engineVersion: typeof ELEMENTAL_APPLICATION_ICD_ROOT_ENGINE_VERSION;
   config: SimConfigV147;
@@ -5008,7 +6229,7 @@ export type SimulationResultForV147 = Omit<
 export type SimulationResultForV148 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof REACTION_OWNED_APPLICATION_ROOT_SCHEMA_VERSION;
   engineVersion: typeof REACTION_OWNED_APPLICATION_ROOT_ENGINE_VERSION;
   config: SimConfigV148;
@@ -5021,7 +6242,7 @@ export type SimulationResultForV148 = Omit<
 export type SimulationResultForV149 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof REACTION_OWNED_RESET_BOUNDARY_SCHEMA_VERSION;
   engineVersion: typeof REACTION_OWNED_RESET_BOUNDARY_ENGINE_VERSION;
   config: SimConfigV149;
@@ -5034,7 +6255,7 @@ export type SimulationResultForV149 = Omit<
 export type SimulationResultForV150 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_SCHEMA_VERSION;
   engineVersion: typeof REACTION_DAMAGE_GROUP_RESET_BOUNDARY_ENGINE_VERSION;
   config: SimConfigV150;
@@ -5055,7 +6276,7 @@ export type SimulationResultForV150 = Omit<
 export type SimulationResultForV151 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof BASIC_REACTION_SCHEDULER_SCHEMA_VERSION;
   engineVersion: typeof BASIC_REACTION_SCHEDULER_ENGINE_VERSION;
   config: SimConfigV151;
@@ -5068,7 +6289,7 @@ export type SimulationResultForV151 = Omit<
   reactionDamageLog: ReactionDamageLogEntryV150[];
   reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
   basicReactionSchedulerLog: BasicReactionSchedulerLog;
-  targetStateTimeline: TargetStateTimeline;
+  targetStateTimeline: TargetStateTimelineV152;
   playerDamageEvents: PlayerDamageEventV150[];
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
 };
@@ -5077,7 +6298,7 @@ export type SimulationResultForV151 = Omit<
 export type SimulationResultForV152 = Omit<
   SimulationResult,
   VersionedSimulationResultIdentityFields
-> & {
+> & FrozenPlayerHealthResult & {
   schemaVersion: typeof FREEZE_BROKEN_ATTACK_SCHEMA_VERSION;
   engineVersion: typeof FREEZE_BROKEN_ATTACK_ENGINE_VERSION;
   config: SimConfigV152;
@@ -5091,7 +6312,7 @@ export type SimulationResultForV152 = Omit<
   reactionDamageGroupResetLog: ReactionDamageGroupResetLogEntryV150[];
   basicReactionSchedulerLog: BasicReactionSchedulerLog;
   freezeBrokenAttackLog: FreezeBrokenAttackLogV152;
-  targetStateTimeline: TargetStateTimeline;
+  targetStateTimeline: TargetStateTimelineV152;
   playerDamageEvents: PlayerDamageEventV150[];
   targetPhaseLog: Array<TargetPhaseV2LogEntry | TargetPhaseV3LogEntryV148>;
 };

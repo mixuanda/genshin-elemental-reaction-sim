@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.978,
+  "log": "docs/validation/source-drain-sources-webretry2-20260928.log"
+}

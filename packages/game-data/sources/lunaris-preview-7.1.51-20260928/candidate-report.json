@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "1.0.0",
+  "createdAtUtc": "2026-09-28T12:41:44Z",
+  "source": "Lunaris public provider",
+  "providerVersion": "7.1.51",
+  "gameVersionMapping": "unknown",
+  "requested72V1MappingConfirmed": false,
+  "sourceArchiveSha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf",
+  "comparison": {
+    "providerVersion": "7.1.50.2",
+    "sourceArchiveSha256": "d3d87b807628a51fbb65cd55ee61d399b2849ed1b0838d9ba6e70010de8aef08",
+    "charlistByteIdentical": true,
+    "rawJsonChanges": 204,
+    "countsByKind": {
+      "text": 114,
+      "added": 63,
+      "numeric-value": 14,
+      "removed": 11,
+      "source-array-change": 1,
+      "added-version": 1
+    },
+    "countsByFile": {
+      "mitya.chs.json": {
+        "text": 37,
+        "added": 13,
+        "numeric-value": 4
+      },
+      "mitya.en.json": {
+        "text": 30,
+        "added": 22,
+        "numeric-value": 5,
+        "removed": 7
+      },
+      "valeriy.chs.json": {
+        "text": 13,
+        "added": 12,
+        "numeric-value": 2
+      },
+      "valeriy.en.json": {
+        "text": 33,
+        "added": 16,
+        "numeric-value": 2,
+        "source-array-change": 1,
+        "removed": 4
+      },
+      "version.json": {
+        "numeric-value": 1,
+        "text": 1,
+        "added-version": 1
+      }
+    },
+    "numericValueRows": [
+      {
+        "file": "mitya.chs.json",
+        "path": "/constellations/const2/params/0",
+        "kind": "numeric-value",
+        "before": 0.25,
+        "after": 0.20000000298023224
+      },
+      {
+        "file": "mitya.chs.json",
+        "path": "/constellations/const6/params/2",
+        "kind": "numeric-value",
+        "before": 0.0,
+        "after": 0.15000000596046448
+      },
+      {
+        "file": "mitya.chs.json",
+        "path": "/skills/elementalskill/params/3",
+        "kind": "numeric-value",
+        "before": 0.9599999785423279,
+        "after": 0.9120000004768372
+      },
+      {
+        "file": "mitya.chs.json",
+        "path": "/skills/elementalskill/params/4",
+        "kind": "numeric-value",
+        "before": 1.1519999504089355,
+        "after": 1.0399999618530273
+      },
+      {
+        "file": "mitya.en.json",
+        "path": "/constellations/const2/params/0",
+        "kind": "numeric-value",
+        "before": 0.25,
+        "after": 0.20000000298023224
+      },
+      {
+        "file": "mitya.en.json",
+        "path": "/constellations/const6/params/2",
+        "kind": "numeric-value",
+        "before": 0.0,
+        "after": 0.15000000596046448
+      },
+      {
+        "file": "mitya.en.json",
+        "path": "/hyperlinks/0/id",
+        "kind": "numeric-value",
+        "before": 11330003,
+        "after": 11190007
+      },
+      {
+        "file": "mitya.en.json",
+        "path": "/skills/elementalskill/params/3",
+        "kind": "numeric-value",
+        "before": 0.9599999785423279,
+        "after": 0.9120000004768372
+      },
+      {
+        "file": "mitya.en.json",
+        "path": "/skills/elementalskill/params/4",
+        "kind": "numeric-value",
+        "before": 1.1519999504089355,
+        "after": 1.0399999618530273
+      },
+      {
+        "file": "valeriy.chs.json",
+        "path": "/endure/1/Actor_EndureDelta",
+        "kind": "numeric-value",
+        "before": 0.5,
+        "after": 0.30000001192092896
+      },
+      {
+        "file": "valeriy.chs.json",
+        "path": "/endure/2/Actor_EndureDelta",
+        "kind": "numeric-value",
+        "before": 0.5,
+        "after": 0.30000001192092896
+      },
+      {
+        "file": "valeriy.en.json",
+        "path": "/endure/1/Actor_EndureDelta",
+        "kind": "numeric-value",
+        "before": 0.5,
+        "after": 0.30000001192092896
+      },
+      {
+        "file": "valeriy.en.json",
+        "path": "/endure/2/Actor_EndureDelta",
+        "kind": "numeric-value",
+        "before": 0.5,
+        "after": 0.30000001192092896
+      },
+      {
+        "file": "version.json",
+        "path": "/timestamp",
+        "kind": "numeric-value",
+        "before": 1790589600,
+        "after": 1791194400
+      }
+    ],
+    "interpretation": "Raw provider values and text changed. Numeric-value rows include duplicate EN/CHS observations, a hyperlink ID, and provider timestamp; none is independently verified as a gameplay balance change. Full details remain in revision-diff.json."
+  },
+  "candidate": {
+    "snapshotId": "snapshot-77008c3d87b7116802ca00435af9b69290113c9e4ab8545877a5585d977af819",
+    "releaseStatus": "preview",
+    "isolation": "candidate-local store only",
+    "characters": 2,
+    "abilities": 13,
+    "fields": 431,
+    "schemaValid": true,
+    "validationErrors": [],
+    "inventory": "unknown",
+    "readiness": []
+  },
+  "license": "Provider data redistribution license unconfirmed; local archive only, no publication.",
+  "pointerCheck": {
+    "baselineSource": "docs/data-evidence-refresh-20260928.json localBaseline",
+    "baseline": {
+      "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+      "activeVerifiedSnapshotId": null,
+      "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217"
+    },
+    "observedAfter": {
+      "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+      "activeVerifiedSnapshotId": null,
+      "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217"
+    },
+    "mainPointerFileSha256ObservedAfter": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "runtimeSelectorSha256ObservedAfter": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "matchesBaseline": true
+  },
+  "remoteCIExecuted": false,
+  "published": false
+}

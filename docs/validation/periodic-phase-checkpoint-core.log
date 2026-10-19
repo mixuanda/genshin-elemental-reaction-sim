@@ -1,0 +1,61 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts (3 tests | 3 failed) 24ms
+     × establishes a real repeated run while retaining replaced ticks, delayed snapshots and action phase 10ms
+     × keeps equal-HP states distinct when generation links, queued sampling or accepted branches differ 12ms
+     × covers late final ticks and hit delivery in the real tail while retaining independent aura and RNG blockers 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts > actual deterministic periodic and locked-action checkpoints > establishes a real repeated run while retaining replaced ticks, delayed snapshots and action phase
+AssertionError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets: expected 'blocked' to be 'steady-state-established' // Object.is equality
+
+Expected: "steady-state-established"
+Received: "blocked"
+
+ ❯ packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts:36:54
+     34|     const config = fixture();
+     35|     const actual = simulateWithStartup(config, { mode: "steady-state",…
+     36|     expect(actual.status, actual.reasons.join("; ")).toBe("steady-stat…
+       |                                                      ^
+     37|     expect(actual.startup.simulationTicks).toBe(1080 + 650);
+     38|     expect(actual.startup.measurementEndTick).toBe(1200);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts > actual deterministic periodic and locked-action checkpoints > keeps equal-HP states distinct when generation links, queued sampling or accepted branches differ
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33604:11
+    33602|   if (!parsed.success) {
+    33603|     const issues = formatZodError(parsed.error);
+    33604|     throw new ConfigMigrationError(
+       |           ^
+    33605|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33606|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35031:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18138:18
+ ❯ packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts:60:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts > actual deterministic periodic and locked-action checkpoints > covers late final ticks and hit delivery in the real tail while retaining independent aura and RNG blockers
+AssertionError: expected null not to be null
+ ❯ packages/sim-core/src/__tests__/periodic-phase-checkpoint.test.ts:108:31
+    106|     const actual = simulateWithStartup(config, { mode: "steady-state",…
+    107|     expect(actual.startup.simulationTicks).toBe(1440 + 1230);
+    108|     expect(actual.result).not.toBeNull();
+       |                               ^
+    109|     expect(actual.result!.executionAudit!.checkpointCoverage.reasons.j…
+    110|     const shortened = repeatLegalTimelineForDuration(config, 10);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  04:46:08
+   Duration  847ms (transform 589ms, setup 0ms, import 756ms, tests 24ms, environment 0ms)
+

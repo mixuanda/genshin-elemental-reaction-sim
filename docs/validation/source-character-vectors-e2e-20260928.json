@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-vectors.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 14.096,
+  "log": "docs/validation/source-character-vectors-e2e-20260928.log"
+}

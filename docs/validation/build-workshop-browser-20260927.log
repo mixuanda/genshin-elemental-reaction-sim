@@ -1,0 +1,20 @@
+
+Running 3 tests using 3 workers
+
+  ✓  3 [chromium] › apps/web/e2e/rotation-visual.spec.ts:6:1 › visual rotation preserves real actor commands, cooldown waits and energy rejection without DSL (1.5s)
+{"identities":124,"presetArtifactCount":5,"importedArtifacts":5,"importedCritRate":0.641,"importedWeapon":"weapon:15401","errors":[]}
+  ✓  2 [chromium] › apps/web/e2e/build-workshop.spec.ts:5:1 › 全角色配装入口、两档编辑、独立技能与本地真实词条导入 (1.6s)
+{"templates":18,"memberCount":4,"durationFrames":1800,"hits":40,"calculations":40,"totalDamage":238289.64572700084,"errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-team-builder.spec.ts:5:1 › 配装加入队伍、18模板生成、动作编辑与实际来源运行 (3.7s)
+
+  3 passed (4.5s)
+[WebServer] (node:43917) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:43919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43920) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43918) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+exit=0 elapsed_seconds=5.021

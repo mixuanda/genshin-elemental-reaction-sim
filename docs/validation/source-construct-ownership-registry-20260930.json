@@ -1,0 +1,13 @@
+{
+  "directJsonRows": 30,
+  "producerJsonRows": 76,
+  "constructTypeScriptRows": 2,
+  "rawRows": 108,
+  "mergedRuntimeRows": 107,
+  "mergedIds": 107,
+  "canonicalCharacterActions": 105,
+  "jsonProducerPlans": 76,
+  "jsonProducerSiteDeclarations": 103,
+  "uniqueJsonProducerSites": 96,
+  "additionalDynamicConstructPlans": 2
+}

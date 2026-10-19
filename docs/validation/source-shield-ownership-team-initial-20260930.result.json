@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "source-shield-ownership-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": true,
+    "nativeResultArchived": true,
+    "rawPath": "docs/validation/source-shield-ownership-team-20260930.capture.json"
+  },
+  "pageErrors": [],
+  "scope": "One classic Baizhu C6 native run covers Q-owned shield birth/refresh/expiry, E and C2 C6-created shield replacements, and exact Q ownership. No enemy-damage break or all-character shield behavior is established."
+}

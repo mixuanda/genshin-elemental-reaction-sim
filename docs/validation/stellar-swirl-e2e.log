@@ -1,0 +1,53 @@
+
+Running 1 test using 1 worker
+
+(node:5472) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/next-increment.spec.ts:249:1 › Stellar Swirl guide profile discloses source conflicts and restores initial and actual Cryo-delivery hits (5.4s)
+
+
+  1) [chromium] › apps/web/e2e/next-increment.spec.ts:249:1 › Stellar Swirl guide profile discloses source conflicts and restores initial and actual Cryo-delivery hits 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#notice')
+    Timeout: 5000ms
+    - Expected substring  - 1
+    + Received string     + 3
+
+    - 合成机制验证：星扩散指南参考
+    +
+    +       兼容模式：支持循环、能量门槛、Buff/减抗窗口、平均暴击、手工增幅反应、动态/行动快照和逐击追踪。内置杜林队数据为未验证结构示例，不是正式游戏数据库。
+    +     
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#notice')
+        14 × locator resolved to <section id="notice" class="notice">…</section>
+           - unexpected value "
+          兼容模式：支持循环、能量门槛、Buff/减抗窗口、平均暴击、手工增幅反应、动态/行动快照和逐击追踪。内置杜林队数据为未验证结构示例，不是正式游戏数据库。
+        "
+
+
+      17 |   const buffer = await readFile(new URL(`../../../docs/fixtures/${name}`, import.meta.url));
+      18 |   await page.locator("#importInput").setInputFiles({ name, mimeType: "application/json", buffer });
+    > 19 |   await expect(page.locator("#notice")).toContainText(notice);
+         |                                         ^
+      20 |   await waitForSimulation(page);
+      21 | }
+      22 |
+        at importFixture (/Users/evan/Documents/gidps/apps/web/e2e/next-increment.spec.ts:19:41)
+        at /Users/evan/Documents/gidps/apps/web/e2e/next-increment.spec.ts:256:3
+
+    Error Context: test-results/next-increment-Stellar-Swi-0d777-d-actual-Cryo-delivery-hits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/next-increment-Stellar-Swi-0d777-d-actual-Cryo-delivery-hits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/next-increment-Stellar-Swi-0d777-d-actual-Cryo-delivery-hits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/next-increment.spec.ts:249:1 › Stellar Swirl guide profile discloses source conflicts and restores initial and actual Cryo-delivery hits 

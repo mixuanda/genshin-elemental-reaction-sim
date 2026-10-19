@@ -1,0 +1,344 @@
+--- a/internal/template/dendrocore/dendrocore.go
++++ b/internal/template/dendrocore/dendrocore.go
+@@ -172,8 +172,8 @@
+ 	if modify != nil {
+ 		modify(&ai)
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = BloomMultiplier * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BloomMultiplier)
++	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+@@ -190,8 +190,8 @@
+ 		Abil:             string(info.ReactionTypeBurgeon),
+ 		IgnoreDefPercent: 1,
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = BurgeonMultiplier * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BurgeonMultiplier)
++	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+@@ -208,8 +208,8 @@
+ 		Abil:             string(info.ReactionTypeHyperbloom),
+ 		IgnoreDefPercent: 1,
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = HyperbloomMultiplier * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, HyperbloomMultiplier)
++	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+--- a/pkg/core/attack.go
++++ b/pkg/core/attack.go
+@@ -87,6 +87,7 @@
+ }
+ 
+ func (c *Core) queueDmg(a *info.AttackEvent, delay int) {
++	if c.SourceHost != nil { c.SourceHost.PrepareAttack(a) }
+ 	if delay == 0 {
+ 		c.Combat.ApplyAttack(a)
+ 		return
+--- a/pkg/core/combat/attack.go
++++ b/pkg/core/combat/attack.go
+@@ -32,6 +32,7 @@
+ }
+ 
+ func (h *Handler) ApplyAttack(a *info.AttackEvent) float64 {
++	if h.SourceHost != nil { h.SourceHost.PrepareAttack(a) }
+ 	h.Events.Emit(event.OnApplyAttack, a)
+ 	// died := false
+ 	var total float64
+--- a/pkg/core/combat/combat.go
++++ b/pkg/core/combat/combat.go
+@@ -6,6 +6,7 @@
+ package combat
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"math/rand"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+@@ -24,6 +25,7 @@
+ }
+ 
+ type Handler struct {
++	SourceHost *sourcehost.Bridge
+ 	Opt
+ 	enemies     []info.Target
+ 	gadgets     []info.Gadget
+--- a/pkg/core/combat/reaction.go
++++ b/pkg/core/combat/reaction.go
+@@ -1,6 +1,7 @@
+ package combat
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -28,14 +29,34 @@
+ 	return (reactionMultiplier*(1+((6*em)/(2000+em))+reactBonus)*CalcReactionBaseDmg(lvl)*(1+atk.BaseDmgBonus) + atk.FlatDmg) * (1 + atk.Elevation)
+ }
+ 
+-func CalcReactionDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64) (float64, info.Snapshot) {
+-	snap := info.Snapshot{
+-		CharLvl: lvl,
+-	}
+-	snap.Stats[attributes.EM] = em
+-	return (1 + ((16 * em) / (2000 + em)) + src.ReactBonus(atk)) * CalcReactionBaseDmg(lvl), snap
++func CalcReactionDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64, baseMultiplier float64) (float64, info.Snapshot) {
++ snap := info.Snapshot{CharLvl:lvl}
++ snap.Stats[attributes.EM]=em
++ bonus:=src.ReactBonus(atk)
++ if provider,ok:=src.(interface{SourceHostBridge() *sourcehost.Bridge});ok {
++  if host:=provider.SourceHostBridge();host!=nil {
++   request:=host.Request("transformative-base",atk)
++   request.DamageCategory="transformative"
++   request.Input=map[string]any{"characterLevel":lvl,"elementalMastery":em,"reactionBonus":bonus,"baseMultiplier":baseMultiplier,"levelBaseDamage":CalcReactionBaseDmg(lvl)}
++   value,id:=host.Resolve(request)
++   snap.SourceFrame=*host.Frame
++   snap.SourceHostComponents=[]info.SourceHostComponent{{ID:id,Multiplier:1,Amount:value}}
++   return value,snap
++  }
++ }
++ return baseMultiplier*(1+((16*em)/(2000+em))+bonus)*CalcReactionBaseDmg(lvl),snap
+ }
+ 
+-func CalcCatalyzeDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64) float64 {
+-	return (1 + ((5 * em) / (1200 + em)) + src.ReactBonus(atk)) * CalcReactionBaseDmg(lvl)
++func CalcCatalyzeDmg(lvl int, src reactionBonusSrc, atk *info.AttackInfo, em float64, baseMultiplier float64) float64 {
++ bonus:=src.ReactBonus(*atk)
++ if provider,ok:=src.(interface{SourceHostBridge() *sourcehost.Bridge});ok {
++  if host:=provider.SourceHostBridge();host!=nil {
++   request:=host.Request("additive-base",*atk)
++   request.Input=map[string]any{"characterLevel":lvl,"elementalMastery":em,"reactionBonus":bonus,"baseMultiplier":baseMultiplier,"levelBaseDamage":CalcReactionBaseDmg(lvl)}
++   value,id:=host.Resolve(request)
++   atk.SourceHostComponents=append(atk.SourceHostComponents,info.SourceHostComponent{ID:id,Multiplier:1,Amount:value})
++   return value
++  }
++ }
++ return baseMultiplier*(1+((5*em)/(1200+em))+bonus)*CalcReactionBaseDmg(lvl)
+ }
+--- a/pkg/core/core.go
++++ b/pkg/core/core.go
+@@ -8,6 +8,7 @@
+ package core
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"fmt"
+ 	"math/rand"
+ 
+@@ -24,6 +25,7 @@
+ )
+ 
+ type Core struct {
++	SourceHost *sourcehost.Bridge
+ 	F     int
+ 	Flags Flags
+ 	Seed  int64
+@@ -163,6 +165,7 @@
+ 		return -1, err
+ 	}
+ 
++	char.SourceHost = c.SourceHost
+ 	f, ok := NewCharFuncMap[p.Base.Key]
+ 	if !ok {
+ 		return -1, fmt.Errorf("invalid character: %v", p.Base.Key.String())
+@@ -172,6 +175,7 @@
+ 		return -1, err
+ 	}
+ 	index := c.Player.AddChar(char)
++	if c.SourceHost != nil { c.SourceHost.ActorKeys[index] = p.Base.Key.String() }
+ 
+ 	// get starting hp
+ 	char.StartHP = -1
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -5,7 +5,15 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ )
+ 
++type SourceHostComponent struct {
++	ID int `json:"id"`
++	Multiplier float64 `json:"multiplier"`
++	Amount float64 `json:"amount"`
++}
++
+ type AttackEvent struct {
++	SourceHostAttackID int
++	SourceHostCalculationID int
+ 	Info    AttackInfo
+ 	Pattern AttackPattern
+ 	// Timing        AttackTiming
+@@ -25,6 +33,7 @@
+ type AttackCBFunc func(AttackCB)
+ 
+ type AttackInfo struct {
++	SourceHostComponents []SourceHostComponent `json:"-"`
+ 	ActorIndex       int       // character this attack belongs to
+ 	DamageSrc        TargetKey // source of this attack; should be a unique key identifying the target
+ 	Abil             string    // name of ability triggering the damage
+@@ -66,6 +75,7 @@
+ }
+ 
+ type Snapshot struct {
++	SourceHostComponents []SourceHostComponent `json:"-"`
+ 	Stats   attributes.Stats // total character stats including from artifact, bonuses, etc...
+ 	CharLvl int
+ 
+--- a/pkg/core/player/character/character.go
++++ b/pkg/core/player/character/character.go
+@@ -1,6 +1,7 @@
+ package character
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"fmt"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+@@ -74,6 +75,7 @@
+ }
+ 
+ type CharWrapper struct {
++	SourceHost *sourcehost.Bridge
+ 	index int
+ 	f     *int // current frame
+ 	debug bool // debug mode?
+--- a/pkg/enemy/attack.go
++++ b/pkg/enemy/attack.go
+@@ -62,7 +62,9 @@
+ 	// delay damage event to end of the frame
+ 	e.Core.Combat.Tasks.Add(func() {
+ 		// apply the damage
++		hpBefore := e.hp
+ 		actualDmg := e.applyDamage(atk, dmg)
++		if e.Core.SourceHost != nil { e.Core.SourceHost.Applied(atk, e.Key(), dmg, actualDmg, hpBefore, e.hp, crit, e.Core.Flags.DamageMode) }
+ 		e.Core.Combat.TotalDamage += actualDmg
+ 		e.Core.Combat.Events.Emit(event.OnEnemyDamage, e, atk, actualDmg, crit)
+ 		// callbacks
+--- a/pkg/enemy/damage.go
++++ b/pkg/enemy/damage.go
+@@ -8,6 +8,7 @@
+ )
+ 
+ func (e *Enemy) calc(atk *info.AttackEvent, evt glog.Event, grpMult float64) (float64, bool) {
++	if e.Core.SourceHost != nil { return e.calcSourceHost(atk, evt, grpMult) }
+ 	var isCrit bool
+ 
+ 	if atk.Info.AttackTag == attacks.AttackTagDirectLunarCharged ||
+--- a/pkg/reactable/burning.go
++++ b/pkg/reactable/burning.go
+@@ -88,8 +88,8 @@
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-	atk.FlatDmg = 0.25 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 0.25)
++	atk.FlatDmg = flatdmg
+ 	r.burningAtk = atk
+ 	r.burningSnapshot = snap
+ }
+--- a/pkg/reactable/catalyze.go
++++ b/pkg/reactable/catalyze.go
+@@ -21,7 +21,7 @@
+ 	em := r.core.Player.ByIndex(a.Info.ActorIndex).Stat(attributes.EM)
+ 	a.Info.Catalyzed = true
+ 	a.Info.CatalyzedType = info.ReactionTypeAggravate
+-	a.Info.FlatDmg += 1.15 * r.calcCatalyzeDmg(a.Info, em)
++	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.15)
+ 	return true
+ }
+ 
+@@ -40,7 +40,7 @@
+ 	em := r.core.Player.ByIndex(a.Info.ActorIndex).Stat(attributes.EM)
+ 	a.Info.Catalyzed = true
+ 	a.Info.CatalyzedType = info.ReactionTypeSpread
+-	a.Info.FlatDmg += 1.25 * r.calcCatalyzeDmg(a.Info, em)
++	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.25)
+ 	return true
+ }
+ 
+--- a/pkg/reactable/electrocharged.go
++++ b/pkg/reactable/electrocharged.go
+@@ -70,8 +70,8 @@
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-	atk.FlatDmg = 2.0 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.0)
++	atk.FlatDmg = flatdmg
+ 	r.ecAtk = atk
+ 	r.ecSnapshot = snap
+ 
+--- a/pkg/reactable/freeze.go
++++ b/pkg/reactable/freeze.go
+@@ -85,8 +85,8 @@
+ 		}
+ 		char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 		em := char.Stat(attributes.EM)
+-		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-		ai.FlatDmg = 3.0 * flatdmg
++		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 3.0)
++		ai.FlatDmg = flatdmg
+ 		// shatter is a self attack
+ 		r.core.QueueAttackWithSnap(
+ 			ai,
+--- a/pkg/reactable/overload.go
++++ b/pkg/reactable/overload.go
+@@ -57,8 +57,8 @@
+ 		}
+ 		char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 		em := char.Stat(attributes.EM)
+-		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-		atk.FlatDmg = 2.75 * flatdmg
++		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.75)
++		atk.FlatDmg = flatdmg
+ 		r.core.QueueAttackWithSnap(atk, snap, combat.NewCircleHitOnTarget(r.self, nil, 3), 1)
+ 	}
+ 
+--- a/pkg/reactable/reactable.go
++++ b/pkg/reactable/reactable.go
+@@ -395,7 +395,7 @@
+ 	}
+ }
+ 
+-func (r *Reactable) calcCatalyzeDmg(atk info.AttackInfo, em float64) float64 {
++func (r *Reactable) calcCatalyzeDmg(atk *info.AttackInfo, em float64, baseMultiplier float64) float64 {
+ 	char := r.core.Player.ByIndex(atk.ActorIndex)
+-	return combat.CalcCatalyzeDmg(char.Base.Level, char, atk, em)
+-}
++	return combat.CalcCatalyzeDmg(char.Base.Level, char, atk, em, baseMultiplier)
++}
+--- a/pkg/reactable/superconduct.go
++++ b/pkg/reactable/superconduct.go
+@@ -91,7 +91,7 @@
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-	atk.FlatDmg = 1.5 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 1.5)
++	atk.FlatDmg = flatdmg
+ 	r.core.QueueAttackWithSnap(atk, snap, combat.NewCircleHitOnTarget(r.self, nil, 3), 1)
+ }
+--- a/pkg/reactable/swirl.go
++++ b/pkg/reactable/swirl.go
+@@ -31,8 +31,8 @@
+ 	}
+ 	char := r.core.Player.ByIndex(charIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = 0.6 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 0.6)
++	ai.FlatDmg = flatdmg
+ 	// first attack is self no hitbox
+ 	r.core.QueueAttackWithSnap(
+ 		ai,

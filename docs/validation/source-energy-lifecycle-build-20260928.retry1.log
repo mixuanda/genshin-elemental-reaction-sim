@@ -1,0 +1,11 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/character-mappings/optimizer-source-formulas.test.ts(55,5): error TS2532: Object is possibly 'undefined'.
+
+exit=1 wallSeconds=9.365009083994664

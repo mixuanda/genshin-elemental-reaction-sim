@@ -1,0 +1,212 @@
+{
+  "notice": "明确合成机制输入，非真实角色输出；同一共享Aura与主队列",
+  "options": {
+    "party": [
+      {
+        "actorId": "h",
+        "characterKey": "columbina"
+      },
+      {
+        "actorId": "e",
+        "characterKey": "fischl"
+      },
+      {
+        "actorId": "g",
+        "characterKey": "zibai"
+      }
+    ],
+    "compatibilityMode": "legal-frame-v1",
+    "critMode": "average"
+  },
+  "profile": {
+    "id": "lunar-mixed-reference-v1",
+    "stateProfileId": "special-state-reference-60fps-no-hitlag-v1",
+    "evidence": "fixed-source-provisional",
+    "assumptions": [
+      "单个静止范围内目标，60 FPS、无卡肉；仅水、雷、岩、物理输入。",
+      "队伍分别满足月感电、月结晶的固定来源转换资格；不由角色名字推定技能和面板。",
+      "同一 Aura 和同一主事件堆：状态取样任务 priority 2.5，普通命中及月结晶投射 priority 3；各自同优先级按实际入队顺序。",
+      "岩命中先尝试普通雷结晶，剩余岩量再尝试月结晶；保留雷晶片，抑制普通感电和水晶片。",
+      "雷云扫描即时读取参与者并扣每人水、雷各最多 0.4U；月笼锁定参与者，逐弹取样并于 10 帧后读取抗性投递。",
+      "特殊基础提升、增伤、加算、擢升和额外攻击为本参考配置显式 0／1；未自动补未建模角色天赋。",
+      "固定源码参考配置尚未声明当前游戏实测完成；Dendro、冻结、Stellar 及多目标混合未纳入。"
+    ]
+  },
+  "classicDamage": 3291.75,
+  "lunarChargedDamage": 12656.313410639608,
+  "lunarCrystallizeDamage": 15319.194631856271,
+  "totalDamage": 31267.25804249588,
+  "totalDps": 10422.419347498626,
+  "events": [
+    {
+      "id": 0,
+      "branch": "lunar-charged-reaction",
+      "frame": 15,
+      "snapshotFrame": 15,
+      "damage": 6328.156705319804,
+      "contributors": [
+        "e",
+        "h"
+      ],
+      "executionOrder": {
+        "frame": 15,
+        "priority": 2.5,
+        "sequence": 12
+      }
+    },
+    {
+      "id": 1,
+      "branch": "lunar-crystallize-reaction",
+      "frame": 53,
+      "snapshotFrame": 43,
+      "damage": 4597.51413279913,
+      "contributors": [
+        "g",
+        "h"
+      ],
+      "executionOrder": {
+        "frame": 53,
+        "priority": 3,
+        "sequence": 22
+      }
+    },
+    {
+      "id": 2,
+      "branch": "lunar-crystallize-reaction",
+      "frame": 65,
+      "snapshotFrame": 55,
+      "damage": 5773.212576415384,
+      "contributors": [
+        "g",
+        "h"
+      ],
+      "executionOrder": {
+        "frame": 65,
+        "priority": 3,
+        "sequence": 28
+      }
+    },
+    {
+      "id": 3,
+      "branch": "lunar-crystallize-reaction",
+      "frame": 77,
+      "snapshotFrame": 67,
+      "damage": 4948.4679226417575,
+      "contributors": [
+        "g",
+        "h"
+      ],
+      "executionOrder": {
+        "frame": 77,
+        "priority": 3,
+        "sequence": 32
+      }
+    },
+    {
+      "id": 4,
+      "branch": "lunar-charged-reaction",
+      "frame": 135,
+      "snapshotFrame": 135,
+      "damage": 6328.156705319804,
+      "contributors": [
+        "e",
+        "h"
+      ],
+      "executionOrder": {
+        "frame": 135,
+        "priority": 2.5,
+        "sequence": 45
+      }
+    }
+  ],
+  "geoBudgets": [
+    {
+      "frame": 18,
+      "sourceActorId": "g",
+      "sourceGaugeUnitsBefore": 1,
+      "electroCrystallize": {
+        "reaction": "crystallizeElectro",
+        "crystallizedElement": "electro",
+        "consumedAuraElement": "electro",
+        "sourceGaugeUnitsBefore": 1,
+        "sourceGaugeUnitsSpent": 0.766315789474,
+        "sourceGaugeUnitsAfter": 0.233684210526,
+        "auraGaugeUnitsBefore": 0.383157894737,
+        "auraConsumedGaugeUnits": 0.383157894737,
+        "auraGaugeUnitsAfter": 0,
+        "scheduled": true,
+        "blockedReason": null,
+        "nextAvailableFrame": 78,
+        "shardSpawnFrame": 41,
+        "earliestPickupFrame": 72,
+        "shardExpiresAtFrame": 941,
+        "shardDurationFrames": 900,
+        "maxActiveShards": 3
+      },
+      "sourceGaugeUnitsAfterElectro": 0.233684210526,
+      "hydroAuraBefore": [
+        {
+          "element": "hydro",
+          "gaugeUnits": 2.743529411765,
+          "expiresAtFrame": 893,
+          "sourceSlots": [
+            {
+              "sourceActorId": "h",
+              "gaugeUnits": 2.743529411765
+            }
+          ]
+        }
+      ],
+      "lunarCrystallizeTriggered": true,
+      "sourceGaugeUnitsSpentOnHydro": 0.233684210526,
+      "sourceGaugeUnitsAfter": 0
+    },
+    {
+      "frame": 24,
+      "sourceActorId": "g",
+      "sourceGaugeUnitsBefore": 1,
+      "electroCrystallize": null,
+      "sourceGaugeUnitsAfterElectro": 1,
+      "hydroAuraBefore": [
+        {
+          "element": "hydro",
+          "gaugeUnits": 2.60786377709,
+          "expiresAtFrame": 856,
+          "sourceSlots": [
+            {
+              "sourceActorId": "h",
+              "gaugeUnits": 2.60786377709
+            }
+          ]
+        }
+      ],
+      "lunarCrystallizeTriggered": true,
+      "sourceGaugeUnitsSpentOnHydro": 1,
+      "sourceGaugeUnitsAfter": 0
+    },
+    {
+      "frame": 30,
+      "sourceActorId": "g",
+      "sourceGaugeUnitsBefore": 1,
+      "electroCrystallize": null,
+      "sourceGaugeUnitsAfterElectro": 1,
+      "hydroAuraBefore": [
+        {
+          "element": "hydro",
+          "gaugeUnits": 2.089040247678,
+          "expiresAtFrame": 696,
+          "sourceSlots": [
+            {
+              "sourceActorId": "h",
+              "gaugeUnits": 2.089040247678
+            }
+          ]
+        }
+      ],
+      "lunarCrystallizeTriggered": true,
+      "sourceGaugeUnitsSpentOnHydro": 1,
+      "sourceGaugeUnitsAfter": 0
+    }
+  ],
+  "sourceKey": "gdl-v2-fnv1a32-01b78755"
+}

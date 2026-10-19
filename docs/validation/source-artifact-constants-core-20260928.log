@@ -1,0 +1,22 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/source-host-artifact-constants.test.ts (1 test | 1 failed) 19ms
+     × keeps EM units and recipient identity while capturing two synthetic pre-hit stat modifiers 19ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/source-host-artifact-constants.test.ts > source-host fixed artifact Amount formulas > keeps EM units and recipient identity while capturing two synthetic pre-hit stat modifiers
+Error: 来源装备公式 #41 的固定源码与命中不一致
+ ❯ verifySourceHostArtifactSupport packages/sim-core/src/source-host-artifact-support.ts:70:97
+
+ ❯ packages/sim-core/src/__tests__/source-host-artifact-constants.test.ts:82:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  06:41:33
+   Duration  231ms (transform 101ms, setup 0ms, import 151ms, tests 19ms, environment 0ms)
+

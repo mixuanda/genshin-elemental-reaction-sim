@@ -1,0 +1,18 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-team-builder.ts(240,59): error TS2379: Argument of type '{ constellation: number; talents: { auto: number; skill: number; burst: number; }; characterKey: string | undefined; }' is not assignable to parameter of type '{ constellation: number; talents: { auto: number; skill: number; burst: number; }; characterKey?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'characterKey' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/game-data/src/build-import.ts(65,30): error TS2322: Type 'string | null' is not assignable to type 'string'.
+  Type 'null' is not assignable to type 'string'.
+packages/game-data/src/character-build-presets.ts(88,11): error TS2322: Type 'string[]' is not assignable to type '("atk" | "atk_" | "critDMG_" | "critRate_" | "def" | "def_" | "eleMas" | "enerRech_" | "hp" | "hp_")[]'.
+  Type 'string' is not assignable to type '"atk" | "atk_" | "critDMG_" | "critRate_" | "def" | "def_" | "eleMas" | "enerRech_" | "hp" | "hp_"'.
+
+exit=1 elapsed_seconds=2.312

@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 1,
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archivedAt": "2026-09-25T03:15:47.717593+00:00",
+  "evidenceStatus": "source-provisional",
+  "scope": "One observed C0 Phantasm Performance: two ordinary Nefer hits plus three direct Lunar-Bloom shade hits. No source frame schedule or whole Shadow Dance certification.",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivePath": "raw/LICENSE",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Nefer/index.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+      "bytes": 14943,
+      "sha256": "510f1d069423e18780fe0f6bd419332909ec4bf01f405c27f7627ed863189540",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+      "bytes": 7119,
+      "sha256": "e4d50dee294669cd1b225c7c593c6bbce942d34ca6c1423d1e718cb5eac90bed",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Nefer/data.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Nefer/data.json",
+      "bytes": 993,
+      "sha256": "b8166f68bc31beb47575ed6edda429c8d9aedec0b6de26100887abb82d50e367",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/data.json"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+      "bytes": 12815,
+      "sha256": "50d7ab10f56e866ee0856586e046649c6676470b4a76286ddb5de6ce7902dd46",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "bytes": 38604,
+      "sha256": "f20816bb19c79a617a173d8bade6b7301810d92a893ee4495f2e190365f012dd",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "bytes": 15409,
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivePath": "raw/libs/gi/wr/src/formula.ts",
+      "bytes": 15340,
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/lunar.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/lunar.ts",
+      "bytes": 885,
+      "sha256": "cc179b5b81e5707300bf2cf7cf9f092f466f438a1f4df43dce78699e38844d01",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/special.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/special.ts",
+      "bytes": 2810,
+      "sha256": "152819697395a9f7a5ca4f10948c96ae9655cb0ebfe592065056deb4f9f8a0aa",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+    },
+    {
+      "path": "libs/gi/formula/src/data/char/Nefer.ts",
+      "archivePath": "raw/libs/gi/formula/src/data/char/Nefer.ts",
+      "bytes": 1918,
+      "sha256": "7149c1e0bd4bd65a5eae53a8da81a1a1b3b200c7832e71fa003a3242e171ff79",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/char/Nefer.ts"
+    }
+  ],
+  "definitions": {
+    "sha256": "9b973700d009bb6aaabc2003ec51d3d2c645be82e45596373f2feff0c00092c8",
+    "templates": 1,
+    "roles": 5,
+    "ordinaryRoles": 2,
+    "specialRoles": 3,
+    "coefficientVectors": 7,
+    "valuesPerVector": 15,
+    "coefficientTolerance": 0
+  },
+  "constantEvidence": [
+    {
+      "keys": [
+        "shadowDanceDurationSeconds",
+        "phantasmLimitPerShadowDance"
+      ],
+      "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+      "jsonPointers": [
+        "/skill/3/0",
+        "/skill/2/0"
+      ],
+      "meaning": "9 seconds and at most3 Phantasms; do not infer actual cast count or stage frames."
+    },
+    {
+      "keys": [
+        "initialSkillCharges",
+        "minimumVerdantDew",
+        "verdantDewPerFirstShadeSummon",
+        "ordinaryHitCount",
+        "shadeHitCount"
+      ],
+      "sourcePath": "libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+      "jsonPointers": [
+        "/skill/description/1",
+        "/skill/description/3"
+      ],
+      "corroborationPath": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "corroborationPointers": [
+        "/11220001",
+        "/11220002"
+      ],
+      "meaning": "Two initial E charges; Shadow Dance+at least1Dew enables Phantasm; each has2 personal and3 shade stages, first shade summon consumes1Dew."
+    },
+    {
+      "keys": [
+        "veilStackCap",
+        "veilDurationSeconds",
+        "fullVeilEm",
+        "fullVeilEmDurationSeconds",
+        "seedConversionDurationSeconds",
+        "phantasmBonusPerVeil"
+      ],
+      "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+      "jsonPointers": [
+        "/passive1/0/0",
+        "/passive1/1/0",
+        "/passive1/2/0",
+        "/passive1/3/0",
+        "/passive1/4/0",
+        "/passive1/5/0"
+      ],
+      "corroborationPath": "libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+      "corroborationPointers": [
+        "/passive1/description/2",
+        "/passive1/description/3"
+      ]
+    },
+    {
+      "keys": [
+        "a1MinimumAscension",
+        "a1MoonsignThreshold"
+      ],
+      "sourcePath": "libs/gi/sheets/src/Characters/Nefer/index.tsx",
+      "sourceFields": [
+        "a1VeilStacks_pp_mult_",
+        "a1VeilStacks_eleMas"
+      ],
+      "meaning": "Both effects require ascension>=1 and Moonsign>=2."
+    },
+    {
+      "keys": [
+        "intrinsicLunarBloomEmRate",
+        "intrinsicLunarBloomBaseBonusCap"
+      ],
+      "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+      "jsonPointers": [
+        "/passive3/0/0",
+        "/passive3/1/0"
+      ],
+      "sourceField": "index.tsx a0_lunarbloom_baseDmg_"
+    }
+  ],
+  "adjudication": [
+    {
+      "mechanic": "Charged damage, skill talent index",
+      "source": "index.tsx nefer1Dmg and C0 nefer2Dmg; dataUtil.tsx splitScaleDmgNode overrideTalentType",
+      "decision": "Ordinary source roles use attackTag charged with combat2 level for ATK+EM vectors."
+    },
+    {
+      "mechanic": "Veil multiplier scope",
+      "source": "index.tsx a1VeilStacks_pp_mult_ and all five Phantasm nodes; tooltips_gen /11220003",
+      "decision": "1+0.08*n applies to source scaling terms. No compounding, no multiplication of external additive damage. The unrelated initial-E sheet/text conflict is untouched."
+    },
+    {
+      "mechanic": "Independent8s EM window",
+      "source": "char_Nefer_gen passive1.description.3 versus static sheet current-stack conditional",
+      "decision": "Actual EM-buff activity must be supplied separately from current Veil count; reaching/refreshing cap starts8s and spending Veils does not prove immediate buff removal."
+    },
+    {
+      "mechanic": "Observed finite completeness",
+      "source": "tooltips_gen /11220002",
+      "decision": "Two personal and three shade candidates define one action. Source does not fix global interleaving, relative frames, interruption completion or target contacts. Restore actual event order and snapshots."
+    }
+  ],
+  "excludedPlaceholder": {
+    "path": "libs/gi/formula/src/data/char/Nefer.ts",
+    "reason": "TODO placeholder includes artificial atk.add(1), defRed_.add(1), and reversed provisional skill/burst constellation boosts. Archived only; no executable semantics taken from it."
+  },
+  "remainingLifecycle": [
+    "完整性只指一次有限幻戏的五个来源候选，不指9秒影舞的全部攻击、整个E技能、自动资源回转或团队可执行能力。",
+    "不重建种子生成、吸收范围/时点、逐层9秒到期、草露额外获得、E两充能与重复施放/退出的事件顺序。",
+    "不把三次使用上限当作已发生三次幻戏，也不将9秒持续时间用于猜测五段命中帧。",
+    "C1额外0.6EM系数、C2更高帷幕和精通、C4减抗及C6本人第二段转换/额外尾击均不在本C0协议内。",
+    "旧E突进的帷幕作用域争议保持原有记录；本幻戏映射不修改、替换或晋升nefer-skill-rush。",
+    "固定源码与天赋描述形成source-provisional条件协议，未宣称实机验证。"
+  ]
+}

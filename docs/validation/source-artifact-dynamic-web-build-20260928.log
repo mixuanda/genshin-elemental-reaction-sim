@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-artifact-dynamic.spec.ts(260,19): error TS2379: Argument of type '{ variant: "classic" | "stellar"; scenario: "lunar" | "ordinary"; sourceCommit: "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"; ... 10 more ...; emblemEdit: { ...; } | undefined; }' is not assignable to parameter of type '{ variant: "classic" | "stellar"; scenario: Scenario; sourceCommit: string; wasmSha256?: string; calculations: number; applications: number; observedRuleCounts: Record<string, number>; ... 6 more ...; emblemEdit?: { ...; }; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'wasmSha256' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.

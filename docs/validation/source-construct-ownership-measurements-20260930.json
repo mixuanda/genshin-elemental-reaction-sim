@@ -1,0 +1,495 @@
+{
+  "schemaVersion": "source-construct-ownership-measurements-v1",
+  "executionDate": "2026-09-30",
+  "archivedOn": "2026-10-03",
+  "baseHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "audit": "docs/validation/source-construct-ownership-audit-20260930.json",
+  "seed": "20260930127",
+  "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nalbedo char lvl=90/90 cons=0 talent=1,1,1;\nalbedo add weapon=\"dullblade\" refine=1 lvl=1/20;\nzhongli char lvl=90/90 cons=1 talent=1,1,1;\nzhongli add weapon=\"blacktassel\" refine=1 lvl=1/20;\nkaeya char lvl=90/90 cons=0 talent=1,1,1;\nkaeya add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\nactive albedo;\nalbedo skill;\nwait(30);\nzhongli skill;\nwait(240);\nzhongli skill;\nalbedo skill;\nkaeya attack;\nwait(2200);",
+  "baselinePath": "docs/validation/source-construct-ownership-20260930.baseline.json",
+  "capturePath": "docs/validation/source-construct-ownership-20260930.capture.json",
+  "receipts": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.841
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.185
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.111
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.654
+    },
+    "browser-baseline": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-construct-ownership.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 9.77
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-construct-ownership.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 24.212
+    }
+  },
+  "nativeRunCount": 4,
+  "nativeRunBreakdown": {
+    "pre127Baseline": 2,
+    "post127": 2
+  },
+  "lanes": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "1457e6d10188d8d070ed9efeb2e3b0bfbf1ad83c82986316b8b723c834ec9a88",
+        "wasmBytes": 46966082
+      },
+      "applicationCount": 77,
+      "baselineDamageAndOriginsEqual": true,
+      "baselineActionLogsEqual": true,
+      "constructLifecycle": [
+        {
+          "id": 1,
+          "invocationId": 1,
+          "siteId": "albedo.skill.isotoma",
+          "construct": {
+            "type": "AlbedoSkill",
+            "expiryFrame": 1826,
+            "limitedList": true
+          },
+          "createdFrame": 26,
+          "endedFrame": 383,
+          "endReason": "replaced"
+        },
+        {
+          "id": 2,
+          "invocationId": 2,
+          "siteId": "zhongli.skill.stele",
+          "construct": {
+            "type": "ZhongliSkill",
+            "expiryFrame": 1941,
+            "limitedList": true
+          },
+          "createdFrame": 81,
+          "endedFrame": 1941,
+          "endReason": "expired"
+        },
+        {
+          "id": 3,
+          "invocationId": 3,
+          "siteId": "zhongli.skill.stele",
+          "construct": {
+            "type": "ZhongliSkill",
+            "expiryFrame": 2204,
+            "limitedList": true
+          },
+          "createdFrame": 344,
+          "endedFrame": 2204,
+          "endReason": "expired"
+        },
+        {
+          "id": 4,
+          "invocationId": 4,
+          "siteId": "albedo.skill.isotoma",
+          "construct": {
+            "type": "AlbedoSkill",
+            "expiryFrame": 2183,
+            "limitedList": true
+          },
+          "createdFrame": 383,
+          "endedFrame": 2183,
+          "endReason": "expired"
+        }
+      ],
+      "albedoCrossActorBloom": {
+        "eventCallId": 7,
+        "triggerId": 2,
+        "parentAttackId": 2,
+        "queuedAttackCount": 1
+      },
+      "zhongliSharedSnapshot": {
+        "ownerEntityId": 2,
+        "producerId": 3,
+        "snapshotEntityId": 3,
+        "startedFrame": 441
+      },
+      "crossConstructResonance": {
+        "ownerEntityId": 2,
+        "producerId": 3,
+        "emitterEntityId": 4,
+        "selections": [
+          {
+            "primaryEntityId": 2,
+            "resonanceEntityIds": [
+              4
+            ]
+          }
+        ]
+      },
+      "calculatorRoundTrip": true,
+      "observationFrame": 2634,
+      "totalAppliedDamage": 23288.404574639255,
+      "actionLogCount": 72,
+      "closedCasts": [
+        {
+          "key": "albedo1",
+          "invocationId": 1,
+          "actionSequence": 1,
+          "contractId": "albedo-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 3,
+          "observedRootAttackCount": 3,
+          "includedHitCount": 3,
+          "subtotal": 1564.2665666487414,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 1,
+          "replayCount": 3,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "key": "zhongli1",
+          "invocationId": 2,
+          "actionSequence": 3,
+          "contractId": "zhongli-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 31,
+          "observedRootAttackCount": 31,
+          "includedHitCount": 31,
+          "subtotal": 7394.353256065713,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 16,
+          "completedEntityProducerCount": 16,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 57,
+          "replayCount": 31,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "key": "zhongli2",
+          "invocationId": 3,
+          "actionSequence": 4,
+          "contractId": "zhongli-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 31,
+          "observedRootAttackCount": 31,
+          "includedHitCount": 31,
+          "subtotal": 7278.3980952404245,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 16,
+          "completedEntityProducerCount": 16,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 320,
+          "replayCount": 31,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "key": "albedo2",
+          "invocationId": 4,
+          "actionSequence": 6,
+          "contractId": "albedo-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 11,
+          "observedRootAttackCount": 11,
+          "includedHitCount": 11,
+          "subtotal": 6991.822022953621,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 358,
+          "replayCount": 11,
+          "maxAbsoluteReplayDifference": 0
+        }
+      ]
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "a2154d404d6f395d066d50658b3acf965e0dec6b982ac15498bb752d7330104b",
+        "wasmBytes": 71015367
+      },
+      "applicationCount": 77,
+      "baselineDamageAndOriginsEqual": true,
+      "baselineActionLogsEqual": true,
+      "constructLifecycle": [
+        {
+          "id": 1,
+          "invocationId": 1,
+          "siteId": "albedo.skill.isotoma",
+          "construct": {
+            "type": "AlbedoSkill",
+            "expiryFrame": 1826,
+            "limitedList": true
+          },
+          "createdFrame": 26,
+          "endedFrame": 383,
+          "endReason": "replaced"
+        },
+        {
+          "id": 2,
+          "invocationId": 2,
+          "siteId": "zhongli.skill.stele",
+          "construct": {
+            "type": "ZhongliSkill",
+            "expiryFrame": 1941,
+            "limitedList": true
+          },
+          "createdFrame": 81,
+          "endedFrame": 1941,
+          "endReason": "expired"
+        },
+        {
+          "id": 3,
+          "invocationId": 3,
+          "siteId": "zhongli.skill.stele",
+          "construct": {
+            "type": "ZhongliSkill",
+            "expiryFrame": 2204,
+            "limitedList": true
+          },
+          "createdFrame": 344,
+          "endedFrame": 2204,
+          "endReason": "expired"
+        },
+        {
+          "id": 4,
+          "invocationId": 4,
+          "siteId": "albedo.skill.isotoma",
+          "construct": {
+            "type": "AlbedoSkill",
+            "expiryFrame": 2183,
+            "limitedList": true
+          },
+          "createdFrame": 383,
+          "endedFrame": 2183,
+          "endReason": "expired"
+        }
+      ],
+      "albedoCrossActorBloom": {
+        "eventCallId": 7,
+        "triggerId": 2,
+        "parentAttackId": 2,
+        "queuedAttackCount": 1
+      },
+      "zhongliSharedSnapshot": {
+        "ownerEntityId": 2,
+        "producerId": 3,
+        "snapshotEntityId": 3,
+        "startedFrame": 441
+      },
+      "crossConstructResonance": {
+        "ownerEntityId": 2,
+        "producerId": 3,
+        "emitterEntityId": 4,
+        "selections": [
+          {
+            "primaryEntityId": 2,
+            "resonanceEntityIds": [
+              4
+            ]
+          }
+        ]
+      },
+      "calculatorRoundTrip": false,
+      "observationFrame": 2634,
+      "totalAppliedDamage": 23288.404574639255,
+      "actionLogCount": 72,
+      "closedCasts": [
+        {
+          "key": "albedo1",
+          "invocationId": 1,
+          "actionSequence": 1,
+          "contractId": "albedo-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 3,
+          "observedRootAttackCount": 3,
+          "includedHitCount": 3,
+          "subtotal": 1564.2665666487414,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 1,
+          "replayCount": 3,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "key": "zhongli1",
+          "invocationId": 2,
+          "actionSequence": 3,
+          "contractId": "zhongli-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 31,
+          "observedRootAttackCount": 31,
+          "includedHitCount": 31,
+          "subtotal": 7394.353256065713,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 16,
+          "completedEntityProducerCount": 16,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 57,
+          "replayCount": 31,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "key": "zhongli2",
+          "invocationId": 3,
+          "actionSequence": 4,
+          "contractId": "zhongli-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 31,
+          "observedRootAttackCount": 31,
+          "includedHitCount": 31,
+          "subtotal": 7278.3980952404245,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 16,
+          "completedEntityProducerCount": 16,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 320,
+          "replayCount": 31,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "key": "albedo2",
+          "invocationId": 4,
+          "actionSequence": 6,
+          "contractId": "albedo-skill",
+          "completeCast": true,
+          "expectedRootAttackCount": 11,
+          "observedRootAttackCount": 11,
+          "includedHitCount": 11,
+          "subtotal": 6991.822022953621,
+          "entityCount": 1,
+          "endedEntityCount": 1,
+          "openEntityCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "reasons": [],
+          "startedFrame": 358,
+          "replayCount": 11,
+          "maxAbsoluteReplayDifference": 0
+        }
+      ]
+    }
+  ],
+  "totalClosedCastCount": 8,
+  "totalSelectedReplayCount": 152,
+  "pageErrors": [],
+  "calculator": {
+    "classicCompleteAlbedoEImportAndJsonRoundTrip": true,
+    "classicZhongliEConstructOwnerSnapshotReferenceUi": true,
+    "editingNewlySampled": false
+  },
+  "registryCountsIncluding128": {
+    "directJsonRows": 30,
+    "producerJsonRows": 76,
+    "constructTypeScriptRows": 2,
+    "rawRows": 108,
+    "mergedRuntimeRows": 107,
+    "mergedIds": 107,
+    "canonicalCharacterActions": 105,
+    "jsonProducerPlans": 76,
+    "jsonProducerSiteDeclarations": 103,
+    "uniqueJsonProducerSites": 96,
+    "additionalDynamicConstructPlans": 2
+  },
+  "sourceBindingCoverageIncluding128": {
+    "classic": {
+      "implementedEqBindings": 234,
+      "missingContractBindings": 129,
+      "missingUniqueSourceMethods": 117,
+      "meaning": "Fixed-source entrypoint bindings, not game readiness or complete character coverage."
+    },
+    "stellar": {
+      "implementedEqBindings": 248,
+      "missingContractBindings": 143,
+      "missingUniqueSourceMethods": 129,
+      "meaning": "Fixed-source entrypoint bindings, not game readiness or complete character coverage."
+    }
+  },
+  "finite128": {
+    "rules": [
+      "xiao-burst",
+      "chevreuse-burst"
+    ],
+    "sourceAudit": "docs/validation/source-finite-frontier-128-audit-20260930.json",
+    "evidence": "Source-reviewed rules; current Web build included both. Existing Go mechanics unchanged; no dedicated native execution of these rules in this batch."
+  },
+  "remaining": "Hold/no-stele/max-column, limited eviction, Destroy and frame-key ambiguity branches only source/build reviewed. Other ability ownership, private-state/steady-state, game validation and data evidence remain open.",
+  "unchangedDataPointers": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "scope": "Source-backed complete intrinsic skill collection and shared-core selected hit reproduction within actual recorded context; no overall goal completion or game verification."
+}

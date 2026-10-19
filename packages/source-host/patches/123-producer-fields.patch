@@ -1,0 +1,73 @@
+--- a/internal/characters/shenhe/burst.go
++++ b/internal/characters/shenhe/burst.go
+@@ -77,7 +77,7 @@
+ 	ap := combat.NewCircleHitOnTarget(burstPos, nil, 7)
+ 
+ 	// DoT snapshot before A1
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("shenhe.burst.snapshot-and-dots", c.Index(), func() {
+ 		snap := c.Snapshot(&ai)
+ 		for i := 0; i < count; i++ {
+ 			hitmark := 82 + i*117
+--- a/internal/characters/chongyun/skill.go
++++ b/internal/characters/chongyun/skill.go
+@@ -52,7 +52,13 @@
+ 	c.fieldSrc = c.Core.F
+ 	// if the field is still up then need to invalidate existing a4 task and do damage before resnapshotting for new a4
+ 	// need to do this before the new skill area is determined
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact("chongyun.skill.replaced-field", 0)
++	}
+ 	if c.Core.Status.Duration(skillFieldKey) > 0 {
++		if c.Core.SourceHost != nil {
++			c.Core.SourceHost.RecordAbilityFact("chongyun.skill.replaced-field", 1)
++		}
+ 		c.a4(skillHitmark+45, c.Core.F, true) // ~45f from field expiring
+ 	}
+ 
+--- a/internal/characters/chongyun/asc.go
++++ b/internal/characters/chongyun/asc.go
+@@ -36,9 +36,14 @@
+ 		c.a4Snap = snap
+ 	}
+ 	skillPattern := c.skillArea
+-	c.Core.Tasks.Add(func() {
++	siteID := "chongyun.skill.a4-expiry"
++	if useOldSnapshot {
++		siteID = "chongyun.skill.a4-replacement"
++	}
++	c.Core.SourceHostQueueTask(siteID, c.Index(), func() {
+ 		// if src changed then that means the field changed already
+ 		if src != c.fieldSrc {
++			c.Core.SourceHostAbilityProducerFact("chongyun.skill.a4.attack-count", 0)
+ 			return
+ 		}
+ 		enemy := c.Core.Combat.ClosestEnemyWithinArea(skillPattern, nil)
+@@ -48,6 +53,7 @@
+ 		} else {
+ 			ap = combat.NewCircleHitOnTarget(skillPattern.Shape.Pos(), nil, 3.5)
+ 		}
++		c.Core.SourceHostAbilityProducerFact("chongyun.skill.a4.attack-count", 1)
+ 		c.Core.QueueAttackWithSnap(ai, snap, ap, 0, c.a4CB, c.makeC4Callback())
+ 	}, delay)
+ }
+--- a/internal/characters/shenhe/skill.go
++++ b/internal/characters/shenhe/skill.go
+@@ -71,7 +71,7 @@
+ 		IsDeployable:       true,
+ 	}
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("shenhe.skill.press-hit", c.Index(), func() {
+ 		snap := c.Snapshot(&ai)
+ 		snap.Stats[attributes.DmgP] += c.c4()
+ 		c.Core.QueueAttackWithSnap(
+@@ -128,7 +128,7 @@
+ 		Mult:       skillHold[c.TalentLvlSkill()],
+ 	}
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("shenhe.skill.hold-hit", c.Index(), func() {
+ 		snap := c.Snapshot(&ai)
+ 		snap.Stats[attributes.DmgP] += c.c4()
+ 		c.Core.QueueAttackWithSnap(

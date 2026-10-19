@@ -1,0 +1,462 @@
+{
+  "task": "gidps-109-finite-batch-b",
+  "auditKind": "source-only private draft; no repository edit, build, or test",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-pzmCVq/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-KI7Q5a/source"
+  },
+  "patches": {
+    "classic": "/tmp/gidps-109-finite-batch-b-classic.patch",
+    "stellar": "/tmp/gidps-109-finite-batch-b-stellar.patch"
+  },
+  "rows": [
+    {
+      "id": "ayaka-burst",
+      "scope": "full intrinsic Q queued AttackEvents",
+      "status": "direct-only",
+      "directRootCount": "20 when C<2; 60 when C>=2",
+      "expectedRootAttackCount": "same as directRootCount",
+      "producerSites": [],
+      "sourceEvidence": [
+        "burst.go:39-50 bloom 1",
+        "burst.go:59-71 C2 bloom +2",
+        "burst.go:75-90 cuts 19",
+        "burst.go:92-112 C2 cuts +38",
+        "cons.go:42-59 C4 hit callback changes DEF only; Init/passives/other constellations add no Q future enemy attack"
+      ],
+      "boundary": "Counts queued attack opportunities, not enemy hits or reaction damage. Other actions after Q are separate.",
+      "sourceHashes": {
+        "classic": {
+          "ayaka/burst.go": "15ae7388e38a1cf0b3190b0b93b1484165d18cc9efdb7b2e73853675bc3fdc0c",
+          "ayaka/ayaka.go": "cb28ed7582809f4a3168ded38fb5a29965b5e0078ae5c3c8d1140f9bb01f5ef7",
+          "ayaka/asc.go": "98300e215a0a091c53b93c4eee7633bb4add8bdd63134023d3d15016ef6fda74",
+          "ayaka/cons.go": "560c39bbe49cd198eee32d7304a21644c430d6862ef1d8ef09a628bcff28b363"
+        },
+        "stellar": {
+          "ayaka/burst.go": "15ae7388e38a1cf0b3190b0b93b1484165d18cc9efdb7b2e73853675bc3fdc0c",
+          "ayaka/ayaka.go": "cb28ed7582809f4a3168ded38fb5a29965b5e0078ae5c3c8d1140f9bb01f5ef7",
+          "ayaka/asc.go": "98300e215a0a091c53b93c4eee7633bb4add8bdd63134023d3d15016ef6fda74",
+          "ayaka/cons.go": "560c39bbe49cd198eee32d7304a21644c430d6862ef1d8ef09a628bcff28b363"
+        }
+      },
+      "recursionGuard": "No recursive damage producer; 20/60 attacks are queued directly during Burst."
+    },
+    {
+      "id": "jean-burst",
+      "scope": "full intrinsic enemy Q AttackEvents",
+      "status": "direct-only-dynamic-plan",
+      "directRootCount": "max(params.enter ?? 0, 1) + 2",
+      "expectedRootAttackCount": "same as directRootCount",
+      "producerSites": [],
+      "sourceEvidence": [
+        "burst.go:26-31 enter=max(p[enter],1)",
+        "burst.go:47 initial 1",
+        "burst.go:57-59 enter In/Out roots",
+        "burst.go:62 expiry In/Out 1",
+        "burst.go:80-147 future tasks heal, self-swirl, C4 debuff, A4; none queues enemy AttackEvent"
+      ],
+      "boundary": "Healing and self-swirl are distinct components, not enemy intrinsic damage; count all successful integer enter parameter branches.",
+      "sourceHashes": {
+        "classic": {
+          "jean/burst.go": "011322043c0d0631e05b8421273db9f5061aa1135bd64b20721615bad8f2d350",
+          "jean/jean.go": "7178e8e54c1c5664c292229e01834e872f6a0c1f8c42471aaa3dbb6e73170b16",
+          "jean/asc.go": "7b3049fbb9f64e1071fb29fc3604f786df089cf34fe2a6b0069c0b331e37191b",
+          "jean/cons.go": "7ac2b13c01de65815ca7476c4abc1676587ebb14d615885e8553b2889636cffe"
+        },
+        "stellar": {
+          "jean/burst.go": "011322043c0d0631e05b8421273db9f5061aa1135bd64b20721615bad8f2d350",
+          "jean/jean.go": "7178e8e54c1c5664c292229e01834e872f6a0c1f8c42471aaa3dbb6e73170b16",
+          "jean/asc.go": "7b3049fbb9f64e1071fb29fc3604f786df089cf34fe2a6b0069c0b331e37191b",
+          "jean/cons.go": "7ac2b13c01de65815ca7476c4abc1676587ebb14d615885e8553b2889636cffe"
+        }
+      },
+      "recursionGuard": "No recursive enemy-damage producer; all enemy attacks queue directly during Burst."
+    },
+    {
+      "id": "sayu-burst",
+      "scope": "full intrinsic Q enemy AttackEvents",
+      "status": "task-producer-ready",
+      "directRootCount": 1,
+      "expectedRootAttackCount": null,
+      "producerSites": [
+        {
+          "siteId": "sayu.burst.schedule-daruma-ticks",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {
+                "sayu.burst.daruma-tick": 6
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "sayu.burst.daruma-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "sayu.burst.schedule-daruma-ticks"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        "burst.go:46 initial queued attack",
+        "burst.go:113-153 one parent callback registers six tasks at 125,215,305,395,485,575 relative to parent; each child may queue zero or one AttackEvent based on enemy/player-HP/C1",
+        "burst.go:83-106 C6 changes snapshot flat damage, not count",
+        "Init/passives/cons do not queue additional Q enemy attacks"
+      ],
+      "boundary": "Runtime root count 1..7; actual enemy/player HP determines child emission; heal/particle/Swirl and separate E excluded.",
+      "sourceHashes": {
+        "classic": {
+          "sayu/burst.go": "5369f0e0e33c9e5c498297c229efa19cbcf9f29137eb4f6abdfa29da2163edb2",
+          "sayu/sayu.go": "1911ff65298008a226c3e4057cd591d39a189e7aeb87c7666cdf793a8fb5f87f",
+          "sayu/asc.go": "873f318d9c3bc372ca06a2ef1a1dccf062f5118902781c903d05cbe0fc9e9993",
+          "sayu/cons.go": "ef7ae4ee00f6da09e25a686c01f26e3f9068165921a0132d5d398ae9d09e5f64"
+        },
+        "stellar": {
+          "sayu/burst.go": "5369f0e0e33c9e5c498297c229efa19cbcf9f29137eb4f6abdfa29da2163edb2",
+          "sayu/sayu.go": "1911ff65298008a226c3e4057cd591d39a189e7aeb87c7666cdf793a8fb5f87f",
+          "sayu/asc.go": "e82abafc099b38cc7194156683f2638b4670c4eeb802b6d1dda7e2ca9df34195",
+          "sayu/cons.go": "ef7ae4ee00f6da09e25a686c01f26e3f9068165921a0132d5d398ae9d09e5f64"
+        }
+      },
+      "recursionGuard": "Finite for-loop registers exactly six child ticks; no recursion. Each tick emits zero or one by runtime HP/enemy/C1 branch."
+    },
+    {
+      "id": "kokomi-skill",
+      "scope": "full intrinsic E Bake-Kurage AttackEvents",
+      "status": "task-producer-ready",
+      "directRootCount": 0,
+      "expectedRootAttackCount": null,
+      "prohibitOverlappingInvocations": true,
+      "producerSites": [
+        {
+          "siteId": "kokomi.skill.first-tick",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        },
+        {
+          "siteId": "kokomi.skill.initial-recurring-tick",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {
+                "kokomi.skill.next-recurring-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "kokomi.skill.next-recurring-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "kokomi.skill.initial-recurring-tick",
+            "kokomi.skill.next-recurring-tick"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {
+                "kokomi.skill.next-recurring-tick": 1
+              }
+            }
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        "skill.go:44 first tick task; skillTick at :124 queues exactly one attack",
+        "skill.go:45 initial recurring task; :171-189 checks status duration and newer E source, else queues one attack and one next task",
+        "burst.go:73 and asc.go:33-41 Q A1 may refresh E status, so no hard-coded 7 count",
+        "cons.go:C1 attached to normal attacks only; no E child attack"
+      ],
+      "boundary": "Runtime count; no fixed seven assumption. Same-character E overlap rejected because skillLastUsed/swapEarlyF/skillFlatDmg are shared mutable state; Q status refresh may extend chain. Guard is evidence-based, not a hard depth guess.",
+      "sourceHashes": {
+        "classic": {
+          "kokomi/skill.go": "40e524d760719de5398c9a5352752ccbbb97195734cf40aba0112fb5622450b2",
+          "kokomi/kokomi.go": "2c37d152261a8497e18d961318849bf903732428fa9c542b3a16fc98ba851abb",
+          "kokomi/asc.go": "7da9a78a1f4f549ca69ba632ec9888ae5eaa372aa2c6f3cf192d6617c9368188",
+          "kokomi/cons.go": "662fb2eb5597d7d47a416b45bef3b2380315934066c564f5db5a4c2bf1c79744",
+          "kokomi/burst.go": "6da04e994b9221ddac972ff9654c2f3004d2e0d0d0833708a6b42efb4389cae6"
+        },
+        "stellar": {
+          "kokomi/skill.go": "40e524d760719de5398c9a5352752ccbbb97195734cf40aba0112fb5622450b2",
+          "kokomi/kokomi.go": "2c37d152261a8497e18d961318849bf903732428fa9c542b3a16fc98ba851abb",
+          "kokomi/asc.go": "7da9a78a1f4f549ca69ba632ec9888ae5eaa372aa2c6f3cf192d6617c9368188",
+          "kokomi/cons.go": "662fb2eb5597d7d47a416b45bef3b2380315934066c564f5db5a4c2bf1c79744",
+          "kokomi/burst.go": "6da04e994b9221ddac972ff9654c2f3004d2e0d0d0833708a6b42efb4389cae6"
+        }
+      },
+      "recursionGuard": "Each recurring task checks kokomiskill Duration==0 and skillLastUsed>src before any attack/child; active branch emits exactly one attack and one next task. Closure requires every registered chain task completed; no guessed depth cap."
+    },
+    {
+      "id": "yaoyao-skill",
+      "scope": "full E",
+      "status": "requires-new-entity-ABI",
+      "directRootCount": 0,
+      "producerSites": [],
+      "sourceEvidence": [
+        "skill.go:28-31 task creates Throwing Yuegui gadget",
+        "yuegui.go:40 OnThinkInterval=yg.throw; :122-153 each throw schedules one delayed radish attack",
+        "yuegui.go:149-151 and cons.go:87-123 C6 Throwing Yuegui adds one Mega Radish on throwCounter 2 and 5 (third and sixth throws)"
+      ],
+      "boundary": "A root task receipt only proves gadget creation; it cannot prove OnThink throw count, kill/end, or provenance of radish/C6 attack. No complete-E contract proposed.",
+      "sourceHashes": {
+        "classic": {
+          "yaoyao/skill.go": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+          "yaoyao/yuegui.go": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+          "yaoyao/yaoyao.go": "3d87697ba0230f4299726b770d0fda06614e268b902cb11f7e01f7121f6d2227",
+          "yaoyao/asc.go": "9991bb5572f44f6ed2edb3fd79cee66c7a8d8a8a1e9f6e123516f7f6d85b355a",
+          "yaoyao/cons.go": "04a4a7968006c66b6ba4aa20c775686e371659bfb41f44189f4218bf21f4698b"
+        },
+        "stellar": {
+          "yaoyao/skill.go": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+          "yaoyao/yuegui.go": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+          "yaoyao/yaoyao.go": "3d87697ba0230f4299726b770d0fda06614e268b902cb11f7e01f7121f6d2227",
+          "yaoyao/asc.go": "9991bb5572f44f6ed2edb3fd79cee66c7a8d8a8a1e9f6e123516f7f6d85b355a",
+          "yaoyao/cons.go": "04a4a7968006c66b6ba4aa20c775686e371659bfb41f44189f4218bf21f4698b"
+        }
+      },
+      "unclosedRootTasks": [
+        {
+          "source": "skill.go:28-31",
+          "count": 1,
+          "effect": "spawn Throwing Yuegui; zero direct attacks from callback"
+        }
+      ],
+      "recursionGuard": "Throwing Yuegui has Duration=600 and first OnThink after 29f, then 60f; existing task receipts do not attest entity ticks or kill."
+    },
+    {
+      "id": "yaoyao-burst",
+      "scope": "full Q",
+      "status": "requires-new-entity-and-event-ABI",
+      "directRootCount": 1,
+      "producerSites": [],
+      "sourceEvidence": [
+        "burst.go:53 initial direct attack; :55-57 tasks spawn up to three Jumping Yuegui",
+        "yuegui.go:69 Jumping gadget OnThinkInterval=yg.throw; :122-147 each throw schedules delayed radish attack",
+        "burst.go:66 and asc.go:13-60 A1 recurring tick and delayed throw add attacks",
+        "burst.go:101-109 OnCharacterSwap removes burst and affects future schedule",
+        "yuegui.go:149-151 C6 Mega Radish applies only to Throwing Yuegui from E, not Q Jumping Yuegui"
+      ],
+      "boundary": "Initial strike alone is a valid selected component (directRootCount 1), but cannot be described as full Q. Full lifecycle needs gadget OnThink/kill and swap-event receipts.",
+      "sourceHashes": {
+        "classic": {
+          "yaoyao/burst.go": "aedb4909457e3aa54068ecb4655efe43dc41e102656ff9b1442edfaa77355f7b",
+          "yaoyao/yuegui.go": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+          "yaoyao/yaoyao.go": "3d87697ba0230f4299726b770d0fda06614e268b902cb11f7e01f7121f6d2227",
+          "yaoyao/asc.go": "9991bb5572f44f6ed2edb3fd79cee66c7a8d8a8a1e9f6e123516f7f6d85b355a",
+          "yaoyao/cons.go": "04a4a7968006c66b6ba4aa20c775686e371659bfb41f44189f4218bf21f4698b"
+        },
+        "stellar": {
+          "yaoyao/burst.go": "aedb4909457e3aa54068ecb4655efe43dc41e102656ff9b1442edfaa77355f7b",
+          "yaoyao/yuegui.go": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+          "yaoyao/yaoyao.go": "3d87697ba0230f4299726b770d0fda06614e268b902cb11f7e01f7121f6d2227",
+          "yaoyao/asc.go": "9991bb5572f44f6ed2edb3fd79cee66c7a8d8a8a1e9f6e123516f7f6d85b355a",
+          "yaoyao/cons.go": "04a4a7968006c66b6ba4aa20c775686e371659bfb41f44189f4218bf21f4698b"
+        }
+      },
+      "unclosedRootTasks": [
+        {
+          "source": "burst.go:55-57",
+          "count": 3,
+          "effect": "spawn up to three Jumping Yuegui, each gated by burst status and numYueguiJumping<3"
+        },
+        {
+          "source": "burst.go:58",
+          "count": 1,
+          "effect": "remove Burst and kill jumping gadgets, no direct attack"
+        },
+        {
+          "source": "burst.go:66",
+          "count": "1 if A1 unlocked, else 0",
+          "effect": "A1 first ticker; tick recursively queues itself while burst status active, optionally throws on Dash/Jump"
+        }
+      ],
+      "recursionGuard": "A1 ticker returns when burst status inactive; Jumping Yuegui uses Duration=-1 and is killed by removeBurst or swap, so entity lifecycle receipts are essential."
+    },
+    {
+      "id": "lynette-burst",
+      "scope": "initial hit plus fixed Anemo Bogglecat ticks only",
+      "status": "optional-draft-only-not-in-full-Q-registry",
+      "directRootCount": 0,
+      "expectedRootAttackCount": 12,
+      "producerSites": [
+        {
+          "siteId": "lynette.burst.spawn-base-box",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 12,
+              "children": {}
+            }
+          ]
+        }
+      ],
+      "sourceEvidence": [
+        "burst.go:36-39 one spawn task",
+        "bogglecatbox.go:56 queues initial Anemo hit",
+        "bogglecatbox.go:73-76 queues 11 Anemo ticks (t=122,181,...,712; end<=754)",
+        "bogglecatbox.go:115-149 absorption schedules five Vivid Shot tasks at t=134,268,402,536,670; each queues 1 shot, or 2 at C2"
+      ],
+      "boundary": "Not full Q and excluded from main patch/complete-Q registry. The optional patch only tags twelve fixed base Anemo queued attacks. Absorbed Vivid Shot needs gadget OnThink/HandleAttack causal provenance and absorbed-element proof.",
+      "sourceHashes": {
+        "classic": {
+          "lynette/burst.go": "5fdc5ede0504b3c3dfbb51365ae6e90487ee53756a660cf688becb6d2a2da533",
+          "lynette/bogglecatbox.go": "f8e817747c6e5cf9c3a3ff2ffc6638996b8af0e13b9073808771653af01c14cc",
+          "lynette/lynette.go": "0dce784640a4b3797f503acf294e1c7a3e845dad097682f42abaa6c455b92127",
+          "lynette/asc.go": "96a1acff2c64dd4cc8a4f4485aceb60d17282c325d04586bc9892a82a94b6015",
+          "lynette/cons.go": "40e6b0317f08a313c06b5d7798b4283061fdd84f313b57d6d917c36ed2ee2e71"
+        },
+        "stellar": {
+          "lynette/burst.go": "5fdc5ede0504b3c3dfbb51365ae6e90487ee53756a660cf688becb6d2a2da533",
+          "lynette/bogglecatbox.go": "f8e817747c6e5cf9c3a3ff2ffc6638996b8af0e13b9073808771653af01c14cc",
+          "lynette/lynette.go": "0dce784640a4b3797f503acf294e1c7a3e845dad097682f42abaa6c455b92127",
+          "lynette/asc.go": "96a1acff2c64dd4cc8a4f4485aceb60d17282c325d04586bc9892a82a94b6015",
+          "lynette/cons.go": "40e6b0317f08a313c06b5d7798b4283061fdd84f313b57d6d917c36ed2ee2e71"
+        }
+      },
+      "recursionGuard": "The selected 12 base attacks are eagerly queued inside one spawn callback. The excluded vivid tasks exist only after one absorption via OnThink or HandleAttack; no base recursion."
+    },
+    {
+      "id": "kirara-burst",
+      "scope": "full intrinsic Q box and cardamom AttackEvents",
+      "status": "task-producer-ready-with-parameter-gate",
+      "directRootCount": 0,
+      "expectedRootAttackCount": null,
+      "prohibitOverlappingInvocations": true,
+      "producerSites": [
+        {
+          "siteId": "kirara.burst.mine-snapshot",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            }
+          ]
+        },
+        {
+          "siteId": "kirara.burst.box",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        },
+        {
+          "siteId": "kirara.burst.mine-hits",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": "attackCount integer 0..10; no children"
+        },
+        {
+          "siteId": "kirara.burst.mine-expiry",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": "attackCount integer 0..10; no children"
+        }
+      ],
+      "sourceEvidence": [
+        "burst.go:47-53 cardamoms starts 6 plus C1 HP-derived up to 4",
+        "burst.go:83-85 snapshot task",
+        "burst.go:92-95 box task emits one attack",
+        "burst.go:98-106 hit task emits clipped hits and mutates shared cardamoms",
+        "burst.go:109-114 expiry task emits remaining cardamoms and zeros field",
+        "cons.go:28-63 C4 attack is an independent OnEnemyDamage reaction to later Normal/Charge/Plunge, not an intrinsic Q spawn"
+      ],
+      "parameterGate": {
+        "hits": "Absent uses native default 2. Explicit integer hits >=0 accepted without an upper bound; native source clamps values above cardamoms (6 at C0, up to 10 with C1 HP bonus). Negative hits rejected because mine-hits loop emits zero while c.cardamoms -= hits raises the later expiry count.",
+        "mine_delay": "Absent uses native default 180 frames; explicit 180 accepted. Any other value remains outside this audited graph because it can reorder mine-hit, snapshot and expiry callbacks.",
+        "other": "Native method ignores other integer map keys; shared invocation validation already requires all provided parameter values to be integers.",
+        "overlap": "Reject another same-character Q whose damage-task/dispatch lifetime overlaps this invocation, because mineSnap, minePattern and cardamoms are fields shared across casts."
+      },
+      "boundary": "Runtime root count determined by tasks; 6..10 mines only under default ordering, but closure must not infer a fixed count from C1 HP or params. C4/later actions and unrelated deployables excluded.",
+      "sourceHashes": {
+        "classic": {
+          "kirara/burst.go": "9aa1c4d4a6adb4d47701d0d76d74d55dbbb4538374ba5e0ff841d15c19c641a9",
+          "kirara/kirara.go": "9ab9e99eaf8cfd14894ae8a12b8ff9ec5d07ad33d8f024c9d703d2f8dae690e7",
+          "kirara/asc.go": "ab9a3fff346fd49ce69bf48908885d382de3d827fbefd964c02e9d3ae8fb984e",
+          "kirara/cons.go": "e4f6666f2905b05db1d100f3d04792faf5422d861e78dd159c5693102c9c1028"
+        },
+        "stellar": {
+          "kirara/burst.go": "9aa1c4d4a6adb4d47701d0d76d74d55dbbb4538374ba5e0ff841d15c19c641a9",
+          "kirara/kirara.go": "9ab9e99eaf8cfd14894ae8a12b8ff9ec5d07ad33d8f024c9d703d2f8dae690e7",
+          "kirara/asc.go": "ab9a3fff346fd49ce69bf48908885d382de3d827fbefd964c02e9d3ae8fb984e",
+          "kirara/cons.go": "e4f6666f2905b05db1d100f3d04792faf5422d861e78dd159c5693102c9c1028"
+        }
+      },
+      "recursionGuard": "No recursive task; four root tasks (including zero-attack snapshot). mine-hits and expiry each emit 0..10 under the gated parameters, with shared cardamoms mutation; same-character Q overlap is rejected."
+    },
+    {
+      "id": "kachina-skill",
+      "scope": "E",
+      "status": "source-absent",
+      "directRootCount": null,
+      "producerSites": [],
+      "sourceEvidence": [
+        "internal/characters/kachina absent in both fixed classic and a7 source roots"
+      ],
+      "boundary": "Cannot create source-backed character values or finite contract from this cache.",
+      "sourceHashes": {
+        "classic": {
+          "kachina/skill.go": null
+        },
+        "stellar": {
+          "kachina/skill.go": null
+        }
+      },
+      "recursionGuard": "Unknown: no pinned character implementation exists."
+    }
+  ],
+  "integrationNotes": [
+    "Main patches tag only Sayu Q, Kokomi E and Kirara Q task sites. Lynette fixed-base scope is isolated in optional patches and must not enter a full-Q registry.",
+    "For Kirara mine-hits and mine-expiry enumerate exact integer attackCount outcomes 0..10, gated by default mine_delay and hits>=0 (large values clamp natively).",
+    "For direct-only Jean dynamic enter expression requires a producer-plan case with requiresProducers=false because existing JSON CountRule lacks arithmetic.",
+    "Lynette fixed-base contract is a selected component only. If product labels it full Q, do not register it; wait for entity absorption ABI."
+  ],
+  "patchSha256": {
+    "classic": "2d0e0eef7e6b1e82be50de2654b47f4733cf1cc89cd6579fa5a6ca402c49cfb8",
+    "stellar": "2d0e0eef7e6b1e82be50de2654b47f4733cf1cc89cd6579fa5a6ca402c49cfb8"
+  },
+  "sourceHashMeaning": "sourceHashes are exact files at the two audited current build roots after 108 and before batch-B task-site changes.",
+  "optionalPatches": {
+    "classic": "/tmp/gidps-109-finite-batch-b-lynette-optional-classic.patch",
+    "stellar": "/tmp/gidps-109-finite-batch-b-lynette-optional-stellar.patch"
+  },
+  "optionalPatchSha256": {
+    "classic": "aec76714eb1f63656c6fd6ef7e5ff787e120b073c3969a8f5a08a8e484296195",
+    "stellar": "aec76714eb1f63656c6fd6ef7e5ff787e120b073c3969a8f5a08a8e484296195"
+  }
+}

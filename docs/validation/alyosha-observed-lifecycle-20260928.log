@@ -1,0 +1,29 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+··x····
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/game-data/src/character-mappings/optimizer-source-formulas.test.ts > source character formulas execute through the shared calculation core > blocks only Nefer Q when its separately sourced per-veil coefficient drifts
+AssertionError: expected 'calculated' to be 'blocked' // Object.is equality
+
+Expected: "blocked"
+Received: "calculated"
+
+ ❯ packages/game-data/src/character-mappings/optimizer-source-formulas.test.ts:57:72
+     55|       burst.parameters.param5 = [...original];
+     56|       burst.parameters.param5[0] = original[0]! + 0.001;
+     57|       expect(calculateDocument(action("nefer", "nefer-burst")).status)…
+       |                                                                        ^
+     58|       expect(calculateDocument(action("nefer", "nefer-skill-rush")).st…
+     59|     } finally { burst.parameters.param5 = original; }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 6 passed (7)
+   Start at  00:32:03
+   Duration  3.44s (transform 2.10s, setup 0ms, import 3.29s, tests 47ms, environment 0ms)
+

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.913,
+  "log": "docs/validation/source-healing-sources-webretry4-20260928.log"
+}

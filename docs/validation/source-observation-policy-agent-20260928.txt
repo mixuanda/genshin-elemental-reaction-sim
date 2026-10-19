@@ -1,0 +1,8 @@
+Command: ./node_modules/.bin/vitest run apps/web/src/source-host-observation-policy.test.ts
+Exit code: 0
+
+RUN v4.1.10 /Users/evan/Documents/gidps
+Test Files 1 passed (1)
+Tests 1 passed (1)
+Start at 03:03:26
+Duration 1.27s (transform 934ms, setup 0ms, import 1.20s, tests 10ms, environment 0ms)

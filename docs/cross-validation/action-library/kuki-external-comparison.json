@@ -1,0 +1,430 @@
+{
+  "status": "passed-single-external-source-scenario",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "scope": "Independent arithmetic against the archived external sample, not against local simulator output.",
+  "aggregateSeed": "62890873218923491",
+  "sampleSeed": "18204126538376555925",
+  "damage": [
+    {
+      "index": 0,
+      "expectedFrame": 12,
+      "actualFrame": 12,
+      "expected": 102.784237383168,
+      "actual": 102.784237383168,
+      "residual": 0.0
+    },
+    {
+      "index": 1,
+      "expectedFrame": 116,
+      "actualFrame": 116,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 2,
+      "expectedFrame": 206,
+      "actualFrame": 206,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 3,
+      "expectedFrame": 296,
+      "actualFrame": 296,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 4,
+      "expectedFrame": 386,
+      "actualFrame": 386,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 5,
+      "expectedFrame": 476,
+      "actualFrame": 476,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 6,
+      "expectedFrame": 566,
+      "actualFrame": 566,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 7,
+      "expectedFrame": 656,
+      "actualFrame": 656,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "index": 8,
+      "expectedFrame": 746,
+      "actualFrame": 746,
+      "expected": 49.26424016736,
+      "actual": 49.26424016736,
+      "residual": 0.0
+    }
+  ],
+  "healing": [
+    {
+      "index": 1,
+      "expectedFrame": 114,
+      "actualFrame": 114,
+      "expectedReceiver": 1,
+      "actualReceiver": 1,
+      "ownerHPBefore": 5333.2760274374,
+      "expectedOutgoingMultiplier": 1.15,
+      "actualOutgoingMultiplier": 1.15,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 1030.4330569902581,
+      "actualRawHealing": 1030.433056990258,
+      "rawHealingResidual": -2.2737367544323206e-13,
+      "expectedHPAfter": 793.2582,
+      "actualHPAfter": 793.2582,
+      "hpAfterResidual": 0.0,
+      "actualEffectiveHPGain": 396.6291,
+      "actualLoggedReceivedAmount": 1030.433056990258,
+      "actualOverheal": 633.8039569902578,
+      "actualHPBefore": 396.6291,
+      "actualReceiverName": "amber"
+    },
+    {
+      "index": 2,
+      "expectedFrame": 204,
+      "actualFrame": 204,
+      "expectedReceiver": 1,
+      "actualReceiver": 1,
+      "ownerHPBefore": 5333.2760274374,
+      "expectedOutgoingMultiplier": 1.15,
+      "actualOutgoingMultiplier": 1.15,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 1030.4330569902581,
+      "actualRawHealing": 1030.433056990258,
+      "rawHealingResidual": -2.2737367544323206e-13,
+      "expectedHPAfter": 793.2582,
+      "actualHPAfter": 793.2582,
+      "hpAfterResidual": 0.0,
+      "actualEffectiveHPGain": 0.0,
+      "actualLoggedReceivedAmount": 1030.433056990258,
+      "actualOverheal": 1030.433056990258,
+      "actualHPBefore": 793.2582,
+      "actualReceiverName": "amber"
+    },
+    {
+      "index": 3,
+      "expectedFrame": 294,
+      "actualFrame": 294,
+      "expectedReceiver": 1,
+      "actualReceiver": 1,
+      "ownerHPBefore": 5333.2760274374,
+      "expectedOutgoingMultiplier": 1.15,
+      "actualOutgoingMultiplier": 1.15,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 1030.4330569902581,
+      "actualRawHealing": 1030.433056990258,
+      "rawHealingResidual": -2.2737367544323206e-13,
+      "expectedHPAfter": 793.2582,
+      "actualHPAfter": 793.2582,
+      "hpAfterResidual": 0.0,
+      "actualEffectiveHPGain": 0.0,
+      "actualLoggedReceivedAmount": 1030.433056990258,
+      "actualOverheal": 1030.433056990258,
+      "actualHPBefore": 793.2582,
+      "actualReceiverName": "amber"
+    },
+    {
+      "index": 4,
+      "expectedFrame": 384,
+      "actualFrame": 384,
+      "expectedReceiver": 0,
+      "actualReceiver": 0,
+      "ownerHPBefore": 5333.2760274374,
+      "expectedOutgoingMultiplier": 1.15,
+      "actualOutgoingMultiplier": 1.15,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 1030.4330569902581,
+      "actualRawHealing": 1030.433056990258,
+      "rawHealingResidual": -2.2737367544323206e-13,
+      "expectedHPAfter": 6363.709084427659,
+      "actualHPAfter": 6363.709084427658,
+      "hpAfterResidual": -9.094947017729282e-13,
+      "actualEffectiveHPGain": 1030.4330569902577,
+      "actualLoggedReceivedAmount": 1030.433056990258,
+      "actualOverheal": 0,
+      "actualHPBefore": 5333.2760274374,
+      "actualReceiverName": "kukishinobu"
+    },
+    {
+      "index": 5,
+      "expectedFrame": 474,
+      "actualFrame": 474,
+      "expectedReceiver": 0,
+      "actualReceiver": 0,
+      "ownerHPBefore": 6363.709084427659,
+      "expectedOutgoingMultiplier": 1.15,
+      "actualOutgoingMultiplier": 1.15,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 1030.4330569902581,
+      "actualRawHealing": 1030.433056990258,
+      "rawHealingResidual": -2.2737367544323206e-13,
+      "expectedHPAfter": 7394.142141417917,
+      "actualHPAfter": 7394.142141417917,
+      "hpAfterResidual": 0.0,
+      "actualEffectiveHPGain": 1030.4330569902586,
+      "actualLoggedReceivedAmount": 1030.433056990258,
+      "actualOverheal": 0,
+      "actualHPBefore": 6363.709084427658,
+      "actualReceiverName": "kukishinobu"
+    },
+    {
+      "index": 6,
+      "expectedFrame": 564,
+      "actualFrame": 564,
+      "expectedReceiver": 0,
+      "actualReceiver": 0,
+      "ownerHPBefore": 7394.142141417917,
+      "expectedOutgoingMultiplier": 1.15,
+      "actualOutgoingMultiplier": 1.15,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 1030.4330569902581,
+      "actualRawHealing": 1030.433056990258,
+      "rawHealingResidual": -2.2737367544323206e-13,
+      "expectedHPAfter": 8424.575198408174,
+      "actualHPAfter": 8424.575198408174,
+      "hpAfterResidual": 0.0,
+      "actualEffectiveHPGain": 1030.4330569902577,
+      "actualLoggedReceivedAmount": 1030.433056990258,
+      "actualOverheal": 0,
+      "actualHPBefore": 7394.142141417917,
+      "actualReceiverName": "kukishinobu"
+    },
+    {
+      "index": 7,
+      "expectedFrame": 654,
+      "actualFrame": 654,
+      "expectedReceiver": 0,
+      "actualReceiver": 0,
+      "ownerHPBefore": 8424.575198408174,
+      "expectedOutgoingMultiplier": 1,
+      "actualOutgoingMultiplier": 1,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 896.0287452089201,
+      "actualRawHealing": 896.02874520892,
+      "rawHealingResidual": -1.1368683772161603e-13,
+      "expectedHPAfter": 9320.603943617094,
+      "actualHPAfter": 9320.603943617094,
+      "hpAfterResidual": 0.0,
+      "actualEffectiveHPGain": 896.0287452089196,
+      "actualLoggedReceivedAmount": 896.02874520892,
+      "actualOverheal": 0,
+      "actualHPBefore": 8424.575198408174,
+      "actualReceiverName": "kukishinobu"
+    },
+    {
+      "index": 8,
+      "expectedFrame": 744,
+      "actualFrame": 744,
+      "expectedReceiver": 0,
+      "actualReceiver": 0,
+      "ownerHPBefore": 9320.603943617094,
+      "expectedOutgoingMultiplier": 1,
+      "actualOutgoingMultiplier": 1,
+      "expectedBase": 896.0287452089201,
+      "actualBase": 896.02874520892,
+      "expectedRawHealing": 896.0287452089201,
+      "actualRawHealing": 896.02874520892,
+      "rawHealingResidual": -1.1368683772161603e-13,
+      "expectedHPAfter": 10216.632688826014,
+      "actualHPAfter": 10216.632688826016,
+      "hpAfterResidual": 1.8189894035458565e-12,
+      "actualEffectiveHPGain": 896.0287452089215,
+      "actualLoggedReceivedAmount": 896.02874520892,
+      "actualOverheal": 0,
+      "actualHPBefore": 9320.603943617094,
+      "actualReceiverName": "kukishinobu"
+    }
+  ],
+  "swapStarts": [
+    {
+      "frame": 51,
+      "message": "swapping kukishinobu to amber"
+    },
+    {
+      "frame": 300,
+      "message": "swapping amber to kukishinobu"
+    }
+  ],
+  "activeChanges": [
+    {
+      "frame": 52,
+      "character": "amber"
+    },
+    {
+      "frame": 301,
+      "character": "kukishinobu"
+    }
+  ],
+  "actualDrain": {
+    "char_index": 0,
+    "ended": 1,
+    "event": "hurt",
+    "frame": 1,
+    "logs": {
+      "amount": 2285.6897260446003,
+      "current_hp": 5333.2760274374,
+      "current_hp_ratio": 0.35,
+      "max_hp": 15237.931506964002,
+      "previous_hp": 7618.965753482001,
+      "previous_hp_ratio": 0.5
+    },
+    "msg": "Sanctifying Ring",
+    "ordering": {
+      "amount": 2,
+      "current_hp": 4,
+      "current_hp_ratio": 3,
+      "max_hp": 5,
+      "previous_hp": 1,
+      "previous_hp_ratio": 0
+    }
+  },
+  "expectedDrain": 2285.6897260446003,
+  "initialDamageFormula": "(235.642192 * 0.75712 + 200 * 0.25) * (190 / 380) * (1 - 0.1)",
+  "ringDamageFormula": "(235.642192 * 0.2524 + 200 * 0.25) * (190 / 380) * (1 - 0.1)",
+  "baseHealingFormula": "0.03 * 15237.931506964002 + 288.8908 + 0.75 * 200",
+  "expectedTotalDamage": 496.89815872204804,
+  "sampleTotalDamage": 496.89815872204804,
+  "aggregateMeanDPS": 31.056134920128006,
+  "maxAbsoluteHitDamageResidual": 0.0,
+  "maxAbsoluteRawHealingResidual": 2.2737367544323206e-13,
+  "maxAbsoluteHPAfterResidual": 1.8189894035458565e-12,
+  "sampleParticles": [
+    {
+      "sampleParticleId": "gcsim-sample-18204126538376555925-arrival-306",
+      "arrivalFrame": 306,
+      "inferredOriginHitFrame": 206,
+      "originEvidence": "Derived from this scenario's explicit 100-frame delay; source sample does not log a particle generation id.",
+      "recoveries": [
+        {
+          "characterIndex": 0,
+          "ER": 1,
+          "amt": 3,
+          "count": 1,
+          "ele": "electro",
+          "is_active": true,
+          "max_energy": 60,
+          "party_count": 2,
+          "post_recovery": 3,
+          "pre_recovery": 0,
+          "source": "kukishinobu"
+        },
+        {
+          "characterIndex": 1,
+          "ER": 1,
+          "amt": 0.8,
+          "count": 1,
+          "ele": "electro",
+          "is_active": false,
+          "max_energy": 40,
+          "party_count": 2,
+          "post_recovery": 0.8,
+          "pre_recovery": 0,
+          "source": "kukishinobu"
+        }
+      ]
+    },
+    {
+      "sampleParticleId": "gcsim-sample-18204126538376555925-arrival-756",
+      "arrivalFrame": 756,
+      "inferredOriginHitFrame": 656,
+      "originEvidence": "Derived from this scenario's explicit 100-frame delay; source sample does not log a particle generation id.",
+      "recoveries": [
+        {
+          "characterIndex": 0,
+          "ER": 1,
+          "amt": 3,
+          "count": 1,
+          "ele": "electro",
+          "is_active": true,
+          "max_energy": 60,
+          "party_count": 2,
+          "post_recovery": 6,
+          "pre_recovery": 3,
+          "source": "kukishinobu"
+        },
+        {
+          "characterIndex": 1,
+          "ER": 1,
+          "amt": 0.8,
+          "count": 1,
+          "ele": "electro",
+          "is_active": false,
+          "max_energy": 40,
+          "party_count": 2,
+          "post_recovery": 1.6,
+          "pre_recovery": 0.8,
+          "source": "kukishinobu"
+        }
+      ]
+    },
+    {
+      "sampleParticleId": "gcsim-sample-18204126538376555925-arrival-846",
+      "arrivalFrame": 846,
+      "inferredOriginHitFrame": 746,
+      "originEvidence": "Derived from this scenario's explicit 100-frame delay; source sample does not log a particle generation id.",
+      "recoveries": [
+        {
+          "characterIndex": 0,
+          "ER": 1,
+          "amt": 3,
+          "count": 1,
+          "ele": "electro",
+          "is_active": true,
+          "max_energy": 60,
+          "party_count": 2,
+          "post_recovery": 9,
+          "pre_recovery": 6,
+          "source": "kukishinobu"
+        },
+        {
+          "characterIndex": 1,
+          "ER": 1,
+          "amt": 0.8,
+          "count": 1,
+          "ele": "electro",
+          "is_active": false,
+          "max_energy": 40,
+          "party_count": 2,
+          "post_recovery": 2.4000000000000004,
+          "pre_recovery": 1.6,
+          "source": "kukishinobu"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "One CLI invocation runs one aggregate iteration plus an independent sample trajectory.",
+    "Different RNG implementation/draw order means seeds are not portable across engines; particle outcomes are observations, not matching requirements.",
+    "Gcsim received amount excludes HP debt but includes overheal; effective HP gain is current_hp - previous_hp.",
+    "Sub-picounit healing residuals arise from floating-point arithmetic ordering; no rounding was applied to source stats."
+  ]
+}

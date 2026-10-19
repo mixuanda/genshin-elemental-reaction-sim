@@ -1,0 +1,584 @@
+{
+  "gcsimRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "gcsimSources": [
+    {
+      "path": "internal/weapons/sword/filletblade/filletblade.go",
+      "sha256": "7137fb3445f71d5cbedf5409bce213e4d3ea232062f2b784aba4ea371f43b605"
+    },
+    {
+      "path": "internal/weapons/claymore/prototype/prototype.go",
+      "sha256": "9b3a1f00837a8c4c51bf3c32e4e00fa322e611d57b61562f6aa414810b0f3ad5"
+    },
+    {
+      "path": "internal/weapons/claymore/starsilver/starsilver.go",
+      "sha256": "8341659abdacac223206e4ea259db477342850ee608961885b368ee49bdb2612"
+    },
+    {
+      "path": "internal/weapons/spear/dragonspine/dragonspine.go",
+      "sha256": "df925ae15e322890016b9cdb215494038bd5e2f3ec738932260d7d0afe9ba8b1"
+    },
+    {
+      "path": "internal/weapons/catalyst/frostbearer/frostbearer.go",
+      "sha256": "a16a34b02f58d6580c8c21d9f33b86c962673aa8d90b3c5e3e5f73ee2b111393"
+    },
+    {
+      "path": "internal/characters/charlotte/attack.go",
+      "sha256": "5321b2c2a599fddadcc51d8f58d99f6a7364660afa5b74792f510d927256b31f"
+    },
+    {
+      "path": "internal/characters/charlotte/zz_charlotte.dm.go",
+      "sha256": "127b9b806a2716a0a7e0c9af640da17840b1c9041b36775907b992c22f001826"
+    },
+    {
+      "path": "pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b"
+    },
+    {
+      "path": "pkg/enemy/enemy.go",
+      "sha256": "fcaf7992ff86ef7d24aac62822ec07b331b967799fcc25bebe246f6ae07c252d"
+    },
+    {
+      "path": "pkg/reactable/reactable.go",
+      "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a"
+    },
+    {
+      "path": "pkg/core/combat/hitbox.go",
+      "sha256": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679"
+    },
+    {
+      "path": "pkg/core/info/circle.go",
+      "sha256": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83"
+    }
+  ],
+  "canonicalGcsimArchiveOwner": "ningguang_snapshot_core; this file records examined bytes, not a duplicate archive",
+  "optimizerCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "optimizerManifestPath": "packages/game-data/sources/weapon-proc-five-optimizer/manifest.json",
+  "optimizerManifestSha256": "ac09b45fa1472eab2498a335fa19b76687be0ef3649151dbdd88b817852f4e4b",
+  "catalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogGamePatch": "7.1",
+  "weaponCatalogueRows": [
+    {
+      "itemId": 11305,
+      "slug": "filletblade",
+      "name": "吃虎鱼刀",
+      "releasePatch": "1.0",
+      "baseAtkValue": 38.7413,
+      "stats": {
+        "base": {
+          "attack": 38.7413,
+          "specialized": 0.0766
+        },
+        "curve": {
+          "attack": "GROW_CURVE_ATTACK_101",
+          "specialized": "GROW_CURVE_CRITICAL_101"
+        },
+        "specialized": "FIGHT_PROP_ATTACK_PERCENT",
+        "promotion": [
+          {
+            "maxlevel": 20,
+            "attack": 0
+          },
+          {
+            "maxlevel": 40,
+            "attack": 19.5
+          },
+          {
+            "maxlevel": 50,
+            "attack": 38.9
+          },
+          {
+            "maxlevel": 60,
+            "attack": 58.4
+          },
+          {
+            "maxlevel": 70,
+            "attack": 77.8
+          },
+          {
+            "maxlevel": 80,
+            "attack": 97.3
+          },
+          {
+            "maxlevel": 90,
+            "attack": 116.7
+          }
+        ]
+      },
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击命中时，有50%的概率对单个敌人造成240%攻击力的伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "240%",
+            "15"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击命中时，有50%的概率对单个敌人造成280%攻击力的伤害。该效果每14秒只能触发一次。",
+          "values": [
+            "280%",
+            "14"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击命中时，有50%的概率对单个敌人造成320%攻击力的伤害。该效果每13秒只能触发一次。",
+          "values": [
+            "320%",
+            "13"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击命中时，有50%的概率对单个敌人造成360%攻击力的伤害。该效果每12秒只能触发一次。",
+          "values": [
+            "360%",
+            "12"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击命中时，有50%的概率对单个敌人造成400%攻击力的伤害。该效果每11秒只能触发一次。",
+          "values": [
+            "400%",
+            "11"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "1.0",
+        "source": "genshin-db",
+        "sourceVersion": "5.2.14",
+        "verifiedAt": "2026-09-22T14:48:43.352Z",
+        "verificationStatus": "provisional",
+        "notes": "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified."
+      }
+    },
+    {
+      "itemId": 12406,
+      "slug": "prototypearchaic",
+      "name": "试作古华",
+      "releasePatch": "1.0",
+      "baseAtkValue": 43.7349,
+      "stats": {
+        "base": {
+          "attack": 43.7349,
+          "specialized": 0.06
+        },
+        "curve": {
+          "attack": "GROW_CURVE_ATTACK_202",
+          "specialized": "GROW_CURVE_CRITICAL_201"
+        },
+        "specialized": "FIGHT_PROP_ATTACK_PERCENT",
+        "promotion": [
+          {
+            "maxlevel": 20,
+            "attack": 0
+          },
+          {
+            "maxlevel": 40,
+            "attack": 25.9
+          },
+          {
+            "maxlevel": 50,
+            "attack": 51.9
+          },
+          {
+            "maxlevel": 60,
+            "attack": 77.8
+          },
+          {
+            "maxlevel": 70,
+            "attack": 103.7
+          },
+          {
+            "maxlevel": 80,
+            "attack": 129.7
+          },
+          {
+            "maxlevel": 90,
+            "attack": 155.6
+          }
+        ]
+      },
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成240%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "240%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成300%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "300%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成360%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "360%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成420%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "420%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "普通攻击和重击命中时，有50%的概率对小范围内的敌人造成480%攻击力的额外伤害。该效果每15秒只能触发一次。",
+          "values": [
+            "480%"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "1.0",
+        "source": "genshin-db",
+        "sourceVersion": "5.2.14",
+        "verifiedAt": "2026-09-22T14:48:43.352Z",
+        "verificationStatus": "provisional",
+        "notes": "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified."
+      }
+    },
+    {
+      "itemId": 12411,
+      "slug": "snowtombedstarsilver",
+      "name": "雪葬的星银",
+      "releasePatch": "1.2",
+      "baseAtkValue": 43.7349,
+      "stats": {
+        "base": {
+          "attack": 43.7349,
+          "specialized": 0.075067
+        },
+        "curve": {
+          "attack": "GROW_CURVE_ATTACK_202",
+          "specialized": "GROW_CURVE_CRITICAL_201"
+        },
+        "specialized": "FIGHT_PROP_PHYSICAL_ADD_HURT",
+        "promotion": [
+          {
+            "maxlevel": 20,
+            "attack": 0
+          },
+          {
+            "maxlevel": 40,
+            "attack": 25.9
+          },
+          {
+            "maxlevel": 50,
+            "attack": 51.9
+          },
+          {
+            "maxlevel": 60,
+            "attack": 77.8
+          },
+          {
+            "maxlevel": 70,
+            "attack": 103.7
+          },
+          {
+            "maxlevel": 80,
+            "attack": 129.7
+          },
+          {
+            "maxlevel": 90,
+            "attack": 155.6
+          }
+        ]
+      },
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击与重击命中敌人时，有60%概率在敌人上方生成恒冰晶核并坠落，造成80%攻击力的范围伤害。若敌人处于冰元素影响下，则造成200%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "60%",
+            "80%",
+            "200%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "普通攻击与重击命中敌人时，有70%概率在敌人上方生成恒冰晶核并坠落，造成95%攻击力的范围伤害。若敌人处于冰元素影响下，则造成240%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "70%",
+            "95%",
+            "240%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "普通攻击与重击命中敌人时，有80%概率在敌人上方生成恒冰晶核并坠落，造成110%攻击力的范围伤害。若敌人处于冰元素影响下，则造成280%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "80%",
+            "110%",
+            "280%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "普通攻击与重击命中敌人时，有90%概率在敌人上方生成恒冰晶核并坠落，造成125%攻击力的范围伤害。若敌人处于冰元素影响下，则造成320%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "90%",
+            "125%",
+            "320%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "普通攻击与重击命中敌人时，有100%概率在敌人上方生成恒冰晶核并坠落，造成140%攻击力的范围伤害。若敌人处于冰元素影响下，则造成360%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "100%",
+            "140%",
+            "360%"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "1.2",
+        "source": "genshin-db",
+        "sourceVersion": "5.2.14",
+        "verifiedAt": "2026-09-22T14:48:43.352Z",
+        "verificationStatus": "provisional",
+        "notes": "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified."
+      }
+    },
+    {
+      "itemId": 13409,
+      "slug": "dragonspinespear",
+      "name": "龙脊长枪",
+      "releasePatch": "1.2",
+      "baseAtkValue": 41.0671,
+      "stats": {
+        "base": {
+          "attack": 41.0671,
+          "specialized": 0.150133
+        },
+        "curve": {
+          "attack": "GROW_CURVE_ATTACK_204",
+          "specialized": "GROW_CURVE_CRITICAL_201"
+        },
+        "specialized": "FIGHT_PROP_PHYSICAL_ADD_HURT",
+        "promotion": [
+          {
+            "maxlevel": 20,
+            "attack": 0
+          },
+          {
+            "maxlevel": 40,
+            "attack": 25.9
+          },
+          {
+            "maxlevel": 50,
+            "attack": 51.9
+          },
+          {
+            "maxlevel": 60,
+            "attack": 77.8
+          },
+          {
+            "maxlevel": 70,
+            "attack": 103.7
+          },
+          {
+            "maxlevel": 80,
+            "attack": 129.7
+          },
+          {
+            "maxlevel": 90,
+            "attack": 155.6
+          }
+        ]
+      },
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击与重击命中敌人时，有60%概率在敌人上方生成恒冰晶核并坠落，造成80%攻击力的范围伤害。若敌人处于冰元素影响下，则造成200%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "60%",
+            "80%",
+            "200%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "普通攻击与重击命中敌人时，有70%概率在敌人上方生成恒冰晶核并坠落，造成95%攻击力的范围伤害。若敌人处于冰元素影响下，则造成240%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "70%",
+            "95%",
+            "240%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "普通攻击与重击命中敌人时，有80%概率在敌人上方生成恒冰晶核并坠落，造成110%攻击力的范围伤害。若敌人处于冰元素影响下，则造成280%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "80%",
+            "110%",
+            "280%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "普通攻击与重击命中敌人时，有90%概率在敌人上方生成恒冰晶核并坠落，造成125%攻击力的范围伤害。若敌人处于冰元素影响下，则造成320%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "90%",
+            "125%",
+            "320%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "普通攻击与重击命中敌人时，有100%概率在敌人上方生成恒冰晶核并坠落，造成140%攻击力的范围伤害。若敌人处于冰元素影响下，则造成360%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "100%",
+            "140%",
+            "360%"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "1.2",
+        "source": "genshin-db",
+        "sourceVersion": "5.2.14",
+        "verifiedAt": "2026-09-22T14:48:43.352Z",
+        "verificationStatus": "provisional",
+        "notes": "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified."
+      }
+    },
+    {
+      "itemId": 14412,
+      "slug": "frostbearer",
+      "name": "忍冬之果",
+      "releasePatch": "1.2",
+      "baseAtkValue": 42.401,
+      "stats": {
+        "base": {
+          "attack": 42.401,
+          "specialized": 0.09
+        },
+        "curve": {
+          "attack": "GROW_CURVE_ATTACK_201",
+          "specialized": "GROW_CURVE_CRITICAL_201"
+        },
+        "specialized": "FIGHT_PROP_ATTACK_PERCENT",
+        "promotion": [
+          {
+            "maxlevel": 20,
+            "attack": 0
+          },
+          {
+            "maxlevel": 40,
+            "attack": 25.9
+          },
+          {
+            "maxlevel": 50,
+            "attack": 51.9
+          },
+          {
+            "maxlevel": 60,
+            "attack": 77.8
+          },
+          {
+            "maxlevel": 70,
+            "attack": 103.7
+          },
+          {
+            "maxlevel": 80,
+            "attack": 129.7
+          },
+          {
+            "maxlevel": 90,
+            "attack": 155.6
+          }
+        ]
+      },
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击与重击命中敌人时，有60%概率在敌人上方生成恒冰晶核并坠落，造成80%攻击力的范围伤害。若敌人处于冰元素影响下，则造成200%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "60%",
+            "80%",
+            "200%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "普通攻击与重击命中敌人时，有70%概率在敌人上方生成恒冰晶核并坠落，造成95%攻击力的范围伤害。若敌人处于冰元素影响下，则造成240%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "70%",
+            "95%",
+            "240%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "普通攻击与重击命中敌人时，有80%概率在敌人上方生成恒冰晶核并坠落，造成110%攻击力的范围伤害。若敌人处于冰元素影响下，则造成280%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "80%",
+            "110%",
+            "280%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "普通攻击与重击命中敌人时，有90%概率在敌人上方生成恒冰晶核并坠落，造成125%攻击力的范围伤害。若敌人处于冰元素影响下，则造成320%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "90%",
+            "125%",
+            "320%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "普通攻击与重击命中敌人时，有100%概率在敌人上方生成恒冰晶核并坠落，造成140%攻击力的范围伤害。若敌人处于冰元素影响下，则造成360%攻击力的伤害。该效果每10秒至多触发一次。",
+          "values": [
+            "100%",
+            "140%",
+            "360%"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "1.2",
+        "source": "genshin-db",
+        "sourceVersion": "5.2.14",
+        "verifiedAt": "2026-09-22T14:48:43.352Z",
+        "verificationStatus": "provisional",
+        "notes": "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified."
+      }
+    }
+  ],
+  "reviewFindings": [
+    "Fixed production GO sheets independently contain Fillet [2.4,2.8,3.2,3.6,4], Archaic [2.4,3,3.6,4.2,4.8], all three frost ordinary [.8,.95,1.1,1.25,1.4] and Cryo [2,2.4,2.8,3.2,3.6]; match fixed gcsim equations and all five selected catalogue descriptions.",
+    "The GO icicle sheets expose two separate physical damage branches, without an aura-driven selector or event scheduler. They cannot independently verify source trigger-target branch selection for a mixed-aura AoE.",
+    "Fillet/Archaic input.premod.atk differs in naming from icicle input.total.atk; this unbuffed static panel does not certify every post-modifier stat transformation.",
+    "Catalogue source remains provisional; source alignment is not current-game verification."
+  ],
+  "externalRuns": 1,
+  "upstreamOptimizerRuns": 0,
+  "localRunsAtSourceReview": 0,
+  "canonicalGcsimArchive": {
+    "manifestPath": "packages/game-data/sources/weapon-proc-five/manifest.json",
+    "manifestSha256": "22f277739f9c63a0c3df291adb9a88ac1c6f5b5e8c757e18102fa6390d38f3e2",
+    "archivePath": "packages/game-data/sources/weapon-proc-five/source.json.gz",
+    "archiveSha256": "994420b82da7377e3612039c26d588b53257182c4fc8b9e83f8d0811d9a06d1a",
+    "owner": "ningguang_snapshot_core",
+    "containsAll13ExaminedGcsimFiles": true
+  }
+}

@@ -1,0 +1,202 @@
+--- a/pkg/reactable/burning.go
++++ b/pkg/reactable/burning.go
+@@ -48,7 +48,7 @@
+ 			r.burningTickSrc = r.core.F
+ 			if t, ok := r.self.(Enemy); ok {
+ 				// queue up burning ticks
+-				t.QueueEnemyTask(r.nextBurningTick(r.core.F, 1, t), 15)
++				r.sourceHostQueueBurningTick(r.core.F, 1, t)
+ 			}
+ 		}
+ 		return true
+@@ -130,7 +130,7 @@
+ 		}
+ 		counter++
+ 		// queue up next tick
+-		t.QueueEnemyTask(r.nextBurningTick(src, counter, t), 15)
++		r.sourceHostQueueBurningTick(src, counter, t)
+ 	}
+ }
+ 
+--- a/pkg/reactable/electrocharged.go
++++ b/pkg/reactable/electrocharged.go
+@@ -89,9 +89,9 @@
+ 
+ 		evtRemovalTyp := event.OnEnemyDamage
+ 		evtRemovalKey := fmt.Sprintf("ec-%v", r.self.Key())
+-		r.core.Tasks.Add(r.nextECTick(r.core.F), 60+10)
++		r.sourceHostQueueECTick(r.core.F, 60+10)
+ 		// subscribe to wane ticks
+-		r.core.Events.Subscribe(evtRemovalTyp, func(args ...any) {
++		r.core.Events.SubscribeWithPhase(evtRemovalTyp, func(args ...any) {
+ 			// target should be first, then snapshot
+ 			n := args[0].(info.Target)
+ 			a := args[1].(*info.AttackEvent)
+@@ -115,10 +115,10 @@
+ 			}
+ 
+ 			// wane in 0.1 seconds
+-			r.core.Tasks.Add(func() {
++			r.core.Tasks.AddWithPhase(func() {
+ 				r.waneEC()
+-			}, 6)
+-		}, evtRemovalKey)
++			}, 6, "reaction-electrocharged-wane", r.sourceHostPhaseECWane())
++		}, evtRemovalKey, r.sourceHostPhaseECWaneEvent(evtRemovalTyp, evtRemovalKey))
+ 	}
+ 
+ 	// ticks are 60 frames since last tick
+@@ -178,6 +178,6 @@
+ 		)
+ 
+ 		// queue up next tick
+-		r.core.Tasks.Add(r.nextECTick(src), 60)
++		r.sourceHostQueueECTick(src, 60)
+ 	}
+ }
+--- a/pkg/reactable/sourcehost_phase.go
++++ b/pkg/reactable/sourcehost_phase.go
+@@ -1,17 +1,17 @@
+ package reactable
+ 
+-import "github.com/genshinsim/gcsim/pkg/core/info"
++import (
++	"github.com/genshinsim/gcsim/pkg/core/event"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
++)
+ 
+-func sourceHostPhaseReactionSnapshot(snapshot info.Snapshot) map[string]any {
+-	// Snapshot log/provenance IDs do not influence the future damage calculation.
+-	return map[string]any{"stats": snapshot.Stats, "characterLevel": snapshot.CharLvl}
++func sourceHostPhaseReactionSnapshot(snapshot info.Snapshot, frame int) map[string]any {
++	return info.SourceHostPhaseSnapshot(snapshot, frame)
+ }
+ 
+ func sourceHostPhaseReactionAttack(attack info.AttackInfo) info.AttackInfo {
+-	attack.AdditionalTags = append(attack.AdditionalTags[:0:0], attack.AdditionalTags...)
+-	attack.SourceHostComponents = nil
+-	attack.SourceHostMultiplierID = 0
+-	return attack
++	return info.SourceHostPhaseAttackInfo(attack)
+ }
+ 
+ func (r *Reactable) SourceHostPhaseState() (map[string]any, []string) {
+@@ -22,16 +22,19 @@
+ 	if r.ecTickSrc != -1 {
+ 		ec["generationAgeFrames"] = r.core.F - r.ecTickSrc
+ 		ec["attack"] = sourceHostPhaseReactionAttack(r.ecAtk)
+-		ec["snapshot"] = sourceHostPhaseReactionSnapshot(r.ecSnapshot)
+-		gaps = append(gaps, "electrocharged-task-and-event-captured-state")
++		ec["snapshot"] = sourceHostPhaseReactionSnapshot(r.ecSnapshot, r.core.F)
+ 	}
+ 	state["electrocharged"] = ec
+ 	burning := map[string]any{"active": r.burningTickSrc != -1}
+ 	if r.burningTickSrc != -1 {
+ 		burning["generationAgeFrames"] = r.core.F - r.burningTickSrc
+ 		burning["attack"] = sourceHostPhaseReactionAttack(r.burningAtk)
+-		burning["snapshot"] = sourceHostPhaseReactionSnapshot(r.burningSnapshot)
+-		gaps = append(gaps, "burning-task-captured-counter-and-generation")
++		burning["snapshot"] = sourceHostPhaseReactionSnapshot(r.burningSnapshot, r.core.F)
++		if enemy, ok := r.self.(Enemy); ok {
++			if _, described := enemy.(sourceHostPhaseEnemyTasker); !described {
++				gaps = append(gaps, "burning-enemy-task-phase-descriptor-unavailable")
++			}
++		}
+ 	}
+ 	state["burning"] = burning
+ 	return state, gaps
+@@ -43,3 +46,77 @@
+ func (c *LunarCrystallizeConstruct) SourceHostPhaseConstructState() (map[string]any, []string) {
+ 	return map[string]any{}, nil
+ }
++
++// Keep the native Enemy interface unchanged: other implementations still use
++// their original queue and retain an explicit phase-observation gap.
++type sourceHostPhaseEnemyTasker interface {
++	QueueEnemyTaskWithPhase(func(), int, string, phase.Descriptor)
++}
++
++func sourceHostQueueEnemyTaskWithPhase(t Enemy, f func(), delay int, key string, descriptor phase.Descriptor) {
++	if described, ok := t.(sourceHostPhaseEnemyTasker); ok {
++		described.QueueEnemyTaskWithPhase(f, delay, key, descriptor)
++		return
++	}
++	t.QueueEnemyTask(f, delay)
++}
++
++func (r *Reactable) sourceHostPhaseTargetReference() map[string]any {
++	return map[string]any{"targetKey": r.self.Key(), "targetType": r.self.Type()}
++}
++
++func (r *Reactable) sourceHostQueueECTick(src, delay int) {
++	r.core.Tasks.AddWithPhase(r.nextECTick(src), delay, "reaction-electrocharged-tick", phase.Descriptor{
++		Source: "pkg/reactable/electrocharged.go:nextECTick",
++		Observe: func() (map[string]any, []string) {
++			state := r.sourceHostPhaseTargetReference()
++			state["capturedGenerationAgeFrames"] = r.core.F - src
++			state["matchesLiveGeneration"] = r.ecTickSrc == src
++			return state, nil
++		},
++	})
++}
++
++func (r *Reactable) sourceHostPhaseECWaneEvent(removalType event.Event, removalKey string) phase.Descriptor {
++	return phase.Descriptor{
++		Source: "pkg/reactable/electrocharged.go:TryAddEC:wane-event",
++		Observe: func() (map[string]any, []string) {
++			state := r.sourceHostPhaseTargetReference()
++			state["removalEventType"] = removalType
++			state["removalEventKey"] = removalKey
++			return state, nil
++		},
++	}
++}
++
++func (r *Reactable) sourceHostPhaseECWane() phase.Descriptor {
++	return phase.Descriptor{
++		Source: "pkg/reactable/electrocharged.go:TryAddEC:wane-task",
++		Observe: func() (map[string]any, []string) {
++			// This callback captures only r, not the EC generation or event args.
++			return r.sourceHostPhaseTargetReference(), nil
++		},
++	}
++}
++
++func (r *Reactable) sourceHostQueueBurningTick(src, counter int, t Enemy) {
++	// These are the exact values supplied to the queued callback. It mutates
++	// counter only after being removed from the pending queue; the next task
++	// receives the original callback's incremented counter as its own capture.
++	descriptor := phase.Descriptor{
++		Source: "pkg/reactable/burning.go:nextBurningTick",
++		Observe: func() (map[string]any, []string) {
++			state := r.sourceHostPhaseTargetReference()
++			state["capturedGenerationAgeFrames"] = r.core.F - src
++			state["matchesLiveGeneration"] = r.burningTickSrc == src
++			state["counter"] = counter
++			if target, ok := t.(info.Target); ok {
++				state["queueTargetKey"] = target.Key()
++				state["queueTargetType"] = target.Type()
++				return state, nil
++			}
++			return state, []string{"burning-queue-target-identity"}
++		},
++	}
++	sourceHostQueueEnemyTaskWithPhase(t, r.nextBurningTick(src, counter, t), 15, "reaction-burning-tick", descriptor)
++}
+--- /dev/null
++++ b/pkg/enemy/sourcehost_phase_tasks.go
+@@ -0,0 +1,13 @@
++package enemy
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
++
++// QueueEnemyTaskWithPhase adds read-only capture metadata to the same native
++// enemy queue. The immediate path and enemy-local clock match QueueEnemyTask.
++func (e *Enemy) QueueEnemyTaskWithPhase(f func(), delay int, key string, descriptor phase.Descriptor) {
++	if delay == 0 {
++		f()
++		return
++	}
++	e.queue.AddWithPhase(f, delay, key, descriptor)
++}

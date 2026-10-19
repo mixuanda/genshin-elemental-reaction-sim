@@ -1,0 +1,283 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:39.812062+00:00",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:39.815205+00:00",
+      "sha256": "4e2431c46f1fc7c483d58e7bdea3a50fd0953373b9f29905828ac26971c6aae1",
+      "gitBlobSha": "c7688dbbacfaf069803d81cb9a321487b815fd92",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/formula/src/data/weapon/Halberd.ts",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/Halberd.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/weapon/Halberd.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/weapon/Halberd.ts",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:33.574740+00:00",
+      "sha256": "e1014380bf559f3da9eb0aa36212f09d74849400cf0ab0cbe2f685b52b2e20b6",
+      "gitBlobSha": "a9d0e1c4eed888ee510f182b5cfb0e6cb9cd9b85",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Weapons/Polearm/Halberd/data.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/stats/Data/Weapons/Polearm/Halberd/data.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Weapons/Polearm/Halberd/data.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Weapons/Polearm/Halberd/data.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:39.365295+00:00",
+      "sha256": "e77a9a81efaaeccc031a4bbe7d69445858b7b0e775d508c3a6cdebfe01f4a86b",
+      "gitBlobSha": "9c4f8ed168b55c8e4a30bac59ce3f655da4e4e9a",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_Halberd_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_Halberd_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_Halberd_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_Halberd_gen.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:39.840225+00:00",
+      "sha256": "ca69fe8ec992ccc2a730b4b295483a23b8e3be40d6785265510f89a51d8790a8",
+      "gitBlobSha": "29c9822c834d6751346209173ae851088b8a3553",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Catalyst/AshGravenDrinkingHorn/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/sheets/src/Weapons/Catalyst/AshGravenDrinkingHorn/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/AshGravenDrinkingHorn/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/AshGravenDrinkingHorn/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:36.343876+00:00",
+      "sha256": "1d7006149192563f68ef5d22e13e7b1fd0b2b1e92ceb51f6de146131a1442d0f",
+      "gitBlobSha": "3a0b8147e2cc85e444661a87ef8a9b21be61457d",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:34.537655+00:00",
+      "sha256": "c7dd4af9756b953b90e5cd45fc5e0e3644cd39ffa7ac1f7750250ce8206d332f",
+      "gitBlobSha": "10c027b517db5e01a6ba0068418d5366d5115e4e",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Weapons/Catalyst/AshGravenDrinkingHorn/data.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/stats/Data/Weapons/Catalyst/AshGravenDrinkingHorn/data.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Weapons/Catalyst/AshGravenDrinkingHorn/data.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Weapons/Catalyst/AshGravenDrinkingHorn/data.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:36.056469+00:00",
+      "sha256": "bd9438df119e081f49e2bafae8d411c49fa8655e8d971118b8ffede4ab1287ed",
+      "gitBlobSha": "fbc1246c2c75b6f5b8439d2e323dc63a5ce7516c",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_AshGravenDrinkingHorn_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_AshGravenDrinkingHorn_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_AshGravenDrinkingHorn_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_AshGravenDrinkingHorn_gen.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:37.463879+00:00",
+      "sha256": "5f8078bf54dcbc99f92d8825b8edcf680b85075a069fe5d5ba374ff6ea93b4dc",
+      "gitBlobSha": "50c32df6974c2dfbe5f931d38229e3bd14e470bb",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:39.808074+00:00",
+      "sha256": "34a942cf22984c30e91e539a75596b2c0380e6baa6aad7a89d2d169457d76254",
+      "gitBlobSha": "ee893eae2a3ba7f5d901029f67bb0d5aa819a408",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:38.886324+00:00",
+      "sha256": "602216c34ad1689d097ab725a1a247e460eb21731ca64b616765fc8e33493b09",
+      "gitBlobSha": "249f62a5d7ef45bdb4181004f6e85872847227a4",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Weapons/Bow/SequenceOfSolitude/data.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/stats/Data/Weapons/Bow/SequenceOfSolitude/data.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Weapons/Bow/SequenceOfSolitude/data.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Weapons/Bow/SequenceOfSolitude/data.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:40.326801+00:00",
+      "sha256": "e235e9df74018c4dfd4454422b176af9343789164edff5d5b6129b6f06880c39",
+      "gitBlobSha": "858517c84506babadef8498f7e36333c1808c77f",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_SequenceOfSolitude_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_SequenceOfSolitude_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_SequenceOfSolitude_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_SequenceOfSolitude_gen.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:28:42.725362+00:00",
+      "sha256": "96ac195b6e17008ec7a936d00583f9ba327d0ae2c4357f8c9d8219ccae62d707",
+      "gitBlobSha": "a7096ef52d77965cc1be98dbeea9bf7bde5e6bed",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:29:14.842910+00:00",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "gitBlobSha": "736a1229592f4afead151920884dbccd5c5e22cb",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:29:13.187311+00:00",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "gitBlobSha": "7a066de7a030ed2dd05b5184703bb955f6331961",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/weapon.ts",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:30:35.459341+00:00",
+      "sha256": "a24041ebb6383632d69dfbe2322775dea4ba45dd9273a93de2fee2de2d1b0982",
+      "gitBlobSha": "33edfa77556a7bb7dc1ef771f1194a57df306df5",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T22:30:35.464731+00:00",
+      "sha256": "b0b4c34dacbf97b1a5e58e523361e86d629b146f43a2110b9094bf69ad2cb551",
+      "gitBlobSha": "e11e04044b2b4e50ca7a798c6384dccf47bd373c",
+      "matchesPinnedTree": true
+    }
+  ],
+  "sourceReview": {
+    "method": "Read pinned production weapon sheets, shared damage helper/formula, generated weapon identity and Chinese descriptions; compare R1-R5 arrays with description values. Source-content checks only; no production calculator test or upstream application execution.",
+    "pinnedTreeSha": "180a0a1015cb725c7570cd828eb086749960df98",
+    "pinnedTreeTruncated": false,
+    "allArchivedFilesMatchPinnedTree": true,
+    "reviewedFileCount": 17,
+    "refinementPositionsCompared": 15,
+    "maxCoefficientDifference": 0,
+    "weaponFindings": [
+      {
+        "weaponId": 13302,
+        "optimizerKey": "Halberd",
+        "nameZh": "钺矛",
+        "scalingStat": "atk",
+        "coefficientByRefinement": [
+          1.6,
+          2,
+          2.4,
+          2.8,
+          3.2
+        ],
+        "productionDefinition": "libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+        "damageCategory": "elemental",
+        "element": "physical",
+        "elementEvidence": "explicit hit.ele physical",
+        "crit": "standard hit/critHit/avgHit via input.hit.dmg",
+        "cooldownSecondsFromLocalizedDescription": 10,
+        "triggerFromLocalizedDescription": "normal-attack-hit"
+      },
+      {
+        "weaponId": 14427,
+        "optimizerKey": "AshGravenDrinkingHorn",
+        "nameZh": "苍纹角杯",
+        "scalingStat": "hp",
+        "coefficientByRefinement": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "productionDefinition": "libs/gi/sheets/src/Weapons/Catalyst/AshGravenDrinkingHorn/index.tsx",
+        "damageCategory": "elemental",
+        "element": "physical",
+        "elementEvidence": "explicit hit.ele physical",
+        "crit": "standard hit/critHit/avgHit via input.hit.dmg",
+        "cooldownSecondsFromLocalizedDescription": 15,
+        "triggerFromLocalizedDescription": "attack-hit"
+      },
+      {
+        "weaponId": 15432,
+        "optimizerKey": "SequenceOfSolitude",
+        "nameZh": "冷寂迸音",
+        "scalingStat": "hp",
+        "coefficientByRefinement": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "productionDefinition": "libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+        "damageCategory": "elemental",
+        "element": "physical",
+        "elementEvidence": "inferredHitEle fallback: move elemental has no skill/burst match; weaponType bow has no infusion/catalyst match; final fallback is physical",
+        "crit": "standard hit/critHit/avgHit via input.hit.dmg",
+        "cooldownSecondsFromLocalizedDescription": 15,
+        "triggerFromLocalizedDescription": "attack-hit"
+      }
+    ],
+    "sharedEvidence": [
+      {
+        "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "lines": "68-88,113-138",
+        "finding": "customDmgNode passes through input.hit.dmg; inferred physical fallback applies to SequenceOfSolitude because it is a bow and move elemental."
+      },
+      {
+        "path": "libs/gi/wr/src/formula.ts",
+        "lines": "357-450",
+        "finding": "Common/physical damage bonus, regular additive damage, crit mode, enemy defense and matching resistance use the shared ordinary damage expression. hit=1; critHit=1+CD; avgHit=1+clamp(CR,0,1)*CD."
+      }
+    ],
+    "limitations": [
+      "The three files under libs/gi/formula/src/data/weapon are TODO stubs at this revision. They do not independently implement or verify these passive effects; the production sheets are the numerical evidence.",
+      "Generated stats Data/Weapons/*/data.json contains empty refinementBonus objects. Passive R1-R5 multipliers are verified against weapon sheets and localized descriptions, not invented from those empty objects.",
+      "Cooldown/trigger text is recorded as description evidence only. This review does not execute a proc scheduler, count rotation procs, verify AoE target count, or validate in-game timing.",
+      "Optimizer source agreement is not independent in-game validation."
+    ]
+  }
+}

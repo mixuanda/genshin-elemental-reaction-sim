@@ -1,0 +1,38 @@
+--- a/internal/template/character/character.go
++++ b/internal/template/character/character.go
+@@ -10,6 +10,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/keys"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core/player"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+ 	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+@@ -38,7 +39,7 @@
+ 	r := newChar(c)
+ 	r.CharWrapper = w
+ 
+-	c.Events.Subscribe(event.OnStellarVortexDetonate, func(args ...any) {
++	c.Events.SubscribeWithPhase(event.OnStellarVortexDetonate, func(args ...any) {
+ 		ap, ok := args[2].(*info.AttackPattern)
+ 		if !ok {
+ 			return
+@@ -62,7 +63,17 @@
+ 			return
+ 		}
+ 		c.Player.SetAirborne(r.JumpModified)
+-	}, "ssw-jump-"+r.Base.Key.String())
++	}, "ssw-jump-"+r.Base.Key.String(), phase.Descriptor{
++		Source: "internal/template/character/character.go:NewWithWrapper:stellar-vortex-jump",
++		Observe: func() (map[string]any, []string) {
++			// The event's core/player/target inputs have separate phase providers.
++			// These are the two mutable fields owned by this callback's character.
++			return map[string]any{
++				"actorIndex": r.Index(), "jumpModified": int(r.JumpModified),
++				"jumpModifiedFrame": r.JumpModifiedF,
++			}, nil
++		},
++	})
+ 	return r
+ }
+ 

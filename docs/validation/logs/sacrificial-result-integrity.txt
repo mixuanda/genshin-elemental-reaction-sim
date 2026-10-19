@@ -1,0 +1,13 @@
+$ npx vitest run packages/schemas/src/sacrificial-result-integrity.test.ts
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  09:22:37
+   Duration  1.07s (transform 627ms, setup 0ms, import 811ms, tests 198ms, environment 0ms)
+
+
+exit=0
+wall_seconds=1.4842667499906383

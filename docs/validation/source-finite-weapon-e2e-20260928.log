@@ -1,0 +1,11 @@
+[WebServer] (node:14604) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:14605) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"runs":[{"variant":"classic","sourceCommit":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","wasmSha256":"3664f845f69adfbf43f4560716a79a0f7d8b593c6e436d754ddeea83c423985e","calculations":36,"applications":20,"weaponCalls":{"foliar":11,"hunterspath":3,"cinnabar":2},"selectedApplicationId":9,"originalValue":240,"editedValue":360,"experimentStatus":"calculated"},{"variant":"stellar","sourceCommit":"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd","wasmSha256":"3b173bc4351f9205ee0ad4bb54985eb4e0e8c4e3f11039623133d0d7747d1986","calculations":36,"applications":20,"weaponCalls":{"foliar":11,"hunterspath":3,"cinnabar":2},"selectedApplicationId":9,"originalValue":240,"editedValue":360,"experimentStatus":"calculated"}],"errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-finite-weapon-formulas.spec.ts:47:1 › three finite weapon FlatDmg callbacks retain native target state and editable standalone receipts in both pinned lanes (6.3s)
+
+  1 passed (7.2s)

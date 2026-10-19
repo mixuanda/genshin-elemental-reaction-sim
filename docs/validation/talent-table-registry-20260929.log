@@ -1,0 +1,35 @@
+
+> genshin-dps-lab@1.0.0 source:talent-registry
+> node packages/source-host/scripts/generate-talent-registry.mjs
+
+{
+  "target": "/Users/evan/Documents/gidps//packages/sim-core/src/source-host-talent-tables.generated.ts",
+  "inputs": [
+    {
+      "path": "apps/web/public/source-host/talent-table-registry.json",
+      "sha256": "8dc7b3bde29a0956158b66be10eba7ef5a537aaaea58d7b5d367021d48a1f546"
+    },
+    {
+      "path": "apps/web/public/source-host/talent-read-instrumentation.json",
+      "sha256": "2cac00437f70d51510bba0d24ed46cbd620e394c67178bfb326523f148b43c44"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/talent-table-registry.json",
+      "sha256": "2d6952ee194dda6ea5b46a4d2c0db4e141000a17035628291bab62020b6a8915"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/talent-read-instrumentation.json",
+      "sha256": "9971dcb4fb64a5f81be9774c632d35cd5eb2a1bea38893527e3c0b33f618b812"
+    }
+  ],
+  "lanes": {
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541": {
+      "tables": 498,
+      "sites": 514
+    },
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd": {
+      "tables": 524,
+      "sites": 543
+    }
+  }
+}

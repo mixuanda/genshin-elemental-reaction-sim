@@ -1,0 +1,19 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs
+
+# github.com/genshinsim/gcsim/internal/artifacts/wanderer
+internal/artifacts/wanderer/wanderer.go:42:7: undefined: c
+internal/artifacts/wanderer/wanderer.go:43:26: undefined: c
+internal/artifacts/wanderer/wanderer.go:43:54: undefined: char
+# github.com/genshinsim/gcsim/internal/artifacts/braveheart
+internal/artifacts/braveheart/braveheart.go:59:105: undefined: atk
+file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21
+  if (result.error || result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed: ${result.error ?? result.stderr ?? result.status}`);
+                                                 ^
+
+Error: /tmp/gidps-source-host-cache/go1.27.1/darwin-arm64/go/bin/go build -mod=readonly -trimpath -buildvcs=false -o /tmp/gidps-source-host-cache/stellar-build-DeqKk4/dist/source-host.wasm ./cmd/sourcehost failed: 1
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21:50)
+    at file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:142:1
+
+Node.js v24.15.0

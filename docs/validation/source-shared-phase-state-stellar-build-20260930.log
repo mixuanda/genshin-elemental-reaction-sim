@@ -1,0 +1,14 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs --cache-dir /Users/evan/Library/Caches/gidps-source-host
+
+{
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "verifiedBlobCount": 4283,
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "2ba3564790489b47fc06c649b847c58c46a44e57abd1d11f8eb22c30fb763f27",
+    "bytes": 70065409
+  },
+  "manifest": "/Users/evan/Documents/gidps/packages/source-host/stellar-overlay/dist/manifest.json"
+}

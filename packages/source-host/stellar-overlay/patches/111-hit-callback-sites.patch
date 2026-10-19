@@ -1,0 +1,162 @@
+--- a/internal/characters/dori/skill.go
++++ b/internal/characters/dori/skill.go
+@@ -93,6 +93,7 @@
+ func (c *char) afterSales() info.AttackCBFunc {
+ 	done := false
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("dori.skill.after-sales", a)
+ 		if done {
+ 			return
+ 		}
+@@ -109,8 +110,9 @@
+ 			Durability: 25,
+ 			Mult:       skillAfter[c.TalentLvlSkill()],
+ 		}
++		c.Core.SourceHostHitCallbackFact("dori.skill.after-count", float64(c.afterCount))
+ 		for i := 0; i < c.afterCount; i++ {
+-			c.Core.QueueAttack(
++			c.Core.SourceHostQueueHitAttack("dori.skill.after-sales-round",
+ 				ae,
+ 				combat.NewCircleHit(
+ 					c.Core.Combat.Player(),
+--- a/internal/characters/mika/skill.go
++++ b/internal/characters/mika/skill.go
+@@ -156,6 +156,7 @@
+ func (c *char) makeRimestarShardsCB() func(info.AttackCB) {
+ 	done := false
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("mika.skill.rimestar-shards", a)
+ 		if a.Target.Type() != info.TargettableEnemy {
+ 			return
+ 		}
+@@ -181,6 +182,7 @@
+ 			func(t info.Enemy) bool { return a.Target.Key() != t.Key() },
+ 			3,
+ 		)
++		c.Core.SourceHostHitCallbackFact("mika.skill.selected-shards", float64(len(enemies)))
+ 		for i := range enemies {
+ 			var a1CB info.AttackCBFunc
+ 			if c.Base.Ascension >= 1 {
+@@ -197,7 +199,8 @@
+ 				}
+ 			}
+ 
+-			c.Core.QueueAttack(
++			c.Core.SourceHostQueueHitAttack(
++				"mika.skill.rimestar-shard",
+ 				ai,
+ 				combat.NewSingleTargetHit(enemies[i].Key()),
+ 				0,
+diff --git a/internal/characters/baizhu/skill.go b/internal/characters/baizhu/skill.go
+--- a/internal/characters/baizhu/skill.go
++++ b/internal/characters/baizhu/skill.go
+@@ -80,5 +80,15 @@
+ 	}
++	siteID := "baizhu.skill.chain.first"
++	if count == 2 {
++		siteID = "baizhu.skill.chain.second"
++	}
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback(siteID, a)
+ 		// on hit figure out the next target
+ 		next := c.Core.Combat.RandomEnemyWithinArea(combat.NewCircleHitOnTarget(a.Target, nil, 10), nil)
++		nextPresent := 0.0
++		if next != nil {
++			nextPresent = 1
++		}
++		c.Core.SourceHostHitCallbackFact("baizhu.skill.next-present", nextPresent)
+ 		if next == nil {
+@@ -88,4 +98,8 @@
+ 		delay := skillTickInterval
+-		if next.Key() != a.Target.Key() {
++		targetChanged := next.Key() != a.Target.Key()
++		if targetChanged {
++			c.Core.SourceHostHitCallbackFact("baizhu.skill.target-changed", 1)
+ 			delay += 6 // add some (estimated) delay in case it's a different target
++		} else {
++			c.Core.SourceHostHitCallbackFact("baizhu.skill.target-changed", 0)
+ 		}
+@@ -102,3 +116,3 @@
+ 		}
+-		c.Core.QueueAttackEvent(&atk, delay)
++		c.Core.SourceHostQueueHitAttackEvent("baizhu.skill.chain-child", &atk, delay)
+ 	}
+@@ -109,2 +123,3 @@
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("baizhu.skill.particle", a)
+ 		if a.Target.Type() != info.TargettableEnemy {
+diff --git a/internal/characters/navia/skill.go b/internal/characters/navia/skill.go
+--- a/internal/characters/navia/skill.go
++++ b/internal/characters/navia/skill.go
+@@ -151,3 +151,3 @@
+ 
+-	c.QueueCharTask(
++	c.SourceHostQueueCharTask("navia.skill.fire",
+ 		func() {
+@@ -165,6 +165,8 @@
+ 			shots := 5 + min(c.shrapnel, 3)*2
+-			for _, t := range c.Core.Combat.EnemiesWithinArea(
++			targets := c.Core.Combat.EnemiesWithinArea(
+ 				combat.NewBoxHitOnTarget(c.Core.Combat.Player(), info.Point{X: -0.20568, Y: -0.043841}, 4.0722, 11.5461),
+ 				nil,
+-			) {
++			)
++			c.Core.SourceHostAbilityProducerFact("navia.skill.selected-enemy-count", float64(len(targets)))
++			for _, t := range targets {
+ 				// Tallies up the hits
+@@ -230,2 +232,3 @@
+ func (c *char) particleCB(a info.AttackCB) {
++	c.Core.SourceHostLabelHitCallback("navia.skill.particle", a)
+ 	e := a.Target.(*enemy.Enemy)
+@@ -306,3 +309,9 @@
+ func (c *char) surgingBlade(count int) {
+-	if c.StatusIsActive(arkheICDKey) {
++	arkheICDActive := c.StatusIsActive(arkheICDKey)
++	if arkheICDActive {
++		c.Core.SourceHostAbilityProducerFact("navia.skill.arkhe-icd-active", 1)
++	} else {
++		c.Core.SourceHostAbilityProducerFact("navia.skill.arkhe-icd-active", 0)
++	}
++	if arkheICDActive {
+ 		return
+@@ -336,5 +345,5 @@
+ 	// aligned cd trigger is delayed and only once it's triggered the aligned attack task should be queued
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("navia.skill.surging-arm", func() {
+ 		c.AddStatus(arkheICDKey, 7*60, true)
+-		c.QueueCharTask(func() {
++		c.SourceHostQueueCharTask("navia.skill.surging-release", func() {
+ 			snap := c.Snapshot(&ai)
+diff --git a/internal/characters/navia/cons.go b/internal/characters/navia/cons.go
+--- a/internal/characters/navia/cons.go
++++ b/internal/characters/navia/cons.go
+@@ -39,2 +39,3 @@
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("navia.skill.c2-cannon", a)
+ 		e := a.Target.(*enemy.Enemy)
+@@ -43,5 +44,8 @@
+ 		}
+-		if c.StatusIsActive(c2IcdKey) {
++		c2ICDActive := c.StatusIsActive(c2IcdKey)
++		if c2ICDActive {
++			c.Core.SourceHostHitCallbackFact("navia.skill.c2-icd-active", 1)
+ 			return
+ 		}
++		c.Core.SourceHostHitCallbackFact("navia.skill.c2-icd-active", 0)
+ 		c.AddStatus(c2IcdKey, 0.25*60, true)
+@@ -63,2 +67,3 @@
+-		c.Core.QueueAttack(
++		c.Core.SourceHostQueueHitAttack(
++			"navia.skill.c2-cannon-attack",
+ 			ai,
+@@ -80,2 +85,3 @@
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("navia.cannon.geo-shred", a)
+ 		e := a.Target.(*enemy.Enemy)
+diff --git a/internal/characters/navia/burst.go b/internal/characters/navia/burst.go
+--- a/internal/characters/navia/burst.go
++++ b/internal/characters/navia/burst.go
+@@ -105,2 +105,3 @@
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("navia.cannon.shrapnel", a)
+ 		if a.Target.Type() != info.TargettableEnemy {

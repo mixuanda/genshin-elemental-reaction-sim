@@ -1,0 +1,430 @@
+{
+  "kind": "source-audited-callback-batch-proposal",
+  "round": 111,
+  "status": "proposal-only; no repository or source-cache edits, build, or tests",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-mQeWE1/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-EtvdCO/source"
+  },
+  "sha256": {
+    "classic": {
+      "internal/characters/baizhu/skill.go": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/baizhu/burst.go": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09",
+      "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "internal/characters/tartaglia/burst.go": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "internal/characters/tartaglia/skill.go": "901bd7bb32877e6b93862d057300ffd9b237cbee9f292c65907e418777b2b9a2",
+      "internal/characters/tartaglia/tartaglia.go": "1eae9b4969dcb137e298816286c25aecaec60d635ea0b4e23c84050da9e11632",
+      "internal/characters/navia/skill.go": "fa8b519bc124b38cd62c90761ea661afec25346b3570ece1c41835d493c8f779",
+      "internal/characters/navia/cons.go": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994",
+      "internal/characters/navia/burst.go": "78f19cd3a8a78587488eb8399c8b575db3e2de12db2bf96942fd285e6fe5bb7c",
+      "internal/characters/navia/navia.go": "24af3cc73d007991996a4def5578d1ef0b17e71d6945b007daf47e6957b84434",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/combat/attack.go": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8",
+      "pkg/enemy/attack.go": "14a6446978e2c68d324629374e0a1c1bbe521e10409fb976f4abd19cc202d815",
+      "internal/characters/tartaglia/asc.go": "6f583b9d92f2e3930ae46cb03d6d85204fbbc18d29e64cecbcb0405be37337b4",
+      "internal/characters/navia/asc.go": "8438c3007108ff33e98b3540b12de9537ae47e9e4ecaf826ced2f49cd90beeb8",
+      "pkg/core/player/character/hitlag.go": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "pkg/core/combat/hitbox.go": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "pkg/core/combat/select.go": "2ce4ba8da65d2b7f0d7b5c521267a78c4f3e5e504fcd4f571094fcaafcfbe550"
+    },
+    "stellar": {
+      "internal/characters/baizhu/skill.go": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/baizhu/burst.go": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09",
+      "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "internal/characters/tartaglia/burst.go": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "internal/characters/tartaglia/skill.go": "901bd7bb32877e6b93862d057300ffd9b237cbee9f292c65907e418777b2b9a2",
+      "internal/characters/tartaglia/tartaglia.go": "1eae9b4969dcb137e298816286c25aecaec60d635ea0b4e23c84050da9e11632",
+      "internal/characters/navia/skill.go": "3f554782aefae16c0cfda2b421d616a73ef4635665dc2902fa9b476ae8a94889",
+      "internal/characters/navia/cons.go": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994",
+      "internal/characters/navia/burst.go": "78f19cd3a8a78587488eb8399c8b575db3e2de12db2bf96942fd285e6fe5bb7c",
+      "internal/characters/navia/navia.go": "24af3cc73d007991996a4def5578d1ef0b17e71d6945b007daf47e6957b84434",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/combat/attack.go": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8",
+      "pkg/enemy/attack.go": "14a6446978e2c68d324629374e0a1c1bbe521e10409fb976f4abd19cc202d815",
+      "internal/characters/tartaglia/asc.go": "6f583b9d92f2e3930ae46cb03d6d85204fbbc18d29e64cecbcb0405be37337b4",
+      "internal/characters/navia/asc.go": "8438c3007108ff33e98b3540b12de9537ae47e9e4ecaf826ced2f49cd90beeb8",
+      "pkg/core/player/character/hitlag.go": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "pkg/core/combat/hitbox.go": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "pkg/core/combat/select.go": "2ce4ba8da65d2b7f0d7b5c521267a78c4f3e5e504fcd4f571094fcaafcfbe550"
+    }
+  },
+  "callbackAbi": {
+    "slotDefinition": "zero-based index in enemy.HandleAttack deferred for-loop over atk.Callbacks after nil filtering by QueueAttack/QueueAttackWithSnap; QueueAttackEvent receives explicit appended callbacks",
+    "batchKey": [
+      "parentQueueId",
+      "parentAttackId",
+      "parentDispatchId",
+      "targetKey"
+    ],
+    "states": [
+      "pending",
+      "completed",
+      "blocked"
+    ],
+    "blockedMeaning": "hitConfirmBlocked skips every hit callback, but applyDamage and OnTargetDied can still occur",
+    "callOrder": "damage applied (including OnTargetDied) then OnEnemyDamage, then ordered callbacks; child queues emitted by callbacks occur afterward",
+    "sourceRefs": [
+      "pkg/core/attack.go:7-73",
+      "pkg/enemy/attack.go:26-106",
+      "pkg/enemy/attack.go:250-266"
+    ]
+  },
+  "families": [
+    {
+      "contractId": "baizhu-skill",
+      "display": "Baizhu E: Universal Diagnosis",
+      "entry": {
+        "directRootAttackCount": 1,
+        "rootAbility": "Universal Diagnosis",
+        "rootTag": "ElementalArt",
+        "rootDelayFrames": 13,
+        "snapshot": "at skill cast; c.skillAtk pointer can be overwritten by a later E cast while older chain callbacks remain pending",
+        "sourceRefs": [
+          "internal/characters/baizhu/skill.go:32-67"
+        ]
+      },
+      "topology": {
+        "maximumAttackDepth": 3,
+        "branching": "each resolved enemy target callback on levels 1 and 2 independently chooses one random enemy within 10m; 0 child if none, 1 child otherwise; each queued 0.6m AoE child may itself resolve several targets",
+        "rootCallbackSlots": [
+          {
+            "index": 0,
+            "siteId": "baizhu.skill.particle",
+            "emitsAttack": 0,
+            "effect": "enemy-only; closure done once; queues 3 or 4 Dendro particles"
+          },
+          {
+            "index": 1,
+            "siteId": "baizhu.skill.chain.first",
+            "emitsAttack": "0 or 1 Universal Diagnosis per resolved target",
+            "emitSiteId": "baizhu.skill.chain-child",
+            "delayFrames": "48 if selected target key equals current target key, else 54",
+            "entryFacts": [
+              "baizhu.skill.next-present (0 or 1 from actual RandomEnemyWithinArea result)",
+              "baizhu.skill.target-changed (0 or 1, present only when next exists)"
+            ]
+          },
+          {
+            "index": 2,
+            "siteId": "baizhu.skill.c6-shield",
+            "presentWhen": "constellation>=6",
+            "emitsAttack": "0 immediate; may schedule Spiritvein through shield lifetime",
+            "effect": "closure done once per root attack; summonSeamlessShield"
+          }
+        ],
+        "level2CallbackSlots": [
+          {
+            "index": 0,
+            "siteId": "baizhu.skill.chain.second",
+            "emitSiteId": "baizhu.skill.chain-child",
+            "emitsAttack": "0 or 1 level-3 attack per resolved target",
+            "delayFrames": "48 same target / 54 changed target",
+            "entryFacts": [
+              "baizhu.skill.next-present (0 or 1 from actual RandomEnemyWithinArea result)",
+              "baizhu.skill.target-changed (0 or 1, present only when next exists)"
+            ]
+          }
+        ],
+        "level3CallbackCount": 0,
+        "healing": "if no next target, skillHealing immediately schedules heal +51; if level-3 child queued, schedules skillHealing at child delay then heal +51; no hit callback on level 3; multiple resolved targets can cause multiple heal tasks",
+        "sourceRefs": [
+          "internal/characters/baizhu/skill.go:54-105",
+          "internal/characters/baizhu/skill.go:107-158"
+        ]
+      },
+      "gates": {
+        "constellation0to1": "attack topology above, no intrinsic event-triggered Splice; C1 adds second skill charge",
+        "constellation2to5": "OnEnemyDamage subscription can queue independent Gossamer Sprite: Splice at damage event before hit callbacks when active character damage and 300f C2 ICD allows; full E scope requires observer/event producer receipt",
+        "constellation6": "root C6 callback summons shield; existing shield may queue Spiritvein immediately and new shield expiry/break can queue Spiritvein later; full effect requires shield lifetime ABI",
+        "hitConfirmBlocked": "all callback slots skipped, so no chain, particle or C6 shield from blocked hit; separately instrumented OnEnemyDamage gameplay is skipped"
+      },
+      "blockers": [
+        "Do not infer a fixed total of three attacks; each 0.6m attack can hit multiple targets and branch per resolved target.",
+        "C2 Splice is sourced by OnEnemyDamage, not a hit callback; C6 shield expiration/break can produce delayed Spiritvein, outside callback-only closure.",
+        "c.skillAtk is mutable character state, so subsequent E casts can change the attack template used by earlier chain callbacks."
+      ],
+      "proposedNarrowScope": "baizhu-skill-chain-c0-c1: direct root and depth<=3 per-target callback-spawned damage, with exact next-present/target-changed facts; prohibit overlapping E invocations while chain remains pending because c.skillAtk is overwritten. Retain C2/C6 full-action gates.",
+      "sourceRefs": [
+        "internal/characters/baizhu/baizhu.go:12-33",
+        "internal/characters/baizhu/cons.go:25-97",
+        "internal/characters/baizhu/cons.go:118-130",
+        "internal/characters/baizhu/burst.go:64-86",
+        "internal/characters/baizhu/shield.go:8-39"
+      ]
+    },
+    {
+      "contractId": "tartaglia-burst",
+      "display": "Childe Q: Flash of Havoc / Light of Obliteration",
+      "entry": {
+        "directRootAttackCount": 1,
+        "rootTag": "ElementalBurst",
+        "branchFact": "meleeKey active at cast; ranged root center primary target radius6, snapshot/hitmark70; melee center player radius8, snapshot/hitmark69",
+        "rangedSideTask": "energy refund +20 at frame+4; not a damage queue",
+        "meleeC6State": "mlBurstUsed=true at cast, consumed only on future exit from melee stance",
+        "sourceRefs": [
+          "internal/characters/tartaglia/burst.go:41-92",
+          "internal/characters/tartaglia/skill.go:185-232"
+        ]
+      },
+      "topology": {
+        "ranged": {
+          "rootCallbackCount": 1,
+          "slots": [
+            {
+              "index": 0,
+              "siteId": "tartaglia.burst.apply-riptide",
+              "immediateChildAttackCount": 0,
+              "effect": "enemy target applies/refreshes riptide; at C4 newly affected target schedules rtC4Tick after 234f"
+            }
+          ]
+        },
+        "melee": {
+          "rootCallbackCount": 1,
+          "slots": [
+            {
+              "index": 0,
+              "siteId": "tartaglia.burst.riptide-blast",
+              "emitSiteId": "tartaglia.burst.riptide-blast-attack",
+              "immediateChildAttackCount": "one per resolved enemy target iff riptide active and slash ICD inactive, otherwise zero",
+              "childAbility": "Riptide Blast",
+              "childTag": "ElementalBurst",
+              "childSnapshotDelayFrames": 1,
+              "childDamageDelayFrames": 1,
+              "effect": "delete riptide after queue"
+            }
+          ],
+          "childCallbackCount": 0
+        },
+        "sourceRefs": [
+          "internal/characters/tartaglia/riptide.go:30-55",
+          "internal/characters/tartaglia/riptide.go:203-246"
+        ]
+      },
+      "gates": {
+        "C2": "OnTargetDied grants 4 energy for riptide-marked target, independent of Q hit callback",
+        "C4": "ranged application of previously unmarked enemy can schedule rtC4Tick every 234f while status active/source matches; this can queue Riptide Slash or Flash depending on later stance and is not finite immediate Q callback scope",
+        "C6": "melee Q sets mlBurstUsed flag; future onExitMeleeStance resets E cooldown rather than queueing damage",
+        "ascension1": "riptide duration extends from 600 to 1080 frames",
+        "hitConfirmBlocked": "callback batch blocked: no application or Blast from callbacks; OnTargetDied may still be emitted by applyDamage before callback phase"
+      },
+      "eventLifetimes": {
+        "death": "OnTargetDied for a riptide-marked enemy schedules Riptide Burst task +5, then attack snapshot/damage delay0; event fires in applyDamage before OnEnemyDamage and callback invocation. Thus lethal melee Q on a pre-marked target can schedule death Burst and then run Blast callback; must not merge or suppress either. Riptide Burst may apply riptide to nearby enemies and lead later deaths.",
+        "riptide": "Ranged Q applies persistent status after damage; later player actions/deaths are not closed by an immediate Q attack graph."
+      },
+      "blockers": [
+        "Immediate Blast branch is callback-finite; full Q is not closed by callbacks because target death subscription and persistent Riptide/C4 timers can create later attacks.",
+        "Melee/ranged cast branch must be source observed; blast count cannot be guessed from pre-hit aura because status and slash ICD are read at callback time per target."
+      ],
+      "proposedNarrowScope": "tartaglia-burst-immediate: direct Q plus per-target immediate melee Blast children, with Riptide/OnTargetDied/C4/C6 side effects explicitly excluded from damage-closed claim and recorded separately",
+      "sourceRefs": [
+        "internal/characters/tartaglia/tartaglia.go:13-53",
+        "internal/characters/tartaglia/asc.go:9-22",
+        "internal/characters/tartaglia/riptide.go:37-81",
+        "internal/characters/tartaglia/riptide.go:249-283",
+        "pkg/enemy/attack.go:78-105",
+        "pkg/enemy/attack.go:250-260"
+      ]
+    },
+    {
+      "contractId": "navia-skill",
+      "display": "Navia E: Rosula Shardshot",
+      "entry": {
+        "directRootAttackCount": 0,
+        "taskSiteId": "navia.skill.fire",
+        "taskDelayCharacterLocalFrames": "press 11; hold input h>0: 41+min(h,241)-1 = 40+min(h,241), range 41..281",
+        "selectedEnemyCountFact": "N = len(one actual EnemiesWithinArea result at firing); must be source observed from existing one-call selection, not recomputed from scene or log",
+        "shotgunQueueCount": "N, exactly one per selected enemy even if pellet hits=0",
+        "shotgunEmitSiteId": "navia.skill.shotgun",
+        "shotgunDamageDelayFrames": 9,
+        "pelletCount": "5+2*min(shrapnelAtFire,3), range 5..11; hits tested per selected enemy and used in multiplier",
+        "sourceRefs": [
+          "internal/characters/navia/skill.go:110-218"
+        ],
+        "producerFacts": [
+          "navia.skill.selected-enemy-count, recorded from the same EnemiesWithinArea slice used by the loop at fire time",
+          "navia.skill.arkhe-icd-active, recorded from the same StatusIsActive read that gates Surging Blade"
+        ],
+        "holdSupport": "press hold<=0: frame11; hold>0 clamped to 241 and firingTime=40+clamped hold; producer receipt is at actual character-local fire time, accounting for hitlag."
+      },
+      "topology": {
+        "shotgunCallbacks": {
+          "C0to1": [
+            {
+              "index": 0,
+              "siteId": "navia.skill.particle",
+              "emitsAttack": 0,
+              "effect": "shared 12f particle ICD; particle count 3/4"
+            }
+          ],
+          "C2plus": [
+            {
+              "index": 0,
+              "siteId": "navia.skill.particle",
+              "emitsAttack": 0
+            },
+            {
+              "index": 1,
+              "siteId": "navia.skill.c2-cannon",
+              "emitSiteId": "navia.skill.c2-cannon-attack",
+              "emitsAttack": "0 or 1 per resolved enemy callback when c2IcdKey inactive; adds 15f shared ICD before queue",
+              "childAbility": "Cannon Fire Support (C2)",
+              "childTag": "ElementalBurst",
+              "childSnapshotDelayFrames": 0,
+              "childDamageDelayFrames": 30,
+              "entryFact": "navia.skill.c2-icd-active from existing callback StatusIsActive read; 1 implies zero child, 0 implies exactly one."
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/navia/skill.go:195-244",
+            "internal/characters/navia/cons.go:35-72",
+            "pkg/core/attack.go:7-33"
+          ]
+        },
+        "c2CannonCallbacks": {
+          "C2to3": [
+            {
+              "index": 0,
+              "siteId": "navia.cannon.shrapnel",
+              "effect": "burstCB adds one shrapnel if burstICD 144f inactive"
+            }
+          ],
+          "C4plus": [
+            {
+              "index": 0,
+              "siteId": "navia.cannon.shrapnel"
+            },
+            {
+              "index": 1,
+              "siteId": "navia.cannon.geo-shred",
+              "effect": "target Geo RES -0.20 for 480f"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/navia/cons.go:63-91",
+            "internal/characters/navia/burst.go:92-108"
+          ],
+          "sharedCallbackNote": "burstCB and c4 are shared with Navia Q; generic callback body labels apply to both, and C2 lineage is established by parent queue IDs."
+        },
+        "arkheTaskChain": {
+          "gate": "arkheICDKey inactive at firing",
+          "site1": "navia.skill.surging-arm",
+          "delayCharacterLocalFrames": 28,
+          "effect": "sets arkhe ICD 420f",
+          "site2": "navia.skill.surging-release",
+          "delayCharacterLocalFramesFromSite1": 36,
+          "emitSiteId": "navia.skill.surging-blade",
+          "attackCount": 1,
+          "attackAbility": "Surging Blade",
+          "attackTag": "ElementalArt",
+          "attackDamageDelayFrames": 0,
+          "attackCallbackCount": 0,
+          "timingNote": "QueueCharTask is character-local and hitlag can postpone global-frame realization; do not assert fixed +64 global frames",
+          "sourceRefs": [
+            "internal/characters/navia/skill.go:298-342",
+            "pkg/core/player/character/hitlag.go:11-35"
+          ],
+          "entryFact": "navia.skill.arkhe-icd-active in navia.skill.fire producer row; 1 implies no arm child, 0 implies exactly one."
+        },
+        "holdCrystalTasks": {
+          "gate": "hold parameter >0",
+          "taskOffsets": "12+30k < firingTime, 1..9 pull checks",
+          "sideEffects": "each scan can schedule shard pickup after ceil(distance/0.4) frames if within12m and arrival before firing/earliestPickup; picked shard can change shrapnel before fire",
+          "sourceRefs": [
+            "internal/characters/navia/skill.go:114-135",
+            "internal/characters/navia/skill.go:344-375"
+          ],
+          "intrinsicDamageBoundary": "The pull task and nested shard pickup queue no attack. Accepted pickup satisfies Core.F+travel < firingTimeF; shrapnel is read afresh by the fire task. Hold need not be gated for the intrinsic E damage graph, but shard/status provenance is a separate state contract."
+        },
+        "termination": "finite per invocation for fixed scene: one fire task, N shotgun queues, at most one arkhe chain, C2 callback depth one; N is dynamic, not a declarative constant",
+        "sourceRefs": [
+          "internal/characters/navia/skill.go:150-218",
+          "internal/characters/navia/cons.go:35-91"
+        ]
+      },
+      "gates": {
+        "C0to1": "shotgun callback slot0 only; C1 at firing reduces Q cooldown and restores up to9 energy from shrapnel",
+        "C2to3": "shotgun slot1 may add one Cannon Fire Support; per-shot closure plus shared 15f ICD, children may hit multiple targets",
+        "C4to5": "C2 cannon callback slot1 adds 480f Geo RES debuff",
+        "C6": "shrapnel after firing becomes max(shrapnel-3,0), rather than zero; excess shrapnel adds crit damage to shot snapshot",
+        "classicVsStellar": "stellar skill.go adds lcrShrapnelICDKey 60f to OnLunarCrystallize gain, classic handler has no such gate; do not share shrapnel-state assumption across lanes",
+        "hitConfirmBlocked": "shotgun target batch blocked skips particle and C2 cannon; its direct damage and other global events may still occur"
+      },
+      "blockers": [
+        "Callback batch alone cannot certify E: root attacks arise inside unlabeled firing task with dynamic N selected targets, and Surging Blade is produced by two nested character-local tasks.",
+        "Full state effects include A1 infusion 240f, C1 resources/cooldown, C4 Geo RES debuff, C6 retained shrapnel, and external Crystallize/Lunar-Crystallize shard events."
+      ],
+      "proposedNarrowScope": "navia-skill-intrinsic-damage for all constellations and press/hold inputs: require actual navia.skill.fire producer fact N, exactly N queued shotguns, actual per-target C2 callback batches, and source-observed Surging Blade arm/release producer path; pickup, A1/C1/C4/C6 state lifetimes remain separately represented by native simulation rather than claimed by attack-topology analyzer.",
+      "sourceRefs": [
+        "internal/characters/navia/asc.go:14-51",
+        "internal/characters/navia/cons.go:15-91",
+        "internal/characters/navia/navia.go:37-52",
+        "internal/characters/navia/skill.go:269-295"
+      ]
+    }
+  ],
+  "nativeCoordination": {
+    "agent": "native_action_provenance",
+    "agreedApi": [
+      "Core.SourceHostLabelHitCallback(siteID,a)",
+      "Core.SourceHostHitCallbackFact(key,value)",
+      "Core.SourceHostQueueHitAttack(siteID,ai,pattern,snapshotDelay,dmgDelay,callbacks...)",
+      "Core.SourceHostQueueHitAttackEvent(siteID,&atk,delay)",
+      "Core.SourceHostAbilityProducerFact(name,value) -> active AbilityProducer.entryFacts (new minimal API, no method-entry fallback)"
+    ],
+    "requirements": [
+      "Do not wrap closures or alter callbacks; labels at callback body first line.",
+      "Join children with callback row emitted queues by queueId/attackId, not attack names.",
+      "Ability producer labels and queue emit sites are additionally required for Navia firing and arkhe tasks.",
+      "Observe zero-child callbacks and blocked batches; absence of child is not proof of blocked or no-target branch."
+    ]
+  },
+  "implementationProposal": {
+    "patches": {
+      "classic": {
+        "path": "/tmp/gidps-111-callback-sites-b-classic.patch",
+        "sha256": "165fe04b30a1d8d5f8fc2224a5ecbd4f0693e0e76c86c56f2730eefaa2263321",
+        "bytes": 4254,
+        "gitApplyCheckExitCode": 0
+      },
+      "stellar": {
+        "path": "/tmp/gidps-111-callback-sites-b-stellar.patch",
+        "sha256": "3f779a04a7a067fc1bfc7016bd9a61e7cb76be2bbf481f3858a16c61e552adf4",
+        "bytes": 4254,
+        "gitApplyCheckExitCode": 0
+      }
+    },
+    "preTalentInstrumentationCheck": {
+      "classicRoot": "/tmp/gidps-source-host-cache/build-GGPmB1/source",
+      "gitApplyCheckExitCode": 0,
+      "note": "111 hunks avoid SourceHostTalentRead context; preinstrument source lacks current 108/110 site changes but these four source files still accept patch."
+    },
+    "changedFiles": [
+      "internal/characters/baizhu/skill.go",
+      "internal/characters/navia/skill.go",
+      "internal/characters/navia/cons.go",
+      "internal/characters/navia/burst.go"
+    ],
+    "siteNotes": [
+      "Baizhu first/second chain closure precomputes site label by count; does not wrap callback.",
+      "Baizhu child QueueAttackEvent uses SourceHostQueueHitAttackEvent with same delay and attack object; branch facts come from same random next target.",
+      "Navia fire uses one EnemiesWithinArea call saved to targets and records len(targets) to active producer, then iterates same targets.",
+      "Navia Surging Blade gate records existing arkhe ICD read inside fire producer and labels both character-local tasks.",
+      "Navia C2 records existing ICD read and tags queued Cannon Fire Support; shared burstCB and c4 bodies use generic cannon labels.",
+      "No Tartaglia Q site patch or contract registration, due OnTargetDied and C4 lifetime gaps.",
+      "No Baizhu C2/C6 contract enablement until event/shield lifetime evidence is represented."
+    ],
+    "neededAnalyzerContract": [
+      "Use AbilityProducer.entryFacts at run time for Navia N and arkhe gate; do not read invocation.entryFacts for late values.",
+      "Require exact fire producer queuedAttack count N and exact arm child count 1-arkheICDActive.",
+      "Require Baizhu per-target callback child count equal next-present fact, and child queue frame delay 48 or54 from target-changed fact.",
+      "Require Navia C2 callback child count equal 1-c2ICDActive fact; use queueID/attackID lineage and generic shared cannon callback body labels.",
+      "Keep Baizhu C2/C6 disabled, Tartaglia Q unregistered; do not claim full state lifetime certification from an intrinsic-damage-only receipt."
+    ]
+  }
+}

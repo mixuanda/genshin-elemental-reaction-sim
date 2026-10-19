@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrieval": {
+    "url": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "sha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+    "bytes": 56440121,
+    "retrievedAt": "2026-09-23T06:21:35.667874+00:00",
+    "localExtracted": "/tmp/gidps-gcsim-b4ae769"
+  },
+  "scope": "实际AirborneXianyun资格、新生C0物理下落，明确可选单次碰撞与低／高空落地、Grounded闭环；非通用腾空入口，既有零碰撞动作保留。",
+  "definitions": {
+    "sha256": "aac2170a16d3e43ced18de8fe7c09b22f34871b3851c104b926b509c19aaddc6",
+    "templates": 2,
+    "uniqueCoefficientVectors": 3,
+    "valuesPerVector": 15,
+    "coefficientTolerance": 0
+  },
+  "archive": {
+    "path": "packages/game-data/sources/noelle-plunge-casts/source.json.gz",
+    "bytes": 22792,
+    "sha256": "a98ac3187e9788e4b3fa140f7dd54a3041da947f984430157a8f514e699ba079",
+    "files": 19
+  },
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "path": "internal/characters/noelle/plunge.go",
+      "bytes": 4892,
+      "sha256": "c3373a9f2e201acfd7395c44cb28c70721b115f228b7b3fc88b43ef61f492d71",
+      "gitBlobSha1": "15a7ca025826defe5e7817db1c0748c761b4c2c6"
+    },
+    {
+      "path": "internal/characters/noelle/zz_noelle.dm.go",
+      "bytes": 5059,
+      "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe",
+      "gitBlobSha1": "b98c2ce27278494a2aeefddaf571119a47d59240"
+    },
+    {
+      "path": "internal/characters/noelle/noelle.go",
+      "bytes": 1536,
+      "sha256": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+      "gitBlobSha1": "ce31150fa480543faf8402480a87d4c60cce9449"
+    },
+    {
+      "path": "internal/characters/noelle/burst.go",
+      "bytes": 3922,
+      "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d",
+      "gitBlobSha1": "ae4b7433645675eecd49144e5e39384088562842"
+    },
+    {
+      "path": "internal/characters/noelle/asc.go",
+      "bytes": 2185,
+      "sha256": "f06a358e6610eec48279f7bf87247935f90142c425dac47dcb09a698f9750809",
+      "gitBlobSha1": "1f996e569e9c91a6a4108c290943895c9a955552"
+    },
+    {
+      "path": "internal/characters/noelle/cons.go",
+      "bytes": 870,
+      "sha256": "d150c8f57ba79f38d2289510fa61d471edaaf7f109fea1d9275034aab9a9cfd5",
+      "gitBlobSha1": "c3ed3c37af705af60fb857be7af73ed909c7cf28"
+    },
+    {
+      "path": "internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "gitBlobSha1": "6f0f47b4097751ee1076677356ce0c4bdbe038c7"
+    },
+    {
+      "path": "internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlobSha1": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "bytes": 7052,
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "gitBlobSha1": "1bf462c6ebbc58342377aa1a31ae82285ec6b75b"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "gitBlobSha1": "c2e89e614a2513d00c710478f8dc55f2773d2ead"
+    },
+    {
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+    }
+  ],
+  "sourceNotes": [
+    "碰撞33f、低落地39f、高落地42f均在命中时独立取样；低／高完整动画分别80/82f。",
+    "返回Grounded的固定源码操作发生在下落入口返回的defer，并非在落地伤害时才执行；仍显式确认实际状态闭环。",
+    "Q未激活且无外部附魔才采用此物理分支；单击不要求未来落地记录。"
+  ]
+}

@@ -1,0 +1,11 @@
+[WebServer] (node:96227) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:96228) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-action-origin.spec.ts:41:1 › native status ownership preserves gameplay and makes an editable activation hit collection (8.7s)
+  ✓  2 [chromium] › apps/web/e2e/update-operation-review.spec.ts:5:1 › imports a pipeline failure receipt read-only and clears stale output on invalid import (3.5s)
+
+  2 passed (13.6s)

@@ -1,0 +1,82 @@
+{
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceRoot": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "profileId": "gcsim-b4ae769-artifact-buffs-v1",
+  "classification": "fixed-source-assumed",
+  "scope": "ordinary reactions and no-character-hitlag callbacks; not game-verified",
+  "extraction": "verbatim local frozen source bytes; no new external simulation executed",
+  "files": [
+    {
+      "sourcePath": "internal/artifacts/noblesse/noblesse.go",
+      "archivePath": "raw/internal/artifacts/noblesse/noblesse.go",
+      "sha256": "e9feadc42267f06b409ff7cbaca5ea614f65be28af067b3cc18b1652ab2a564a",
+      "bytes": 2989
+    },
+    {
+      "sourcePath": "internal/artifacts/instructor/instructor.go",
+      "archivePath": "raw/internal/artifacts/instructor/instructor.go",
+      "sha256": "9844d4ff75aa3e05f0966f7d36984153fe911ec607fd0bb8be7da6c318679e89",
+      "bytes": 2083
+    },
+    {
+      "sourcePath": "internal/artifacts/gildeddreams/gildeddreams.go",
+      "archivePath": "raw/internal/artifacts/gildeddreams/gildeddreams.go",
+      "sha256": "6743ef793cfdbb5b1ca3484724d7f993ffe0886272f9af59c1665db04717d1e2",
+      "bytes": 2935
+    },
+    {
+      "sourcePath": "internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go",
+      "archivePath": "raw/internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go",
+      "sha256": "e6b70093c84f2214ae50ca5ec26e9338fa5980fe11d3b015d392f61afbffd0c7",
+      "bytes": 1686
+    },
+    {
+      "sourcePath": "internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "archivePath": "raw/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "sha256": "f4fe90daa9f2b85466d0831c9225e63cdb5614371ee353bfe4dcf11f3e0bb862",
+      "bytes": 3541
+    },
+    {
+      "sourcePath": "internal/artifacts/vermillion/vermillion.go",
+      "archivePath": "raw/internal/artifacts/vermillion/vermillion.go",
+      "sha256": "ef1a81a53baa156fd13ef1dc338d312d25bbefe43480db47c1e63ad781646950",
+      "bytes": 2982
+    },
+    {
+      "sourcePath": "pkg/core/hacks/hacks.go",
+      "archivePath": "raw/pkg/core/hacks/hacks.go",
+      "sha256": "fc8ff0b86d3bb6d6e19fb8b461a1f72b38d493183e90e2e8a4cd79eb2d1a5d07",
+      "bytes": 272
+    },
+    {
+      "sourcePath": "pkg/core/player/character/mods.go",
+      "archivePath": "raw/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963
+    },
+    {
+      "sourcePath": "pkg/core/player/character/stats.go",
+      "archivePath": "raw/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321
+    },
+    {
+      "sourcePath": "pkg/core/player/character/hitlag.go",
+      "archivePath": "raw/pkg/core/player/character/hitlag.go",
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "bytes": 1566
+    },
+    {
+      "sourcePath": "pkg/core/player/exec.go",
+      "archivePath": "raw/pkg/core/player/exec.go",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "bytes": 7052
+    },
+    {
+      "sourcePath": "pkg/modifier/modifier.go",
+      "archivePath": "raw/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345
+    }
+  ]
+}

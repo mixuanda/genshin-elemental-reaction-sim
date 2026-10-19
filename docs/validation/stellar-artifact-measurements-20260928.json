@@ -1,0 +1,215 @@
+[
+  {
+    "profile": "stellar-conduct",
+    "durationSeconds": 10,
+    "totalDamage": 5631.125,
+    "totalDps": 563.1125,
+    "ordinaryDamageEvents": 9,
+    "artifactCallbacks": 1,
+    "artifactReads": 0,
+    "specialDamageEvents": 0,
+    "firstArtifactCallback": 6,
+    "baselineAtkPct": {
+      "c": 0,
+      "e": 0.18
+    },
+    "artifactModel": {
+      "actors": [
+        {
+          "actorId": "e",
+          "setId": "artifact-set:15048"
+        }
+      ],
+      "baselineIncludesStaticTwoPiece": true,
+      "mode": "fixed-a7-stellar-artifact-4pc-v1"
+    }
+  },
+  {
+    "profile": "stellar-swirl",
+    "durationSeconds": 5,
+    "totalDamage": 31490.881476071634,
+    "totalDps": 6298.176295214327,
+    "ordinaryDamageEvents": 8,
+    "artifactCallbacks": 7,
+    "artifactReads": 16,
+    "specialDamageEvents": 9,
+    "firstArtifactCallback": 6,
+    "baselineAtkPct": {
+      "c": 0,
+      "a": 0.18
+    },
+    "artifactModel": {
+      "actors": [
+        {
+          "actorId": "a",
+          "setId": "artifact-set:15047"
+        }
+      ],
+      "allowGuideSourceConflict": true,
+      "baselineIncludesStaticTwoPiece": true,
+      "mode": "fixed-a7-stellar-artifact-4pc-v1"
+    },
+    "firstBenefitedEvent": {
+      "id": 0,
+      "snapshotFrame": 6,
+      "deliveryFrame": 9,
+      "damage": 2340.7863448592034,
+      "owner": "a",
+      "contributor": {
+        "base": {
+          "characterLevel": 90,
+          "evidence": "provisional",
+          "kind": "level-base",
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/reaction.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/reaction.dm.go"
+          ],
+          "value": 1446.8535
+        },
+        "critDamage": 0.5,
+        "critRate": 0.76,
+        "elementalMastery": 200,
+        "elevationMultiplier": 1,
+        "id": "a",
+        "modifierSourceRefs": [
+          "reference-profile:explicitly-disabled-special-base-bonus-additive-elevation",
+          "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/artifacts/scarletproof/scarletproof.go"
+        ],
+        "reactionBonus": 0.4,
+        "specialAdditive": 0,
+        "specialBaseBonus": 0,
+        "stellarArtifactBonus": {
+          "heart": null,
+          "scarlet": {
+            "expiresAtFrame": 606,
+            "wearerActorId": "a"
+          },
+          "snapshotFrame": 6,
+          "sourceProfileId": "fixed-a7-stellar-artifact-4pc-v1"
+        }
+      },
+      "artifactSteps": [
+        {
+          "id": "stellar-swirl-2.contributor.0.artifact.scarletEligible",
+          "formula": "eligible",
+          "substitution": "1",
+          "result": {
+            "display": "1",
+            "unit": "indicator",
+            "value": 1
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.0.artifact.scarletWindow",
+          "formula": "(if (snapshotFrame + 1) ≤ expiryFrame then 1 else 0)",
+          "substitution": "(if (6 + 1) ≤ 606 then 1 else 0)",
+          "result": {
+            "display": "1",
+            "unit": "indicator",
+            "value": 1
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.0.artifact.scarletBonus",
+          "formula": "(scarletEligible × scarletWindow × 0.4)",
+          "substitution": "(1 × 1 × 0.4)",
+          "result": {
+            "display": "0.4",
+            "unit": "ratio",
+            "value": 0.4
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.0.artifact.heartWindow",
+          "formula": "(if (snapshotFrame + 1) ≤ expiryFrame then 1 else 0)",
+          "substitution": "(if (6 + 1) ≤ 0 then 1 else 0)",
+          "result": {
+            "display": "0",
+            "unit": "indicator",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.0.artifact.heartBonus",
+          "formula": "(heartWindow × 0.5)",
+          "substitution": "(0 × 0.5)",
+          "result": {
+            "display": "0",
+            "unit": "ratio",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.0.artifact.bonus",
+          "formula": "(scarletBonus + heartBonus)",
+          "substitution": "(0.4 + 0)",
+          "result": {
+            "display": "0.4",
+            "unit": "ratio",
+            "value": 0.4
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.1.artifact.scarletEligible",
+          "formula": "eligible",
+          "substitution": "0",
+          "result": {
+            "display": "0",
+            "unit": "indicator",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.1.artifact.scarletWindow",
+          "formula": "(if (snapshotFrame + 1) ≤ expiryFrame then 1 else 0)",
+          "substitution": "(if (6 + 1) ≤ 0 then 1 else 0)",
+          "result": {
+            "display": "0",
+            "unit": "indicator",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.1.artifact.scarletBonus",
+          "formula": "(scarletEligible × scarletWindow × 0.4)",
+          "substitution": "(0 × 0 × 0.4)",
+          "result": {
+            "display": "0",
+            "unit": "ratio",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.1.artifact.heartWindow",
+          "formula": "(if (snapshotFrame + 1) ≤ expiryFrame then 1 else 0)",
+          "substitution": "(if (6 + 1) ≤ 0 then 1 else 0)",
+          "result": {
+            "display": "0",
+            "unit": "indicator",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.1.artifact.heartBonus",
+          "formula": "(heartWindow × 0.5)",
+          "substitution": "(0 × 0.5)",
+          "result": {
+            "display": "0",
+            "unit": "ratio",
+            "value": 0
+          }
+        },
+        {
+          "id": "stellar-swirl-2.contributor.1.artifact.bonus",
+          "formula": "(scarletBonus + heartBonus)",
+          "substitution": "(0 + 0)",
+          "result": {
+            "display": "0",
+            "unit": "ratio",
+            "value": 0
+          }
+        }
+      ]
+    }
+  }
+]

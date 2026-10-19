@@ -1,0 +1,484 @@
+{
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.883,
+      "log": "docs/validation/source-auxiliary-formulas-classic-build-20260928.log"
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.261,
+      "log": "docs/validation/source-auxiliary-formulas-stellar-build-20260928.log"
+    },
+    "trace-unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/calculation-trace.test.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.598,
+      "log": "docs/validation/source-auxiliary-formulas-trace-unit-20260928.log"
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.687,
+      "log": "docs/validation/source-auxiliary-formulas-web-build-20260928.log"
+    },
+    "web-build-retry1": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.75,
+      "log": "docs/validation/source-auxiliary-formulas-web-build-retry1-20260928.log"
+    },
+    "e2e": {
+      "command": [
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-auxiliary-formulas.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 13.318,
+      "log": "docs/validation/source-auxiliary-formulas-e2e-20260928.log"
+    },
+    "web-label-bundle": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 1.146,
+      "log": "docs/validation/source-auxiliary-formulas-web-label-bundle-20260928.log"
+    }
+  },
+  "runs": [
+    {
+      "lane": "classic",
+      "scene": "shield-healing",
+      "calculations": 3321,
+      "applications": 30,
+      "kinds": {
+        "artifact-scalar": 3199,
+        "character-cooldown": 10,
+        "damage": 30,
+        "character-healing": 40,
+        "player-incoming": 2,
+        "player-shield": 2,
+        "player-shield-min": 1,
+        "player-drain": 2,
+        "character-energy": 34,
+        "transformative-base": 1
+      },
+      "healingApplications": 8,
+      "playerApplications": [
+        {
+          "id": 398,
+          "calculationId": 386,
+          "attackId": 3,
+          "frame": 151,
+          "targetKey": 0,
+          "activeActorIndex": 1,
+          "rawDamage": 12000,
+          "damageAfterShield": 6933.230352654,
+          "shieldAbsorbed": 5066.769647346,
+          "drainAttempted": 6933.230352654,
+          "isCrit": false,
+          "shieldCalculationIds": [
+            389,
+            390,
+            391
+          ],
+          "drainCalculationId": 395
+        },
+        {
+          "id": 2967,
+          "calculationId": 2963,
+          "attackId": 31,
+          "frame": 956,
+          "targetKey": 0,
+          "activeActorIndex": 0,
+          "rawDamage": 137.21930921536602,
+          "damageAfterShield": 137.21930921536602,
+          "shieldAbsorbed": 0,
+          "drainAttempted": 137.21930921536602,
+          "isCrit": false,
+          "shieldCalculationIds": [],
+          "drainCalculationId": 2966
+        }
+      ],
+      "baseTypes": {
+        "absolute": 8
+      },
+      "nonzeroDebtReads": 0,
+      "resistanceConsumptionCount": 17,
+      "earlierCreationExample": [
+        1748,
+        577,
+        {
+          "sourceHolderIndex": 3,
+          "createdFrame": 518,
+          "targetKey": 1,
+          "element": "dendro"
+        }
+      ],
+      "executionArtifact": {
+        "wasmSha256": "4ef0fd2f3c8fc2f598805c7add06b5119d5b1f3929edf0ca65c36c8d85257223",
+        "wasmBytes": 42111006
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "swirl-cooldown",
+      "calculations": 119,
+      "applications": 15,
+      "kinds": {
+        "artifact-scalar": 30,
+        "damage": 15,
+        "character-cooldown": 16,
+        "transformative-base": 3,
+        "character-energy": 33,
+        "additive-base": 2,
+        "character-healing": 20
+      },
+      "healingApplications": 4,
+      "playerApplications": [],
+      "baseTypes": {
+        "absolute": 4
+      },
+      "nonzeroDebtReads": 0,
+      "resistanceConsumptionCount": 8,
+      "earlierCreationExample": [
+        16,
+        51,
+        {
+          "sourceHolderIndex": 1,
+          "createdFrame": 50,
+          "targetKey": 1,
+          "element": "hydro"
+        }
+      ],
+      "executionArtifact": {
+        "wasmSha256": "4ef0fd2f3c8fc2f598805c7add06b5119d5b1f3929edf0ca65c36c8d85257223",
+        "wasmBytes": 42111006
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "shield-healing",
+      "calculations": 3320,
+      "applications": 30,
+      "kinds": {
+        "artifact-scalar": 3199,
+        "character-cooldown": 10,
+        "damage": 30,
+        "character-healing": 40,
+        "player-incoming": 2,
+        "player-shield": 2,
+        "player-shield-min": 1,
+        "player-drain": 2,
+        "character-energy": 34
+      },
+      "healingApplications": 8,
+      "playerApplications": [
+        {
+          "id": 398,
+          "calculationId": 386,
+          "attackId": 3,
+          "frame": 151,
+          "targetKey": 0,
+          "activeActorIndex": 1,
+          "rawDamage": 12000,
+          "damageAfterShield": 6933.230352654,
+          "shieldAbsorbed": 5066.769647346,
+          "drainAttempted": 6933.230352654,
+          "isCrit": false,
+          "shieldCalculationIds": [
+            389,
+            390,
+            391
+          ],
+          "drainCalculationId": 395
+        },
+        {
+          "id": 2966,
+          "calculationId": 2962,
+          "attackId": 31,
+          "frame": 956,
+          "targetKey": 0,
+          "activeActorIndex": 0,
+          "rawDamage": 137.21930921536602,
+          "damageAfterShield": 137.21930921536602,
+          "shieldAbsorbed": 0,
+          "drainAttempted": 137.21930921536602,
+          "isCrit": false,
+          "shieldCalculationIds": [],
+          "drainCalculationId": 2965
+        }
+      ],
+      "baseTypes": {
+        "absolute": 8
+      },
+      "nonzeroDebtReads": 0,
+      "resistanceConsumptionCount": 17,
+      "earlierCreationExample": [
+        1748,
+        577,
+        {
+          "sourceHolderIndex": 3,
+          "createdFrame": 518,
+          "targetKey": 1,
+          "element": "dendro"
+        }
+      ],
+      "executionArtifact": {
+        "wasmSha256": "ac76a4e931dde226f79dfd8cf2843dcd46386e42efa39a74d143f6c06dc3285e",
+        "wasmBytes": 63194984
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "swirl-cooldown",
+      "calculations": 114,
+      "applications": 15,
+      "kinds": {
+        "artifact-scalar": 30,
+        "damage": 15,
+        "character-cooldown": 16,
+        "character-energy": 33,
+        "character-healing": 20
+      },
+      "healingApplications": 4,
+      "playerApplications": [],
+      "baseTypes": {
+        "absolute": 4
+      },
+      "nonzeroDebtReads": 0,
+      "resistanceConsumptionCount": 8,
+      "earlierCreationExample": [
+        15,
+        51,
+        {
+          "sourceHolderIndex": 1,
+          "createdFrame": 50,
+          "targetKey": 1,
+          "element": "hydro"
+        }
+      ],
+      "executionArtifact": {
+        "wasmSha256": "ac76a4e931dde226f79dfd8cf2843dcd46386e42efa39a74d143f6c06dc3285e",
+        "wasmBytes": 63194984
+      }
+    }
+  ],
+  "e2e": {
+    "schemaVersion": "source-auxiliary-validation-v1",
+    "runs": [
+      {
+        "variant": "classic",
+        "scenario": "shield-healing",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "4ef0fd2f3c8fc2f598805c7add06b5119d5b1f3929edf0ca65c36c8d85257223",
+        "calculations": 3321,
+        "healingApplications": 8,
+        "playerApplications": 2,
+        "healingStages": {
+          "base": 8,
+          "bonus": 8,
+          "amount": 8,
+          "receive": 8,
+          "overheal": 8
+        },
+        "cooldownOperations": {
+          "duration": 5,
+          "remaining": 5,
+          "reduce": 0
+        },
+        "auxiliaryRules": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 1083,
+          "tenacity-4pc-shield": 975,
+          "deepwood-4pc-res": 17,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 0,
+          "viridescent-4pc-res-pyro": 0
+        },
+        "consumers": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 2,
+          "tenacity-4pc-shield": 2,
+          "deepwood-4pc-res": 17,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 0,
+          "viridescent-4pc-res-pyro": 0
+        },
+        "healingEdit": {
+          "applicationId": 1,
+          "originalAmount": 408.74894297092,
+          "editedAmount": 449.62383726801204,
+          "originalOverheal": 408.7489429709203,
+          "editedOverheal": 449.6238372680127,
+          "restoredResult": "449.6238372680127"
+        }
+      },
+      {
+        "variant": "classic",
+        "scenario": "swirl-cooldown",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "4ef0fd2f3c8fc2f598805c7add06b5119d5b1f3929edf0ca65c36c8d85257223",
+        "calculations": 119,
+        "healingApplications": 4,
+        "playerApplications": 0,
+        "healingStages": {
+          "base": 4,
+          "bonus": 4,
+          "amount": 4,
+          "receive": 4,
+          "overheal": 4
+        },
+        "cooldownOperations": {
+          "duration": 4,
+          "remaining": 10,
+          "reduce": 2
+        },
+        "auxiliaryRules": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 0,
+          "tenacity-4pc-shield": 0,
+          "deepwood-4pc-res": 4,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 2,
+          "viridescent-4pc-res-pyro": 0
+        },
+        "consumers": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 0,
+          "tenacity-4pc-shield": 0,
+          "deepwood-4pc-res": 5,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 3,
+          "viridescent-4pc-res-pyro": 0
+        },
+        "cooldownEdit": {
+          "calculationId": 9,
+          "originalValue": 900,
+          "editedValue": 960,
+          "restoredResult": "960"
+        }
+      },
+      {
+        "variant": "stellar",
+        "scenario": "shield-healing",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "ac76a4e931dde226f79dfd8cf2843dcd46386e42efa39a74d143f6c06dc3285e",
+        "calculations": 3320,
+        "healingApplications": 8,
+        "playerApplications": 2,
+        "healingStages": {
+          "base": 8,
+          "bonus": 8,
+          "amount": 8,
+          "receive": 8,
+          "overheal": 8
+        },
+        "cooldownOperations": {
+          "duration": 5,
+          "remaining": 5,
+          "reduce": 0
+        },
+        "auxiliaryRules": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 1083,
+          "tenacity-4pc-shield": 975,
+          "deepwood-4pc-res": 17,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 0,
+          "viridescent-4pc-res-pyro": 0
+        },
+        "consumers": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 2,
+          "tenacity-4pc-shield": 2,
+          "deepwood-4pc-res": 17,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 0,
+          "viridescent-4pc-res-pyro": 0
+        }
+      },
+      {
+        "variant": "stellar",
+        "scenario": "swirl-cooldown",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "ac76a4e931dde226f79dfd8cf2843dcd46386e42efa39a74d143f6c06dc3285e",
+        "calculations": 114,
+        "healingApplications": 4,
+        "playerApplications": 0,
+        "healingStages": {
+          "base": 4,
+          "bonus": 4,
+          "amount": 4,
+          "receive": 4,
+          "overheal": 4
+        },
+        "cooldownOperations": {
+          "duration": 4,
+          "remaining": 10,
+          "reduce": 2
+        },
+        "auxiliaryRules": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 0,
+          "tenacity-4pc-shield": 0,
+          "deepwood-4pc-res": 4,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 2,
+          "viridescent-4pc-res-pyro": 0
+        },
+        "consumers": {
+          "maiden-4pc-heal": 4,
+          "bolide-2pc-shield": 0,
+          "tenacity-4pc-shield": 0,
+          "deepwood-4pc-res": 5,
+          "viridescent-4pc-res-cryo": 0,
+          "viridescent-4pc-res-electro": 0,
+          "viridescent-4pc-res-hydro": 3,
+          "viridescent-4pc-res-pyro": 0
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "trackedDiffCheck": "passed"
+}

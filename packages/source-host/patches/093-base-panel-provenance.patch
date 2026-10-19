@@ -1,0 +1,278 @@
+--- a/pkg/core/info/sourcehost_stat_provenance.go
++++ b/pkg/core/info/sourcehost_stat_provenance.go
+@@ -13,6 +13,7 @@
+ 	Selector []attributes.Stat `json:"selector"`
+ 	NonExtra bool `json:"nonExtra"`
+ 	Base attributes.Stats `json:"base"`
++	BasePanel *SourceHostBasePanel `json:"basePanel,omitempty"`
+ 	Steps []*SourceHostStatStep `json:"steps"`
+ 	Result attributes.Stats `json:"result"`
+ }
+--- a/pkg/core/player/character/character.go
++++ b/pkg/core/player/character/character.go
+@@ -80,6 +80,7 @@
+ 	sourceHostStatSequence int
+ 	sourceHostStatStack []*info.SourceHostStatRead
+ 	SourceHost *sourcehost.Bridge
++	SourceHostBasePanel *info.SourceHostBasePanel `json:"-"`
+ 	index int
+ 	f     *int // current frame
+ 	debug bool // debug mode?
+@@ -159,6 +160,23 @@
+ 	c.queue = task.New(&c.TimePassed)
+ 	s := (*[attributes.EndStatType]float64)(p.Stats)
+ 	c.BaseStats = *s
++	c.SourceHostBasePanel = &info.SourceHostBasePanel{
++		Version: "base-panel-v1", CharacterKey: p.Base.Key.String(),
++		CharacterLevel: p.Base.Level, CharacterMaxLevel: p.Base.MaxLevel,
++		WeaponKey: p.Weapon.Key.String(), WeaponLevel: p.Weapon.Level,
++		WeaponMaxLevel: p.Weapon.MaxLevel, WeaponRefinement: p.Weapon.Refine,
++		InputOrigin: "configured-stats", CharacterSteps: []info.SourceHostBaseStep{},
++		WeaponSteps: []info.SourceHostBaseStep{},
++	}
++	if p.RandomSubstats != nil { c.SourceHostBasePanel.InputOrigin = "sampled-stats" }
++	if len(p.StatsByLabel) > 0 {
++		c.SourceHostBasePanel.ConfiguredLabels = make(map[string]attributes.Stats, len(p.StatsByLabel))
++		for label, values := range p.StatsByLabel {
++			var copied attributes.Stats
++			copy(copied[:], values)
++			c.SourceHostBasePanel.ConfiguredLabels[label] = copied
++		}
++	}
+ 	c.Equip.Sets = make(map[keys.Set]info.Set)
+ 
+ 	// set to -1 by default and let each char specify normal/skill/burst cons
+--- a/pkg/core/player/character/basestat.go
++++ b/pkg/core/player/character/basestat.go
+@@ -15,12 +15,22 @@
+ 	if data == nil {
+ 		return fmt.Errorf("unexpected nil char data for %v", c.Base.Key)
+ 	}
+-	base, err := AvatarBaseStat(c.Base, data)
++	var panel *info.SourceHostBasePanel
++	if c.SourceHost != nil {
++		panel = c.SourceHostBasePanel
++	}
++	if panel != nil {
++		panel.ActorIndex, panel.ConfiguredStats = c.Index(), c.BaseStats
++	}
++	base, err := avatarBaseStat(c.Base, data, panel)
+ 	if err != nil {
+ 		return err
+ 	}
+ 	for i, v := range base {
+ 		c.BaseStats[i] += v
++	}
++	if panel != nil {
++		copy(panel.CharacterStats[:], base)
+ 	}
+ 	asc := AvatarAsc(c.Base.MaxLevel, data)
+ 	c.Base.Ascension = asc
+@@ -29,12 +39,16 @@
+ 	if wdata == nil {
+ 		return fmt.Errorf("unexpected nil weapon data for %v", c.Weapon.Key)
+ 	}
+-	basew, err := WeaponBaseStat(c.Weapon, wdata)
++	basew, err := weaponBaseStat(c.Weapon, wdata, panel)
+ 	if err != nil {
+ 		return err
+ 	}
+ 	for i, v := range basew {
+ 		c.BaseStats[i] += v
++	}
++	if panel != nil {
++		copy(panel.WeaponStats[:], basew)
++		panel.Result = c.BaseStats
+ 	}
+ 
+ 	// misc data
+@@ -71,19 +85,65 @@
+ 
+ // TODO: this code should eventually be refactor into attributes service
+ func AvatarBaseStat(char info.CharacterBase, data *model.AvatarData) ([]float64, error) {
++	return avatarBaseStat(char, data, nil)
++}
++
++func avatarBaseStat(char info.CharacterBase, data *model.AvatarData, panel *info.SourceHostBasePanel) ([]float64, error) {
+ 	res := make([]float64, attributes.EndStatType)
+-
+ 	lvl := min(max(char.Level-1, 0), 99)
+-	res[attributes.BaseHP] = data.Stats.BaseHp * catalog.GrowCurve[data.Stats.HpCurve][lvl]
+-	res[attributes.BaseATK] = data.Stats.BaseAtk * catalog.GrowCurve[data.Stats.AtkCurve][lvl]
+-	res[attributes.BaseDEF] = data.Stats.BaseDef * catalog.GrowCurve[data.Stats.DefCruve][lvl]
++	// The values and operation order below are the native recipe itself.
++	hpCurve := catalog.GrowCurve[data.Stats.HpCurve][lvl]
++	res[attributes.BaseHP] = data.Stats.BaseHp * hpCurve
++	if panel != nil {
++		base, factor, index := data.Stats.BaseHp, hpCurve, lvl
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.BaseHP), Operation: "set", Kind: "growth", Value: res[attributes.BaseHP],
++			Base: &base, CurveKey: data.Stats.HpCurve.String(), CurveIndex: &index, CurveMultiplier: &factor,
++		})
++	}
++	atkCurve := catalog.GrowCurve[data.Stats.AtkCurve][lvl]
++	res[attributes.BaseATK] = data.Stats.BaseAtk * atkCurve
++	if panel != nil {
++		base, factor, index := data.Stats.BaseAtk, atkCurve, lvl
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.BaseATK), Operation: "set", Kind: "growth", Value: res[attributes.BaseATK],
++			Base: &base, CurveKey: data.Stats.AtkCurve.String(), CurveIndex: &index, CurveMultiplier: &factor,
++		})
++	}
++	defCurve := catalog.GrowCurve[data.Stats.DefCruve][lvl]
++	res[attributes.BaseDEF] = data.Stats.BaseDef * defCurve
++	if panel != nil {
++		base, factor, index := data.Stats.BaseDef, defCurve, lvl
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.BaseDEF), Operation: "set", Kind: "growth", Value: res[attributes.BaseDEF],
++			Base: &base, CurveKey: data.Stats.DefCruve.String(), CurveIndex: &index, CurveMultiplier: &factor,
++		})
++	}
+ 	res[attributes.EM] = data.Stats.ElementMastery
+-	// default er/cr/cd
++	if panel != nil {
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.EM), Operation: "set", Kind: "catalog", Value: data.Stats.ElementMastery,
++		})
++	}
+ 	res[attributes.ER] += 1
++	if panel != nil {
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.ER), Operation: "add", Kind: "default", Value: 1,
++		})
++	}
+ 	res[attributes.CD] += 0.5
++	if panel != nil {
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.CD), Operation: "add", Kind: "default", Value: 0.5,
++		})
++	}
+ 	res[attributes.CR] += 0.05
+-
+-	// calculate promotion bonus
++	if panel != nil {
++		panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++			StatIndex: int(attributes.CR), Operation: "add", Kind: "default", Value: 0.05,
++		})
++	}
++
+ 	ind := -1
+ 	for i, v := range data.Stats.PromoData {
+ 		if char.MaxLevel >= int(v.MaxLevel) {
+@@ -91,26 +151,46 @@
+ 		}
+ 	}
+ 	if ind > -1 {
+-		for _, v := range data.Stats.PromoData[ind].AddProps {
++		promo := data.Stats.PromoData[ind]
++		if panel != nil {
++			index, maxLevel := ind, int(promo.MaxLevel)
++			panel.CharacterPromotionIndex, panel.CharacterPromotionMaxLevel = &index, &maxLevel
++		}
++		for _, v := range promo.AddProps {
+ 			t := info.ConvertProtoStat(v.PropType)
+ 			res[t] += v.Value
+-		}
+-	}
+-
++			if panel != nil {
++				index, maxLevel := ind, int(promo.MaxLevel)
++				panel.CharacterSteps = append(panel.CharacterSteps, info.SourceHostBaseStep{
++					StatIndex: int(t), Operation: "add", Kind: "promotion", Value: v.Value,
++					PromotionIndex: &index, PromotionMaxLevel: &maxLevel,
++				})
++			}
++		}
++	}
+ 	return res, nil
+ }
+ 
+ func WeaponBaseStat(weap info.WeaponProfile, data *model.WeaponData) ([]float64, error) {
++	return weaponBaseStat(weap, data, nil)
++}
++
++func weaponBaseStat(weap info.WeaponProfile, data *model.WeaponData, panel *info.SourceHostBasePanel) ([]float64, error) {
+ 	res := make([]float64, attributes.EndStatType)
+ 	lvl := min(max(weap.Level-1, 0), 89)
+-	// base props
+ 	for _, v := range data.BaseStats.BaseProps {
+ 		s := info.ConvertProtoStat(v.PropType)
+-		// TODO: should this be cumulative?
+-		res[s] = v.InitialValue * catalog.GrowCurve[v.Curve][lvl]
+-	}
+-
+-	// calculate promotion bonus
++		factor := catalog.GrowCurve[v.Curve][lvl]
++		// The source recipe sets each base property, even if a stat repeats.
++		res[s] = v.InitialValue * factor
++		if panel != nil {
++			base, multiplier, index := v.InitialValue, factor, lvl
++			panel.WeaponSteps = append(panel.WeaponSteps, info.SourceHostBaseStep{
++				StatIndex: int(s), Operation: "set", Kind: "growth", Value: res[s],
++				Base: &base, CurveKey: v.Curve.String(), CurveIndex: &index, CurveMultiplier: &multiplier,
++			})
++		}
++	}
+ 	ind := -1
+ 	for i, v := range data.BaseStats.PromoData {
+ 		if weap.MaxLevel >= int(v.MaxLevel) {
+@@ -118,9 +198,21 @@
+ 		}
+ 	}
+ 	if ind > -1 {
+-		for _, v := range data.BaseStats.PromoData[ind].AddProps {
++		promo := data.BaseStats.PromoData[ind]
++		if panel != nil {
++			index, maxLevel := ind, int(promo.MaxLevel)
++			panel.WeaponPromotionIndex, panel.WeaponPromotionMaxLevel = &index, &maxLevel
++		}
++		for _, v := range promo.AddProps {
+ 			t := info.ConvertProtoStat(v.PropType)
+ 			res[t] += v.Value
++			if panel != nil {
++				index, maxLevel := ind, int(promo.MaxLevel)
++				panel.WeaponSteps = append(panel.WeaponSteps, info.SourceHostBaseStep{
++					StatIndex: int(t), Operation: "add", Kind: "promotion", Value: v.Value,
++					PromotionIndex: &index, PromotionMaxLevel: &maxLevel,
++				})
++			}
+ 		}
+ 	}
+ 	return res, nil
+--- a/pkg/core/player/character/sourcehost_stat_provenance.go
++++ b/pkg/core/player/character/sourcehost_stat_provenance.go
+@@ -13,6 +13,7 @@
+ 		ID: fmt.Sprintf("actor-%d-read-%d", c.index, c.sourceHostStatSequence), Kind: kind,
+ 		Frame: *c.f, ActorIndex: c.index, Selector: append([]attributes.Stat{}, selector...), NonExtra: nonExtra,
+ 		Base: base, Result: base, Steps: []*info.SourceHostStatStep{},
++		BasePanel: c.SourceHostBasePanel,
+ 	}
+ 	scalarDepth := len(c.sourceHostScalarSteps)
+ 	if scalarDepth > 0 && len(c.sourceHostStatStack) == c.sourceHostScalarStatDepths[scalarDepth-1] {
+@@ -25,6 +26,7 @@
+ 			step.Dependencies = append(step.Dependencies, read)
+ 		}
+ 	}
++	if kind != "stats" && kind != "stat" && kind != "non-extra-stat" && kind != "select-stat" { read.BasePanel = nil }
+ 	c.sourceHostStatStack = append(c.sourceHostStatStack, read)
+ 	return read
+ }
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -150,6 +150,16 @@
+ 				v.Type().Name() == "Status" && field.Name == "SourceHostStatusOwner" {
+ 				continue
+ 			}
++			// Base-panel receipts are observational initialization metadata;
++			// BaseStats itself remains part of native phase state.
++			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/player/character" &&
++				v.Type().Name() == "CharWrapper" && field.Name == "SourceHostBasePanel" {
++				continue
++			}
++			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/info" &&
++				v.Type().Name() == "SourceHostStatRead" && field.Name == "BasePanel" {
++				continue
++			}
+ 			qualifiedName := v.Type().PkgPath() + "." + v.Type().Name() + "." + field.Name
+ 			fields[field.Name] = r.read(v.Field(i), path+"."+field.Name, qualifiedName, depth+1)
+ 		}

@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:89711) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit (1.0s)
+
+  1 passed (1.4s)

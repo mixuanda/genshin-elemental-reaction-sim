@@ -1,0 +1,512 @@
+{
+  "schemaVersion": "source-shared-movement-measurements-v1",
+  "batch": 122,
+  "date": "2026-09-30",
+  "status": "shared-movement-queue-and-delayed-cooldown-implemented-with-unknown-gaps-retained",
+  "checks": {
+    "browser-baseline": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shared-movement-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 92.376
+    },
+    "browser-baseline-repair": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shared-movement-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.358
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.51
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.857
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.905
+    },
+    "typecheck-final": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.65
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.068
+    },
+    "classic-queue-unit": {
+      "command": [
+        "env",
+        "GOROOT=/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go",
+        "GOPATH=/Users/evan/Library/Caches/gidps-source-host/gopath",
+        "GOMODCACHE=/Users/evan/Library/Caches/gidps-source-host/modules",
+        "GOCACHE=/Users/evan/Library/Caches/gidps-source-host/go-build",
+        "CGO_ENABLED=0",
+        "GOTOOLCHAIN=local",
+        "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/go",
+        "-C",
+        "/Users/evan/Library/Caches/gidps-source-host/build-Rj7KIa/source",
+        "test",
+        "./pkg/core/action",
+        "-run",
+        "^TestSourceHostQueuedActionPhaseLifecycle$",
+        "-count=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.408
+    },
+    "stellar-queue-unit": {
+      "command": [
+        "env",
+        "GOROOT=/Users/evan/Library/Caches/gidps-source-host/go1.27.1/darwin-arm64/go",
+        "GOPATH=/Users/evan/Library/Caches/gidps-source-host/gopath",
+        "GOMODCACHE=/Users/evan/Library/Caches/gidps-source-host/modules",
+        "GOCACHE=/Users/evan/Library/Caches/gidps-source-host/go-build",
+        "CGO_ENABLED=0",
+        "GOTOOLCHAIN=local",
+        "/Users/evan/Library/Caches/gidps-source-host/go1.27.1/darwin-arm64/go/bin/go",
+        "-C",
+        "/Users/evan/Library/Caches/gidps-source-host/stellar-build-J8MwI1/source",
+        "test",
+        "./pkg/core/action",
+        "-run",
+        "^TestSourceHostQueuedActionPhaseLifecycle$",
+        "-count=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.558
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shared-movement-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 3.911
+    },
+    "browser-repair": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shared-movement-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.776
+    }
+  },
+  "browserCaseCount": 1,
+  "browserAttempts": 4,
+  "nativeRunCount": 4,
+  "nativeRunAccounting": {
+    "invalidSeedAttempt": 0,
+    "baselineRepair": 2,
+    "postInitialClassic": 1,
+    "postRepairStellarWithClassicArchiveReuse": 1
+  },
+  "queueLifecycleTestCount": 2,
+  "pageErrors": [],
+  "sourceAudit": "docs/validation/source-shared-movement-audit-20260930.json",
+  "baseline": "docs/validation/source-shared-movement-state-20260930.baseline.json",
+  "rawCapture": "docs/validation/source-shared-movement-state-20260930.capture.json",
+  "browserResult": "docs/validation/source-shared-movement-state-20260930.result.json",
+  "initialFailures": {
+    "browserBaseline": "Non-integer seed in test fixture was rejected by HTML input validation; 90-second status assertion timed out, no native run. Changed to uint64 decimal 20260930122.",
+    "browserAfter": "Incorrect test assumption that Barbara uses default Dash frames. Source and actual capture show her custom NewAbilFunc frames; shared delayed stamina task was observed. Removed that coverage claim and reused saved Classic capture; only previously unexecuted Stellar ran in repair."
+  },
+  "runs": [
+    {
+      "lane": "classic",
+      "executionArtifact": {
+        "wasmSha256": "ea360612f5d3f12677b5399cb3aca61cea03681ce38499f9519460af19274f86",
+        "wasmBytes": 46732192
+      },
+      "artifactMatchesBuiltFile": true,
+      "baselineExecutionArtifact": {
+        "wasmSha256": "e55c5d988844573bead2bc479aa13bf0eca9502c9fb7a5f0dd4c443b309b331e",
+        "wasmBytes": 46364678
+      },
+      "actualEndFrame": 175,
+      "configuredDurationSeconds": 12,
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        54,
+        56,
+        174
+      ],
+      "phaseFramesBefore": [
+        1,
+        2,
+        23,
+        54,
+        56,
+        174
+      ],
+      "applications": [
+        {
+          "frame": 114,
+          "targetKey": 1,
+          "rawDamage": 45.39786424509601,
+          "appliedDamage": 45.39786424509601,
+          "hpBefore": 1000000,
+          "hpAfter": 999954.6021357549,
+          "isCrit": false
+        }
+      ],
+      "applicationCount": 1,
+      "damageTotal": 45.39786424509601,
+      "comparisons": {
+        "applicationsEqual": true,
+        "movementLogsEqual": true,
+        "phasePlayerStateEqual": true,
+        "phaseFramesEqual": true
+      },
+      "actionLogRows": 34,
+      "phasePlayerState": [
+        {
+          "frame": 1,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 1,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 2,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 2,
+          "dashCooldownRemaining": 47,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 23,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 3,
+          "dashCooldownRemaining": 26,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 54,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 34,
+          "dashCooldownRemaining": -5,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 56,
+          "activeCharacter": 1,
+          "stamina": 222,
+          "lastStaminaUseAgo": 36,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 59,
+          "swapInterval": 60
+        },
+        {
+          "frame": 174,
+          "activeCharacter": 1,
+          "stamina": 240,
+          "lastStaminaUseAgo": 91,
+          "dashCooldownRemaining": -119,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        }
+      ],
+      "descriptorCounts": {
+        "dashDescriptors": 0,
+        "walkDescriptors": 2,
+        "jumpDescriptors": 1,
+        "swapFrameDescriptors": 0,
+        "dashStaminaTaskDescriptors": 1
+      },
+      "dashTaskCaptures": [
+        {
+          "capture": {
+            "action": "dash",
+            "actorIndex": 0,
+            "params": {}
+          },
+          "fifoRank": 0,
+          "key": "dash-stamina-consumption",
+          "remainingFrames": 18,
+          "source": "internal/template/character/stam.go:QueueDashStaminaConsumption"
+        }
+      ],
+      "jumpCaptures": [
+        {
+          "captured": {
+            "frames": 31
+          },
+          "source": "internal/template/character/stam.go:Jump:ordinary:frames"
+        }
+      ],
+      "unknownGapsBefore": 35,
+      "unknownGapsAfter": 33,
+      "removedGapLabels": [
+        "player: animation.Frames callback",
+        "tasks: queued task \"\" has an undescribed closure"
+      ],
+      "completeBoundaries": 0,
+      "convergenceClaimed": false,
+      "executedSwaps": [
+        {
+          "frame": 55,
+          "target": "lisa"
+        }
+      ]
+    },
+    {
+      "lane": "stellar",
+      "executionArtifact": {
+        "wasmSha256": "e0a28aa9e64d7f0011495496c5d7ff39afd896a1ef803050346c34f4021d72b3",
+        "wasmBytes": 70535802
+      },
+      "artifactMatchesBuiltFile": true,
+      "baselineExecutionArtifact": {
+        "wasmSha256": "e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546",
+        "wasmBytes": 70412296
+      },
+      "actualEndFrame": 175,
+      "configuredDurationSeconds": 12,
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        27,
+        56,
+        174
+      ],
+      "phaseFramesBefore": [
+        1,
+        2,
+        23,
+        27,
+        56,
+        174
+      ],
+      "applications": [
+        {
+          "frame": 114,
+          "targetKey": 1,
+          "rawDamage": 45.39786424509601,
+          "appliedDamage": 45.39786424509601,
+          "hpBefore": 1000000,
+          "hpAfter": 999954.6021357549,
+          "isCrit": false
+        }
+      ],
+      "applicationCount": 1,
+      "damageTotal": 45.39786424509601,
+      "comparisons": {
+        "applicationsEqual": true,
+        "movementLogsEqual": true,
+        "phasePlayerStateEqual": true,
+        "phaseFramesEqual": true
+      },
+      "actionLogRows": 34,
+      "phasePlayerState": [
+        {
+          "frame": 1,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 1,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 2,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 2,
+          "dashCooldownRemaining": 47,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 23,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 3,
+          "dashCooldownRemaining": 26,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 27,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 7,
+          "dashCooldownRemaining": 22,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 56,
+          "activeCharacter": 1,
+          "stamina": 222,
+          "lastStaminaUseAgo": 36,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 59,
+          "swapInterval": 60
+        },
+        {
+          "frame": 174,
+          "activeCharacter": 1,
+          "stamina": 240,
+          "lastStaminaUseAgo": 91,
+          "dashCooldownRemaining": -119,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        }
+      ],
+      "descriptorCounts": {
+        "dashDescriptors": 0,
+        "walkDescriptors": 2,
+        "jumpDescriptors": 1,
+        "swapFrameDescriptors": 0,
+        "dashStaminaTaskDescriptors": 1
+      },
+      "dashTaskCaptures": [
+        {
+          "capture": {
+            "action": "dash",
+            "actorIndex": 0,
+            "params": {}
+          },
+          "fifoRank": 0,
+          "key": "dash-stamina-consumption",
+          "remainingFrames": 18,
+          "source": "internal/template/character/stam.go:QueueDashStaminaConsumption"
+        }
+      ],
+      "jumpCaptures": [
+        {
+          "captured": {
+            "actorIndex": 0,
+            "airborneSource": 0,
+            "highPlungeFrames": 8,
+            "jumpModified": 0,
+            "lowPlungeFrames": 4,
+            "ordinaryFrames": 31,
+            "otherActionFrames": 60
+          },
+          "source": "internal/template/character/stam.go:Jump:stellar-dynamic:frames"
+        }
+      ],
+      "unknownGapsBefore": 35,
+      "unknownGapsAfter": 33,
+      "removedGapLabels": [
+        "player: animation.Frames callback",
+        "tasks: queued task \"\" has an undescribed closure"
+      ],
+      "completeBoundaries": 0,
+      "convergenceClaimed": false,
+      "executedSwaps": [
+        {
+          "frame": 55,
+          "target": "lisa"
+        }
+      ]
+    }
+  ],
+  "sourceOnlyBranches": [
+    "Default Dash FrameFunc (Barbara uses custom frame table)",
+    "Swap frame descriptor and swap completion queue descriptor (native swap executed, but not observed while pending)",
+    "Fixed Xianyun and Stellar airborne jump branches",
+    "Stellar dynamic Jump with nonzero JumpModified/Airborne state",
+    "Delayed cooldown start descriptor (scene has no skill/burst)"
+  ],
+  "notPerformed": [
+    "Full character or frame-test suites",
+    "Additional native scenario matrix",
+    "Full action ownership/steady-state verification",
+    "New game-data refresh, registry regeneration, preview/released promotion or game verification",
+    "Remote CI, commit, push or deploy"
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ]
+}

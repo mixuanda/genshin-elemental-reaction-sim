@@ -1,0 +1,77 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/independent-weapon-proc.test.ts (4 tests | 4 failed) 74ms
+     × uses explicit Normal callbacks off field, zero damage and inclusive Halberd cooldown with its own snapshot and crit 45ms
+     × snapshots Ash-Graven maximum HP and selects actual targets within a fixed three-unit circle 12ms
+     × uses Sequence of Solitude's on-field filter and its own 900-frame inclusive clock 10ms
+     × rejects forged proc lineage and complete-state claims while leaving the disabled wire unchanged 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/independent-weapon-proc.test.ts > source-backed independent weapon damage runtime > uses explicit Normal callbacks off field, zero damage and inclusive Halberd cooldown with its own snapshot and crit
+Error: Trusted reaction-delivery result reference validation failed: damageEvents.2.parentDamageEventId: direct damage events must have a null parentDamageEventId; damageEvents.5.parentDamageEventId: direct damage events must have a null parentDamageEventId
+ ❯ assertTrustedReactionDeliveryResultReferences packages/schemas/src/schema.ts:30780:11
+    30778|   );
+    30779|   if (issues.length !== 0) {
+    30780|     throw new Error(
+       |           ^
+    30781|       `Trusted reaction-delivery result reference validation failed: $…
+    30782|         .map(
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:17756:3
+ ❯ simulate packages/sim-core/src/simulator.ts:18223:5
+ ❯ packages/sim-core/src/__tests__/independent-weapon-proc.test.ts:35:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  packages/sim-core/src/__tests__/independent-weapon-proc.test.ts > source-backed independent weapon damage runtime > snapshots Ash-Graven maximum HP and selects actual targets within a fixed three-unit circle
+Error: Trusted reaction-delivery result reference validation failed: damageEvents.1.parentDamageEventId: direct damage events must have a null parentDamageEventId; damageEvents.2.parentDamageEventId: direct damage events must have a null parentDamageEventId
+ ❯ assertTrustedReactionDeliveryResultReferences packages/schemas/src/schema.ts:30780:11
+    30778|   );
+    30779|   if (issues.length !== 0) {
+    30780|     throw new Error(
+       |           ^
+    30781|       `Trusted reaction-delivery result reference validation failed: $…
+    30782|         .map(
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:17756:3
+ ❯ simulate packages/sim-core/src/simulator.ts:18223:5
+ ❯ packages/sim-core/src/__tests__/independent-weapon-proc.test.ts:64:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  packages/sim-core/src/__tests__/independent-weapon-proc.test.ts > source-backed independent weapon damage runtime > uses Sequence of Solitude's on-field filter and its own 900-frame inclusive clock
+Error: Trusted reaction-delivery result reference validation failed: damageEvents.1.parentDamageEventId: direct damage events must have a null parentDamageEventId; damageEvents.5.parentDamageEventId: direct damage events must have a null parentDamageEventId
+ ❯ assertTrustedReactionDeliveryResultReferences packages/schemas/src/schema.ts:30780:11
+    30778|   );
+    30779|   if (issues.length !== 0) {
+    30780|     throw new Error(
+       |           ^
+    30781|       `Trusted reaction-delivery result reference validation failed: $…
+    30782|         .map(
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:17756:3
+ ❯ simulate packages/sim-core/src/simulator.ts:18223:5
+ ❯ packages/sim-core/src/__tests__/independent-weapon-proc.test.ts:85:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  packages/sim-core/src/__tests__/independent-weapon-proc.test.ts > source-backed independent weapon damage runtime > rejects forged proc lineage and complete-state claims while leaving the disabled wire unchanged
+Error: Trusted reaction-delivery result reference validation failed: damageEvents.1.parentDamageEventId: direct damage events must have a null parentDamageEventId
+ ❯ assertTrustedReactionDeliveryResultReferences packages/schemas/src/schema.ts:30780:11
+    30778|   );
+    30779|   if (issues.length !== 0) {
+    30780|     throw new Error(
+       |           ^
+    30781|       `Trusted reaction-delivery result reference validation failed: $…
+    30782|         .map(
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:17756:3
+ ❯ simulate packages/sim-core/src/simulator.ts:18223:5
+ ❯ packages/sim-core/src/__tests__/independent-weapon-proc.test.ts:97:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  06:50:36
+   Duration  912ms (transform 600ms, setup 0ms, import 759ms, tests 74ms, environment 0ms)
+

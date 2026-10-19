@@ -1,0 +1,19 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs
+
+Exporting verified source into /tmp/gidps-source-host-cache/build-GGPmB1/source
+file:///Users/evan/Documents/gidps/packages/source-host/scripts/common.mjs:19
+  if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed (${result.status})\n${result.stdout ?? ''}${result.stderr ?? ''}`);
+                                 ^
+
+Error: git apply --whitespace=nowarn -- /tmp/gidps-source-host-cache/build-GGPmB1/patches/109-finite-producer-sites.patch failed (1)
+error: patch failed: internal/characters/xiangling/burst.go:43
+error: internal/characters/xiangling/burst.go: patch does not apply
+error: patch failed: internal/characters/kirara/burst.go:80
+error: internal/characters/kirara/burst.go: patch does not apply
+
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/scripts/common.mjs:19:34)
+    at file:///Users/evan/Documents/gidps/packages/source-host/scripts/build-source-host.mjs:70:3
+
+Node.js v24.15.0

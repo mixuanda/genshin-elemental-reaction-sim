@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "source-stochastic-next-step-v1",
+  "asOf": "2026-09-30",
+  "finding": {
+    "id": "er-independent-failure-reporting",
+    "classification": "cross-cutting-product-and-code-gap",
+    "requirement": "Master prompt §20 asks the ER solver to report cases no amount of ER can fix.",
+    "evidence": [
+      {
+        "file": "/Users/evan/Downloads/GENSHIN_DPS_MASTER_PROMPT_EN.md",
+        "lines": "451",
+        "detail": "Requires feasibility, scenario, optional verified safety margin, and reporting cases no amount of ER can fix."
+      },
+      {
+        "file": "packages/sim-core/src/simulation-analysis.ts",
+        "lines": "187-198,208-212,276-289",
+        "detail": "Result type includes er-independent-failure, but solveEnergyRecharge only returns feasible-on-grid, infeasible-within-bounds, or blocked. An empty finite grid is explicitly not proof that higher ER cannot work."
+      },
+      {
+        "file": "packages/sim-core/src/__tests__/energy-analysis-dynamic.test.ts",
+        "lines": "37-46",
+        "detail": "The no-source example is asserted as infeasible-within-bounds and the test requires only the bounded no-particle explanation; it does not establish or report ER-independent failure."
+      },
+      {
+        "file": "apps/web/src/analysis-panel.ts",
+        "lines": "145-146",
+        "detail": "UI already has a distinct user-facing label for er-independent-failure, but no current solver branch can produce it."
+      },
+      {
+        "file": "docs/master-requirements-status.zh-CN.md",
+        "lines": "177",
+        "detail": "Status records energy analysis as delivered, while arbitrary team closure remains incomplete; this finding is specifically the solver's missing proof-backed classification."
+      }
+    ],
+    "nextStep": "Implement the existing er-independent-failure result only for failures whose cause is demonstrably invariant to ER, using actual candidate/run failure evidence. Keep finite-grid misses as infeasible-within-bounds; zero observed particles or no feasible candidate alone must never prove unbounded impossibility. Include the invariant cause and scenario in the returned explanation.",
+    "acceptance": "A proven energy-independent failure receives the distinct status and a source-backed reason; a bounded search with no feasible candidate but no such proof remains infeasible-within-bounds and explicitly disclaims extrapolation. Preserve the existing exhaustive grid, non-monotonic handling, candidate receipts, and worker UI."
+  },
+  "resolution120": {
+    "status": "implemented-with-two-sufficient-proof-classes",
+    "report": "docs/er-independent-failure-20260930.zh-CN.md",
+    "measurements": "docs/validation/er-independent-failure-measurements-20260930.json",
+    "scope": [
+      "Observed fixed command cost exceeds fixed capacity using shared execution precision.",
+      "All-energy-success strict timeline remains illegal without dynamic cooldown or Stellar Swirl feedback."
+    ],
+    "notProved": [
+      "Completeness for every ER-independent failure.",
+      "Game verification of synthetic values.",
+      "Fixed-source native ER solving.",
+      "General deterministic or stochastic steady state."
+    ]
+  }
+}

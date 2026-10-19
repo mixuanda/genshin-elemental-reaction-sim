@@ -1,0 +1,42 @@
+[
+  {
+    "manifest": "apps/web/public/source-host/manifest.json",
+    "metadataSha256": "5eee83e87c40776c050f86a7692e2366543662c96ed4d807b76f6a8caf874a41",
+    "metadataBytes": 1810182,
+    "matchingManifestEntry": {
+      "path": "inventory-metadata.json",
+      "sha256": "5eee83e87c40776c050f86a7692e2366543662c96ed4d807b76f6a8caf874a41",
+      "size": 1810182
+    }
+  },
+  {
+    "manifest": "apps/web/public/source-host-stellar/manifest.json",
+    "metadataSha256": "51646464ed0c6542a9175b5ee3739f92013a901e9109d9793093d4c12869ba33",
+    "metadataBytes": 1883017,
+    "matchingManifestEntry": {
+      "path": "inventory-metadata.json",
+      "sha256": "51646464ed0c6542a9175b5ee3739f92013a901e9109d9793093d4c12869ba33",
+      "bytes": 1883017
+    }
+  },
+  {
+    "manifest": "apps/web/dist/source-host/manifest.json",
+    "metadataSha256": "5eee83e87c40776c050f86a7692e2366543662c96ed4d807b76f6a8caf874a41",
+    "metadataBytes": 1810182,
+    "matchingManifestEntry": {
+      "path": "inventory-metadata.json",
+      "sha256": "5eee83e87c40776c050f86a7692e2366543662c96ed4d807b76f6a8caf874a41",
+      "size": 1810182
+    }
+  },
+  {
+    "manifest": "apps/web/dist/source-host-stellar/manifest.json",
+    "metadataSha256": "51646464ed0c6542a9175b5ee3739f92013a901e9109d9793093d4c12869ba33",
+    "metadataBytes": 1883017,
+    "matchingManifestEntry": {
+      "path": "inventory-metadata.json",
+      "sha256": "51646464ed0c6542a9175b5ee3739f92013a901e9109d9793093d4c12869ba33",
+      "bytes": 1883017
+    }
+  }
+]

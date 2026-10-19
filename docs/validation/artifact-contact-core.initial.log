@@ -1,0 +1,28 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+··x····
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-damage-runtime.test.ts > fixed-source Echoes and Song actual artifact callbacks > captures actual party healing before debt, queued conversion, live-versus-action ATK, formula replay and random checkpoints
+ReferenceError: Cannot access 'nextIntraEventSequence' before initialization
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:9787:43
+    9785|     if (event.type === "artifactSongConvert") {
+    9786|       const { actorId, parentLogId } = event.payload;
+    9787|       appendArtifactDamageDecision(event, nextIntraEventSequence(), ar…
+       |                                           ^
+    9788|         { sourceActorId: actorId, targetId: null, parentLogId });
+    9789|       continue;
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:18793:18
+ ❯ simulate packages/sim-core/src/simulator.ts:18851:12
+ ❯ packages/sim-core/src/__tests__/artifact-damage-runtime.test.ts:72:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  1 failed | 6 passed (7)
+   Start at  03:00:10
+   Duration  3.32s (transform 1.56s, setup 0ms, import 2.90s, tests 208ms, environment 0ms)
+

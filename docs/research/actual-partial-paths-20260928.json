@@ -1,0 +1,351 @@
+{
+  "asOf": "2026-09-28",
+  "classificationSource": "packages/game-data/src/classified-hits.ts:sourceClassifiedMappings/getClassifiedHitCoverage",
+  "generatedSnapshot": "packages/game-data/src/generated/classified-hit-coverage.json",
+  "mappingVersion": "gcsim-b4ae769+a7dc4bf+optimizer-180a0a1+raw-b061b40-reviewed-hits.29+durin.8",
+  "partialSkillCount": 24,
+  "partialSkillIds": [
+    {
+      "character": "kachina",
+      "skillId": "kachina-plunge-collision",
+      "mappingIds": [
+        "kachina-plunge-collision-hit-1"
+      ],
+      "formula": "One physical ATK plunge-collision hit from the normal-attack talent vector.",
+      "normalUiPath": "Calculator > Kachina > 下落途中单次碰撞; select the single mapped collision hit and calculate its entered final panel.",
+      "remainingBehaviorBoundary": "One explicitly selected collision only. No collision count, plunge height, landing impact, action frames, or full plunge schedule is inferred; collision and low/high landing are separate instances."
+    },
+    {
+      "character": "kachina",
+      "skillId": "kachina-skill-riding-single-pulse",
+      "mappingIds": [
+        "kachina-skill-riding-single-pulse-hit-1"
+      ],
+      "formula": "One Geo/ATK skill pulse in the riding branch, with sourced A4 base-damage formula.",
+      "normalUiPath": "Calculator > Kachina > 搭乘冲天转转·单次震荡; use the selected-hit calculator context.",
+      "remainingBehaviorBoundary": "Single pulse only; no ride duration, Night Soul, travel/contact cadence, repeated pulses, or whole skill lifecycle is scheduled."
+    },
+    {
+      "character": "kachina",
+      "skillId": "kachina-skill-independent-single-pulse",
+      "mappingIds": [
+        "kachina-skill-independent-single-pulse-hit-1"
+      ],
+      "formula": "One Geo/ATK skill pulse in the independent-Drill branch, with sourced A4 base-damage formula.",
+      "normalUiPath": "Calculator > Kachina > 独立冲天转转·单次震荡; use the selected-hit calculator context.",
+      "remainingBehaviorBoundary": "Single pulse only; no Drill placement, domain duration, movement/target contact, Night Soul consumption, or repeat cadence is inferred."
+    },
+    {
+      "character": "kachina",
+      "skillId": "kachina-skill-observed-lifecycle",
+      "mappingIds": [
+        "kachina-skill-observed-lifecycle-hit-1",
+        "kachina-skill-observed-lifecycle-hit-2"
+      ],
+      "formula": "Two sourced Geo/ATK pulse components for an explicitly observed complete Drill lifecycle.",
+      "normalUiPath": "Calculator > Kachina > 冲天转转·实际完整寿命; the action document includes an editor for entering and applying the observed event log and optional hit-panel snapshots.",
+      "remainingBehaviorBoundary": "The mapping represents the evidenced two-hit observed lifecycle, and the ordinary Calculator now includes controls for entering/applying its actual event log. It still does not autonomously schedule deployment, movement, expiration, Night Soul, or other constellations/team events; timing and events must come from observations."
+    },
+    {
+      "character": "nefer",
+      "skillId": "nefer-skill-rush",
+      "mappingIds": [
+        "nefer-skill-rush-hit"
+      ],
+      "formula": "Single ordinary E rush formula with sourced C0-C6 hit context; formula does not multiply the rush by the separate phantasm charged modifier.",
+      "normalUiPath": "Calculator > Nefer > E rush; ordinary character action document, constellation context, and the Nefer phantasm controls for user-entered stance/resource observations.",
+      "remainingBehaviorBoundary": "No automatic E resource generation/absorption, C2 stack-versus-initial-hit order, eight-second buff refresh, or C4 debuff apply/expiry timeline. Explicit state applies to the selected segment; the broader Shadow Dance lifecycle is not auto-scheduled."
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-skill-etch-resource",
+      "mappingIds": [
+        "lohen-skill-etch-resource-hit-1"
+      ],
+      "formula": "ATK × sourced E talent coefficient × (1 + 0.004 × actual Will consumed); the additive formula factory is createLohenWillFormula.",
+      "normalUiPath": "Calculator > Lohen > 镂骨彻心; editable explicit Will input by default, or enable the Lohen observed-resource ledger in Character resource controls and bind this hit to an observed Etch-resolve event.",
+      "remainingBehaviorBoundary": "Formula and observed-event resource reducer exist. Ledger requires explicit start state, complete observed events through the hit, same-frame order, cooldown evidence, action identity, and final panel/talent context. It does not generate character/team actions, unknown teammate damage, or inferred event timing. Automatic Wonder action scheduling and non-C0 behavior remain outside this partial C0 action."
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-plunge-collision-base",
+      "mappingIds": [
+        "lohen-plunge-collision-base-hit-1"
+      ],
+      "formula": "One ATK collision hit using the sourced normal-talent collision coefficient and the mapped conditional element/state.",
+      "normalUiPath": "Calculator > Lohen > 下落途中碰撞; select the standalone collision action.",
+      "remainingBehaviorBoundary": "One actual collision only; no number/timing of collisions, landing hit, Wonder stance transition, or full plunge is derived."
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-lumi-pummeler-pair",
+      "mappingIds": [
+        "linnea-lumi-pummeler-hit"
+      ],
+      "formula": "Two DEF-scaled ordinary Geo hits in one selected Pummeler pair; A1 resistance reduction is wired through createLinneaA1ResistanceReductionFormula.",
+      "normalUiPath": "Calculator > Linnea > Lumi ordinary double-hit pair; set actual moonsign count, Lumi-present and target-nearby inputs in the formula panel.",
+      "remainingBehaviorBoundary": "Formula-complete selected pair only. No 25-second summon hit count, interval, feed/resource transitions, form alternation, E/Q reset/expiry, or lunar hammer/crush scheduling. Hammer/crush are separate observed-component paths, not this action."
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-plunge-collision-base",
+      "mappingIds": [
+        "linnea-plunge-collision-base-hit-1"
+      ],
+      "formula": "One ATK plunge-collision hit from the normal talent; element follows the selected source condition.",
+      "normalUiPath": "Calculator > Linnea > 下落途中碰撞; select the standalone collision action.",
+      "remainingBehaviorBoundary": "One actual collision only; no collision count, height, landing impact, or whole plunge timeline is inferred."
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-charged-sweepdmg-component",
+      "mappingIds": [
+        "sandrone-charged-sweepdmg-component-hit-1"
+      ],
+      "formula": "One selected ordinary Cryo charged-sweep component from the sourced talent formula.",
+      "normalUiPath": "Calculator > Sandrone > charged sweep component; ordinary character action document.",
+      "remainingBehaviorBoundary": "No full charged-sweep duration/count or Stellar Radiance replacement sequence. Requires the mapped no-radiance C0 state and actual final panel."
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-charged-beamdmg-component",
+      "mappingIds": [
+        "sandrone-charged-beamdmg-component-hit-1"
+      ],
+      "formula": "One selected ordinary Cryo charged-beam component from the sourced talent formula.",
+      "normalUiPath": "Calculator > Sandrone > charged beam component; ordinary character action document.",
+      "remainingBehaviorBoundary": "No beam repetition/interval or Stellar Conduct/Swirl replacement schedule. Requires mapped no-radiance C0 state and actual final panel."
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-charged-overdrivedmg-component",
+      "mappingIds": [
+        "sandrone-charged-overdrivedmg-component-hit-1"
+      ],
+      "formula": "One selected ordinary Cryo charged-overdrive component from the sourced talent formula.",
+      "normalUiPath": "Calculator > Sandrone > charged overdrive component; ordinary character action document.",
+      "remainingBehaviorBoundary": "No heat accumulation/decay, 100-heat overdrive entry, below-50 exit, sweep/beam cycle or Stellar replacement schedule. Requires mapped no-radiance C0 state and actual final panel."
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-plunge-collision-base",
+      "mappingIds": [
+        "sandrone-plunge-collision-base-hit-1"
+      ],
+      "formula": "One ATK plunge-collision hit from the normal talent; element follows the selected source condition.",
+      "normalUiPath": "Calculator > Sandrone > 下落途中碰撞; select the standalone collision action.",
+      "remainingBehaviorBoundary": "One actual collision only; no collision count, height, landing impact, or whole plunge timeline is inferred."
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-plunge-collision-base",
+      "mappingIds": [
+        "alyosha-plunge-collision-base-hit-1"
+      ],
+      "formula": "One ATK plunge-collision hit; no A4 modifier is attached because A4 affects skill/burst, not plunge.",
+      "normalUiPath": "Calculator > Alyosha > 下落途中碰撞; ordinary character action document.",
+      "remainingBehaviorBoundary": "One actual collision only; no collision count, height, landing impact, or whole plunge timeline is inferred. The observed Q/mark ledger applies only to its supported E/Q event actions."
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-burst-field-tick",
+      "mappingIds": [
+        "alyosha-burst-field-tick-hit-1"
+      ],
+      "formula": "One sourced Q field tick with createAlyoshaA4BonusFormula automatically attached: 0.0035 × min(100 × ER ratio, 200), when ascension ≥4.",
+      "normalUiPath": "Calculator > Alyosha > Q field tick; ordinary action document with editable final-panel ER, attached A4 formula, and the actual-event ledger for observed C0 Q/mark/precision events.",
+      "remainingBehaviorBoundary": "The C0 observed-event lifecycle ledger now replays user-entered, ordered E mark applications, Q casts, field ticks, Tugarin bites, active-character changes, precision state, and A1 healing, and can bind this selected sourced hit to its actual event. It does not invent event timing or attack counts, autonomously schedule Q attacks, or generate unobserved team/reaction events. C1–C6 and stellar-reaction conditions remain outside this model."
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-burst-tugarin-bite",
+      "mappingIds": [
+        "alyosha-burst-tugarin-bite-hit-1"
+      ],
+      "formula": "One sourced Q Tugarin bite with createAlyoshaA4BonusFormula automatically attached: 0.0035 × min(100 × ER ratio, 200), when ascension ≥4.",
+      "normalUiPath": "Calculator > Alyosha > Q Tugarin bite; ordinary action document with editable final-panel ER, attached A4 formula, and the actual-event ledger for observed C0 Q/mark/precision/healing events.",
+      "remainingBehaviorBoundary": "The C0 observed-event lifecycle ledger now replays user-entered, ordered E mark applications, Q casts, field ticks, Tugarin bites, active-character changes, precision state, and A1 healing, and can bind this selected sourced hit to its actual event. It does not invent event timing or attack counts, autonomously schedule Q attacks, or generate unobserved team/reaction events. C1–C6 and stellar-reaction conditions remain outside this model."
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-plunge-low-observed-base",
+      "mappingIds": [
+        "lohen-plunge-low-observed-base-hit-1",
+        "lohen-plunge-low-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Lohen > 低空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Lohen/index.tsx",
+        "libs/gi/stats/Data/Characters/Lohen/skillParam.json",
+        "libs/gi/stats/Data/Characters/Lohen/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "lohen",
+      "skillId": "lohen-plunge-high-observed-base",
+      "mappingIds": [
+        "lohen-plunge-high-observed-base-hit-1",
+        "lohen-plunge-high-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Lohen > 高空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Lohen/index.tsx",
+        "libs/gi/stats/Data/Characters/Lohen/skillParam.json",
+        "libs/gi/stats/Data/Characters/Lohen/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-plunge-low-observed-base",
+      "mappingIds": [
+        "linnea-plunge-low-observed-base-hit-1",
+        "linnea-plunge-low-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Linnea > 低空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Linnea/index.tsx",
+        "libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+        "libs/gi/stats/Data/Characters/Linnea/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "linnea",
+      "skillId": "linnea-plunge-high-observed-base",
+      "mappingIds": [
+        "linnea-plunge-high-observed-base-hit-1",
+        "linnea-plunge-high-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Linnea > 高空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Linnea/index.tsx",
+        "libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+        "libs/gi/stats/Data/Characters/Linnea/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-plunge-low-observed-base",
+      "mappingIds": [
+        "sandrone-plunge-low-observed-base-hit-1",
+        "sandrone-plunge-low-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Sandrone > 低空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+        "libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+        "libs/gi/stats/Data/Characters/Sandrone/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "sandrone",
+      "skillId": "sandrone-plunge-high-observed-base",
+      "mappingIds": [
+        "sandrone-plunge-high-observed-base-hit-1",
+        "sandrone-plunge-high-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Sandrone > 高空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+        "libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+        "libs/gi/stats/Data/Characters/Sandrone/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-plunge-low-observed-base",
+      "mappingIds": [
+        "alyosha-plunge-low-observed-base-hit-1",
+        "alyosha-plunge-low-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Alyosha > 低空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Alyosha/index.tsx",
+        "libs/gi/stats/Data/Characters/Alyosha/skillParam.json",
+        "libs/gi/stats/Data/Characters/Alyosha/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    },
+    {
+      "character": "alyosha",
+      "skillId": "alyosha-plunge-high-observed-base",
+      "mappingIds": [
+        "alyosha-plunge-high-observed-base-hit-1",
+        "alyosha-plunge-high-observed-base-hit-2"
+      ],
+      "formula": "Two sourced physical ATK components: each actually observed in-air collision opportunity uses the normal-talent plunge-collision coefficient; the selected low/high landing uses its distinct sourced plunge-impact coefficient. No height-based collision count or timing is inferred.",
+      "normalUiPath": "Calculator > Alyosha > 高空下落（逐次观察碰撞与落地）; enter actual collision count, each target contact, landing contact and no-external-infusion confirmation in the shared observed-plunge controls.",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourcePaths": [
+        "libs/gi/sheets/src/Characters/Alyosha/index.tsx",
+        "libs/gi/stats/Data/Characters/Alyosha/skillParam.json",
+        "libs/gi/stats/Data/Characters/Alyosha/data.json",
+        "libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "libs/gi/wr/src/formula.ts"
+      ],
+      "staticMappingStatus": "partial; both templates deliberately have completeAction=false until the runtime conditions below are supplied.",
+      "runtimeCompletionGate": "For complete-cast coverage, explicitly confirm C0, no external infusion, no reaction on these physical hits, actual collision count, every collision contact against the selected target, landing contact, and stable final panel/target state across multiple contacts. The current runtime requires the stability confirmation when more than one contact may damage the target. Explicit no-contact events are excluded from damage. The ordinary UI and shared AST can then conditionally expand only the observed contacts.",
+      "remainingBehaviorBoundary": "No collision opportunities, target contacts, height threshold, frame timing or airborne path is inferred. Unknown observations remain blocked/partial; a standalone already-observed hit remains calculable without asserting the whole plunge."
+    }
+  ],
+  "crossCutting": {
+    "ordinaryCalculatorFlow": "apps/web/src/character-calculations.ts:getCharacterDocuments maps classified skillIds to ordinary CalculatorDocuments; apps/web/src/calculator-ui.ts renders and calculates them. Formula IDs are instantiated from apps/web/src/character-source-formulas.ts. Kachina has an observed-event editor via apps/web/src/calculator-kachina-controls.ts; Alyosha has an ordered C0 lifecycle ledger via apps/web/src/calculator-alyosha-observed-controls.ts and packages/sim-core/src/alyosha-observed-lifecycle.ts. These accept actual user-entered observations and do not autonomously generate timing or attacks. Low/high observed plunge actions also enter the ordinary Calculator through apps/web/src/calculator-source-cast-controls.ts and apps/web/src/calculator-observed-plunge-controls.ts; packages/sim-core/src/observed-plunge-formulas.ts expands actual contacts and can mark complete-cast only when the required observations are supplied.",
+    "evidenceBoundary": "Partial means the mapping does not establish a complete action/lifecycle. It does not imply the selected component formula is missing. UI defaults are editable teaching inputs, not game state evidence. Kachina event-entry UI and Alyosha C0 event-ledger UI are present; their presence does not make observed timing autonomous or remove the mapping partial classification. The eight low/high observed plunge actions are statically partial by design; runtime completion is conditional on actual contacts, explicit physical/no-infusion conditions, and stable per-hit state. Their addition is not a regression in the prior 16 actions.",
+    "eyeOfPerception": "Separate from the 16 character partial skillIds. packages/sim-core/src/weapon-proc.ts now implements the explicit fixed-gcsim Eye automatic profile; it retains the catalogue/Optimizer coefficient/probability conflict and is source-provisional, not reconciled current-game truth."
+  }
+}

@@ -1,0 +1,783 @@
+{
+  "schemaVersion": 1,
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-24T17:12:54.759832+00:00",
+  "evidenceStatus": "fixed-source-provisional",
+  "archive": {
+    "path": "packages/game-data/sources/periodic-ordinary-casts/source.json.gz",
+    "bytes": 47565,
+    "sha256": "b2e5a5f4cf0c6eff740cd242791961bc1fd0b8885b5a8faeb5e73be6522af8e3"
+  },
+  "definitions": {
+    "path": "packages/game-data/sources/periodic-ordinary-casts/definitions.json",
+    "sha256": "5e6cbf0ca7701c568f230b99f6c63763de070d12f9d6661ebd3d6f3b98b683db",
+    "templates": 4,
+    "roles": 12
+  },
+  "files": [
+    {
+      "path": "internal/characters/ineffa/asc.go",
+      "bytes": 3093,
+      "sha256": "76db004ee439f93f6aae9d2b6016ab73a0e28b17ace9316656d9a22c79a730b1",
+      "gitBlobSha1": "dc34a17bc40ab5a2870a696ec96c1daf2bfeac09"
+    },
+    {
+      "path": "internal/characters/ineffa/attack.go",
+      "bytes": 3174,
+      "sha256": "7c15b0cf330986e9deb6addc87a2ff66af75ba06de343efaee417ab87108ad11",
+      "gitBlobSha1": "c5706a8e6a45f7de05ad0f29389028e34878234f"
+    },
+    {
+      "path": "internal/characters/ineffa/burst.go",
+      "bytes": 1593,
+      "sha256": "376f5053df617b17893f0d809057d1cfc512190ec6da89d11612f78340da227a",
+      "gitBlobSha1": "5ec8e5f714723f14f9281de66c2253a685564e2b"
+    },
+    {
+      "path": "internal/characters/ineffa/charge.go",
+      "bytes": 1716,
+      "sha256": "cb630637b545d28ef48e553ac327d1dcc3ce0379ce1f2ef548280464db65e3dd",
+      "gitBlobSha1": "35d17111092ceb2d32f78663a533c944fcf4ac87"
+    },
+    {
+      "path": "internal/characters/ineffa/cons.go",
+      "bytes": 3826,
+      "sha256": "dfefe96f4a1d3a8d0abc6c579f0f2a16f4bf074f409a76c2d4d957d03869be62",
+      "gitBlobSha1": "e14110c43106ef7c0fef86afeaebf189c0bbdecd"
+    },
+    {
+      "path": "internal/characters/ineffa/ineffa.go",
+      "bytes": 1306,
+      "sha256": "e484cc5745c4362c92abc6ffffa808fee2ed0a6f8935df2ad8ab1fee5822cea7",
+      "gitBlobSha1": "657a1cacb25ca49fcc09f294663cbe75a897c779"
+    },
+    {
+      "path": "internal/characters/ineffa/shield.go",
+      "bytes": 683,
+      "sha256": "173e78002a4b3d388a22f77f1428926c91f857425d88f06c7cc79953b082a105",
+      "gitBlobSha1": "8f28f0fc02ac181551d331381cba79c4aad067e4"
+    },
+    {
+      "path": "internal/characters/ineffa/skill.go",
+      "bytes": 2705,
+      "sha256": "599a43de8f0a4e4723a6b2f578c798e0637d450ce0c6c484d1a5ea53554fa2da",
+      "gitBlobSha1": "25f926f65e13adeaef75f9d86914355f7fca12af"
+    },
+    {
+      "path": "internal/characters/ineffa/zz_ineffa.dm.go",
+      "bytes": 4272,
+      "sha256": "0c48c8d647c1fb607d8360b8ac66f48bb28147fa3ef674c9810499b7946d0f6d",
+      "gitBlobSha1": "ec4ca91d0f4388bff877d2a9112ca38439b04cd7"
+    },
+    {
+      "path": "internal/characters/columbina/asc.go",
+      "bytes": 4097,
+      "sha256": "58986a718d6773fa5317fab85c3d57506fb40a4cce92b9a1e9b388e95fd82f20",
+      "gitBlobSha1": "7bb7d8fccf87ee903a67bf7c9c50892bc199a257"
+    },
+    {
+      "path": "internal/characters/columbina/attack.go",
+      "bytes": 2405,
+      "sha256": "662a981ee68dd0649ee22e21cd3cb77b7cf8c6c86ba757cbb7239dadbba6fb77",
+      "gitBlobSha1": "568868b898f5dbe60606098f25fcc315bcee9e8e"
+    },
+    {
+      "path": "internal/characters/columbina/burst.go",
+      "bytes": 3105,
+      "sha256": "789cd57ee0db18b744d0905d11d0c820f01700ec4d2599ba2bbffb843eabe757",
+      "gitBlobSha1": "61a81b3b6cdb43a9a782f09615be60100749dfde"
+    },
+    {
+      "path": "internal/characters/columbina/charge.go",
+      "bytes": 3772,
+      "sha256": "ca60734828ddfeb51bdc48253362d38b16b636e7b00b7f5d28f4314cadde5de0",
+      "gitBlobSha1": "1980799179f156ecdece1cd4bb373567663eac3c"
+    },
+    {
+      "path": "internal/characters/columbina/columbina.go",
+      "bytes": 1871,
+      "sha256": "f0d4346ffca5007e934b658392545fbfbe1c2a629eba00647453bfa2fbebf498",
+      "gitBlobSha1": "650b4efb1fa1dbd648b24290081ea8a1b5478abc"
+    },
+    {
+      "path": "internal/characters/columbina/cons.go",
+      "bytes": 7635,
+      "sha256": "65972353ca7d38b3e63c5a001e9428410e4cb0c0ed93fd648fb76c756cc63f1b",
+      "gitBlobSha1": "e104dcbb8dcc85765b1879488fdb03d58a752f79"
+    },
+    {
+      "path": "internal/characters/columbina/jump.go",
+      "bytes": 565,
+      "sha256": "b2baae2e70eeec17c34f9524066b435bc062906cdf75ee4a1b3e3ae9c2891677",
+      "gitBlobSha1": "d2580f66087cd9c458911b62a8be303d55fb5c86"
+    },
+    {
+      "path": "internal/characters/columbina/skill.go",
+      "bytes": 8633,
+      "sha256": "18370f7dd01684fdc196c225b40b4eb52549cd08abb7c7dd1baead26f6142cbf",
+      "gitBlobSha1": "225b1cdda183d92a99d6dd7781931fb8a19a37de"
+    },
+    {
+      "path": "internal/characters/columbina/zz_columbina.dm.go",
+      "bytes": 3714,
+      "sha256": "815e0fd1f710aef639f8b8dccf36f43999a87a09ac2988dd1acfd301957828a0",
+      "gitBlobSha1": "f29c829476c5d19693fbadccce612eba973f102c"
+    },
+    {
+      "path": "internal/characters/lauma/asc.go",
+      "bytes": 3214,
+      "sha256": "b613d0c753abb5106caa19972b1b24261d99b58c0cd6beb5d349d57fc4a7d54c",
+      "gitBlobSha1": "7af96c8c6e8df0966c76f7a39e66a8496b90b487"
+    },
+    {
+      "path": "internal/characters/lauma/attack.go",
+      "bytes": 2284,
+      "sha256": "756935c740b3d729d78b150e3529b187ce6d8f14ec21d7ba49f533b7615232b9",
+      "gitBlobSha1": "4212acb3a7929e0e18153f117372434b6f3a129d"
+    },
+    {
+      "path": "internal/characters/lauma/burst.go",
+      "bytes": 4210,
+      "sha256": "bb3a55183647c848a871b9a518a73fbd4f9dde8672d260b3c5c548b73a7ed94d",
+      "gitBlobSha1": "739838ddc16155b23d593431726e0e46a4283cdf"
+    },
+    {
+      "path": "internal/characters/lauma/charge.go",
+      "bytes": 4728,
+      "sha256": "94ccc55b82cbe6ad25ce9ecd4e096f98a9acdfa14dd9799884a9d76391c59511",
+      "gitBlobSha1": "601fe8d6f0ac87b881106c5b30bde1eb0d659b1f"
+    },
+    {
+      "path": "internal/characters/lauma/cons.go",
+      "bytes": 3965,
+      "sha256": "a37f57f8f602d323780614ac437b297f002a38b2bd1b7522b90b707ed88c5ca4",
+      "gitBlobSha1": "5bcfcc15345f7ad108c3a69c95d20baf713f8ea9"
+    },
+    {
+      "path": "internal/characters/lauma/dash.go",
+      "bytes": 300,
+      "sha256": "d26bfbb60e55b0e4953d1e110f7e3aa7593094a82e03d42569c2845d6dc93870",
+      "gitBlobSha1": "876e36d984072bd2c139331a8caad5624cbb6a41"
+    },
+    {
+      "path": "internal/characters/lauma/jump.go",
+      "bytes": 307,
+      "sha256": "f46992fda873ebef19f7c5ed562795114444daf94f17b7844de54f805a4c0529",
+      "gitBlobSha1": "5bf6a49327a68114df392ed57f02a0537f8eeec4"
+    },
+    {
+      "path": "internal/characters/lauma/lauma.go",
+      "bytes": 1709,
+      "sha256": "98b02c85f1af51d35ef0e8ee7e3f1712d34ef2943f40fa0f7d06ac1befbbfff2",
+      "gitBlobSha1": "9aee595c25b4f0697e7138c3c2f236bdd80161ce"
+    },
+    {
+      "path": "internal/characters/lauma/skill.go",
+      "bytes": 7422,
+      "sha256": "2acf748244a4070c6392dc8df59f411ad0adbe7e32b4dba47d8a4c09e1d64a9b",
+      "gitBlobSha1": "875742a6721df481edf6c774115c3e218b6c9714"
+    },
+    {
+      "path": "internal/characters/lauma/zz_lauma.dm.go",
+      "bytes": 4650,
+      "sha256": "4a2662631d55f9c891ed7a94a55cb8fc0901d02ed06e5e936b8011e043556aba",
+      "gitBlobSha1": "6cbe891f025455d0d7712725b4249e619858da30"
+    },
+    {
+      "path": "internal/characters/chasca/aimed.go",
+      "bytes": 8235,
+      "sha256": "b928bc17f4977403e411f298891cc811f6c6fb3cb343724baa86154279e8adf5",
+      "gitBlobSha1": "47d0a5989bf89d89871cffcd9002f12fafe82bd3"
+    },
+    {
+      "path": "internal/characters/chasca/asc.go",
+      "bytes": 2726,
+      "sha256": "8a4d29fe69cc3addd79f3db5e581e3c021b436dd1ddf35ba0592813d83e42965",
+      "gitBlobSha1": "b39fd8970eecdfae42ce019993a5a3ffc3b56e98"
+    },
+    {
+      "path": "internal/characters/chasca/attack.go",
+      "bytes": 4260,
+      "sha256": "98d8d5bc6fe9e26413b7bf42c4fa63faceae5f535500016d5428e277bd3c5b81",
+      "gitBlobSha1": "565487a81881b81d3c11f315cc027dcc14885c04"
+    },
+    {
+      "path": "internal/characters/chasca/burst.go",
+      "bytes": 3856,
+      "sha256": "9330d2d1f9b3096cf74d7721574110acd8617791c48eaede67962213cf8c1072",
+      "gitBlobSha1": "6a07d63e932b8830577ef642be6903ca4f3f8897"
+    },
+    {
+      "path": "internal/characters/chasca/chasca.go",
+      "bytes": 3011,
+      "sha256": "90634a5065f83cca59db2b69c34217fe50bc1a565fe5798d53ea40bd0030c5d2",
+      "gitBlobSha1": "718af5a6a77005be8c8b4d5b463360f4a2976090"
+    },
+    {
+      "path": "internal/characters/chasca/cons.go",
+      "bytes": 3420,
+      "sha256": "2a0900e3beba0f19bba239d1cc0d977e8d87e0c619b4e54babf9a2ef967256fa",
+      "gitBlobSha1": "a4e7fd71f506ae86eca223a6c60f5784aba0df53"
+    },
+    {
+      "path": "internal/characters/chasca/dash.go",
+      "bytes": 624,
+      "sha256": "c5feefccc97599abbd63484e1558d5b3f620ff9d139d0393d3b04e0bd150404b",
+      "gitBlobSha1": "108a1a43ac6cde440ee5cfad00fcc4d2f7b022d2"
+    },
+    {
+      "path": "internal/characters/chasca/jump.go",
+      "bytes": 406,
+      "sha256": "9c221aba2f42599bfcd9a81674711caaae5f5d814a077ffa852cb2130803e902",
+      "gitBlobSha1": "acae61be616d7414eb03958ceb61f23d71c945e9"
+    },
+    {
+      "path": "internal/characters/chasca/plunge.go",
+      "bytes": 2437,
+      "sha256": "3c704cba154ecf7ee3f3f85c1e8a9cfad6cdee0e4b4d872b3c28dacde51f6e09",
+      "gitBlobSha1": "d1f0120afe5f116a7b13c09c490b21c719ef37fc"
+    },
+    {
+      "path": "internal/characters/chasca/skill.go",
+      "bytes": 4969,
+      "sha256": "29b8fb72d974dc188a4c365375a1e1698800fadad9f13e0f6a6b877aefe38f88",
+      "gitBlobSha1": "83ef46e28b5b1814a3067697d17b636b0662b7e8"
+    },
+    {
+      "path": "internal/characters/chasca/zz_chasca.dm.go",
+      "bytes": 4501,
+      "sha256": "426432ae3b8e036534e105ccc661af8b68f31f9ac0f5f7663165b9ee6d1f18a5",
+      "gitBlobSha1": "acd15017e0ea08564982fff251552fa696ed6b0b"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    },
+    {
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789"
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "path": "pkg/enemy/mods.go",
+      "bytes": 4013,
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "gitBlobSha1": "d1c63e76895a0b8964567f0697aa9df8375ada71"
+    }
+  ],
+  "catalogProjection": {
+    "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "catalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+    "talentSets": [
+      "talent-set:ineffa",
+      "talent-set:columbina",
+      "talent-set:lauma",
+      "talent-set:chasca"
+    ]
+  },
+  "coefficientChecks": [
+    {
+      "characterSlug": "ineffa",
+      "sourceField": "skillInitial",
+      "sourcePath": "internal/characters/ineffa/zz_ineffa.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        0.864,
+        0.9288,
+        0.9936,
+        1.08,
+        1.1448,
+        1.2096,
+        1.296,
+        1.3824,
+        1.4688,
+        1.5552,
+        1.6416,
+        1.728,
+        1.836,
+        1.944,
+        2.052
+      ],
+      "catalogValues": [
+        0.864,
+        0.9288,
+        0.9936,
+        1.08,
+        1.1448,
+        1.2096,
+        1.296,
+        1.3824,
+        1.4688,
+        1.5552,
+        1.6416,
+        1.728,
+        1.836,
+        1.944,
+        2.052
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "ineffa",
+      "sourceField": "skillDoT",
+      "sourcePath": "internal/characters/ineffa/zz_ineffa.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param4",
+      "values": [
+        0.96,
+        1.032,
+        1.104,
+        1.2,
+        1.272,
+        1.344,
+        1.44,
+        1.536,
+        1.632,
+        1.728,
+        1.824,
+        1.92,
+        2.04,
+        2.16,
+        2.28
+      ],
+      "catalogValues": [
+        0.96,
+        1.032,
+        1.104,
+        1.2,
+        1.272,
+        1.344,
+        1.44,
+        1.536,
+        1.632,
+        1.728,
+        1.824,
+        1.92,
+        2.04,
+        2.16,
+        2.28
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "columbina",
+      "sourceField": "skill",
+      "sourcePath": "internal/characters/columbina/zz_columbina.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        0.1672,
+        0.17974,
+        0.19228,
+        0.209,
+        0.22154,
+        0.23408,
+        0.2508,
+        0.26752,
+        0.28424,
+        0.30096,
+        0.31768,
+        0.3344,
+        0.3553,
+        0.3762,
+        0.3971
+      ],
+      "catalogValues": [
+        0.1672,
+        0.17974,
+        0.19228,
+        0.209,
+        0.22154,
+        0.23408,
+        0.2508,
+        0.26752,
+        0.28424,
+        0.30096,
+        0.31768,
+        0.3344,
+        0.3553,
+        0.3762,
+        0.3971
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "columbina",
+      "sourceField": "skillDoT",
+      "sourcePath": "internal/characters/columbina/zz_columbina.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "values": [
+        0.0936,
+        0.10062,
+        0.10764,
+        0.117,
+        0.12402,
+        0.13104,
+        0.1404,
+        0.14976,
+        0.15912,
+        0.16848,
+        0.17784,
+        0.1872,
+        0.1989,
+        0.2106,
+        0.2223
+      ],
+      "catalogValues": [
+        0.0936,
+        0.10062,
+        0.10764,
+        0.117,
+        0.12402,
+        0.13104,
+        0.1404,
+        0.14976,
+        0.15912,
+        0.16848,
+        0.17784,
+        0.1872,
+        0.1989,
+        0.2106,
+        0.2223
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "lauma",
+      "sourceField": "skillPress",
+      "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        1.216,
+        1.3072,
+        1.3984,
+        1.52,
+        1.6112,
+        1.7024,
+        1.824,
+        1.9456,
+        2.0672,
+        2.1888,
+        2.3104,
+        2.432,
+        2.584,
+        2.736,
+        2.888
+      ],
+      "catalogValues": [
+        1.216,
+        1.3072,
+        1.3984,
+        1.52,
+        1.6112,
+        1.7024,
+        1.824,
+        1.9456,
+        2.0672,
+        2.1888,
+        2.3104,
+        2.432,
+        2.584,
+        2.736,
+        2.888
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "lauma",
+      "sourceField": "frostgroveSanctuaryAtk",
+      "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param4",
+      "values": [
+        0.96,
+        1.032,
+        1.104,
+        1.2,
+        1.272,
+        1.344,
+        1.44,
+        1.536,
+        1.632,
+        1.728,
+        1.824,
+        1.92,
+        2.04,
+        2.16,
+        2.28
+      ],
+      "catalogValues": [
+        0.96,
+        1.032,
+        1.104,
+        1.2,
+        1.272,
+        1.344,
+        1.44,
+        1.536,
+        1.632,
+        1.728,
+        1.824,
+        1.92,
+        2.04,
+        2.16,
+        2.28
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "lauma",
+      "sourceField": "frostgroveSanctuaryEM",
+      "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param5",
+      "values": [
+        1.92,
+        2.064,
+        2.208,
+        2.4,
+        2.544,
+        2.688,
+        2.88,
+        3.072,
+        3.264,
+        3.456,
+        3.648,
+        3.84,
+        4.08,
+        4.32,
+        4.56
+      ],
+      "catalogValues": [
+        1.92,
+        2.064,
+        2.208,
+        2.4,
+        2.544,
+        2.688,
+        2.88,
+        3.072,
+        3.264,
+        3.456,
+        3.648,
+        3.84,
+        4.08,
+        4.32,
+        4.56
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "chasca",
+      "sourceField": "burstGalesplitting",
+      "sourcePath": "internal/characters/chasca/zz_chasca.dm.go",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        0.88,
+        0.946,
+        1.012,
+        1.1,
+        1.166,
+        1.232,
+        1.32,
+        1.408,
+        1.496,
+        1.584,
+        1.672,
+        1.76,
+        1.87,
+        1.98,
+        2.09
+      ],
+      "catalogValues": [
+        0.88,
+        0.946,
+        1.012,
+        1.1,
+        1.166,
+        1.232,
+        1.32,
+        1.408,
+        1.496,
+        1.584,
+        1.672,
+        1.76,
+        1.87,
+        1.98,
+        2.09
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "chasca",
+      "sourceField": "burstSoulseeker",
+      "sourcePath": "internal/characters/chasca/zz_chasca.dm.go",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        1.034,
+        1.11155,
+        1.1891,
+        1.2925,
+        1.37005,
+        1.4476,
+        1.551,
+        1.6544,
+        1.7578,
+        1.8612,
+        1.9646,
+        2.068,
+        2.19725,
+        2.3265,
+        2.45575
+      ],
+      "catalogValues": [
+        1.034,
+        1.11155,
+        1.1891,
+        1.2925,
+        1.37005,
+        1.4476,
+        1.551,
+        1.6544,
+        1.7578,
+        1.8612,
+        1.9646,
+        2.068,
+        2.19725,
+        2.3265,
+        2.45575
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "chasca",
+      "sourceField": "burstRadiant",
+      "sourcePath": "internal/characters/chasca/zz_chasca.dm.go",
+      "abilityKey": "combat3",
+      "parameterKey": "param3",
+      "values": [
+        2.068,
+        2.2231,
+        2.3782,
+        2.585,
+        2.7401,
+        2.8952,
+        3.102,
+        3.3088,
+        3.5156,
+        3.7224,
+        3.9292,
+        4.136,
+        4.3945,
+        4.653,
+        4.9115
+      ],
+      "catalogValues": [
+        2.068,
+        2.2231,
+        2.3782,
+        2.585,
+        2.7401,
+        2.8952,
+        3.102,
+        3.3088,
+        3.5156,
+        3.7224,
+        3.9292,
+        4.136,
+        4.3945,
+        4.653,
+        4.9115
+      ],
+      "maximumDifference": 0
+    },
+    {
+      "characterSlug": "lauma",
+      "sourceField": "skillResShred",
+      "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+      "abilityKey": "combat2",
+      "parameterKey": "param8",
+      "values": [
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.125,
+        0.15,
+        0.175,
+        0.2,
+        0.225,
+        0.25,
+        0.28,
+        0.31,
+        0.34,
+        0.37,
+        0.4
+      ],
+      "catalogValues": [
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.125,
+        0.15,
+        0.175,
+        0.2,
+        0.225,
+        0.25,
+        0.28,
+        0.31,
+        0.34,
+        0.37,
+        0.4
+      ],
+      "maximumDifference": 0
+    }
+  ],
+  "limitations": [
+    "Only pinned source model; not current game verification.",
+    "Columbina excludes lunar events/gravity. Ineffa excludes Lunar-Charged field and Q A4. Lauma hold direct lunar branch remains partial.",
+    "Chasca records observed shuffled bullet elements, never an invented random realization.",
+    "Lauma A4 source reads initialization EM once; current per-hit EM must not silently replace it."
+  ]
+}

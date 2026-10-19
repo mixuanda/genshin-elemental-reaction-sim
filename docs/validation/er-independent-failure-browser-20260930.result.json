@@ -1,0 +1,389 @@
+{
+  "report": {
+    "kind": "simulation-analysis-v1",
+    "reproducibilityKey": "gdl-v2-fnv1a32-76943707",
+    "dataVersion": "test-vector-1",
+    "engineVersion": "1.53.0-callback-bus",
+    "config": {
+      "schemaVersion": "1.53.0",
+      "engineVersion": "1.53.0-callback-bus",
+      "dataVersion": "test-vector-1",
+      "randomSeed": "test-seed",
+      "meta": {
+        "name": "合成充能容量证明",
+        "version": "1",
+        "verificationStatus": "user-supplied"
+      },
+      "duration": 2,
+      "cycleLength": 2,
+      "enemy": {
+        "level": 110,
+        "resistance": 0.1,
+        "defReduction": 0
+      },
+      "characters": [
+        {
+          "id": "a",
+          "name": "A",
+          "element": "pyro",
+          "color": "#ff0000",
+          "level": 90,
+          "energyMax": 60,
+          "initialEnergy": 60,
+          "stats": {
+            "baseAtk": 1000,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 10000,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 700,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          }
+        }
+      ],
+      "rotation": [],
+      "timeline": {
+        "mode": "legal-frame-v1",
+        "fps": 60,
+        "legalityMode": "strict",
+        "initialActiveCharacterId": "a",
+        "swapFrames": 12,
+        "abilities": [
+          {
+            "id": "e",
+            "actorId": "a",
+            "name": "合成产球",
+            "kind": "skill",
+            "cancelFrame": 2,
+            "animationEndFrame": 2,
+            "cooldownFrames": 0,
+            "hits": [
+              {
+                "id": "e-hit",
+                "scaling": 1,
+                "element": "pyro",
+                "frame": 0
+              }
+            ],
+            "particles": [
+              {
+                "id": "one-particle",
+                "element": "pyro",
+                "count": 1,
+                "spawnFrame": 0,
+                "travelFrames": 1
+              }
+            ]
+          },
+          {
+            "id": "q",
+            "actorId": "a",
+            "name": "超出容量的合成耗能",
+            "kind": "burst",
+            "cancelFrame": 2,
+            "animationEndFrame": 2,
+            "cooldownFrames": 0,
+            "energyCost": 61
+          }
+        ],
+        "commands": [
+          {
+            "type": "skill",
+            "actorId": "a",
+            "abilityId": "e",
+            "atFrame": 0
+          },
+          {
+            "type": "burst",
+            "actorId": "a",
+            "abilityId": "q",
+            "atFrame": 2
+          }
+        ]
+      },
+      "playerDamageModel": {
+        "mode": "disabled"
+      },
+      "targetClockModel": {
+        "mode": "disabled"
+      },
+      "targetTaskModel": {
+        "mode": "legacy-event-heap-v1"
+      },
+      "reactionDeliveryModel": {
+        "mode": "deferred-event-heap-v1"
+      },
+      "electroChargedPropagationModel": {
+        "mode": "single-target-v1"
+      },
+      "reactionFormulaModel": {
+        "mode": "classic-formula-profile-v1",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1"
+      },
+      "directDamageGroupModel": {
+        "mode": "fixed-gcsim-direct-damage-group-v1",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+      },
+      "elementalApplicationIcdModel": {
+        "mode": "fixed-gcsim-elemental-application-v1",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+      },
+      "reactionOwnedElementalApplicationModel": {
+        "mode": "fixed-gcsim-reaction-owned-application-v2",
+        "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+      },
+      "reactionDamageGroupModel": {
+        "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+        "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+      },
+      "basicReactionSchedulerModel": {
+        "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+        "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+      },
+      "freezeBrokenAttackModel": {
+        "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+        "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+      },
+      "callbackBusModel": {
+        "mode": "legacy-no-versioned-callback-bus-v1",
+        "policyId": "legacy-no-versioned-callback-bus-v1"
+      }
+    },
+    "runtimeOptions": {
+      "energyMode": "configured",
+      "critMode": "average",
+      "compatibilityMode": "legal-frame-v1",
+      "randomSeed": "test-seed",
+      "execution": {
+        "captureHits": true,
+        "detailedTraces": false
+      },
+      "flatStatBuffSemantics": "canonical-v1"
+    },
+    "window": {
+      "startTick": 0,
+      "endTick": 120,
+      "durationSeconds": 2,
+      "totalDamage": 427.5,
+      "dps": 213.75,
+      "primaryTargetDamage": 427.5,
+      "primaryTargetDps": 213.75,
+      "includedDamageEventIds": [
+        0
+      ],
+      "policy": "half-open-[startTick,endTick)"
+    },
+    "rotationSummary": {
+      "version": "actual-input-and-source-tail-v1",
+      "requestedCycle": {
+        "ticks": 120,
+        "seconds": 2
+      },
+      "observation": {
+        "startTick": 0,
+        "endTick": 120,
+        "durationSeconds": 2,
+        "totalDamage": 427.5,
+        "dps": 213.75,
+        "primaryTargetDamage": 427.5,
+        "primaryTargetDps": 213.75,
+        "includedDamageEventIds": [
+          0
+        ],
+        "policy": "half-open-[startTick,endTick)"
+      },
+      "inputExecution": {
+        "scope": "declared-legal-command-sequence",
+        "status": "partial",
+        "occupiedEndTick": 2,
+        "executableSeconds": null,
+        "commandCount": 2,
+        "failedOrUnobservedCommandIndices": [
+          1
+        ],
+        "measurement": {
+          "startTick": 0,
+          "endTick": 2,
+          "durationSeconds": 0.03333333333333333,
+          "totalDamage": 427.5,
+          "dps": 12825,
+          "primaryTargetDamage": 427.5,
+          "primaryTargetDps": 12825,
+          "includedDamageEventIds": [
+            0
+          ],
+          "policy": "half-open-[startTick,endTick)"
+        },
+        "reasons": [
+          "有 1 条指令被拒绝、未实际执行或超出观察窗口。"
+        ]
+      },
+      "tailAttribution": {
+        "status": "complete",
+        "declaredHorizonTick": 1,
+        "unassignedDamageEventIds": [],
+        "reasons": [],
+        "sources": [
+          {
+            "actorId": "a",
+            "actionId": "e#0",
+            "engineCycle": 0,
+            "timelineCommandIndex": 0,
+            "startTick": 0,
+            "declaredTailEndTick": 1,
+            "damageEventIds": [
+              0
+            ],
+            "observedDamage": 427.5,
+            "primaryTargetDamage": 427.5,
+            "damageAfterInputEnd": 0
+          }
+        ]
+      },
+      "completeRotation": null,
+      "limitations": [
+        "实际输入时长按整段声明命令的占用、合法取消与最终动画完成边界计算，包含起手和中途空闲；不使用末次伤害时刻作分母。",
+        "合法时间线的 engineCycle 通常均为0；展开后的全局命令索引才是来源身份，不把伤害落点所在时间段当成来源轮次。",
+        "完整轮转DPS使用覆盖实际输入及已证来源尾段的半开时间窗口，包含尾段等待；不把归属总伤除以较短输入时长当作DPS。",
+        "归属完整只表示这组已声明输入与已建模尾段完成，不证明冷却、能量和状态允许无限重复；开场窗口与已证稳态指标另行报告。"
+      ]
+    },
+    "steady": {
+      "status": "not-established",
+      "periodCycles": null,
+      "steadyStateDps": null,
+      "reasons": [
+        "本次未请求完整相位检查点。",
+        "检查点未覆盖的状态：引擎标记不完整。"
+      ],
+      "policy": {
+        "cycleTicks": 120,
+        "absoluteTolerance": 1e-8,
+        "confirmationPeriods": 3,
+        "maximumPeriodCycles": 4,
+        "maximumWarmupCycles": 100
+      }
+    },
+    "startup": null,
+    "energyRecharge": {
+      "status": "er-independent-failure",
+      "method": "exhaustive-finite-grid-no-monotonicity-assumption",
+      "minimumFeasibleEr": null,
+      "recommendedEr": null,
+      "safetyMargin": 0,
+      "evaluated": [
+        {
+          "energyRecharge": 1,
+          "feasible": false,
+          "failedCommandIndices": [
+            1
+          ],
+          "failureCodes": [
+            "INSUFFICIENT_ENERGY"
+          ],
+          "totalDamage": 427.5,
+          "reproducibilityKey": "gdl-v2-fnv1a32-76943707",
+          "energyEvidence": {
+            "requestedCostCommandIndices": [
+              1
+            ],
+            "executedCostCommandIndices": [],
+            "spawnedParticleEvents": 1,
+            "receivedParticleRawEnergy": 3,
+            "fixedEnergyRequested": 0
+          }
+        },
+        {
+          "energyRecharge": 2,
+          "feasible": false,
+          "failedCommandIndices": [
+            1
+          ],
+          "failureCodes": [
+            "INSUFFICIENT_ENERGY"
+          ],
+          "totalDamage": 427.5,
+          "reproducibilityKey": "gdl-v2-fnv1a32-9965dee2",
+          "energyEvidence": {
+            "requestedCostCommandIndices": [
+              1
+            ],
+            "executedCostCommandIndices": [],
+            "spawnedParticleEvents": 1,
+            "receivedParticleRawEnergy": 3,
+            "fixedEnergyRequested": 0
+          }
+        }
+      ],
+      "observedGridMonotonicity": "monotone",
+      "scenario": {
+        "actorId": "a",
+        "minimumEr": 1,
+        "maximumEr": 2,
+        "step": 1,
+        "seed": "test-seed",
+        "durationSeconds": 2,
+        "startupEnergy": "configured"
+      },
+      "limitations": [
+        "无解结论依据附带的不变量证明；实际候选仍只覆盖给定窗口、种子和离散网格，不证明无限循环或随机失败概率。",
+        "不会同时优化其他词条、动作或充能来源；安全裕量目标必须经实际模拟验证。"
+      ],
+      "reasons": [
+        "第 2 条动作需要 61 能量，超过角色容量 60。初能和所有回能均受容量上限约束；提高充能效率无法使此动作可用。"
+      ],
+      "independentFailureProof": {
+        "kind": "cost-exceeds-capacity",
+        "commandIndex": 1,
+        "actorId": "a",
+        "abilityId": "q",
+        "energyCost": 61,
+        "energyMax": 60,
+        "comparisonEpsilon": 1e-9,
+        "formula": "E_available ≤ E_max < C − ε ⇒ C > E_available + ε",
+        "variables": {
+          "E_available": "扣除已预留能量后的可用能量",
+          "E_max": "角色固定能量容量（按执行器保留 12 位小数）",
+          "C": "该动作实际耗能（同一精度）",
+          "ε": "执行器允许的能量比较误差"
+        },
+        "substitution": "实际失败时 E_available = 60；容量 E_max = 60；C = 61 > 60 + 1e-9 = 60.000000001。",
+        "explanation": "第 2 条动作需要 61 能量，超过角色容量 60。初能和所有回能均受容量上限约束；提高充能效率无法使此动作可用。",
+        "assumptions": [
+          "仅修改该角色充能效率；角色容量、动作耗能和完整轮转保持不变。",
+          "依据本地执行器的实际能量拒绝与容量约束；不把合成输入视为游戏数值验证。"
+        ],
+        "evidence": {
+          "energyRecharge": 1,
+          "reproducibilityKey": "gdl-v2-fnv1a32-76943707",
+          "failure": {
+            "time": 0.03333333333333333,
+            "frame": 2,
+            "actorId": "a",
+            "actionId": "q#1",
+            "action": "超出容量的合成耗能",
+            "reason": "能量不足 60/61",
+            "reasonCode": "INSUFFICIENT_ENERGY",
+            "energyBefore": 60,
+            "energyCost": 61,
+            "cycle": 0,
+            "timelineCommandIndex": 1,
+            "sourceAbilityId": "q"
+          }
+        }
+      }
+    },
+    "stochasticStartup": null
+  },
+  "pageText": "GENSHIN DAMAGE LABORATORY\n提瓦特伤害实验室\n\n独立技能计算 · 逐步公式解释 · 可审计的团队模拟\n\n预设\n黑杜林融化 · C6R5 / C6R1 结构示例\n空白四人队模板\n合法帧时间线 · 双角色结构示例\nAura / ICD 自动反应 · M3 结构示例\n粒子 / 回能 · M4 结构示例\n杜林黑 E · 部分机制审计向量\n杜林白 E · 部分机制审计向量\n运行模拟\n导出 JSON\n导出完整模拟记录\n导入 JSON\n技能计算器\n演算示例\n配装预设\n队伍配置\n行动编辑\n模拟结果\n来源队伍模拟\n结果比较\n数据浏览\n更新状态\n合成充能容量证明 user-supplied · legal-frame-v1 · schema 1.53.0 · engine 1.53.0-callback-bus ·\n基准条件\n保留当前自定义情景\n旧基准 · 110级 / 零能量 / 120秒\nKQMS 启发 / 自定义\n时长预设\n自定义\n15\n18\n20\n60\n90\n120\n模拟时长（秒）\n循环长度（秒）\n敌人等级\n基础抗性（%）\n全元素共享的兼容抗性（当前作用于：敌人 0）。\n初始能量模式\n按角色配置\n强制全员 0\n强制全员满能量\n暴击模式\n期望值\n全部暴击\n全部不暴击\n按种子逐击随机暴击\n种子\n种子迭代次数\n记录周期稳态检查点\n随结果保存所有逐击公式轨迹\n队伍 DPS\n214\n214 / 秒\n2秒总伤\n428\n428\n已实现分支状态\n未截断\n未跨过已知未实现机制；不代表完整游戏机制\n模型内有效 / 全部伤害段\n1 / 1\n0 次反应触发 · 未启用 Aura 引擎\n目标判定\n1 / 1\n全部命中\n时间线指令\n2\n2f · 0.03s\n跳过行动\n1\n存在断能量/断轴\n总览\n时间轴\n逐段伤害\n账号展示柜\n高级配置\n角色伤害构成\n1 名角色产生伤害\nA\n428\n100.0% · 214 DPS · 1 段\n技能伤害构成\n按最终伤害排序\n角色\t技能\t次数\t伤害\tDPS\t占比\n A\t合成产球\t1\t428\t214\t100.0%\n能量与执行状态\n用于识别 0 能量启动导致的断轴\nA\n跳过 1\n充能效率 100% · 初始 60 · 固定 0 · 粒子 0 · 消耗 0 · 溢出 3 · 最终 60/60\n测量窗口\n\n按已完成的模拟结果取半开区间 [开始帧, 结束帧)。保留区间内空闲时间；终点帧伤害不计入。改变窗口不会重置能量、冷却或实体。\n\n窗口类型\n完整观察窗口\n首个配置周期\n开场 15 秒\n开场 18 秒\n开场 20 秒\n自定义整帧窗口\n开始帧\n结束帧（不含）\n主目标\n敌人 0\n区间\t时长\t全部目标伤害\t窗口 DPS\t主目标伤害\t主目标 DPS\n[0, 120)f\t2 秒\t427.5\t213.75\t427.5\t213.75\n\n首个配置周期采用 cycleLength，并不把失败、延迟或尚未完成的指令称为完整可执行轮转。\n\n输入执行与尾段归属\n\n配置周期 2 秒；完整观察 2 秒。实际声明输入尚无完整可执行时长，占用完成边界 2f。\n\n输入：执行不完整；尾段：已核对闭合。\n\n有 1 条指令被拒绝、未实际执行或超出观察窗口。\n\n实际输入窗口 [0, 2)f（含空闲）：全目标 427.5，DPS 12,825；主目标 427.5，DPS 12,825。\n\n未给出“完整轮转伤害 / DPS”；仍可使用上方明确时间区间内的实测窗口值。\n\n来源归属与计算边界\n稳态检查与预热\n\n未建立稳态\n\n本次未请求完整相位检查点。；检查点未覆盖的状态：引擎标记不完整。\n\n可以在一次连续运行中先执行预热，再测量当前时长的观察窗口。预热行动和所有状态会延续进入窗口，不会只补满能量。总模拟上限 600 秒。\n\n预热周期数\n预热起始能量\n零能量\n满能量\n按角色配置\n连续预热并检查稳态\n随机检查点\n\n检查点保存该帧所有事件执行前的状态。抽样次数为本次运行截至该边界的累计次数，不随测量窗口重置。状态捕获不等于随机稳态证明。\n\n本次结果没有记录检查点边界。\n\n随机预热与起步敏感性\n\n对每组种子分别从零能量与满能量连续运行，在 W 和 2W 预热后取相同时长窗口。保留所有实际状态，不把随机状态要求为逐周期相同；比较伤害、能量和行动拒绝的配对差值。\n\n独立种子组数\nW 预热周期数\n\n默认8组，共16次连续运行；每次 2W 加当前 2 秒观察窗口不得超过600秒。沿用本次运行的种子基础、暴击与回能政策；结果为有限样本诊断，不自动认证随机稳态。\n\n运行随机预热诊断\n充能需求求解\n\n固定本次配装、动作、configured 起步方式与种子；逐个检查有限充能网格，返回每个失败原因。不会用更高充能必然更好的假设跳过候选。\n\n角色\nA\n最低充能（%）\n最高充能（%）\n步长（百分点）\n安全裕量（百分点）\n计算充能需求\n\n充能无法解决当前失败。\n\n第 2 条动作需要 61 能量，超过角色容量 60。初能和所有回能均受容量上限约束；提高充能效率无法使此动作可用。\n\n无解结论依据附带的不变量证明；实际候选仍只覆盖给定窗口、种子和离散网格，不证明无限循环或随机失败概率。；不会同时优化其他词条、动作或充能来源；安全裕量目标必须经实际模拟验证。\n\n充能无法解决的依据\n\n指令 2 · 角色 a\n\n公式：E_available ≤ E_max < C − ε ⇒ C > E_available + ε\n\nE_available\n扣除已预留能量后的可用能量\nE_max\n角色固定能量容量（按执行器保留 12 位小数）\nC\n该动作实际耗能（同一精度）\nε\n执行器允许的能量比较误差\n\n代入：实际失败时 E_available = 60；容量 E_max = 60；C = 61 > 60 + 1e-9 = 60.000000001。\n\n第 2 条动作需要 61 能量，超过角色容量 60。初能和所有回能均受容量上限约束；提高充能效率无法使此动作可用。\n\n前提：仅修改该角色充能效率；角色容量、动作耗能和完整轮转保持不变。；依据本地执行器的实际能量拒绝与容量约束；不把合成输入视为游戏数值验证。\n\n查看 2 个实际候选\n导出本次分析\nLUNAR-CHARGED · STATE-RESOLVED RUN\n月感电自动事件\n\n使用当前队伍、动作和面板，在独立线程运行明确范围内的月感电转换。仅已实际结算的特殊事件进入合计；状态日志中的伤害意图本身不计伤害。\n\n自动反应分支\n月感电\n月结晶\n星超导 · 来源参考（非正式服核验）\n月绽放 · 草露与已声明能力\n星扩散 · 指南参考（来源冲突未解决）\n月感电＋月结晶 · 同次共享状态\n混合 v2 · 月反应＋绽放／超绽放／草露\n固定来源参考配置 · 暂定\n\n当前执行范围为单个静止范围内目标、60 FPS、无目标卡肉、水／雷／物理命中及 aura-v3。角色身份用于确定所选月感电分支的转换资格；不会补造其天赋、面板或未建模的被动。沿用全局暴击选择：解析期望保留独立暴击组合；选择按种子随机暴击时，实际合格的特殊贡献者使用独立随机流，先各自判暴击再排序。特殊暴击触发的后续被动仍未接入。\n\n本次配置和队伍身份\n\n当前配置：黑杜林融化 · C6R5 / C6R1 结构示例；观察时长 120 秒；反应模式 未启用自动附着。运行时读取下方身份选择，并重新复制当前配置和运行选项。\n\n杜林 · durin / pyro\n必须明确选择身份\n空 · travelerpyro · travelerpyro\n荧 · travelerpyro · travelerpyro\n迪卢克 · diluc\n安柏 · amber\n香菱 · xiangling\n可莉 · klee\n班尼特 · bennett\n辛焱 · xinyan\n胡桃 · hutao\n烟绯 · yanfei\n宵宫 · yoimiya\n托马 · thoma\n迪希雅 · dehya\n林尼 · lyney\n夏沃蕾 · chevreuse\n嘉明 · gaming\n阿蕾奇诺 · arlecchino\n玛薇卡 · mavuika\n杜林 · durin\n尼可 · nicole\n配置名称与元素对应目录 character:10000123；此身份仍是本次配置的条件。\n尼可 · nicole / pyro\n必须明确选择身份\n空 · travelerpyro · travelerpyro\n荧 · travelerpyro · travelerpyro\n迪卢克 · diluc\n安柏 · amber\n香菱 · xiangling\n可莉 · klee\n班尼特 · bennett\n辛焱 · xinyan\n胡桃 · hutao\n烟绯 · yanfei\n宵宫 · yoimiya\n托马 · thoma\n迪希雅 · dehya\n林尼 · lyney\n夏沃蕾 · chevreuse\n嘉明 · gaming\n阿蕾奇诺 · arlecchino\n玛薇卡 · mavuika\n杜林 · durin\n尼可 · nicole\n配置名称与元素对应目录 character:10000131；此身份仍是本次配置的条件。\n洛恩 · lohen / cryo\n必须明确选择身份\n神里绫华 · kamisatoayaka\n空 · travelercryo · travelercryo\n荧 · travelercryo · travelercryo\n凯亚 · kaeya\n七七 · qiqi\n重云 · chongyun\n甘雨 · ganyu\n迪奥娜 · diona\n罗莎莉亚 · rosaria\n优菈 · eula\n埃洛伊 · aloy\n申鹤 · shenhe\n莱依拉 · layla\n米卡 · mika\n菲米尼 · freminet\n莱欧斯利 · wriothesley\n夏洛蒂 · charlotte\n茜特菈莉 · citlali\n爱可菲 · escoffier\n丝柯克 · skirk\n洛恩 · lohen\n桑多涅 · sandrone\n奥黛塔 · odette\n配置名称与元素对应目录 character:10000129；此身份仍是本次配置的条件。\n茜特菈莉 · citlali / cryo\n必须明确选择身份\n神里绫华 · kamisatoayaka\n空 · travelercryo · travelercryo\n荧 · travelercryo · travelercryo\n凯亚 · kaeya\n七七 · qiqi\n重云 · chongyun\n甘雨 · ganyu\n迪奥娜 · diona\n罗莎莉亚 · rosaria\n优菈 · eula\n埃洛伊 · aloy\n申鹤 · shenhe\n莱依拉 · layla\n米卡 · mika\n菲米尼 · freminet\n莱欧斯利 · wriothesley\n夏洛蒂 · charlotte\n茜特菈莉 · citlali\n爱可菲 · escoffier\n丝柯克 · skirk\n洛恩 · lohen\n桑多涅 · sandrone\n奥黛塔 · odette\n配置名称与元素对应目录 character:10000107；此身份仍是本次配置的条件。\n\n精确目录 ID 或名称与元素的一致性只说明映射依据，不证明整套角色机制已实现。手动选择一律作为本次运行的身份条件；实际数值仍来自配置。尚未匹配的角色必须明确选择。\n\n月反应圣遗物条款 · 固定来源暂定\n\n配置面板应已包含普通属性、二件套属性及其他已计入的增益。下列选择只应用装备者的四件套月反应条款；不会补加二件套精通、普通增伤或全队加成。乐园层数、触发冷却与晓歌前后台及回场残留由本次实际事件和切人时间轴解析。\n\n杜林 · 月反应套装\n无月反应套装条款\n如雷的盛怒四件套\n乐园遗落之花四件套\n晨星与月的晓歌四件套\n穹境示现之夜 · artifact-set:15041\n纺月的夜歌 · artifact-set:15042\n尼可 · 月反应套装\n无月反应套装条款\n如雷的盛怒四件套\n乐园遗落之花四件套\n晨星与月的晓歌四件套\n穹境示现之夜 · artifact-set:15041\n纺月的夜歌 · artifact-set:15042\n洛恩 · 月反应套装\n无月反应套装条款\n如雷的盛怒四件套\n乐园遗落之花四件套\n晨星与月的晓歌四件套\n穹境示现之夜 · artifact-set:15041\n纺月的夜歌 · artifact-set:15042\n茜特菈莉 · 月反应套装\n无月反应套装条款\n如雷的盛怒四件套\n乐园遗落之花四件套\n晨星与月的晓歌四件套\n穹境示现之夜 · artifact-set:15041\n纺月的夜歌 · artifact-set:15042\n\n选择四件套表示明确声明该角色已装备，不会从角色名称或已有面板猜测套装。仅在适用月反应分支读取条件；普通、星反应与其他角色的贡献不受本控件影响。\n\n固定来源\n本次运行副本明确改用 aura-v3；保留其余输入和 ICD 定义\n本次独立运行采用 legal-frame-v1 整数帧调度；不改全局普通模式选择\n读取当前配置\n运行月感电参考配置\n导出完整特殊结果\n导入并重放完整特殊结果\n\n导出文件保存所选特殊执行配置、运行选项、身份条件和完整结果。导入会在工作线程使用文件声明的引擎身份重放并比较完整结果；这只验证捕获记录可复现，不代表游戏机制已核验。\n\n尚未运行。请核对身份映射；不满足执行范围时会显示实际阻塞原因。\n\n合法帧行动队列\n60 FPS · 严格模式 · 0 次调整 · 1 次拒绝 · 0 次状态变更\n#\t指令\t角色 / 行动\t请求帧\t开始帧\t取消帧\t动画结束\t等待\t状态\n0\t元素战技\tA / 合成产球\t0f / 0.000s\t0f / 0.000s\t2f / 0.033s\t2f / 0.033s\t—\t已执行\n1\t元素爆发\tA / 超出容量的合成耗能\t2f / 0.033s\t2f / 0.033s\t—\t—\t—\t拒绝 · INSUFFICIENT_ENERGY\n#1 \"超出容量的合成耗能\" 能量不足 60/61，未施放且不占用冷却或改变行动状态。",
+  "pageErrors": []
+}

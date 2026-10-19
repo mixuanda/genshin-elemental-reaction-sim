@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "source-artifact-constants-measurements-v1",
+  "derivedFrom": "source-artifact-constants-20260928.result.json",
+  "pageErrors": [],
+  "runs": [
+    {
+      "variant": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "ae8f0abcbdec9ad094bc01397b7cef10b5e1b447347fc1592db54c41ce503a94",
+        "wasmBytes": 42029420
+      },
+      "calculations": 108,
+      "applications": 41,
+      "constantCalls": 54,
+      "observedRuleCounts": {
+        "const-blizzard-2pc-cryo-p": 3,
+        "const-instructor-2pc-em": 10,
+        "const-oceanhuedclam-2pc-heal": 10,
+        "const-blizzard-4pc-cryo-cr": 1,
+        "const-instructor-4pc-em": 21,
+        "const-noblesse-4pc-atkp": 8,
+        "const-noblesse-2pc-dmg": 1
+      },
+      "teamRecipients": {
+        "instructor": [
+          "fischl",
+          "bennett",
+          "barbara"
+        ],
+        "noblesse": [
+          "bennett",
+          "barbara"
+        ]
+      },
+      "blizzard": {
+        "id": 8,
+        "value": 0.2,
+        "targetKey": 1,
+        "hitId": 10
+      },
+      "selectedHitIndex": 14,
+      "supportedConstants": [
+        {
+          "id": 61,
+          "ruleId": "const-oceanhuedclam-2pc-heal",
+          "value": 0.15,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/oceanhuedclam/oceanhuedclam.go"
+          ]
+        },
+        {
+          "id": 62,
+          "ruleId": "const-instructor-4pc-em",
+          "value": 120,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/instructor/instructor.go"
+          ]
+        },
+        {
+          "id": 63,
+          "ruleId": "const-noblesse-4pc-atkp",
+          "value": 0.2,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/noblesse/noblesse.go"
+          ]
+        }
+      ],
+      "originalDamage": 224.642370074518,
+      "editedDamage": 449.284740149036,
+      "editedField": "scaling",
+      "originalScaling": 0.3784,
+      "editedScaling": 0.7568,
+      "originalCapturePreserved": true
+    },
+    {
+      "variant": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "828039ae6a350a616d866acad8c64fa3eba61e02b978ca987f3913f4fcc56b6c",
+        "wasmBytes": 62376642
+      },
+      "calculations": 95,
+      "applications": 41,
+      "constantCalls": 54,
+      "observedRuleCounts": {
+        "const-blizzard-2pc-cryo-p": 3,
+        "const-instructor-2pc-em": 10,
+        "const-oceanhuedclam-2pc-heal": 10,
+        "const-blizzard-4pc-cryo-cr": 1,
+        "const-instructor-4pc-em": 21,
+        "const-noblesse-4pc-atkp": 8,
+        "const-noblesse-2pc-dmg": 1
+      },
+      "teamRecipients": {
+        "instructor": [
+          "fischl",
+          "bennett",
+          "barbara"
+        ],
+        "noblesse": [
+          "bennett",
+          "barbara"
+        ]
+      },
+      "blizzard": {
+        "id": 8,
+        "value": 0.2,
+        "targetKey": 1,
+        "hitId": 10
+      },
+      "selectedHitIndex": 14,
+      "supportedConstants": [
+        {
+          "id": 57,
+          "ruleId": "const-oceanhuedclam-2pc-heal",
+          "value": 0.15,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/artifacts/oceanhuedclam/oceanhuedclam.go"
+          ]
+        },
+        {
+          "id": 58,
+          "ruleId": "const-instructor-4pc-em",
+          "value": 120,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/artifacts/instructor/instructor.go"
+          ]
+        },
+        {
+          "id": 59,
+          "ruleId": "const-noblesse-4pc-atkp",
+          "value": 0.2,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/artifacts/noblesse/noblesse.go"
+          ]
+        }
+      ],
+      "originalDamage": 224.642370074518,
+      "editedDamage": 449.284740149036,
+      "editedField": "scaling",
+      "originalScaling": 0.3784,
+      "editedScaling": 0.7568,
+      "originalCapturePreserved": true
+    }
+  ]
+}

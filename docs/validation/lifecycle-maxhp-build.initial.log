@@ -1,0 +1,14 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"actionConditionLog" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "nightsoulBurstLog" | ... 12 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: playerMaxHpEvents" | "Expected: literal string: artifactEventLog, Actual: literal string: playerMaxHpEvents" | ... 18 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: playerMaxHpEvents"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: playerMaxHpEvents" | "Expected: literal string: artifactEventLog, Actual: literal string: playerMaxHpEvents" | ... 18 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: playerMaxHpEvents"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "nightsoulBurstLog" | ... 12 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: playerMaxHpEvents" | "Expected: literal string: artifactEventLog, Actual: literal string: playerMaxHpEvents" | ... 18 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: playerMaxHpEvents"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: playerMaxHpEvents" | "Expected: literal string: artifactEventLog, Actual: literal string: playerMaxHpEvents" | ... 18 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: playerMaxHpEvents"'.
+packages/sim-core/src/periodic-ordinary-formulas.ts(63,143): error TS2339: Property 'reasons' does not exist on type '{ id: string; label: string; sourceRefs: string[]; dependencies: string[]; kind: "ordinary"; finalSnapshot?: { origin?: "equipment-conversion" | undefined; stats: { atk: number; hp: number; def: number; em: number; critRate: number; critDamage: number; energyRecharge?: number | undefined; }; ... 6 more ...; sourceRe...'.
+  Property 'reasons' does not exist on type '{ id: string; label: string; sourceRefs: string[]; dependencies: string[]; kind: "ordinary"; finalSnapshot?: { origin?: "equipment-conversion" | undefined; stats: { atk: number; hp: number; def: number; em: number; critRate: number; critDamage: number; energyRecharge?: number | undefined; }; ... 6 more ...; sourceRe...'.

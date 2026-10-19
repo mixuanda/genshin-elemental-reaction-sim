@@ -1,0 +1,62 @@
+name: Game data source discovery
+
+on:
+  schedule:
+    - cron: "17 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Fetch and fingerprint currently observed source URLs
+        id: discover
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/data-discovery
+          set -o pipefail
+          npm run data:discover 2>&1 | tee artifacts/data-discovery/discover.log
+      - name: Capture current genshin-db tree as an isolated candidate
+        id: candidate
+        continue-on-error: true
+        run: |
+          mkdir -p artifacts/data-candidates
+          set -o pipefail
+          node packages/game-data/scripts/sync-genshin-db-candidate.mjs --output artifacts/data-candidates 2>&1 | tee artifacts/data-discovery/candidate.log
+      - name: Assemble read-only review receipt
+        id: review
+        if: always()
+        run: |
+          mkdir -p artifacts/data-discovery
+          set -o pipefail
+          node packages/game-data/scripts/update-data.mjs review --output artifacts/data-discovery/review-receipt.json 2>&1 | tee artifacts/data-discovery/review.log
+      - name: Preserve observations and candidate bytes
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: data-discovery-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: warn
+          retention-days: 30
+          path: |
+            artifacts/data-discovery/**
+            packages/game-data/manifests/last-discovery.json
+            packages/game-data/manifests/failure-ledger.jsonl
+            packages/game-data/manifests/discovery/**/*.html.gz
+            artifacts/data-candidates/**
+      - name: Report discovery or candidate failures after preserving artifacts
+        if: always()
+        run: |
+          if [[ "${{ steps.discover.outcome }}" != "success" || "${{ steps.candidate.outcome }}" != "success" || "${{ steps.review.outcome }}" != "success" ]]; then
+            exit 1
+          fi
+          node packages/game-data/scripts/update-data.mjs review --fail-on-errors > /dev/null

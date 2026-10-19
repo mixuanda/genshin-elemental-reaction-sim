@@ -1,0 +1,46 @@
+[WebServer] (node:8006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:8014) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-base-panel.spec.ts:55:1 › both native lanes expose an actual base-panel getter without changing gameplay or standalone hit replay (5.6s)
+
+
+  1) [chromium] › apps/web/e2e/source-base-panel.spec.ts:55:1 › both native lanes expose an actual base-panel getter without changing gameplay or standalone hit replay 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-source-base-panel]')
+    Expected: visible
+    Error: strict mode violation: locator('[data-source-base-panel]') resolved to 2 elements:
+        1) <section data-source-base-panel="">…</section> aka locator('#calc-source-host-editor').getByText('原生基础面板配置来源 快照根读取 · xingqiu')
+        2) <section data-source-base-panel="">…</section> aka locator('#source-host-hit').getByText('原生基础面板配置来源 快照根读取 · xingqiu')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-source-base-panel]')
+
+
+      124 |       await page.locator('#source-host-open-calculator').click();
+      125 |       await expect(page).toHaveURL(/\/calculator$/);
+    > 126 |       await expect(page.locator('[data-source-base-panel]')).toBeVisible();
+          |                                                              ^
+      127 |       await expect(page.locator('[data-source-base-panel]')).toContainText('基础面板');
+      128 |       const saved = await download(page, '[data-source-host-export]') as SourceHostEditableCalculation;
+      129 |       expect(saved.originalCapture).toEqual(capture);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-base-panel.spec.ts:126:62
+
+    Error Context: test-results/source-base-panel-both-nat-d5070-ay-or-standalone-hit-replay-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-base-panel-both-nat-d5070-ay-or-standalone-hit-replay-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-base-panel-both-nat-d5070-ay-or-standalone-hit-replay-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-base-panel.spec.ts:55:1 › both native lanes expose an actual base-panel getter without changing gameplay or standalone hit replay 

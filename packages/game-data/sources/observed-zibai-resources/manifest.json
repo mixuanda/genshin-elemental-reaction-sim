@@ -1,0 +1,329 @@
+{
+  "schemaVersion": 1,
+  "protocol": "observed-zibai-resources-v1",
+  "status": "fixed-text-rules with real-observation-only ordering; provisional community source evidence",
+  "recordedAt": "2026-09-25T03:50:33.613296+00:00",
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "treeIdentity": {
+    "responseSha": "180a0a1015cb725c7570cd828eb086749960df98",
+    "responseSha256": "3fb9ff8b883c2a63c5ccb6569719795389ccd8b8f055a10d5c5af9ae77e612eb",
+    "truncated": false,
+    "allArchivedFilesMatchFixedTree": true,
+    "note": "source archive stores only the five selected tree entries; verification used the complete local fixed-commit tree response"
+  },
+  "archive": {
+    "path": "packages/game-data/sources/observed-zibai-resources/source.json.gz",
+    "bytes": 17525,
+    "sha256": "333aaeb44b47b6b472b94a4e95c2dd81a0584bc3ad7274a698ba950331d847a9",
+    "sourceFileCount": 5,
+    "format": "gzip JSON; files store original UTF-8 source strings; tree metadata is separate"
+  },
+  "definitions": {
+    "path": "packages/game-data/sources/observed-zibai-resources/definitions.json",
+    "sha256": "01b373dd65dc507ad902aad30fffcab3ed37a9090e64ba87903c5f33425ce4c9",
+    "constants": {
+      "cap": 100,
+      "cost": 70,
+      "durationSeconds": 15,
+      "timeGain": 10,
+      "timeIntervalSeconds": 1,
+      "normalGain": 5,
+      "normalIntervalSeconds": 0.5,
+      "lunarGain": 35,
+      "lunarIntervalSeconds": 4,
+      "requiredMoonsign": 2,
+      "maxUses": 4,
+      "burstExtensionSeconds": 1.7,
+      "framesPerSecond": 60
+    },
+    "sourceRefs": [
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+      "https://library.keqingmains.com/characters/geo/zibai",
+      "https://library.keqingmains.com/evidence/characters/geo/zibai"
+    ]
+  },
+  "ruleEvidence": [
+    {
+      "constants": [
+        "durationSeconds"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.0",
+      "lines": [
+        312,
+        312
+      ]
+    },
+    {
+      "constants": [
+        "cost"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.1[1]",
+      "lines": [
+        315,
+        315
+      ]
+    },
+    {
+      "constants": [
+        "cap"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.3",
+      "lines": [
+        318,
+        318
+      ]
+    },
+    {
+      "constants": [
+        "timeGain",
+        "timeIntervalSeconds"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.4[0]",
+      "lines": [
+        320,
+        320
+      ]
+    },
+    {
+      "constants": [
+        "normalGain",
+        "normalIntervalSeconds"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.4[1]",
+      "lines": [
+        321,
+        321
+      ]
+    },
+    {
+      "constants": [
+        "lunarGain",
+        "lunarIntervalSeconds"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.7",
+      "lines": [
+        325,
+        325
+      ]
+    },
+    {
+      "constants": [
+        "requiredMoonsign"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.6",
+      "lines": [
+        324,
+        324
+      ],
+      "corroboratingPath": "libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "corroboratingLines": [
+        286,
+        298
+      ],
+      "meaning": "Tooltip gates LC gains by named Ascendant Gleam; the same named character condition for the N4 additional hit is implemented as tally.moonsign >= 2. The sheet does not implement a resource callback."
+    },
+    {
+      "constants": [
+        "maxUses"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "jsonPath": "11260001.description.9",
+      "lines": [
+        327,
+        327
+      ]
+    },
+    {
+      "constants": [
+        "burstExtensionSeconds"
+      ],
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "jsonPath": "burst.description.1",
+      "lines": [
+        125,
+        125
+      ]
+    },
+    {
+      "constants": [
+        "framesPerSecond"
+      ],
+      "origin": "application ledger convention supplied for this protocol; not an upstream timing or first-tick assertion"
+    }
+  ],
+  "durationValueCorroboration": {
+    "path": "libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+    "field": "skill[3]",
+    "values": [
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15,
+      15
+    ],
+    "all15EqualTo15Seconds": true,
+    "sheetPath": "libs/gi/sheets/src/Characters/Zibai/index.tsx",
+    "sheetLines": [
+      57,
+      62
+    ]
+  },
+  "preservedRuleText": {
+    "tooltipPath": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+    "tooltipKey": "11260001",
+    "originalTooltipObject": {
+      "name": "Lunar Phase Shift",
+      "description": {
+        "0": "After using the Elemental Skill <strong>Heaven and Earth Made Manifest</strong>, Zibai will change to this mode. This mode lasts at most 15s and has the following properties:",
+        "1": [
+          " Normal and Charged Attacks are converted into <geo>Geo DMG</geo> that cannot be overridden by other infusions.",
+          " The Elemental Skill <strong>Heaven and Earth Made Manifest</strong> will also be converted to the Elemental Skill <strong>Spirit Steed's Stride</strong>: When Zibai has at least 70 <strong>Phase Shift Radiance</strong>, she can consume 70 Phase Shift Radiance to unleash Spirit Steed's Stride and cause two instances of <geo>Geo DMG</geo>. The second instance will be considered Lunar-Crystallize Reaction DMG."
+        ],
+        "2": "<br/>",
+        "3": "A maximum of 100 <strong>Phase Shift Radiance</strong> points can be accrued, and Zibai can accumulate them in the following ways:",
+        "4": [
+          " She gains 10 points every second she is in the <strong>Lunar Phase Shift</strong> mode.",
+          " She gains 5 points when hitting an opponent with her Normal Attacks. She can gain Phase Shift Radiance points in this way once every 0.5s."
+        ],
+        "5": "<br/>",
+        "6": "<strong>Moonsign: Ascendant Gleam</strong>",
+        "7": "When nearby party members trigger Lunar-Crystallize, they will also accrue 35 <strong>Phase Shift Radiance</strong> points for Zibai. Points can be gained this way once every 4s. Unleashing the special elemental skill <strong>Spirit Steed's Stride</strong> will reset the CD for <strong>Phase Shift Radiance</strong> gained this way.",
+        "8": "<br/>",
+        "9": "Zibai will leave this mode after unleashing <strong>Spirit Steed's Stride</strong> 4 times, or when the skill's duration ends."
+      }
+    },
+    "burstPath": "libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+    "originalBurstExtensionText": "When cast, if Zibai is in the <tooltip ns=tooltips_gen baseKey18=11260001 values=[]><strong>Lunar Phase Shift</strong></tooltip>, the duration of the current Lunar Phase Shift will extend by an additional 1.7s."
+  },
+  "crossReference": {
+    "url": "https://library.keqingmains.com/characters/geo/zibai",
+    "evidenceVaultUrl": "https://library.keqingmains.com/evidence/characters/geo/zibai",
+    "accessedDate": "2026-09-25",
+    "identity": "dynamic webpage; no fixed repository revision, raw-byte hash or archived snapshot is claimed",
+    "observation": "The page repeats the same talent rules, states that character findings have not yet been added, and provides no frame findings; the linked Evidence Vault has empty mechanics sections.",
+    "scope": "semantic corroboration and a documented evidence gap; not authority for first-tick phase, callback order or exact boundary frames",
+    "pageBytesArchived": false
+  },
+  "observationContract": {
+    "scope": "C0; real observed Phase Shift Radiance ledger for one Lunar Phase Shift lifecycle or a selected Steed consumption prefix; not an automatic rotation or source-verified frame simulator.",
+    "framesAndOrder": "Every entry frame and same-frame order is observed input. Seconds are converted using the application timebase; do not infer a first tick phase, action impact frame, cooldown boundary inclusivity or internal callback order from talent text.",
+    "firstTimeGainPhase": "unknown; must be explicitly observed, never generated from an assumed cast+60 or cast+0 phase",
+    "normalGainEvidence": "actual qualifying Normal Attack contact; do not substitute a button press, charged hit or automatically counted candidate",
+    "lunarGainEvidence": "actual qualifying nearby-party Lunar-Crystallize trigger with Ascendant Gleam; Lunar-Crystallize damage tags alone do not prove a resource-gain trigger",
+    "steedConsumption": "requires at least cost before the observed valid release; deduct cost and count a use; the release resets only the Lunar-Crystallize resource-gain cooldown, not the Normal Attack gain cooldown",
+    "steedResetOrder": "the talent states that a valid Steed release resets the LC-gain cooldown, but does not establish consumption/reset/same-frame LC order; preserve the observed event order",
+    "fourthUseExitOrder": "four valid Steed releases end the mode, but the relation between exit, release, its two damage instances and other same-frame events is not source-proven",
+    "burstExtension": "an actual Q cast while the mode is active extends the current duration; no extension while already inactive and no source claim of only one extension per lifecycle",
+    "completeLifecycleRequiresExplicitExit": true,
+    "completeLifecycleExit": "require an observed exit record; do not synthesize a verified exact exit frame from the fourth release or duration arithmetic alone",
+    "singleUsePrefixIncludesMatchedConsumption": true,
+    "singleUsePrefix": "truncate the ordered observation ledger immediately after the selected valid Steed consumption; retain only prior and same-frame-earlier entries needed to establish that consumption",
+    "singleUseRequiresFutureExit": false,
+    "singleUseFuturePolicy": "later gains, attacks, fourth-use exit and full lifecycle observation are not evidence requirements for an already observed selected consumption",
+    "timebase": "framesPerSecond=60 is the application ledger unit, not an independently established timing phase or animation model"
+  },
+  "verification": {
+    "sourceFiles": 5,
+    "allOriginalBytesPreserved": true,
+    "allFixedSourceRefsArchived": true,
+    "dynamicCrossReferencePagesNotArchived": true,
+    "tooltipDownload": {
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "retrievedAt": "2026-09-25T03:47:53.548157+00:00",
+      "bytes": 38604,
+      "gitBlobSha1": "188d09480020761be49244617e3025b4cc845282",
+      "sha256": "f20816bb19c79a617a173d8bade6b7301810d92a893ee4495f2e190365f012dd"
+    },
+    "testsRun": false,
+    "buildsRun": false,
+    "dataPipelineRun": false
+  },
+  "files": [
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "LICENSE",
+      "archiveKey": "optimizer/LICENSE",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "computedGitBlobSha1": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "expectedGitBlobSha1": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "gitTreeVerified": true,
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "acquisition": "original bytes copied from existing zibai-finite-casts raw archive"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "archiveKey": "optimizer/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "bytes": 13924,
+      "sha256": "6fc2d03f10a4fe14cb41827fc5d9d824c1a17dfd2ea72517cf891d884830f45f",
+      "computedGitBlobSha1": "e1ffd0613f225f280800dcf82b5a15cc24c37c00",
+      "expectedGitBlobSha1": "e1ffd0613f225f280800dcf82b5a15cc24c37c00",
+      "gitTreeVerified": true,
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "acquisition": "original bytes copied from existing zibai-finite-casts raw archive"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "bytes": 10271,
+      "sha256": "04fd74ff89092d8618bae7851fcf40fc7e8e6d69bf8e2f8b183d756998d0b7ca",
+      "computedGitBlobSha1": "07c7a75145c12d9999530ffc4d20cbdee5ae08b2",
+      "expectedGitBlobSha1": "07c7a75145c12d9999530ffc4d20cbdee5ae08b2",
+      "gitTreeVerified": true,
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "acquisition": "original bytes copied from existing zibai-finite-casts raw archive"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+      "archiveKey": "optimizer/libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+      "bytes": 6724,
+      "sha256": "4cbbaf9bc4b972fc25c370f142aacae1b7bd23370177b26293adca3ec967a4e5",
+      "computedGitBlobSha1": "ddb7f0fc521cd06c29cc188fef49a76d7eb3f55b",
+      "expectedGitBlobSha1": "ddb7f0fc521cd06c29cc188fef49a76d7eb3f55b",
+      "gitTreeVerified": true,
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+      "acquisition": "original bytes copied from existing zibai-finite-casts raw archive"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "archiveKey": "optimizer/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "bytes": 38604,
+      "sha256": "f20816bb19c79a617a173d8bade6b7301810d92a893ee4495f2e190365f012dd",
+      "computedGitBlobSha1": "188d09480020761be49244617e3025b4cc845282",
+      "expectedGitBlobSha1": "188d09480020761be49244617e3025b4cc845282",
+      "gitTreeVerified": true,
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "acquisition": "downloaded fixed-commit raw bytes"
+    }
+  ]
+}

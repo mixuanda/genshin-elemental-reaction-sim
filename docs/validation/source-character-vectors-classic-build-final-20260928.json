@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.976,
+  "log": "docs/validation/source-character-vectors-classic-build-final-20260928.log"
+}

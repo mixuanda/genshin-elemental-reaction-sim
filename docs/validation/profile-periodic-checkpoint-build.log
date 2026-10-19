@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/app.ts(418,120): error TS2379: Argument of type '{ executionProfile: ExecutionProfile | undefined; signal: AbortSignal; onProgress: ({ completed, total }: SimulationProgress) => void; }' is not assignable to parameter of type 'WorkerRunControls' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'executionProfile' are incompatible.
+    Type 'ExecutionProfile | undefined' is not assignable to type 'ExecutionProfile'.
+      Type 'undefined' is not assignable to type 'ExecutionProfile'.

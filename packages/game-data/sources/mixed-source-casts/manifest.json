@@ -1,0 +1,707 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "revisions": [
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+  ],
+  "catalogCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "catalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "definitions": {
+    "sha256": "ec79546843a3791f07ad460aa2670b8a2d2802e7daf9051fd25a0ec27d966b0b",
+    "templates": 3,
+    "vectors": 17,
+    "values": 255,
+    "tolerance": 0
+  },
+  "archive": {
+    "path": "packages/game-data/sources/mixed-source-casts/source.json.gz",
+    "sha256": "57be8bca9e99cabaf723069f1cbc18809174d15ed6ea5dcfb19f6c929e45be05",
+    "bytes": 147446,
+    "files": 39
+  },
+  "files": [
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/lauma.go",
+      "sha256": "98b02c85f1af51d35ef0e8ee7e3f1712d34ef2943f40fa0f7d06ac1befbbfff2",
+      "gitBlobSha1": "9aee595c25b4f0697e7138c3c2f236bdd80161ce",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/skill.go",
+      "sha256": "2acf748244a4070c6392dc8df59f411ad0adbe7e32b4dba47d8a4c09e1d64a9b",
+      "gitBlobSha1": "875742a6721df481edf6c774115c3e218b6c9714",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/dash.go",
+      "sha256": "d26bfbb60e55b0e4953d1e110f7e3aa7593094a82e03d42569c2845d6dc93870",
+      "gitBlobSha1": "876e36d984072bd2c139331a8caad5624cbb6a41",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/jump.go",
+      "sha256": "f46992fda873ebef19f7c5ed562795114444daf94f17b7844de54f805a4c0529",
+      "gitBlobSha1": "5bf6a49327a68114df392ed57f02a0537f8eeec4",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/charge.go",
+      "sha256": "94ccc55b82cbe6ad25ce9ecd4e096f98a9acdfa14dd9799884a9d76391c59511",
+      "gitBlobSha1": "601fe8d6f0ac87b881106c5b30bde1eb0d659b1f",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/zz_lauma.dm.go",
+      "sha256": "4a2662631d55f9c891ed7a94a55cb8fc0901d02ed06e5e936b8011e043556aba",
+      "gitBlobSha1": "6cbe891f025455d0d7712725b4249e619858da30",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/burst.go",
+      "sha256": "bb3a55183647c848a871b9a518a73fbd4f9dde8672d260b3c5c548b73a7ed94d",
+      "gitBlobSha1": "739838ddc16155b23d593431726e0e46a4283cdf",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/attack.go",
+      "sha256": "756935c740b3d729d78b150e3529b187ce6d8f14ec21d7ba49f533b7615232b9",
+      "gitBlobSha1": "4212acb3a7929e0e18153f117372434b6f3a129d",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/cons.go",
+      "sha256": "a37f57f8f602d323780614ac437b297f002a38b2bd1b7522b90b707ed88c5ca4",
+      "gitBlobSha1": "5bcfcc15345f7ad108c3a69c95d20baf713f8ea9",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/lauma/asc.go",
+      "sha256": "b613d0c753abb5106caa19972b1b24261d99b58c0cd6beb5d349d57fc4a7d54c",
+      "gitBlobSha1": "7af96c8c6e8df0966c76f7a39e66a8496b90b487",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/status/status.go",
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789",
+      "identityEvidence": "matched-fixed-full-git-tree",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "identityEvidence": "matched-fixed-full-git-tree",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/skill.go",
+      "sha256": "0a8e33e1622c6885e471bfd0d03483adc7157817b8d877a715d93da8cacb9379",
+      "gitBlobSha1": "fa750ce22e7ed0077164755c419517e46f544a96",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/flins.go",
+      "sha256": "6ed3ec28b89e692e962c7471352015e52c44e04d6d0877c966acf572919c5ac1",
+      "gitBlobSha1": "e32888224857f8e020d19cd0e14a59baddebe92f",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/charge.go",
+      "sha256": "c2697b6300ba1771a6553487e2c5731256ed4c8f82e1efba8b93d583db64ff2f",
+      "gitBlobSha1": "72407c73176fcfdc96cad0eb145adb0c2277c7a1",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/burst.go",
+      "sha256": "761592cc9608b591c446d8abd8d30d93fd94243cc68119571711a78332f9b422",
+      "gitBlobSha1": "b6adb6553f1b8a4ba02ed16ab9436eafe74cc8ca",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/attack.go",
+      "sha256": "c227300e9f5506d5d6df9b073da331717e613e1c33280e8181c149354098fabe",
+      "gitBlobSha1": "86e37ea8eb21a2722d170f7fd67eaffc904ff5a0",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/zz_flins.dm.go",
+      "sha256": "a679292faff9830c8980531064a3ce98b2afabab7fa03b1f113e4b6d3a1134f3",
+      "gitBlobSha1": "e069e851930255174b20a7f6d4504b0fd39fb7ec",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/cons.go",
+      "sha256": "37575d919e35cd4206dd25a24f7b8e721d670c385fa99b919f6a97cd8cb81cb9",
+      "gitBlobSha1": "02c0e106e2e352a325cb79f567f7736e564e436e",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/flins/asc.go",
+      "sha256": "56010dc53b9731dde9ed6d395b3c2f08d991f1bdf89ada818cb9018d05de79a0",
+      "gitBlobSha1": "47c05482a733fd43786d7897bff84cd4db52820b",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/zz_odette.dm.go",
+      "sha256": "0cff04e5f3cffa217872a8ad16d72ddaf9bf383bfd1e55e91fc2e2e105402262",
+      "gitBlobSha1": "e5202f2662ed6ee9146ee87ecb7722c7e1f78bfc",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/skill.go",
+      "sha256": "86286fa2364c4abfacba5b142c1576508f6b353b4b42ab96fe3be922417954b4",
+      "gitBlobSha1": "529790fc004e1ac60a22969fe7e7a5107e970a7a",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/charge.go",
+      "sha256": "e3c5f73f2280be30c62e3d28a600be46a8fb2690af8360bdb2ca7a4641390305",
+      "gitBlobSha1": "533a4c2fee36322854aac10a043d35b909de08f5",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/burst.go",
+      "sha256": "cc9fc9a93ebe9dee85f66d60958e07c0db265dab2b8063049ec0660ded7f9a6b",
+      "gitBlobSha1": "d1abfc7029ffb0a2c822ca35907133cec8082ed7",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/attack.go",
+      "sha256": "6fd582fcf80943f93981e181047ccdc3316bf51a73c379fd56f07e2221f13928",
+      "gitBlobSha1": "35e96b9c34a725bebc6f664f8abde73d51aa1ec5",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/stellar.go",
+      "sha256": "063da35c708feaa39877bfc4c8195106a71443a3916a4688959df2b13e032256",
+      "gitBlobSha1": "6975ad96e171dfdec075429997f4c3e1e608eef4",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/cons.go",
+      "sha256": "ca8d6ad5be5371e50c42bf718384db51fd39204659efc4404e6cd4f6c3917420",
+      "gitBlobSha1": "7e07b106988c95d7fb615b3e1d2dc5e5c11f40af",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/odette.go",
+      "sha256": "4a05abf00902fe0d6280d7a12900bf4324e78b84eac1f552ee4d6eb8b3884cdc",
+      "gitBlobSha1": "fed407e3f9d764dbe7d683f91db5c07fe1807a80",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/asc.go",
+      "sha256": "0b029beaf4b02ff4fef779524829c811dc0cbc706f27a29a5c43f78138d2416e",
+      "gitBlobSha1": "250e13ea25056e81061cc098015adc6842801553",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/status/status.go",
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "LICENSE",
+      "sha256": "bdef457104e8696158ed0f1bf4c165602b8f5db72d6c2f9bf564f21ee90a1906",
+      "gitBlobSha1": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/stats/talents.json",
+      "sha256": "a6e87c30c325f6dd5f7441cbeded21b329175286c92bfd9757ce9be2680048d7",
+      "gitBlobSha1": "36ed6ee699d7ed2c80a5cc29d61685b3c9441e95",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained"
+    },
+    {
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/lauma.json",
+      "sha256": "1833656f0c5fb7bb02d8359e57fdd296b3bc5bf92e45ff25a2b1d7beae4e489c",
+      "gitBlobSha1": "d4cd613cd21f75c613daf4dc9cb5c69ec3262bd9",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained"
+    },
+    {
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/flins.json",
+      "sha256": "db394362a5f6472b182f201414f83139e54103166ec7cc5613ba48e090366c94",
+      "gitBlobSha1": "33986358f0888942079c458956bab443219a517f",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained"
+    },
+    {
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/odette.json",
+      "sha256": "a8d9241554047658bdc07d84b0bc488ab8032e7763baa215ce39cddab2a21445",
+      "gitBlobSha1": "cbfd9afacd1ad8f97f83cd2477d44782fe85f5c1",
+      "identityEvidence": "fixed-retrieved-source-extraction; identity manifest retained"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "identityEvidence": "fixed-retrieved-source-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/player/verdantdew.go",
+      "sha256": "ff0c23d92fc5ef087d8b5f99f29c64eef8f113b78b1d2c92aa6b12f31dd923d9",
+      "gitBlobSha1": "ad2b11ffd039b2b44a8333d4538a311db08f7573",
+      "identityEvidence": "fixed-retrieved-source-extraction"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "identityEvidence": "matched-fixed-full-git-tree",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/verdantdew.go",
+      "sha256": "ff0c23d92fc5ef087d8b5f99f29c64eef8f113b78b1d2c92aa6b12f31dd923d9",
+      "gitBlobSha1": "ad2b11ffd039b2b44a8333d4538a311db08f7573",
+      "identityEvidence": "matched-fixed-full-git-tree"
+    }
+  ],
+  "coefficientEvidence": [
+    {
+      "character": "lauma",
+      "field": "skillHold1",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "values": [
+        1.5808,
+        1.69936,
+        1.81792,
+        1.976,
+        2.09456,
+        2.21312,
+        2.3712,
+        2.52928,
+        2.68736,
+        2.84544,
+        3.00352,
+        3.1616,
+        3.3592,
+        3.5568,
+        3.7544
+      ]
+    },
+    {
+      "character": "lauma",
+      "field": "skillHold2",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "values": [
+        1.52,
+        1.634,
+        1.748,
+        1.9,
+        2.014,
+        2.128,
+        2.28,
+        2.432,
+        2.584,
+        2.736,
+        2.888,
+        3.04,
+        3.23,
+        3.42,
+        3.61
+      ]
+    },
+    {
+      "character": "lauma",
+      "field": "frostgroveSanctuaryAtk",
+      "abilityKey": "combat2",
+      "parameterKey": "param4",
+      "values": [
+        0.96,
+        1.032,
+        1.104,
+        1.2,
+        1.272,
+        1.344,
+        1.44,
+        1.536,
+        1.632,
+        1.728,
+        1.824,
+        1.92,
+        2.04,
+        2.16,
+        2.28
+      ]
+    },
+    {
+      "character": "lauma",
+      "field": "frostgroveSanctuaryEM",
+      "abilityKey": "combat2",
+      "parameterKey": "param5",
+      "values": [
+        1.92,
+        2.064,
+        2.208,
+        2.4,
+        2.544,
+        2.688,
+        2.88,
+        3.072,
+        3.264,
+        3.456,
+        3.648,
+        3.84,
+        4.08,
+        4.32,
+        4.56
+      ]
+    },
+    {
+      "character": "lauma",
+      "field": "skillResShred",
+      "abilityKey": "combat2",
+      "parameterKey": "param8",
+      "values": [
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.125,
+        0.15,
+        0.175,
+        0.2,
+        0.225,
+        0.25,
+        0.28,
+        0.31,
+        0.34,
+        0.37,
+        0.4
+      ]
+    },
+    {
+      "character": "flins",
+      "field": "burstInit",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        2.5984,
+        2.79328,
+        2.98816,
+        3.248,
+        3.44288,
+        3.63776,
+        3.8976,
+        4.15744,
+        4.41728,
+        4.67712,
+        4.93696,
+        5.1968,
+        5.5216,
+        5.8464,
+        6.1712
+      ]
+    },
+    {
+      "character": "flins",
+      "field": "burstMid",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        0.1624,
+        0.17458,
+        0.18676,
+        0.203,
+        0.21518,
+        0.22736,
+        0.2436,
+        0.25984,
+        0.27608,
+        0.29232,
+        0.30856,
+        0.3248,
+        0.3451,
+        0.3654,
+        0.3857
+      ]
+    },
+    {
+      "character": "flins",
+      "field": "burstFinal",
+      "abilityKey": "combat3",
+      "parameterKey": "param3",
+      "values": [
+        1.16928,
+        1.256976,
+        1.344672,
+        1.4616,
+        1.549296,
+        1.636992,
+        1.75392,
+        1.870848,
+        1.987776,
+        2.104704,
+        2.221632,
+        2.33856,
+        2.48472,
+        2.63088,
+        2.77704
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "codaDoT",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "values": [
+        0.9584,
+        1.03028,
+        1.10216,
+        1.198,
+        1.26988,
+        1.34176,
+        1.4376,
+        1.53344,
+        1.62928,
+        1.72512,
+        1.82096,
+        1.9168,
+        2.0366,
+        2.1564,
+        2.2762
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "codaSSC",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "values": [
+        3.0576,
+        3.28692,
+        3.51624,
+        3.822,
+        4.05132,
+        4.28064,
+        4.5864,
+        4.89216,
+        5.19792,
+        5.50368,
+        5.80944,
+        6.1152,
+        6.4974,
+        6.8796,
+        7.2618
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "codaSSw",
+      "abilityKey": "combat2",
+      "parameterKey": "param4",
+      "values": [
+        4.5864,
+        4.93038,
+        5.27436,
+        5.733,
+        6.07698,
+        6.42096,
+        6.8796,
+        7.33824,
+        7.79688,
+        8.25552,
+        8.71416,
+        9.1728,
+        9.7461,
+        10.3194,
+        10.8927
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "plume",
+      "abilityKey": "combat2",
+      "parameterKey": "param5",
+      "values": [
+        0.4304,
+        0.46268,
+        0.49496,
+        0.538,
+        0.57028,
+        0.60256,
+        0.6456,
+        0.68864,
+        0.73168,
+        0.77472,
+        0.81776,
+        0.8608,
+        0.9146,
+        0.9684,
+        1.0222
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "plumeSSC",
+      "abilityKey": "combat2",
+      "parameterKey": "param6",
+      "values": [
+        0.27024,
+        0.290508,
+        0.310776,
+        0.3378,
+        0.358068,
+        0.378336,
+        0.40536,
+        0.432384,
+        0.459408,
+        0.486432,
+        0.513456,
+        0.54048,
+        0.57426,
+        0.60804,
+        0.64182
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "plumeSSw",
+      "abilityKey": "combat2",
+      "parameterKey": "param7",
+      "values": [
+        0.40528,
+        0.435676,
+        0.466072,
+        0.5066,
+        0.536996,
+        0.567392,
+        0.60792,
+        0.648448,
+        0.688976,
+        0.729504,
+        0.770032,
+        0.81056,
+        0.86122,
+        0.91188,
+        0.96254
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "wing",
+      "abilityKey": "combat2",
+      "parameterKey": "param8",
+      "values": [
+        0.51464,
+        0.553238,
+        0.591836,
+        0.6433,
+        0.681898,
+        0.720496,
+        0.77196,
+        0.823424,
+        0.874888,
+        0.926352,
+        0.977816,
+        1.02928,
+        1.09361,
+        1.15794,
+        1.22227
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "wingSSC",
+      "abilityKey": "combat2",
+      "parameterKey": "param9",
+      "values": [
+        0.32312,
+        0.347354,
+        0.371588,
+        0.4039,
+        0.428134,
+        0.452368,
+        0.48468,
+        0.516992,
+        0.549304,
+        0.581616,
+        0.613928,
+        0.64624,
+        0.68663,
+        0.72702,
+        0.76741
+      ]
+    },
+    {
+      "character": "odette",
+      "field": "wingSSw",
+      "abilityKey": "combat2",
+      "parameterKey": "param10",
+      "values": [
+        0.48464,
+        0.520988,
+        0.557336,
+        0.6058,
+        0.642148,
+        0.678496,
+        0.72696,
+        0.775424,
+        0.823888,
+        0.872352,
+        0.920816,
+        0.96928,
+        1.02986,
+        1.09044,
+        1.15102
+      ]
+    }
+  ],
+  "identityNotes": "b4 source blobs matched full fixed tree; a7 Odette originals matched entity-followup archive manifest where available; genshin-db raw stats and original text archived under pinned retrieval identity. No independent current-game verification."
+}

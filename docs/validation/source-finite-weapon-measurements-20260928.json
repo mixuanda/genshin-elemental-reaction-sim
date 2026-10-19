@@ -1,0 +1,432 @@
+{
+  "source": "docs/validation/source-finite-weapon-formulas-20260928.result.json",
+  "runs": [
+    {
+      "variant": "classic",
+      "selectedApplicationId": 9,
+      "selectedWeaponId": 6,
+      "originalValue": 240,
+      "editedValue": 360,
+      "originalRawDamage": 441.98680316515686,
+      "editedRawDamage": 511.5388031651569,
+      "experimentStatus": "calculated",
+      "wasm": {
+        "wasmSha256": "3664f845f69adfbf43f4560716a79a0f7d8b593c6e436d754ddeea83c423985e",
+        "wasmBytes": 42000752
+      },
+      "damageTotal": 24147.25720362542,
+      "calculations": 36,
+      "applications": 20,
+      "weapons": {
+        "foliar": [
+          {
+            "frame": 45,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 765,
+              "cooldownExpiry": 765,
+              "remainingBefore": 28,
+              "remainingAfter": 27
+            }
+          },
+          {
+            "frame": 67,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 770,
+              "cooldownExpiry": 770,
+              "remainingBefore": 27,
+              "remainingAfter": 26
+            }
+          },
+          {
+            "frame": 67,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 770,
+              "cooldownExpiry": 770,
+              "remainingBefore": 26,
+              "remainingAfter": 25
+            }
+          },
+          {
+            "frame": 73,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 25,
+              "remainingAfter": 24
+            }
+          },
+          {
+            "frame": 73,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 24,
+              "remainingAfter": 23
+            }
+          },
+          {
+            "frame": 82,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 23,
+              "remainingAfter": 22
+            }
+          },
+          {
+            "frame": 82,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 22,
+              "remainingAfter": 21
+            }
+          },
+          {
+            "frame": 96,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 21,
+              "remainingAfter": 20
+            }
+          },
+          {
+            "frame": 96,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 20,
+              "remainingAfter": 19
+            }
+          },
+          {
+            "frame": 110,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 19,
+              "remainingAfter": 18
+            }
+          },
+          {
+            "frame": 110,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 18,
+              "remainingAfter": 17
+            }
+          }
+        ],
+        "hunterspath": [
+          {
+            "frame": 212,
+            "target": 2,
+            "statValue": 200,
+            "value": 320,
+            "state": {
+              "buffExpiry": 812,
+              "cooldownExpiry": 932,
+              "remainingBefore": 12,
+              "remainingAfter": 11
+            }
+          },
+          {
+            "frame": 306,
+            "target": 1,
+            "statValue": 200,
+            "value": 320,
+            "state": {
+              "buffExpiry": 812,
+              "cooldownExpiry": 932,
+              "remainingBefore": 11,
+              "remainingAfter": 10
+            }
+          },
+          {
+            "frame": 306,
+            "target": 2,
+            "statValue": 200,
+            "value": 320,
+            "state": {
+              "buffExpiry": 812,
+              "cooldownExpiry": 932,
+              "remainingBefore": 10,
+              "remainingAfter": 9
+            }
+          }
+        ],
+        "cinnabar": [
+          {
+            "frame": 330,
+            "target": 1,
+            "statValue": 1680.4436430715637,
+            "value": 672.1774572286255,
+            "state": {
+              "buffExpiry": 336,
+              "cooldownExpiry": 0
+            }
+          },
+          {
+            "frame": 330,
+            "target": 2,
+            "statValue": 1680.4436430715637,
+            "value": 672.1774572286255,
+            "state": {
+              "buffExpiry": 336,
+              "cooldownExpiry": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "variant": "stellar",
+      "selectedApplicationId": 9,
+      "selectedWeaponId": 6,
+      "originalValue": 240,
+      "editedValue": 360,
+      "originalRawDamage": 441.98680316515686,
+      "editedRawDamage": 511.5388031651569,
+      "experimentStatus": "calculated",
+      "wasm": {
+        "wasmSha256": "3b173bc4351f9205ee0ad4bb54985eb4e0e8c4e3f11039623133d0d7747d1986",
+        "wasmBytes": 62347222
+      },
+      "damageTotal": 24147.25720362542,
+      "calculations": 36,
+      "applications": 20,
+      "weapons": {
+        "foliar": [
+          {
+            "frame": 45,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 765,
+              "cooldownExpiry": 765,
+              "remainingBefore": 28,
+              "remainingAfter": 27
+            }
+          },
+          {
+            "frame": 67,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 770,
+              "cooldownExpiry": 770,
+              "remainingBefore": 27,
+              "remainingAfter": 26
+            }
+          },
+          {
+            "frame": 67,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 770,
+              "cooldownExpiry": 770,
+              "remainingBefore": 26,
+              "remainingAfter": 25
+            }
+          },
+          {
+            "frame": 73,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 25,
+              "remainingAfter": 24
+            }
+          },
+          {
+            "frame": 73,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 24,
+              "remainingAfter": 23
+            }
+          },
+          {
+            "frame": 82,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 23,
+              "remainingAfter": 22
+            }
+          },
+          {
+            "frame": 82,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 22,
+              "remainingAfter": 21
+            }
+          },
+          {
+            "frame": 96,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 21,
+              "remainingAfter": 20
+            }
+          },
+          {
+            "frame": 96,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 20,
+              "remainingAfter": 19
+            }
+          },
+          {
+            "frame": 110,
+            "target": 1,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 19,
+              "remainingAfter": 18
+            }
+          },
+          {
+            "frame": 110,
+            "target": 2,
+            "statValue": 200,
+            "value": 240,
+            "state": {
+              "buffExpiry": 775,
+              "cooldownExpiry": 775,
+              "remainingBefore": 18,
+              "remainingAfter": 17
+            }
+          }
+        ],
+        "hunterspath": [
+          {
+            "frame": 212,
+            "target": 2,
+            "statValue": 200,
+            "value": 320,
+            "state": {
+              "buffExpiry": 812,
+              "cooldownExpiry": 932,
+              "remainingBefore": 12,
+              "remainingAfter": 11
+            }
+          },
+          {
+            "frame": 306,
+            "target": 1,
+            "statValue": 200,
+            "value": 320,
+            "state": {
+              "buffExpiry": 812,
+              "cooldownExpiry": 932,
+              "remainingBefore": 11,
+              "remainingAfter": 10
+            }
+          },
+          {
+            "frame": 306,
+            "target": 2,
+            "statValue": 200,
+            "value": 320,
+            "state": {
+              "buffExpiry": 812,
+              "cooldownExpiry": 932,
+              "remainingBefore": 10,
+              "remainingAfter": 9
+            }
+          }
+        ],
+        "cinnabar": [
+          {
+            "frame": 330,
+            "target": 1,
+            "statValue": 1680.4436430715637,
+            "value": 672.1774572286255,
+            "state": {
+              "buffExpiry": 336,
+              "cooldownExpiry": 0
+            }
+          },
+          {
+            "frame": 330,
+            "target": 2,
+            "statValue": 1680.4436430715637,
+            "value": 672.1774572286255,
+            "state": {
+              "buffExpiry": 336,
+              "cooldownExpiry": 0
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "pageErrors": []
+}

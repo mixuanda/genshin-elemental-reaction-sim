@@ -1,0 +1,940 @@
+
+Running 36 tests using 1 worker
+
+(node:25305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › apps/web/e2e/simulator.spec.ts:73:1 › runs, imports, explores, and exports the compatibility preset (2.0s)
+  ✓   2 [chromium] › apps/web/e2e/simulator.spec.ts:258:1 › migrates a 1.38 config to deferred delivery and all fixed mechanics roots (452ms)
+  ✓   3 [chromium] › apps/web/e2e/simulator.spec.ts:352:1 › rejects a 1.38 wire polluted by the current reaction formula model (204ms)
+  ✘   4 [chromium] › apps/web/e2e/simulator.spec.ts:385:1 › shows a field path for an invalid config (6.0s)
+(node:25394) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   5 [chromium] › apps/web/e2e/simulator.spec.ts:400:1 › locks the scalar resistance control when an elemental table is active (607ms)
+  ✘   6 [chromium] › apps/web/e2e/simulator.spec.ts:487:1 › disables an unused shared scalar for target-level resistance tables and identifies mixed consumers (304ms)
+(node:25401) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [chromium] › apps/web/e2e/simulator.spec.ts:580:1 › renders the legal frame action queue and traces hits to commands (543ms)
+  ✓   8 [chromium] › apps/web/e2e/simulator.spec.ts:602:1 › rolls back a failed burst before executing the following commands (446ms)
+  ✓   9 [chromium] › apps/web/e2e/simulator.spec.ts:783:1 › renders automatic Aura, ICD, reaction audits, and the enemy aura curve (1.5s)
+  ✘  10 [chromium] › apps/web/e2e/simulator.spec.ts:903:1 › renders an initial enemy Aura even when the run has no hits or state events (372ms)
+(node:25416) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [chromium] › apps/web/e2e/simulator.spec.ts:1205:1 › renders Dendro Catalyze, per-hit composition, Quicken state, and component curves (501ms)
+  ✓  12 [chromium] › apps/web/e2e/simulator.spec.ts:1402:1 › renders target-local mechanics truncation without counting later potential damage (519ms)
+  ✓  13 [chromium] › apps/web/e2e/simulator.spec.ts:1537:1 › renders an ordered Overload as cancelled when the same hit truncates on Burning (503ms)
+  ✓  14 [chromium] › apps/web/e2e/simulator.spec.ts:1659:1 › renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned curves (836ms)
+  ✓  15 [chromium] › apps/web/e2e/simulator.spec.ts:2141:1 › renders Swirl self damage, propagation, secondary reaction, Aura, and curve events (511ms)
+  ✓  16 [chromium] › apps/web/e2e/simulator.spec.ts:2337:1 › renders Crystallize Aura, shard pickup, shield state, and shield curve (473ms)
+  ✓  17 [chromium] › apps/web/e2e/simulator.spec.ts:2562:1 › renders Overload as independent per-target damage with queue and formula audits (502ms)
+  ✓  18 [chromium] › apps/web/e2e/simulator.spec.ts:2712:1 › renders Superconduct damage and target-scoped physical resistance windows (484ms)
+  ✓  19 [chromium] › apps/web/e2e/simulator.spec.ts:2883:1 › renders every Electro-Charged tick, ownership refresh, Aura wane, and curve state (478ms)
+  ✓  20 [chromium] › apps/web/e2e/simulator.spec.ts:3094:1 › renders Frozen creation, exact expiry, resistance, and curve state (458ms)
+  ✓  21 [chromium] › apps/web/e2e/simulator.spec.ts:3238:1 › renders Shatter trigger audit, physical damage, frozen consumption, and curve (572ms)
+  ✓  22 [chromium] › apps/web/e2e/simulator.spec.ts:3510:1 › renders deterministic particle travel, receive-time field state, and energy curves (461ms)
+  ✓  23 [chromium] › apps/web/e2e/simulator.spec.ts:3582:1 › renders the source-audited Durin black E hit, ICD, aura, energy, and damage curves (716ms)
+  ✘  24 [chromium] › apps/web/e2e/simulator.spec.ts:3739:1 › audits a scripted target miss before damage, Aura, and hit-confirmed particles (5.5s)
+(node:25500) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  25 [chromium] › apps/web/e2e/simulator.spec.ts:3888:1 › keeps landed target damage, Aura, and hit-confirm policies independent (453ms)
+(node:25506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  26 [chromium] › apps/web/e2e/simulator.spec.ts:4040:1 › applies half-open enemy target phases and exposes their source per hit (473ms)
+(node:25511) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  27 [chromium] › apps/web/e2e/simulator.spec.ts:4183:1 › keeps registered enemy stats, Aura, ICD, and UI filters independent (462ms)
+(node:25517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  28 [chromium] › apps/web/e2e/simulator.spec.ts:4348:1 › fans one AoE hit across targets while producing hit-confirm particles once (434ms)
+(node:25523) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  29 [chromium] › apps/web/e2e/simulator.spec.ts:4440:1 › derives circle hits from target positions and exposes geometric evidence (486ms)
+(node:25530) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  30 [chromium] › apps/web/e2e/simulator.spec.ts:4587:1 › audits rotated rectangle intersections against circular target hitboxes (429ms)
+(node:25536) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  31 [chromium] › apps/web/e2e/simulator.spec.ts:4740:1 › audits finite capsule side and end-cap intersections (453ms)
+(node:25543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  32 [chromium] › apps/web/e2e/simulator.spec.ts:4891:1 › audits filled sector arc, radial-edge, and out-of-range intersections (484ms)
+(node:25549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  33 [chromium] › apps/web/e2e/simulator.spec.ts:5048:1 › transforms actor-local geometry from a static source pose and audits world coordinates (507ms)
+(node:25570) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  34 [chromium] › apps/web/e2e/simulator.spec.ts:5190:1 › interpolates target motion at each hit frame before geometry resolution (509ms)
+(node:25576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  35 [chromium] › apps/web/e2e/simulator.spec.ts:5341:1 › renders the source-audited Durin white E branch and state transition (597ms)
+  ✘  36 [chromium] › apps/web/e2e/simulator.spec.ts:5491:1 › imports a public UID showcase and keeps graduation data as a placeholder (5.3s)
+
+
+  1) [chromium] › apps/web/e2e/simulator.spec.ts:385:1 › shows a field path for an invalid config ──
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#jsonError')
+    Expected substring: "enemy.level"
+    Received string:    ""
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#jsonError')
+        14 × locator resolved to <pre hidden="" id="jsonError" class="error-box"></pre>
+           - unexpected value ""
+
+
+      395 |   await editor.fill(JSON.stringify(config, null, 2));
+      396 |   await page.getByRole("button", { name: "应用并运行" }).click();
+    > 397 |   await expect(page.locator("#jsonError")).toContainText("enemy.level");
+          |                                            ^
+      398 | });
+      399 |
+      400 | test("locks the scalar resistance control when an elemental table is active", async ({
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:397:44
+
+    Error Context: test-results/simulator-shows-a-field-path-for-an-invalid-config-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-shows-a-field-path-for-an-invalid-config-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-shows-a-field-path-for-an-invalid-config-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/simulator.spec.ts:487:1 › disables an unused shared scalar for target-level resistance tables and identifies mixed consumers 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: {"cryoBaseResistance": -0.2, "pyroBaseResistance": 0.47, "resolvedTable": {"anemo": 0.24, "cryo": -0.2, "dendro": 0.36, "electro": 0.18, "geo": 0.3, "hydro": 0.12, "physical": 0.42, "pyro": 0.47}}
+    Received: null
+
+      550 |       : null;
+      551 |   });
+    > 552 |   expect(targetAudit).toEqual({
+          |                       ^
+      553 |     resolvedTable: targetTableConfig.enemy.targets?.[0]?.resistances,
+      554 |     pyroBaseResistance: 0.47,
+      555 |     cryoBaseResistance: -0.2,
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:552:23
+
+    Error Context: test-results/simulator-disables-an-unus-03052--identifies-mixed-consumers-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-disables-an-unus-03052--identifies-mixed-consumers-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-disables-an-unus-03052--identifies-mixed-consumers-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › apps/web/e2e/simulator.spec.ts:903:1 › renders an initial enemy Aura even when the run has no hits or state events 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 13
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "element": "dendro",
+    +     "expiresAtFrame": 570,
+    +     "gaugeUnits": 0.715789473684,
+    +     "sourceSlots": Array [
+    +       Object {
+    +         "gaugeUnits": 0.715789473684,
+    +         "sourceActorId": "__initial__",
+    +       },
+    +     ],
+    +   },
+    + ]
+
+      1112 |     };
+      1113 |   });
+    > 1114 |   expect(expiredAudit.end).toEqual([]);
+           |                            ^
+      1115 |   expect(expiredAudit.points).toHaveLength(3);
+      1116 |   expect(expiredAudit.points[0]).toEqual(
+      1117 |     expect.objectContaining({
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:1114:28
+
+    Error Context: test-results/simulator-renders-an-initi-62a0c-has-no-hits-or-state-events-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-renders-an-initi-62a0c-has-no-hits-or-state-events-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-renders-an-initi-62a0c-has-no-hits-or-state-events-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [chromium] › apps/web/e2e/simulator.spec.ts:3739:1 › audits a scripted target miss before damage, Aura, and hit-confirmed particles 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#metricGrid')
+    Expected substring: "2 / 3"
+    Received string:    "队伍 DPS1,3461,346 / 秒3秒总伤4,0374,037已实现分支状态未截断未跨过已知未实现机制；不代表完整游戏机制模型内有效 / 全部伤害段3 / 31 次反应触发 · aura-v1 自动判定目标判定3 / 3全部命中时间线指令359f · 0.98s跳过行动0无能量阻塞"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#metricGrid')
+        14 × locator resolved to <section id="metricGrid" class="metric-grid">…</section>
+           - unexpected value "队伍 DPS1,3461,346 / 秒3秒总伤4,0374,037已实现分支状态未截断未跨过已知未实现机制；不代表完整游戏机制模型内有效 / 全部伤害段3 / 31 次反应触发 · aura-v1 自动判定目标判定3 / 3全部命中时间线指令359f · 0.98s跳过行动0无能量阻塞"
+
+
+      3763 |
+      3764 |   await expect(page.locator("#metricGrid")).toContainText("目标判定");
+    > 3765 |   await expect(page.locator("#metricGrid")).toContainText("2 / 3");
+           |                                             ^
+      3766 |   const audit = await page.evaluate(() => {
+      3767 |     const result = window.GenshinDpsLab.getLastResult();
+      3768 |     return result
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:3765:45
+
+    Error Context: test-results/simulator-audits-a-scripte-25773-and-hit-confirmed-particles-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-audits-a-scripte-25773-and-hit-confirmed-particles-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-audits-a-scripte-25773-and-hit-confirmed-particles-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [chromium] › apps/web/e2e/simulator.spec.ts:3888:1 › keeps landed target damage, Aura, and hit-confirm policies independent 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 17
+    + Received  + 17
+
+    @@ -1,49 +1,49 @@
+      Object {
+        "curve": Array [
+    -     0,
+    -     1637.496,
+    -     2632.3056,
+    +     2223.5472,
+    +     3042.2952,
+    +     4037.1048,
+        ],
+        "damage": Array [
+          Object {
+    -       "finalDamage": 0,
+    +       "finalDamage": 2223.5472,
+            "frame": 48,
+    -       "potentialDamage": 1111.7736,
+    -       "reaction": "none",
+    -       "targetDamagePolicy": "immune",
+    +       "potentialDamage": 2223.5472,
+    +       "reaction": "melt",
+    +       "targetDamagePolicy": "normal",
+          },
+          Object {
+            "frame": 53,
+    -       "reaction": "melt",
+    +       "reaction": "none",
+            "targetDamagePolicy": "normal",
+          },
+          Object {
+            "frame": 58,
+            "reaction": "none",
+            "targetDamagePolicy": "normal",
+          },
+        ],
+        "particleSpawns": Array [
+    -     53,
+    +     48,
+        ],
+        "targets": Array [
+          Object {
+    -       "auraAllowed": false,
+    -       "damageAllowed": false,
+    -       "finalDamage": 0,
+    +       "auraAllowed": true,
+    +       "damageAllowed": true,
+    +       "finalDamage": 2223.5472,
+            "frame": 48,
+    -       "hitConfirmAllowed": false,
+    -       "potentialDamage": 1111.7736,
+    +       "hitConfirmAllowed": true,
+    +       "potentialDamage": 2223.5472,
+          },
+          Object {
+            "auraAllowed": true,
+            "damageAllowed": true,
+    -       "finalDamage": 1637.496,
+    +       "finalDamage": 818.748,
+            "frame": 53,
+            "hitConfirmAllowed": true,
+    -       "potentialDamage": 1637.496,
+    +       "potentialDamage": 818.748,
+          },
+          Object {
+            "auraAllowed": true,
+            "damageAllowed": true,
+            "finalDamage": 994.8096,
+    @@ -51,10 +51,10 @@
+            "hitConfirmAllowed": true,
+            "potentialDamage": 994.8096,
+          },
+        ],
+        "triggerReasons": Array [
+    -     "TARGET_HIT_CONFIRM_BLOCKED",
+          null,
+    +     "INTERNAL_COOLDOWN",
+          "INTERNAL_COOLDOWN",
+        ],
+      }
+
+      3962 |       : null;
+      3963 |   });
+    > 3964 |   expect(audit).toMatchObject({
+           |                 ^
+      3965 |     targets: [
+      3966 |       {
+      3967 |         frame: 48,
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:3964:17
+
+    Error Context: test-results/simulator-keeps-landed-tar-7f644-onfirm-policies-independent-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-keeps-landed-tar-7f644-onfirm-policies-independent-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-keeps-landed-tar-7f644-onfirm-policies-independent-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [chromium] › apps/web/e2e/simulator.spec.ts:4040:1 › applies half-open enemy target phases and exposes their source per hit 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 25
+    + Received  + 14
+
+    @@ -1,24 +1,24 @@
+      Object {
+        "hits": Array [
+          Object {
+    -       "auraAllowed": false,
+    -       "damageAllowed": false,
+    -       "finalDamage": 0,
+    +       "auraAllowed": true,
+    +       "damageAllowed": true,
+    +       "finalDamage": 2223.5472,
+            "frame": 48,
+    -       "hitConfirmAllowed": false,
+    -       "targetEffectSource": "target-phase",
+    -       "targetPhaseId": "full-block",
+    +       "hitConfirmAllowed": true,
+    +       "targetEffectSource": "normal",
+    +       "targetPhaseId": null,
+          },
+          Object {
+            "auraAllowed": true,
+    -       "damageAllowed": false,
+    -       "finalDamage": 0,
+    +       "damageAllowed": true,
+    +       "finalDamage": 818.748,
+            "frame": 53,
+            "hitConfirmAllowed": true,
+    -       "targetEffectSource": "target-phase",
+    -       "targetPhaseId": "damage-only",
+    +       "targetEffectSource": "normal",
+    +       "targetPhaseId": null,
+          },
+          Object {
+            "auraAllowed": true,
+            "damageAllowed": true,
+            "finalDamage": 994.8096,
+    @@ -26,29 +26,18 @@
+            "hitConfirmAllowed": true,
+            "targetEffectSource": "normal",
+            "targetPhaseId": null,
+          },
+        ],
+    -   "phases": Array [
+    -     Object {
+    -       "endFrame": 53,
+    -       "id": "full-block",
+    -       "startFrame": 48,
+    -     },
+    -     Object {
+    -       "endFrame": 58,
+    -       "id": "damage-only",
+    -       "startFrame": 53,
+    -     },
+    -   ],
+    +   "phases": Array [],
+        "reactions": Array [
+    -     "none",
+          "melt",
+          "none",
+    +     "none",
+        ],
+    -   "totalDamage": 994.8096,
+    +   "totalDamage": 4037.1048,
+        "triggerReasons": Array [
+    -     "TARGET_HIT_CONFIRM_BLOCKED",
+          null,
+    +     "INTERNAL_COOLDOWN",
+          "INTERNAL_COOLDOWN",
+        ],
+      }
+
+      4119 |       : null;
+      4120 |   });
+    > 4121 |   expect(audit).toEqual({
+           |                 ^
+      4122 |     phases: [
+      4123 |       { id: "full-block", startFrame: 48, endFrame: 53 },
+      4124 |       { id: "damage-only", startFrame: 53, endFrame: 58 },
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4121:17
+
+    Error Context: test-results/simulator-applies-half-ope-3e75e-xposes-their-source-per-hit-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-applies-half-ope-3e75e-xposes-their-source-per-hit-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-applies-half-ope-3e75e-xposes-their-source-per-hit-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [chromium] › apps/web/e2e/simulator.spec.ts:4183:1 › keeps registered enemy stats, Aura, ICD, and UI filters independent 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 28
+    + Received  + 12
+
+    @@ -6,50 +6,50 @@
+            "reaction": "melt",
+            "targetId": "enemy-0",
+          },
+          Object {
+            "frame": 53,
+    -       "icdAllowed": true,
+    -       "reaction": "reverseVaporize",
+    -       "targetId": "enemy-1",
+    +       "icdAllowed": false,
+    +       "reaction": "none",
+    +       "targetId": "enemy-0",
+          },
+          Object {
+            "frame": 58,
+            "icdAllowed": false,
+            "reaction": "none",
+            "targetId": "enemy-0",
+          },
+        ],
+        "curveTargets": Array [
+          "enemy-0",
+    -     "enemy-1",
+    +     "enemy-0",
+          "enemy-0",
+        ],
+        "hits": Array [
+          Object {
+            "finalDamage": 2223.5472,
+            "frame": 48,
+            "reaction": "melt",
+            "resistance": 0.1,
+            "targetId": "enemy-0",
+    -       "targetName": "主目标",
+    +       "targetName": "敌人 0",
+          },
+          Object {
+    -       "finalDamage": 682.29,
+    +       "finalDamage": 818.748,
+            "frame": 53,
+    -       "reaction": "reverseVaporize",
+    -       "resistance": 0.5,
+    -       "targetId": "enemy-1",
+    -       "targetName": "副目标",
+    +       "reaction": "none",
+    +       "resistance": 0.1,
+    +       "targetId": "enemy-0",
+    +       "targetName": "敌人 0",
+          },
+          Object {
+            "finalDamage": 994.8096,
+            "frame": 58,
+            "reaction": "none",
+            "resistance": 0.1,
+            "targetId": "enemy-0",
+    -       "targetName": "主目标",
+    +       "targetName": "敌人 0",
+          },
+        ],
+        "targets": Array [
+          Object {
+            "defReduction": 0,
+    @@ -61,27 +61,11 @@
+                "element": "cryo",
+                "gaugeUnits": 1,
+              },
+            ],
+            "level": 110,
+    -       "name": "主目标",
+    +       "name": "敌人 0",
+            "position": null,
+            "resistance": 0.1,
+    -     },
+    -     Object {
+    -       "defReduction": 0,
+    -       "freezeResistance": 0,
+    -       "hitboxRadius": 0,
+    -       "id": "enemy-1",
+    -       "initialAura": Array [
+    -         Object {
+    -           "element": "hydro",
+    -           "gaugeUnits": 1,
+    -         },
+    -       ],
+    -       "level": 110,
+    -       "name": "副目标",
+    -       "position": null,
+    -       "resistance": 0.5,
+          },
+        ],
+      }
+
+      4248 |       : null;
+      4249 |   });
+    > 4250 |   expect(audit).toEqual({
+           |                 ^
+      4251 |     targets: [
+      4252 |       {
+      4253 |         id: "enemy-0",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4250:17
+
+    Error Context: test-results/simulator-keeps-registered-97fd8--and-UI-filters-independent-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-keeps-registered-97fd8--and-UI-filters-independent-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-keeps-registered-97fd8--and-UI-filters-independent-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [chromium] › apps/web/e2e/simulator.spec.ts:4348:1 › fans one AoE hit across targets while producing hit-confirm particles once 
+
+    TypeError: expect(received).toHaveLength(expected)
+
+    Matcher error: received value must have a length property whose value must be a number
+
+    Received has value: undefined
+
+      4408 |       : null;
+      4409 |   });
+    > 4410 |   expect(audit?.firstGroup).toHaveLength(2);
+           |                             ^
+      4411 |   expect(audit?.firstGroup?.map((entry) => entry.targetId)).toEqual([
+      4412 |     "enemy-0",
+      4413 |     "enemy-1",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4410:29
+
+    Error Context: test-results/simulator-fans-one-AoE-hit-6978d--hit-confirm-particles-once-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-fans-one-AoE-hit-6978d--hit-confirm-particles-once-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-fans-one-AoE-hit-6978d--hit-confirm-particles-once-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [chromium] › apps/web/e2e/simulator.spec.ts:4440:1 › derives circle hits from target positions and exposes geometric evidence 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 19
+    + Received  +  3
+
+      Array [
+        Object {
+    -     "geometryDistance": 0,
+    -     "geometryThreshold": 1.5,
+    +     "geometryDistance": null,
+    +     "geometryThreshold": null,
+          "outcome": "landed",
+          "reason": null,
+          "targetId": "enemy-0",
+    -     "targetingSource": "geometry",
+    -   },
+    -   Object {
+    -     "geometryDistance": 1.5,
+    -     "geometryThreshold": 1.5,
+    -     "outcome": "landed",
+    -     "reason": null,
+    -     "targetId": "enemy-1",
+    -     "targetingSource": "geometry",
+    -   },
+    -   Object {
+    -     "geometryDistance": 1.5001,
+    -     "geometryThreshold": 1.5,
+    -     "outcome": "miss",
+    -     "reason": "OUTSIDE_CIRCLE_GEOMETRY",
+    -     "targetId": "enemy-2",
+    -     "targetingSource": "geometry",
+    +     "targetingSource": "default",
+        },
+      ]
+
+      4514 |       : null;
+      4515 |   });
+    > 4516 |   expect(audit?.firstGroup).toEqual([
+           |                             ^
+      4517 |     {
+      4518 |       targetId: "enemy-0",
+      4519 |       targetingSource: "geometry",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4516:29
+
+    Error Context: test-results/simulator-derives-circle-h-71009--exposes-geometric-evidence-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-derives-circle-h-71009--exposes-geometric-evidence-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-derives-circle-h-71009--exposes-geometric-evidence-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [chromium] › apps/web/e2e/simulator.spec.ts:4587:1 › audits rotated rectangle intersections against circular target hitboxes 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: [{"geometryDistance": 0, "geometryHalfHeight": 0.5, "geometryHalfWidth": 2, "geometryKind": "rectangle", "geometryRotationDegrees": 90, "geometryThreshold": 0, "outcome": "landed", "reason": null, "targetId": "enemy-0"}, {"geometryDistance": 0.1, "geometryHalfHeight": 0.5, "geometryHalfWidth": 2, "geometryKind": "rectangle", "geometryRotationDegrees": 90, "geometryThreshold": 0.1, "outcome": "landed", "reason": null, "targetId": "enemy-1"}, {"geometryDistance": 0.1001, "geometryHalfHeight": 0.5, "geometryHalfWidth": 2, "geometryKind": "rectangle", "geometryRotationDegrees": 90, "geometryThreshold": 0.1, "outcome": "miss", "reason": "OUTSIDE_RECTANGLE_GEOMETRY", "targetId": "enemy-2"}]
+    Received: undefined
+
+      4671 |       : null;
+      4672 |   });
+    > 4673 |   expect(audit?.firstGroup).toEqual([
+           |                             ^
+      4674 |     {
+      4675 |       targetId: "enemy-0",
+      4676 |       geometryKind: "rectangle",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4673:29
+
+    Error Context: test-results/simulator-audits-rotated-r-dbe58-st-circular-target-hitboxes-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-audits-rotated-r-dbe58-st-circular-target-hitboxes-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-audits-rotated-r-dbe58-st-circular-target-hitboxes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [chromium] › apps/web/e2e/simulator.spec.ts:4740:1 › audits finite capsule side and end-cap intersections 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 46
+    + Received  +  6
+
+      Array [
+        Object {
+    -     "geometryDistance": 0,
+    -     "geometryEnd": Object {
+    -       "x": 2,
+    -       "y": 0,
+    -     },
+    -     "geometryKind": "capsule",
+    -     "geometryRadius": 0.5,
+    -     "geometryStart": Object {
+    -       "x": -2,
+    -       "y": 0,
+    -     },
+    -     "geometryThreshold": 0.5,
+    +     "geometryDistance": null,
+    +     "geometryEnd": null,
+    +     "geometryKind": null,
+    +     "geometryRadius": null,
+    +     "geometryStart": null,
+    +     "geometryThreshold": null,
+          "outcome": "landed",
+          "reason": null,
+          "targetId": "enemy-0",
+    -   },
+    -   Object {
+    -     "geometryDistance": 0.5,
+    -     "geometryEnd": Object {
+    -       "x": 2,
+    -       "y": 0,
+    -     },
+    -     "geometryKind": "capsule",
+    -     "geometryRadius": 0.5,
+    -     "geometryStart": Object {
+    -       "x": -2,
+    -       "y": 0,
+    -     },
+    -     "geometryThreshold": 0.5,
+    -     "outcome": "landed",
+    -     "reason": null,
+    -     "targetId": "enemy-1",
+    -   },
+    -   Object {
+    -     "geometryDistance": 0.5001,
+    -     "geometryEnd": Object {
+    -       "x": 2,
+    -       "y": 0,
+    -     },
+    -     "geometryKind": "capsule",
+    -     "geometryRadius": 0.5,
+    -     "geometryStart": Object {
+    -       "x": -2,
+    -       "y": 0,
+    -     },
+    -     "geometryThreshold": 0.5,
+    -     "outcome": "miss",
+    -     "reason": "OUTSIDE_CAPSULE_GEOMETRY",
+    -     "targetId": "enemy-2",
+        },
+      ]
+
+      4823 |       : null;
+      4824 |   });
+    > 4825 |   expect(audit?.firstGroup).toEqual([
+           |                             ^
+      4826 |     {
+      4827 |       targetId: "enemy-0",
+      4828 |       geometryKind: "capsule",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4825:29
+
+    Error Context: test-results/simulator-audits-finite-ca-f53fc-e-and-end-cap-intersections-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-audits-finite-ca-f53fc-e-and-end-cap-intersections-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-audits-finite-ca-f53fc-e-and-end-cap-intersections-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [chromium] › apps/web/e2e/simulator.spec.ts:4891:1 › audits filled sector arc, radial-edge, and out-of-range intersections 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 40
+    + Received  +  7
+
+      Array [
+        Object {
+    -     "geometryAngleDegrees": 90,
+    -     "geometryDirectionDegrees": 0,
+    -     "geometryDistance": 0,
+    -     "geometryKind": "sector",
+    -     "geometryOrigin": Object {
+    -       "x": 0,
+    -       "y": 0,
+    -     },
+    -     "geometryRadius": 2,
+    -     "geometryThreshold": 0,
+    +     "geometryAngleDegrees": null,
+    +     "geometryDirectionDegrees": null,
+    +     "geometryDistance": null,
+    +     "geometryKind": null,
+    +     "geometryOrigin": null,
+    +     "geometryRadius": null,
+    +     "geometryThreshold": null,
+          "outcome": "landed",
+          "reason": null,
+          "targetId": "enemy-0",
+    -   },
+    -   Object {
+    -     "geometryAngleDegrees": 90,
+    -     "geometryDirectionDegrees": 0,
+    -     "geometryDistance": 0.141421,
+    -     "geometryKind": "sector",
+    -     "geometryOrigin": Object {
+    -       "x": 0,
+    -       "y": 0,
+    -     },
+    -     "geometryRadius": 2,
+    -     "geometryThreshold": 0.15,
+    -     "outcome": "landed",
+    -     "reason": null,
+    -     "targetId": "enemy-1",
+    -   },
+    -   Object {
+    -     "geometryAngleDegrees": 90,
+    -     "geometryDirectionDegrees": 0,
+    -     "geometryDistance": 0.0001,
+    -     "geometryKind": "sector",
+    -     "geometryOrigin": Object {
+    -       "x": 0,
+    -       "y": 0,
+    -     },
+    -     "geometryRadius": 2,
+    -     "geometryThreshold": 0,
+    -     "outcome": "miss",
+    -     "reason": "OUTSIDE_SECTOR_GEOMETRY",
+    -     "targetId": "enemy-2",
+        },
+      ]
+
+      4977 |       : null;
+      4978 |   });
+    > 4979 |   expect(audit?.firstGroup).toEqual([
+           |                             ^
+      4980 |     {
+      4981 |       targetId: "enemy-0",
+      4982 |       geometryKind: "sector",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:4979:29
+
+    Error Context: test-results/simulator-audits-filled-se-d1709--out-of-range-intersections-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-audits-filled-se-d1709--out-of-range-intersections-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-audits-filled-se-d1709--out-of-range-intersections-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [chromium] › apps/web/e2e/simulator.spec.ts:5048:1 › transforms actor-local geometry from a static source pose and audits world coordinates 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 10
+    + Received  +  1
+
+    - Array [
+    -   Object {
+    -     "actorId": "durin",
+    -     "facingDegrees": 90,
+    -     "position": Object {
+    -       "x": 10,
+    -       "y": 20,
+    -     },
+    -   },
+    - ]
+    + Array []
+
+      5130 |       : null;
+      5131 |   });
+    > 5132 |   expect(audit?.actorPoses).toEqual([
+           |                             ^
+      5133 |     {
+      5134 |       actorId: "durin",
+      5135 |       position: { x: 10, y: 20 },
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:5132:29
+
+    Error Context: test-results/simulator-transforms-actor-b5319-nd-audits-world-coordinates-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-transforms-actor-b5319-nd-audits-world-coordinates-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-transforms-actor-b5319-nd-audits-world-coordinates-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [chromium] › apps/web/e2e/simulator.spec.ts:5190:1 › interpolates target motion at each hit frame before geometry resolution 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 19
+    + Received  +  1
+
+    - Array [
+    -   Object {
+    -     "endFrame": 60,
+    -     "endPosition": Object {
+    -       "x": 1.8,
+    -       "y": 0,
+    -     },
+    -     "endTimeSeconds": 1,
+    -     "id": "outbound",
+    -     "label": "线性远离",
+    -     "startFrame": 0,
+    -     "startPosition": Object {
+    -       "x": 0,
+    -       "y": 0,
+    -     },
+    -     "startTimeSeconds": 0,
+    -     "targetId": "enemy-0",
+    -   },
+    - ]
+    + Array []
+
+      5271 |       : null;
+      5272 |   });
+    > 5273 |   expect(audit?.motion).toEqual([
+           |                         ^
+      5274 |     {
+      5275 |       id: "outbound",
+      5276 |       label: "线性远离",
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:5273:25
+
+    Error Context: test-results/simulator-interpolates-tar-11f5b--before-geometry-resolution-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-interpolates-tar-11f5b--before-geometry-resolution-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-interpolates-tar-11f5b--before-geometry-resolution-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [chromium] › apps/web/e2e/simulator.spec.ts:5491:1 › imports a public UID showcase and keeps graduation data as a placeholder 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#showcaseStatus')
+    Expected substring: "导入成功"
+    Received string:    "UID 必须是 9–10 位数字。"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#showcaseStatus')
+        14 × locator resolved to <div class="muted" id="showcaseStatus">UID 必须是 9–10 位数字。</div>
+           - unexpected value "UID 必须是 9–10 位数字。"
+
+
+      5568 |   );
+      5569 |   await page.getByRole("button", { name: "导入展示柜" }).click();
+    > 5570 |   await expect(page.locator("#showcaseStatus")).toContainText("导入成功");
+           |                                                 ^
+      5571 |   await expect(page.locator("#showcaseStatus")).toContainText("0 项未匹配");
+      5572 |   await expect(page.locator("#showcaseSummary")).toContainText("1 名角色");
+      5573 |   await expect(page.locator("#showcaseSummary")).toContainText(
+        at /Users/evan/Documents/gidps/apps/web/e2e/simulator.spec.ts:5570:49
+
+    Error Context: test-results/simulator-imports-a-public-2ece7-ation-data-as-a-placeholder-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/simulator-imports-a-public-2ece7-ation-data-as-a-placeholder-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/simulator-imports-a-public-2ece7-ation-data-as-a-placeholder-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    [chromium] › apps/web/e2e/simulator.spec.ts:385:1 › shows a field path for an invalid config ───
+    [chromium] › apps/web/e2e/simulator.spec.ts:487:1 › disables an unused shared scalar for target-level resistance tables and identifies mixed consumers 
+    [chromium] › apps/web/e2e/simulator.spec.ts:903:1 › renders an initial enemy Aura even when the run has no hits or state events 
+    [chromium] › apps/web/e2e/simulator.spec.ts:3739:1 › audits a scripted target miss before damage, Aura, and hit-confirmed particles 
+    [chromium] › apps/web/e2e/simulator.spec.ts:3888:1 › keeps landed target damage, Aura, and hit-confirm policies independent 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4040:1 › applies half-open enemy target phases and exposes their source per hit 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4183:1 › keeps registered enemy stats, Aura, ICD, and UI filters independent 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4348:1 › fans one AoE hit across targets while producing hit-confirm particles once 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4440:1 › derives circle hits from target positions and exposes geometric evidence 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4587:1 › audits rotated rectangle intersections against circular target hitboxes 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4740:1 › audits finite capsule side and end-cap intersections 
+    [chromium] › apps/web/e2e/simulator.spec.ts:4891:1 › audits filled sector arc, radial-edge, and out-of-range intersections 
+    [chromium] › apps/web/e2e/simulator.spec.ts:5048:1 › transforms actor-local geometry from a static source pose and audits world coordinates 
+    [chromium] › apps/web/e2e/simulator.spec.ts:5190:1 › interpolates target motion at each hit frame before geometry resolution 
+    [chromium] › apps/web/e2e/simulator.spec.ts:5491:1 › imports a public UID showcase and keeps graduation data as a placeholder 
+  21 passed (42.0s)

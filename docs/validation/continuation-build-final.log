@@ -1,0 +1,44 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 212 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                     28.99 kB │ gzip:   9.17 kB
+dist/assets/analysis-worker-DdlwF89P.js          1,623.65 kB
+dist/assets/simulation-worker-Bjj-mJMd.js        1,624.24 kB
+dist/assets/lunar-simulation-worker-6UtovCAW.js  1,628.01 kB
+dist/assets/calculator-ui-jeQkqw6-.css               5.81 kB │ gzip:   1.52 kB
+dist/assets/index-DMqqmS2R.css                      11.56 kB │ gzip:   3.28 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js             0.15 kB │ gzip:   0.15 kB
+dist/assets/rotation-dsl-BM5JvAQ-.js                 3.08 kB │ gzip:   1.74 kB
+dist/assets/update-panel-B6A1-Ksr.js                 5.37 kB │ gzip:   2.69 kB
+dist/assets/calculation-trace-Dr7khA4D.js            7.85 kB │ gzip:   2.85 kB
+dist/assets/calculator-bridge-D9V8n4Ux.js           14.69 kB │ gzip:   4.96 kB
+dist/assets/lunar-simulation-panel-rpNaGG9c.js      17.02 kB │ gzip:   6.91 kB
+dist/assets/character-formula-rules-BK-rS3h5.js     21.61 kB │ gzip:   8.12 kB
+dist/assets/calculator-ui-k9xHmAfz.js               49.02 kB │ gzip:  17.28 kB
+dist/assets/equipment-controls-D2w_AQzl.js          75.18 kB │ gzip:  25.77 kB
+dist/assets/supplemental-DQ283TAg.js               341.66 kB │ gzip:  69.02 kB
+dist/assets/index-CZSP89e4.js                      374.63 kB │ gzip:  89.92 kB
+dist/assets/character-calculations-CxUVGX8q.js     458.23 kB │ gzip:  63.00 kB
+dist/assets/preload-helper-A_VGC_iP.js             525.37 kB │ gzip: 133.72 kB
+dist/assets/src-C5jhskee.js                      1,125.72 kB │ gzip: 243.06 kB
+dist/assets/catalog-CAOb30JO.js                  1,971.38 kB │ gzip: 319.06 kB
+
+✓ built in 288ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

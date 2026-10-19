@@ -1,0 +1,73 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "archiveOrigin": "Existing local fixed-source snapshot; this increment did not re-download or independently authenticate revision identity.",
+  "verificationStatus": "source-assumed-not-game-tested",
+  "files": [
+    {
+      "sourcePath": "internal/artifacts/exile/exile.go",
+      "archivePath": "gcsim/internal__artifacts__exile__exile.go.txt",
+      "sha256": "2879c18c69fe11aa03b31cd7e6078e08ef5ba732594acc6d1ff8229d18b66059",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/exile/exile.go"
+    },
+    {
+      "sourcePath": "internal/artifacts/scholar/scholar.go",
+      "archivePath": "gcsim/internal__artifacts__scholar__scholar.go.txt",
+      "sha256": "aeeab6a52ec8baf9c42acee741fb83aac2d434a80c1fcdfb4c2fc926dc41ce31",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scholar/scholar.go"
+    },
+    {
+      "sourcePath": "internal/artifacts/gambler/gambler.go",
+      "archivePath": "gcsim/internal__artifacts__gambler__gambler.go.txt",
+      "sha256": "b1303ee2145e1fed0e6d34f2d90836f3a4e746c2d7e0c9caa99d1d8f3683160a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/gambler/gambler.go"
+    },
+    {
+      "sourcePath": "internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "archivePath": "gcsim/internal__artifacts__scrolloftheheroofcindercity__scrolloftheheroofcindercity.go.txt",
+      "sha256": "16774e7726f5270f4598ef17739225aef3a2310bda84cabdbd03a7f5abfef0cc",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go"
+    },
+    {
+      "sourcePath": "pkg/simulation/setup.go",
+      "archivePath": "gcsim/pkg__simulation__setup.go.txt",
+      "sha256": "14d39712021e9e149ff7c3a5d0e042b7150087e825dac2bb8fd9268e1eeeba67",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/setup.go"
+    },
+    {
+      "sourcePath": "pkg/core/status/status.go",
+      "archivePath": "gcsim/pkg__core__status__status.go.txt",
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/status/status.go"
+    },
+    {
+      "sourcePath": "pkg/core/player/exec.go",
+      "archivePath": "gcsim/pkg__core__player__exec.go.txt",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go"
+    },
+    {
+      "sourcePath": "pkg/core/player/player.go",
+      "archivePath": "gcsim/pkg__core__player__player.go.txt",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "sourcePath": "internal/template/character/cooldown.go",
+      "archivePath": "gcsim/internal__template__character__cooldown.go.txt",
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/cooldown.go"
+    },
+    {
+      "sourcePath": "pkg/enemy/attack.go",
+      "archivePath": "gcsim/pkg__enemy__attack.go.txt",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    },
+    {
+      "sourcePath": "pkg/modifier/modifier.go",
+      "archivePath": "gcsim/pkg__modifier__modifier.go.txt",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    }
+  ]
+}

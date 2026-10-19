@@ -1,0 +1,1925 @@
+{
+  "schemaVersion": "source-finite-expansion-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=40 ignore_burst_energy=true;\nshenhe char lvl=90/90 cons=2 talent=1,1,1;\nshenhe add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nchongyun char lvl=90/90 cons=0 talent=1,1,1;\nchongyun add weapon=\"sacrificialgreatsword\" refine=5 lvl=90/90;\nmona char lvl=90/90 cons=0 talent=1,1,1;\nmona add weapon=\"apprenticesnotes\" refine=1 lvl=90/90;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.5,2.4;\nactive chongyun;\nchongyun skill;\nwait(30);\nchongyun skill;\nshenhe skill;\nshenhe burst;\nmona skill[hold=1];\nwait(1400);",
+    "seed": "1",
+    "baselinePath": "docs/validation/source-finite-expansion-20260930.baseline.json",
+    "capturePath": "docs/validation/source-finite-expansion-20260930.capture.json",
+    "runs": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "b1aeaeaf870788dbd019a4c77f9651b0991ef97889766d7dc036f07029de17e2",
+          "wasmBytes": 46810582
+        },
+        "applications": 62,
+        "abilityInvocations": [
+          {
+            "key": "chongyunE1",
+            "id": 1,
+            "actionSequence": 1,
+            "accepted": true,
+            "contractId": "chongyun-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "chongyun-skill",
+                "label": "重云 E：初击、自然终结与替换终结",
+                "characterKey": "chongyun",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/chongyun/skill.go",
+                "sourceSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+                "sourceHashes": {
+                  "classicSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+                  "stellarSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d"
+                },
+                "sourceEvidence": "skill.go原Duration>0分支记录replaced-field，不重复状态查询；asc.go:A4解锁后按useOldSnapshot登记expiry/replacement生产者。自然655f、替换36+45f；src失配取消0击，否则原快照/区域选目标并入队1击，真实回执绑定结果。",
+                "nonDamageCallbacksAndInitAudit": "particleCB只产球；A4回调只减抗、C4只回能。领域创建/附魔/A1攻速/C2冷却减免与换人钩子不另排攻击。新E的replacement使用旧a4Snap/旧skillArea，但其原生登记归属当前E；旧计时器仍属于旧E，可被src失配取消。C1额外冰刃仅来自后续普攻，不属于E。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/chongyun/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 1,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（60 次应用）"
+              ],
+              "scopeNotes": [
+                "初击1根；A4已解锁时登记655帧领域终结任务。入口实际旧领域分支成立时还登记81帧强制终结任务。",
+                "每个A4生产者按原src与fieldSrc判定，取消记0、实际入队记1；不固定总攻击数，也不排除重叠E。",
+                "新E明确登记的强制旧领域终结伤害归属新E调用，但沿用原代码捕获的旧快照与旧区域；旧E原计时器保留其旧调用身份，执行时可取消为0。",
+                "附魔、攻速、C2冷却减免、产球、A4减抗及C4回能保持执行，不作为额外攻击根。"
+              ]
+            }
+          },
+          {
+            "key": "chongyunE2",
+            "id": 2,
+            "actionSequence": 2,
+            "accepted": true,
+            "contractId": "chongyun-skill",
+            "completeCast": true,
+            "hitCount": 6,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "chongyun-skill",
+                "label": "重云 E：初击、自然终结与替换终结",
+                "characterKey": "chongyun",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/chongyun/skill.go",
+                "sourceSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+                "sourceHashes": {
+                  "classicSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+                  "stellarSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d"
+                },
+                "sourceEvidence": "skill.go原Duration>0分支记录replaced-field，不重复状态查询；asc.go:A4解锁后按useOldSnapshot登记expiry/replacement生产者。自然655f、替换36+45f；src失配取消0击，否则原快照/区域选目标并入队1击，真实回执绑定结果。",
+                "nonDamageCallbacksAndInitAudit": "particleCB只产球；A4回调只减抗、C4只回能。领域创建/附魔/A1攻速/C2冷却减免与换人钩子不另排攻击。新E的replacement使用旧a4Snap/旧skillArea，但其原生登记归属当前E；旧计时器仍属于旧E，可被src失配取消。C1额外冰刃仅来自后续普攻，不属于E。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/chongyun/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 3,
+              "completedRootAttackCount": 3,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 3,
+              "producerCount": 2,
+              "completedProducerCount": 2,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（56 次应用）"
+              ],
+              "scopeNotes": [
+                "初击1根；A4已解锁时登记655帧领域终结任务。入口实际旧领域分支成立时还登记81帧强制终结任务。",
+                "每个A4生产者按原src与fieldSrc判定，取消记0、实际入队记1；不固定总攻击数，也不排除重叠E。",
+                "新E明确登记的强制旧领域终结伤害归属新E调用，但沿用原代码捕获的旧快照与旧区域；旧E原计时器保留其旧调用身份，执行时可取消为0。",
+                "附魔、攻速、C2冷却减免、产球、A4减抗及C4回能保持执行，不作为额外攻击根。"
+              ]
+            }
+          },
+          {
+            "key": "shenheE",
+            "id": 3,
+            "actionSequence": 4,
+            "accepted": true,
+            "contractId": "shenhe-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "shenhe-skill",
+                "label": "申鹤 E：点按与长按完整伤害",
+                "characterKey": "shenhe",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/shenhe/skill.go",
+                "sourceSha256": "63be6ee10cce2e061ef623ae1c442dcaed4a2fb109ad9aaddef36a03b8560673",
+                "sourceHashes": {
+                  "classicSha256": "63be6ee10cce2e061ef623ae1c442dcaed4a2fb109ad9aaddef36a03b8560673",
+                  "stellarSha256": "f819c1367dd86045caf2d492269102d9811b3cd949e1fc417dda775eb0eb9815"
+                },
+                "sourceEvidence": "skill.go:Skill按p[hold]!=0分派；skillPress/skillHold各登记一次原生伤害任务，分别4/33f快照，原c4()增伤加到快照后只排1击；无取消门、递归或子攻击任务。",
+                "nonDamageCallbacksAndInitAudit": "点按/长按命中回调仅产球；原增益任务只授予冰翎层数/状态与A4修饰器。冰翎钩子改当前击FlatDmg，C4追加回调只计层数，c4()消费层数仅修改当前技能快照DmgP。两lane授予冰翎的A4门控存在源码差异，未规范化。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/shenhe/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 1,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（60 次应用）"
+              ],
+              "scopeNotes": [
+                "原Skill按hold非零选择长按，否则点按；点按4帧/长按33帧各登记一个伤害生产者，执行时快照并加原C4增伤后入队1击。",
+                "粒子回调不生成伤害；冰翎与A4增益任务、同击附加与C4层数回调保持原位置，不作为额外攻击根。",
+                "保留两条来源的冰翎授予差异：Classic随A4门控增益任务授予，Stellar独立授予冰翎再调用A4门控增益。"
+              ]
+            }
+          },
+          {
+            "key": "shenheQ",
+            "id": 4,
+            "actionSequence": 5,
+            "accepted": true,
+            "contractId": "shenhe-burst",
+            "completeCast": true,
+            "hitCount": 38,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "shenhe-burst",
+                "label": "申鹤 Q：初击与完整领域伤害",
+                "characterKey": "shenhe",
+                "action": "burst",
+                "method": "Burst",
+                "sourcePath": "internal/characters/shenhe/burst.go",
+                "sourceSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+                "sourceHashes": {
+                  "classicSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+                  "stellarSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b"
+                },
+                "sourceEvidence": "burst.go:50-55直接初击；:80-88原47f任务快照并排6或9组、每组2击。两lane源码同构，初击78f，DoT为47+82+i*117+j*(30+burstTickOffset[i])；没有状态取消、目标存在门或递归子任务。",
+                "nonDamageCallbacksAndInitAudit": "burst.go:90-128仅刷新A1/C2增益与冰/物抗减益。Init安装冰翎同击附加；quillDamageMod及C4回调只改当前击/层数、不另排伤害。CD1200f及4f耗能原位保留。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/shenhe/burst.go"
+                ]
+              },
+              "expectedRootAttackCount": 19,
+              "completedRootAttackCount": 19,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 19,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（24 次应用）"
+              ],
+              "scopeNotes": [
+                "初始1击；原生47帧任务先快照，再按C2前6组/C2后9组各排2击。实际派发回执必须全部结束。",
+                "同帧A1/C2及领域减抗刷新仍按原队列顺序执行；它们不是额外攻击。技能状态结束不是该有限伤害排队的取消条件。"
+              ]
+            }
+          },
+          {
+            "key": "monaE",
+            "id": 5,
+            "actionSequence": 7,
+            "accepted": true,
+            "contractId": "mona-skill",
+            "completeCast": true,
+            "hitCount": 10,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "mona",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/mona/skill.go",
+                "label": "莫娜 E",
+                "sourceEvidence": "skill.go:38-86; 4 direct DoT queues in the loop at 60-63 plus one direct explosion at 77. hold=0/1 changes timing only; last explosion is frame 329/344.",
+                "id": "mona-skill",
+                "expectedRootAttackCount": {
+                  "kind": "constant",
+                  "count": 5
+                },
+                "sourceSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+                "sourceHashes": {
+                  "classicSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+                  "stellarSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c"
+                },
+                "nonDamageCallbacksAndInitAudit": "The method queues exactly four tick attacks and one explosion. particleCB at skill.go:89-103 adds particles only. Init at mona.go:51-63 installs A4 and constellation hooks; asc.go:21-63 A1 phantom damage is created by later dash actions. C2 follow-up CA listens only to later Normal hits (cons.go:104-140); C1/reaction and omen detonation effects are separate reaction or later-action scope. E contributes no extra callback-generated attack.",
+                "scopeNotes": [
+                  "hold=0: ticks 86,145,204,263; explosion 329. hold!=0: ticks 101,160,219,278; explosion 344. Constant total 5; observe through frame 344 and terminal dispatch."
+                ],
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/mona/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 5,
+              "completedRootAttackCount": 5,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 5,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（52 次应用）"
+              ],
+              "scopeNotes": [
+                "hold=0: ticks 86,145,204,263; explosion 329. hold!=0: ticks 101,160,219,278; explosion 344. Constant total 5; observe through frame 344 and terminal dispatch."
+              ]
+            }
+          }
+        ],
+        "shenheDoTTalentReads": [
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          }
+        ],
+        "shenheQuillComponents": [
+          {
+            "id": 558,
+            "value": 510.7444763081607,
+            "scope": "same-hit",
+            "state": {
+              "talentLevel": 0,
+              "totalAtk": 1118.679858744
+            }
+          },
+          {
+            "id": 561,
+            "value": 510.7444763081607,
+            "scope": "same-hit",
+            "state": {
+              "talentLevel": 0,
+              "totalAtk": 1118.679858744
+            }
+          },
+          {
+            "id": 641,
+            "value": 510.7444763081607,
+            "scope": "same-hit",
+            "state": {
+              "talentLevel": 0,
+              "totalAtk": 1118.679858744
+            }
+          }
+        ],
+        "sacrificialProducerFacts": [
+          {
+            "id": 2,
+            "siteId": "chongyun.skill.a4-replacement",
+            "taskId": 26,
+            "state": "completed",
+            "entryFacts": {
+              "chongyun.skill.a4.attack-count": 1
+            },
+            "queuedAttacks": [
+              {
+                "queueId": 13,
+                "attackId": 4,
+                "ability": "Spirit Blade: Chonghua's Layered Frost (A4)",
+                "attackTagName": "AttackTagElementalArt",
+                "frame": 147
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "siteId": "chongyun.skill.a4-expiry",
+            "taskId": 40,
+            "state": "completed",
+            "entryFacts": {
+              "chongyun.skill.a4.attack-count": 1
+            },
+            "queuedAttacks": [
+              {
+                "queueId": 91,
+                "attackId": 31,
+                "ability": "Spirit Blade: Chonghua's Layered Frost (A4)",
+                "attackTagName": "AttackTagElementalArt",
+                "frame": 721
+              }
+            ]
+          }
+        ],
+        "chongyunReplacementAndExpiry": {
+          "invocations": [
+            {
+              "id": 1,
+              "entryFacts": {
+                "chongyun.skill.replaced-field": 0
+              }
+            },
+            {
+              "id": 2,
+              "entryFacts": {
+                "chongyun.skill.replaced-field": 1
+              }
+            }
+          ],
+          "expiryProducers": [
+            {
+              "id": 1,
+              "invocationId": 1,
+              "taskId": 15,
+              "state": "completed",
+              "entryFacts": {
+                "chongyun.skill.a4.attack-count": 0
+              },
+              "queuedAttacks": []
+            },
+            {
+              "id": 3,
+              "invocationId": 2,
+              "taskId": 40,
+              "state": "completed",
+              "entryFacts": {
+                "chongyun.skill.a4.attack-count": 1
+              },
+              "queuedAttacks": [
+                {
+                  "queueId": 91,
+                  "attackId": 31,
+                  "ability": "Spirit Blade: Chonghua's Layered Frost (A4)",
+                  "attackTagName": "AttackTagElementalArt",
+                  "frame": 721
+                }
+              ]
+            }
+          ]
+        },
+        "calculatorEditExportImport": true
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "9619acc156d9cfe321ae982d177f9c90dc0cf73a7d88c3394a15ef8362a17105",
+          "wasmBytes": 70617927
+        },
+        "applications": 62,
+        "abilityInvocations": [
+          {
+            "key": "chongyunE1",
+            "id": 1,
+            "actionSequence": 1,
+            "accepted": true,
+            "contractId": "chongyun-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "chongyun-skill",
+                "label": "重云 E：初击、自然终结与替换终结",
+                "characterKey": "chongyun",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/chongyun/skill.go",
+                "sourceSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d",
+                "sourceHashes": {
+                  "classicSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+                  "stellarSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d"
+                },
+                "sourceEvidence": "skill.go原Duration>0分支记录replaced-field，不重复状态查询；asc.go:A4解锁后按useOldSnapshot登记expiry/replacement生产者。自然655f、替换36+45f；src失配取消0击，否则原快照/区域选目标并入队1击，真实回执绑定结果。",
+                "nonDamageCallbacksAndInitAudit": "particleCB只产球；A4回调只减抗、C4只回能。领域创建/附魔/A1攻速/C2冷却减免与换人钩子不另排攻击。新E的replacement使用旧a4Snap/旧skillArea，但其原生登记归属当前E；旧计时器仍属于旧E，可被src失配取消。C1额外冰刃仅来自后续普攻，不属于E。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/chongyun/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 1,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（60 次应用）"
+              ],
+              "scopeNotes": [
+                "初击1根；A4已解锁时登记655帧领域终结任务。入口实际旧领域分支成立时还登记81帧强制终结任务。",
+                "每个A4生产者按原src与fieldSrc判定，取消记0、实际入队记1；不固定总攻击数，也不排除重叠E。",
+                "新E明确登记的强制旧领域终结伤害归属新E调用，但沿用原代码捕获的旧快照与旧区域；旧E原计时器保留其旧调用身份，执行时可取消为0。",
+                "附魔、攻速、C2冷却减免、产球、A4减抗及C4回能保持执行，不作为额外攻击根。"
+              ]
+            }
+          },
+          {
+            "key": "chongyunE2",
+            "id": 2,
+            "actionSequence": 2,
+            "accepted": true,
+            "contractId": "chongyun-skill",
+            "completeCast": true,
+            "hitCount": 6,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "chongyun-skill",
+                "label": "重云 E：初击、自然终结与替换终结",
+                "characterKey": "chongyun",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/chongyun/skill.go",
+                "sourceSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d",
+                "sourceHashes": {
+                  "classicSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+                  "stellarSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d"
+                },
+                "sourceEvidence": "skill.go原Duration>0分支记录replaced-field，不重复状态查询；asc.go:A4解锁后按useOldSnapshot登记expiry/replacement生产者。自然655f、替换36+45f；src失配取消0击，否则原快照/区域选目标并入队1击，真实回执绑定结果。",
+                "nonDamageCallbacksAndInitAudit": "particleCB只产球；A4回调只减抗、C4只回能。领域创建/附魔/A1攻速/C2冷却减免与换人钩子不另排攻击。新E的replacement使用旧a4Snap/旧skillArea，但其原生登记归属当前E；旧计时器仍属于旧E，可被src失配取消。C1额外冰刃仅来自后续普攻，不属于E。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/chongyun/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 3,
+              "completedRootAttackCount": 3,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 3,
+              "producerCount": 2,
+              "completedProducerCount": 2,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（56 次应用）"
+              ],
+              "scopeNotes": [
+                "初击1根；A4已解锁时登记655帧领域终结任务。入口实际旧领域分支成立时还登记81帧强制终结任务。",
+                "每个A4生产者按原src与fieldSrc判定，取消记0、实际入队记1；不固定总攻击数，也不排除重叠E。",
+                "新E明确登记的强制旧领域终结伤害归属新E调用，但沿用原代码捕获的旧快照与旧区域；旧E原计时器保留其旧调用身份，执行时可取消为0。",
+                "附魔、攻速、C2冷却减免、产球、A4减抗及C4回能保持执行，不作为额外攻击根。"
+              ]
+            }
+          },
+          {
+            "key": "shenheE",
+            "id": 3,
+            "actionSequence": 4,
+            "accepted": true,
+            "contractId": "shenhe-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "shenhe-skill",
+                "label": "申鹤 E：点按与长按完整伤害",
+                "characterKey": "shenhe",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/shenhe/skill.go",
+                "sourceSha256": "f819c1367dd86045caf2d492269102d9811b3cd949e1fc417dda775eb0eb9815",
+                "sourceHashes": {
+                  "classicSha256": "63be6ee10cce2e061ef623ae1c442dcaed4a2fb109ad9aaddef36a03b8560673",
+                  "stellarSha256": "f819c1367dd86045caf2d492269102d9811b3cd949e1fc417dda775eb0eb9815"
+                },
+                "sourceEvidence": "skill.go:Skill按p[hold]!=0分派；skillPress/skillHold各登记一次原生伤害任务，分别4/33f快照，原c4()增伤加到快照后只排1击；无取消门、递归或子攻击任务。",
+                "nonDamageCallbacksAndInitAudit": "点按/长按命中回调仅产球；原增益任务只授予冰翎层数/状态与A4修饰器。冰翎钩子改当前击FlatDmg，C4追加回调只计层数，c4()消费层数仅修改当前技能快照DmgP。两lane授予冰翎的A4门控存在源码差异，未规范化。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/shenhe/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 1,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（60 次应用）"
+              ],
+              "scopeNotes": [
+                "原Skill按hold非零选择长按，否则点按；点按4帧/长按33帧各登记一个伤害生产者，执行时快照并加原C4增伤后入队1击。",
+                "粒子回调不生成伤害；冰翎与A4增益任务、同击附加与C4层数回调保持原位置，不作为额外攻击根。",
+                "保留两条来源的冰翎授予差异：Classic随A4门控增益任务授予，Stellar独立授予冰翎再调用A4门控增益。"
+              ]
+            }
+          },
+          {
+            "key": "shenheQ",
+            "id": 4,
+            "actionSequence": 5,
+            "accepted": true,
+            "contractId": "shenhe-burst",
+            "completeCast": true,
+            "hitCount": 38,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "shenhe-burst",
+                "label": "申鹤 Q：初击与完整领域伤害",
+                "characterKey": "shenhe",
+                "action": "burst",
+                "method": "Burst",
+                "sourcePath": "internal/characters/shenhe/burst.go",
+                "sourceSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+                "sourceHashes": {
+                  "classicSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+                  "stellarSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b"
+                },
+                "sourceEvidence": "burst.go:50-55直接初击；:80-88原47f任务快照并排6或9组、每组2击。两lane源码同构，初击78f，DoT为47+82+i*117+j*(30+burstTickOffset[i])；没有状态取消、目标存在门或递归子任务。",
+                "nonDamageCallbacksAndInitAudit": "burst.go:90-128仅刷新A1/C2增益与冰/物抗减益。Init安装冰翎同击附加；quillDamageMod及C4回调只改当前击/层数、不另排伤害。CD1200f及4f耗能原位保留。",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/shenhe/burst.go"
+                ]
+              },
+              "expectedRootAttackCount": 19,
+              "completedRootAttackCount": 19,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 19,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（24 次应用）"
+              ],
+              "scopeNotes": [
+                "初始1击；原生47帧任务先快照，再按C2前6组/C2后9组各排2击。实际派发回执必须全部结束。",
+                "同帧A1/C2及领域减抗刷新仍按原队列顺序执行；它们不是额外攻击。技能状态结束不是该有限伤害排队的取消条件。"
+              ]
+            }
+          },
+          {
+            "key": "monaE",
+            "id": 5,
+            "actionSequence": 7,
+            "accepted": true,
+            "contractId": "mona-skill",
+            "completeCast": true,
+            "hitCount": 10,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "mona",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/mona/skill.go",
+                "label": "莫娜 E",
+                "sourceEvidence": "skill.go:38-86; 4 direct DoT queues in the loop at 60-63 plus one direct explosion at 77. hold=0/1 changes timing only; last explosion is frame 329/344.",
+                "id": "mona-skill",
+                "expectedRootAttackCount": {
+                  "kind": "constant",
+                  "count": 5
+                },
+                "sourceSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+                "sourceHashes": {
+                  "classicSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+                  "stellarSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c"
+                },
+                "nonDamageCallbacksAndInitAudit": "The method queues exactly four tick attacks and one explosion. particleCB at skill.go:89-103 adds particles only. Init at mona.go:51-63 installs A4 and constellation hooks; asc.go:21-63 A1 phantom damage is created by later dash actions. C2 follow-up CA listens only to later Normal hits (cons.go:104-140); C1/reaction and omen detonation effects are separate reaction or later-action scope. E contributes no extra callback-generated attack.",
+                "scopeNotes": [
+                  "hold=0: ticks 86,145,204,263; explosion 329. hold!=0: ticks 101,160,219,278; explosion 344. Constant total 5; observe through frame 344 and terminal dispatch."
+                ],
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/mona/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 5,
+              "completedRootAttackCount": 5,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 5,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（52 次应用）"
+              ],
+              "scopeNotes": [
+                "hold=0: ticks 86,145,204,263; explosion 329. hold!=0: ticks 101,160,219,278; explosion 344. Constant total 5; observe through frame 344 and terminal dispatch."
+              ]
+            }
+          }
+        ],
+        "shenheDoTTalentReads": [
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          },
+          {
+            "ability": "Divine Maiden's Deliverance (DoT)",
+            "siteId": "internal/characters/shenhe/burst.go:75:15",
+            "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+            "indices": [
+              0
+            ],
+            "value": 0.3312,
+            "frame": 149
+          }
+        ],
+        "shenheQuillComponents": [
+          {
+            "id": 559,
+            "value": 510.7444763081607,
+            "scope": "same-hit",
+            "state": {
+              "talentLevel": 0,
+              "totalAtk": 1118.679858744
+            }
+          },
+          {
+            "id": 562,
+            "value": 510.7444763081607,
+            "scope": "same-hit",
+            "state": {
+              "talentLevel": 0,
+              "totalAtk": 1118.679858744
+            }
+          },
+          {
+            "id": 642,
+            "value": 510.7444763081607,
+            "scope": "same-hit",
+            "state": {
+              "talentLevel": 0,
+              "totalAtk": 1118.679858744
+            }
+          }
+        ],
+        "sacrificialProducerFacts": [
+          {
+            "id": 2,
+            "siteId": "chongyun.skill.a4-replacement",
+            "taskId": 26,
+            "state": "completed",
+            "entryFacts": {
+              "chongyun.skill.a4.attack-count": 1
+            },
+            "queuedAttacks": [
+              {
+                "queueId": 13,
+                "attackId": 4,
+                "ability": "Spirit Blade: Chonghua's Layered Frost (A4)",
+                "attackTagName": "AttackTag(4)",
+                "frame": 147
+              }
+            ]
+          },
+          {
+            "id": 3,
+            "siteId": "chongyun.skill.a4-expiry",
+            "taskId": 40,
+            "state": "completed",
+            "entryFacts": {
+              "chongyun.skill.a4.attack-count": 1
+            },
+            "queuedAttacks": [
+              {
+                "queueId": 91,
+                "attackId": 31,
+                "ability": "Spirit Blade: Chonghua's Layered Frost (A4)",
+                "attackTagName": "AttackTag(4)",
+                "frame": 721
+              }
+            ]
+          }
+        ],
+        "chongyunReplacementAndExpiry": {
+          "invocations": [
+            {
+              "id": 1,
+              "entryFacts": {
+                "chongyun.skill.replaced-field": 0
+              }
+            },
+            {
+              "id": 2,
+              "entryFacts": {
+                "chongyun.skill.replaced-field": 1
+              }
+            }
+          ],
+          "expiryProducers": [
+            {
+              "id": 1,
+              "invocationId": 1,
+              "taskId": 15,
+              "state": "completed",
+              "entryFacts": {
+                "chongyun.skill.a4.attack-count": 0
+              },
+              "queuedAttacks": []
+            },
+            {
+              "id": 3,
+              "invocationId": 2,
+              "taskId": 40,
+              "state": "completed",
+              "entryFacts": {
+                "chongyun.skill.a4.attack-count": 1
+              },
+              "queuedAttacks": [
+                {
+                  "queueId": 91,
+                  "attackId": 31,
+                  "ability": "Spirit Blade: Chonghua's Layered Frost (A4)",
+                  "attackTagName": "AttackTag(4)",
+                  "frame": 721
+                }
+              ]
+            }
+          ]
+        },
+        "calculatorEditExportImport": false
+      }
+    ],
+    "scope": "One classic pre-expansion baseline, then one classic and one stellar aggregate native run. Finite captures stay scoped to each selected action invocation.",
+    "nativeRunsPerformed": true,
+    "calculatorEditExportImport": true
+  },
+  "pageErrors": []
+}

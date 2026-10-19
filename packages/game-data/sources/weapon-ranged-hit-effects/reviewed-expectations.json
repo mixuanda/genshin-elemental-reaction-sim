@@ -1,0 +1,677 @@
+{
+  "schemaVersion": "1.0.0",
+  "verification": "provisional",
+  "method": "手工逐精炼核对原始中文目录与固定gcsim表达式；以下期望为独立手写数值，不由生产resolver计算。hp/em是当前命中时final-panel实值。未在此子任务运行测试。",
+  "coefficientReview": [
+    {
+      "weaponId": "weapon:14506",
+      "slug": "everlastingmoonglow",
+      "catalogIndex": 1,
+      "gcsimExpression": "0.005 + 0.005 * r",
+      "r1ToR5": [
+        0.01,
+        0.015,
+        0.02,
+        0.025,
+        0.03
+      ],
+      "binding": {
+        "hp": 30000
+      },
+      "additiveR1ToR5": [
+        300,
+        450,
+        600,
+        750,
+        900
+      ]
+    },
+    {
+      "weaponId": "weapon:15511",
+      "slug": "hunterspath",
+      "catalogIndex": 1,
+      "gcsimExpression": "1.2 + 0.4 * r",
+      "r1ToR5": [
+        1.6,
+        2,
+        2.4,
+        2.8,
+        3.2
+      ],
+      "binding": {
+        "em": 400
+      },
+      "additiveR1ToR5": [
+        640,
+        800,
+        960,
+        1120,
+        1280
+      ]
+    },
+    {
+      "weaponId": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "catalogIndex": 1,
+      "gcsimExpression": "0.21 + 0.07 * r",
+      "r1ToR5": [
+        0.28,
+        0.35,
+        0.42,
+        0.49,
+        0.56
+      ]
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "catalogIndex": 1,
+      "gcsimExpression": "0.21 + 0.07 * r",
+      "r1ToR5": [
+        0.28,
+        0.35,
+        0.42,
+        0.49,
+        0.56
+      ]
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "catalogIndex": 2,
+      "gcsimExpression": "0.3 + 0.1 * r",
+      "r1ToR5": [
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "bothWindowTotalR1ToR5": [
+        0.68,
+        0.85,
+        1.02,
+        1.19,
+        1.36
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "weaponId": "weapon:14506",
+      "slug": "everlastingmoonglow",
+      "context": {},
+      "bindings": {
+        "hp": 30000
+      },
+      "expectedR1": {
+        "additiveBase": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 300
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 300
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0
+          },
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      },
+      "expectedR5": {
+        "additiveBase": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 900
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 900
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0
+          },
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      }
+    },
+    {
+      "weaponId": "weapon:15511",
+      "slug": "hunterspath",
+      "context": {
+        "weaponEffectActive": true,
+        "weaponStacks": 12
+      },
+      "bindings": {
+        "em": 400
+      },
+      "expectedR1": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 640
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 640
+          },
+          {
+            "element": "dendro",
+            "attackTag": "normal",
+            "bonus": 0
+          },
+          {
+            "element": "dendro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      },
+      "expectedR5": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 1280
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 1280
+          },
+          {
+            "element": "dendro",
+            "attackTag": "normal",
+            "bonus": 0
+          },
+          {
+            "element": "dendro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      }
+    },
+    {
+      "weaponId": "weapon:15511",
+      "slug": "hunterspath",
+      "context": {
+        "weaponEffectActive": true,
+        "weaponStacks": 1
+      },
+      "bindings": {
+        "em": 400
+      },
+      "expectedR1": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 640
+          }
+        ],
+        "critical": []
+      },
+      "expectedR5": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 1280
+          }
+        ],
+        "critical": []
+      }
+    },
+    {
+      "weaponId": "weapon:15511",
+      "slug": "hunterspath",
+      "context": {
+        "weaponEffectActive": true,
+        "weaponStacks": 0
+      },
+      "bindings": {
+        "em": 400
+      },
+      "expectedR1": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      },
+      "expectedR5": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      }
+    },
+    {
+      "weaponId": "weapon:15511",
+      "slug": "hunterspath",
+      "context": {
+        "weaponEffectActive": false
+      },
+      "bindings": {
+        "em": 400
+      },
+      "expectedR1": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      },
+      "expectedR5": {
+        "additiveBase": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ],
+        "critical": []
+      }
+    },
+    {
+      "weaponId": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0.28,
+            "critDamage": 0
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "critRate": 0,
+            "critDamage": 0
+          },
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0.56,
+            "critDamage": 0
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "critRate": 0,
+            "critDamage": 0
+          },
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "context": {
+        "weaponStacks": 3,
+        "burstEffectActive": false
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0.28,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0.56,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "context": {
+        "weaponStacks": 2,
+        "burstEffectActive": true
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0.28,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0.56,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "context": {
+        "weaponStacks": 2,
+        "burstEffectActive": false
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "context": {
+        "catalystSecondaryWindowActive": true,
+        "catalystSkillWindowActive": true
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0.68
+          },
+          {
+            "element": "physical",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0.68
+          },
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "critRate": 0,
+            "critDamage": 0
+          },
+          {
+            "element": "anemo",
+            "attackTag": "skill",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 1.36
+          },
+          {
+            "element": "physical",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 1.36
+          },
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "critRate": 0,
+            "critDamage": 0
+          },
+          {
+            "element": "anemo",
+            "attackTag": "skill",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "context": {
+        "catalystSecondaryWindowActive": true,
+        "catalystSkillWindowActive": false
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0.28
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0.56
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "context": {
+        "catalystSecondaryWindowActive": false,
+        "catalystSkillWindowActive": true
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0.4
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0.8
+          }
+        ],
+        "additiveBase": []
+      }
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "context": {
+        "catalystSecondaryWindowActive": false,
+        "catalystSkillWindowActive": false
+      },
+      "expectedR1": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      },
+      "expectedR5": {
+        "critical": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ],
+        "additiveBase": []
+      }
+    }
+  ],
+  "pendingCases": [
+    {
+      "weaponId": "weapon:15511",
+      "context": {},
+      "missing": "weaponEffectActive",
+      "kind": "additive-base",
+      "attackTags": [
+        "charged"
+      ]
+    },
+    {
+      "weaponId": "weapon:15511",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "missing": "weaponStacks",
+      "kind": "additive-base",
+      "attackTags": [
+        "charged"
+      ]
+    },
+    {
+      "weaponId": "weapon:15513",
+      "context": {
+        "burstEffectActive": true
+      },
+      "missing": "weaponStacks",
+      "kind": "critRate",
+      "attackTags": [
+        "burst"
+      ]
+    },
+    {
+      "weaponId": "weapon:15513",
+      "context": {
+        "weaponStacks": 2
+      },
+      "missing": "burstEffectActive",
+      "kind": "critRate",
+      "attackTags": [
+        "burst"
+      ]
+    },
+    {
+      "weaponId": "weapon:14519",
+      "context": {
+        "catalystSecondaryWindowActive": true
+      },
+      "missing": "catalystSkillWindowActive",
+      "kind": "critDamage",
+      "attackTags": [
+        "plunge"
+      ]
+    },
+    {
+      "weaponId": "weapon:14519",
+      "context": {
+        "catalystSkillWindowActive": true
+      },
+      "missing": "catalystSecondaryWindowActive",
+      "kind": "critDamage",
+      "attackTags": [
+        "plunge"
+      ]
+    }
+  ]
+}

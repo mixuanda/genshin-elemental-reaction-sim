@@ -1,0 +1,350 @@
+[
+  {
+    "variant": "classic",
+    "seed": "1",
+    "addedRecharge": 0,
+    "elapsedMs": 99.60000002384186,
+    "frames": 360,
+    "totalDamage": 668.5822293435001,
+    "hitCount": 1,
+    "calculations": 6,
+    "playerApplications": [
+      {
+        "id": 8,
+        "calculationId": 3,
+        "attackId": 2,
+        "frame": 61,
+        "targetKey": 0,
+        "activeActorIndex": 0,
+        "rawDamage": 12000,
+        "damageAfterShield": 9249.230516759999,
+        "shieldAbsorbed": 2750.769483240001,
+        "drainAttempted": 9249.230516759999,
+        "isCrit": false,
+        "shieldCalculationIds": [
+          4,
+          5,
+          6
+        ],
+        "drainCalculationId": 7
+      }
+    ],
+    "kinds": [
+      "damage",
+      "player-incoming",
+      "player-shield",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "drain": [
+      {
+        "input": {
+          "hpBefore": 12071.155412,
+          "maxHp": 12071.155412,
+          "amount": 9249.230516759999
+        },
+        "value": 0.23377421621419195
+      }
+    ],
+    "energyAttempts": 341,
+    "energyRejections": 341,
+    "initialEnergy": 0,
+    "finalEnergy": 0,
+    "initialER": "1.613",
+    "wasm": {
+      "wasmSha256": "457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74",
+      "wasmBytes": 41903094
+    }
+  },
+  {
+    "variant": "classic",
+    "seed": "2",
+    "addedRecharge": 0,
+    "elapsedMs": 30.700000047683716,
+    "frames": 360,
+    "totalDamage": 668.5822293435001,
+    "hitCount": 1,
+    "calculations": 6,
+    "playerApplications": [
+      {
+        "id": 8,
+        "calculationId": 3,
+        "attackId": 2,
+        "frame": 61,
+        "targetKey": 0,
+        "activeActorIndex": 0,
+        "rawDamage": 12000,
+        "damageAfterShield": 9249.230516759999,
+        "shieldAbsorbed": 2750.769483240001,
+        "drainAttempted": 9249.230516759999,
+        "isCrit": false,
+        "shieldCalculationIds": [
+          4,
+          5,
+          6
+        ],
+        "drainCalculationId": 7
+      }
+    ],
+    "kinds": [
+      "damage",
+      "player-incoming",
+      "player-shield",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "drain": [
+      {
+        "input": {
+          "hpBefore": 12071.155412,
+          "maxHp": 12071.155412,
+          "amount": 9249.230516759999
+        },
+        "value": 0.23377421621419195
+      }
+    ],
+    "energyAttempts": 341,
+    "energyRejections": 341,
+    "initialEnergy": 0,
+    "finalEnergy": 0,
+    "initialER": "1.613",
+    "wasm": {
+      "wasmSha256": "457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74",
+      "wasmBytes": 41903094
+    }
+  },
+  {
+    "variant": "classic",
+    "seed": "1",
+    "addedRecharge": 0.2,
+    "elapsedMs": 25,
+    "frames": 360,
+    "totalDamage": 668.5822293435001,
+    "hitCount": 1,
+    "calculations": 6,
+    "playerApplications": [
+      {
+        "id": 8,
+        "calculationId": 3,
+        "attackId": 2,
+        "frame": 61,
+        "targetKey": 0,
+        "activeActorIndex": 0,
+        "rawDamage": 12000,
+        "damageAfterShield": 9249.230516759999,
+        "shieldAbsorbed": 2750.769483240001,
+        "drainAttempted": 9249.230516759999,
+        "isCrit": false,
+        "shieldCalculationIds": [
+          4,
+          5,
+          6
+        ],
+        "drainCalculationId": 7
+      }
+    ],
+    "kinds": [
+      "damage",
+      "player-incoming",
+      "player-shield",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "drain": [
+      {
+        "input": {
+          "hpBefore": 12071.155412,
+          "maxHp": 12071.155412,
+          "amount": 9249.230516759999
+        },
+        "value": 0.23377421621419195
+      }
+    ],
+    "energyAttempts": 341,
+    "energyRejections": 341,
+    "initialEnergy": 0,
+    "finalEnergy": 0,
+    "initialER": "1.813",
+    "wasm": {
+      "wasmSha256": "457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74",
+      "wasmBytes": 41903094
+    }
+  },
+  {
+    "variant": "classic",
+    "seed": "2",
+    "addedRecharge": 0.2,
+    "elapsedMs": 17.800000071525574,
+    "frames": 360,
+    "totalDamage": 668.5822293435001,
+    "hitCount": 1,
+    "calculations": 6,
+    "playerApplications": [
+      {
+        "id": 8,
+        "calculationId": 3,
+        "attackId": 2,
+        "frame": 61,
+        "targetKey": 0,
+        "activeActorIndex": 0,
+        "rawDamage": 12000,
+        "damageAfterShield": 9249.230516759999,
+        "shieldAbsorbed": 2750.769483240001,
+        "drainAttempted": 9249.230516759999,
+        "isCrit": false,
+        "shieldCalculationIds": [
+          4,
+          5,
+          6
+        ],
+        "drainCalculationId": 7
+      }
+    ],
+    "kinds": [
+      "damage",
+      "player-incoming",
+      "player-shield",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "drain": [
+      {
+        "input": {
+          "hpBefore": 12071.155412,
+          "maxHp": 12071.155412,
+          "amount": 9249.230516759999
+        },
+        "value": 0.23377421621419195
+      }
+    ],
+    "energyAttempts": 341,
+    "energyRejections": 341,
+    "initialEnergy": 0,
+    "finalEnergy": 0,
+    "initialER": "1.813",
+    "wasm": {
+      "wasmSha256": "457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74",
+      "wasmBytes": 41903094
+    }
+  },
+  {
+    "variant": "stellar",
+    "seed": "1",
+    "addedRecharge": 0,
+    "elapsedMs": 325.60000002384186,
+    "frames": 360,
+    "totalDamage": 668.5822293435001,
+    "hitCount": 1,
+    "calculations": 6,
+    "playerApplications": [
+      {
+        "id": 8,
+        "calculationId": 3,
+        "attackId": 2,
+        "frame": 61,
+        "targetKey": 0,
+        "activeActorIndex": 0,
+        "rawDamage": 12000,
+        "damageAfterShield": 9249.230516759999,
+        "shieldAbsorbed": 2750.769483240001,
+        "drainAttempted": 9249.230516759999,
+        "isCrit": false,
+        "shieldCalculationIds": [
+          4,
+          5,
+          6
+        ],
+        "drainCalculationId": 7
+      }
+    ],
+    "kinds": [
+      "damage",
+      "player-incoming",
+      "player-shield",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "drain": [
+      {
+        "input": {
+          "hpBefore": 12071.155412,
+          "maxHp": 12071.155412,
+          "amount": 9249.230516759999
+        },
+        "value": 0.23377421621419195
+      }
+    ],
+    "energyAttempts": 341,
+    "energyRejections": 341,
+    "initialEnergy": 0,
+    "finalEnergy": 0,
+    "initialER": "1.613",
+    "wasm": {
+      "wasmSha256": "b38c27d8fb828f4a09a0cee6a1af3c4a2993c98d8722cab3e429796e81820bad",
+      "wasmBytes": 61515572
+    }
+  },
+  {
+    "variant": "stellar",
+    "seed": "2",
+    "addedRecharge": 0,
+    "elapsedMs": 80,
+    "frames": 360,
+    "totalDamage": 668.5822293435001,
+    "hitCount": 1,
+    "calculations": 6,
+    "playerApplications": [
+      {
+        "id": 8,
+        "calculationId": 3,
+        "attackId": 2,
+        "frame": 61,
+        "targetKey": 0,
+        "activeActorIndex": 0,
+        "rawDamage": 12000,
+        "damageAfterShield": 9249.230516759999,
+        "shieldAbsorbed": 2750.769483240001,
+        "drainAttempted": 9249.230516759999,
+        "isCrit": false,
+        "shieldCalculationIds": [
+          4,
+          5,
+          6
+        ],
+        "drainCalculationId": 7
+      }
+    ],
+    "kinds": [
+      "damage",
+      "player-incoming",
+      "player-shield",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "drain": [
+      {
+        "input": {
+          "hpBefore": 12071.155412,
+          "maxHp": 12071.155412,
+          "amount": 9249.230516759999
+        },
+        "value": 0.23377421621419195
+      }
+    ],
+    "energyAttempts": 341,
+    "energyRejections": 341,
+    "initialEnergy": 0,
+    "finalEnergy": 0,
+    "initialER": "1.613",
+    "wasm": {
+      "wasmSha256": "b38c27d8fb828f4a09a0cee6a1af3c4a2993c98d8722cab3e429796e81820bad",
+      "wasmBytes": 61515572
+    }
+  }
+]

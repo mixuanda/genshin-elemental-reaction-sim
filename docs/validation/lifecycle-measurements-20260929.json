@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "lifecycle-measurements-v1",
+  "date": "2026-09-29",
+  "timezone": "Asia/Hong_Kong",
+  "scope": "Actual local builds and focused checks for native status lifecycle, pending core attack stages, and observed-action collection persistence. No game verification or full-skill coverage promotion.",
+  "goalStatus": "active",
+  "checks": [
+    {
+      "name": "core-unit",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-action-collection.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.688,
+      "receipt": "docs/validation/action-origin-lifecycle-core-unit-20260929.json",
+      "log": "docs/validation/action-origin-lifecycle-core-unit-20260929.log"
+    },
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.601,
+      "receipt": "docs/validation/action-origin-lifecycle-classic-build-20260929.json",
+      "log": "docs/validation/action-origin-lifecycle-classic-build-20260929.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 15.194,
+      "receipt": "docs/validation/action-origin-lifecycle-stellar-build-20260929.json",
+      "log": "docs/validation/action-origin-lifecycle-stellar-build-20260929.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 6.581,
+      "receipt": "docs/validation/action-origin-lifecycle-web-build-20260929.json",
+      "log": "docs/validation/action-origin-lifecycle-web-build-20260929.log"
+    },
+    {
+      "name": "web-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.718,
+      "receipt": "docs/validation/action-origin-lifecycle-web-build-final-20260929.json",
+      "log": "docs/validation/action-origin-lifecycle-web-build-final-20260929.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-action-origin.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 11.089,
+      "receipt": "docs/validation/action-origin-lifecycle-browser-20260929.json",
+      "log": "docs/validation/action-origin-lifecycle-browser-20260929.log"
+    }
+  ],
+  "sandroneChecks": "docs/validation/sandrone-radiant-ordinary-checks-20260929.json",
+  "browserResult": {
+    "receipts": [
+      {
+        "lane": "classic",
+        "artifact": {
+          "wasmSha256": "ad3b673122ada0e792f060d2482a9a7f74c9a2934b603559ce7191d6140e1dcc",
+          "wasmBytes": 43485058
+        },
+        "applications": 38,
+        "creationSequence": 2,
+        "collectionHits": 2,
+        "originalRawTotal": 1966.0871939310314,
+        "replayDifference": 0,
+        "statusOwnerSequence": 1,
+        "statusOwnerHits": 6,
+        "statusOwnerTotal": 2403.863077651348,
+        "statusOwnerReplayDifference": 0,
+        "statusInstances": [
+          1
+        ],
+        "lifecycleObservationFrame": 720,
+        "statusEndStates": {
+          "active-at-end": 4,
+          "replaced": 12,
+          "expired-at-end": 6
+        },
+        "pendingStages": 0,
+        "rainswordCreationUnknown": true,
+        "rainswordTriggerKnown": true,
+        "gameplayUnchanged": true
+      },
+      {
+        "lane": "stellar",
+        "artifact": {
+          "wasmSha256": "7b57fdd9b1e948eee832964ba567a7b283f0c7facf3f8cfac33b6483e24f4025",
+          "wasmBytes": 65604093
+        },
+        "applications": 38,
+        "creationSequence": 2,
+        "collectionHits": 2,
+        "originalRawTotal": 1966.0871939310314,
+        "replayDifference": 0,
+        "statusOwnerSequence": 1,
+        "statusOwnerHits": 6,
+        "statusOwnerTotal": 2403.863077651348,
+        "statusOwnerReplayDifference": 0,
+        "statusInstances": [
+          1
+        ],
+        "lifecycleObservationFrame": 720,
+        "statusEndStates": {
+          "active-at-end": 4,
+          "replaced": 12,
+          "expired-at-end": 6
+        },
+        "pendingStages": 0,
+        "rainswordCreationUnknown": true,
+        "rainswordTriggerKnown": true,
+        "gameplayUnchanged": true
+      },
+      {
+        "lane": "classic",
+        "scenario": "truncated-core-attack",
+        "lifecycleObservationFrame": 30,
+        "applications": 0,
+        "pending": [
+          {
+            "id": 1,
+            "stage": "application",
+            "queuedFrame": 1,
+            "dueFrame": 52,
+            "attackId": 1,
+            "origin": {
+              "creationActionSequence": 1,
+              "triggerActionSequence": 1,
+              "via": "action"
+            }
+          }
+        ]
+      },
+      {
+        "lane": "stellar",
+        "scenario": "truncated-core-attack",
+        "lifecycleObservationFrame": 30,
+        "applications": 0,
+        "pending": [
+          {
+            "id": 1,
+            "stage": "application",
+            "queuedFrame": 1,
+            "dueFrame": 52,
+            "attackId": 1,
+            "origin": {
+              "creationActionSequence": 1,
+              "triggerActionSequence": 1,
+              "via": "action"
+            }
+          }
+        ]
+      }
+    ],
+    "pageErrors": [],
+    "collectionRoundtrip": true,
+    "editedTotal": 2136.111260020432
+  },
+  "captures": [
+    {
+      "lane": "classic",
+      "path": "docs/validation/lifecycle-classic-20260929.capture.json",
+      "sha256": "6bbecc7b9f6cccd8934d88d89e821105c5505dd1648cce794b18fb33510a4170",
+      "bytes": 414954,
+      "lifecycleObservationFrame": 720,
+      "statusInstances": 22,
+      "pendingAttackStages": 0
+    },
+    {
+      "lane": "stellar",
+      "path": "docs/validation/lifecycle-stellar-20260929.capture.json",
+      "sha256": "2b0329c77afc835def3d780d94a7d3c579f20b081c2d532862ce2edb96ec9b36",
+      "bytes": 421175,
+      "lifecycleObservationFrame": 720,
+      "statusInstances": 22,
+      "pendingAttackStages": 0
+    }
+  ],
+  "dataIdentity": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "limits": [
+    "Only the two native core Tasks.Add attack sites are tracked, not every task/entity/callback/attack opportunity.",
+    "A zero pending-stage count is not complete-cast evidence.",
+    "Removed/unknown status branches and positive snapshot-delay branch were not sampled in this browser case.",
+    "Native source agreement and zero replay delta do not establish game verification."
+  ]
+}

@@ -1,0 +1,38 @@
+[WebServer] (node:27912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:27913) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-artifact-dynamic.spec.ts:90:1 › dynamic artifact Amount receipts replay and edit across both fixed source lanes (3.6s)
+
+
+  1) [chromium] › apps/web/e2e/source-artifact-dynamic.spec.ts:90:1 › dynamic artifact Amount receipts replay and edit across both fixed source lanes 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "calculated"
+    Received: "blocked"
+
+      223 |       const editedInput = { ruleId: emblem.request.input.ruleId, state: { ...emblem.request.input.state, er: editedER } };
+      224 |       const edit = deriveSourceHostArtifactScalarEdit(capture, emblem.request.id, editedInput);
+    > 225 |       expect(edit.status).toBe("calculated");
+          |                           ^
+      226 |       expect(edit.editedValue).not.toBe(edit.originalValue);
+      227 |       if (edit.status !== "calculated") throw new Error(edit.reason);
+      228 |       expect(edit.editedRawDamage).not.toBe(edit.originalRawDamage);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-artifact-dynamic.spec.ts:225:27
+
+    Error Context: test-results/source-artifact-dynamic-dy-51ad8-oss-both-fixed-source-lanes-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-artifact-dynamic-dy-51ad8-oss-both-fixed-source-lanes-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-artifact-dynamic-dy-51ad8-oss-both-fixed-source-lanes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-artifact-dynamic.spec.ts:90:1 › dynamic artifact Amount receipts replay and edit across both fixed source lanes 

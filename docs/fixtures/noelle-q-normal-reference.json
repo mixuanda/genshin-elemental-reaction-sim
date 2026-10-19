@@ -1,0 +1,395 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "source-noelle:burst-normal-c0-t1-b4ae769-v1",
+  "randomSeed": "noelle-q-normal-reference-v1",
+  "meta": {
+    "name": "诺艾尔 C0 · Q→N1–N4 来源示例",
+    "version": "source-noelle:burst-normal-c0-t1-b4ae769-v1",
+    "verificationStatus": "provisional",
+    "note": "Lv1/20、C0、N/E/Q有效天赋1，Lv1/20 R1训练大剑；无圣遗物、无外部增益、无卡肉，单个静止目标在普通与Q全部攻击范围内。起手Q后连续N1–N4；普攻回能使用明示的独立种子子流。 fixed-source-assumed：固定源码仍把起手DEF快照与980帧持续时间列为TODO假定，不能标为官方或游戏实测已验证。 Q实际起手读取非Extra DEF并锁定转换值；Q两段在+24/+65读取当前攻击力，均为burst伤害标签。+8真实扣60能量。 转换攻击加成与最终岩附魔均在起手+980帧失效；来源先前的命中范围/ICD判断存在调用次序细节，本样例目标始终在两套范围内，未实现广域几何与卡肉。 普通攻击随机回能实现固定来源概率/失败递增/成功+1/全队12帧间隔；12帧与切人清概率同样是源码TODO假定。独立随机流不宣称与gcsim相同seed逐抽样一致。 仅一次Q、顺序N1→N2→N3→N4→N1及等待；未覆盖E、护盾、治疗、重击、跳跃/冲刺/切人取消、C6延长或被动触发。Lv1未解锁突破被动。"
+  },
+  "duration": 6,
+  "cycleLength": 6,
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defReduction": 0
+  },
+  "characters": [
+    {
+      "id": "noelle",
+      "name": "诺艾尔 C0/Lv1/T1",
+      "element": "geo",
+      "color": "#deb94b",
+      "level": 1,
+      "energyMax": 60,
+      "initialEnergy": 60,
+      "stats": {
+        "baseAtk": 39.2722,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 1012.088,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 66.95325,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    }
+  ],
+  "rotation": [],
+  "timeline": {
+    "mode": "legal-frame-v1",
+    "fps": 60,
+    "legalityMode": "strict",
+    "initialActiveCharacterId": "noelle",
+    "swapFrames": 1,
+    "abilities": [
+      {
+        "id": "noelle-burst",
+        "actorId": "noelle",
+        "name": "大扫除 · 两段Q与DEF转换",
+        "kind": "burst",
+        "cancelFrame": 121,
+        "cancelFrames": {
+          "normal": 83,
+          "charge": 82,
+          "skill": 82,
+          "dash": 81,
+          "jump": 81
+        },
+        "animationEndFrame": 121,
+        "cooldownFrames": 900,
+        "energyCost": 60,
+        "energyCostFrame": 8,
+        "statConversions": [
+          {
+            "key": "noelle-burst",
+            "label": "大扫除起手DEF→ATK",
+            "sourceStat": "def",
+            "targetStat": "flatAtk",
+            "coefficient": 0.4,
+            "durationFrames": 980,
+            "snapshotFrame": 0,
+            "evidenceStatus": "fixed-source-assumed",
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/burst.go#L33-L127",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/noelle.go#L41-L57",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/cons.go#L12-L27",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/charge.go#L157-L181",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/zz_noelle.dm.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go#L122-L166"
+            ]
+          }
+        ],
+        "hits": [
+          {
+            "id": "noelle-burst-1",
+            "label": "Sweeping Time (Burst)",
+            "frame": 24,
+            "scaling": 0.672,
+            "scalingStat": "atk",
+            "element": "geo",
+            "snapshot": "hit",
+            "critEligible": true,
+            "strikeType": "blunt",
+            "poiseDamage": 150,
+            "directDamageGroup": {
+              "icdTag": "noelle-elemental-burst",
+              "icdGroup": "default"
+            },
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "noelle-elemental-burst",
+                "groupId": "default"
+              }
+            }
+          },
+          {
+            "id": "noelle-burst-2",
+            "label": "Sweeping Time (Skill) · 源标签仍为burst",
+            "frame": 65,
+            "scaling": 0.928,
+            "scalingStat": "atk",
+            "element": "geo",
+            "snapshot": "hit",
+            "critEligible": true,
+            "strikeType": "blunt",
+            "poiseDamage": 150,
+            "directDamageGroup": {
+              "icdTag": "noelle-elemental-burst",
+              "icdGroup": "default"
+            },
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "noelle-elemental-burst",
+                "groupId": "default"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "noelle-normal-1",
+        "actorId": "noelle",
+        "name": "诺艾尔 N1",
+        "kind": "normal",
+        "cancelFrame": 38,
+        "cancelFrames": {
+          "normal": 38
+        },
+        "animationEndFrame": 54,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "noelle-normal-1-hit",
+            "label": "N1 · 命中时检查大扫除",
+            "frame": 27,
+            "scaling": 0.7912,
+            "scalingStat": "atk",
+            "element": "physical",
+            "snapshot": "hit",
+            "critEligible": true,
+            "strikeType": "blunt",
+            "normalHitEnergyTag": "normal",
+            "directDamageGroup": {
+              "icdTag": "normal-attack",
+              "icdGroup": "default"
+            },
+            "infusion": {
+              "statusKey": "noelle-burst",
+              "element": "geo",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "noelle-normal-2",
+        "actorId": "noelle",
+        "name": "诺艾尔 N2",
+        "kind": "normal",
+        "cancelFrame": 46,
+        "cancelFrames": {
+          "normal": 46
+        },
+        "animationEndFrame": 66,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "noelle-normal-2-hit",
+            "label": "N2 · 命中时检查大扫除",
+            "frame": 24,
+            "scaling": 0.73358,
+            "scalingStat": "atk",
+            "element": "physical",
+            "snapshot": "hit",
+            "critEligible": true,
+            "strikeType": "blunt",
+            "normalHitEnergyTag": "normal",
+            "directDamageGroup": {
+              "icdTag": "normal-attack",
+              "icdGroup": "default"
+            },
+            "infusion": {
+              "statusKey": "noelle-burst",
+              "element": "geo",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "noelle-normal-3",
+        "actorId": "noelle",
+        "name": "诺艾尔 N3",
+        "kind": "normal",
+        "cancelFrame": 31,
+        "cancelFrames": {
+          "normal": 31
+        },
+        "animationEndFrame": 72,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "noelle-normal-3-hit",
+            "label": "N3 · 命中时检查大扫除",
+            "frame": 19,
+            "scaling": 0.86258,
+            "scalingStat": "atk",
+            "element": "physical",
+            "snapshot": "hit",
+            "critEligible": true,
+            "strikeType": "blunt",
+            "normalHitEnergyTag": "normal",
+            "directDamageGroup": {
+              "icdTag": "normal-attack",
+              "icdGroup": "default"
+            },
+            "infusion": {
+              "statusKey": "noelle-burst",
+              "element": "geo",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "noelle-normal-4",
+        "actorId": "noelle",
+        "name": "诺艾尔 N4",
+        "kind": "normal",
+        "cancelFrame": 106,
+        "cancelFrames": {
+          "normal": 106
+        },
+        "animationEndFrame": 112,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "noelle-normal-4-hit",
+            "label": "N4 · 命中时检查大扫除",
+            "frame": 41,
+            "scaling": 1.13434,
+            "scalingStat": "atk",
+            "element": "physical",
+            "snapshot": "hit",
+            "critEligible": true,
+            "strikeType": "blunt",
+            "normalHitEnergyTag": "normal",
+            "directDamageGroup": {
+              "icdTag": "normal-attack",
+              "icdGroup": "default"
+            },
+            "infusion": {
+              "statusKey": "noelle-burst",
+              "element": "geo",
+              "application": {
+                "gaugeUnits": 1,
+                "icd": {
+                  "mode": "no-icd-v1"
+                }
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "type": "burst",
+        "actorId": "noelle",
+        "abilityId": "noelle-burst",
+        "atFrame": 1
+      },
+      {
+        "type": "normal",
+        "actorId": "noelle",
+        "abilityId": "noelle-normal-1"
+      },
+      {
+        "type": "normal",
+        "actorId": "noelle",
+        "abilityId": "noelle-normal-2"
+      },
+      {
+        "type": "normal",
+        "actorId": "noelle",
+        "abilityId": "noelle-normal-3"
+      },
+      {
+        "type": "normal",
+        "actorId": "noelle",
+        "abilityId": "noelle-normal-4"
+      }
+    ]
+  },
+  "normalHitEnergyModel": {
+    "mode": "fixed-source-independent-stream-v1",
+    "actors": [
+      {
+        "actorId": "noelle",
+        "weaponType": "claymore"
+      }
+    ]
+  },
+  "reactionEngine": {
+    "mode": "aura-v3",
+    "initialAura": [],
+    "icdProfiles": {}
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "disabled"
+  },
+  "targetTaskModel": {
+    "mode": "legacy-event-heap-v1"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+    "policyId": "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3"
+  },
+  "callbackBusModel": {
+    "mode": "fixed-gcsim-versioned-callback-bus-v2",
+    "policyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2"
+  }
+}

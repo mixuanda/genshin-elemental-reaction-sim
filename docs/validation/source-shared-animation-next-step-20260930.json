@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "source-shared-animation-next-step-v1",
+  "asOf": "2026-09-30",
+  "finding": {
+    "id": "shared-animation-callback-phase-state",
+    "classification": "cross-character-implementation-gap",
+    "inspectedClassicRoot": "/Users/evan/Library/Caches/gidps-source-host/build-043O95/source",
+    "runtimeEvidence": {
+      "capture": "docs/validation/source-shared-phase-state-browser-20260930.capture.json",
+      "auditorObservedFrames": [
+        7,
+        30,
+        40,
+        46,
+        280,
+        391
+      ],
+      "lanes": [
+        "classic",
+        "stellar"
+      ],
+      "gaps": [
+        "animation.Frames callback",
+        "animation.FramePausedOnHitlag callback"
+      ]
+    },
+    "sourceEvidence": [
+      {
+        "path": "packages/source-host/patches/074-phase-actor-state.patch",
+        "detail": "Action phase exporter marks every non-null Frames and FramePausedOnHitlag callback unknown."
+      },
+      {
+        "path": "pkg/core/player/exec.go",
+        "detail": "Shared execution path installs ActiveChar.FramePausedOnHitlag when the action has no override."
+      },
+      {
+        "path": "pkg/core/player/character/hitlag.go",
+        "detail": "Default FramePausedOnHitlag returns frozenFrames > 0; frozenFrames is already represented in character phase state."
+      },
+      {
+        "path": "internal/frames/frames.go",
+        "detail": "NewAttackFunc, NewAttackFuncWithOffset, NewAbilFunc, NewAbilFuncWithOffset capture frame tables, normal counter, one actual attack-speed read and optional offset."
+      }
+    ],
+    "nextStep": "Carry per-callback descriptors through action.Info, annotate the default pause binding, and capture shared constructor inputs at their original creation/read site. Mechanically migrate shared-constructor call sites with Luna. Phase observation must not call Frames, query Stat again or infer arbitrary closure contents.",
+    "preserveGaps": [
+      "custom Frames callbacks",
+      "custom hitlag pause callbacks",
+      "OnRemoved",
+      "UseNormalizedTime",
+      "queued action callbacks"
+    ],
+    "acceptance": "Shared descriptors retain the actual capture and actor/read relationship while gameplay callback timing, read count and source behavior remain unchanged. Unknown callbacks stay incomplete. Use one aggregate source scenario, not per-character test expansion."
+  },
+  "resolution121": {
+    "status": "implemented-with-unknown-scopes-retained",
+    "report": "docs/source-shared-animation-state-20260930.zh-CN.md",
+    "measurements": "docs/validation/source-shared-animation-measurements-20260930.json"
+  }
+}

@@ -1,0 +1,182 @@
+--- a/internal/artifacts/aubade/aubade.go
++++ b/internal/artifacts/aubade/aubade.go
+@@ -37,6 +37,9 @@
+ 		Base:         modifier.NewBase("aubade-2pc", -1),
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
++			if s.core.SourceHost != nil {
++				m[attributes.EM] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-aubade-2pc-em", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+@@ -45,8 +48,9 @@
+ 		return nil
+ 	}
+ 
++	moonsignLevel := s.core.Player.GetMoonsignLevel()
+ 	buff := 0.2
+-	if s.core.Player.GetMoonsignLevel() >= 2 {
++	if moonsignLevel >= 2 {
+ 		buff += 0.4
+ 	}
+ 
+@@ -67,6 +71,9 @@
+ 				return 0
+ 			}
+ 			if ai.AttackTag.IsLunar() {
++				if s.core.SourceHost != nil {
++					return s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-aubade-4pc-lunar", map[string]any{"state": map[string]any{"moonsign": moonsignLevel}}, &ai, 0)
++				}
+ 				return buff
+ 			}
+ 			return 0
+--- a/internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go
++++ b/internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go
+@@ -37,6 +37,9 @@
+ 		Base:         modifier.NewBase(setKey2, -1),
+ 		AffectedStat: attributes.ER,
+ 		Amount: func() []float64 {
++			if s.core.SourceHost != nil {
++				m[attributes.ER] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-silkenmoonsserenade-2pc-er", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+@@ -46,7 +49,8 @@
+ 	}
+ 
+ 	m2 := make([]float64, attributes.EndStatType)
+-	switch s.core.Player.GetMoonsignLevel() {
++	moonsignLevel := s.core.Player.GetMoonsignLevel()
++	switch moonsignLevel {
+ 	case 0:
+ 		return nil
+ 	case 1:
+@@ -81,6 +85,9 @@
+ 				Base:         modifier.NewBase(gleamingMoonDevotionEMKey, 8*60),
+ 				AffectedStat: attributes.EM,
+ 				Amount: func() []float64 {
++					if s.core.SourceHost != nil {
++						m2[attributes.EM] = s.core.SourceHost.ArtifactScalar(char.Index(), "dynamic-silkenmoonsserenade-4pc-em", map[string]any{"state": map[string]any{"moonsign": moonsignLevel}}, nil, 0)
++					}
+ 					return m2
+ 				},
+ 			})
+@@ -107,6 +114,9 @@
+ 				if !hasGleamingMoonDevotion {
+ 					return 0
+ 				}
++				if s.core.SourceHost != nil {
++					return s.core.SourceHost.ArtifactScalar(char.Index(), "dynamic-silkenmoonsserenade-4pc-lunar", map[string]any{"state": map[string]any{}}, &ai, 0)
++				}
+ 				return 0.1
+ 			},
+ 		})
+--- a/internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go
++++ b/internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go
+@@ -38,6 +38,9 @@
+ 		Base:         modifier.NewBase(setKey2, -1),
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
++			if s.core.SourceHost != nil {
++				m[attributes.EM] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-nightoftheskysunveiling-2pc-em", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+@@ -47,7 +50,8 @@
+ 	}
+ 
+ 	m2 := make([]float64, attributes.EndStatType)
+-	switch s.core.Player.GetMoonsignLevel() {
++	moonsignLevel := s.core.Player.GetMoonsignLevel()
++	switch moonsignLevel {
+ 	case 0:
+ 	case 1:
+ 		m2[attributes.CR] = 0.15
+@@ -68,6 +72,9 @@
+ 			Base:         modifier.NewBase(gleamingMoonIntentCRKey, 4*60),
+ 			AffectedStat: attributes.CR,
+ 			Amount: func() []float64 {
++				if s.core.SourceHost != nil {
++					m2[attributes.CR] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-nightoftheskysunveiling-4pc-cr", map[string]any{"state": map[string]any{"moonsign": moonsignLevel}}, nil, 0)
++				}
+ 				return m2
+ 			},
+ 		})
+@@ -95,6 +102,9 @@
+ 				if !hasGleamingMoonIntent {
+ 					return 0
+ 				}
++				if s.core.SourceHost != nil {
++					return s.core.SourceHost.ArtifactScalar(char.Index(), "dynamic-nightoftheskysunveiling-4pc-lunar", map[string]any{"state": map[string]any{}}, &ai, 0)
++				}
+ 				return 0.1
+ 			},
+ 		})
+--- a/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go
++++ b/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go
+@@ -81,6 +81,9 @@
+ 					Amount: func() []float64 {
+ 						clear(s.buff)
+ 						s.buff[stat] = 0.12
++						if s.c.SourceHost != nil {
++							s.buff[stat] = s.c.SourceHost.ArtifactScalar(other.Index(), fmt.Sprintf("dynamic-scrolloftheheroofcindercity-4pc-%v", ele), map[string]any{"state": map[string]any{}}, nil, 0)
++						}
+ 						return s.buff
+ 					},
+ 				})
+@@ -94,6 +97,9 @@
+ 					Amount: func() []float64 {
+ 						clear(s.nightsoulBuff)
+ 						s.nightsoulBuff[stat] = 0.28
++						if s.c.SourceHost != nil {
++							s.nightsoulBuff[stat] = s.c.SourceHost.ArtifactScalar(other.Index(), fmt.Sprintf("dynamic-scrolloftheheroofcindercity-4pc-nightsoul-%v", ele), map[string]any{"state": map[string]any{}}, nil, 0)
++						}
+ 						return s.nightsoulBuff
+ 					},
+ 				})
+--- a/internal/artifacts/celestialgift/celestialgift.go
++++ b/internal/artifacts/celestialgift/celestialgift.go
+@@ -91,8 +91,10 @@
+ 
+ 	buffStrength := 0.2
+ 	isHexereiSecretRite := core.Player.GetHexereiCount() >= 2
++	hexereiTier := 0
+ 	if isHexereiSecretRite {
+ 		buffStrength = 0.4
++		hexereiTier = 1
+ 	}
+ 
+ 	core.Events.Subscribe(event.OnSkill, func(args ...any) {
+@@ -119,6 +121,9 @@
+ 				Amount: func() []float64 {
+ 					clear(s.buff)
+ 					s.buff[buffedDmgP] = buffStrength
++					if core.SourceHost != nil {
++						s.buff[buffedDmgP] = core.SourceHost.ArtifactScalar(otherChar.Index(), fmt.Sprintf("dynamic-celestialgift-4pc-holder-%v", elem), map[string]any{"state": map[string]any{"hexerei": hexereiTier}}, nil, 0)
++					}
+ 					return s.buff
+ 				},
+ 			})
+@@ -158,6 +163,9 @@
+ 					clear(s.buff)
+ 					s.buff[buffedDmgP] = buffStrength
+ 					if activeStatusIsActive() {
++						if core.SourceHost != nil {
++							s.buff[buffedDmgP] = core.SourceHost.ArtifactScalar(otherChar.Index(), fmt.Sprintf("dynamic-celestialgift-4pc-active-%v", elem), map[string]any{"state": map[string]any{"hexerei": hexereiTier}}, nil, 0)
++						}
+ 						return s.buff
+ 					}
+ 					return nil
+@@ -186,6 +194,9 @@
+ 		Base:         modifier.NewBase("celestialgift-2pc", -1),
+ 		AffectedStat: attributes.ER,
+ 		Amount: func() []float64 {
++			if c.SourceHost != nil {
++				m[attributes.ER] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-celestialgift-2pc-er", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})

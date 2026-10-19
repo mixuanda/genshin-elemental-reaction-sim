@@ -133,6 +133,22 @@ describe("damage formula primitives", () => {
     expect(reverseMelt.total).toBe(1.5);
   });
 
+  it("locks 1000-basis forward/reverse Melt values for 200 triggering-actor EM and +15% reaction bonus", () => {
+    const triggeringActorEm = 200;
+    const emBonus = 2.78 * triggeringActorEm / (1400 + triggeringActorEm);
+    expect(emBonus).toBeCloseTo(0.3475, 12);
+    const forward = calcAmplifyingReactionMultiplier({ reaction: "melt", elementalMastery: triggeringActorEm, reactionBonus: 0.15 });
+    const reverse = calcAmplifyingReactionMultiplier({ reaction: "reverseMelt", elementalMastery: triggeringActorEm, reactionBonus: 0.15 });
+    expect(forward.elementalMasteryBonus).toBeCloseTo(emBonus, 12);
+    expect(reverse.elementalMasteryBonus).toBeCloseTo(emBonus, 12);
+    expect(forward.total).toBeCloseTo(2 * (1 + emBonus + 0.15), 12);
+    expect(reverse.total).toBeCloseTo(1.5 * (1 + emBonus + 0.15), 12);
+    expect(1000 * forward.total).toBeCloseTo(2995, 10);
+    expect(1000 * reverse.total).toBeCloseTo(2246.25, 10);
+    expect(1000 * calcAmplifyingReactionMultiplier({ reaction: "melt", elementalMastery: 0 }).total).toBe(2000);
+    expect(1000 * calcAmplifyingReactionMultiplier({ reaction: "reverseMelt", elementalMastery: 0 }).total).toBe(1500);
+  });
+
   it("supports positive explicit bases for manual and legacy compatibility multipliers", () => {
     expect(
       calcAmplifyingReactionMultiplier({

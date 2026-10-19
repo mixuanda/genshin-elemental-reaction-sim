@@ -1,0 +1,15 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/calculator-ui.ts(199,52): error TS2345: Argument of type '{ characterId: string; weaponId: string; level: number; ascension: number; weaponLevel: number; weaponAscension: number; refinement: number; sourceVersion: string; sourceRefs: string[]; derivedStats: { ...; }[]; ... 18 more ...; effectsDisabled: true; }' is not assignable to parameter of type 'EquipmentBuildInput'.
+  Types of property 'effectContext' are incompatible.
+    Type '{ hpFraction?: number | undefined; enemyHpFraction?: number | undefined; enemyAuras?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; ... 70 more ...; catalystDifferentElementCount?: number | undefined; } | undefined' is not assignable to type 'ArtifactConditionalContext | undefined'.
+      Type '{ hpFraction?: number | undefined; enemyHpFraction?: number | undefined; enemyAuras?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; ... 70 more ...; catalystDifferentElementCount?: number | undefined; }' is not assignable to type 'ArtifactConditionalContext' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Types of property 'setEffectActive' are incompatible.
+          Type 'boolean | undefined' is not assignable to type 'boolean'.
+            Type 'undefined' is not assignable to type 'boolean'.

@@ -1,0 +1,40 @@
+[WebServer] (node:26545) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:26670) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-shared-movement-state.spec.ts:73:1 › shared movement state descriptors retain timing and stamina outputs in both hosts (1.5s)
+
+
+  1) [chromium] › apps/web/e2e/source-shared-movement-state.spec.ts:73:1 › shared movement state descriptors retain timing and stamina outputs in both hosts 
+
+    Error: classic default Dash frames
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 0
+    Received:   0
+
+      143 |         expect(phasePlayerState(result)).toEqual(phasePlayerState(comparison!));
+      144 |         expect((result.phaseObservations ?? []).map(row => row.frame)).toEqual((comparison!.phaseObservations ?? []).map(row => row.frame));
+    > 145 |         expect(dash.length, `${lane} default Dash frames`).toBeGreaterThan(0);
+          |                                                            ^
+      146 |         expect(walk.length, `${lane} default Walk frames`).toBeGreaterThan(0);
+      147 |         expect(jump.length, `${lane} default Jump frames`).toBeGreaterThan(0);
+      148 |         expect(dashCaptures.some(row => typeof row.dashFrames === 'number' && typeof row.jumpCancelFrames === 'number')).toBe(true);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-shared-movement-state.spec.ts:145:60
+
+    Error Context: test-results/source-shared-movement-sta-c6325-amina-outputs-in-both-hosts-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-shared-movement-sta-c6325-amina-outputs-in-both-hosts-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-shared-movement-sta-c6325-amina-outputs-in-both-hosts-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-shared-movement-state.spec.ts:73:1 › shared movement state descriptors retain timing and stamina outputs in both hosts 

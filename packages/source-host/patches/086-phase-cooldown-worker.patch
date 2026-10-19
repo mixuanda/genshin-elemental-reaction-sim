@@ -1,0 +1,52 @@
+--- a/internal/template/character/cooldown.go
++++ b/internal/template/character/cooldown.go
+@@ -10,2 +10,3 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+@@ -213,3 +214,11 @@
+ 	// wait for c.cooldownQueue[a][0], then add a stack
+-	c.Core.Tasks.Add(worker, c.cdQueue[a][0])
+-}
++	c.Core.Tasks.AddWithPhase(worker, c.cdQueue[a][0], "cooldown-worker", phase.Descriptor{
++		Source: "internal/template/character/cooldown.go:startCooldownQueueWorker",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{
++				"characterIndex": c.Index(), "action": a.String(),
++				"currentWorker": src == c.cdCurrentQueueWorker[a],
++			}, nil
++		},
++	})
++}
+--- a/internal/template/character/sourcehost_phase_state.go
++++ b/internal/template/character/sourcehost_phase_state.go
+@@ -2,7 +2,3 @@
+ 
+-import (
+-	"fmt"
+-
+-	"github.com/genshinsim/gcsim/pkg/core/action"
+-)
++import "github.com/genshinsim/gcsim/pkg/core/action"
+ 
+@@ -12,6 +8,7 @@
+ 	cooldowns := make([]map[string]any, 0, len(c.ActionCD))
+-	var gaps []string
+ 	for index := range c.ActionCD {
+ 		queue := append([]int(nil), c.cdQueue[index]...)
+-		workerPresent := c.cdCurrentQueueWorker[index] != nil
++		// The finished worker pointer is retained after the last charge returns,
++		// but it is never scheduled again and a new cooldown replaces it.
++		workerPresent := len(queue) > 0 && c.cdCurrentQueueWorker[index] != nil
+ 		remaining := 0
+@@ -33,5 +30,2 @@
+ 		cooldowns = append(cooldowns, entry)
+-		if workerPresent {
+-			gaps = append(gaps, fmt.Sprintf("character[%d].cooldown[%d] worker callback", c.Index(), index))
+-		}
+ 	}
+@@ -41,3 +35,3 @@
+ 		"storedHPDebt":  c.currentHPDebt,
+-	}, gaps
++	}, nil
+ }

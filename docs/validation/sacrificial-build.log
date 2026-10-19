@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/schemas/src/sacrificial-replay.ts(114,26): error TS2339: Property 'damage' does not exist on type '({ frame: number; priority: number; order: number; sequence: number | null; } & { kind: "damage"; damage: DamageEventV153; }) | ({ frame: number; priority: number; order: number; sequence: number | null; } & { ...; })'.
+  Property 'damage' does not exist on type '{ frame: number; priority: number; order: number; sequence: number | null; } & { kind: "recover" | "start"; task: Task; }'.
+packages/sim-core/src/__tests__/sacrificial-runtime-consumers.test.ts(29,91): error TS2339: Property 'atFrame' does not exist on type 'LegalTimelineCommand'.
+  Property 'atFrame' does not exist on type 'TimelineWaitCommand'.

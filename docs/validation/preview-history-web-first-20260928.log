@@ -1,0 +1,9 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/update-panel.ts(2,114): error TS2724: '"@genshin-dps-lab/game-data"' has no exported member named 'RuntimeDatasetMetadata'. Did you mean 'runtimeDatasetMetadata'?

@@ -568,6 +568,16 @@ export class ReactionDamageGroupTaskEngine {
     return Object.freeze(pending.map((task) => this.executeReset(task)));
   }
 
+  /** Capture only future-relevant state; do not execute lazy or queued resets. */
+  captureState() {
+    return structuredClone({ model: this.model,
+      windows: [...this.windows].map(([scopeKey, window]) => ({ scopeKey, ...window })),
+      lastGeneration: [...this.lastGeneration],
+      lastOperation: [...this.lastOperation],
+      pendingResets: [...this.scheduledTasks.values()].filter(task => !this.executedTaskIdentities.has(taskIdentity(task))),
+    });
+  }
+
   clear(): void {
     this.windows.clear();
     this.lastGeneration.clear();

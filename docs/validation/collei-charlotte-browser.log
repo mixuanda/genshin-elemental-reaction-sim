@@ -1,0 +1,16 @@
+
+Running 2 tests using 1 worker
+
+(node:88728) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/2] [chromium] › apps/web/e2e/collei-charlotte-casts.spec.ts:63:1 › Collei complete two and four sprouts retain actual return snapshots independently of ring hits and JSON
+[chromium] › apps/web/e2e/collei-charlotte-casts.spec.ts:63:1 › Collei complete two and four sprouts retain actual return snapshots independently of ring hits and JSON
+Collei conditioned browser measurements {"two":{"nonCritical":2296.8,"critical":4125.6,"expected":3070.8},"changedRelease":{"nonCritical":2977.2,"critical":5486.4,"expected":4091.4000000000005},"four":{"nonCritical":3232.8,"critical":5529.6,"expected":4100.400000000001},"json":{"nonCritical":3232.8,"critical":5529.6,"expected":4100.400000000001},"ringWithoutReturnSnapshot":{"nonCritical":680.4,"critical":1360.8,"expected":1020.5999999999999}}
+
+[2/2] [chromium] › apps/web/e2e/collei-charlotte-casts.spec.ts:121:1 › Charlotte complete press and hold use explicit A4 roster scope and preserve included final bonus through JSON
+[chromium] › apps/web/e2e/collei-charlotte-casts.spec.ts:121:1 › Charlotte complete press and hold use explicit A4 roster scope and preserve included final bonus through JSON
+Charlotte conditioned browser measurements {"press":{"nonCritical":1108.8,"critical":2217.6,"expected":1663.2000000000003},"threeTeammates":{"nonCritical":1159.2,"critical":2318.4,"expected":1738.7999999999997},"single":{"nonCritical":332.64000000000004,"critical":665.2800000000001,"expected":498.96000000000004},"hold":{"nonCritical":2296.8,"critical":4593.6,"expected":3445.2},"included":{"nonCritical":2296.8,"critical":4593.6,"expected":3445.2},"json":{"nonCritical":2296.8,"critical":4593.6,"expected":3445.2}}
+
+  2 passed (2.8s)

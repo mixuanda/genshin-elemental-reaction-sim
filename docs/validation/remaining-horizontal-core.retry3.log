@@ -1,0 +1,36 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 1 failed) 453ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 360ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.0.hits.0.geometry: cannot be combined with scripted targeting; choose one hit-resolution source
+- timeline.abilities.0.hits.1.geometry: cannot be combined with scripted targeting; choose one hit-resolution source
+- timeline.abilities.0.hits.2.geometry: cannot be combined with scripted targeting; choose one hit-resolution source
+- timeline.abilities.0.hits.3.geometry: cannot be combined with scripted targeting; choose one hit-resolution source
+ ❯ parseSimConfig packages/schemas/src/schema.ts:34049:11
+    34047|   if (!parsed.success) {
+    34048|     const issues = formatZodError(parsed.error);
+    34049|     throw new ConfigMigrationError(
+       |           ^
+    34050|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    34051|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35537:12
+ ❯ simulate packages/sim-core/src/simulator.ts:19094:18
+ ❯ assertHorizontalPeriodicMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:346:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:391:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  12:24:26
+   Duration  2.93s (transform 1.89s, setup 0ms, import 2.40s, tests 453ms, environment 0ms)
+
+
+WALL_SECONDS=3.402

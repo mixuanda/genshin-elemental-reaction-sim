@@ -1,0 +1,303 @@
+{
+  "schemaVersion": 1,
+  "round": 115,
+  "batch": "A",
+  "status": "private source-site patches and source contract proposal; both default git apply --check passed; no builds or tests",
+  "sourceStage": "verified frozen PRE-talent pre115 source trees",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-ACTabI/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Auuwtl/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch115/classic/receipt.json",
+      "sha256": "06aa998457ccd4c870a149712897040c25f4aa742a5eeb8b65eb5fdaf3c52716",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "d07d8694240d49ad1d8836a4b4b9a68ccf210dd98ca96f289f049a732be035fb"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch115/stellar/receipt.json",
+      "sha256": "8ec7d503574339ef115fd30c6be735e800f7d7c39fab8d8e29ab84057f62371f",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "e8a09fa9edf15584a73255a26943b3e54218b9b76290554d0c6c58c70e294411"
+    }
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/baizhu/burst.go": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+      "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "internal/characters/baizhu/cons.go": "5497d1131d25441de8660c62f45c0a6757f5786e2e071ac8d22b47cf12c68f27",
+      "internal/characters/baizhu/skill.go": "d4f7884cb8600e4107b08572099a1a3ff2d383551e5c437297ecb65ade0a9133",
+      "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "pkg/core/player/shield/handler.go": "4b6470e23fe38deeea84abbea9092b21162745236d66f0dc9f2614dbc1c41ebc",
+      "pkg/core/player/shield/template.go": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+      "pkg/core/player/shield/shield.go": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "pkg/core/sourcehost_ability_producer.go": "ba337979a752e538806b36b98cfe9d3ef03c9738108a49e7543180af4a414235",
+      "pkg/core/sourcehost/ability_producer.go": "ce94a273754a9ebe89804dd14bc9586101096215fc35da1ac9fa3de44ad05721",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e"
+    },
+    "stellar": {
+      "internal/characters/baizhu/burst.go": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+      "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "internal/characters/baizhu/cons.go": "5497d1131d25441de8660c62f45c0a6757f5786e2e071ac8d22b47cf12c68f27",
+      "internal/characters/baizhu/skill.go": "d4f7884cb8600e4107b08572099a1a3ff2d383551e5c437297ecb65ade0a9133",
+      "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "pkg/core/player/shield/handler.go": "4b6470e23fe38deeea84abbea9092b21162745236d66f0dc9f2614dbc1c41ebc",
+      "pkg/core/player/shield/template.go": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+      "pkg/core/player/shield/shield.go": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "pkg/core/sourcehost_ability_producer.go": "ba337979a752e538806b36b98cfe9d3ef03c9738108a49e7543180af4a414235",
+      "pkg/core/sourcehost/ability_producer.go": "ce94a273754a9ebe89804dd14bc9586101096215fc35da1ac9fa3de44ad05721",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e"
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/115-event-sites-a/115-baizhu-shield-sites-classic.patch",
+      "sha256": "37250019afa89ecde58fdae050b9a4402398937961f96fe1e786cc189e490304",
+      "bytes": 2770,
+      "patchedSourceSha256": {
+        "internal/characters/baizhu/burst.go": "d4322af3b13d4ae8a8e86612037fac5e980664ca11a0084d31dd2592cd237ee6",
+        "internal/characters/baizhu/cons.go": "64e6489d7d61878bd236260c60c06fded71e64f24fc687d196bb9743339037b4"
+      },
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/115-event-sites-a/115-baizhu-shield-sites-classic.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/build-ACTabI/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/115-event-sites-a/115-baizhu-shield-sites-stellar.patch",
+      "sha256": "37250019afa89ecde58fdae050b9a4402398937961f96fe1e786cc189e490304",
+      "bytes": 2770,
+      "patchedSourceSha256": {
+        "internal/characters/baizhu/burst.go": "d4322af3b13d4ae8a8e86612037fac5e980664ca11a0084d31dd2592cd237ee6",
+        "internal/characters/baizhu/cons.go": "64e6489d7d61878bd236260c60c06fded71e64f24fc687d196bb9743339037b4"
+      },
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/115-event-sites-a/115-baizhu-shield-sites-stellar.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Auuwtl/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    }
+  },
+  "reviewedSharedCallers": {
+    "summonSeamlessShield": [
+      "Burst first-shield task",
+      "Burst five refresh tasks",
+      "makeC6CB first executed callback"
+    ],
+    "newShield": [
+      "summonSeamlessShield only"
+    ],
+    "summonSpiritvein": [
+      "summonSeamlessShield existing-shield branch",
+      "removeShield only"
+    ],
+    "removeShield": [
+      "shd.OnExpire",
+      "shd.OnDamage only when Tmpl returns !ok"
+    ],
+    "makeC6CB": [
+      "Skill initial attack C6 branch when chain callback exists",
+      "C2 Splice C6 branch"
+    ]
+  },
+  "nativeApi": {
+    "task": "Core.SourceHostQueueTask(siteID string, actorIndex int, f func(), delay int)",
+    "producerFact": "Core.SourceHostAbilityProducerFact(name string,value float64)",
+    "birth": "Core.SourceHostWithShieldBirth(siteID string,f func())",
+    "trigger": "Core.SourceHostWithShieldTrigger(shd shield.Shield,siteID,cause string,f func())",
+    "attack": "Core.SourceHostQueueShieldAttack(siteID string,a info.AttackInfo,p info.AttackPattern,snapshotDelay,dmgDelay int,callbacks ...info.AttackCBFunc)"
+  },
+  "contract": {
+    "schemaVersion": 1,
+    "round": 115,
+    "id": "baizhu-burst-shield-damage",
+    "status": "source contract proposal; native/TypeScript implementation and runtime verification belong to parent task",
+    "abilityInvocation": {
+      "actor": "baizhu",
+      "action": "burst",
+      "intrinsicDamageScope": "Only damage queued by the actual Q-created shield instances; healing/A4 handled separately.",
+      "directAttackCountAtCast": 0
+    },
+    "sourceCommits": {
+      "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+    },
+    "producers": [
+      {
+        "siteId": "baizhu.burst.first-shield",
+        "countPerInvocation": 1,
+        "taskKind": "core",
+        "delayFrames": [
+          81
+        ],
+        "nativeHelper": "SourceHostQueueTask",
+        "birthSiteId": "baizhu.burst.shield",
+        "birthCountFact": "baizhu.burst.shield-birth-count",
+        "allowedBirthCounts": [
+          1
+        ],
+        "factSemantics": "Initialize zero at callback entry; set one after the shared helper returns from exactly one Shields.Add.",
+        "healsAfterBirth": false
+      },
+      {
+        "siteId": "baizhu.burst.refresh-shield",
+        "countPerInvocation": 5,
+        "taskKind": "core",
+        "delayFrames": [
+          223,
+          369,
+          515,
+          661,
+          807
+        ],
+        "delayExpression": "81 + 142 + 146*i for i=0..4",
+        "nativeHelper": "SourceHostQueueTask",
+        "birthSiteId": "baizhu.burst.shield",
+        "birthCountFact": "baizhu.burst.shield-birth-count",
+        "allowedBirthCounts": [
+          1
+        ],
+        "factSemantics": "Initialize zero at callback entry; set one after the shared helper returns from exactly one Shields.Add, before the original healing call.",
+        "healsAfterBirth": true
+      }
+    ],
+    "birth": {
+      "siteId": "baizhu.burst.shield",
+      "actorIndex": "actual c.Index()",
+      "shieldTarget": -1,
+      "shieldTypeSymbol": "shield.BaizhuBurst",
+      "description": "Baizhu Seamless shield",
+      "nativeExpiryOffsetFrames": 152,
+      "nativeKey": "actual Core.F at constructor; not a unique ID",
+      "hpSource": "existing shieldHPID from char-shield-baizhu-burst; no formula edits",
+      "identityRule": "Bind exact generic shieldInstances birth to active Q producer ID and invocation ID; never infer from frame or current action alone."
+    },
+    "separateC6Birth": {
+      "siteId": "baizhu.c6.sprite-shield",
+      "callbackSiteId": "baizhu.c6.sprite-shield",
+      "callbackBirthCountFact": "baizhu.c6.shield-birth-count",
+      "allowedBirthCounts": [
+        0,
+        1
+      ],
+      "guard": "existing closure-local done flag",
+      "factSemantics": "Zero at each callback entry; one only after first callback changes done and creates shield.",
+      "sourceOrigins": [
+        "E first attack: C6 callback attached only when the initial chain callback exists",
+        "C2 Splice: C6 callback attached when constellation>=6"
+      ],
+      "notQOwned": true
+    },
+    "spiritvein": {
+      "emitSiteId": "baizhu.shield.spiritvein",
+      "nativeHelper": "SourceHostQueueShieldAttack",
+      "ability": "Spiritvein Damage",
+      "attackTagName": "AttackTagElementalBurst",
+      "snapshotDelayFrames": 21,
+      "damageDelayFrames": 29,
+      "pattern": "combat.NewCircleHitOnTarget(c.Core.Combat.PrimaryTarget(), nil, 1.5)",
+      "callbacks": [],
+      "ownerRule": "Owned by the active exact shield instance/hook; preserve original native origin independently.",
+      "formulaRule": "Preserve ordinary burst talent multiplier and C6 immediate MaxHP flat contribution; no snapshot/read timing change."
+    },
+    "hooks": [
+      {
+        "cause": "refresh",
+        "siteId": "baizhu.shield.refresh",
+        "owner": "existing exact shield returned by original Shields.Get(shield.BaizhuBurst)",
+        "attackCount": 1,
+        "order": "existing shield lookup; unchanged HP computation; old-shield trigger and Spiritvein queue; new shield construction/Add",
+        "terminalRelation": "old shield is subsequently overwritten by the new birth through native Add"
+      },
+      {
+        "cause": "damage",
+        "owner": "exact native Handler.OnDamage callback object",
+        "attackCountWhenSurvives": 0,
+        "attackCountWhenBroken": 1,
+        "order": "original Tmpl.OnDamage; if !ok, healing then Spiritvein; native handler removal and shield-break event afterwards"
+      },
+      {
+        "cause": "expiry",
+        "owner": "exact native Handler.Tick callback object",
+        "attackCount": 1,
+        "order": "healing then Spiritvein; native removal and shield-break event afterwards"
+      },
+      {
+        "cause": "overwrite",
+        "owner": "exact native Handler.Add old object",
+        "attackCount": 0,
+        "note": "Baizhu inherits no-op OnOverwrite; the preceding explicit refresh trigger is a different hook."
+      }
+    ],
+    "collectionRequirements": [
+      "Observe all six exact Q producer tasks completed at their scheduled core-frame offsets, each with birth count one and exactly one matching actual Q shield birth.",
+      "Keep producer direct attack census separate from shield-owned attack census: a Q task may refresh a preexisting C6 shield, whose Spiritvein is not Q-owned.",
+      "For each actual Q-born shield require an observed native terminal relation, complete allowed hook receipts, and all tagged Spiritvein queues dispatched to terminal target outcomes.",
+      "Do not infer expiry by adding 152 frames to birth; require actual native lifecycle receipt. Pending Q task, live Q shield, active hook or pending attack keeps damage scope incomplete.",
+      "C6 births are callback-owned even when they replace Q shields; when Q later refreshes C6 shield its attack remains owned by that C6 shield.",
+      "A Q-created shield released by a later C6 creation remains Q-owned by its exact old instance, even though C6 callback triggers refresh.",
+      "Queue count is independent of target multiplicity; require exact emit site/ability/full attack tag and preserve terminal target outcomes."
+    ],
+    "scopeNotes": [
+      "Healing, A4 modifiers, C4 EM buff, E chain damage, C2 event damage, particle delivery, downstream reaction damage and full team rotation closure are separate.",
+      "Existing E/C2 callback instrumentation and all native side effect order remain intact.",
+      "The C6 callback has no target-type guard; no new guard is introduced.",
+      "No fixed Spiritvein total is assumed from Q duration, apparent refresh timing or task ancestry; actual shield identities, hooks and terminal outcomes govern collection."
+    ],
+    "sourceRefs": [
+      "internal/characters/baizhu/burst.go:15-23",
+      "internal/characters/baizhu/burst.go:34-86",
+      "internal/characters/baizhu/burst.go:123-151",
+      "internal/characters/baizhu/shield.go:8-43",
+      "internal/characters/baizhu/cons.go:54-67",
+      "internal/characters/baizhu/cons.go:129-138",
+      "internal/characters/baizhu/skill.go:50-61",
+      "pkg/core/player/shield/handler.go:58-89",
+      "pkg/core/player/shield/handler.go:96-181"
+    ],
+    "sourceHashesSha256": {
+      "classic": {
+        "internal/characters/baizhu/burst.go": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+        "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+        "internal/characters/baizhu/cons.go": "5497d1131d25441de8660c62f45c0a6757f5786e2e071ac8d22b47cf12c68f27",
+        "internal/characters/baizhu/skill.go": "d4f7884cb8600e4107b08572099a1a3ff2d383551e5c437297ecb65ade0a9133",
+        "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c"
+      },
+      "stellar": {
+        "internal/characters/baizhu/burst.go": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+        "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+        "internal/characters/baizhu/cons.go": "5497d1131d25441de8660c62f45c0a6757f5786e2e071ac8d22b47cf12c68f27",
+        "internal/characters/baizhu/skill.go": "d4f7884cb8600e4107b08572099a1a3ff2d383551e5c437297ecb65ade0a9133",
+        "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c"
+      }
+    }
+  },
+  "verificationBoundary": [
+    "Native shield ABI is supplied by shield_native; private source patches are not standalone native build proof.",
+    "No edits to frozen source basis, repo core Go/TypeScript or registry/build files.",
+    "All gameplay reads/formulas/timing/queue arguments/origin remain unchanged; added wrappers provide only exact source provenance.",
+    "Shield terminal hooks need no character shield.go mutation because generic native Handler scopes their existing callbacks."
+  ]
+}

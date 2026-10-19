@@ -1,0 +1,26 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/source-cast-module-batch.test.ts (1 test | 1 failed) 2ms
+   × connects all four source groups to normal documents, shared calculation and final-panel JSON 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/source-cast-module-batch.test.ts > connects all four source groups to normal documents, shared calculation and final-panel JSON
+TypeError: Cannot read properties of undefined (reading 'characters')
+ ❯ packages/sim-core/src/__tests__/source-cast-module-batch.test.ts:16:39
+     14|   let hitCount = 0;
+     15|   for (const mapping of casts) {
+     16|     const character = gameDataCatalog.characters.find(row => row.slug …
+       |                                       ^
+     17|     const doc = getCharacterDocuments(character.id, 10).find(row => ro…
+     18|     expect(doc, mapping.skillId).toBeDefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 14 passed (15)
+      Tests  1 failed | 37 passed (38)
+   Start at  21:19:09
+   Duration  6.57s (transform 1.76s, setup 0ms, import 4.54s, tests 1.28s, environment 0ms)
+

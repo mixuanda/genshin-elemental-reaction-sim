@@ -1,0 +1,302 @@
+{
+  "status": "external-fixture-measured-local-comparison-pending",
+  "capturedAt": "2026-09-23T13:12:15.429556+00:00",
+  "evidenceStatus": "fixed-source-assumed",
+  "externalRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "invocations": 1,
+  "aggregateIterations": 1,
+  "separateSampleIterations": 1,
+  "aggregateSeed": "9477170701437055149",
+  "sampleSeed": "1522789908294901352",
+  "damageDeterministic": true,
+  "energyDeterministic": false,
+  "actions": [
+    {
+      "frame": 1,
+      "action": "burst"
+    },
+    {
+      "frame": 84,
+      "action": "attack"
+    },
+    {
+      "frame": 122,
+      "action": "attack"
+    },
+    {
+      "frame": 168,
+      "action": "attack"
+    },
+    {
+      "frame": 199,
+      "action": "attack"
+    }
+  ],
+  "hits": [
+    {
+      "label": "Q24",
+      "ability": "Sweeping Time (Burst)",
+      "frame": 25,
+      "sourceFrame": 25,
+      "attackTag": 6,
+      "element": "geo",
+      "damage": 13.865514903092786,
+      "multiplier": 0.672,
+      "scalingAttack": 66.0535,
+      "baseAttack": 39.2722,
+      "convertedAttack": 26.7813,
+      "formula": "66.0535 * .672 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "13.86551490309278350515463918",
+      "decimalResidual": "2.49484536082E-15"
+    },
+    {
+      "label": "Q65",
+      "ability": "Sweeping Time (Skill)",
+      "frame": 66,
+      "sourceFrame": 66,
+      "attackTag": 6,
+      "element": "geo",
+      "damage": 19.1476158185567,
+      "multiplier": 0.928,
+      "scalingAttack": 66.0535,
+      "baseAttack": 39.2722,
+      "convertedAttack": 26.7813,
+      "formula": "66.0535 * .928 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "19.14761581855670103092783505",
+      "decimalResidual": "1.03092783505E-15"
+    },
+    {
+      "label": "N1",
+      "ability": "Normal 0",
+      "frame": 111,
+      "sourceFrame": 111,
+      "attackTag": 1,
+      "element": "geo",
+      "damage": 16.32499314185567,
+      "multiplier": 0.7912,
+      "scalingAttack": 66.0535,
+      "baseAttack": 39.2722,
+      "convertedAttack": 26.7813,
+      "formula": "66.0535 * .7912 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "16.32499314185567010309278350",
+      "decimalResidual": "1.0309278350E-16"
+    },
+    {
+      "label": "N2",
+      "ability": "Normal 1",
+      "frame": 146,
+      "sourceFrame": 146,
+      "attackTag": 1,
+      "element": "geo",
+      "damage": 15.136107771742267,
+      "multiplier": 0.73358,
+      "scalingAttack": 66.0535,
+      "baseAttack": 39.2722,
+      "convertedAttack": 26.7813,
+      "formula": "66.0535 * .73358 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "15.13610777174226804123711340",
+      "decimalResidual": "1.04123711340E-15"
+    },
+    {
+      "label": "N3",
+      "ability": "Normal 2",
+      "frame": 187,
+      "sourceFrame": 187,
+      "attackTag": 1,
+      "element": "geo",
+      "damage": 17.79779143617526,
+      "multiplier": 0.86258,
+      "scalingAttack": 66.0535,
+      "baseAttack": 39.2722,
+      "convertedAttack": 26.7813,
+      "formula": "66.0535 * .86258 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "17.79779143617525773195876289",
+      "decimalResidual": "2.26804123711E-15"
+    },
+    {
+      "label": "N4",
+      "ability": "Normal 3",
+      "frame": 240,
+      "sourceFrame": 240,
+      "attackTag": 1,
+      "element": "geo",
+      "damage": 23.40507168924742,
+      "multiplier": 1.13434,
+      "scalingAttack": 66.0535,
+      "baseAttack": 39.2722,
+      "convertedAttack": 26.7813,
+      "formula": "66.0535 * 1.13434 * (101 / 291) * 0.9",
+      "independentDecimalExpected": "23.40507168924742268041237114",
+      "decimalResidual": "2.68041237114E-15"
+    }
+  ],
+  "totalDamage": 105.67709476067012,
+  "sampleDamageSum": 105.6770947606701,
+  "dps": 17.612849126778354,
+  "defenseSnapshot": {
+    "char_index": 0,
+    "ended": 1,
+    "event": "snapshot",
+    "frame": 1,
+    "logs": {
+      "atk added": 26.7813,
+      "mult": 0.4,
+      "total def": 66.95325
+    },
+    "msg": "noelle burst",
+    "ordering": {
+      "atk added": 1,
+      "mult": 2,
+      "total def": 0
+    }
+  },
+  "burstBuff": {
+    "char_index": 0,
+    "ended": 981,
+    "event": "status",
+    "frame": 1,
+    "logs": {
+      "expiry": 981,
+      "key": "noelle-burst",
+      "overwrite": false
+    },
+    "msg": "stat mod added",
+    "ordering": {
+      "expiry": 2,
+      "key": 1,
+      "overwrite": 0
+    }
+  },
+  "energyEvents": [
+    {
+      "char_index": 0,
+      "ended": 9,
+      "event": "energy",
+      "frame": 9,
+      "logs": {
+        "max_energy": 60,
+        "post_drain": 0,
+        "pre_drain": 60,
+        "source": "noelle-burst-energy-drain"
+      },
+      "msg": "draining energy",
+      "ordering": {
+        "max_energy": 3,
+        "post_drain": 1,
+        "pre_drain": 0,
+        "source": 2
+      }
+    },
+    {
+      "char_index": 0,
+      "ended": 187,
+      "event": "energy",
+      "frame": 187,
+      "logs": {
+        "max_energy": 60,
+        "post_recovery": 1,
+        "pre_recovery": 0,
+        "rec'd": 1,
+        "source": "na-ca-on-hit"
+      },
+      "msg": "adding energy",
+      "ordering": {
+        "max_energy": 4,
+        "post_recovery": 2,
+        "pre_recovery": 1,
+        "rec'd": 0,
+        "source": 3
+      }
+    }
+  ],
+  "aggregateEndingEnergy": 0,
+  "sampleEndingEnergyFromReceipts": 1,
+  "applicationFrames": [
+    25,
+    111,
+    146,
+    187,
+    240
+  ],
+  "burstApplicationAllowed": [
+    true,
+    false
+  ],
+  "failedActions": [
+    {
+      "insufficient_energy": {
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "sd": 0
+      },
+      "insufficient_stamina": {
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "sd": 0
+      },
+      "swap_cd": {
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "sd": 0
+      },
+      "skill_cd": {
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "sd": 0
+      },
+      "dash_cd": {
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "sd": 0
+      },
+      "burst_cd": {
+        "min": 0,
+        "max": 0,
+        "mean": 0,
+        "sd": 0
+      }
+    }
+  ],
+  "sourceRangesAndHashes": "docs/research/noelle-source-evidence.json",
+  "limitations": [
+    "Only one fixed gcsim executable run: one aggregate iteration plus separate sample; not official game validation.",
+    "C0 Lv1/20 with talent1 and no passive equipment; full 1..10 source arrays are transcribed but only talent1 was executed.",
+    "Q immediate DEF snapshot and 980-frame status duration are upstream TODO assumptions; exact expiry damage/geometry boundary was inspected in source, not executed.",
+    "Ordinary-hit random energy differs between aggregate and sample: sample gains 1 at frame187; aggregate ends at0. No all-energy equivalence claim.",
+    "No local simulator, calculator, hitlag, changing DEF, Extra DEF exclusion or geometry-boundary comparison was executed by this extraction task."
+  ],
+  "artifacts": [
+    {
+      "path": "docs/validation/noelle-q-normal-external.gcsl",
+      "sha256": "71b2078b5ff547ffde753ae84076bfe835e8c1009a57db5ab876fb110bed1557",
+      "bytes": 306
+    },
+    {
+      "path": "docs/validation/noelle-q-normal-external.fixture.json",
+      "sha256": "a7cc3a297ccbd5bd27988c3c002106afbd6ccd063c81ae96ce860d904befbfad",
+      "bytes": 2463
+    },
+    {
+      "path": "docs/validation/noelle-q-normal-external.execution.json",
+      "sha256": "406619943f7e669034cb005900815d92107f3911546d531275397bc26fa1e50f",
+      "bytes": 1204
+    },
+    {
+      "path": "docs/validation/noelle-q-normal-external.result.json",
+      "sha256": "77406cb8ffa3a8b279b603fe5c75518282ebc860cf635a840310d9d818f32b7e",
+      "bytes": 7696
+    },
+    {
+      "path": "docs/validation/noelle-q-normal-external.sample.json",
+      "sha256": "70b6795db043539fa3e334229fc1079e75859f7e2d8bb73872d24a19baae5b95",
+      "bytes": 27564
+    }
+  ],
+  "maxAbsoluteDecimalResidual": "2.68041237114E-15",
+  "sampleAggregateSumResidual": 1.4210854715202004e-14
+}

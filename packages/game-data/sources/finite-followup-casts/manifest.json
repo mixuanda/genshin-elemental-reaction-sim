@@ -1,0 +1,657 @@
+{
+  "schemaVersion": 1,
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-24T15:33:47.740447+00:00",
+  "evidenceStatus": "fixed-source-provisional",
+  "archive": {
+    "path": "packages/game-data/sources/finite-followup-casts/source.json.gz",
+    "bytes": 44169,
+    "sha256": "a0fe6c40e55b7d9e4666417a0028651c3c2bd2c8114c77daa3d93059c8b699ae"
+  },
+  "definitions": {
+    "path": "packages/game-data/sources/finite-followup-casts/definitions.json",
+    "sha256": "0aa4caa52b9ead79a376dcab38654f43b2330f9ebac700c43043f9cad1d0388f",
+    "templates": 7,
+    "individualHits": 20
+  },
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/asc.go",
+      "bytes": 2851,
+      "sha256": "418fdd2faa576be047bbf15131f4d09bf27e1b732bddb1fd804df66a75fd7384",
+      "gitBlobSha1": "ce478968a648c88ce32f8a9827924ee20498ba8f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/attack.go",
+      "bytes": 6573,
+      "sha256": "72385b334525cedf70525ce71897290c621895349ac2500e64ee27e898a17e45",
+      "gitBlobSha1": "eb2ab36f2e5c53fee2e280da240db9c5aaa47108"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/burst.go",
+      "bytes": 2682,
+      "sha256": "048365e590839c19afe0bacbf3583474fc2042edef51692ff8b4c41366e8a961",
+      "gitBlobSha1": "ea8cb793627da75bad19f25bfebe0c6ab778fe47"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/charge.go",
+      "bytes": 2926,
+      "sha256": "1925ac32f7650bcd05c88f8608802c2033c1d9d71ac8cb981318d8ce14f5ddd8",
+      "gitBlobSha1": "74eacbe0e2a6e24191f1ea968476fec445f02f07"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/cons.go",
+      "bytes": 5384,
+      "sha256": "cf368a266a40591984bf1e61cd7f2e746dcc6a1b6b31fbacf663cbc8e6a3c7fa",
+      "gitBlobSha1": "b7f590eba20df00fd36fc4c013c6a197b5b37a78"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/cyno.go",
+      "bytes": 2376,
+      "sha256": "7e88129e737589581a9d17032e93efe774cc19e2731f4836b2e41acfe2b23d0c",
+      "gitBlobSha1": "502292f5d9fb120c8169d9cf74883f022a66ec78"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/plunge.go",
+      "bytes": 8803,
+      "sha256": "f8da1cf773d09ab4f71b2adb268b947e78eb0ae7466621ecbb5113440c795d10",
+      "gitBlobSha1": "46e3b1349ef1df61dab789751c65911eaea5e46e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/skill.go",
+      "bytes": 4597,
+      "sha256": "6bf753c2140aa7fb6085ee7f58dd71017cb068f370c2e462a1c9e88d30f15680",
+      "gitBlobSha1": "dbf2a4df598a9ef411afeec72090cd4fb2f1d489"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/cyno/zz_cyno.dm.go",
+      "bytes": 6193,
+      "sha256": "b64bd162e3bb9face6c6cd4ca7b8db414b2d68474d73cc606b6452b278cdb140",
+      "gitBlobSha1": "80f4e6c614e7f18fe0b22731cba25b60a24f4e49"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/aimed.go",
+      "bytes": 3661,
+      "sha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+      "gitBlobSha1": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/asc.go",
+      "bytes": 2077,
+      "sha256": "091a76bb82b013476b503b5b0b987083bfa17185fc41fdf5e9e187052ffb481c",
+      "gitBlobSha1": "9b3d5b04601ca942d1a245df0882f06d5561e3e4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/attack.go",
+      "bytes": 2057,
+      "sha256": "257f19bde89aec0f18687c55ea4306e0d5f6318f50638039d48956de8bb37446",
+      "gitBlobSha1": "cea30a38eab59b944ad323d307611f2d40e4b0d3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/burst.go",
+      "bytes": 4529,
+      "sha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+      "gitBlobSha1": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/cons.go",
+      "bytes": 2143,
+      "sha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+      "gitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/faruzan.go",
+      "bytes": 1082,
+      "sha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+      "gitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/skill.go",
+      "bytes": 3850,
+      "sha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+      "gitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "bytes": 3079,
+      "sha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+      "gitBlobSha1": "2d81ba730c8199888d6107ff64545588809d6599"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/asc.go",
+      "bytes": 1186,
+      "sha256": "8880bc2870628064fea9f1170edcf9396cd465064d3c1e91816ae465823527c0",
+      "gitBlobSha1": "a293f7f2e3f7cac60474e80ca60764c4cefef808"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/attack.go",
+      "bytes": 3385,
+      "sha256": "281d6c7367b3413892685be21bbc2ad1e7f32bfe70a3c15a738129e1951f14b6",
+      "gitBlobSha1": "95a5196a9254c16d8aa8d9291fcf598b02cc5bfd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/burst.go",
+      "bytes": 1917,
+      "sha256": "8002f360da1a93ceed52b83a0cd077b1895222316b306d045f57f4ce031eee4a",
+      "gitBlobSha1": "31d4a4da4bd8d4ef70d440f7b5ec377185b0c868"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/charge.go",
+      "bytes": 2449,
+      "sha256": "49f8e8bc2e661f0f4db980eed2beac145aeb6f844bc9f43182879b87984466b7",
+      "gitBlobSha1": "0523aa5dcb7932dc4faa8dbeb03281d2256bcabf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/cons.go",
+      "bytes": 2452,
+      "sha256": "baa5a966a047dca79d1ff377246d5e467676a11765bcc2a562c09fe38a7c4dbb",
+      "gitBlobSha1": "1cd9ea20ab59ad54dcc06fa95b10bc7edf12ba01"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/keqing.go",
+      "bytes": 1683,
+      "sha256": "a776804f66eab0e0d0e15875dd9169d92f39742403c4f1d786e035ed09ddaf27",
+      "gitBlobSha1": "195e7e7b94feb533783082d4752b584275d37463"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/plunge.go",
+      "bytes": 4802,
+      "sha256": "b9fa86c0e386a12901d8edf5203284824b68609b4a4fa23e7cb6e5663e9d3db1",
+      "gitBlobSha1": "5a853cbe4d8109739a989e76ab070d77352915de"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/skill.go",
+      "bytes": 4332,
+      "sha256": "6b6c01f435b3ba3b40b32698f820ed19f9fcaaa0b589ce2fc4e877c8346d07fe",
+      "gitBlobSha1": "c5b9c623cf5d8fae6b6d8b7720cd0283d7a990d6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/keqing/zz_keqing.dm.go",
+      "bytes": 4766,
+      "sha256": "470d8b173d275771dea38c91c41263bfd38a33e765f0e2a1bc43ffab462040ed",
+      "gitBlobSha1": "01ab4aff847a8386e928cdcfde31c7ef82bb774b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/asc.go",
+      "bytes": 1229,
+      "sha256": "c4a48e8d519ac9ecdabbdd8fd3c765a0aa03485630375fc182ff636b312bd834",
+      "gitBlobSha1": "17f1c231b460807753f02c81d09dcb8c92aa1eb5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/attack.go",
+      "bytes": 2667,
+      "sha256": "5ad6595617e010ce36f4ddb914fec72bc077392df23964b129a6c66381b2aa29",
+      "gitBlobSha1": "61e9583e06efa77be3ac9f0169c39950ed5f9105"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/burst.go",
+      "bytes": 3204,
+      "sha256": "c25809ce651750d11a8fa73cb28a37c1a067e31946219a09750d80d7517af542",
+      "gitBlobSha1": "a495e07cc4bde416313e849f65fdd6f29ad82895"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/cons.go",
+      "bytes": 2445,
+      "sha256": "85499b20a849d6f7e938424fb9fd2673c3358450ccd4ceb719a8003b43875f51",
+      "gitBlobSha1": "12a304de4e902e1b9d2df69665a2692dd74e916b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/plunge.go",
+      "bytes": 4949,
+      "sha256": "9b4d3c94984f1ad4e909eeba389139ad01078617c969a30b0233b5396a4939d9",
+      "gitBlobSha1": "34816dc2af12918a706a5ea608f945f6a86e982e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/shield.go",
+      "bytes": 741,
+      "sha256": "f70e82721650dd4a4267959a1ea593ea4d325978ab4679592ad6ac85c8f1fa7f",
+      "gitBlobSha1": "8ce6239926d3d9e39aee2ebf88d6870ca0563f91"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/skill.go",
+      "bytes": 4389,
+      "sha256": "521323d3ae76a717dbd2440ab37f37df3ab37b8b2324137cdc29d6ad81485a4b",
+      "gitBlobSha1": "7f57b7ec393903514cd5e19e645f07d2f6fa0726"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/xinyan.go",
+      "bytes": 1047,
+      "sha256": "892de20a07ed905914e1fcebffe03e1fb5275ad05ace1203fcf40a6f17153a92",
+      "gitBlobSha1": "ba421e3dbf4f6c00a25eb6d1dea9acc1c96e5530"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xinyan/zz_xinyan.dm.go",
+      "bytes": 4848,
+      "sha256": "b544cda32a4c7fa0c601f1f2fbfd734f4b209bc98728476f6b2c65a74d043e80",
+      "gitBlobSha1": "a51bc43081d5bec013e2e6b47496005855d00323"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/shield/handler.go",
+      "bytes": 3879,
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "gitBlobSha1": "221aca329c9195f99fe715958666a7c56485551e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/mods.go",
+      "bytes": 4013,
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "gitBlobSha1": "d1c63e76895a0b8964567f0697aa9df8375ada71"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    }
+  ],
+  "coefficients": [
+    {
+      "id": "keqing-skill",
+      "sourcePath": "internal/characters/keqing/zz_keqing.dm.go",
+      "sourceField": "skill",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        0.504,
+        0.5418,
+        0.5796,
+        0.63,
+        0.6678,
+        0.7056,
+        0.756,
+        0.8064,
+        0.8568,
+        0.9072,
+        0.9576,
+        1.008,
+        1.071,
+        1.134,
+        1.197
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "keqing-skillPress",
+      "sourcePath": "internal/characters/keqing/zz_keqing.dm.go",
+      "sourceField": "skillPress",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "values": [
+        1.68,
+        1.806,
+        1.932,
+        2.1,
+        2.226,
+        2.352,
+        2.52,
+        2.688,
+        2.856,
+        3.024,
+        3.192,
+        3.36,
+        3.57,
+        3.78,
+        3.99
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "keqing-skillCA",
+      "sourcePath": "internal/characters/keqing/zz_keqing.dm.go",
+      "sourceField": "skillCA",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "values": [
+        0.84,
+        0.903,
+        0.966,
+        1.05,
+        1.113,
+        1.176,
+        1.26,
+        1.344,
+        1.428,
+        1.512,
+        1.596,
+        1.68,
+        1.785,
+        1.89,
+        1.995
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "faruzan-skill",
+      "sourcePath": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "sourceField": "skill",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        1.488,
+        1.5996,
+        1.7112,
+        1.86,
+        1.9716,
+        2.0832,
+        2.232,
+        2.3808,
+        2.5296,
+        2.6784,
+        2.8272,
+        2.976,
+        3.162,
+        3.348,
+        3.534
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "faruzan-fullaim",
+      "sourcePath": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "sourceField": "fullaim",
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "values": [
+        1.24,
+        1.333,
+        1.426,
+        1.55,
+        1.643,
+        1.736,
+        1.86,
+        1.984,
+        2.108,
+        2.232,
+        2.356,
+        2.48,
+        2.635,
+        2.79,
+        2.945
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "faruzan-vortexDmg",
+      "sourcePath": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "sourceField": "vortexDmg",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "values": [
+        1.08,
+        1.161,
+        1.242,
+        1.35,
+        1.431,
+        1.512,
+        1.62,
+        1.728,
+        1.836,
+        1.944,
+        2.052,
+        2.16,
+        2.295,
+        2.43,
+        2.565
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "faruzan-burst",
+      "sourcePath": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "sourceField": "burst",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        3.776,
+        4.0592,
+        4.3424,
+        4.72,
+        5.0032,
+        5.2864,
+        5.664,
+        6.0416,
+        6.4192,
+        6.7968,
+        7.1744,
+        7.552,
+        8.024,
+        8.496,
+        8.968
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "faruzan-burstBuff",
+      "sourcePath": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "sourceField": "burstBuff",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        0.18,
+        0.1935,
+        0.207,
+        0.225,
+        0.2385,
+        0.252,
+        0.27,
+        0.288,
+        0.306,
+        0.324,
+        0.342,
+        0.36,
+        0.3825,
+        0.405,
+        0.4275
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "xinyan-skill",
+      "sourcePath": "internal/characters/xinyan/zz_xinyan.dm.go",
+      "sourceField": "skill",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        1.696,
+        1.8232,
+        1.9504,
+        2.12,
+        2.2472,
+        2.3744,
+        2.544,
+        2.7136,
+        2.8832,
+        3.0528,
+        3.2224,
+        3.392,
+        3.604,
+        3.816,
+        4.028
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "xinyan-skillDot",
+      "sourcePath": "internal/characters/xinyan/zz_xinyan.dm.go",
+      "sourceField": "skillDot",
+      "abilityKey": "combat2",
+      "parameterKey": "param8",
+      "values": [
+        0.336,
+        0.3612,
+        0.3864,
+        0.42,
+        0.4452,
+        0.4704,
+        0.504,
+        0.5376,
+        0.5712,
+        0.6048,
+        0.6384,
+        0.672,
+        0.714,
+        0.756,
+        0.798
+      ],
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "id": "cyno-skillB",
+      "sourcePath": "internal/characters/cyno/zz_cyno.dm.go",
+      "sourceField": "skillB",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "values": [
+        1.568,
+        1.6856,
+        1.8032,
+        1.96,
+        2.0776,
+        2.1952,
+        2.352,
+        2.5088,
+        2.6656,
+        2.8224,
+        2.9792,
+        3.136,
+        3.332,
+        3.528,
+        3.724
+      ],
+      "maximumAbsoluteDifference": 0
+    }
+  ],
+  "verification": {
+    "allGitBlobsMatchPinnedTree": true,
+    "reviewedSha256Matches": 22,
+    "allCoefficientVectorsMatchAll15CatalogLevelsExactly": true,
+    "catalogSha256": "92eb478fbe1f84292c12b8a623e43233d233973563d4519a5af68192247094df"
+  },
+  "catalogProjection": {
+    "archiveKey": "catalog-projection/cyno-talents.json",
+    "kind": "verbatim-talent-set-projection-from-hashed-active-catalog",
+    "reason": "Cyno passive1 explicitly says 100% ATK per Duststalker Bolt, agreeing with executable skill.go ai.Mult=1.0 and superseding its stale 50% comment."
+  },
+  "limits": [
+    "Keqing total attributes only E damage; the charged attack that triggers detonation is a separate action, explicitly excluded.",
+    "Fischl/coordinated lifecycle protocol is not reused for finite fixed hit counts.",
+    "Faruzan E arrow requires independent normal talent; Q A4 needs actual base ATK and already-included flat accounting.",
+    "Cyno A4 bolts read EM at cast0 and ATK at28; explicit castEM is required."
+  ]
+}

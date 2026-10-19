@@ -1,0 +1,822 @@
+--- a/internal/characters/sethos/aimed.go
++++ b/internal/characters/sethos/aimed.go
+@@ -10,6 +10,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ var aimedFrames [][]int
+@@ -134,7 +135,15 @@
+ 	}
+ 
+ 	c.QueueCharTask(func() {
+-		em := c.Stat(attributes.EM)
++		var em float64
++		var emRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			em, emRead = c.StatWithProvenance(attributes.EM)
++		} else {
++			em = c.Stat(attributes.EM)
++		}
++		attackTalent := c.TalentLvlAttack()
++		flatTalent := c.TalentLvlAttack()
+ 		ai := info.AttackInfo{
+ 			ActorIndex:           c.Index(),
+ 			Abil:                 shadowPierceShotAil,
+@@ -144,17 +153,31 @@
+ 			StrikeType:           attacks.StrikeTypeDefault,
+ 			Element:              attributes.Electro,
+ 			Durability:           50,
+-			Mult:                 shadowpierceAtk[c.TalentLvlAttack()],
++			Mult:                 shadowpierceAtk[attackTalent],
+ 			HitWeakPoint:         weakspot == 1,
+ 			HitlagHaltFrames:     hitHaltFrames,
+ 			HitlagFactor:         0.01,
+ 			HitlagOnHeadshotOnly: true,
+ 			IsDeployable:         true,
+-			FlatDmg:              shadowpierceEM[c.TalentLvlAttack()] * em,
++			FlatDmg:              shadowpierceEM[flatTalent] * em,
++		}
++		if c.Core.SourceHost != nil {
++			flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-sethos-shadowpiercing-em", 0,
++				map[string]any{"talentLevel": flatTalent, "em": em}, []*info.SourceHostStatRead{emRead}, nil, nil)
++			ai.FlatDmg = flat
++			sourcehost.CharacterFlatAttach(&ai, nil, id, flat)
+ 		}
+ 
+ 		if c.StatusIsActive(a4Key) {
+-			ai.FlatDmg += 7 * em
++			addition := 7 * em
++			if c.Core.SourceHost != nil {
++				flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-sethos-shadowpiercing-a4", ai.FlatDmg,
++					map[string]any{"em": em}, []*info.SourceHostStatRead{emRead}, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++				ai.FlatDmg = flat
++				sourcehost.CharacterFlatAttach(&ai, nil, id, flat)
++			} else {
++				ai.FlatDmg += addition
++			}
+ 			c.Core.Log.NewEvent("Sethos A4 proc dmg add", glog.LogPreDamageMod, c.Index()).
+ 				Write("em", em).
+ 				Write("ratio", 7.0).
+--- a/internal/characters/sethos/attack.go
++++ b/internal/characters/sethos/attack.go
+@@ -9,6 +9,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ const normalHitNum = 3
+@@ -67,7 +68,16 @@
+ 				ai.AttackTag = attacks.AttackTagExtra
+ 				ai.ICDTag = attacks.ICDTagElementalBurst
+ 				ai.Element = attributes.Electro
+-				ai.FlatDmg = burstEM[c.TalentLvlBurst()] * c.Stat(attributes.EM)
++				talent := c.TalentLvlBurst()
++				if c.Core.SourceHost != nil {
++					em, read := c.StatWithProvenance(attributes.EM)
++					flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-sethos-dusk-bolt", 0,
++						map[string]any{"talentLevel": talent, "em": em}, []*info.SourceHostStatRead{read}, nil, nil)
++					ai.FlatDmg = flat
++					sourcehost.CharacterFlatAttach(&ai, nil, id, flat)
++				} else {
++					ai.FlatDmg = burstEM[talent] * c.Stat(attributes.EM)
++				}
+ 
+ 				deltaPos := c.Core.Combat.Player().Pos().Sub(c.Core.Combat.PrimaryTarget().Pos())
+ 				dist := deltaPos.Magnitude()
+--- a/internal/characters/layla/burst.go
++++ b/internal/characters/layla/burst.go
+@@ -8,6 +8,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ var burstFrames []int
+@@ -34,8 +35,17 @@
+ 		travel = tickTravel
+ 	}
+ 
++	actor := c.Index()
++	talent := c.TalentLvlBurst()
++	var maxHP float64
++	var hpRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHP, hpRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
+ 	ai := info.AttackInfo{
+-		ActorIndex: c.Index(),
++		ActorIndex: actor,
+ 		Abil:       "Starlight Slug",
+ 		AttackTag:  attacks.AttackTagElementalBurst,
+ 		ICDTag:     attacks.ICDTagElementalBurst,
+@@ -43,7 +53,13 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Cryo,
+ 		Durability: 25,
+-		FlatDmg:    burst[c.TalentLvlBurst()] * c.MaxHP(),
++		FlatDmg:    burst[talent] * maxHP,
++	}
++	if c.Core.SourceHost != nil {
++		flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-layla-burst", 0,
++			map[string]any{"talentLevel": talent, "maxHP": maxHP}, []*info.SourceHostStatRead{hpRead}, nil, nil)
++		ai.FlatDmg = flat
++		sourcehost.CharacterFlatAttach(&ai, nil, id, flat)
+ 	}
+ 
+ 	c.Core.Status.Add("laylaburst", 12*60+burstStart)
+--- a/internal/characters/traveler/common/hydro/skill.go
++++ b/internal/characters/traveler/common/hydro/skill.go
+@@ -8,6 +8,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ var (
+@@ -283,8 +284,23 @@
+ 	}
+ 
+ 	if c.Base.Ascension >= 4 {
+-		ai.FlatDmg += c.a4Bonus
++		if c.Core.SourceHost != nil {
++			if c.a4BonusID == 0 {
++				flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-hydro-traveler-a4-consume-zero", ai.FlatDmg,
++					map[string]any{}, nil, nil, sourcehost.CharacterFlatPrior(&ai, nil))
++				ai.FlatDmg = flat
++				sourcehost.CharacterFlatAttach(&ai, nil, id, flat)
++			} else {
++				flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-hydro-traveler-a4-consume", ai.FlatDmg,
++					map[string]any{"storedBonus": c.a4Bonus}, nil, nil, sourcehost.CharacterFlatPrior(&ai, nil), map[string]int{"storedBonus": c.a4BonusID})
++				ai.FlatDmg = flat
++				sourcehost.CharacterFlatAttach(&ai, nil, id, flat)
++			}
++		} else {
++			ai.FlatDmg += c.a4Bonus
++		}
+ 		c.a4Bonus = 0
++		c.a4BonusID = 0
+ 	}
+ 
+ 	hitbox := combat.NewBoxHitOnTarget(c.Core.Combat.Player(), nil, 1.2, 15)
+@@ -316,7 +332,16 @@
+ 	if c.CurrentHPRatio() <= 0.5 {
+ 		return
+ 	}
+-	ai.FlatDmg = dewdropBonus[c.TalentLvlSkill()] * c.MaxHP()
++	talent := c.TalentLvlSkill()
++	if c.Core.SourceHost != nil {
++		maxHP, read := c.MaxHPWithProvenance()
++		flat, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-hydro-traveler-dewdrop", 0,
++			map[string]any{"talentLevel": talent, "maxHP": maxHP}, []*info.SourceHostStatRead{read}, nil, nil)
++		ai.FlatDmg = flat
++		sourcehost.CharacterFlatAttach(ai, nil, id, flat)
++	} else {
++		ai.FlatDmg = dewdropBonus[talent] * c.MaxHP()
++	}
+ 
+ 	drainHP := 0.04 * c.CurrentHP()
+ 	c.Core.Player.Drain(info.DrainInfo{
+@@ -329,9 +354,21 @@
+ 	// will deal Bonus DMG equal to 45% of the total HP the Traveler has consumed in this skill use via Suffusion.
+ 	// The maximum DMG Bonus that can be gained this way is 5,000.
+ 	if c.Base.Ascension >= 4 {
+-		c.a4Bonus += drainHP * 0.45
+-		if c.a4Bonus > 5000 {
+-			c.a4Bonus = 5000
++		if c.Core.SourceHost != nil {
++			if c.a4BonusID == 0 {
++				c.a4Bonus, c.a4BonusID = c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-hydro-traveler-a4-first-accumulate", 0,
++					map[string]any{"drainHP": drainHP}, nil, nil, nil)
++			} else {
++				c.a4Bonus, c.a4BonusID = c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-hydro-traveler-a4-accumulate", 0,
++					map[string]any{"previousBonus": c.a4Bonus, "drainHP": drainHP}, nil, nil, nil,
++					map[string]int{"previousBonus": c.a4BonusID})
++			}
++		} else {
++			c.a4Bonus += drainHP * 0.45
++			if c.a4Bonus > 5000 {
++				c.a4Bonus = 5000
++			}
++			c.a4BonusID = 0
+ 		}
+ 
+ 		c.Core.Log.NewEvent("travelerhydro a4 adding dmg bonus", glog.LogCharacterEvent, c.Index()).
+--- a/internal/characters/traveler/common/hydro/travelerhydro.go
++++ b/internal/characters/traveler/common/hydro/travelerhydro.go
+@@ -11,7 +11,8 @@
+ 
+ type Traveler struct {
+ 	*tmpl.Character
+-	a4Bonus float64
++	a4Bonus   float64
++	a4BonusID int
+ 	gender  int
+ }
+ 
+--- a/internal/characters/gorou/asc.go
++++ b/internal/characters/gorou/asc.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+@@ -28,19 +29,27 @@
+ // Gorou receives the following DMG Bonuses to his attacks based on his DEF:
+ //
+ // - Inuzaka All-Round Defense: Skill DMG increased by 156% of DEF
+-func (c *char) a4Skill() float64 {
++func (c *char) a4Skill() (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	return c.TotalDef(false) * 1.56
++	if c.Core.SourceHost != nil {
++		value, read := c.TotalDefWithProvenance(false)
++		return c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-gorou-a4-skill", 0, map[string]any{"totalDef": value}, []*info.SourceHostStatRead{read}, nil, nil)
++	}
++	return c.TotalDef(false) * 1.56, 0
+ }
+ 
+ // Gorou receives the following DMG Bonuses to his attacks based on his DEF:
+ //
+ // - Juuga: Forward Unto Victory: Skill DMG and Crystal Collapse DMG increased by 15.6% of DEF
+-func (c *char) a4Burst() float64 {
++func (c *char) a4Burst() (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	return c.TotalDef(false) * 0.156
++	if c.Core.SourceHost != nil {
++		value, read := c.TotalDefWithProvenance(false)
++		return c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-gorou-a4-burst", 0, map[string]any{"totalDef": value}, []*info.SourceHostStatRead{read}, nil, nil)
++	}
++	return c.TotalDef(false) * 0.156, 0
+ }
+--- a/internal/characters/gorou/skill.go
++++ b/internal/characters/gorou/skill.go
+@@ -38,6 +38,8 @@
+ */
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+ 	c.Core.Tasks.Add(func() {
++		skillMult := skill[c.TalentLvlSkill()]
++		flat, flatID := c.a4Skill()
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       "Inuzaka All-Round Defense",
+@@ -48,8 +50,11 @@
+ 			PoiseDMG:   80,
+ 			Element:    attributes.Geo,
+ 			Durability: 25,
+-			Mult:       skill[c.TalentLvlSkill()],
+-			FlatDmg:    c.a4Skill(),
++			Mult:       skillMult,
++			FlatDmg:    flat,
++		}
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 		}
+ 		c.eFieldArea = combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: 2}, 8)
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.eFieldArea.Shape.Pos(), nil, 5), 0, 0, c.particleCB)
+--- a/internal/characters/gorou/burst.go
++++ b/internal/characters/gorou/burst.go
+@@ -28,6 +28,8 @@
+ 	// Initial Hit
+ 	// A1/C6/Q duration all start on Initial Hit
+ 	c.Core.Tasks.Add(func() {
++		burstMult := burst[c.TalentLvlBurst()]
++		flat, flatID := c.a4Burst()
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       "Juuga: Forward Unto Victory",
+@@ -38,9 +40,12 @@
+ 			PoiseDMG:   40,
+ 			Element:    attributes.Geo,
+ 			Durability: 25,
+-			Mult:       burst[c.TalentLvlBurst()],
+-			FlatDmg:    c.a4Burst(),
++			Mult:       burstMult,
++			FlatDmg:    flat,
+ 			UseDef:     true,
++		}
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 		}
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 5), 0, 0)
+ 
+@@ -109,6 +114,8 @@
+ 			return
+ 		}
+ 		// trigger damage
++		tickMult := burstTick[c.TalentLvlBurst()]
++		flat, flatID := c.a4Burst()
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       "Crystal Collapse",
+@@ -118,9 +125,12 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    attributes.Geo,
+ 			Durability: 25,
+-			Mult:       burstTick[c.TalentLvlBurst()],
+-			FlatDmg:    c.a4Burst(),
++			Mult:       tickMult,
++			FlatDmg:    flat,
+ 			UseDef:     true,
++		}
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 		}
+ 		collapseArea := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 8)
+ 		enemy := c.Core.Combat.ClosestEnemyWithinArea(collapseArea, nil)
+--- a/internal/characters/thoma/asc.go
++++ b/internal/characters/thoma/asc.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ // When your current active character obtains or refreshes a Blazing Barrier,
+@@ -27,9 +28,13 @@
+ }
+ 
+ // DMG dealt by Crimson Ooyoroi's Fiery Collapse is increased by 2.2% of Thoma's Max HP.
+-func (c *char) a4() float64 {
++func (c *char) a4() (float64, int) {
+ 	if c.Base.Ascension < 1 {
+-		return 0
++		return 0, 0
+ 	}
+-	return 0.022 * c.MaxHP()
++	if c.Core.SourceHost != nil {
++		value, read := c.MaxHPWithProvenance()
++		return c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-thoma-a4-fiery-collapse", 0, map[string]any{"maxHP": value}, []*info.SourceHostStatRead{read}, nil, nil)
++	}
++	return 0.022 * c.MaxHP(), 0
+ }
+--- a/internal/characters/thoma/burst.go
++++ b/internal/characters/thoma/burst.go
+@@ -77,6 +77,8 @@
+ }
+ 
+ func (c *char) summonFieryCollapse() {
++	procMult := burstproc[c.TalentLvlBurst()]
++	flat, flatID := c.a4()
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Fiery Collapse",
+@@ -86,8 +88,11 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Pyro,
+ 		Durability: 25,
+-		Mult:       burstproc[c.TalentLvlBurst()],
+-		FlatDmg:    c.a4(),
++		Mult:       procMult,
++		FlatDmg:    flat,
++	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 	}
+ 	done := false
+ 	shieldCb := func(_ info.AttackCB) {
+--- a/internal/characters/zhongli/asc.go
++++ b/internal/characters/zhongli/asc.go
+@@ -1,4 +1,6 @@
+ package zhongli
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
+ 
+ // When the Jade Shield takes DMG, it will Fortify:
+ //
+@@ -20,29 +22,41 @@
+ // Zhongli deals bonus DMG based on his Max HP:
+ //
+ // - Normal Attack, Charged Attack, and Plunging Attack DMG is increased by 1.39% of Max HP.
+-func (c *char) a4Attacks() float64 {
++func (c *char) a4Attacks() (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	return 0.0139 * c.MaxHP()
++	if c.Core.SourceHost != nil {
++		value, read := c.MaxHPWithProvenance()
++		return c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-zhongli-a4-normal-charge", 0, map[string]any{"maxHP": value}, []*info.SourceHostStatRead{read}, nil, nil)
++	}
++	return 0.0139 * c.MaxHP(), 0
+ }
+ 
+ // Zhongli deals bonus DMG based on his Max HP:
+ //
+ // - Dominus Lapidis' Stone Stele, resonance, and hold DMG is increased by 1.9% of Max HP.
+-func (c *char) a4Skill() float64 {
++func (c *char) a4Skill() (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	return 0.019 * c.MaxHP()
++	if c.Core.SourceHost != nil {
++		value, read := c.MaxHPWithProvenance()
++		return c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-zhongli-a4-skill", 0, map[string]any{"maxHP": value}, []*info.SourceHostStatRead{read}, nil, nil)
++	}
++	return 0.019 * c.MaxHP(), 0
+ }
+ 
+ // Zhongli deals bonus DMG based on his Max HP:
+ //
+ // - Planet Befall's DMG is increased by 33% of Max HP.
+-func (c *char) a4Burst() float64 {
++func (c *char) a4Burst() (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	return 0.33 * c.MaxHP()
++	if c.Core.SourceHost != nil {
++		value, read := c.MaxHPWithProvenance()
++		return c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-zhongli-a4-burst", 0, map[string]any{"maxHP": value}, []*info.SourceHostStatRead{read}, nil, nil)
++	}
++	return 0.33 * c.MaxHP(), 0
+ }
+--- a/internal/characters/zhongli/attack.go
++++ b/internal/characters/zhongli/attack.go
+@@ -53,6 +53,8 @@
+ 
+ func (c *char) Attack(p map[string]int) (action.Info, error) {
+ 	for i := 0; i < attackHits[c.NormalCounter]; i++ {
++		attackMult := attack[c.NormalCounter][c.TalentLvlAttack()]
++		flat, flatID := c.a4Attacks()
+ 		ai := info.AttackInfo{
+ 			ActorIndex:         c.Index(),
+ 			Abil:               fmt.Sprintf("Normal %v", c.NormalCounter),
+@@ -62,11 +64,14 @@
+ 			StrikeType:         attacks.StrikeTypeSpear,
+ 			Element:            attributes.Physical,
+ 			Durability:         25,
+-			Mult:               attack[c.NormalCounter][c.TalentLvlAttack()],
+-			FlatDmg:            c.a4Attacks(),
++			Mult:               attackMult,
++			FlatDmg:            flat,
+ 			HitlagFactor:       0.01,
+ 			HitlagHaltFrames:   attackHitlagHaltFrame[c.NormalCounter][i] * 60,
+ 			CanBeDefenseHalted: attackDefHalt[c.NormalCounter][i],
++		}
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 		}
+ 		if c.NormalCounter == 1 || c.NormalCounter == 4 {
+ 			ai.StrikeType = attacks.StrikeTypeSlash
+--- a/internal/characters/zhongli/charge.go
++++ b/internal/characters/zhongli/charge.go
+@@ -23,6 +23,8 @@
+ }
+ 
+ func (c *char) ChargeAttack(p map[string]int) (action.Info, error) {
++	chargeMult := charge[c.TalentLvlAttack()]
++	flat, flatID := c.a4Attacks()
+ 	ai := info.AttackInfo{
+ 		ActorIndex:         c.Index(),
+ 		Abil:               "Charge",
+@@ -32,12 +34,15 @@
+ 		StrikeType:         attacks.StrikeTypeSpear,
+ 		Element:            attributes.Physical,
+ 		Durability:         25,
+-		Mult:               charge[c.TalentLvlAttack()],
+-		FlatDmg:            c.a4Attacks(),
++		Mult:               chargeMult,
++		FlatDmg:            flat,
+ 		HitlagHaltFrames:   0.06 * 60,
+ 		HitlagFactor:       0.01,
+ 		CanBeDefenseHalted: true,
+ 		IsDeployable:       true,
++	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 	}
+ 	c.Core.QueueAttack(
+ 		ai,
+--- a/internal/characters/zhongli/skill.go
++++ b/internal/characters/zhongli/skill.go
+@@ -60,6 +60,8 @@
+ 
+ func (c *char) skillHold(createStele bool) action.Info {
+ 	// hold does dmg
++	holdMult := skillHold[c.TalentLvlSkill()]
++	flat, flatID := c.a4Skill()
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Stone Stele (Hold)",
+@@ -70,8 +72,11 @@
+ 		PoiseDMG:   142.9,
+ 		Element:    attributes.Geo,
+ 		Durability: 25,
+-		Mult:       skillHold[c.TalentLvlSkill()],
+-		FlatDmg:    c.a4Skill(),
++		Mult:       holdMult,
++		FlatDmg:    flat,
++	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 	}
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 10), 0, skillHoldHitmark)
+ 
+--- a/internal/characters/zhongli/burst.go
++++ b/internal/characters/zhongli/burst.go
+@@ -22,6 +22,8 @@
+ 
+ func (c *char) Burst(p map[string]int) (action.Info, error) {
+ 	// deal damage when created
++	burstMult := burst[c.TalentLvlBurst()]
++	flat, flatID := c.a4Burst()
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Planet Befall",
+@@ -32,8 +34,11 @@
+ 		PoiseDMG:   500,
+ 		Element:    attributes.Geo,
+ 		Durability: 100,
+-		Mult:       burst[c.TalentLvlBurst()],
+-		FlatDmg:    c.a4Burst(),
++		Mult:       burstMult,
++		FlatDmg:    flat,
++	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 	}
+ 	r := 7.5
+ 	if c.Base.Cons >= 4 {
+--- a/internal/characters/zhongli/stele.go
++++ b/internal/characters/zhongli/stele.go
+@@ -12,7 +12,7 @@
+ const particleICDKey = "zhongli-particle-icd"
+ 
+ func (c *char) newStele(dur int) {
+-	flat := c.a4Skill()
++	flat, flatID := c.a4Skill()
+ 	// deal damage when created
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+@@ -26,6 +26,9 @@
+ 		Durability: 50,
+ 		Mult:       skill[c.TalentLvlSkill()],
+ 		FlatDmg:    flat,
++	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
+ 	}
+ 	steleDir := c.Core.Combat.Player().Direction()
+ 	stelePos := info.CalcOffsetPoint(c.Core.Combat.Player().Pos(), info.Point{Y: 3}, steleDir)
+@@ -68,6 +71,9 @@
+ 		Durability: 25,
+ 		Mult:       skillTick[c.TalentLvlSkill()],
+ 		FlatDmg:    flat,
++	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&aiSnap, nil, flatID, flat)
+ 	}
+ 	snap := c.Snapshot(&aiSnap)
+ 	c.steleSnapshot = info.AttackEvent{
+--- a/internal/characters/layla/asc.go
++++ b/internal/characters/layla/asc.go
+@@ -1,6 +1,7 @@
+ package layla
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+@@ -22,9 +23,14 @@
+ }
+ 
+ // The DMG dealt by the Shooting Stars fired by Nights of Formal Focus is increased by 1.5% of Layla's Max HP.
+-func (c *char) a4() float64 {
++func (c *char) a4() (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	return 0.015 * c.MaxHP()
++	if c.Core.SourceHost != nil {
++		maxHP, read := c.MaxHPWithProvenance()
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-layla-shooting-star-a4", 0, map[string]any{"maxHP": maxHP}, []*info.SourceHostStatRead{read}, nil, nil)
++		return value, id
++	}
++	return 0.015 * c.MaxHP(), 0
+ }
+--- a/internal/characters/layla/shield.go
++++ b/internal/characters/layla/shield.go
+@@ -116,6 +116,8 @@
+ 			}
+ 		}
+ 
++		starTalent := c.TalentLvlSkill()
++		flat, flatID := c.a4()
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       shootingStarsAbil,
+@@ -125,9 +127,12 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    attributes.Cryo,
+ 			Durability: 25,
+-			Mult:       starDmg[c.TalentLvlSkill()],
+-			FlatDmg:    c.a4(),
++			Mult:       starDmg[starTalent],
++			FlatDmg:    flat,
+ 		}
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
++		}
+ 
+ 		done := false
+ 		c2CB := func(_ info.AttackCB) {
+--- a/internal/characters/lauma/skill.go
++++ b/internal/characters/lauma/skill.go
+@@ -247,7 +247,20 @@
+ 			return
+ 		}
+ 
+-		em := c.Stat(attributes.EM)
++		var em float64
++		var emRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			em, emRead = c.StatWithProvenance(attributes.EM)
++		} else {
++			em = c.Stat(attributes.EM)
++		}
++		talentForMult := c.TalentLvlSkill()
++		talentForFlat := c.TalentLvlSkill()
++		flat := em * frostgroveSanctuaryEM[talentForFlat]
++		var flatID int
++		if c.Core.SourceHost != nil {
++			flat, flatID = c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-lauma-frostgrove-sanctuary", 0, map[string]any{"talentLevel": talentForFlat, "em": em}, []*info.SourceHostStatRead{emRead}, nil, nil)
++		}
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       "Frostgrove Sanctuary",
+@@ -257,9 +270,12 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    attributes.Dendro,
+ 			Durability: 25,
+-			Mult:       frostgroveSanctuaryAtk[c.TalentLvlSkill()],
+-			FlatDmg:    em * frostgroveSanctuaryEM[c.TalentLvlSkill()],
++			Mult:       frostgroveSanctuaryAtk[talentForMult],
++			FlatDmg:    flat,
+ 		}
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
++		}
+ 
+ 		c.Core.QueueAttack(
+ 			ai,
+--- a/internal/characters/citlali/asc.go
++++ b/internal/characters/citlali/asc.go
+@@ -63,16 +63,30 @@
+ 	}, "citlali-a4-ns-gain")
+ }
+ 
+-func (c *char) a4Dmg(abil string) float64 {
++func (c *char) a4Dmg(abil string) (float64, int) {
+ 	if c.Base.Ascension < 4 {
+-		return 0
++		return 0, 0
+ 	}
+-	em := c.Stat(attributes.EM)
++	var em float64
++	var emRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		em, emRead = c.StatWithProvenance(attributes.EM)
++	} else {
++		em = c.Stat(attributes.EM)
++	}
+ 	if abil == iceStormAbil {
+-		return 12 * em
++		if c.Core.SourceHost != nil {
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-citlali-ice-storm-a4", 0, map[string]any{"em": em}, []*info.SourceHostStatRead{emRead}, nil, nil)
++			return value, id
++		}
++		return 12 * em, 0
+ 	}
+ 	if abil == frostFallAbil {
+-		return 0.9 * em
++		if c.Core.SourceHost != nil {
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-citlali-frostfall-a4", 0, map[string]any{"em": em}, []*info.SourceHostStatRead{emRead}, nil, nil)
++			return value, id
++		}
++		return 0.9 * em, 0
+ 	}
+-	return 0
++	return 0, 0
+ }
+--- a/internal/characters/citlali/cons.go
++++ b/internal/characters/citlali/cons.go
+@@ -120,6 +120,18 @@
+ 
+ 	c.generateNightsoulPoints(16)
+ 	c.AddEnergy("citlali-c4", 8)
++	var em float64
++	var emRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		em, emRead = c.StatWithProvenance(attributes.EM)
++	} else {
++		em = c.Stat(attributes.EM)
++	}
++	flat := 18 * em
++	var flatID int
++	if c.Core.SourceHost != nil {
++		flat, flatID = c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-citlali-c4-spiritvessel-skull", 0, map[string]any{"em": em}, []*info.SourceHostStatRead{emRead}, nil, nil)
++	}
+ 	aiSpiritVesselSkull := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "Spiritvessel Skull DMG (C4)",
+--- a/internal/characters/citlali/cons.go
++++ b/internal/characters/citlali/cons.go
+@@ -128,9 +128,12 @@
+ 		ICDTag:         attacks.ICDTagNone,
+ 		ICDGroup:       attacks.ICDGroupDefault,
+ 		StrikeType:     attacks.StrikeTypeDefault,
+ 		Element:        attributes.Cryo,
+ 		Durability:     25,
+-		FlatDmg:        18 * c.Stat(attributes.EM),
++		FlatDmg:        flat,
+ 	}
++	if flatID != 0 {
++		c.Core.SourceHost.CharacterFlatAttach(&aiSpiritVesselSkull, nil, flatID, flat)
++	}
+ 
+ 	hitmark := spiritVesselSkullHitmark
+--- a/internal/characters/citlali/skill.go
++++ b/internal/characters/citlali/skill.go
+@@ -156,6 +156,7 @@
+ 		if !c.StatusIsActive(opalFireStateKey) {
+ 			return
+ 		}
++		talentLevel := c.TalentLvlSkill()
+ 		ai := info.AttackInfo{
+ 			ActorIndex:     c.Index(),
+ 			Abil:           frostFallAbil,
+@@ -166,10 +167,14 @@
+ 			StrikeType:     attacks.StrikeTypeDefault,
+ 			Element:        attributes.Cryo,
+ 			Durability:     25,
+-			Mult:           frostfall[c.TalentLvlSkill()],
+-			FlatDmg:        c.a4Dmg(frostFallAbil),
++			Mult:           frostfall[talentLevel],
+ 			HitlagFactor:   0.01,
+ 		}
++		flat, flatID := c.a4Dmg(frostFallAbil)
++		ai.FlatDmg = flat
++		if flatID != 0 {
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, flat)
++		}
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player().Pos(), nil, 6), 0, 0, c.c4SkullCB)
+ 		c.itzpapaHitTask(src)
+ 	}, itzpapaInterval)
+--- a/internal/characters/citlali/burst.go
++++ b/internal/characters/citlali/burst.go
+@@ -7,6 +7,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/combat"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ const (
+@@ -39,6 +40,8 @@
+ }
+ 
+ func (c *char) Burst(_ map[string]int) (action.Info, error) {
++	talentLevel := c.TalentLvlBurst()
++	flat, flatID := c.a4Dmg(iceStormAbil)
+ 	aiIceStorm := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           iceStormAbil,
+@@ -49,8 +52,11 @@
+ 		StrikeType:     attacks.StrikeTypeDefault,
+ 		Element:        attributes.Cryo,
+ 		Durability:     50,
+-		Mult:           iceStorm[c.TalentLvlBurst()],
+-		FlatDmg:        c.a4Dmg(iceStormAbil),
++		Mult:           iceStorm[talentLevel],
++		FlatDmg:        flat,
++	}
++	if flatID != 0 {
++		sourcehost.CharacterFlatAttach(&aiIceStorm, nil, flatID, flat)
+ 	}
+ 	aiSpiritVesselSkull := info.AttackInfo{
+ 		ActorIndex:     c.Index(),

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "source-direct-events-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": true,
+    "nativeResultArchived": true,
+    "rawPath": "docs/validation/source-direct-events-team-20260930.capture.json",
+    "missingAttackCountFact": {
+      "siteId": "albedo.skill.enemy-damage",
+      "listenerCallId": 18,
+      "factRemoved": "albedo.skill.enemy-damage.attack-count",
+      "deliveryClosed": false,
+      "reasons": [
+        "本次监听器缺少已审阅直接排队分支的攻击数读数，或读数超出允许分支。",
+        "本次监听器发出的直接攻击或延迟任务数与实际分支不符。"
+      ],
+      "additionalNativeRun": false
+    },
+    "directEvents": [
+      {
+        "siteId": "albedo.skill.enemy-damage",
+        "componentId": "albedo-skill-proc",
+        "listenerCallId": 18,
+        "entryFacts": {
+          "albedo.skill.enemy-damage.attack-count": 1
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 0,
+        "completedProducerCount": 0,
+        "pendingProducerCount": 0,
+        "hitCount": 2,
+        "componentSubtotal": 1356.88886407622,
+        "reasons": []
+      },
+      {
+        "siteId": "dehya.skill.enemy-damage",
+        "componentId": "dehya-skill-followup",
+        "listenerCallId": 47,
+        "entryFacts": {
+          "dehya.skill.enemy-damage.attack-count": 1
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 0,
+        "completedProducerCount": 0,
+        "pendingProducerCount": 0,
+        "hitCount": 2,
+        "componentSubtotal": 364.9738662611342,
+        "reasons": []
+      },
+      {
+        "siteId": "raiden.eye.enemy-damage",
+        "componentId": "raiden-eye-followup",
+        "listenerCallId": 104,
+        "entryFacts": {
+          "raiden.eye.enemy-damage.attack-count": 1
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 0,
+        "completedProducerCount": 0,
+        "pendingProducerCount": 0,
+        "hitCount": 2,
+        "componentSubtotal": 153.70568170009923,
+        "reasons": []
+      }
+    ],
+    "originEntriesOpened": 3,
+    "componentImportExportSame": true,
+    "sharedCoreEditChangedSubtotal": true,
+    "offline112Regression": {
+      "rawPath": "docs/validation/source-event-components-team-20260930.capture.json",
+      "selectedCalls": [
+        {
+          "siteId": "baizhu.c2.enemy-damage",
+          "listenerCallId": 12,
+          "componentId": "baizhu-c2-on-enemy-damage",
+          "deliveryClosed": true,
+          "reasons": [],
+          "hitCount": 1,
+          "replayDifferences": [
+            0
+          ],
+          "componentSubtotal": 303.44568032812504
+        },
+        {
+          "siteId": "tartaglia.riptide.target-died",
+          "listenerCallId": 9,
+          "componentId": "tartaglia-riptide-on-target-died",
+          "deliveryClosed": true,
+          "reasons": [],
+          "hitCount": 1,
+          "replayDifferences": [
+            0
+          ],
+          "componentSubtotal": 125.39785272501312
+        }
+      ]
+    }
+  },
+  "pageErrors": [],
+  "scope": "One classic, two-target run checks positive observed Albedo skill, Dehya skill, and Raiden eye event calls during a four-character rotation. It measures only these three direct listener components; Kaeya is the trigger actor, not an audited event component. The 112 Baizhu and Tartaglia calls are recalculated from their archived native capture."
+}

@@ -1,0 +1,35 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/random-weapon-proc-runtime.test.ts (3 tests | 1 failed) 192ms
+     × samples actual deferred callback Aura after another same-frame hit, fixes the whole AoE coefficient and preserves calculator replay 184ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  10:35:51
+   Duration  1.09s (transform 647ms, setup 0ms, import 837ms, tests 192ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/random-weapon-proc-runtime.test.ts > five source-random independent weapon procs > samples actual deferred callback Aura after another same-frame hit, fixes the whole AoE coefficient and preserves calculator replay
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ packages/sim-core/src/__tests__/random-weapon-proc-runtime.test.ts:44:74
+     42|     expect(result.weaponProcLog!.filter(row => row.attackTag === "proc…
+     43|     expect(phaseCheckpointBlockers(config, { weaponProcStateAvailable:…
+     44|     expect(() => simulate(config, { compatibilityMode: "legacy-v0.1" }…
+       |                                                                          ^
+     45|   });
+     46|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+{"exitCode": 1, "elapsedSeconds": 1.518497374956496}

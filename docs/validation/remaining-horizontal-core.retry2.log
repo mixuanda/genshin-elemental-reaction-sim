@@ -1,0 +1,53 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 2 failed) 462ms
+   × calculates resolved Hydro/Swift, observed special components and the finite five-hit Phantasm with source oracles 82ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 380ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > calculates resolved Hydro/Swift, observed special components and the finite five-hit Phantasm with source oracles
+TypeError: Cannot read properties of undefined (reading 'stats')
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:236:86
+    234|   for (const hit of final.hits) {
+    235|     expect(hit.kind === "ordinary" || hit.kind === "special").toBe(tru…
+    236|     if (hit.kind === "ordinary" || hit.kind === "special") expect(hit.…
+       |                                                                                      ^
+    237|   }
+    238|   const restored = parseCalculatorDocument(serializeCalculatorDocument…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.0.hits.0.geometry.origin: Invalid input: expected object, received undefined
+- timeline.abilities.0.hits.0.geometry: Unrecognized key: "center"
+- timeline.abilities.0.hits.1.geometry.origin: Invalid input: expected object, received undefined
+- timeline.abilities.0.hits.1.geometry: Unrecognized key: "center"
+- timeline.abilities.0.hits.2.geometry.origin: Invalid input: expected object, received undefined
+- timeline.abilities.0.hits.2.geometry: Unrecognized key: "center"
+- timeline.abilities.0.hits.3.geometry.origin: Invalid input: expected object, received undefined
+- timeline.abilities.0.hits.3.geometry: Unrecognized key: "center"
+ ❯ parseSimConfig packages/schemas/src/schema.ts:34049:11
+    34047|   if (!parsed.success) {
+    34048|     const issues = formatZodError(parsed.error);
+    34049|     throw new ConfigMigrationError(
+       |           ^
+    34050|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    34051|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35537:12
+ ❯ simulate packages/sim-core/src/simulator.ts:19094:18
+ ❯ assertHorizontalPeriodicMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:346:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:391:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  12:21:49
+   Duration  3.16s (transform 2.04s, setup 0ms, import 2.62s, tests 462ms, environment 0ms)
+
+
+WALL_SECONDS=3.686

@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/lunar-special-capture.spec.ts(46,18): error TS2339: Property 'ui' does not exist on type 'BloomCapture'.
+apps/web/e2e/lunar-special-capture.spec.ts(80,26): error TS2352: Conversion of type 'BloomCapture' to type 'CapturedSpecialSimulation & { result: StellarConductSimulationResult; }' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+  Types of property 'result' are incompatible.
+    Type 'LunarBloomSimulationResult' is missing the following properties from type 'StellarConductSimulationResult': fieldInfluences, blockers

@@ -1,0 +1,140 @@
+{
+  "executionProfile": {
+    "executionMode": "auto-wait",
+    "artifact": {
+      "wasmSha256": "5eacb29bec79827710457c876c5075ac6f4dae9371c316095776541bc13fe3d0",
+      "wasmBytes": 41920581
+    },
+    "durationFrames": 360,
+    "totalHits": 1,
+    "totalDamage": 1609.831987036225,
+    "receipts": [
+      {
+        "event": "action",
+        "frame": 1,
+        "ended": 1,
+        "char_index": 0,
+        "msg": "source-host action queued",
+        "logs": {
+          "characterKey": "noelle",
+          "sequence": 1,
+          "action": "attack"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 1,
+        "ended": 1,
+        "char_index": 0,
+        "msg": "source-host execution delay configured",
+        "logs": {
+          "action": "attack",
+          "characterKey": "noelle",
+          "profileDelay": 12,
+          "totalPreActionDelay": 12,
+          "sequence": 1
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2,
+          "profileDelay": 3,
+          "totalPreActionDelay": 4
+        }
+      },
+      {
+        "event": "action",
+        "frame": 13,
+        "ended": 13,
+        "char_index": 0,
+        "msg": "source-host action accepted",
+        "logs": {
+          "sequence": 1,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 40,
+        "ended": 40,
+        "char_index": 0,
+        "msg": "source-host input window opened",
+        "logs": {
+          "sequence": 1
+        },
+        "ordering": {
+          "sequence": 0
+        }
+      }
+    ]
+  },
+  "observationPolicy": {
+    "warmupFrames": 60,
+    "windowFrames": 120
+  },
+  "runs": [
+    {
+      "seed": "1",
+      "elapsedMs": 68.09999990463257,
+      "wasm": {
+        "wasmSha256": "5eacb29bec79827710457c876c5075ac6f4dae9371c316095776541bc13fe3d0",
+        "wasmBytes": 41920581
+      },
+      "windowMetrics": [
+        {
+          "startFrame": 61,
+          "endFrame": 181,
+          "hits": 2,
+          "damage": 463.6593905754817,
+          "dps": 231.82969528774086
+        },
+        {
+          "startFrame": 181,
+          "endFrame": 301,
+          "hits": 2,
+          "damage": 855.8962489497078,
+          "dps": 427.9481244748539
+        }
+      ],
+      "pairedDpsDifference": 196.11842918711304,
+      "fullHits": 6
+    },
+    {
+      "seed": "2",
+      "elapsedMs": 28,
+      "wasm": {
+        "wasmSha256": "5eacb29bec79827710457c876c5075ac6f4dae9371c316095776541bc13fe3d0",
+        "wasmBytes": 41920581
+      },
+      "windowMetrics": [
+        {
+          "startFrame": 61,
+          "endFrame": 181,
+          "hits": 2,
+          "damage": 655.4435038000493,
+          "dps": 327.7217519000246
+        },
+        {
+          "startFrame": 181,
+          "endFrame": 301,
+          "hits": 2,
+          "damage": 1062.7442960383387,
+          "dps": 531.3721480191693
+        }
+      ],
+      "pairedDpsDifference": 203.65039611914472,
+      "fullHits": 6
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "schemaVersion": "116-shield-producer-native-audit-v1",
+  "status": "implemented; gofmt only; no build/gameplay test by this agent",
+  "lanes": {
+    "classic": {
+      "frozenSource": "/Users/evan/Library/Caches/gidps-source-host/build-XZWitQ/source",
+      "files": {
+        "pkg/core/sourcehost/ability_producer.go": {
+          "beforeSha256": "a334dd1d77bdee6a9ce948a17e9cbd05563984f479efb4fe9bfce5fc3004ffb9",
+          "afterSha256": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504"
+        },
+        "pkg/core/sourcehost_ability_producer.go": {
+          "beforeSha256": "ba337979a752e538806b36b98cfe9d3ef03c9738108a49e7543180af4a414235",
+          "afterSha256": "9054aaabf5cfe7757851b0fca5cdd5683997a2b9171ae98fc2f74a914b83a4a5"
+        },
+        "pkg/core/player/character/sourcehost_ability_producer.go": {
+          "beforeSha256": "1962c54795f9668cabeb0e644086d48cb61a6065428096c854d8f973884bd52f",
+          "afterSha256": "79e6e81faad35a79f5276407edd31288ccb3532819e205eae800ec5bb0ba3a27"
+        },
+        "pkg/core/sourcehost/ability_receipt.go": {
+          "beforeSha256": "c5a1b7faf6f4b24714599f851c74ed84f3def620ac71cfa1bff85d7a46eb68c5",
+          "afterSha256": "c1176844148de2be81f181860e7edd35bc1cfea320e8e73a5b8034d95e872b3a"
+        },
+        "pkg/core/sourcehost/shield_lifecycle.go": {
+          "beforeSha256": "82e74a349456a5b6c1c91975067a8c8e3254f5c5226a32d93d3b8360d628821d",
+          "afterSha256": "3e5077fe90579c13d6dbbf6d9329380251d0fdef20d1a7b9c355eb288509dc86"
+        },
+        "pkg/core/sourcehost_shield.go": {
+          "beforeSha256": "ea2a65d7d6b800965ef812d4df9b5a32e493e5f7a2ae4d516cc69abe1d34f9e0",
+          "afterSha256": "e3067a2a27509e469a9b7258c2cd128d0b8637ef5a98c5a3636a2cb5cc7f1dd7"
+        },
+        "pkg/core/sourcehost/shield_producer.go": {
+          "beforeSha256": null,
+          "afterSha256": "7025c77f02aced9a37ccb5c61721b98935e7f60985932b9ceb17506f37da411f"
+        },
+        "pkg/core/sourcehost/attack.go": {
+          "beforeSha256": "4576bd15793f7acdd165952bfef1e05ca82d2cd76a9ce0d537211fb6dd1063c1",
+          "afterSha256": "c3519ae94391797e5b2e2638ad96c8fcc6e4ea5b140d131e402c6d79e395f27b"
+        },
+        "pkg/core/sourcehost/bridge.go": {
+          "beforeSha256": "4bf43394794e6b8512b221001b2dd299450169cf88d79ecac0c17d3101907c1f",
+          "afterSha256": "5b5c1a458cd183caa94ab813266900e08ad62cd9c77ed2217cff1a68ae505de5"
+        },
+        "cmd/sourcehost/main.go": {
+          "beforeSha256": "004d5dd779108b80c841a0e64be61d370bf7f700297cbb07cd62c6eefbb729fb",
+          "afterSha256": "de4e398a49b2bab69caf771cae66d24fa4139a4b391639c54c3d575cb6a92837"
+        }
+      }
+    },
+    "stellar": {
+      "frozenSource": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-wrBc8S/source",
+      "files": {
+        "pkg/core/sourcehost/ability_producer.go": {
+          "beforeSha256": "a334dd1d77bdee6a9ce948a17e9cbd05563984f479efb4fe9bfce5fc3004ffb9",
+          "afterSha256": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504"
+        },
+        "pkg/core/sourcehost_ability_producer.go": {
+          "beforeSha256": "ba337979a752e538806b36b98cfe9d3ef03c9738108a49e7543180af4a414235",
+          "afterSha256": "9054aaabf5cfe7757851b0fca5cdd5683997a2b9171ae98fc2f74a914b83a4a5"
+        },
+        "pkg/core/player/character/sourcehost_ability_producer.go": {
+          "beforeSha256": "1962c54795f9668cabeb0e644086d48cb61a6065428096c854d8f973884bd52f",
+          "afterSha256": "79e6e81faad35a79f5276407edd31288ccb3532819e205eae800ec5bb0ba3a27"
+        },
+        "pkg/core/sourcehost/ability_receipt.go": {
+          "beforeSha256": "c5a1b7faf6f4b24714599f851c74ed84f3def620ac71cfa1bff85d7a46eb68c5",
+          "afterSha256": "c1176844148de2be81f181860e7edd35bc1cfea320e8e73a5b8034d95e872b3a"
+        },
+        "pkg/core/sourcehost/shield_lifecycle.go": {
+          "beforeSha256": "82e74a349456a5b6c1c91975067a8c8e3254f5c5226a32d93d3b8360d628821d",
+          "afterSha256": "3e5077fe90579c13d6dbbf6d9329380251d0fdef20d1a7b9c355eb288509dc86"
+        },
+        "pkg/core/sourcehost_shield.go": {
+          "beforeSha256": "ea2a65d7d6b800965ef812d4df9b5a32e493e5f7a2ae4d516cc69abe1d34f9e0",
+          "afterSha256": "e3067a2a27509e469a9b7258c2cd128d0b8637ef5a98c5a3636a2cb5cc7f1dd7"
+        },
+        "pkg/core/sourcehost/shield_producer.go": {
+          "beforeSha256": null,
+          "afterSha256": "7025c77f02aced9a37ccb5c61721b98935e7f60985932b9ceb17506f37da411f"
+        },
+        "pkg/core/sourcehost/attack.go": {
+          "beforeSha256": "d5fafc4a2267ff45688e4dbb413d6042cf6f41336bb71c575b6c84e8847020e7",
+          "afterSha256": "a2085fdc335198ac1928d0b30f24ca5f52f00b4f9872ce36e3d17083a42c4bbc"
+        },
+        "pkg/core/sourcehost/bridge.go": {
+          "beforeSha256": "4a887fab730dd10746c89258912a04aba91c12fb771e4c0da53e10abe13b74de",
+          "afterSha256": "c1f7c9d45fb08be41819d5a1c6496cb0c67a9b0b173ab228e34c41e38e7a9179"
+        },
+        "cmd/sourcehost/main.go": {
+          "beforeSha256": "0685fd599fa593f7c5611c62c5e47aa54b6d561f50e36c94f04287b88bfe9a40",
+          "afterSha256": "0316e1dc95d8144d95c420277139b7b8e9ac553a518cecd92703bd97eb2c39dc"
+        }
+      }
+    }
+  },
+  "wire": {
+    "abilityProducersAdditions": [
+      "parentHitCallbackId?:positive int",
+      "taskId?:positive int; omitted for immediate character delay-zero callback"
+    ],
+    "shieldProducers": [
+      "id",
+      "siteId",
+      "ownerInstanceId?",
+      "parentProducerId?",
+      "taskId",
+      "queuedFrame",
+      "runFrame?",
+      "completedFrame?",
+      "state",
+      "gateObserved",
+      "gateInstanceId?",
+      "entryFacts?",
+      "queuedAttacks"
+    ]
+  },
+  "facts": [
+    "Explicit callback-parent char task captures parentHitCallbackId at registration; active callback context is not carried across delay.",
+    "Invocation ancestry comes from callback batch exact parentQueueId lookup in native invocation or ability producer queue census; no origin heuristic.",
+    "Existing Core and character ability task helpers now bind actual tracked taskId; native immediate delay-zero character callback remains taskless.",
+    "First shield DoT task remains queued before shield Add; source later binds the returned producer ID to actual installed shield instance.",
+    "Recursive Core tasks inherit the actual active parent shield producer and immutable owner instance.",
+    "Native Get gate identity is independently recorded; no owner-equality gameplay guard is added.",
+    "Shield producer queue census requires exact active producer plus audited shield emit site, excluding inner shield hooks.",
+    "Ability invocation/producer census excludes active shield producers, while unhooked Noelle fallback remains ordinary ability-producer direct damage.",
+    "Native source formulas, scheduler, ordering and phase snapshot are unchanged.",
+    "Stellar attack tag serialization remains lane-specific; classic file was not retained over stellar implementation."
+  ],
+  "checks": {
+    "gofmtListOutput": "",
+    "buildsRun": 0,
+    "testsRun": 0
+  },
+  "limitations": [
+    "Source annotations and TS rules must validate gate facts, task closure and birth binding before full scope.",
+    "Only actual explicitly tagged queues are attributed; no assumed shield lifespan/tick total."
+  ]
+}

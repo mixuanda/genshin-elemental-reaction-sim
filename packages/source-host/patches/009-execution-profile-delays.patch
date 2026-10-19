@@ -1,0 +1,41 @@
+diff --git a/pkg/simulation/run.go b/pkg/simulation/run.go
+--- a/pkg/simulation/run.go
++++ b/pkg/simulation/run.go
+@@ -163,6 +163,37 @@
+ 		s.C.Log.NewEvent("source-host action queued", glog.LogActionEvent, s.C.Player.Active()).
+ 			Write("sequence", s.C.SourceHost.ActionSequence).
+ 			Write("action", next.Action.String()).Write("characterKey", next.Char.String())
++		// Local source-host execution policy: upstream consumes Delays.Swap in
++		// the swap animation, but parses these seven fields without using them.
++		// Reuse executeActionDelay after native ReadyCheck; explicit GCSL delay
++		// has already accumulated in preActionDelay and remains additive.
++		profileDelay := 0
++		profileAction := true
++		switch next.Action {
++		case action.ActionAttack:
++			profileDelay = s.cfg.Settings.Delays.Attack
++		case action.ActionCharge:
++			profileDelay = s.cfg.Settings.Delays.Charge
++		case action.ActionSkill:
++			profileDelay = s.cfg.Settings.Delays.Skill
++		case action.ActionBurst:
++			profileDelay = s.cfg.Settings.Delays.Burst
++		case action.ActionJump:
++			profileDelay = s.cfg.Settings.Delays.Jump
++		case action.ActionDash:
++			profileDelay = s.cfg.Settings.Delays.Dash
++		case action.ActionAim:
++			profileDelay = s.cfg.Settings.Delays.Aim
++		default:
++			profileAction = false
++		}
++		if profileAction {
++			s.preActionDelay += profileDelay
++			s.C.Log.NewEvent("source-host execution delay configured", glog.LogActionEvent, s.C.Player.Active()).
++				Write("sequence", s.C.SourceHost.ActionSequence).Write("action", next.Action.String()).
++				Write("characterKey", next.Char.String()).Write("profileDelay", profileDelay).
++				Write("totalPreActionDelay", s.preActionDelay)
++		}
+ 	}
+ 	return actionReadyCheckPhase, nil
+ }

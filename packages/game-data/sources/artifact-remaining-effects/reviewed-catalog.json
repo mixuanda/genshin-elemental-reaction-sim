@@ -1,0 +1,57 @@
+[
+  {
+    "id": "artifact-set:10001",
+    "slug": "resolutionofsojourner",
+    "name": "行者之心",
+    "fourPieceDescription": "重击的暴击率提升30%。",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/sojourner/sojourner.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ResolutionOfSojourner/index.tsx"
+    ]
+  },
+  {
+    "id": "artifact-set:15024",
+    "slug": "echoesofanoffering",
+    "name": "来歆余响",
+    "fourPieceDescription": "普通攻击命中敌人时，有36%概率触发「幽谷祝祀」：普通攻击造成的伤害提高，伤害提高值为攻击力的70%，该效果将在普通攻击造成伤害后的0.05秒后清除。普通攻击未触发「幽谷祝祀」时，会使下次触发概率提升20%；0.2秒内至多判定1次触发与否。",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/echoes/echoes.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/EchoesOfAnOffering/index.tsx"
+    ]
+  },
+  {
+    "id": "artifact-set:15033",
+    "slug": "songofdayspast",
+    "name": "昔时之歌",
+    "fourPieceDescription": "装备者对队伍中的角色进行治疗时，将产生持续6秒的渴盼效果，记录治疗的生命值回复量（包括溢出值）。持续时间结束时，渴盼效果将转变为「彼时的浪潮」效果：队伍中自己的当前场上角色的普通攻击、重击、下落攻击、元素战技与元素爆发命中敌人时，将基于渴盼效果所记录的回复量的8%提高造成的伤害，「彼时的浪潮」将在生效5次或10秒后移除。一次渴盼效果至多记录15000点回复量，同时至多存在一个，能够记录多个装备者的产生的回复量；装备者处于队伍后台时，依然能触发该效果。",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/songofdayspast/songofdayspast.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/SongOfDaysPast/index.tsx"
+    ]
+  },
+  {
+    "id": "artifact-set:15046",
+    "slug": "disenchantmentindeepshadow",
+    "name": "影中沉凝的幻灭",
+    "fourPieceDescription": "超导反应造成的伤害提升80%，星超导反应造成的伤害提升40%；装备者攻击受到超导或星超导反应影响的敌人时，本次攻击的暴击率提高16%。",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/DisenchantmentInDeepShadow/index.tsx"
+    ]
+  },
+  {
+    "id": "artifact-set:15028",
+    "slug": "flowerofparadiselost",
+    "name": "乐园遗落之花",
+    "fourPieceDescription": "装备者绽放、超绽放、烈绽放反应造成的伤害提升40%，造成的月绽放反应伤害提升10%。此外，装备者触发绽放、超绽放、烈绽放、月绽放后，上述效果带来的加成提升25%，该效果持续10秒，至多叠加4次，每1秒至多触发一次。装备者处于队伍后台时依然能触发该效果。",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx"
+    ]
+  }
+]

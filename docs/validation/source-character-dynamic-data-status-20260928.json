@@ -1,0 +1,13 @@
+{
+  "command": [
+    "node",
+    "packages/game-data/scripts/update-data.mjs",
+    "status",
+    "--write",
+    "--output",
+    "packages/game-data/src/generated/update-status.json"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.717,
+  "log": "docs/validation/source-character-dynamic-data-status-20260928.log"
+}

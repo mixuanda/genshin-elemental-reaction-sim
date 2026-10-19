@@ -1,0 +1,377 @@
+{
+  "version": 1,
+  "id": "amber-expiry-eq-c0-t1-b4ae769-v1",
+  "recordedAt": "2026-09-23T12:19:36.064005+00:00",
+  "status": "source-backed-provisional-with-external-eq-execution",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceFiles": [
+    {
+      "path": "internal/characters/amber/skill.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/skill.go",
+      "sha256": "513d849227f7c74411b3b4c00eca7e55ab06e1becbd5ff636d0dd32a9672c22b",
+      "bytes": 1152
+    },
+    {
+      "path": "internal/characters/amber/bunny.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/bunny.go",
+      "sha256": "81494ae5b34cdfb5a531971e9e2eb0a76f29492aa49d0889eaa70f674c0e9fa4",
+      "bytes": 6155
+    },
+    {
+      "path": "internal/characters/amber/burst.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/burst.go",
+      "sha256": "a06c8960caca22ecc690e1402b1e61d39dbd3a17e648ac6c73a8ae2379f0513f",
+      "bytes": 2971
+    },
+    {
+      "path": "internal/characters/amber/zz_amber.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/zz_amber.dm.go",
+      "sha256": "62e6b1a0f66e54f456dd515c34aa46ca83bcc7115ef918d1aabf81a725b14901",
+      "bytes": 2772
+    },
+    {
+      "path": "internal/characters/amber/amber.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/amber.go",
+      "sha256": "d3f63fd6c99d4d93c7502ea6b327762d460c47c9211bc5f23299b17318f08c04",
+      "bytes": 1022
+    },
+    {
+      "path": "pkg/gadget/gadget.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gadget/gadget.go",
+      "sha256": "9dae7ac35683c46018961b84fee0176aa5806de44841e08b1d4c61fd0a187105",
+      "bytes": 1657
+    },
+    {
+      "path": "pkg/core/core.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "bytes": 5508
+    },
+    {
+      "path": "pkg/core/combat/combat.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/combat.go",
+      "sha256": "54dc23a14ec8e4b7a72d8f8a316948e4fe86f03473ff669dc5f225c3341bba41",
+      "bytes": 2422
+    },
+    {
+      "path": "pkg/core/combat/gadget.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/gadget.go",
+      "sha256": "6169439303933d100ea1780318bce8db586b2f559c7ec114c07681e1bda54701",
+      "bytes": 1673
+    },
+    {
+      "path": "pkg/core/energy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go",
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "bytes": 2639
+    },
+    {
+      "path": "pkg/core/player/character/energy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "bytes": 2327
+    },
+    {
+      "path": "pkg/core/player/character/character.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "bytes": 6364
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "bytes": 7052
+    },
+    {
+      "path": "pkg/core/player/animation/animation.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/animation/animation.go",
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "bytes": 3385
+    },
+    {
+      "path": "internal/template/character/cooldown.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/cooldown.go",
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "bytes": 7269
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "bytes": 2255
+    },
+    {
+      "path": "pkg/core/attacks/icd_groups.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/icd_groups.dm.go",
+      "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4",
+      "bytes": 15409
+    },
+    {
+      "path": "internal/characters/amber/asc.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/asc.go",
+      "sha256": "b057956e4b9f49703d118c7317a54cafe76a937c98249a15ba65946bcc36cd84",
+      "bytes": 1386
+    }
+  ],
+  "talentVectors": {
+    "bunnyExplode": [
+      1.232,
+      1.3244,
+      1.4168,
+      1.54,
+      1.6324,
+      1.7248,
+      1.848,
+      1.9712,
+      2.0944,
+      2.2176,
+      2.3408,
+      2.464,
+      2.618,
+      2.772,
+      2.926
+    ],
+    "burstTick": [
+      0.2808,
+      0.30186,
+      0.32292,
+      0.351,
+      0.37206,
+      0.39312,
+      0.4212,
+      0.44928,
+      0.47736,
+      0.50544,
+      0.53352,
+      0.5616,
+      0.5967,
+      0.6318,
+      0.6669
+    ]
+  },
+  "scope": {
+    "level": 1,
+    "constellation": 0,
+    "talents": [
+      1,
+      1,
+      1
+    ],
+    "weapon": "Hunters Bow R1 level1",
+    "finalAtk": 41.9434,
+    "critRate": 0,
+    "enemyLevel": 90,
+    "enemyResistance": 0.1,
+    "enemyPosition": {
+      "x": 0,
+      "y": 2,
+      "radius": 2
+    },
+    "dynamicBuffs": false,
+    "scopeCoverage": "E natural expiry and 18 Q hits only; not full Amber"
+  },
+  "timing": {
+    "skillInputFrame": 1,
+    "burstInputFrame": 33,
+    "summonSpawnFrame": 46,
+    "summonExpiryFrame": 530,
+    "summonHitFrame": 531,
+    "skillParticleReceiveFrame": 631,
+    "burstDebitFrame": 92,
+    "burstHitOffsetsInSourceQueueOrder": [
+      96,
+      120,
+      144,
+      168,
+      192,
+      108,
+      144,
+      180,
+      84,
+      96,
+      108,
+      120,
+      132,
+      144,
+      156,
+      168,
+      180,
+      192
+    ],
+    "skillReadyOffset": 905,
+    "burstReadyOffset": 776
+  },
+  "externalValidation": {
+    "seed": "9172731396186557696",
+    "damageEvents": [
+      {
+        "frame": 117,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 129,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 129,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 141,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 141,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 153,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 153,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 165,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 177,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 177,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 177,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 189,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 201,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 201,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 213,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 213,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 225,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 225,
+        "ability": "Fiery Rain",
+        "sourceFrame": 33,
+        "damage": 3.6790156042886593
+      },
+      {
+        "frame": 531,
+        "ability": "Baron Bunny",
+        "sourceFrame": 46,
+        "damage": 16.141549944742266
+      }
+    ],
+    "energyEvents": [
+      {
+        "frame": 92,
+        "type": "draining energy",
+        "details": {
+          "max_energy": 40,
+          "post_drain": 0,
+          "pre_drain": 40,
+          "source": "amber-burst-energy-drain"
+        }
+      },
+      {
+        "frame": 631,
+        "type": "particle",
+        "details": {
+          "ER": 1,
+          "amt": 12,
+          "count": 4,
+          "ele": "pyro",
+          "is_active": true,
+          "max_energy": 40,
+          "party_count": 1,
+          "post_recovery": 12,
+          "pre_recovery": 0,
+          "source": "amber"
+        }
+      }
+    ],
+    "totalDamage": 82.36383082193812,
+    "totalDamageSource": "amber-eq-expiry.result.json statistics.total_damage.mean (raw gcsim accumulation, not a Python sum of logged hits)"
+  },
+  "limitations": [
+    "E: no damage/HP-driven death, freeze/movement, hold, manual C2 or overload detonation, C4 second charge, C6 buff.",
+    "All 18 Q circles intersect the fixed stationary radius2 target; random geometry placement is not simulated.",
+    "Bunny explosion pattern uses player position at spawn in fixed source, not modeled moving bunny position.",
+    "Normal random hit energy is not implemented: normals after the first burst are blocked in this contract.",
+    "Cooldown callback timing is represented only by exact ready offset delay+duration."
+  ],
+  "standaloneCalculator": {
+    "characterId": "character:10000021",
+    "skillId": "amber-skill-tap-expiry",
+    "burstId": "amber-burst-fiery-rain",
+    "talentVectorMatch": {
+      "skill": "combat2.param2",
+      "burst": "combat3.param1",
+      "countPerVector": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    "ascension": "0-6 explicit; A1 +0.1 crit per Q hit at ascension >=1; A4 must already be accounted for in actual input ATK",
+    "constellation": 0,
+    "emittedHits": 19,
+    "characterTotalHits": 24,
+    "status": "provisional-conditioned"
+  }
+}

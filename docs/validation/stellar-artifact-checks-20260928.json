@@ -1,0 +1,72 @@
+[
+  {
+    "name": "stellar-artifact-core-20260928",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "packages/sim-core/src/__tests__/stellar-artifact-composition.test.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 1.621
+  },
+  {
+    "name": "stellar-artifact-build-20260928",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.298
+  },
+  {
+    "name": "stellar-artifact-browser-20260928",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/stellar-artifact-runtime.spec.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 31.052
+  },
+  {
+    "name": "stellar-artifact-core-20260928.retry1",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "packages/sim-core/src/__tests__/stellar-artifact-composition.test.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 2.029
+  },
+  {
+    "name": "stellar-artifact-build-20260928.retry1",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.285
+  },
+  {
+    "name": "stellar-artifact-browser-20260928.retry1",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/stellar-artifact-runtime.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.348
+  },
+  {
+    "name": "stellar-artifact-build-20260928.final",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.38
+  }
+]

@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:30131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/stateful-weapon-proc-runtime.spec.ts:78:1 › Stateful weapon normal controls show actual activations and notes, replay the boundary snapshot, and establish deterministic ordinary-aura checkpoints
+[chromium] › apps/web/e2e/stateful-weapon-proc-runtime.spec.ts:78:1 › Stateful weapon normal controls show actual activations and notes, replay the boundary snapshot, and establish deterministic ordinary-aura checkpoints
+Stateful weapon browser measurements {"totalDamage":1880,"activations":[{"weapon":"debateclub","frame":1883,"kind":"skill","effectExpiresFrame":2783},{"weapon":"crescentpike","frame":1887,"kind":"particle-received","effectExpiresFrame":2187},{"weapon":"endoftheline","frame":1890,"kind":"skill","effectExpiresFrame":2790}],"independentHits":[{"actor":"a","frame":1882,"damage":500},{"actor":"b","frame":1885,"damage":300},{"actor":"c","frame":1889,"damage":100},{"actor":"d","frame":1920,"damage":480}],"fullEnergyPickup":60,"replayDifference":0,"steadyState":"steady-state-established","checkpointComplete":true,"measurement":{"startTick":15360,"endTick":17280,"durationSeconds":32,"totalDamage":1880,"dps":58.75,"primaryTargetDamage":1880,"primaryTargetDps":58.75,"includedDamageEventIds":[95,96,97,98,99,100,101,102,103,104,105,106],"policy":"half-open-[startTick,endTick)"},"boundaryTick":15360,"pendingBoundaryFlatAtk":200}
+
+  1 passed (3.2s)

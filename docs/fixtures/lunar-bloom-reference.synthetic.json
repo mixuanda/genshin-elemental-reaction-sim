@@ -1,0 +1,214 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "synthetic-lunar-bloom-integration-v1",
+  "randomSeed": "test-seed",
+  "meta": {
+    "name": "合成机制验证：草露与月露涤荡（非完整角色构筑）",
+    "version": "1",
+    "verificationStatus": "user-supplied",
+    "note": "35000生命与普通水草攻击为显式合成测试输入；唯一来源动作由用户在运行副本中明确加入，不推定完整角色天赋、命座与领域。"
+  },
+  "duration": 10,
+  "cycleLength": 11,
+  "enemy": {
+    "level": 110,
+    "resistance": 0.1,
+    "defReduction": 0,
+    "targets": [
+      {
+        "id": "enemy-0",
+        "name": "Synthetic stationary target",
+        "position": {
+          "x": 0,
+          "y": 0
+        },
+        "hitboxRadius": 0
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "c",
+      "name": "A",
+      "element": "hydro",
+      "color": "#ff0000",
+      "level": 90,
+      "energyMax": 60,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 1000,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 35000,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 700,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    },
+    {
+      "id": "d",
+      "name": "A",
+      "element": "dendro",
+      "color": "#ff0000",
+      "level": 90,
+      "energyMax": 60,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 1000,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 10000,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 700,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    }
+  ],
+  "rotation": [],
+  "reactionEngine": {
+    "mode": "aura-v5"
+  },
+  "timeline": {
+    "mode": "legal-frame-v1",
+    "fps": 60,
+    "legalityMode": "strict",
+    "initialActiveCharacterId": "c",
+    "swapFrames": 1,
+    "abilities": [
+      {
+        "id": "c",
+        "actorId": "c",
+        "name": "hydro",
+        "kind": "skill",
+        "cancelFrame": 1,
+        "animationEndFrame": 1,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "c",
+            "frame": 0,
+            "scaling": 1,
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "no-icd-v1"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "d",
+        "actorId": "d",
+        "name": "dendro",
+        "kind": "skill",
+        "cancelFrame": 1,
+        "animationEndFrame": 1,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "d",
+            "frame": 0,
+            "scaling": 1,
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "no-icd-v1"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "type": "skill",
+        "actorId": "c",
+        "abilityId": "c",
+        "atFrame": 0
+      },
+      {
+        "type": "swap",
+        "characterId": "d",
+        "atFrame": 5
+      },
+      {
+        "type": "skill",
+        "actorId": "d",
+        "abilityId": "d",
+        "atFrame": 6
+      },
+      {
+        "type": "swap",
+        "characterId": "c",
+        "atFrame": 153
+      }
+    ]
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "disabled"
+  },
+  "targetTaskModel": {
+    "mode": "legacy-event-heap-v1"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+    "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+  },
+  "callbackBusModel": {
+    "mode": "legacy-no-versioned-callback-bus-v1",
+    "policyId": "legacy-no-versioned-callback-bus-v1"
+  }
+}

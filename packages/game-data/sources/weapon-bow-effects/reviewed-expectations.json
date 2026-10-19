@@ -1,0 +1,713 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "Independent hand-entered endpoint expectations from fixed source formulas. No production resolver was run to generate these values. No tests have been executed by this author.",
+  "refinementReview": "All available R1–R5 catalog value arrays were read against fixed gcsim formulas; Jade Vista and Covenant use fixed optimizer explicit five-entry arrays. Predator has only R1. Endpoint fixtures do not establish intermediate ranks by inference.",
+  "statsMeaning": "Only this weapon passive contributions, excluding base character/equipment stats.",
+  "hitMeaning": "Sum matching dynamicHitBonuses for element and attackTag.",
+  "cases": [
+    {
+      "weaponId": "weapon:15302",
+      "slug": "sharpshootersoath",
+      "context": {
+        "weakPointHit": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0.24
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0.48
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15410",
+      "slug": "alleyhunter",
+      "context": {
+        "weaponStacks": 10
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.2
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.4
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15411",
+      "slug": "fadingtwilight",
+      "context": {
+        "weaponState": 1
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.1
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.2
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15412",
+      "slug": "mitternachtswaltz",
+      "context": {
+        "normalHitEffectActive": true,
+        "skillBurstHitEffectActive": false
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.2
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          },
+          {
+            "element": "electro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.4
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          },
+          {
+            "element": "electro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15415",
+      "slug": "predator",
+      "characterId": "character:10000062",
+      "refinements": [
+        1
+      ],
+      "context": {
+        "platformPassiveActive": true,
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "flatAtk": 66
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "normal",
+            "bonus": 0.2
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0.2
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15417",
+      "slug": "kingssquire",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 60
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 140
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15419",
+      "slug": "ibispiercer",
+      "context": {
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 80
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 160
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15424",
+      "slug": "scionoftheblazingsun",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.28
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.56
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15426",
+      "slug": "cloudforged",
+      "context": {
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 80
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 160
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15427",
+      "slug": "rangegauge",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.09
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "bonus": 0.21
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.21
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "bonus": 0.39
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15430",
+      "slug": "flowerwreathedfeathers",
+      "context": {
+        "weaponStacks": 6
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0.36
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0.72
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15431",
+      "slug": "chainbreaker",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.192,
+          "em": 24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.384,
+          "em": 48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15433",
+      "slug": "snarehook",
+      "context": {
+        "weaponEffectActive": true,
+        "moonsignLevel": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15434",
+      "slug": "rainbowserpentsrainbow",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.28
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.56
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15435",
+      "slug": "jadevista",
+      "context": {
+        "sameElementTeammates": 1,
+        "differentElementTeammates": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 64,
+          "atkPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 128,
+          "atkPercent": 0.48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15436",
+      "slug": "covenantoffrostandsnow",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15503",
+      "slug": "elegyfortheend",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 160,
+          "atkPercent": 0.2
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 320,
+          "atkPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15509",
+      "slug": "thunderingpulse",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.4
+          },
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.8
+          },
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15511",
+      "slug": "hunterspath",
+      "context": {},
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 0.12
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "charged",
+            "bonus": 0.24
+          },
+          {
+            "element": "physical",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.4
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.8
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:15514",
+      "slug": "astralvulturescrimsonplumage",
+      "context": {
+        "weaponEffectActive": true,
+        "differentElementTeammates": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "charged",
+            "bonus": 0.48
+          },
+          {
+            "element": "anemo",
+            "attackTag": "burst",
+            "bonus": 0.24
+          },
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.48
+        },
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "charged",
+            "bonus": 0.96
+          },
+          {
+            "element": "anemo",
+            "attackTag": "burst",
+            "bonus": 0.48
+          },
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15515",
+      "slug": "thedaybreakchronicles",
+      "context": {
+        "weaponNormalStacks": 6,
+        "weaponSkillStacks": 3,
+        "weaponBurstStacks": 1
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.6
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.3
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.1
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 1.2
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.6
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.2
+          },
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:15516",
+      "slug": "goldenfrostboundoath",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.4
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.32
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.8
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    }
+  ]
+}

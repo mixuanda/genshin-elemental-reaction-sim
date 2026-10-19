@@ -1,0 +1,257 @@
+--- a/internal/characters/beidou/skill.go
++++ b/internal/characters/beidou/skill.go
+@@ -79,15 +79,32 @@
+ 	)
+ 
+ 	// add shield
++	ratioTalent := c.TalentLvlSkill()
++	var maxHP float64
++	var maxHPRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHP, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
++	flatTalent := c.TalentLvlSkill()
++	shieldHP := shieldPer[ratioTalent]*maxHP + shieldBase[flatTalent]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-beidou-skill", map[string]any{
++			"ratioTalent": ratioTalent, "maxHp": maxHP, "flatTalent": flatTalent,
++		}, []*info.SourceHostStatRead{maxHPRead}, nil)
++	}
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     c.Index(),
+-		Src:        c.Core.F,
+-		ShieldType: shield.BeidouThunderShield,
+-		Name:       "Tidecaller (Shield)",
+-		HP:         shieldPer[c.TalentLvlSkill()]*c.MaxHP() + shieldBase[c.TalentLvlSkill()],
+-		Ele:        attributes.Electro,
+-		Expires:    c.Core.F + skillHitmark, // last until hitmark
++		ActorIndex:     c.Index(),
++		Target:         c.Index(),
++		Src:            c.Core.F,
++		ShieldType:     shield.BeidouThunderShield,
++		Name:           "Tidecaller (Shield)",
++		HP:             shieldHP,
++		SourceHostHPID: shieldHPID,
++		Ele:            attributes.Electro,
++		Expires:        c.Core.F + skillHitmark, // last until hitmark
+ 	})
+ 
+ 	c.SetCDWithDelay(action.ActionSkill, 450, 4)
+--- a/internal/characters/beidou/burst.go
++++ b/internal/characters/beidou/burst.go
+@@ -74,15 +74,28 @@
+ 
+ 	if c.Base.Cons >= 1 {
+ 		// create a shield
++		var maxHP float64
++		var maxHPRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHP, maxHPRead = c.MaxHPWithProvenance()
++		} else {
++			maxHP = c.MaxHP()
++		}
++		shieldHP := .16 * maxHP
++		shieldHPID := 0
++		if c.Core.SourceHost != nil {
++			shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-beidou-c1-burst", map[string]any{"maxHp": maxHP}, []*info.SourceHostStatRead{maxHPRead}, nil)
++		}
+ 		c.Core.Player.Shields.Add(&shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			ShieldType: shield.BeidouC1,
+-			Name:       "Sea Beast's Scourge (Shield)",
+-			HP:         .16 * c.MaxHP(),
+-			Ele:        attributes.Electro,
+-			Expires:    c.Core.F + dur,
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			ShieldType:     shield.BeidouC1,
++			Name:           "Sea Beast's Scourge (Shield)",
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Electro,
++			Expires:        c.Core.F + dur,
+ 		})
+ 	}
+ 
+--- a/internal/characters/candace/skill.go
++++ b/internal/characters/candace/skill.go
+@@ -108,15 +108,30 @@
+ 	)
+ 
+ 	// Add shield until skill unleashed (treated as frame when attack hits)
++	ratioTalent := c.TalentLvlSkill()
++	var maxHP float64
++	var maxHPRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHP, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
++	flatTalent := c.TalentLvlSkill()
++	shieldHP := skillShieldPct[ratioTalent]*maxHP + skillShieldFlat[flatTalent]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-candace-skill", map[string]any{"ratioTalent": ratioTalent, "maxHp": maxHP, "flatTalent": flatTalent}, []*info.SourceHostStatRead{maxHPRead}, nil)
++	}
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     c.Index(),
+-		Src:        c.Core.F,
+-		Name:       "Sacred Rite: Heron's Sanctum (Shield)",
+-		ShieldType: shield.CandaceSkill,
+-		HP:         skillShieldPct[c.TalentLvlSkill()]*c.MaxHP() + skillShieldFlat[c.TalentLvlSkill()],
+-		Ele:        attributes.Hydro,
+-		Expires:    c.Core.F + hitmark,
++		ActorIndex:     c.Index(),
++		Target:         c.Index(),
++		Src:            c.Core.F,
++		Name:           "Sacred Rite: Heron's Sanctum (Shield)",
++		ShieldType:     shield.CandaceSkill,
++		HP:             shieldHP,
++		SourceHostHPID: shieldHPID,
++		Ele:            attributes.Hydro,
++		Expires:        c.Core.F + hitmark,
+ 	})
+ 
+ 	cd := skillCD[chargeLevel]
+--- a/internal/characters/yunjin/skill.go
++++ b/internal/characters/yunjin/skill.go
+@@ -104,15 +104,30 @@
+ 	)
+ 
+ 	// Add shield until skill unleashed (treated as frame when attack hits)
++	ratioTalent := c.TalentLvlSkill()
++	var maxHP float64
++	var maxHPRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHP, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
++	flatTalent := c.TalentLvlSkill()
++	shieldHP := skillShieldPct[ratioTalent]*maxHP + skillShieldFlat[flatTalent]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-yunjin-skill", map[string]any{"ratioTalent": ratioTalent, "maxHp": maxHP, "flatTalent": flatTalent}, []*info.SourceHostStatRead{maxHPRead}, nil)
++	}
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     c.Index(),
+-		Src:        c.Core.F,
+-		Name:       "Opening Flourish (Shield)",
+-		ShieldType: shield.YunjinSkill,
+-		HP:         skillShieldPct[c.TalentLvlSkill()]*c.MaxHP() + skillShieldFlat[c.TalentLvlSkill()],
+-		Ele:        attributes.Geo,
+-		Expires:    c.Core.F + hitDelay,
++		ActorIndex:     c.Index(),
++		Target:         c.Index(),
++		Src:            c.Core.F,
++		Name:           "Opening Flourish (Shield)",
++		ShieldType:     shield.YunjinSkill,
++		HP:             shieldHP,
++		SourceHostHPID: shieldHPID,
++		Ele:            attributes.Geo,
++		Expires:        c.Core.F + hitDelay,
+ 	})
+ 
+ 	if c.Base.Cons >= 1 {
+--- a/internal/characters/layla/skill.go
++++ b/internal/characters/layla/skill.go
+@@ -46,11 +46,28 @@
+ 		// add shield
+ 		exist := c.Core.Player.Shields.Get(shield.LaylaSkill)
+ 		if exist == nil {
+-			shield := shieldBase[c.TalentLvlSkill()] + shieldPer[c.TalentLvlSkill()]*c.MaxHP()
++			flatTalent := c.TalentLvlSkill()
++			ratioTalent := c.TalentLvlSkill()
++			var maxHP float64
++			var maxHPRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				maxHP, maxHPRead = c.MaxHPWithProvenance()
++			} else {
++				maxHP = c.MaxHP()
++			}
++			c1Unlocked := 0
++			shieldHP := shieldBase[flatTalent] + shieldPer[ratioTalent]*maxHP
+ 			if c.Base.Cons >= 1 {
+-				shield *= 1.2
++				c1Unlocked = 1
++				shieldHP *= 1.2
+ 			}
+-			c.Core.Player.Shields.Add(c.newShield(shield, 12*60))
++			shieldHPID := 0
++			if c.Core.SourceHost != nil {
++				shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-layla-skill", map[string]any{
++					"flatTalent": flatTalent, "ratioTalent": ratioTalent, "maxHp": maxHP, "c1": c1Unlocked,
++				}, []*info.SourceHostStatRead{maxHPRead}, nil)
++			}
++			c.Core.Player.Shields.Add(c.newShield(shieldHP, 12*60, shieldHPID))
+ 		} else {
+ 			shd, _ := exist.(*shd)
+ 			shd.Expires = c.Core.F + 12*60
+--- a/internal/characters/layla/shield.go
++++ b/internal/characters/layla/shield.go
+@@ -34,9 +34,9 @@
+ 	c.a1Stack = 0
+ }
+ 
+-func (c *char) newShield(base float64, dur int) *shd {
++func (c *char) newShield(base float64, dur int, sourceHPID int) *shd {
+ 	n := &shd{}
+-	n.Tmpl = &shield.Tmpl{}
++	n.Tmpl = &shield.Tmpl{SourceHostHPID: sourceHPID}
+ 	n.ActorIndex = c.Index()
+ 	n.Target = -1
+ 	n.Src = c.Core.F
+--- a/internal/characters/baizhu/burst.go
++++ b/internal/characters/baizhu/burst.go
+@@ -63,11 +63,26 @@
+ func (c *char) summonSeamlessShield() {
+ 	// add shield
+ 	exist := c.Core.Player.Shields.Get(shield.BaizhuBurst)
+-	shieldamt := (burstShieldPP[c.TalentLvlBurst()]*c.MaxHP() + burstShieldFlat[c.TalentLvlBurst()])
++	ratioTalent := c.TalentLvlBurst()
++	var maxHP float64
++	var maxHPRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHP, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
++	flatTalent := c.TalentLvlBurst()
++	shieldamt := burstShieldPP[ratioTalent]*maxHP + burstShieldFlat[flatTalent]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldamt, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-baizhu-burst", map[string]any{
++			"ratioTalent": ratioTalent, "maxHp": maxHP, "flatTalent": flatTalent,
++		}, []*info.SourceHostStatRead{maxHPRead}, nil)
++	}
+ 	if exist != nil {
+ 		c.summonSpiritvein()
+ 	}
+-	c.Core.Player.Shields.Add(c.newShield(shieldamt, burstShieldExpiry))
++	c.Core.Player.Shields.Add(c.newShield(shieldamt, burstShieldExpiry, shieldHPID))
+ }
+ 
+ func (c *char) summonSeamlessShieldHealing() {
+--- a/internal/characters/baizhu/shield.go
++++ b/internal/characters/baizhu/shield.go
+@@ -10,9 +10,9 @@
+ 	c.summonSpiritvein()
+ }
+ 
+-func (c *char) newShield(base float64, dur int) *shd {
++func (c *char) newShield(base float64, dur int, sourceHPID int) *shd {
+ 	n := &shd{}
+-	n.Tmpl = &shield.Tmpl{}
++	n.Tmpl = &shield.Tmpl{SourceHostHPID: sourceHPID}
+ 	n.ActorIndex = c.Index()
+ 	n.Target = -1
+ 	n.Src = c.Core.F

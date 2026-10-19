@@ -1,0 +1,57 @@
+
+Running 3 tests using 1 worker
+
+(node:23171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/dendro-increment.spec.ts:42:1 › Nefer C2 and C4 keep per-hit EM accounting and sourced resistance through final-panel JSON (6.1s)
+  ✘  2 [chromium] › apps/web/e2e/dendro-increment.spec.ts:98:1 › mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources with complete hit replays (30.1s)
+(node:23219) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium] › apps/web/e2e/dendro-increment.spec.ts:182:1 › continuous zero-energy startup keeps all paginated actions, failures and energy receipts beyond fifty rows (2.6s)
+
+
+  1) [chromium] › apps/web/e2e/dendro-increment.spec.ts:98:1 › mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources with complete hit replays 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-lunar-classic-event="8"] > summary')
+        - locator resolved to <summary>经典命中 #8 · 116 帧 · 剧变 hyperbloom · e → enemy-0 · 9…</summary>
+      - attempting click action
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+        - waiting 20ms
+        2 × waiting for element to be visible, enabled and stable
+          - element is not visible
+        - retrying click action
+          - waiting 100ms
+        57 × waiting for element to be visible, enabled and stable
+           - element is not visible
+         - retrying click action
+           - waiting 500ms
+
+
+      155 |   expect(coreAudit.originHit.id).toBe(core.originDamageEventId);
+      156 |   const ordinary = hyperbloom[0]!;
+    > 157 |   await page.locator(`[data-lunar-classic-event="${ordinary.id}"] > summary`).click();
+          |                                                                               ^
+      158 |   const origin = JSON.parse((await page.locator(`[data-lunar-classic-origin="${ordinary.id}"] pre`).textContent())!);
+      159 |   expect(origin.event).toEqual(ordinary);
+      160 |   expect(origin.reactionDamage).toEqual(result.baseResult.reactionDamageLog.filter(entry => entry.damageEventIds.includes(ordinary.id)));
+        at /Users/evan/Documents/gidps/apps/web/e2e/dendro-increment.spec.ts:157:79
+
+    Error Context: test-results/dendro-increment-mixed-v2--51d72-s-with-complete-hit-replays-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/dendro-increment-mixed-v2--51d72-s-with-complete-hit-replays-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/dendro-increment-mixed-v2--51d72-s-with-complete-hit-replays-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/dendro-increment.spec.ts:98:1 › mixed v2 shares actual Dendro cores, Lunar damage and Moondew resources with complete hit replays 
+  2 passed (40.6s)

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.956,
+  "log": "docs/validation/source-character-overrides-web-first-20260928.log"
+}

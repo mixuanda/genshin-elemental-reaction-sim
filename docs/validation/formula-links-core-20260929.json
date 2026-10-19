@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-formula-links.test.ts",
+    "packages/sim-core/src/source-host-base-panel.test.ts",
+    "packages/sim-core/src/__tests__/source-host-scalar-provenance.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 2.923
+}

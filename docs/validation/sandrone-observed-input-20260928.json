@@ -1,0 +1,156 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "character:10000133:sandrone-charged-beamdmg-component:talent-1",
+  "label": "桑多涅教学观察输入 · C0 凝聚光束",
+  "gameContext": {
+    "characterId": "character:10000133",
+    "characterName": "桑多涅",
+    "abilityId": "talent:sandrone:combat1",
+    "skillId": "sandrone-charged-beamdmg-component",
+    "skillName": "低温聚能光束单次",
+    "effectiveTalentLevel": 1,
+    "constellation": 0,
+    "ascension": 6,
+    "scopeCoverage": "selected-components",
+    "attributionPolicy": "仅列出的自身伤害组成；持续实体 tick、后续触发与其他动作未全部纳入，不能当作完整施放总伤。",
+    "sandroneObservedLifecycle": {
+      "initialHeat": 40,
+      "initialMode": "decoding",
+      "initialRadiance": "none",
+      "completeObservation": true,
+      "events": [
+        {
+          "id": "beam-observed-1",
+          "frame": 12,
+          "kind": "hit",
+          "hitKind": "beam",
+          "heat": 50,
+          "targetId": "enemy",
+          "snapshotFrame": 12,
+          "snapshotId": "sandrone-beam-snapshot",
+          "contact": true
+        }
+      ],
+      "hitBindings": {
+        "sandrone-charged-beamdmg-component-hit-1": "beam-observed-1"
+      }
+    }
+  },
+  "scope": "single-hit",
+  "characterLevel": 90,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 2000,
+      "hp": 20000,
+      "def": 800,
+      "em": 0,
+      "critRate": 0.7,
+      "critDamage": 1.2
+    },
+    "source": "用户可编辑示例最终面板；不是真实角色装备配置，不推断基础面板或装备分解。若含元素充能效率，1 表示教学输入 100%，实际角色必须恢复自己的数值。"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "sandrone-charged-beamdmg-component-hit-1",
+      "label": "第 1 段",
+      "kind": "ordinary",
+      "element": "cryo",
+      "attackTag": "charged",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ],
+      "dependencies": [
+        "talent-set:sandrone.combat1.parameters.param5[0]",
+        "conditioned-action"
+      ],
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.2255
+        }
+      ],
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1
+    }
+  ],
+  "selectedHitIds": [
+    "sandrone-charged-beamdmg-component-hit-1"
+  ],
+  "assumptions": [
+    "C0；使用恢复完整面板后的最终攻击力、伤害加成、暴击与敌人抗性；每个列出的伤害实例均命中同一目标。",
+    "有效天赋等级与当前资料中的等级一致；不额外计算反应、武器/圣遗物触发或队友协同攻击。",
+    "无自有或外部附魔；所选基础动作不启用技能转换状态。Genshin Optimizer 表达式验证伤害结构，不认证动作帧数、元素附着或粒子时序。",
+    "a0StellarRadianceSc 未启用（既不是 on 也不是 ss），不使用星超导/星扩散的直接伤害公式。",
+    "A4 的元素精通加成为 min(0.08×转换前攻击力,160)，若已解锁须恢复至最终面板；它不改变本次非反应 ATK 倍率。",
+    "C0 排除 C2 光束专属暴击伤害与 C4/C6 额外攻击；A1 只修改技能第二棱晶弹及爆发光束，不修改这里的普通/重击/下落基础命中。",
+    "仅选择 sheet 明确列出的该项普通冰伤组成部分；不推断一次重击的持续时间、扫射次数或后续组成。",
+    "输入为命中时最终面板；不重复添加装备属性。",
+    "反应为逐次命中的条件假设，不证明实际附着、ICD、能量或覆盖率。",
+    "高于基础天赋上限的有效等级须由使用者另行说明合法来源；本计算不自动增加命座等级。",
+    "C0 条件；有效天赋等级显式输入，不自动增加命座等级。",
+    "默认面板为教学输入；若已启用相关伤害被动或状态，必须提供命中实际适用面板与增伤，结果保持条件计算。",
+    "完整重击序列以及辉映状态转为星耀伤害的光束需要额外状态和公式验证。",
+    "完整角色被动/命座、装备触发与队伍时序未由此字段分类建立。",
+    "此文件是用于验证编辑流程的教学观察输入；帧、热量、命中与目标为示例，不代表实机测量。"
+  ],
+  "dependencies": [
+    {
+      "id": "talent-set:sandrone.combat1.parameters.param5[0]",
+      "status": "provisional",
+      "reason": "固定来源完整天赋向量与当前字段一致；数值证据：cross-checked。同一原始提取链的比对不等于独立机制验证：talent-set:sandrone.combat1.parameters.param5[0]",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ]
+    },
+    {
+      "id": "conditioned-action",
+      "status": "provisional",
+      "reason": "来源分类只建立所选命中表达式；命中时状态、反应和额外加成仍按显式条件输入，不证明完整实战时序。",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ]
+    },
+    {
+      "id": "unrelated-team-rotation",
+      "status": "missing",
+      "reason": "完整角色/队伍轮转、所有被动命座及额外触发尚未由本映射验证。此项不属于所选条件命中的依赖。",
+      "sourceRefs": []
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "evidenceStatus": "provisional"
+  }
+}

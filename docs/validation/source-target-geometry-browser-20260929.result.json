@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "source-target-geometry-browser-v1",
+  "measurements": {
+    "near": {
+      "rawPath": "/tmp/gidps-target-geometry-near.json",
+      "target": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 0,
+          "y": 2.4
+        }
+      },
+      "actionSequence": 1,
+      "applicationIds": [
+        4
+      ],
+      "knownSubtotal": 1161.8921525418264,
+      "firstHitReplayDifference": 0
+    },
+    "far": {
+      "rawPath": "/tmp/gidps-target-geometry-far.json",
+      "target": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 50,
+          "y": 2.4
+        }
+      },
+      "actionSequence": 1,
+      "nativeMissCount": 1,
+      "applicationCount": 0,
+      "knownSubtotal": 0,
+      "screenshot": "docs/validation/source-target-geometry-browser-20260929.png"
+    },
+    "team": {
+      "exportedTarget": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 3,
+          "x": -2,
+          "y": 6
+        }
+      },
+      "generatedTarget": "target lvl=90 resist=0.1 radius=3 pos=-2,6;",
+      "nativeTeamRun": false
+    }
+  },
+  "pageErrors": [],
+  "scope": "One classic Kaeya skill at two explicit source target positions, followed by one team-draft geometry export and GCSL generation; no team executor run."
+}

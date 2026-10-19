@@ -1,0 +1,44 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2K
+transforming...✓ 375 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                     28.72 kB │ gzip:   9.10 kB
+dist/assets/simulation-worker-B7eVmb83.js        1,951.68 kB
+dist/assets/analysis-worker-B-0svuXf.js          1,954.34 kB
+dist/assets/lunar-simulation-worker-CRCLw2cX.js  1,960.10 kB
+dist/assets/index-D855a1cJ.css                      17.66 kB │ gzip:   4.37 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js             0.15 kB │ gzip:   0.15 kB
+dist/assets/update-panel-B2aEriME.js                 5.37 kB │ gzip:   2.69 kB
+dist/assets/calculator-model-C9oznjx9.js            37.39 kB │ gzip:  12.29 kB
+dist/assets/lunar-simulation-panel-DHqzodWj.js      51.91 kB │ gzip:  16.84 kB
+dist/assets/calculator-ui-BhrHhx_8.js              108.21 kB │ gzip:  33.48 kB
+dist/assets/supplemental-DQ283TAg.js               341.66 kB │ gzip:  69.02 kB
+dist/assets/character-calculations-BBRDZeNj.js     940.37 kB │ gzip: 151.97 kB
+dist/assets/equipment-controls-Czgdg5HJ.js         947.64 kB │ gzip: 182.85 kB
+dist/assets/src-B0Nx9PPt.js                      1,266.84 kB │ gzip: 281.67 kB
+dist/assets/index-CR9Z34UE.js                    1,503.86 kB │ gzip: 393.44 kB
+dist/assets/catalog-EwHyhJF7.js                  1,971.38 kB │ gzip: 319.06 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../../packages/sim-core/src/calculator-bridge.ts is dynamically imported by src/app.ts but also statically imported by ../../packages/sim-core/src/index.ts, dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../../packages/sim-core/src/index.ts is dynamically imported by src/thrilling-tales-ledger.ts, src/weapon-proc-ledger.ts but also statically imported by src/action-state-ledger.ts, src/app.ts, src/calculator-import.ts, src/calculator-trace-view.ts, src/calculator-ui.ts, ..., dynamic import will not move module into another chunk.
+
+✓ built in 466ms

@@ -1,0 +1,40 @@
+[WebServer] (node:55163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:55164) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-dynamic.spec.ts:62:1 › native dynamic character modifiers retain creation provenance, read state, and isolated preview identity (1.9s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-dynamic.spec.ts:62:1 › native dynamic character modifiers retain creation provenance, read state, and isolated preview identity 
+
+    Error: classic: one Itto Q creation value must be consumed in different frames
+
+    expect(received).toBeGreaterThan(expected)
+
+    Expected: > 1
+    Received:   0
+
+      177 |     });
+      178 |     expect(new Set(ittoHits.map(hit => hit.application.frame)).size,
+    > 179 |       `${variant}: one Itto Q creation value must be consumed in different frames`).toBeGreaterThan(1);
+          |                                                                                     ^
+      180 |     const selected = ittoHits.find(hit => hit.refs.some(ref => ref.creationIds?.includes(yoimiyaA4!.request.id)));
+      181 |     expect(selected, `${variant}: Itto must consume Yoimiya's team snapshot with his own Q snapshot`).toBeDefined();
+      182 |     const capture = captureSourceHostHit(result, selected!.application.id);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-dynamic.spec.ts:179:85
+
+    Error Context: test-results/source-character-dynamic-n-ee9b8-d-isolated-preview-identity-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-dynamic-n-ee9b8-d-isolated-preview-identity-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-dynamic-n-ee9b8-d-isolated-preview-identity-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-dynamic.spec.ts:62:1 › native dynamic character modifiers retain creation provenance, read state, and isolated preview identity 

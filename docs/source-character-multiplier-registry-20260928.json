@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "generatedDate": "2026-09-28",
+  "registry": "Source-owned character AttackInfo.Mult arithmetic",
+  "evidence": {
+    "audit": "docs/source-multiplier-implementation-audit-20260928.json",
+    "descriptorFiles": [
+      "packages/sim-core/src/source-host-character-multiplier-group-a.ts",
+      "packages/sim-core/src/source-host-character-multiplier-group-b.ts",
+      "packages/sim-core/src/source-host-character-multiplier-group-c.ts",
+      "packages/sim-core/src/source-host-character-multiplier-formula.ts"
+    ],
+    "nativePatches": [
+      "packages/source-host/patches/049-character-multiplier-base.patch",
+      "packages/source-host/patches/050-character-multiplier-a.patch",
+      "packages/source-host/patches/051-character-multiplier-b.patch",
+      "packages/source-host/patches/052-character-multiplier-c.patch",
+      "packages/source-host/stellar-overlay/patches/049-character-multiplier-base.patch",
+      "packages/source-host/stellar-overlay/patches/050-character-multiplier-a.patch",
+      "packages/source-host/stellar-overlay/patches/051-character-multiplier-b.patch",
+      "packages/source-host/stellar-overlay/patches/052-character-multiplier-c.patch"
+    ]
+  },
+  "sourceLanes": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "counts": {
+    "descriptorRules": 41,
+    "characters": 11,
+    "laneApplicableRules": { "classic": 28, "stellar": 41 },
+    "operations": { "set": 38, "add": 3, "multiply": 0 },
+    "operationByLane": {
+      "classic": { "set": 25, "add": 3, "multiply": 0 },
+      "stellar": { "set": 38, "add": 3, "multiply": 0 }
+    },
+    "nativeMultiplierWritePointsByLane": { "classic": 22, "stellar": 30 },
+    "nativeHelperCalculationPointsByLane": { "classic": 3, "stellar": 3 },
+    "note": "规则描述符数量、原生 Mult 写点和缓存/辅助计算写点分开统计。条件分支可由不同 rule ID 共用同一写点。"
+  },
+  "rules": [
+    {"id":"char-mult-beidou-skill-counter","group":"A","character":"beidou","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/beidou/skill.go","writePoint":"beidou.skill.counter","writePointFile":"internal/characters/beidou/skill.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-eula-lightfall-stacks","group":"A","character":"eula","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/eula/burst.go","writePoint":"eula.burst.lightfall","writePointFile":"internal/characters/eula/burst.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-heizou-skill-declension","group":"A","character":"heizou","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/heizou/skill.go","writePoint":"heizou.skill.declension","writePointFile":"internal/characters/heizou/skill.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-heizou-skill-conviction","group":"A","character":"heizou","operation":"add","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/heizou/skill.go","writePoint":"heizou.skill.conviction","writePointFile":"internal/characters/heizou/skill.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-lyney-skill-surplus","group":"A","character":"lyney","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/lyney/skill.go","writePoint":"lyney.skill.prop-surplus","writePointFile":"internal/characters/lyney/skill.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-raiden-burst-resolve","group":"A","character":"raiden","operation":"add","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/raiden/burst.go","writePoint":"raiden.burst.resolve","writePointFile":"internal/characters/raiden/burst.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-raiden-normal-resolve","group":"A","character":"raiden","operation":"add","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/raiden/attack.go","writePoint":"raiden.attack.resolve","writePointFile":"internal/characters/raiden/attack.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-raiden-charge-resolve","group":"A","character":"raiden","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/raiden/charge.go","writePoint":"raiden.charge.resolve","writePointFile":"internal/characters/raiden/charge.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-raiden-low-plunge-resolve","group":"A","character":"raiden","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/raiden/plunge.go","writePoint":"raiden.plunge.low","writePointFile":"internal/characters/raiden/plunge.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-raiden-high-plunge-resolve","group":"A","character":"raiden","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/raiden/plunge.go","writePoint":"raiden.plunge.high","writePointFile":"internal/characters/raiden/plunge.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-raiden-collision-resolve","group":"A","character":"raiden","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/raiden/plunge.go","writePoint":"raiden.plunge.collision","writePointFile":"internal/characters/raiden/plunge.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-cryo-traveler-burst","group":"A","character":"travelercryo","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/traveler/common/cryo/burst.go","writePoint":"travelercryo.burst.base","writePointFile":"internal/characters/traveler/common/cryo/burst.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-cryo-traveler-stellar-conduct","group":"A","character":"travelercryo","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/traveler/common/cryo/burst.go","writePoint":"travelercryo.burst.conduct","writePointFile":"internal/characters/traveler/common/cryo/burst.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-cryo-traveler-stellar-swirl","group":"A","character":"travelercryo","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/traveler/common/cryo/burst.go","writePoint":"travelercryo.burst.swirl","writePointFile":"internal/characters/traveler/common/cryo/burst.go","writeKind":"AttackInfo.Mult"},
+
+    {"id":"char-mult-varka-a1-cache","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/asc.go","writePoint":"varka.asc.a1-cache","writePointFile":"internal/characters/varka/asc.go","writeKind":"cached multiplier producer"},
+    {"id":"char-mult-varka-c1-factor","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/cons.go","writePoint":"varka.c1.factor","writePointFiles":["internal/characters/varka/skill.go","internal/characters/varka/charge.go"],"writeKind":"cached multiplier producer","note":"同一 helper descriptor 在四风进击与苍噬攻击两处按原时序调用。"},
+    {"id":"char-mult-varka-four-winds","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/skill.go","writePoint":"varka.skill.four-winds","writePointFile":"internal/characters/varka/skill.go","writeKind":"AttackInfo.Mult","branch":"A1 已初始化"},
+    {"id":"char-mult-varka-four-winds-unasc","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/skill.go","writePoint":"varka.skill.four-winds","writePointFile":"internal/characters/varka/skill.go","writeKind":"AttackInfo.Mult","branch":"无 A1 缓存"},
+    {"id":"char-mult-varka-skill-normal","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/attack.go","writePoint":"varka.attack.skill-normal","writePointFile":"internal/characters/varka/attack.go","writeKind":"AttackInfo.Mult","branch":"A1 已初始化"},
+    {"id":"char-mult-varka-skill-normal-unasc","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/attack.go","writePoint":"varka.attack.skill-normal","writePointFile":"internal/characters/varka/attack.go","writeKind":"AttackInfo.Mult","branch":"无 A1 缓存"},
+    {"id":"char-mult-varka-skill-charge","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/charge.go","writePoint":"varka.charge.normal","writePointFile":"internal/characters/varka/charge.go","writeKind":"AttackInfo.Mult","branch":"A1 已初始化"},
+    {"id":"char-mult-varka-skill-charge-unasc","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/charge.go","writePoint":"varka.charge.normal","writePointFile":"internal/characters/varka/charge.go","writeKind":"AttackInfo.Mult","branch":"无 A1 缓存"},
+    {"id":"char-mult-varka-azure-devour","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/charge.go","writePoint":"varka.charge.azure-devour","writePointFile":"internal/characters/varka/charge.go","writeKind":"AttackInfo.Mult","branch":"A1 已初始化"},
+    {"id":"char-mult-varka-azure-devour-unasc","group":"B","character":"varka","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/varka/charge.go","writePoint":"varka.charge.azure-devour","writePointFile":"internal/characters/varka/charge.go","writeKind":"AttackInfo.Mult","branch":"无 A1 缓存"},
+    {"id":"char-mult-skirk-burst-dot","group":"B","character":"skirk","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/skirk/burst.go","writePoint":"skirk.burst.dot","writePointFile":"internal/characters/skirk/burst.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-skirk-burst-final","group":"B","character":"skirk","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/skirk/burst.go","writePoint":"skirk.burst.final","writePointFile":"internal/characters/skirk/burst.go","writeKind":"AttackInfo.Mult","note":"基于前一段倍率与回执执行原生后续乘区。"},
+    {"id":"char-mult-skirk-skill-normal","group":"B","character":"skirk","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/skirk/attack.go","writePoint":"skirk.attack.skill-normal","writePointFile":"internal/characters/skirk/attack.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-skirk-c6-burst","group":"B","character":"skirk","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/skirk/cons.go","writePoint":"skirk.cons.c6-burst","writePointFile":"internal/characters/skirk/cons.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-skirk-c6-normal","group":"B","character":"skirk","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/skirk/cons.go","writePoint":"skirk.cons.c6-normal","writePointFile":"internal/characters/skirk/cons.go","writeKind":"AttackInfo.Mult"},
+
+    {"id":"char-mult-odette-coda-conduct-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/skill.go","writePoint":"odette.skill.coda-conduct","writePointFile":"internal/characters/odette/skill.go","writeKind":"AttackInfo.Mult","branch":"A4 解锁"},
+    {"id":"char-mult-odette-coda-conduct-no-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/skill.go","writePoint":"odette.skill.coda-conduct","writePointFile":"internal/characters/odette/skill.go","writeKind":"AttackInfo.Mult","branch":"A4 未解锁"},
+    {"id":"char-mult-odette-coda-swirl-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/skill.go","writePoint":"odette.skill.coda-swirl","writePointFile":"internal/characters/odette/skill.go","writeKind":"AttackInfo.Mult","branch":"A4 解锁"},
+    {"id":"char-mult-odette-coda-swirl-no-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/skill.go","writePoint":"odette.skill.coda-swirl","writePointFile":"internal/characters/odette/skill.go","writeKind":"AttackInfo.Mult","branch":"A4 未解锁"},
+    {"id":"char-mult-odette-dance-tick-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/skill.go","writePoint":"odette.skill.dance-tick","writePointFile":"internal/characters/odette/skill.go","writeKind":"AttackInfo.Mult","branch":"A4 解锁"},
+    {"id":"char-mult-odette-dance-tick-no-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/skill.go","writePoint":"odette.skill.dance-tick","writePointFile":"internal/characters/odette/skill.go","writeKind":"AttackInfo.Mult","branch":"A4 未解锁"},
+    {"id":"char-mult-odette-c1-conduct-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/cons.go","writePoint":"odette.cons.c1-conduct","writePointFile":"internal/characters/odette/cons.go","writeKind":"AttackInfo.Mult","branch":"A4 解锁"},
+    {"id":"char-mult-odette-c1-conduct-no-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/cons.go","writePoint":"odette.cons.c1-conduct","writePointFile":"internal/characters/odette/cons.go","writeKind":"AttackInfo.Mult","branch":"A4 未解锁"},
+    {"id":"char-mult-odette-c1-swirl-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/cons.go","writePoint":"odette.cons.c1-swirl","writePointFile":"internal/characters/odette/cons.go","writeKind":"AttackInfo.Mult","branch":"A4 解锁"},
+    {"id":"char-mult-odette-c1-swirl-no-a4","group":"C","character":"odette","operation":"set","lanes":["stellar"],"descriptorSourceFile":"internal/characters/odette/cons.go","writePoint":"odette.cons.c1-swirl","writePointFile":"internal/characters/odette/cons.go","writeKind":"AttackInfo.Mult","branch":"A4 未解锁"},
+    {"id":"char-mult-navia-shotgun","group":"C","character":"navia","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/navia/skill.go","writePoint":"navia.skill.shotgun","writePointFile":"internal/characters/navia/skill.go","writeKind":"AttackInfo.Mult"},
+    {"id":"char-mult-lauma-dew","group":"C","character":"lauma","operation":"set","lanes":["classic","stellar"],"descriptorSourceFile":"internal/characters/lauma/skill.go","writePoint":"lauma.skill.dew","writePointFile":"internal/characters/lauma/skill.go","writeKind":"AttackInfo.Mult"}
+  ],
+  "writePointCounts": {
+    "classic": {"attackInfoMultiplier": 22, "helperCalculations": 3},
+    "stellar": {"attackInfoMultiplier": 30, "helperCalculations": 3}
+  },
+  "scopeBoundary": {
+    "meaning": "该注册表对应固定源码版本中的共享 AttackInfo.Mult 算术描述符与补丁写点，不代表所有角色攻击倍率来源均已迁移。",
+    "notGameVerified": true,
+    "notBuildOrTestEvidence": true,
+    "excludes": "普通天赋倍率表直接读取、未列出的其他 Mult 初始化或动态机制。源码支持与规则注册不等于游戏内验证。"
+  }
+}

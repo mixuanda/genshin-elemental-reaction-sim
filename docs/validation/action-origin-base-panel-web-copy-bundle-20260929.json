@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build",
+    "--workspace",
+    "@genshin-dps-lab/web"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 2.397
+}

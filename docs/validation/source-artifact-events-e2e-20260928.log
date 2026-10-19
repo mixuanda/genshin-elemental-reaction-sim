@@ -1,0 +1,39 @@
+[WebServer] (node:32532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:32533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-artifact-events.spec.ts:91:1 › real source artifact healing, random damage, queued foam, and Stellar snapshot receipts restore in one calculator (7.1s)
+
+
+  1) [chromium] › apps/web/e2e/source-artifact-events.spec.ts:91:1 › real source artifact healing, random damage, queued foam, and Stellar snapshot receipts restore in one calculator 
+
+    Error: No real target-conditioned Blizzard CR snapshot on a Stellar hit
+
+    expect(received).toBeDefined()
+
+    Received: undefined
+
+      257 |       const blizzard = snapshots.find(row => row.read.effectSourceActorIndex === kaeyaIndex &&
+      258 |         row.read.steps.some(step => step.key === "bs-4pc-lunarcharge" && step.formulaCalculationIds?.length));
+    > 259 |       expect(blizzard, "No real target-conditioned Blizzard CR snapshot on a Stellar hit").toBeDefined();
+          |                                                                                            ^
+      260 |       expect(blizzard!.read.actorIndex).toBe(blizzard!.request.actorIndex);
+      261 |       expect(blizzard!.read.targetKey).toBe(blizzard!.application.targetKey);
+      262 |       measurement.snapshot = { effectSourceActorIndex: blizzard!.read.effectSourceActorIndex!,
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-artifact-events.spec.ts:259:92
+
+    Error Context: test-results/source-artifact-events-rea-618c5-s-restore-in-one-calculator-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-artifact-events-rea-618c5-s-restore-in-one-calculator-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-artifact-events-rea-618c5-s-restore-in-one-calculator-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-artifact-events.spec.ts:91:1 › real source artifact healing, random damage, queued foam, and Stellar snapshot receipts restore in one calculator 

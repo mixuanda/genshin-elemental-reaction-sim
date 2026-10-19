@@ -1,0 +1,240 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "source-backed-provisional",
+  "recordedAt": "2026-09-23T18:57:00.982306+00:00",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "httpStatus": 200,
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/skill.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/skill.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+      "httpStatus": 200,
+      "bytes": 4293,
+      "sha256": "7d14fab1e06c4dad5179a2a09c612f61080ccfd0d0aee58b21e665e533273782",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/burst.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/burst.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/burst.go",
+      "httpStatus": 200,
+      "bytes": 1860,
+      "sha256": "f395c9dd5a31e63239b8b43625b41183fb762b4783463117442485b6b5b2fcd6",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/asc.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/asc.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/asc.go",
+      "httpStatus": 200,
+      "bytes": 1153,
+      "sha256": "523efefcd5fdf9957631a5efe7cbf7d05992b123351683edca5c4792b9dd16b8",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/cons.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/cons.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/cons.go",
+      "httpStatus": 200,
+      "bytes": 2992,
+      "sha256": "beac5a76b968d571a7abe7021287b3129a64b58b375c22ce4750d3a5256c7207",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/kuki.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/kuki.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/kuki.go",
+      "httpStatus": 200,
+      "bytes": 836,
+      "sha256": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/zz_kukishinobu.dm.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/zz_kukishinobu.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/zz_kukishinobu.dm.go",
+      "httpStatus": 200,
+      "bytes": 3497,
+      "sha256": "a33b132e2e2e3e3d00a30e704f71e68e74d91f1e3343f7cd677cd4f19fb30c87",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "pkg/core/status/status.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/pkg/core/status/status.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/status/status.go",
+      "httpStatus": 200,
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/pkg/core/task/task.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go",
+      "httpStatus": 200,
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "matchesExistingPinnedCheckout": true
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/pkg/core/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "httpStatus": 200,
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "matchesExistingPinnedCheckout": true
+    }
+  ],
+  "catalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "comparedCoefficientPositions": 45,
+  "maximumAbsoluteDifference": 0,
+  "coefficients": [
+    {
+      "sourceTable": "skill",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "values": [
+        0.75712,
+        0.813904,
+        0.870688,
+        0.9464,
+        1.003184,
+        1.059968,
+        1.13568,
+        1.211392,
+        1.287104,
+        1.362816,
+        1.438528,
+        1.51424,
+        1.60888,
+        1.70352,
+        1.79816
+      ]
+    },
+    {
+      "sourceTable": "skilldot",
+      "abilityKey": "combat2",
+      "parameterKey": "param4",
+      "values": [
+        0.2524,
+        0.27133,
+        0.29026,
+        0.3155,
+        0.33443,
+        0.35336,
+        0.3786,
+        0.40384,
+        0.42908,
+        0.45432,
+        0.47956,
+        0.5048,
+        0.53635,
+        0.5679,
+        0.59945
+      ]
+    },
+    {
+      "sourceTable": "burst",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        0.036048,
+        0.038752,
+        0.041455,
+        0.04506,
+        0.047764,
+        0.050467,
+        0.054072,
+        0.057677,
+        0.061282,
+        0.064886,
+        0.068491,
+        0.072096,
+        0.076602,
+        0.081108,
+        0.085614
+      ]
+    }
+  ],
+  "independentSourceManifest": "packages/game-data/sources/kuki-skills/manifest-go.json",
+  "scope": {
+    "skillInitialHitFrame": 11,
+    "ringActivationFrame": 23,
+    "ringIntervalFrames": 90,
+    "ringAttackDelayFrames": 2,
+    "ringTickCounts": {
+      "c0_c1": 8,
+      "c2_c6": 10
+    },
+    "ringHitFramesC0C1": [
+      115,
+      205,
+      295,
+      385,
+      475,
+      565,
+      655,
+      745
+    ],
+    "ringHitFramesC2C6": [
+      115,
+      205,
+      295,
+      385,
+      475,
+      565,
+      655,
+      745,
+      835,
+      925
+    ],
+    "burstHpThresholdInclusive": 0.5,
+    "burstHighHpHitFrames": [
+      50,
+      67,
+      84,
+      101,
+      118,
+      135,
+      152
+    ],
+    "burstLowHpHitFrames": [
+      50,
+      67,
+      84,
+      101,
+      118,
+      135,
+      152,
+      169,
+      186,
+      203,
+      220,
+      237
+    ],
+    "constellations": "C0-C6, effective talent level explicit; C6 final EM or active/included accounting required only where relevant",
+    "c4": "External normal/charged/plunging ring attack proc excluded from self E/Q cast"
+  },
+  "conflicts": [
+    "gcsim initial E FlatDmg = EM*0.25 unconditionally; GO gates both initial and ring at ascension >=4. Initial E below A4 remains blocked; ring and Q independent.",
+    "gcsim Q comment says 11 but executable count =12 below/equal 50%; duration data confirms long branch, GO does not independently schedule ticks.",
+    "GO display total Q talent vectors are separately rounded; execution sums single-hit coefficients, not rounded display totals."
+  ],
+  "limitations": [
+    "No live-game verification; fixed source/cross-table agreement remains provisional.",
+    "E snapshot timing carries upstream TODO; multi-hit calculation requires explicitly stable offensive and target state including EM, without simulating heals, HP drain, C6 lifecycle or ring refresh."
+  ]
+}

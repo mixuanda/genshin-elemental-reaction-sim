@@ -1,0 +1,122 @@
+package flowerofparadiselost
+
+import (
+	"fmt"
+
+	"github.com/genshinsim/gcsim/pkg/core"
+	"github.com/genshinsim/gcsim/pkg/core/attacks"
+	"github.com/genshinsim/gcsim/pkg/core/attributes"
+	"github.com/genshinsim/gcsim/pkg/core/event"
+	"github.com/genshinsim/gcsim/pkg/core/glog"
+	"github.com/genshinsim/gcsim/pkg/core/info"
+	"github.com/genshinsim/gcsim/pkg/core/player/character"
+	"github.com/genshinsim/gcsim/pkg/enemy"
+	"github.com/genshinsim/gcsim/pkg/modifier"
+)
+
+const (
+	icdKey = "flower-4pc-icd"
+	icd    = 60 // 1s
+
+	buffKey = "flower-4pc-buff"
+)
+
+type Set struct {
+	stacks int
+	Index  int
+	Count  int
+}
+
+func (s *Set) SetIndex(idx int) { s.Index = idx }
+func (s *Set) GetCount() int    { return s.Count }
+func (s *Set) Init() error      { return nil }
+
+// 2pc - Increases Elemental Mastery by 80.
+// 4pc - The equipping character's Bloom, Hyperbloom, and Burgeon reaction DMG are increased by 40%. Additionally, after the equipping
+//
+//	character triggers Bloom, Hyperbloom, or Burgeon, they will gain another 25% bonus to the effect mentioned prior. Each stack
+//	of this lasts 10s. Max 4 stacks simultaneously. This effect can only be triggered once per second. The character who equips
+//	this can still trigger its effects when not on the field.
+func NewSet(c *core.Core, char *character.CharWrapper, count int, param map[string]int) (info.Set, error) {
+	s := Set{Count: count}
+
+	if count >= 2 {
+		m := make([]float64, attributes.EndStatType)
+		m[attributes.EM] = 80
+		char.AddStatMod(character.StatMod{
+			Base:         modifier.NewBase("flower-2pc", -1),
+			AffectedStat: attributes.EM,
+			Amount: func() []float64 {
+				return m
+			},
+		})
+	}
+
+	//nolint:nestif // linter is stupid
+	if count >= 4 {
+		char.AddReactBonusMod(character.ReactBonusMod{
+			Base: modifier.NewBase("flower-4pc", -1),
+			Amount: func(ai info.AttackInfo) float64 {
+				switch ai.AttackTag {
+				case attacks.AttackTagBloom:
+				case attacks.AttackTagHyperbloom:
+				case attacks.AttackTagBurgeon:
+				case attacks.AttackTagDirectLunarBloom:
+					return 0.1
+				default:
+					return 0
+				}
+				return 0.4
+			},
+		})
+
+		f := func(args ...any) {
+			atk := args[1].(*info.AttackEvent)
+			if atk.Info.ActorIndex != char.Index() {
+				return
+			}
+			if char.StatusIsActive(icdKey) {
+				return
+			}
+			char.AddStatus(icdKey, icd, true)
+
+			if !char.StatusIsActive(buffKey) {
+				s.stacks = 0
+			}
+			if s.stacks < 4 {
+				s.stacks++
+			}
+
+			c.Log.NewEvent("flower of paradise lost 4pc adding stack", glog.LogArtifactEvent, char.Index()).
+				Write("stacks", s.stacks)
+
+			char.AddReactBonusMod(character.ReactBonusMod{
+				Base: modifier.NewBaseWithHitlag(buffKey, 10*60),
+				Amount: func(ai info.AttackInfo) float64 {
+					switch ai.AttackTag {
+					case attacks.AttackTagBloom:
+					case attacks.AttackTagHyperbloom:
+					case attacks.AttackTagBurgeon:
+					case attacks.AttackTagDirectLunarBloom:
+						return 0.1 * float64(s.stacks) * 0.25
+					default:
+						return 0
+					}
+					return 0.4 * float64(s.stacks) * 0.25
+				},
+			})
+		}
+		noGadget := func(args ...any) {
+			if _, ok := args[0].(*enemy.Enemy); ok {
+				f(args...)
+			}
+		}
+
+		c.Events.Subscribe(event.OnBloom, noGadget, fmt.Sprintf("flower-4pc-%v", char.Base.Key.String()))
+		c.Events.Subscribe(event.OnHyperbloom, f, fmt.Sprintf("flower-4pc-%v", char.Base.Key.String()))
+		c.Events.Subscribe(event.OnBurgeon, f, fmt.Sprintf("flower-4pc-%v", char.Base.Key.String()))
+		c.Events.Subscribe(event.OnLunarBloom, f, fmt.Sprintf("flower-4pc-%v", char.Base.Key.String()))
+	}
+
+	return &s, nil
+}

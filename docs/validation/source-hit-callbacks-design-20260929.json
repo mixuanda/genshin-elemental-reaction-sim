@@ -1,0 +1,232 @@
+{
+  "schemaVersion": 1,
+  "auditType": "read-only on-hit producer ownership ABI design",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-mQeWE1/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-EtvdCO/source"
+  },
+  "sourceSHA256": {
+    "classic": {
+      "pkg/core/combat/attack.go": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8",
+      "pkg/enemy/attack.go": "14a6446978e2c68d324629374e0a1c1bbe521e10409fb976f4abd19cc202d815",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/info/combat.go": "c8023ee2abf9d7411cab07f97a549671426328aeacfb2fb9595f43ef6d152567",
+      "pkg/core/sourcehost/attack.go": "a6ec21395004beb1f925cf5450829b20dba01f10477b2603178913c3c07f95c4",
+      "pkg/core/sourcehost/ability_receipt.go": "06a5c16f3b2827d580894259460c48a9c6ac47547c854e4fa282b95ef42d1d9f",
+      "pkg/core/sourcehost/ability_producer.go": "e3e0fced52bd90197b5f7e16fd11d9ceac169bf5526547115e3d51854f80fa5c",
+      "internal/characters/dori/skill.go": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+      "internal/characters/dori/cons.go": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada",
+      "internal/characters/dori/dori.go": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3",
+      "internal/characters/mika/skill.go": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+      "internal/characters/baizhu/skill.go": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/navia/skill.go": "fa8b519bc124b38cd62c90761ea661afec25346b3570ece1c41835d493c8f779",
+      "internal/characters/navia/cons.go": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994",
+      "internal/characters/tartaglia/burst.go": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "pkg/core/player/character/sourcehost_private_phase.go": "2a43ea1dcaac0c39117ded4a3aa4d1a3ec9383beaaa8df3f4f1089caa00deef5"
+    },
+    "stellar": {
+      "pkg/core/combat/attack.go": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8",
+      "pkg/enemy/attack.go": "14a6446978e2c68d324629374e0a1c1bbe521e10409fb976f4abd19cc202d815",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/info/combat.go": "72c1a9661376b7e45dce70a6af247321affe44158424921423a1f545ce996637",
+      "pkg/core/sourcehost/attack.go": "fc61580f6302cbe52cfb24c253fff6f48dd5f4fd0dca040dae6ad8fab50adb19",
+      "pkg/core/sourcehost/ability_receipt.go": "06a5c16f3b2827d580894259460c48a9c6ac47547c854e4fa282b95ef42d1d9f",
+      "pkg/core/sourcehost/ability_producer.go": "e3e0fced52bd90197b5f7e16fd11d9ceac169bf5526547115e3d51854f80fa5c",
+      "internal/characters/dori/skill.go": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+      "internal/characters/dori/cons.go": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada",
+      "internal/characters/dori/dori.go": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3",
+      "internal/characters/mika/skill.go": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+      "internal/characters/baizhu/skill.go": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/navia/skill.go": "3f554782aefae16c0cfda2b421d616a73ef4635665dc2902fa9b476ae8a94889",
+      "internal/characters/navia/cons.go": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994",
+      "internal/characters/tartaglia/burst.go": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "pkg/core/player/character/sourcehost_private_phase.go": "2a43ea1dcaac0c39117ded4a3aa4d1a3ec9383beaaa8df3f4f1089caa00deef5"
+    }
+  },
+  "commonExecutionFacts": [
+    {
+      "path": "pkg/core/combat/attack.go:12-33",
+      "fact": "For each target that passes AttackWillLand, combat.attack copies the actual AttackEvent before Target.HandleAttack. The copy preserves SourceHostAttackID, SourceHostQueuedObservationIndex and SourceHostDispatchID. No target key or dispatch is inferred from ability name."
+    },
+    {
+      "path": "pkg/enemy/attack.go:26-108",
+      "fact": "Enemy.HandleAttack computes the hit, then schedules one Core.Tasks.Add(...,0) closure for damage application, OnEnemyDamage and the AttackCB loop. Callbacks execute after OnEnemyDamage and are skipped when the declared hitConfirm phase is blocked. This task can remain pending after ApplyAttack returns."
+    },
+    {
+      "path": "pkg/core/task/task.go:49-69",
+      "fact": "The callback task captures current SourceHostOrigin, including parent AttackID, but that origin does not contain parent dispatch ID, target key or callback index. The existing task ledger can show pending/completed heap entry but cannot by itself prove which source callback emitted a child."
+    },
+    {
+      "path": "pkg/core/sourcehost/ability_receipt.go:142-155",
+      "fact": "AttackDispatchCompletion records a dispatch that returned, not completion of the later enemy damage/callback task. It must not close an on-hit emitter until callback batch and any child attacks close."
+    },
+    {
+      "path": "pkg/core/attack.go:7-74",
+      "fact": "CaptureAttack occurs at actual QueueAttack, QueueAttackWithSnap or QueueAttackEvent. Explicit emit wrappers can tag precisely one queue creation without allocating AttackID early or changing damage timing."
+    }
+  ],
+  "wireProposal": {
+    "topLevel": "hitCallbackBatches:[] and hitCallbacks:[] always emitted by the instrumented host; optional for older artifacts.",
+    "hitCallbackBatch": {
+      "id": "positive run-local ID",
+      "parentQueueId": "positive SourceHostQueuedObservationIndex from the per-target AttackEvent copy, if present; absent means unknown and ineligible for certified source closure",
+      "parentAttackId": "actual AttackEvent.SourceHostAttackID",
+      "parentDispatchId": "actual per-ApplyAttack SourceHostDispatchID",
+      "targetKey": "actual enemy key",
+      "queuedFrame": "frame when Enemy.HandleAttack schedules its damage/callback task",
+      "runFrame": "optional frame when task starts",
+      "completedFrame": "optional frame after all callback slots return",
+      "state": "pending|completed|blocked",
+      "callbackCount": "len(atk.Callbacks) at actual callback-task scheduling",
+      "callbackIds": "always [] or exact executed slot IDs in native order",
+      "hitConfirmBlocked": "actual matched phase boolean"
+    },
+    "hitCallback": {
+      "id": "positive run-local slot execution ID",
+      "batchId": "exact batch",
+      "callbackIndex": "zero-based index in native atk.Callbacks slice",
+      "siteId": "optional explicit source label applied at audited callback-body entry",
+      "startedFrame": "actual f(cb) entry",
+      "completedFrame": "actual f(cb) return",
+      "queuedAttacks": "always [] or exact explicit emit-site references {queueId,attackId?,ability,attackTagName,frame,emitSiteId}",
+      "entryFacts": "optional map of already evaluated local source facts needed for bounded branch proof"
+    },
+    "independentCensus": "Batch callbackCount and callbackIds come from the actual loop. A pending batch, a blocked batch, or an unlabelled callback stays distinct from a completed audited child emitter. A callback that ran and returned without emission is a real zero, not a missing row.",
+    "association": "Child attack queue references retain exact callbackId plus emitSiteId, and parent batch retains queueId+attackId+dispatchId+targetKey. AttackID alone may be reused and never identifies a callback invocation.",
+    "origin": "Keep SourceHostOrigin creation/trigger/parentAttack/statusOwner unchanged. Callback ownership is an additional exact runtime relationship."
+  },
+  "minimalInsertionPoints": [
+    {
+      "site": "pkg/enemy/attack.go:79-105",
+      "action": "Create one pending batch immediately before the existing Core.Tasks.Add callback task. Inside that exact task, mark run, observe blocked branch, then enumerate original atk.Callbacks with index while bracketing each f(cb) with a callback row. Mark batch completed only after the original loop returns. Do not reorder OnEnemyDamage or callbacks."
+    },
+    {
+      "site": "pkg/core/sourcehost/hit_callback.go (new overlay)",
+      "action": "Bridge stores active batch/callback IDs; LabelActiveHitCallback(siteId,a) validates the exact per-target AttackEvent and target already in the active slot, without wrapping or changing callback function identity. Record optional already-read branch facts."
+    },
+    {
+      "site": "pkg/core/sourcehost/attack.go and queuedAttackReference",
+      "action": "Add pendingHitEmitSite and active callback ID; CaptureAttack consumes the explicit site at the same native creation point as existing queue evidence. Generic attacks during callback remain unowned without explicit emit-site wrapper."
+    },
+    {
+      "site": "pkg/core/sourcehost_hit_attack.go (new overlay)",
+      "action": "SourceHostQueueHitAttack and SourceHostQueueHitAttackEvent delegate once to original queue methods, using BeginHitEmit/restore around the call. No new Stat/RNG read or AttackID allocation."
+    },
+    {
+      "site": "pkg/core/player/character/sourcehost_private_phase.go",
+      "action": "No new AttackEvent metadata is required by the callback-slot design. Any future observational field added to AttackEvent must be excluded by exact field name from reflective private phase, not a broad SourceHost prefix."
+    },
+    {
+      "site": "ability_receipt.go and ability_producer.go filters",
+      "action": "Exclude references with an exact hitCallbackId from direct action/producer roots, just as entity/status-owned references are excluded."
+    }
+  ],
+  "familyAudit": [
+    {
+      "family": "Dori E",
+      "paths": [
+        "internal/characters/dori/skill.go:37-82",
+        "internal/characters/dori/skill.go:97-132",
+        "internal/characters/dori/dori.go:23",
+        "internal/characters/dori/cons.go:13-15"
+      ],
+      "callbackSiteId": "dori.skill.after-sales",
+      "emitSiteId": "dori.skill.after-sales.round",
+      "facts": [
+        "Troubleshooter Shot queues one parent attack with afterSales callback first in its callback arguments. The callback has a shared done flag, so only its first actual invocation queues children.",
+        "The first invocation queues c.afterCount children: 2 by default, 3 after C1 increments it. Later target callback invocations queue zero.",
+        "C2 Jinni heal attack and C6 later infused normal attacks are separate burst/status/later-action effects, not this finite E on-hit branch."
+      ],
+      "closure": "Parent root queue/dispatch and every actual target callback batch finish; exactly one successful afterSales callback when any enemy callback executes; its 2/3 tagged child queues and their stages/dispatches close. No hit means zero child."
+    },
+    {
+      "family": "Mika hold E",
+      "paths": [
+        "internal/characters/mika/skill.go:109-145",
+        "internal/characters/mika/skill.go:163-220"
+      ],
+      "callbackSiteId": "mika.skill.rimestar-shards",
+      "emitSiteId": "mika.skill.rimestar-shard",
+      "facts": [
+        "Hold attack queues one parent single-target hit; makeRimestarShardsCB is its second callback argument after particle callback.",
+        "The closure has a shared done flag. On its first enemy callback it selects up to 3 other enemies and queues one delayed shard attack per selected enemy. Subsequent callback invocations queue zero.",
+        "Shard callbacks for A1 detector stacks modify buffs, not another intrinsic attack."
+      ],
+      "closure": "Close parent batch and each exactly tagged selected shard queue/dispatch; missing/blocked parent yields zero shards. Selection count is actual returned target count, not inferred from enemy names."
+    },
+    {
+      "family": "Baizhu E",
+      "paths": [
+        "internal/characters/baizhu/skill.go:31-69",
+        "internal/characters/baizhu/skill.go:77-105",
+        "internal/characters/baizhu/cons.go:17-64",
+        "internal/characters/baizhu/cons.go:121-130"
+      ],
+      "callbackSiteId": "baizhu.skill.chain",
+      "emitSiteId": "baizhu.skill.chain-next",
+      "facts": [
+        "The first AttackEvent is constructed explicitly; chain(src,1) is appended when nonnil and queues its first event.",
+        "At count 1 or 2 each executed chain callback picks a next enemy. If none, it heals and queues no child. If found, it queues one new AttackEvent after 48 or 54 frames. chain(src,3) returns nil, so depth is finite; multi-target hits can branch per target callback.",
+        "C6 makeC6CB summons a shield; future shield damage requires separate status/shield ownership. C2 is an Init-installed OnEnemyDamage event from any active character and is not an E chain child."
+      ],
+      "closure": "Trace actual callback tree by each parent dispatch+target slot and tagged child QueueAttackEvent; require all pending chain callbacks and child stages/dispatches closed. Source-proven max chain depth is 2 child generations; zero-target healing path is observed, not guessed."
+    },
+    {
+      "family": "Navia E",
+      "paths": [
+        "internal/characters/navia/skill.go:108-225",
+        "internal/characters/navia/skill.go:303-346",
+        "internal/characters/navia/cons.go:35-75"
+      ],
+      "callbackSiteId": "navia.skill.c2-cannon",
+      "emitSiteId": "navia.skill.c2-cannon-shot",
+      "facts": [
+        "Firing occurs in a separate QueueCharTask; that task dynamically creates one root bullet attack per selected target and separately schedules surgingBlade. On-hit receipts alone cannot certify the E root without explicitly annotating that firing producer.",
+        "At C2 each root bullet carries c.c2() after particle callback. The callback checks an actual short status ICD, and at most one allowed invocation queues a Cannon Fire Support attack with its own delayed dispatch and burstCB/c4 callbacks.",
+        "Shrapnel, hit scans, C6 retention and surgingBlade are firing-time state/producer boundaries separate from on-hit C2."
+      ],
+      "closure": "Benefit is exact C2 parent bullet dispatch+target binding and actual zero/one child; full E still needs a source-audited firing producer, dynamic target/bullet count, and surgingBlade task closure."
+    },
+    {
+      "family": "Tartaglia (Childe) Q",
+      "paths": [
+        "internal/characters/tartaglia/burst.go:37-94",
+        "internal/characters/tartaglia/riptide.go:33-77",
+        "internal/characters/tartaglia/riptide.go:203-245",
+        "internal/characters/tartaglia/riptide.go:250-287"
+      ],
+      "callbackSiteId": "tartaglia.burst.riptide-blast (melee) or tartaglia.burst.riptide-apply (ranged)",
+      "emitSiteId": "tartaglia.burst.riptide-blast",
+      "facts": [
+        "Burst queues one parent attack and chooses ranged applyRiptide or melee rtBlastCallback according to stance at cast. The callback runs once per actual target hit.",
+        "Melee callback queues one Riptide Blast only when the actual enemy has riptideKey and is not under riptideSlashICDKey, then deletes riptideKey. Multiple hit targets are independent callback rows.",
+        "Ranged callback applies/refreshes riptide and may schedule C4 recurring enemy tasks. Later Riptide Flash/Slash and OnTargetDied Riptide Burst are persistent status/event outcomes and cannot be closed by this one Q hit callback ledger."
+      ],
+      "closure": "For melee Q intrinsic blast component, all parent target callback batches and each tagged conditional blast stage/dispatch close. Ranged Q status/C4 and later death-event damage remain outside this finite on-hit contract."
+    }
+  ],
+  "nonClaims": [
+    "Do not count all attacks with matching AttackTag, ability string, actor, frame or parentAttackId as one callback child.",
+    "Do not equate ApplyAttack dispatch return with the later end-of-frame callback task.",
+    "Do not certify later status, event, weapon or constellation effects from an empty callback/task queue.",
+    "No source or cache files were edited and no build/test was run in this audit."
+  ],
+  "implementationABI": {
+    "commonPatch": "packages/source-host/patches/111-hit-callbacks.patch",
+    "publicSourceAPIs": [
+      "Core.SourceHostLabelHitCallback(siteID string, callback info.AttackCB)",
+      "Core.SourceHostHitCallbackFact(key string, value float64)",
+      "Core.SourceHostQueueHitAttack(siteID string, a info.AttackInfo, p info.AttackPattern, snapshotDelay int, dmgDelay int, callbacks ...info.AttackCBFunc)",
+      "Core.SourceHostQueueHitAttackEvent(siteID string, ae *info.AttackEvent, dmgDelay int)",
+      "Core.SourceHostQueueHitAttackWithSnap(siteID string, a info.AttackInfo, s info.Snapshot, p info.AttackPattern, dmgDelay int, callbacks ...info.AttackCBFunc)"
+    ],
+    "sourceSiteContract": "Call SourceHostLabelHitCallback at the first line of each audited callback body. Call one explicit SourceHostQueueHitAttack* helper at each intrinsic child queue site. Callback function identity remains unchanged.",
+    "nativeValidation": "git apply --check passed on both pinned latest built source copies; no build, test or simulation run."
+  }
+}

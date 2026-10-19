@@ -1,0 +1,16 @@
+# Fixed historical source. Explicit weakspot is a conditional input, not geometric detection.
+# CR 0 keeps the nonweakpoint shot ordinary; weakpoint shots and Messenger force their own crit.
+options iteration=1 duration=15 workers=1 hitlag=false;
+amber char lvl=1/20 cons=0 talent=1,1,1 +params=[start_energy=0];
+amber add weapon="messenger" refine=5 lvl=1/20;
+amber add stats cr=-0.05;
+target lvl=90 resist=0.1 pos=0,2 radius=0.25;
+active amber;
+amber aim[hold=0,travel=10,weakspot=0];
+wait(100 - f());
+amber aim[hold=0,travel=10,weakspot=1];
+wait(700 - f());
+amber aim[hold=0,travel=10,weakspot=1];
+wait(800 - f());
+amber aim[hold=0,travel=10,weakspot=1];
+wait(900 - f());

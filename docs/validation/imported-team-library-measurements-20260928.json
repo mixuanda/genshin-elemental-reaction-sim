@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "imported-team-library-measurements-v1",
+  "date": "2026-09-28",
+  "scope": "Imported GOOD/Enka equipment roster handoff and source-team preset library.",
+  "evidence": {
+    "core": {"exitCode": 0, "wallSeconds": 2.718, "testsPassed": 2, "receipt": "docs/validation/imported-team-library-core-first-20260928.json"},
+    "webBuild": {"exitCode": 0, "wallSeconds": 3.794, "modules": 742, "viteMilliseconds": 896, "receipt": "docs/validation/imported-team-library-web-first-20260928.json", "warnings": ["INEFFECTIVE_DYNAMIC_IMPORT in existing workspace-panels import graph", "some chunks exceed 500 kB"]},
+    "e2e": {
+      "first": {"exitCode": 1, "wallSeconds": 2.316, "receipt": "docs/validation/imported-team-library-e2e-first-20260928.json", "failure": "Test assertion expected key ayaka while the fixed source key is kamisatoayaka; assertion expectation was corrected and production was unchanged"},
+      "retry1": {"exitCode": 0, "wallSeconds": 3.48, "testSeconds": 2.5, "runnerSeconds": 3.2, "receipt": "docs/validation/imported-team-library-e2e-retry1-20260928.json", "testsPassed": 1, "pageErrors": []},
+      "testedPayload": "synthetic GOOD fixture only; not a user account or live Enka request",
+      "observed": {"members": 2, "missingQtalentLisaDisabled": true, "presetAActionCount": 2, "presetBActionCount": 3, "presetBDurationSeconds": 18, "selectionDidNotAutoLoadPreset": true, "presetAReloadExportEqual": true, "presetsSurvivedRefresh": true, "classicStellarLibrariesIsolated": true, "kaeyaWeaponAfterMerge": "harbingerofdawn", "mergePreservedActions": 2, "namedPresetAUnchangedAfterMerge": true},
+      "fixtureCaveat": "GOOD fixture had two mapped sword weapons and explicitly empty artifact lists; no damage was executed"
+    },
+    "wasm": {"rebuilt": false, "executed": false}
+  },
+  "behavior": {
+    "rosterBatchSize": {"minimum": 1, "maximum": 4},
+    "formats": ["GOOD equipment export", "Enka public showcase parser"],
+    "selectionRequires": ["complete equipment data", "constellation", "base talents", "explicit exact source character form"],
+    "validation": "convert and validate all selected members and complete next draft before a single submit callback",
+    "merge": {"sameCharacterEquipmentReplaced": true, "actorIdPreserved": true, "initialEnergyPreserved": true, "actionsPreserved": true},
+    "replace": {"createsSelectedRoster": true, "actionsStartEmpty": true},
+    "sourceLibrariesSeparated": ["classic b4", "stellar a7"],
+    "localNamedPresets": ["save new", "update selected", "load selected", "delete selected"],
+    "legacySingleSlotAndSingleCharacterEditingPreserved": true
+  },
+  "trackedDiffCheck": {"exitCode": 0, "wallSeconds": 0.063, "receipt": "docs/validation/imported-team-library-diff-check-20260928.json", "scope": "tracked differences only"},
+  "pointersUnchanged": {"runtimeCurrentTsSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045", "pointersJsonSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"},
+  "coverageBoundary": {
+    "smallAndLargeBuildTiersAreEditableAssumptionPresets": true,
+    "existingPresets124By2CountAsNewCoverage": false,
+    "existing18SourceTemplatesCountAsNewCoverage": false,
+    "characterCoverageIncreased": false,
+    "verifiedCountsChanged": false,
+    "fullGoalComplete": false
+  }
+}

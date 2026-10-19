@@ -1,0 +1,310 @@
+diff --git a/pkg/simulation/run.go b/pkg/simulation/run.go
+--- a/pkg/simulation/run.go
++++ b/pkg/simulation/run.go
+@@ -308,7 +308,10 @@
+ 		return executeActionDelay, nil
+ 	}
+ 	q := s.queue[0]
++	var endOrigin func()
++	if s.C.SourceHost != nil { endOrigin = s.C.SourceHost.Origin.BeginAction(s.C.SourceHost.ActionSequence) }
+ 	err := s.C.Player.Exec(q.Action, q.Char, q.Param)
++	if endOrigin != nil { endOrigin() }
+ 	if err != nil {
+ 		// TODO: this check probably doesn't do anything
+ 		if errors.Is(err, player.ErrActionNoOp) {
+diff --git a/pkg/core/attack.go b/pkg/core/attack.go
+--- a/pkg/core/attack.go
++++ b/pkg/core/attack.go
+@@ -20,6 +20,7 @@
+ 		Snapshot:    s,
+ 		SourceFrame: c.F,
+ 	}
++	if c.SourceHost != nil { c.SourceHost.CaptureAttack(&ae) }
+ 	// add callbacks only if not nil
+ 	for _, f := range callbacks {
+ 		if f != nil {
+@@ -30,6 +31,7 @@
+ }
+ 
+ func (c *Core) QueueAttackEvent(ae *info.AttackEvent, dmgDelay int) {
++	if c.SourceHost != nil { c.SourceHost.CaptureAttack(ae) }
+ 	c.queueDmg(ae, dmgDelay)
+ }
+ 
+@@ -54,6 +56,7 @@
+ 		Pattern:     p,
+ 		SourceFrame: c.F,
+ 	}
++	if c.SourceHost != nil { c.SourceHost.CaptureAttack(&ae) }
+ 	// add callbacks only if not nil
+ 	for _, f := range callbacks {
+ 		if f != nil {
+diff --git a/pkg/core/combat/attack.go b/pkg/core/combat/attack.go
+--- a/pkg/core/combat/attack.go
++++ b/pkg/core/combat/attack.go
+@@ -32,7 +32,11 @@
+ }
+ 
+ func (h *Handler) ApplyAttack(a *info.AttackEvent) float64 {
+-	if h.SourceHost != nil { h.SourceHost.PrepareAttack(a) }
++	if h.SourceHost != nil {
++		h.SourceHost.PrepareAttack(a)
++		endOrigin := h.SourceHost.Origin.BeginAttack(a.SourceHostOrigin, a.SourceHostAttackID)
++		defer endOrigin()
++	}
+ 	h.Events.Emit(event.OnApplyAttack, a)
+ 	// died := false
+ 	var total float64
+diff --git a/pkg/core/info/combat.go b/pkg/core/info/combat.go
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -12,6 +12,8 @@
+ }
+ 
+ type AttackEvent struct {
++	SourceHostOrigin *SourceHostOrigin `json:"-"`
++	SourceHostQueuedObservationIndex int `json:"-"`
+ 	SourceHostAttackID int
+ 	SourceHostCalculationID int
+ 	Info    AttackInfo
+diff --git a/pkg/core/task/task.go b/pkg/core/task/task.go
+--- a/pkg/core/task/task.go
++++ b/pkg/core/task/task.go
+@@ -12,6 +12,7 @@
+ 	"container/heap"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/phase"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ type minHeap []task
+@@ -22,9 +23,11 @@
+ 	id        int
+ 	key       string
+ 	phase     phase.Descriptor
++	origin    info.SourceHostOrigin
+ }
+ 
+ type Handler struct {
++	Origin *info.SourceHostOriginTracker
+ 	f       *int
+ 	tasks   *minHeap
+ 	counter int
+@@ -44,7 +47,11 @@
+ 
+ func (s *Handler) Run() {
+ 	for s.tasks.Len() > 0 && s.tasks.Peek().executeBy <= *s.f {
+-		heap.Pop(s.tasks).(task).f()
++		item := heap.Pop(s.tasks).(task)
++		if s.Origin == nil { item.f(); continue }
++		end := s.Origin.BeginTask(item.origin)
++		item.f()
++		end()
+ 	}
+ }
+ 
+@@ -57,12 +64,15 @@
+ }
+ 
+ func (s *Handler) add(f func(), delay int, key string, descriptor phase.Descriptor) {
++	var origin info.SourceHostOrigin
++	if s.Origin != nil { origin = s.Origin.CaptureForChild() }
+ 	heap.Push(s.tasks, task{
+ 		executeBy: *s.f + delay,
+ 		f:         f,
+ 		id:        s.counter,
+ 		key:       key,
+ 		phase:     descriptor,
++		origin:    origin,
+ 	})
+ 	s.counter += 1
+ }
+diff --git a/pkg/core/event/event.go b/pkg/core/event/event.go
+--- a/pkg/core/event/event.go
++++ b/pkg/core/event/event.go
+@@ -1,6 +1,9 @@
+ package event
+ 
+-import "github.com/genshinsim/gcsim/pkg/core/phase"
++import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++)
+ 
+ type Event int
+ 
+@@ -93,6 +96,7 @@
+ )
+ 
+ type Handler struct {
++	Origin *info.SourceHostOriginTracker
+ 	events [][]ehook
+ }
+ 
+@@ -109,6 +113,7 @@
+ 	f     Hook
+ 	key   string
+ 	phase phase.Descriptor
++	origin info.SourceHostOrigin
+ }
+ 
+ func New() *Handler {
+@@ -148,12 +153,15 @@
+ }
+ 
+ func (h *Handler) subscribe(e Event, f Hook, key string, descriptor phase.Descriptor) {
++	var origin info.SourceHostOrigin
++	if h.Origin != nil { origin = h.Origin.Snapshot() }
+ 	a := h.events[e]
+ 
+ 	evt := ehook{
+ 		f:     f,
+ 		key:   key,
+ 		phase: descriptor,
++		origin: origin,
+ 	}
+ 
+ 	// check if override first
+@@ -182,7 +190,10 @@
+ func (h *Handler) Emit(e Event, args ...any) {
+ 	for _, v := range h.events[e] {
+ 		if v.f != nil {
++			if h.Origin == nil { v.f(args...); continue }
++			end := h.Origin.BeginEvent(v.origin, v.key, int(e), args...)
+ 			v.f(args...)
++			end()
+ 		}
+ 	}
+ }
+diff --git a/pkg/core/action/action.go b/pkg/core/action/action.go
+--- a/pkg/core/action/action.go
++++ b/pkg/core/action/action.go
+@@ -7,10 +7,13 @@
+ 	"strings"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/keys"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ // TODO: add a sync.Pool here to save some memory allocs
+ type Info struct {
++	SourceHostOrigin *info.SourceHostOriginTracker `json:"-"`
++	sourceHostCreation info.SourceHostOrigin
+ 	Frames              func(next Action) int `json:"-"`
+ 	AnimationLength     int
+ 	CanQueueAfter       int
+@@ -58,10 +61,28 @@
+ type queuedAction struct {
+ 	f     func()
+ 	delay float64
++	origin info.SourceHostOrigin
+ }
+ 
+ func (a *Info) QueueAction(f func(), delay int) {
+-	a.queued = append(a.queued, queuedAction{f: f, delay: float64(delay)})
++	var origin info.SourceHostOrigin
++	if a.SourceHostOrigin != nil { origin = a.SourceHostOrigin.CaptureForChild() }
++	a.queued = append(a.queued, queuedAction{f: f, delay: float64(delay), origin: origin})
++}
++
++func (a *Info) BindSourceHostOrigin(tracker *info.SourceHostOriginTracker) {
++	a.SourceHostOrigin = tracker
++	if tracker == nil { return }
++	a.sourceHostCreation = tracker.Snapshot()
++	for i := range a.queued { a.queued[i].origin = a.sourceHostCreation }
++}
++
++func (a *Info) RunRemoved(next AnimationState) {
++	if a.OnRemoved == nil { return }
++	if a.SourceHostOrigin == nil { a.OnRemoved(next); return }
++	end := a.SourceHostOrigin.BeginTask(a.sourceHostCreation)
++	a.OnRemoved(next)
++	end()
+ }
+ 
+ func (a *Info) CanQueueNext() bool {
+@@ -96,7 +117,11 @@
+ 		n := 0
+ 		for i := 0; i < len(a.queued); i++ {
+ 			if a.queued[i].delay <= a.TimePassed {
+-				a.queued[i].f()
++				if a.SourceHostOrigin == nil { a.queued[i].f() } else {
++					end := a.SourceHostOrigin.BeginTask(a.queued[i].origin)
++					a.queued[i].f()
++					end()
++				}
+ 			} else {
+ 				a.queued[n] = a.queued[i]
+ 				n++
+@@ -108,9 +133,7 @@
+ 	// check if animation is over
+ 	if a.TimePassed > float64(a.AnimationLength) {
+ 		// handle remove
+-		if a.OnRemoved != nil {
+-			a.OnRemoved(Idle)
+-		}
++		a.RunRemoved(Idle)
+ 		return true
+ 	}
+ 
+diff --git a/pkg/core/player/animation/animation.go b/pkg/core/player/animation/animation.go
+--- a/pkg/core/player/animation/animation.go
++++ b/pkg/core/player/animation/animation.go
+@@ -9,10 +9,12 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/task"
+ )
+ 
+-type AnimationHandler struct { //nolint:revive // cannot just name this Handler because then there is a conflict with Handler in player package
++type AnimationHandler struct {
++	SourceHostOrigin *info.SourceHostOriginTracker //nolint:revive // cannot just name this Handler because then there is a conflict with Handler in player package
+ 	f      *int
+ 	events event.Eventter
+ 	log    glog.Logger
+@@ -71,11 +73,12 @@
+ 	// remove previous if still active
+ 	if h.aniEvt != nil {
+ 		if h.aniEvt.OnRemoved != nil {
+-			h.aniEvt.OnRemoved(evt.State)
++			h.aniEvt.RunRemoved(evt.State)
+ 		}
+ 		h.logEnded()
+ 	}
+ 	// setup next
++	evt.BindSourceHostOrigin(h.SourceHostOrigin)
+ 	h.char = char
+ 	h.started = *h.f
+ 	h.aniEvt = evt
+diff --git a/pkg/core/core.go b/pkg/core/core.go
+--- a/pkg/core/core.go
++++ b/pkg/core/core.go
+@@ -166,6 +166,7 @@
+ 	}
+ 
+ 	char.SourceHost = c.SourceHost
++	if c.SourceHost != nil { char.SourceHostOriginQueue(c.SourceHost.Origin) }
+ 	f, ok := NewCharFuncMap[p.Base.Key]
+ 	if !ok {
+ 		return -1, fmt.Errorf("invalid character: %v", p.Base.Key.String())
+diff --git a/pkg/core/player/character/hitlag.go b/pkg/core/player/character/hitlag.go
+--- a/pkg/core/player/character/hitlag.go
++++ b/pkg/core/player/character/hitlag.go
+@@ -5,6 +5,7 @@
+ 	"math"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ func (c *CharWrapper) QueueCharTask(f func(), delay int) {
+@@ -71,3 +72,7 @@
+ 		evt.Write("mods affected", logs)
+ 	}
+ }
++
++func (c *CharWrapper) SourceHostOriginQueue(origin *info.SourceHostOriginTracker) {
++	c.queue.Origin = origin
++}

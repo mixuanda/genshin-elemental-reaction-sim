@@ -1,0 +1,79 @@
+diff --git a/internal/characters/baizhu/burst.go b/internal/characters/baizhu/burst.go
+--- a/internal/characters/baizhu/burst.go
++++ b/internal/characters/baizhu/burst.go
+@@ -33,14 +33,18 @@
+ 
+ func (c *char) Burst(p map[string]int) (action.Info, error) {
+ 	// no heal on first shield
+-	c.Core.Tasks.Add(func() {
+-		c.summonSeamlessShield()
++	c.Core.SourceHostQueueTask("baizhu.burst.first-shield", c.Index(), func() {
++		c.Core.SourceHostAbilityProducerFact("baizhu.burst.shield-birth-count", 0)
++		c.summonSeamlessShield("baizhu.burst.shield")
++		c.Core.SourceHostAbilityProducerFact("baizhu.burst.shield-birth-count", 1)
+ 	}, burstFirstShield)
+ 
+ 	// refresh shield 5 times
+ 	for i := 0; i <= 4; i += 1 {
+-		c.Core.Tasks.Add(func() {
+-			c.summonSeamlessShield()
++		c.Core.SourceHostQueueTask("baizhu.burst.refresh-shield", c.Index(), func() {
++			c.Core.SourceHostAbilityProducerFact("baizhu.burst.shield-birth-count", 0)
++			c.summonSeamlessShield("baizhu.burst.shield")
++			c.Core.SourceHostAbilityProducerFact("baizhu.burst.shield-birth-count", 1)
+ 			c.summonSeamlessShieldHealing()
+ 		}, burstFirstShield+burstFirstRefresh+burstRefreshRate*i)
+ 	}
+@@ -60,7 +64,7 @@
+ 	}, nil
+ }
+ 
+-func (c *char) summonSeamlessShield() {
++func (c *char) summonSeamlessShield(birthSiteID string) {
+ 	// add shield
+ 	exist := c.Core.Player.Shields.Get(shield.BaizhuBurst)
+ 	ratioTalent := c.TalentLvlBurst()
+@@ -80,9 +84,13 @@
+ 		}, []*info.SourceHostStatRead{maxHPRead}, nil)
+ 	}
+ 	if exist != nil {
+-		c.summonSpiritvein()
++		c.Core.SourceHostWithShieldTrigger(exist, "baizhu.shield.refresh", "refresh", func() {
++			c.summonSpiritvein()
++		})
+ 	}
+-	c.Core.Player.Shields.Add(c.newShield(shieldamt, burstShieldExpiry, shieldHPID))
++	c.Core.SourceHostWithShieldBirth(birthSiteID, func() {
++		c.Core.Player.Shields.Add(c.newShield(shieldamt, burstShieldExpiry, shieldHPID))
++	})
+ }
+ 
+ func (c *char) summonSeamlessShieldHealing() {
+@@ -142,7 +150,8 @@
+ 		}
+ 	}
+ 
+-	c.Core.QueueAttack(
++	c.Core.SourceHostQueueShieldAttack(
++		"baizhu.shield.spiritvein",
+ 		ai,
+ 		combat.NewCircleHitOnTarget(c.Core.Combat.PrimaryTarget(), nil, 1.5),
+ 		burstTickRelease,
+diff --git a/internal/characters/baizhu/cons.go b/internal/characters/baizhu/cons.go
+--- a/internal/characters/baizhu/cons.go
++++ b/internal/characters/baizhu/cons.go
+@@ -129,10 +129,13 @@
+ func (c *char) makeC6CB() info.AttackCBFunc {
+ 	done := false
+ 	return func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("baizhu.c6.sprite-shield", a)
++		c.Core.SourceHostHitCallbackFact("baizhu.c6.shield-birth-count", 0)
+ 		if done {
+ 			return
+ 		}
+ 		done = true
+-		c.summonSeamlessShield()
++		c.summonSeamlessShield("baizhu.c6.sprite-shield")
++		c.Core.SourceHostHitCallbackFact("baizhu.c6.shield-birth-count", 1)
+ 	}
+ }

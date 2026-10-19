@@ -1,0 +1,4022 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "repository": "Dimbreath/AnimeGameData2",
+  "sourceHost": "gitlab",
+  "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+  "rawReleaseCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99",
+  "rawReleaseLabel": "CNRELWin7.1.0_R48145775_S48131320_D48145775",
+  "characters": [
+    {
+      "characterId": "character:10000117",
+      "avatarId": 10000117,
+      "characterSlug": "manekin",
+      "talentSetId": "talent-set:manekin",
+      "defaultSkillDepotId": 11701,
+      "candidateSkillDepotIds": [
+        11701,
+        11702,
+        11703,
+        11704,
+        11705,
+        11706,
+        11707,
+        11708
+      ],
+      "sourceUseType": "AVATAR_FORMAL",
+      "sourceIdentityType": "AVATAR_IDENTITY_NORMAL",
+      "bodyType": "BODY_BOY",
+      "combatConfigHash": "11477571542759703878",
+      "animatorConfigPathHash": "10387222725300034895",
+      "name": "奇偶·男性"
+    },
+    {
+      "characterId": "character:10000118",
+      "avatarId": 10000118,
+      "characterSlug": "manekina",
+      "talentSetId": "talent-set:manekina",
+      "defaultSkillDepotId": 11801,
+      "candidateSkillDepotIds": [
+        11801,
+        11802,
+        11803,
+        11804,
+        11805,
+        11806,
+        11807,
+        11808
+      ],
+      "sourceUseType": "AVATAR_FORMAL",
+      "sourceIdentityType": "AVATAR_IDENTITY_NORMAL",
+      "bodyType": "BODY_GIRL",
+      "combatConfigHash": "9289861549024112338",
+      "animatorConfigPathHash": "8665029428272030862",
+      "name": "奇偶·女性"
+    }
+  ],
+  "sourceSkillDepots": [
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        0,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "id": 11701,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111751,
+      "id": 11702,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111752,
+      "id": 11703,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111753,
+      "id": 11704,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111754,
+      "id": 11705,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111755,
+      "id": 11706,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111756,
+      "id": 11707,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolBoy",
+      "energySkill": 111757,
+      "id": 11708,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        0,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "id": 11801,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111751,
+      "id": 11802,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111752,
+      "id": 11803,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111753,
+      "id": 11804,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111754,
+      "id": 11805,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111755,
+      "id": 11806,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111756,
+      "id": 11807,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "subSkills": [
+        10001,
+        11173,
+        5117010
+      ],
+      "extraAbilities": [
+        "",
+        "",
+        ""
+      ],
+      "LLEFDMDOMGG": [
+        {
+          "proudSkillGroupId": 11721,
+          "DHIEHDPAFGI": 1
+        },
+        {
+          "proudSkillGroupId": 11722,
+          "DHIEHDPAFGI": 4
+        },
+        {},
+        {},
+        {
+          "proudSkillGroupId": 11725
+        }
+      ],
+      "KDCMKCFKPBL": [
+        {},
+        {}
+      ],
+      "skills": [
+        11171,
+        11172,
+        0,
+        0
+      ],
+      "talentStarName": "Talent_LittleIdolGirl",
+      "energySkill": 111757,
+      "id": 11808,
+      "talents": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "sourceSkillIds": [
+    11171,
+    11172,
+    111751,
+    111752,
+    111753,
+    111754,
+    111755,
+    111756,
+    111757
+  ],
+  "talentSupplement": [
+    {
+      "id": "talent-set:manekin",
+      "numericId": 11701,
+      "slug": "manekin",
+      "name": "奇偶·男性",
+      "releasePatch": "6.1",
+      "abilities": [
+        {
+          "id": "talent:manekin:combat1",
+          "key": "combat1",
+          "kind": "normal",
+          "name": "外域剑术·安谨守望",
+          "description": "普通攻击\n进行至多四段的连续剑击。\n\n重击\n消耗一定体力，瞬间向前方挥出两剑。\n\n下落攻击\n从空中下坠冲击地面，攻击下落路径上的敌人，并在落地时造成范围伤害。",
+          "labels": [
+            "一段伤害|{param1:F1P}",
+            "二段伤害|{param2:F1P}",
+            "三段伤害|{param3:F1P}*2",
+            "四段伤害|{param4:F1P}",
+            "重击伤害|{param5:F1P}+{param6:F1P}",
+            "重击体力消耗|{param7:F1}点",
+            "下坠期间伤害|{param8:F1P}",
+            "低空/高空坠地冲击伤害|{param9:P}/{param10:P}"
+          ],
+          "parameters": {
+            "param1": [
+              0.517995,
+              0.560158,
+              0.60232,
+              0.662552,
+              0.704714,
+              0.7529,
+              0.819155,
+              0.88541,
+              0.951666,
+              1.023944,
+              1.096222,
+              1.168501,
+              1.240779,
+              1.313058,
+              1.385336
+            ],
+            "param2": [
+              0.497114,
+              0.537577,
+              0.57804,
+              0.635844,
+              0.676307,
+              0.72255,
+              0.786134,
+              0.849719,
+              0.913303,
+              0.982668,
+              1.052033,
+              1.121398,
+              1.190762,
+              1.260127,
+              1.329492
+            ],
+            "param3": [
+              0.336965,
+              0.364393,
+              0.39182,
+              0.431002,
+              0.458429,
+              0.489775,
+              0.532875,
+              0.575975,
+              0.619076,
+              0.666094,
+              0.713112,
+              0.760131,
+              0.807149,
+              0.854168,
+              0.901186
+            ],
+            "param4": [
+              0.809337,
+              0.875214,
+              0.94109,
+              1.035199,
+              1.101075,
+              1.176362,
+              1.279882,
+              1.383402,
+              1.486922,
+              1.599853,
+              1.712784,
+              1.825715,
+              1.938645,
+              2.051576,
+              2.164507
+            ],
+            "param5": [
+              0.52632,
+              0.56916,
+              0.612,
+              0.6732,
+              0.71604,
+              0.765,
+              0.83232,
+              0.89964,
+              0.96696,
+              1.0404,
+              1.11384,
+              1.18728,
+              1.26072,
+              1.33416,
+              1.4076
+            ],
+            "param6": [
+              0.59082,
+              0.63891,
+              0.687,
+              0.7557,
+              0.80379,
+              0.85875,
+              0.93432,
+              1.00989,
+              1.08546,
+              1.1679,
+              1.25034,
+              1.33278,
+              1.41522,
+              1.49766,
+              1.5801
+            ],
+            "param7": [
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0
+            ],
+            "param8": [
+              0.639324,
+              0.691362,
+              0.7434,
+              0.81774,
+              0.869778,
+              0.92925,
+              1.011024,
+              1.092798,
+              1.174572,
+              1.26378,
+              1.352988,
+              1.442196,
+              1.531404,
+              1.620612,
+              1.70982
+            ],
+            "param9": [
+              1.278377,
+              1.382431,
+              1.486485,
+              1.635134,
+              1.739187,
+              1.858106,
+              2.02162,
+              2.185133,
+              2.348646,
+              2.527025,
+              2.705403,
+              2.883781,
+              3.062159,
+              3.240537,
+              3.418915
+            ],
+            "param10": [
+              1.596762,
+              1.726731,
+              1.8567,
+              2.04237,
+              2.172339,
+              2.320875,
+              2.525112,
+              2.729349,
+              2.933586,
+              3.15639,
+              3.379194,
+              3.601998,
+              3.824802,
+              4.047606,
+              4.27041
+            ]
+          },
+          "levelCount": 15,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "partial",
+          "unmappedMechanics": [
+            "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+            "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+            "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+            "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。"
+          ]
+        },
+        {
+          "id": "talent:manekin:combat2",
+          "key": "combat2",
+          "kind": "skill",
+          "name": "戒惩轰击",
+          "description": "奇偶对附近的敌人进行一次攻击，造成自身元素属性的范围伤害，并迅速后退。施放元素战技后的一段时间内，奇偶的普通攻击、重击与下落攻击将转为造成无法被附魔覆盖的自身元素属性的伤害，该效果将在奇偶离场时消失。\n\n拥有2次可使用次数。\n\n「恰到好处的打击，是必要的警告。」",
+          "labels": [
+            "技能伤害|{param1:F1P}",
+            "元素属性转化持续时间|{param2:F1}秒",
+            "冷却时间|{param3:F1}秒"
+          ],
+          "parameters": {
+            "param1": [
+              1.344,
+              1.4448,
+              1.5456,
+              1.68,
+              1.7808,
+              1.8816,
+              2.016,
+              2.1504,
+              2.2848,
+              2.4192,
+              2.5536,
+              2.688,
+              2.856,
+              3.024,
+              3.192
+            ],
+            "param2": [
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0
+            ],
+            "param3": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
+          },
+          "levelCount": 15,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "partial",
+          "unmappedMechanics": [
+            "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+            "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+            "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+            "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。"
+          ]
+        },
+        {
+          "id": "talent:manekin:combat3",
+          "key": "combat3",
+          "kind": "burst",
+          "name": "禁入限区",
+          "description": "奇偶唤出跟随自身的「禁限区域」，对附近的敌人造成一次奇偶自身元素属性的伤害。\n此外，敌人进入「禁限区域」时，也会受到一次奇偶自身元素属性的伤害，该效果每0.5秒至多触发一次。\n「禁限区域」将在奇偶离场时消失。\n\n「执意踏入禁区的对象，可被视为敌人，理应以最大武力进行驱逐。」",
+          "labels": [
+            "禁限区域生成伤害|{param1:F1P}",
+            "禁限区域踏入伤害|{param2:F1P}",
+            "禁限区域持续时间|{param3:F1}秒",
+            "冷却时间|{param4:F1}秒",
+            "元素能量|{param5:I}"
+          ],
+          "parameters": {
+            "param1": [
+              3.24,
+              3.483,
+              3.726,
+              4.05,
+              4.293,
+              4.536,
+              4.86,
+              5.184,
+              5.508,
+              5.832,
+              6.156,
+              6.48,
+              6.885,
+              7.29,
+              7.695
+            ],
+            "param2": [
+              0.28,
+              0.301,
+              0.322,
+              0.35,
+              0.371,
+              0.392,
+              0.42,
+              0.448,
+              0.476,
+              0.504,
+              0.532,
+              0.56,
+              0.595,
+              0.63,
+              0.665
+            ],
+            "param3": [
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0
+            ],
+            "param4": [
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0
+            ],
+            "param5": [
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0
+            ]
+          },
+          "levelCount": 15,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "partial",
+          "unmappedMechanics": [
+            "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+            "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+            "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+            "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。",
+            "完整Q目标进入/离场触发和A1尾爆尚未注册可执行动作。"
+          ]
+        },
+        {
+          "id": "talent:manekin:passive1",
+          "key": "passive1",
+          "kind": "passive",
+          "name": "战域重划",
+          "description": "奇偶离场时，如果场上存在奇偶自己创造的「禁限区域」，则「禁限区域」会发生爆炸，造成相当于奇偶攻击力200%的自身元素范围伤害。",
+          "labels": [],
+          "parameters": {
+            "param1": [
+              2.0
+            ]
+          },
+          "levelCount": 1,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "metadata-only",
+          "unmappedMechanics": [
+            "仅原始参数与执行变量归档，本补充不自动执行被动生命周期。"
+          ]
+        },
+        {
+          "id": "talent:manekin:passive2",
+          "key": "passive2",
+          "kind": "passive",
+          "name": "交战持备",
+          "description": "奇偶处于队伍后台时，若元素能量低于30%，每秒为自己恢复2点元素能量。",
+          "labels": [],
+          "parameters": {
+            "param1": [
+              0.3
+            ],
+            "param2": [
+              2.0
+            ]
+          },
+          "levelCount": 1,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "metadata-only",
+          "unmappedMechanics": [
+            "仅原始参数与执行变量归档，本补充不自动执行被动生命周期。"
+          ]
+        },
+        {
+          "id": "talent:manekin:passive3",
+          "key": "passive3",
+          "kind": "passive",
+          "name": "灵巧战姿",
+          "description": "奇偶施放元素战技与元素爆发时，会从已有的装扮搭配方案中，随机选择一套进行切换。",
+          "labels": [],
+          "parameters": {},
+          "levelCount": 1,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "metadata-only",
+          "unmappedMechanics": [
+            "仅原始参数与执行变量归档，本补充不自动执行被动生命周期。"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "7.1.0",
+        "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+        "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+        "verifiedAt": "2026-09-25T05:27:36Z",
+        "verificationStatus": "provisional",
+        "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+      },
+      "simulationStatus": "partial",
+      "unmappedMechanics": [
+        "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+        "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+        "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+        "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。"
+      ]
+    },
+    {
+      "id": "talent-set:manekina",
+      "numericId": 11801,
+      "slug": "manekina",
+      "name": "奇偶·女性",
+      "releasePatch": "6.1",
+      "abilities": [
+        {
+          "id": "talent:manekina:combat1",
+          "key": "combat1",
+          "kind": "normal",
+          "name": "外域剑术·安谨守望",
+          "description": "普通攻击\n进行至多四段的连续剑击。\n\n重击\n消耗一定体力，瞬间向前方挥出两剑。\n\n下落攻击\n从空中下坠冲击地面，攻击下落路径上的敌人，并在落地时造成范围伤害。",
+          "labels": [
+            "一段伤害|{param1:F1P}",
+            "二段伤害|{param2:F1P}",
+            "三段伤害|{param3:F1P}*2",
+            "四段伤害|{param4:F1P}",
+            "重击伤害|{param5:F1P}+{param6:F1P}",
+            "重击体力消耗|{param7:F1}点",
+            "下坠期间伤害|{param8:F1P}",
+            "低空/高空坠地冲击伤害|{param9:P}/{param10:P}"
+          ],
+          "parameters": {
+            "param1": [
+              0.517995,
+              0.560158,
+              0.60232,
+              0.662552,
+              0.704714,
+              0.7529,
+              0.819155,
+              0.88541,
+              0.951666,
+              1.023944,
+              1.096222,
+              1.168501,
+              1.240779,
+              1.313058,
+              1.385336
+            ],
+            "param2": [
+              0.497114,
+              0.537577,
+              0.57804,
+              0.635844,
+              0.676307,
+              0.72255,
+              0.786134,
+              0.849719,
+              0.913303,
+              0.982668,
+              1.052033,
+              1.121398,
+              1.190762,
+              1.260127,
+              1.329492
+            ],
+            "param3": [
+              0.336965,
+              0.364393,
+              0.39182,
+              0.431002,
+              0.458429,
+              0.489775,
+              0.532875,
+              0.575975,
+              0.619076,
+              0.666094,
+              0.713112,
+              0.760131,
+              0.807149,
+              0.854168,
+              0.901186
+            ],
+            "param4": [
+              0.809337,
+              0.875214,
+              0.94109,
+              1.035199,
+              1.101075,
+              1.176362,
+              1.279882,
+              1.383402,
+              1.486922,
+              1.599853,
+              1.712784,
+              1.825715,
+              1.938645,
+              2.051576,
+              2.164507
+            ],
+            "param5": [
+              0.52632,
+              0.56916,
+              0.612,
+              0.6732,
+              0.71604,
+              0.765,
+              0.83232,
+              0.89964,
+              0.96696,
+              1.0404,
+              1.11384,
+              1.18728,
+              1.26072,
+              1.33416,
+              1.4076
+            ],
+            "param6": [
+              0.59082,
+              0.63891,
+              0.687,
+              0.7557,
+              0.80379,
+              0.85875,
+              0.93432,
+              1.00989,
+              1.08546,
+              1.1679,
+              1.25034,
+              1.33278,
+              1.41522,
+              1.49766,
+              1.5801
+            ],
+            "param7": [
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0,
+              20.0
+            ],
+            "param8": [
+              0.639324,
+              0.691362,
+              0.7434,
+              0.81774,
+              0.869778,
+              0.92925,
+              1.011024,
+              1.092798,
+              1.174572,
+              1.26378,
+              1.352988,
+              1.442196,
+              1.531404,
+              1.620612,
+              1.70982
+            ],
+            "param9": [
+              1.278377,
+              1.382431,
+              1.486485,
+              1.635134,
+              1.739187,
+              1.858106,
+              2.02162,
+              2.185133,
+              2.348646,
+              2.527025,
+              2.705403,
+              2.883781,
+              3.062159,
+              3.240537,
+              3.418915
+            ],
+            "param10": [
+              1.596762,
+              1.726731,
+              1.8567,
+              2.04237,
+              2.172339,
+              2.320875,
+              2.525112,
+              2.729349,
+              2.933586,
+              3.15639,
+              3.379194,
+              3.601998,
+              3.824802,
+              4.047606,
+              4.27041
+            ]
+          },
+          "levelCount": 15,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "partial",
+          "unmappedMechanics": [
+            "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+            "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+            "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+            "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。"
+          ]
+        },
+        {
+          "id": "talent:manekina:combat2",
+          "key": "combat2",
+          "kind": "skill",
+          "name": "戒惩轰击",
+          "description": "奇偶对附近的敌人进行一次攻击，造成自身元素属性的范围伤害，并迅速后退。施放元素战技后的一段时间内，奇偶的普通攻击、重击与下落攻击将转为造成无法被附魔覆盖的自身元素属性的伤害，该效果将在奇偶离场时消失。\n\n拥有2次可使用次数。\n\n「恰到好处的打击，是必要的警告。」",
+          "labels": [
+            "技能伤害|{param1:F1P}",
+            "元素属性转化持续时间|{param2:F1}秒",
+            "冷却时间|{param3:F1}秒"
+          ],
+          "parameters": {
+            "param1": [
+              1.344,
+              1.4448,
+              1.5456,
+              1.68,
+              1.7808,
+              1.8816,
+              2.016,
+              2.1504,
+              2.2848,
+              2.4192,
+              2.5536,
+              2.688,
+              2.856,
+              3.024,
+              3.192
+            ],
+            "param2": [
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0,
+              4.0
+            ],
+            "param3": [
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0,
+              10.0
+            ]
+          },
+          "levelCount": 15,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "partial",
+          "unmappedMechanics": [
+            "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+            "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+            "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+            "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。"
+          ]
+        },
+        {
+          "id": "talent:manekina:combat3",
+          "key": "combat3",
+          "kind": "burst",
+          "name": "禁入限区",
+          "description": "奇偶唤出跟随自身的「禁限区域」，对附近的敌人造成一次奇偶自身元素属性的伤害。\n此外，敌人进入「禁限区域」时，也会受到一次奇偶自身元素属性的伤害，该效果每0.5秒至多触发一次。\n「禁限区域」将在奇偶离场时消失。\n\n「执意踏入禁区的对象，可被视为敌人，理应以最大武力进行驱逐。」",
+          "labels": [
+            "禁限区域生成伤害|{param1:F1P}",
+            "禁限区域踏入伤害|{param2:F1P}",
+            "禁限区域持续时间|{param3:F1}秒",
+            "冷却时间|{param4:F1}秒",
+            "元素能量|{param5:I}"
+          ],
+          "parameters": {
+            "param1": [
+              3.24,
+              3.483,
+              3.726,
+              4.05,
+              4.293,
+              4.536,
+              4.86,
+              5.184,
+              5.508,
+              5.832,
+              6.156,
+              6.48,
+              6.885,
+              7.29,
+              7.695
+            ],
+            "param2": [
+              0.28,
+              0.301,
+              0.322,
+              0.35,
+              0.371,
+              0.392,
+              0.42,
+              0.448,
+              0.476,
+              0.504,
+              0.532,
+              0.56,
+              0.595,
+              0.63,
+              0.665
+            ],
+            "param3": [
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0,
+              8.0
+            ],
+            "param4": [
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0,
+              15.0
+            ],
+            "param5": [
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0,
+              60.0
+            ]
+          },
+          "levelCount": 15,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "partial",
+          "unmappedMechanics": [
+            "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+            "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+            "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+            "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。",
+            "完整Q目标进入/离场触发和A1尾爆尚未注册可执行动作。"
+          ]
+        },
+        {
+          "id": "talent:manekina:passive1",
+          "key": "passive1",
+          "kind": "passive",
+          "name": "战域重划",
+          "description": "奇偶离场时，如果场上存在奇偶自己创造的「禁限区域」，则「禁限区域」会发生爆炸，造成相当于奇偶攻击力200%的自身元素范围伤害。",
+          "labels": [],
+          "parameters": {
+            "param1": [
+              2.0
+            ]
+          },
+          "levelCount": 1,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "metadata-only",
+          "unmappedMechanics": [
+            "仅原始参数与执行变量归档，本补充不自动执行被动生命周期。"
+          ]
+        },
+        {
+          "id": "talent:manekina:passive2",
+          "key": "passive2",
+          "kind": "passive",
+          "name": "交战持备",
+          "description": "奇偶处于队伍后台时，若元素能量低于30%，每秒为自己恢复2点元素能量。",
+          "labels": [],
+          "parameters": {
+            "param1": [
+              0.3
+            ],
+            "param2": [
+              2.0
+            ]
+          },
+          "levelCount": 1,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "metadata-only",
+          "unmappedMechanics": [
+            "仅原始参数与执行变量归档，本补充不自动执行被动生命周期。"
+          ]
+        },
+        {
+          "id": "talent:manekina:passive3",
+          "key": "passive3",
+          "kind": "passive",
+          "name": "灵巧战姿",
+          "description": "奇偶施放元素战技与元素爆发时，会从已有的装扮搭配方案中，随机选择一套进行切换。",
+          "labels": [],
+          "parameters": {},
+          "levelCount": 1,
+          "provenance": {
+            "patch": "7.1.0",
+            "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+            "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+            "verifiedAt": "2026-09-25T05:27:36Z",
+            "verificationStatus": "provisional",
+            "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+          },
+          "simulationStatus": "metadata-only",
+          "unmappedMechanics": [
+            "仅原始参数与执行变量归档，本补充不自动执行被动生命周期。"
+          ]
+        }
+      ],
+      "provenance": {
+        "patch": "7.1.0",
+        "source": "Dimbreath/AnimeGameData2 raw release data; single-source extraction",
+        "sourceVersion": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+        "verifiedAt": "2026-09-25T05:27:36Z",
+        "verificationStatus": "provisional",
+        "notes": "固定原始表、技能执行结构与天赋变量绑定已逐字段审阅；不是独立来源交叉核验或当前游戏实测。verifiedAt字段只记录本次提取审阅时间。"
+      },
+      "simulationStatus": "partial",
+      "unmappedMechanics": [
+        "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+        "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+        "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+        "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。"
+      ]
+    }
+  ],
+  "coefficients": [
+    {
+      "id": "littleidol-combat1-param1",
+      "abilityKey": "combat1",
+      "parameterKey": "param1",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[0]",
+      "values": [
+        0.517995,
+        0.560158,
+        0.60232,
+        0.662552,
+        0.704714,
+        0.7529,
+        0.819155,
+        0.88541,
+        0.951666,
+        1.023944,
+        1.096222,
+        1.168501,
+        1.240779,
+        1.313058,
+        1.385336
+      ],
+      "sourceValues": [
+        0.517995,
+        0.560158,
+        0.60232,
+        0.662552,
+        0.704714,
+        0.7529,
+        0.819155,
+        0.88541,
+        0.951666,
+        1.023944,
+        1.096222,
+        1.168501,
+        1.240779,
+        1.313058,
+        1.385336
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param2",
+      "abilityKey": "combat1",
+      "parameterKey": "param2",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[1]",
+      "values": [
+        0.497114,
+        0.537577,
+        0.57804,
+        0.635844,
+        0.676307,
+        0.72255,
+        0.786134,
+        0.849719,
+        0.913303,
+        0.982668,
+        1.052033,
+        1.121398,
+        1.190762,
+        1.260127,
+        1.329492
+      ],
+      "sourceValues": [
+        0.497114,
+        0.537577,
+        0.57804,
+        0.635844,
+        0.676307,
+        0.72255,
+        0.786134,
+        0.849719,
+        0.913303,
+        0.982668,
+        1.052033,
+        1.121398,
+        1.190762,
+        1.260127,
+        1.329492
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param3",
+      "abilityKey": "combat1",
+      "parameterKey": "param3",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[2]",
+      "values": [
+        0.336965,
+        0.364393,
+        0.39182,
+        0.431002,
+        0.458429,
+        0.489775,
+        0.532875,
+        0.575975,
+        0.619076,
+        0.666094,
+        0.713112,
+        0.760131,
+        0.807149,
+        0.854168,
+        0.901186
+      ],
+      "sourceValues": [
+        0.336965,
+        0.364393,
+        0.39182,
+        0.431002,
+        0.458429,
+        0.489775,
+        0.532875,
+        0.575975,
+        0.619076,
+        0.666094,
+        0.713112,
+        0.760131,
+        0.807149,
+        0.854168,
+        0.901186
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param4",
+      "abilityKey": "combat1",
+      "parameterKey": "param4",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[3]",
+      "values": [
+        0.809337,
+        0.875214,
+        0.94109,
+        1.035199,
+        1.101075,
+        1.176362,
+        1.279882,
+        1.383402,
+        1.486922,
+        1.599853,
+        1.712784,
+        1.825715,
+        1.938645,
+        2.051576,
+        2.164507
+      ],
+      "sourceValues": [
+        0.809337,
+        0.875214,
+        0.94109,
+        1.035199,
+        1.101075,
+        1.176362,
+        1.279882,
+        1.383402,
+        1.486922,
+        1.599853,
+        1.712784,
+        1.825715,
+        1.938645,
+        2.051576,
+        2.164507
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param5",
+      "abilityKey": "combat1",
+      "parameterKey": "param5",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[4]",
+      "values": [
+        0.52632,
+        0.56916,
+        0.612,
+        0.6732,
+        0.71604,
+        0.765,
+        0.83232,
+        0.89964,
+        0.96696,
+        1.0404,
+        1.11384,
+        1.18728,
+        1.26072,
+        1.33416,
+        1.4076
+      ],
+      "sourceValues": [
+        0.52632,
+        0.56916,
+        0.612,
+        0.6732,
+        0.71604,
+        0.765,
+        0.83232,
+        0.89964,
+        0.96696,
+        1.0404,
+        1.11384,
+        1.18728,
+        1.26072,
+        1.33416,
+        1.4076
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param6",
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[5]",
+      "values": [
+        0.59082,
+        0.63891,
+        0.687,
+        0.7557,
+        0.80379,
+        0.85875,
+        0.93432,
+        1.00989,
+        1.08546,
+        1.1679,
+        1.25034,
+        1.33278,
+        1.41522,
+        1.49766,
+        1.5801
+      ],
+      "sourceValues": [
+        0.59082,
+        0.63891,
+        0.687,
+        0.7557,
+        0.80379,
+        0.85875,
+        0.93432,
+        1.00989,
+        1.08546,
+        1.1679,
+        1.25034,
+        1.33278,
+        1.41522,
+        1.49766,
+        1.5801
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param7",
+      "abilityKey": "combat1",
+      "parameterKey": "param7",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[6]",
+      "values": [
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0
+      ],
+      "sourceValues": [
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0,
+        20.0
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param8",
+      "abilityKey": "combat1",
+      "parameterKey": "param8",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[7]",
+      "values": [
+        0.639324,
+        0.691362,
+        0.7434,
+        0.81774,
+        0.869778,
+        0.92925,
+        1.011024,
+        1.092798,
+        1.174572,
+        1.26378,
+        1.352988,
+        1.442196,
+        1.531404,
+        1.620612,
+        1.70982
+      ],
+      "sourceValues": [
+        0.639324,
+        0.691362,
+        0.7434,
+        0.81774,
+        0.869778,
+        0.92925,
+        1.011024,
+        1.092798,
+        1.174572,
+        1.26378,
+        1.352988,
+        1.442196,
+        1.531404,
+        1.620612,
+        1.70982
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param9",
+      "abilityKey": "combat1",
+      "parameterKey": "param9",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[8]",
+      "values": [
+        1.278377,
+        1.382431,
+        1.486485,
+        1.635134,
+        1.739187,
+        1.858106,
+        2.02162,
+        2.185133,
+        2.348646,
+        2.527025,
+        2.705403,
+        2.883781,
+        3.062159,
+        3.240537,
+        3.418915
+      ],
+      "sourceValues": [
+        1.278377,
+        1.382431,
+        1.486485,
+        1.635134,
+        1.739187,
+        1.858106,
+        2.02162,
+        2.185133,
+        2.348646,
+        2.527025,
+        2.705403,
+        2.883781,
+        3.062159,
+        3.240537,
+        3.418915
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat1-param10",
+      "abilityKey": "combat1",
+      "parameterKey": "param10",
+      "proudSkillGroupId": 11731,
+      "sourceField": "ProudSkillGroup[11731].paramList[9]",
+      "values": [
+        1.596762,
+        1.726731,
+        1.8567,
+        2.04237,
+        2.172339,
+        2.320875,
+        2.525112,
+        2.729349,
+        2.933586,
+        3.15639,
+        3.379194,
+        3.601998,
+        3.824802,
+        4.047606,
+        4.27041
+      ],
+      "sourceValues": [
+        1.596762,
+        1.726731,
+        1.8567,
+        2.04237,
+        2.172339,
+        2.320875,
+        2.525112,
+        2.729349,
+        2.933586,
+        3.15639,
+        3.379194,
+        3.601998,
+        3.824802,
+        4.047606,
+        4.27041
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat2-param1",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "proudSkillGroupId": 11732,
+      "sourceField": "ProudSkillGroup[11732].paramList[0]",
+      "values": [
+        1.344,
+        1.4448,
+        1.5456,
+        1.68,
+        1.7808,
+        1.8816,
+        2.016,
+        2.1504,
+        2.2848,
+        2.4192,
+        2.5536,
+        2.688,
+        2.856,
+        3.024,
+        3.192
+      ],
+      "sourceValues": [
+        1.344,
+        1.4448,
+        1.5456,
+        1.68,
+        1.7808,
+        1.8816,
+        2.016,
+        2.1504,
+        2.2848,
+        2.4192,
+        2.5536,
+        2.688,
+        2.856,
+        3.024,
+        3.192
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat2-param2",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "proudSkillGroupId": 11732,
+      "sourceField": "ProudSkillGroup[11732].paramList[1]",
+      "values": [
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0
+      ],
+      "sourceValues": [
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0,
+        4.0
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat2-param3",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "proudSkillGroupId": 11732,
+      "sourceField": "ProudSkillGroup[11732].paramList[2]",
+      "values": [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      "sourceValues": [
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0,
+        10.0
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat3-param1",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "proudSkillGroupId": 11739,
+      "sourceField": "ProudSkillGroup[11739].paramList[0]",
+      "values": [
+        3.24,
+        3.483,
+        3.726,
+        4.05,
+        4.293,
+        4.536,
+        4.86,
+        5.184,
+        5.508,
+        5.832,
+        6.156,
+        6.48,
+        6.885,
+        7.29,
+        7.695
+      ],
+      "sourceValues": [
+        3.24,
+        3.483,
+        3.726,
+        4.05,
+        4.293,
+        4.536,
+        4.86,
+        5.184,
+        5.508,
+        5.832,
+        6.156,
+        6.48,
+        6.885,
+        7.29,
+        7.695
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat3-param2",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "proudSkillGroupId": 11739,
+      "sourceField": "ProudSkillGroup[11739].paramList[1]",
+      "values": [
+        0.28,
+        0.301,
+        0.322,
+        0.35,
+        0.371,
+        0.392,
+        0.42,
+        0.448,
+        0.476,
+        0.504,
+        0.532,
+        0.56,
+        0.595,
+        0.63,
+        0.665
+      ],
+      "sourceValues": [
+        0.28,
+        0.301,
+        0.322,
+        0.35,
+        0.371,
+        0.392,
+        0.42,
+        0.448,
+        0.476,
+        0.504,
+        0.532,
+        0.56,
+        0.595,
+        0.63,
+        0.665
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat3-param3",
+      "abilityKey": "combat3",
+      "parameterKey": "param3",
+      "proudSkillGroupId": 11739,
+      "sourceField": "ProudSkillGroup[11739].paramList[2]",
+      "values": [
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0
+      ],
+      "sourceValues": [
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0,
+        8.0
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat3-param4",
+      "abilityKey": "combat3",
+      "parameterKey": "param4",
+      "proudSkillGroupId": 11739,
+      "sourceField": "ProudSkillGroup[11739].paramList[3]",
+      "values": [
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0
+      ],
+      "sourceValues": [
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0,
+        15.0
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    },
+    {
+      "id": "littleidol-combat3-param5",
+      "abilityKey": "combat3",
+      "parameterKey": "param5",
+      "proudSkillGroupId": 11739,
+      "sourceField": "ProudSkillGroup[11739].paramList[4]",
+      "values": [
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0
+      ],
+      "sourceValues": [
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0,
+        60.0
+      ],
+      "numericEvidenceStatus": "single-source-extracted"
+    }
+  ],
+  "templates": [
+    {
+      "skillId": "manekin-normal-1-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "普攻第一段（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-normal-1-raw-base-hit-1",
+          "label": "普攻第一段 · 第1击",
+          "coefficientId": "littleidol-combat1-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-normal-2-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "普攻第二段（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-normal-2-raw-base-hit-1",
+          "label": "普攻第二段 · 第1击",
+          "coefficientId": "littleidol-combat1-param2",
+          "parameterKey": "param2",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-normal-3-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "普攻第三段·完整两击（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-normal-3-raw-base-hit-1",
+          "label": "普攻第三段·完整两击 · 第1击",
+          "coefficientId": "littleidol-combat1-param3",
+          "parameterKey": "param3",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        },
+        {
+          "id": "manekin-normal-3-raw-base-hit-2",
+          "label": "普攻第三段·完整两击 · 第2击",
+          "coefficientId": "littleidol-combat1-param3",
+          "parameterKey": "param3",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-normal-4-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "普攻第四段（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-normal-4-raw-base-hit-1",
+          "label": "普攻第四段 · 第1击",
+          "coefficientId": "littleidol-combat1-param4",
+          "parameterKey": "param4",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-charged-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "重击·完整两剑（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-charged-raw-base-hit-1",
+          "label": "重击·完整两剑 · 第1击",
+          "coefficientId": "littleidol-combat1-param5",
+          "parameterKey": "param5",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "charged",
+          "instanceCount": 1
+        },
+        {
+          "id": "manekin-charged-raw-base-hit-2",
+          "label": "重击·完整两剑 · 第2击",
+          "coefficientId": "littleidol-combat1-param6",
+          "parameterKey": "param6",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "charged",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-plunge-low-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "低空下落·无路径碰撞（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-plunge-low-raw-base-hit-1",
+          "label": "低空下落·无路径碰撞 · 第1击",
+          "coefficientId": "littleidol-combat1-param9",
+          "parameterKey": "param9",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "plunge",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。",
+        "已确认本次下落未发生路径碰撞；该限制只属于完整下落，独立落地单击不要求未来事件。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-plunge-high-raw-base",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekin:combat1",
+      "label": "高空下落·无路径碰撞（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekin-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-plunge-high-raw-base-hit-1",
+          "label": "高空下落·无路径碰撞 · 第1击",
+          "coefficientId": "littleidol-combat1-param10",
+          "parameterKey": "param10",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "plunge",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。",
+        "已确认本次下落未发生路径碰撞；该限制只属于完整下落，独立落地单击不要求未来事件。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-pyro-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·火（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-pyro",
+      "variantName": "火元素奇偶",
+      "skillDepotId": 11702,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-pyro-raw-hit-1",
+          "label": "戒惩轰击·火伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "pyro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-hydro-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·水（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-hydro",
+      "variantName": "水元素奇偶",
+      "skillDepotId": 11703,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-hydro-raw-hit-1",
+          "label": "戒惩轰击·水伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "hydro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-electro-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·雷（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-electro",
+      "variantName": "雷元素奇偶",
+      "skillDepotId": 11704,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-electro-raw-hit-1",
+          "label": "戒惩轰击·雷伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "electro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-cryo-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·冰（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-cryo",
+      "variantName": "冰元素奇偶",
+      "skillDepotId": 11705,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-cryo-raw-hit-1",
+          "label": "戒惩轰击·冰伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "cryo",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-anemo-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·风（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-anemo",
+      "variantName": "风元素奇偶",
+      "skillDepotId": 11706,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-anemo-raw-hit-1",
+          "label": "戒惩轰击·风伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "anemo",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-geo-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·岩（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-geo",
+      "variantName": "岩元素奇偶",
+      "skillDepotId": 11707,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-geo-raw-hit-1",
+          "label": "戒惩轰击·岩伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "geo",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekin-skill-dendro-raw",
+      "characterSlug": "manekin",
+      "characterId": "character:10000117",
+      "talentSetId": "talent-set:manekin",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekin:combat2",
+      "label": "戒惩轰击·草（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekin-dendro",
+      "variantName": "草元素奇偶",
+      "skillDepotId": 11708,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekin-skill-dendro-raw-hit-1",
+          "label": "戒惩轰击·草伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "dendro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-normal-1-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "普攻第一段（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-normal-1-raw-base-hit-1",
+          "label": "普攻第一段 · 第1击",
+          "coefficientId": "littleidol-combat1-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-normal-2-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "普攻第二段（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-normal-2-raw-base-hit-1",
+          "label": "普攻第二段 · 第1击",
+          "coefficientId": "littleidol-combat1-param2",
+          "parameterKey": "param2",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-normal-3-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "普攻第三段·完整两击（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-normal-3-raw-base-hit-1",
+          "label": "普攻第三段·完整两击 · 第1击",
+          "coefficientId": "littleidol-combat1-param3",
+          "parameterKey": "param3",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        },
+        {
+          "id": "manekina-normal-3-raw-base-hit-2",
+          "label": "普攻第三段·完整两击 · 第2击",
+          "coefficientId": "littleidol-combat1-param3",
+          "parameterKey": "param3",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-normal-4-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "普攻第四段（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-normal-4-raw-base-hit-1",
+          "label": "普攻第四段 · 第1击",
+          "coefficientId": "littleidol-combat1-param4",
+          "parameterKey": "param4",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "normal",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-charged-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "重击·完整两剑（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-charged-raw-base-hit-1",
+          "label": "重击·完整两剑 · 第1击",
+          "coefficientId": "littleidol-combat1-param5",
+          "parameterKey": "param5",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "charged",
+          "instanceCount": 1
+        },
+        {
+          "id": "manekina-charged-raw-base-hit-2",
+          "label": "重击·完整两剑 · 第2击",
+          "coefficientId": "littleidol-combat1-param6",
+          "parameterKey": "param6",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "charged",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-plunge-low-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "低空下落·无路径碰撞（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-plunge-low-raw-base-hit-1",
+          "label": "低空下落·无路径碰撞 · 第1击",
+          "coefficientId": "littleidol-combat1-param9",
+          "parameterKey": "param9",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "plunge",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。",
+        "已确认本次下落未发生路径碰撞；该限制只属于完整下落，独立落地单击不要求未来事件。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-plunge-high-raw-base",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat1",
+      "abilityId": "talent:manekina:combat1",
+      "label": "高空下落·无路径碰撞（奇偶固定来源条件）",
+      "stateContract": "manekin-uninfused-base",
+      "variantId": "manekina-uninfused",
+      "variantName": "基础物理·元素转化未生效",
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-plunge-high-raw-base-hit-1",
+          "label": "高空下落·无路径碰撞 · 第1击",
+          "coefficientId": "littleidol-combat1-param10",
+          "parameterKey": "param10",
+          "scalingStat": "atk",
+          "element": "physical",
+          "attackTag": "plunge",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "E元素转化与Q区域均未生效，无外部附魔和未建模的自身追加伤害。",
+        "已确认本次下落未发生路径碰撞；该限制只属于完整下落，独立落地单击不要求未来事件。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-pyro-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·火（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-pyro",
+      "variantName": "火元素奇偶",
+      "skillDepotId": 11802,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-pyro-raw-hit-1",
+          "label": "戒惩轰击·火伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "pyro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-hydro-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·水（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-hydro",
+      "variantName": "水元素奇偶",
+      "skillDepotId": 11803,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-hydro-raw-hit-1",
+          "label": "戒惩轰击·水伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "hydro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-electro-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·雷（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-electro",
+      "variantName": "雷元素奇偶",
+      "skillDepotId": 11804,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-electro-raw-hit-1",
+          "label": "戒惩轰击·雷伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "electro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-cryo-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·冰（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-cryo",
+      "variantName": "冰元素奇偶",
+      "skillDepotId": 11805,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-cryo-raw-hit-1",
+          "label": "戒惩轰击·冰伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "cryo",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-anemo-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·风（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-anemo",
+      "variantName": "风元素奇偶",
+      "skillDepotId": 11806,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-anemo-raw-hit-1",
+          "label": "戒惩轰击·风伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "anemo",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-geo-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·岩（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-geo",
+      "variantName": "岩元素奇偶",
+      "skillDepotId": 11807,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-geo-raw-hit-1",
+          "label": "戒惩轰击·岩伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "geo",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    },
+    {
+      "skillId": "manekina-skill-dendro-raw",
+      "characterSlug": "manekina",
+      "characterId": "character:10000118",
+      "talentSetId": "talent-set:manekina",
+      "abilityKey": "combat2",
+      "abilityId": "talent:manekina:combat2",
+      "label": "戒惩轰击·草（独立一次输入）",
+      "stateContract": "manekin-elemental-skill",
+      "variantId": "manekina-dendro",
+      "variantName": "草元素奇偶",
+      "skillDepotId": 11808,
+      "completeAction": true,
+      "roles": [
+        {
+          "id": "manekina-skill-dendro-raw-hit-1",
+          "label": "戒惩轰击·草伤",
+          "coefficientId": "littleidol-combat2-param1",
+          "parameterKey": "param1",
+          "scalingStat": "atk",
+          "element": "dendro",
+          "attackTag": "skill",
+          "instanceCount": 1
+        }
+      ],
+      "sourcePaths": [
+        "ExcelBinOutput/AvatarExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "TextMap/TextMap_MediumCHS.json",
+        "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ],
+      "assumptions": [
+        "只计算提瓦特固定默认剑术，非千星奇域编辑器自定义规则；实际有效天赋等级由使用者确认。",
+        "实际动作已合法发生、列出伤害均命中所选目标；每击最终面板、反应及目标状态由输入恢复。",
+        "本批完整仅指所列条件下该次输入的自身伤害，不认证附着/ICD、粒子、动画帧、体力和队伍轮转。",
+        "已确认使用选定元素的真实技能配置（无元素11701/11801不具备此E）。",
+        "本次E只造成一次自身伤害；后续4秒转化的普攻/重击/下落属于另外的输入，不计为E自动伤害。",
+        "Q区域及其离场A1均未生效，排除额外自身伤害。"
+      ],
+      "exclusions": [
+        "不自动执行禁限区域进入伤害、离场A1尾爆、后台回能或UGC额外规则。",
+        "已归档E/Q/被动字段未全部转为团队能力；单击和有限输入不会提升teamReady。",
+        "此处不执行E后4秒转化、后退位移和2次充能/CD；归档真实字段，不假装已完成团队生命周期。"
+      ]
+    }
+  ],
+  "stateContracts": {
+    "manekin-uninfused-base": {
+      "requiredTrue": [
+        "infusionInactive",
+        "burstInactive",
+        "noExternalInfusion"
+      ],
+      "completeActionRequiredTrue": [
+        "noAdditionalCharacterDamage"
+      ],
+      "sourceRefs": [
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/TextMap/TextMap_MediumCHS.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ]
+    },
+    "manekin-elemental-skill": {
+      "requiredTrue": [
+        "actualElementConfirmed",
+        "burstInactive"
+      ],
+      "completeActionRequiredTrue": [
+        "noAdditionalCharacterDamage"
+      ],
+      "sourceRefs": [
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarSkillExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/ProudSkillExcelConfigData.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/TextMap/TextMap_MediumCHS.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+        "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Talent/AvatarTalents/c43eab63.json"
+      ]
+    }
+  },
+  "pendingMechanics": [
+    {
+      "id": "manekin-burst",
+      "skillIds": [
+        111751,
+        111752,
+        111753,
+        111754,
+        111755,
+        111756,
+        111757
+      ],
+      "roles": [
+        {
+          "role": "initial",
+          "coefficientId": "littleidol-combat3-param1"
+        },
+        {
+          "role": "target-entry",
+          "coefficientId": "littleidol-combat3-param2"
+        },
+        {
+          "role": "a1-on-leave",
+          "coefficient": 2,
+          "minimumAscension": 1
+        }
+      ],
+      "durationParameter": "param3",
+      "perEntryCooldownSeconds": 0.5,
+      "cooldownSeconds": 15,
+      "energyCost": 60,
+      "reason": "目标进入事件、0.5秒资格、离场终止与A1尾爆须由真实观察/执行协议统一归属；尚未注册为完整动作。"
+    },
+    {
+      "id": "manekin-elemental-infusion",
+      "durationParameter": "combat2.param2",
+      "reason": "4秒不可覆盖元素转化且离场消失的状态原始来源明确；本批仅基础物理和E单次直伤，待接可编辑状态生命周期。"
+    },
+    {
+      "id": "manekin-talent-level-availability",
+      "reason": "原始表确有15级，但尚未建立等级/突破/UGC规则到实际有效天赋级的绑定；当前必须显式确认输入级别真实可用。"
+    }
+  ]
+}

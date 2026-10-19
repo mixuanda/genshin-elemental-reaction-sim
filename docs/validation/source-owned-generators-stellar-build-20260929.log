@@ -1,0 +1,17 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs
+
+file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21
+  if (result.error || result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed: ${result.error ?? result.stderr ?? result.status}`);
+                                                 ^
+
+Error: git apply --whitespace=nowarn /Users/evan/Documents/gidps/packages/source-host/patches/109-finite-producer-sites.patch failed: error: patch failed: internal/characters/xiangling/burst.go:43
+error: internal/characters/xiangling/burst.go: patch does not apply
+error: patch failed: internal/characters/kirara/burst.go:80
+error: internal/characters/kirara/burst.go: patch does not apply
+
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21:50)
+    at file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:284:40
+
+Node.js v24.15.0

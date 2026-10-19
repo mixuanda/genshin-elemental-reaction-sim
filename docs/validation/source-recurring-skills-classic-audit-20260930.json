@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "round": 118,
+  "lane": "classic",
+  "status": "private source patches and exact registry/plan proposal ready; gofmt/default git apply --check passed; no build/test",
+  "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/build-PwOq3n/source",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceReceipt": {
+    "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch118/classic/receipt.json",
+    "sha256": "027672b814fd6d36154b9fd12de5e3da51f45e84373a63e4806568023a5fd618",
+    "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "exportSha256": "0165de73b2482d67110f86eda01eeaf091f2b138b76e9e62b65f4014e5e7d605"
+  },
+  "sourceHashesSha256": {
+    "internal/characters/qiqi/qiqi.go": "0511a9b079ce3dbf8d6012975a618ee0bc461395e0888528b1a2ce906c556e60",
+    "internal/characters/qiqi/skill.go": "31a74f52cd6c4ef0bccc8c0b485caecedc2b42dcbf77c85934b5ce251c36a8fd",
+    "internal/characters/qiqi/burst.go": "d697c809b4aa2db212787a265f1393794432f68acaf1cfa820c0507d4267d233",
+    "internal/characters/qiqi/asc.go": "97017c0aaa74b666c4345c52873719dda64555a5040c63abe68087cff49eb948",
+    "internal/characters/qiqi/cons.go": "dc3b4c4fcd0083dbb3dbc7a4d0d9beb6116d22eef4c5e6686ef64f2d53181ad0",
+    "internal/characters/yaemiko/yaemiko.go": "f8854654aec8cefeb69e5092222357d369d4af15b9c07f509bd86aa7363a37db",
+    "internal/characters/yaemiko/skill.go": "5f701868812629d05431b9feb88ce445cb30eb3de06b2cc3b8d918f306034956",
+    "internal/characters/yaemiko/burst.go": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+    "internal/characters/yaemiko/asc.go": "609f05ac77362b0257e0b30ebdf95d5afce71ca7c34e0f8d7397a58f0d433977",
+    "internal/characters/yaemiko/cons.go": "b6181f8a33557099a5ec714195deb6512da13f9f6d6086d5f69b553bc706a05b",
+    "internal/characters/yaemiko/kitsune.go": "04fb48cc1045f0cf861654ef46672846325d0e890f15717415ac3baa76da1665",
+    "pkg/core/sourcehost_ability_producer.go": "9054aaabf5cfe7757851b0fca5cdd5683997a2b9171ae98fc2f74a914b83a4a5",
+    "pkg/core/sourcehost/ability_producer.go": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504",
+    "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+    "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2"
+  },
+  "patchedSourceHashesSha256": {
+    "internal/characters/qiqi/skill.go": "5da41962103d7858721b1e1887cba1d95374f621e053ae52e79f74fab9bfd8c6",
+    "internal/characters/yaemiko/skill.go": "793a8fbbe33ca261c4b61e21311fd11ced1561aafec979ccde54557bd680d63d",
+    "internal/characters/yaemiko/kitsune.go": "df15a660d67c6bfa1bb4294ff995a68bfd332cbdba6e46c70a6b17fa82e46ac9"
+  },
+  "patches": {
+    "qiqi-classic.patch": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/qiqi-classic.patch",
+      "sha256": "e62a5df7834e062d5370b45f47dda1fbf7e564d6482d20c30103ebbc2a0c83a6",
+      "bytes": 1908,
+      "sourcePaths": [
+        "internal/characters/qiqi/skill.go"
+      ]
+    },
+    "yaemiko-classic.patch": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/yaemiko-classic.patch",
+      "sha256": "5d6a8d1a350abb4bcca64480f62d7a8ffc6725281216cbffc5f305b6d052eee7",
+      "bytes": 2024,
+      "sourcePaths": [
+        "internal/characters/yaemiko/skill.go",
+        "internal/characters/yaemiko/kitsune.go"
+      ]
+    },
+    "118-recurring-skills-classic.patch": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/118-recurring-skills-classic.patch",
+      "sha256": "0c0fbc0e046e47ae224931badb38bdb653118d699b00da1387b829b8fa339d05",
+      "bytes": 3932,
+      "sourcePaths": [
+        "internal/characters/qiqi/skill.go",
+        "internal/characters/yaemiko/skill.go",
+        "internal/characters/yaemiko/kitsune.go"
+      ]
+    }
+  },
+  "validation": {
+    "gofmt": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+      "files": [
+        "internal/characters/qiqi/skill.go",
+        "internal/characters/yaemiko/skill.go",
+        "internal/characters/yaemiko/kitsune.go"
+      ],
+      "result": "no unrelated formatting edits"
+    },
+    "gitApplyChecks": {
+      "qiqi-classic.patch": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/build-PwOq3n/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/qiqi-classic.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "yaemiko-classic.patch": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/build-PwOq3n/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/yaemiko-classic.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "118-recurring-skills-classic.patch": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/build-PwOq3n/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/118-recurring-skills-classic.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    },
+    "receiptHashMatch": true,
+    "frozenTargetsUnchanged": true,
+    "buildsOrTestsRun": false
+  },
+  "proposalPath": "/Users/evan/Library/Caches/gidps-source-host/118-recurring-skills/classic-registry-plan-proposal.json",
+  "sites": [
+    {
+      "id": "qiqi-skill",
+      "sourcePath": "internal/characters/qiqi/skill.go",
+      "method": "Skill / skillDmgTickTask",
+      "initialSite": "qiqi.skill.initial",
+      "firstSite": "qiqi.skill.first-tick",
+      "nextSite": "qiqi.skill.next-tick",
+      "clock": "core",
+      "initialDelay": 32,
+      "firstDelayAfterInitial": 64,
+      "recursiveDelays": "lastTickDuration==60 ->135; otherwise60",
+      "branchFact": "qiqi.skill.tick.branch",
+      "branches": {
+        "0": "native !StatusIsActive(qiqi-e) returned: zero queues, zero child tasks",
+        "1": "native skillLastUsed > captured src returned: zero queues, zero child tasks",
+        "2": "native positive branch: one queue, one next-tick child"
+      },
+      "abilities": [
+        {
+          "ability": "Herald of Frost: Initial Damage",
+          "attackTag": "AttackTagElementalArt",
+          "queueAPI": "QueueAttackWithSnap",
+          "damageDelay": 0
+        },
+        {
+          "ability": "Herald of Frost: Skill Damage",
+          "attackTag": "AttackTagElementalArt",
+          "queueAPI": "QueueAttackEvent",
+          "damageDelay": 0
+        }
+      ],
+      "snapshotAndPointerAudit": "Initial task snapshots initial ai, performs native heal, stores shared healing snapshot and schedules healing, independently snapshots aiTick into tickAE, registers first damage tick, then emits initial hit. Recursive helper receives the same original unqueued tickAE pointer, copies tick := *ae on each emission, updates only tick.Pattern and optional C1 callbacks, and queues &tick immediately. No117 occurrence wrapper is needed.",
+      "replacementAudit": "Skill writes shared skillLastUsed and 901f non-hitlag status. Each damage task reads active status once, then compares shared skillLastUsed > captured src once. Preserve comparison: equal-frame repeated casts are not forced to replace one another. Initial task has no replacement guard and still executes; subsequent damage tasks determine terminal state natively.",
+      "sourceTimingLimitations": "Native comments admit approximate damage/healing timing and assumed Ruin Guard hitlag +7. Native Sacrificial Sword replacement behavior is explicitly TODO. Preserve visible scopeNotes.",
+      "canonicalSingleCastSchedule": {
+        "assumptions": "Uninterrupted native core scheduling, no recast/status removal; explanatory schedule only, not the finite contract count.",
+        "initial": 32,
+        "positiveTickOpportunities": [
+          96,
+          231,
+          291,
+          426,
+          486,
+          621,
+          681,
+          816,
+          876
+        ],
+        "terminalTick": 1011
+      },
+      "scopeNotes": [
+        "覆盖该次 E 的初始伤害及完整轮转伤害任务链；实际次数来自任务、分支事实与最终零子任务，不能按源码注释固定为九次轮转。",
+        "固定源码明确注明伤害／治疗帧数为近似估计，并将祭礼剑重放暂按仅一个实例处理；这里复现该版本模拟实现，不代表已验证游戏实测。",
+        "治疗任务、C1 回能、A1 受治疗加成、A4 符箓及独立普通／重击、Q、反应、武器／圣遗物伤害另计。"
+      ]
+    },
+    {
+      "id": "yaemiko-skill",
+      "sourcePath": "internal/characters/yaemiko/kitsune.go",
+      "method": "makeKitsune / kitsuneTick / original expiry closure",
+      "spawnSite": "yaemiko.skill.spawn",
+      "firstSite": "yaemiko.skill.first-tick",
+      "nextSite": "yaemiko.skill.next-tick",
+      "expirySite": "yaemiko.skill.expire",
+      "clock": "core",
+      "spawnDelay": 34,
+      "firstDelayAfterSpawn": 86,
+      "nextDelay": 176,
+      "expiryDelayAfterSpawn": 866,
+      "branchFact": "yaemiko.skill.tick.branch",
+      "branches": {
+        "0": "original totem.deleted true: zero attacks, zero children",
+        "1": "original enemy nil then gadget nil: zero attacks, one next-tick child",
+        "2": "original enemy nonnil: one attack, one next-tick child",
+        "3": "original enemy nil and gadget nonnil: one attack, one next-tick child"
+      },
+      "ability": "Sesshou Sakura Tick",
+      "attackTag": "AttackTagElementalArt",
+      "snapshotDelay": 1,
+      "damageDelay": 1,
+      "pointerAudit": "makeKitsune has one source caller, the E spawn callback, and allocates k := &kitsune{}. First tick and expiry close over k; each subsequent tick closes over the exact original totem argument. All marked tasks inherit explicit spawn/invocation ancestry. Native kitsunes slice mutations, detection-area snapshot, shared live level evaluation and retained deleted pointers are unchanged.",
+      "expiryAudit": "The original expiry closure first reads its captured k.deleted; when false it calls popOldestKitsune(), not a newly invented delete(k). This zero-attack task is always observed even if an earlier Q/replacement made it no-op. The actual terminal tick reading deleted certifies no remaining damage recurrence.",
+      "selectorAudit": "RandomEnemyWithinArea is called once; RandomGadgetWithinArea is called once only after enemy nil. No-target is a continuing branch, not closure. Original tick closure makes exactly one QueueAttack if invoked. Callback order remains particleCB then c4cb.",
+      "externalEffects": "Other E spawns change shared sakura level and may delete oldest; Q emits its own thunderbolts and popAllKitsune. Neither is reattributed to the older E, and no constant-duration cleanup or premature closure is invented.",
+      "canonicalSingleCastSchedule": {
+        "assumptions": "No recast/Q deletion; explanatory schedule only, not fixed attack count.",
+        "spawn": 34,
+        "tickOpportunities": [
+          120,
+          296,
+          472,
+          648,
+          824
+        ],
+        "expiry": 900,
+        "terminalTick": 1000,
+        "eachPositiveAttackAppliesOneFrameLater": true
+      },
+      "scopeNotes": [
+        "覆盖本次 E 新建杀生樱的完整原生任务链；允许多次 E 重叠，每条链沿原闭包持有同一图腾指针并归属于创建它的 E。",
+        "任务如实区分已删除、无可选目标、选中敌人和选中机关；无目标仍会继续排下一次任务，已删除才以零攻击、零子任务结束。",
+        "第四柱替换、原生到期任务和经典 Q 消耗仍按源代码删除图腾；Q 的天狐霆雷归于 Q，不并入 E。到期任务本身不产生伤害，但必须取得执行回执。",
+        "本契约仅用于 classic 固定版本；Stellar 的启示、额外攻击与寿命差异尚不能用此规则宣称完整覆盖。"
+      ]
+    }
+  ],
+  "stellarStatus": "Not claimed by these classic-only rows; materially different Stellar source is under separate audit.",
+  "repositoryFilesChanged": false
+}

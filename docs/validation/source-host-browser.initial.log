@@ -1,0 +1,142 @@
+
+Running 1 test using 1 worker
+
+(node:79908) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-host.spec.ts:5:1 › runs source lifecycle formula families through the Worker and restores an editable independent hit (5.8s)
+
+
+  1) [chromium] › apps/web/e2e/source-host.spec.ts:5:1 › runs source lifecycle formula families through the Worker and restores an editable independent hit 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#source-host-status')
+    Timeout: 5000ms
+    - Expected substring  -  1
+    + Received string     + 47
+
+    - 本次运行完成
+    + 运行停止：simulation panic occured: source-host formula rejected: Cannot add property applicabilityReason, object is not extensible 
+    + goroutine 8 [running]:
+    + runtime/debug.Stack()
+    + 	runtime/debug/stack.go:26 +0x6
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run.func1()
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:325 +0xb
+    + panic({0xa3cc0, 0x1742830})
+    + 	runtime/panic.go:783 +0x1a
+    + github.com/genshinsim/gcsim/pkg/core/sourcehost.(*Bridge).Resolve(0x15fcd80, {{0x209281, 0x14}, 0x2c, {0x1fad6f, 0x6}, 0x1dc, 0x3, {0x1fcc01, 0x9}, ...})
+    + 	github.com/genshinsim/gcsim/pkg/core/sourcehost/bridge.go:104 +0x36
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calcSourceHost(0x161c6c0, 0x1746588, {0x2f5500, 0x171cfa0}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/sourcehost.go:81 +0x128
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calc(0x161c6c0, 0x1746588, {0x2f5500, 0x171cfa0}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/damage.go:11 +0x62
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).attack(0x161c6c0, 0x1746588, {0x2f5500, 0x171cfa0}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/attack.go:145 +0x5b
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).HandleAttack(0x161c6c0, 0x1746588)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/attack.go:60 +0x6b
+    + github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).attack(0x1545a40, {0x2f7e50, 0x161c6c0}, 0x17462c8)
+    + 	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:30 +0x33
+    + github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).ApplyAttack(0x1545a40, 0x17462c8)
+    + 	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:54 +0x31
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).queueDmg(0x15cb8f0, 0x17462c8, 0x0)
+    + 	github.com/genshinsim/gcsim/pkg/core/attack.go:92 +0x29
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).QueueAttackWithSnap(0x15cb8f0, {{0x0, 0x0, 0x0}, 0x3, 0x2, {0x1fb5ff, 0x7}, 0x16, {0x0, ...}, ...}, ...)
+    + 	github.com/genshinsim/gcsim/pkg/core/attack.go:29 +0x15
+    + github.com/genshinsim/gcsim/internal/template/dendrocore.(*Gadget).Attack.func2()
+    + 	github.com/genshinsim/gcsim/internal/template/dendrocore/dendrocore.go:131 +0xd
+    + github.com/genshinsim/gcsim/pkg/core/task.(*Handler).Run(0x140b878)
+    + 	github.com/genshinsim/gcsim/pkg/core/task/task.go:40 +0x5
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).Tick(0x15cb8f0)
+    + 	github.com/genshinsim/gcsim/pkg/core/core.go:155 +0x7
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).nextFrame(0x15fcde0)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:288 +0x6
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).advanceFrames(0x15fcde0, 0x1, 0x229890)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:275 +0x5
+    + github.com/genshinsim/gcsim/pkg/simulation.skipUntilCanQueue(0x15fcde0)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:267 +0x12
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).run(0x15fcde0)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:54 +0x5
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run(0x15fcde0)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:328 +0x2
+    + main.run({{}, 0x7ff8000100000005, 0x140c4b0}, {0x15e2620, 0x2, 0x2})
+    + 	github.com/genshinsim/gcsim/cmd/sourcehost/main.go:80 +0x5f
+    + syscall/js.handleEvent()
+    + 	syscall/js/func.go:117 +0x28
+    +
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#source-host-status')
+        14 × locator resolved to <p role="status" aria-live="polite" id="source-host-status">运行停止：simulation panic occured: source-host formul…</p>
+           - unexpected value "运行停止：simulation panic occured: source-host formula rejected: Cannot add property applicabilityReason, object is not extensible 
+    goroutine 8 [running]:
+    runtime/debug.Stack()
+    	runtime/debug/stack.go:26 +0x6
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run.func1()
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:325 +0xb
+    panic({0xa3cc0, 0x1742830})
+    	runtime/panic.go:783 +0x1a
+    github.com/genshinsim/gcsim/pkg/core/sourcehost.(*Bridge).Resolve(0x15fcd80, {{0x209281, 0x14}, 0x2c, {0x1fad6f, 0x6}, 0x1dc, 0x3, {0x1fcc01, 0x9}, ...})
+    	github.com/genshinsim/gcsim/pkg/core/sourcehost/bridge.go:104 +0x36
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calcSourceHost(0x161c6c0, 0x1746588, {0x2f5500, 0x171cfa0}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/sourcehost.go:81 +0x128
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calc(0x161c6c0, 0x1746588, {0x2f5500, 0x171cfa0}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/damage.go:11 +0x62
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).attack(0x161c6c0, 0x1746588, {0x2f5500, 0x171cfa0}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/attack.go:145 +0x5b
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).HandleAttack(0x161c6c0, 0x1746588)
+    	github.com/genshinsim/gcsim/pkg/enemy/attack.go:60 +0x6b
+    github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).attack(0x1545a40, {0x2f7e50, 0x161c6c0}, 0x17462c8)
+    	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:30 +0x33
+    github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).ApplyAttack(0x1545a40, 0x17462c8)
+    	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:54 +0x31
+    github.com/genshinsim/gcsim/pkg/core.(*Core).queueDmg(0x15cb8f0, 0x17462c8, 0x0)
+    	github.com/genshinsim/gcsim/pkg/core/attack.go:92 +0x29
+    github.com/genshinsim/gcsim/pkg/core.(*Core).QueueAttackWithSnap(0x15cb8f0, {{0x0, 0x0, 0x0}, 0x3, 0x2, {0x1fb5ff, 0x7}, 0x16, {0x0, ...}, ...}, ...)
+    	github.com/genshinsim/gcsim/pkg/core/attack.go:29 +0x15
+    github.com/genshinsim/gcsim/internal/template/dendrocore.(*Gadget).Attack.func2()
+    	github.com/genshinsim/gcsim/internal/template/dendrocore/dendrocore.go:131 +0xd
+    github.com/genshinsim/gcsim/pkg/core/task.(*Handler).Run(0x140b878)
+    	github.com/genshinsim/gcsim/pkg/core/task/task.go:40 +0x5
+    github.com/genshinsim/gcsim/pkg/core.(*Core).Tick(0x15cb8f0)
+    	github.com/genshinsim/gcsim/pkg/core/core.go:155 +0x7
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).nextFrame(0x15fcde0)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:288 +0x6
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).advanceFrames(0x15fcde0, 0x1, 0x229890)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:275 +0x5
+    github.com/genshinsim/gcsim/pkg/simulation.skipUntilCanQueue(0x15fcde0)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:267 +0x12
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).run(0x15fcde0)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:54 +0x5
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run(0x15fcde0)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:328 +0x2
+    main.run({{}, 0x7ff8000100000005, 0x140c4b0}, {0x15e2620, 0x2, 0x2})
+    	github.com/genshinsim/gcsim/cmd/sourcehost/main.go:80 +0x5f
+    syscall/js.handleEvent()
+    	syscall/js/func.go:117 +0x28
+    "
+
+
+      35 |   await page.locator("#source-host-run").click();
+      36 |   await expect(page.locator("#source-host-status")).toContainText(/本次运行完成|运行停止|执行器错误/, { timeout: 45000 });
+    > 37 |   await expect(page.locator("#source-host-status")).toContainText("本次运行完成");
+         |                                                     ^
+      38 |   const download = page.waitForEvent("download");
+      39 |   await page.locator("#source-host-export").click();
+      40 |   const result = JSON.parse(await readFile((await (await download).path())!, "utf8")) as SourceHostResult;
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-host.spec.ts:37:53
+
+    Error Context: test-results/source-host-runs-source-li-6b7a4-an-editable-independent-hit-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-host-runs-source-li-6b7a4-an-editable-independent-hit-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-host-runs-source-li-6b7a4-an-editable-independent-hit-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-host.spec.ts:5:1 › runs source lifecycle formula families through the Worker and restores an editable independent hit 
+
+WALL_SECONDS=6.698

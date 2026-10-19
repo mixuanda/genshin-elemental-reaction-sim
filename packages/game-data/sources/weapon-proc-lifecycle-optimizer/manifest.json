@@ -1,0 +1,463 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "pinnedTreeSha": "180a0a1015cb725c7570cd828eb086749960df98",
+  "pinnedTreeTruncated": false,
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "archivedAt": "2026-09-24T02:58:26.638253+00:00",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/LICENSE"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedAt": "2026-09-24T02:58:26.638976+00:00",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "gitBlobSha": "736a1229592f4afead151920884dbccd5c5e22cb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/wr/src/formula.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "archivedAt": "2026-09-24T02:58:26.638816+00:00",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "gitBlobSha": "7a066de7a030ed2dd05b5184703bb955f6331961",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/wr/src/formula.ts"
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/weapon.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "archivedAt": "2026-09-24T02:58:26.638910+00:00",
+      "sha256": "a24041ebb6383632d69dfbe2322775dea4ba45dd9273a93de2fee2de2d1b0982",
+      "gitBlobSha": "33edfa77556a7bb7dc1ef771f1194a57df306df5",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts"
+    },
+    {
+      "path": "libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedAt": "2026-09-24T02:58:26.639065+00:00",
+      "sha256": "b0b4c34dacbf97b1a5e58e523361e86d629b146f43a2110b9094bf69ad2cb551",
+      "gitBlobSha": "e11e04044b2b4e50ca7a798c6384dccf47bd373c",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json"
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Sword/TheFlute/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Sword/TheFlute/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/TheFlute/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/TheFlute/index.tsx",
+      "archivedAt": "2026-09-24T02:58:28.234079+00:00",
+      "sha256": "0b61d9f03e5c8221ad2a924932071641793eced1de891a4e6b7519482903a0aa",
+      "gitBlobSha": "7a30c999b8e46cb904f4f9eb8bb39b48f733bae3",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_TheFlute_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_TheFlute_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_TheFlute_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_TheFlute_gen.json",
+      "archivedAt": "2026-09-24T02:58:30.266173+00:00",
+      "sha256": "8b4069f7ca29f7ca051884a059134b82e7d9b20c08befd1c29e3072047bf00ea",
+      "gitBlobSha": "1e07d3f9eacdb748d289ad3498ff5f1247b66573",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Claymore/DebateClub/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Claymore/DebateClub/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/DebateClub/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/DebateClub/index.tsx",
+      "archivedAt": "2026-09-24T02:58:30.098168+00:00",
+      "sha256": "af94a5ccca7762695cc6529b913933e217599706031292ff0a186cb6cd72b019",
+      "gitBlobSha": "a7c0ca72c499b4b2240c7287107fa7458e8b85cc",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_DebateClub_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_DebateClub_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_DebateClub_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_DebateClub_gen.json",
+      "archivedAt": "2026-09-24T02:58:28.262329+00:00",
+      "sha256": "a1239ac4dbc898d2760bd05c357dbda27ca7833944cac28f562508f2308f2cfd",
+      "gitBlobSha": "23e893c9a5a4d493ce6728c07fd58c782803e20e",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Polearm/CrescentPike/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/CrescentPike/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/CrescentPike/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/CrescentPike/index.tsx",
+      "archivedAt": "2026-09-24T02:58:29.628049+00:00",
+      "sha256": "3f93cc5dd387f12e235f90c026cbdef1302c7f9104b5d354365451be2a0ae541",
+      "gitBlobSha": "a5a5b680e00a81ebcd7c5703f93f6194e6e24083",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_CrescentPike_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_CrescentPike_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_CrescentPike_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_CrescentPike_gen.json",
+      "archivedAt": "2026-09-24T02:58:29.815387+00:00",
+      "sha256": "8f7d3b1d3d5903d1e2d2210ae8bb8bcd734aff9a3c02467dcb20d66626e80f95",
+      "gitBlobSha": "f25f6399c0b1733be8622de83e2bbc52a82a859e",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Bow/EndOfTheLine/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Bow/EndOfTheLine/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/EndOfTheLine/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/EndOfTheLine/index.tsx",
+      "archivedAt": "2026-09-24T02:58:30.631195+00:00",
+      "sha256": "a90c53ad69f599fdb66becbb092b79d0a194a3ca58c9f3cb85c13289500fd32d",
+      "gitBlobSha": "55cdb950540ec6bca5afec8b6cd68e5763f09ea3",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_EndOfTheLine_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_EndOfTheLine_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_EndOfTheLine_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_EndOfTheLine_gen.json",
+      "archivedAt": "2026-09-24T02:58:30.682594+00:00",
+      "sha256": "400120827a30aa432c15878afba54f23888513bf02feb8dd876c7713a54a99e3",
+      "gitBlobSha": "6af396120a76cd4a7549e1fd968a231a1382fb20",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/wr/src/utils.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/wr/src/utils.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/utils.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/utils.ts",
+      "archivedAt": "2026-09-24T02:59:21.237987+00:00",
+      "sha256": "346537d8761f192960717c2138e7621589d81e73422a6b867905bfd2e0da89b9",
+      "gitBlobSha": "607b570be2fc1ec356be367aabf29a49488f25e0",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    }
+  ],
+  "sourceReview": {
+    "reviewedAt": "2026-09-24T03:01:31.690172+00:00",
+    "method": "Static source inspection, coefficient extraction and archive blob verification only. No upstream application, production calculator test or timeline execution.",
+    "weaponFindings": [
+      {
+        "weaponId": 11402,
+        "optimizerKey": "TheFlute",
+        "nameZh": "笛剑",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Sword/TheFlute/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_TheFlute_gen.json",
+        "coefficientByRefinementFromDescription": [
+          1.0,
+          1.25,
+          1.5,
+          1.75,
+          2.0
+        ],
+        "coefficientByRefinementFromSheet": [
+          2.0,
+          2.0,
+          2.0,
+          2.0,
+          2.0
+        ],
+        "sheetCoefficientMode": "constant-independent-of-refinement",
+        "sheetMinusDescriptionByRefinement": [
+          1.0,
+          0.75,
+          0.5,
+          0.25,
+          0.0
+        ],
+        "matchedRefinements": [
+          5
+        ],
+        "conflictingRefinements": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "attackStatInput": "input.premod.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "physicalEvidence": "explicit hit.ele physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "lifecycleEvidence": "localized-description-only",
+        "lifecycleFromDescription": {
+          "activationFromDescription": "normal-or-charged-hit gains one harmonic",
+          "harmonicsRequired": 5,
+          "harmonicMaxDurationSeconds": 30,
+          "harmonicGainIntervalSeconds": 0.5,
+          "buffDurationSeconds": null,
+          "damageCountLimit": null,
+          "damageIntervalSeconds": null,
+          "activationCooldownSeconds": null,
+          "unresolved": "individual versus shared harmonic expiry, refresh semantics, gain/expiry ordering and AoE counting are not implemented in this sheet"
+        },
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            21
+          ],
+          "attackStatInput": [
+            21
+          ],
+          "physical": [
+            22
+          ]
+        }
+      },
+      {
+        "weaponId": 12305,
+        "optimizerKey": "DebateClub",
+        "nameZh": "以理服人",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Claymore/DebateClub/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_DebateClub_gen.json",
+        "coefficientByRefinementFromDescription": [
+          0.6,
+          0.75,
+          0.9,
+          1.05,
+          1.2
+        ],
+        "coefficientByRefinementFromSheet": [
+          0.6,
+          0.75,
+          0.9,
+          1.05,
+          1.2
+        ],
+        "sheetCoefficientMode": "refinement-array",
+        "sheetMinusDescriptionByRefinement": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "matchedRefinements": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "conflictingRefinements": [],
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "physicalEvidence": "explicit hit.ele physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "lifecycleEvidence": "localized-description-only",
+        "lifecycleFromDescription": {
+          "activationFromDescription": "elemental-skill cast enables normal-or-charged-hit follow-up damage",
+          "harmonicsRequired": null,
+          "harmonicMaxDurationSeconds": null,
+          "harmonicGainIntervalSeconds": null,
+          "buffDurationSeconds": 15,
+          "damageCountLimit": null,
+          "damageIntervalSeconds": 3,
+          "activationCooldownSeconds": null,
+          "unresolved": "refresh/renewal and cooldown reset behavior, interval endpoints, delayed hits and off-field behavior are not implemented in this sheet"
+        },
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            18
+          ],
+          "attackStatInput": [
+            25
+          ],
+          "physical": [
+            29
+          ]
+        }
+      },
+      {
+        "weaponId": 13403,
+        "optimizerKey": "CrescentPike",
+        "nameZh": "流月针",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Polearm/CrescentPike/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_CrescentPike_gen.json",
+        "coefficientByRefinementFromDescription": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "coefficientByRefinementFromSheet": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "sheetCoefficientMode": "refinement-array",
+        "sheetMinusDescriptionByRefinement": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "matchedRefinements": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "conflictingRefinements": [],
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "physicalEvidence": "explicit hit.ele physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "lifecycleEvidence": "localized-description-only",
+        "lifecycleFromDescription": {
+          "activationFromDescription": "obtaining elemental particle or orb enables normal and charged attack extra damage",
+          "harmonicsRequired": null,
+          "harmonicMaxDurationSeconds": null,
+          "harmonicGainIntervalSeconds": null,
+          "buffDurationSeconds": 5,
+          "damageCountLimit": null,
+          "damageIntervalSeconds": null,
+          "activationCooldownSeconds": null,
+          "unresolved": "damage interval and count are not numerically specified in the description; particle recipient, refresh behavior, per-hit multiplicity and timing endpoints are not implemented in this sheet"
+        },
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            18
+          ],
+          "attackStatInput": [
+            25
+          ],
+          "physical": [
+            30
+          ]
+        }
+      },
+      {
+        "weaponId": 15418,
+        "optimizerKey": "EndOfTheLine",
+        "nameZh": "竭泽",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Bow/EndOfTheLine/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_EndOfTheLine_gen.json",
+        "coefficientByRefinementFromDescription": [
+          0.8,
+          1.0,
+          1.2,
+          1.4,
+          1.6
+        ],
+        "coefficientByRefinementFromSheet": [
+          0.8,
+          1,
+          1.2,
+          1.4,
+          1.6
+        ],
+        "sheetCoefficientMode": "refinement-array",
+        "sheetMinusDescriptionByRefinement": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "matchedRefinements": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "conflictingRefinements": [],
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "physicalEvidence": "bow + elemental uses inferredHitEle final physical fallback",
+        "critMode": "shared hit / critHit / avgHit",
+        "lifecycleEvidence": "localized-description-only",
+        "lifecycleFromDescription": {
+          "activationFromDescription": "elemental-skill cast enables attack-hit AoE damage",
+          "harmonicsRequired": null,
+          "harmonicMaxDurationSeconds": null,
+          "harmonicGainIntervalSeconds": null,
+          "buffDurationSeconds": 15,
+          "damageCountLimit": 3,
+          "damageIntervalSeconds": 2,
+          "activationCooldownSeconds": 12,
+          "unresolved": "description removes buff at 15s or third damage; activation/hit ordering, reactivation and proc-CD reset semantics are not implemented in this sheet"
+        },
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            17
+          ],
+          "attackStatInput": [
+            24
+          ],
+          "physical": []
+        }
+      }
+    ],
+    "coefficientPositionsCompared": 20,
+    "coefficientPositionsMatched": 16,
+    "coefficientPositionsConflicting": 4,
+    "maxAbsoluteCoefficientDifference": 1.0,
+    "allArchivedGitBlobsMatchPinnedTree": true,
+    "archivedFileCount": 14,
+    "calculatorTestsExecuted": 0,
+    "upstreamApplicationExecutions": 0,
+    "buildsExecuted": 0,
+    "scopeLimitations": [
+      "TheFlute production sheet is constant 2*input.premod.atk and ignores refinement; the same revision Chinese descriptions are 1/1.25/1.5/1.75/2. Its R1-R4 values conflict and cannot be reported as verified by this sheet.",
+      "TheFlute uses premod.atk; the other three use total.atk. The common formula aliases total to premod by default; arbitrary post-modifier or conversion-buff equivalence is not established.",
+      "All duration, harmonic count, hit count, proc interval and activation cooldown evidence comes from descriptions; no sheet implements its lifecycle timeline.",
+      "Missing interval, count or cooldown fields remain null, not a claim of a verified zero or unlimited behavior.",
+      "No empty refinementBonus or TODO formula stub is used as numerical or lifecycle evidence.",
+      "Physical/crit evidence describes static formula handling, not in-game validation, target counts, proc ordering, off-field behavior, snapshot timing or guaranteed rotation proc counts."
+    ]
+  }
+}

@@ -1,0 +1,323 @@
+diff --git a/pkg/core/action/action.go b/pkg/core/action/action.go
+index 5811b87..60c15f3 100644
+--- a/pkg/core/action/action.go
++++ b/pkg/core/action/action.go
+@@ -31,6 +31,19 @@ type Eval struct {
+ 	Char   keys.Char
+ 	Action Action
+ 	Param  map[string]int
++	Phase  *PhaseMarker
++}
++
++// PhaseMarker is a source-host-only evaluator yield, not a combat action.
++// It is consumed by queuePhase before the next native input is selected.
++type PhaseMarker struct {
++	RepeatID             string
++	Position             int
++	Iteration            int
++	FutureInputSignature string
++	VerifiedRepeat       bool
++	InputState           map[string]any
++	InputGaps            []string
+ }
+ 
+ // Evaluator provides method for getting next action
+@@ -123,6 +136,7 @@ const (
+ 	ActionWait         // character should stand around and wait
+ 	ActionDelay        // delay before executing next action
+ 	ActionSpecialSkill // special elemental skill
++	ActionPhase        // source-host evaluator phase marker; no game action or elapsed time
+ 	EndActionType
+ 	// these are only used for frames purposes and that's why it's after end
+ 	ActionSkillHoldFramesOnly
+@@ -144,6 +158,7 @@ var astr = []string{
+ 	"wait",
+ 	"delay",
+ 	"special_skill",
++	"phase",
+ }
+ 
+ func (a Action) String() string {
+diff --git a/pkg/gcs/eval/eval.go b/pkg/gcs/eval/eval.go
+index 98b665d..9501fbf 100644
+--- a/pkg/gcs/eval/eval.go
++++ b/pkg/gcs/eval/eval.go
+@@ -13,10 +13,13 @@ import (
+ )
+ 
+ type Eval struct {
+-	Core *core.Core
+-	AST  ast.Node
+-	Log  *log.Logger
+-	file *ast.File
++	Core               *core.Core
++	AST                ast.Node
++	Log                *log.Logger
++	file               *ast.File
++	phaseOccurrences   map[string]int
++	phaseSignatures    map[string]bool
++	phaseFunctionDepth int
+ 
+ 	next chan bool         // wait on this before continuing
+ 	work chan *action.Eval // send work to this chan
+@@ -34,11 +37,13 @@ type Env struct {
+ 
+ func NewEvaluator(file *ast.File, ast ast.Node, c *core.Core) (*Eval, error) {
+ 	e := &Eval{
+-		AST:  ast,
+-		Core: c,
+-		file: file,
+-		next: make(chan bool),
+-		work: make(chan *action.Eval),
++		AST:              ast,
++		Core:             c,
++		file:             file,
++		next:             make(chan bool),
++		work:             make(chan *action.Eval),
++		phaseOccurrences: make(map[string]int),
++		phaseSignatures:  make(map[string]bool),
+ 	}
+ 	return e, nil
+ }
+diff --git a/pkg/gcs/eval/expr.go b/pkg/gcs/eval/expr.go
+index 8b6039e..ec450a4 100644
+--- a/pkg/gcs/eval/expr.go
++++ b/pkg/gcs/eval/expr.go
+@@ -83,6 +83,8 @@ func (e *Eval) evalCallExpr(c *ast.CallExpr, env *Env) (Obj, error) {
+ 	}
+ 
+ 	fn := v.(*funcval)
++	e.phaseFunctionDepth++
++	defer func() { e.phaseFunctionDepth-- }()
+ 	// check number of param matches
+ 	if len(c.Args) != len(fn.Args) {
+ 		return nil, ast.NewErrorf(e.file.Position(c.Pos), "unmatched number of params for fn %v", c.Fun.String())
+diff --git a/pkg/gcs/eval/sourcehost_phase.go b/pkg/gcs/eval/sourcehost_phase.go
+new file mode 100644
+index 0000000..6b86d32
+--- /dev/null
++++ b/pkg/gcs/eval/sourcehost_phase.go
+@@ -0,0 +1,132 @@
++package eval
++
++import (
++	"crypto/sha256"
++	"encoding/hex"
++	"encoding/json"
++	"fmt"
++	"math"
++	"regexp"
++	"strings"
++
++	"github.com/genshinsim/gcsim/pkg/core/action"
++	"github.com/genshinsim/gcsim/pkg/gcs/ast"
++)
++
++// These native builtins can make future input depend on absolute time,
++// random draws, or an asynchronous evaluator closure. In that case an
++// observed matching label/environment does not prove repeat input control.
++var sourceHostDynamicInput = regexp.MustCompile(`(^|[^[:alnum:]_])(f|rand|randnorm|set_on_tick)[[:space:]]*\(`)
++
++func (e *Eval) sourceHostPhase(c *ast.CallExpr, env *Env) (Obj, error) {
++	objects, err := e.validateArguments(c, env, typStr)
++	if err != nil {
++		return nil, err
++	}
++	label := strings.TrimSpace(objects[0].(*strval).str)
++	if label == "" {
++		return nil, ast.NewErrorf(e.file.Position(c.Pos), "phase repeat ID must not be empty")
++	}
++	position := int(c.Pos)
++	key := fmt.Sprintf("%d:%s", position, label)
++	e.phaseOccurrences[key]++
++	inputState, gaps := e.sourceHostInputState(env, position)
++	encoded, err := json.Marshal(inputState)
++	if err != nil {
++		gaps = append(gaps, "native evaluator environment could not be serialized")
++	}
++	digest := sha256.Sum256(encoded)
++	signature := hex.EncodeToString(digest[:])
++	seenKey := key + ":" + signature
++	verifiedRepeat := len(gaps) == 0 && e.phaseSignatures[seenKey]
++	if len(gaps) == 0 {
++		e.phaseSignatures[seenKey] = true
++	}
++	e.sendWork(&action.Eval{Action: action.ActionPhase, Phase: &action.PhaseMarker{
++		RepeatID: label, Position: position, Iteration: e.phaseOccurrences[key],
++		FutureInputSignature: signature, VerifiedRepeat: verifiedRepeat,
++		InputState: inputState, InputGaps: gaps,
++	}})
++	if err := e.waitForNext(); err != nil {
++		return nil, err
++	}
++	return &null{}, nil
++}
++
++// The full lexical chain is captured at the actual native callsite. A
++// function closure or unhandled object makes the input phase noncomparable.
++func (e *Eval) sourceHostInputState(env *Env, position int) (map[string]any, []string) {
++	program := sha256.Sum256([]byte(e.AST.String()))
++	state := map[string]any{
++		"programSha256":    hex.EncodeToString(program[:]),
++		"callsitePosition": position,
++		"functionDepth":    e.phaseFunctionDepth,
++	}
++	var gaps []string
++	if e.phaseFunctionDepth != 0 {
++		gaps = append(gaps, "phase marker is inside a user function; caller continuation is not captured")
++	}
++	if sourceHostDynamicInput.MatchString(e.AST.String()) {
++		gaps = append(gaps, "GCSL program contains frame, random, or on-tick input query")
++	}
++	var chain []*Env
++	for scope := env; scope != nil; scope = scope.parent {
++		chain = append(chain, scope)
++	}
++	scopes := make([]any, 0, len(chain))
++	for depth := len(chain) - 1; depth >= 0; depth-- {
++		values := make(map[string]any)
++		for name, pointer := range chain[depth].varMap {
++			if pointer == nil || *pointer == nil {
++				gaps = append(gaps, "nil evaluator variable "+name)
++				continue
++			}
++			if _, builtin := (*pointer).(*bfuncval); builtin {
++				if depth != len(chain)-1 {
++					gaps = append(gaps, "aliased builtin evaluator function "+name)
++				}
++				continue
++			}
++			values[name] = sourceHostPhaseValue(*pointer, name, map[*mapval]bool{}, &gaps)
++		}
++		scopes = append(scopes, values)
++	}
++	state["lexicalScopes"] = scopes
++	return state, gaps
++}
++
++func sourceHostPhaseValue(value Obj, path string, visiting map[*mapval]bool, gaps *[]string) any {
++	switch current := value.(type) {
++	case *null:
++		return nil
++	case *number:
++		if current.isFloat {
++			if math.IsNaN(current.fval) || math.IsInf(current.fval, 0) {
++				*gaps = append(*gaps, "non-finite evaluator variable "+path)
++				return "non-finite"
++			}
++			return map[string]any{"type": "float", "value": current.fval}
++		}
++		return map[string]any{"type": "integer", "value": current.ival}
++	case *strval:
++		return current.str
++	case *mapval:
++		if visiting[current] {
++			*gaps = append(*gaps, "cyclic evaluator map "+path)
++			return "cyclic-map"
++		}
++		visiting[current] = true
++		fields := make(map[string]any, len(current.fields))
++		for key, nested := range current.fields {
++			fields[key] = sourceHostPhaseValue(nested, path+"."+key, visiting, gaps)
++		}
++		delete(visiting, current)
++		return fields
++	case *funcval:
++		*gaps = append(*gaps, "user function closure "+path+" is not fully captured")
++		return map[string]any{"type": "function", "bodyPosition": int(current.Body.Pos)}
++	default:
++		*gaps = append(*gaps, "unsupported evaluator variable "+path)
++		return map[string]any{"type": fmt.Sprintf("%T", value)}
++	}
++}
+diff --git a/pkg/gcs/eval/sysfunc.go b/pkg/gcs/eval/sysfunc.go
+index 951517f..cfc2ab8 100644
+--- a/pkg/gcs/eval/sysfunc.go
++++ b/pkg/gcs/eval/sysfunc.go
+@@ -27,6 +27,10 @@ func (e *Eval) initSysFuncs(env *Env) {
+ 	e.addSysFunc("delay", e.delay, env)
+ 	e.addSysFunc("type", e.typeval, env)
+ 	e.addSysFunc("execute_action", e.executeAction, env)
++	if e.Core != nil && e.Core.SourceHost != nil && e.Core.SourceHost.PhaseConfig != nil {
++		// An explicit source-host marker is unavailable to ordinary gcsim runs.
++		e.addSysFunc("phase", e.sourceHostPhase, env)
++	}
+ 
+ 	// player/enemy
+ 	e.addSysFunc("set_target_pos", e.setTargetPos, env)
+diff --git a/pkg/simulation/run.go b/pkg/simulation/run.go
+index 775eebe..c8e2d95 100644
+--- a/pkg/simulation/run.go
++++ b/pkg/simulation/run.go
+@@ -9,6 +9,7 @@ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/player"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/stats"
+ )
+ 
+@@ -132,11 +133,33 @@ func queuePhase(s *Simulation) (stateFn, error) {
+ 	// relying on advance frame to exit if need be
+ 	if next == nil {
+ 		s.noMoreActions = true
++		s.phaseBoundaryMarked = false
+ 		// we do the same skip here as if eval doesn't have any more ations
+ 		return s.advanceFrames(1, queuePhase)
+ 	}
++	if next.Action == action.ActionPhase {
++		if next.Phase == nil || s.C.SourceHost == nil || s.C.SourceHost.PhaseConfig == nil || s.C.SourceHost.PhaseCapture == nil {
++			return nil, fmt.Errorf("source-host phase marker has no enabled native capture")
++		}
++		if s.phaseBoundaryMarked {
++			return nil, fmt.Errorf("source-host phase marker repeated at one queue boundary (frame %d)", s.C.F)
++		}
++		s.phaseBoundaryMarked = true
++		marker := next.Phase
++		s.C.SourceHost.PhaseCapture(sourcehost.PhaseInput{
++			RepeatID: marker.RepeatID, Position: marker.Position, Iteration: marker.Iteration,
++			FutureInputSignature: marker.FutureInputSignature, VerifiedRepeat: marker.VerifiedRepeat,
++			InputState: marker.InputState, InputGaps: marker.InputGaps,
++		})
++		// phase() is a read-only evaluator yield at this queuePhase, never a
++		// combat action or frame advance. Resume the same input boundary.
++		return queuePhase, nil
++	}
+ 	// handle sleep here since it's just a frame skip before requeing next
+ 	if next.Action == action.ActionWait {
++		if next.Param["f"] > 0 {
++			s.phaseBoundaryMarked = false
++		}
+ 		return s.handleWait(next)
+ 	}
+ 	// if next action is delay, we can just queue up the action after that right now
+@@ -149,6 +172,7 @@ func queuePhase(s *Simulation) (stateFn, error) {
+ 			Write("total", s.preActionDelay)
+ 		return queuePhase, nil
+ 	}
++	s.phaseBoundaryMarked = false
+ 	// IMPORTANT: evaluator should handle adding in implicit swaps if next char is not active
+ 	// we add a sanity check here just to guard against evaluator error
+ 	if next.Char != s.C.Player.ActiveChar().Base.Key && next.Action != action.ActionSwap {
+diff --git a/pkg/simulation/simulation.go b/pkg/simulation/simulation.go
+index 3097847..5c14f91 100644
+--- a/pkg/simulation/simulation.go
++++ b/pkg/simulation/simulation.go
+@@ -15,11 +15,12 @@ type Simulation struct {
+ 	preActionDelay int
+ 	C              *core.Core
+ 	// action list stuff
+-	cfg           *info.ActionList
+-	queue         []*action.Eval
+-	eval          action.Evaluator
+-	noMoreActions bool
+-	collectors    []stats.Collector
++	cfg                 *info.ActionList
++	queue               []*action.Eval
++	eval                action.Evaluator
++	noMoreActions       bool
++	phaseBoundaryMarked bool // one source-host phase sample per actual queue boundary
++	collectors          []stats.Collector
+ 
+ 	// track previous action, when it was used at, and the earliest
+ 	// useable frame for all other chained actions

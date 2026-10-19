@@ -1,0 +1,436 @@
+{
+  "schemaVersion": "source-character-overrides-measurements-v1",
+  "date": "2026-09-28",
+  "artifacts": [
+    {
+      "lane": "classic",
+      "manifest": "packages/source-host/dist/manifest.json",
+      "path": "source-host.wasm",
+      "sha256": "cae2f558f9ae44bcee62494765ffc066589ecad11fb8e89f2f8f1cafab09b262",
+      "size": 43031838
+    },
+    {
+      "lane": "stellar",
+      "manifest": "packages/source-host/stellar-overlay/dist/manifest.json",
+      "path": "source-host.wasm",
+      "sha256": "2786376a66c4db689ebfd353de1323f72124a282f71c397903d0d6d4d1f723b5",
+      "bytes": 64601772
+    }
+  ],
+  "commands": [
+    {
+      "file": "docs/validation/source-character-overrides-classic-first-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.55,
+      "log": "docs/validation/source-character-overrides-classic-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-core-first-20260928.json",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/source-character-overrides.test.ts",
+        "packages/sim-core/src/__tests__/calculation-trace.test.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 1.484,
+      "log": "docs/validation/source-character-overrides-core-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-core-retry1-20260928.json",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/source-character-overrides.test.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.846,
+      "log": "docs/validation/source-character-overrides-core-retry1-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-diff-check-20260928.json",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.068,
+      "log": "docs/validation/source-character-overrides-diff-check-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-e2e-first-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-overrides.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 13.132,
+      "log": "docs/validation/source-character-overrides-e2e-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-stellar-first-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.236,
+      "log": "docs/validation/source-character-overrides-stellar-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-web-first-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.956,
+      "log": "docs/validation/source-character-overrides-web-first-20260928.log"
+    },
+    {
+      "file": "docs/validation/source-character-overrides-web-retry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.018,
+      "log": "docs/validation/source-character-overrides-web-retry1-20260928.log"
+    }
+  ],
+  "runtimeInventory": [
+    {
+      "lane": "classic",
+      "scene": "healing",
+      "resultFile": "docs/validation/source-character-overrides-classic-healing-20260928.result.json",
+      "damageApplications": 12,
+      "healingApplications": 9,
+      "calculations": 2680,
+      "helperOperations": {
+        "character-cooldown:duration": 3,
+        "character-cooldown:remaining": 3,
+        "character-healing:base": 9,
+        "character-healing:bonus": 9,
+        "character-healing:amount": 9,
+        "character-healing:receive": 3,
+        "character-healing:overheal": 9,
+        "character-healing:receive-override": 6,
+        "character-healing:receive-delegation": 2,
+        "character-healing:receive-conversion": 4
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "cooldown",
+      "resultFile": "docs/validation/source-character-overrides-classic-cooldown-20260928.result.json",
+      "damageApplications": 8,
+      "healingApplications": 5,
+      "calculations": 1445,
+      "helperOperations": {
+        "character-cooldown:duration": 3,
+        "character-cooldown:remaining": 8,
+        "character-healing:base": 5,
+        "character-healing:bonus": 5,
+        "character-healing:amount": 5,
+        "character-healing:receive": 5,
+        "character-healing:overheal": 5,
+        "character-cooldown:source": 1,
+        "character-cooldown:route": 1,
+        "character-cooldown:reduce": 2
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "healing",
+      "resultFile": "docs/validation/source-character-overrides-stellar-healing-20260928.result.json",
+      "damageApplications": 12,
+      "healingApplications": 9,
+      "calculations": 2680,
+      "helperOperations": {
+        "character-cooldown:duration": 3,
+        "character-cooldown:remaining": 3,
+        "character-healing:base": 9,
+        "character-healing:bonus": 9,
+        "character-healing:amount": 9,
+        "character-healing:receive": 3,
+        "character-healing:overheal": 9,
+        "character-healing:receive-override": 6,
+        "character-healing:receive-delegation": 2,
+        "character-healing:receive-conversion": 4
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "cooldown",
+      "resultFile": "docs/validation/source-character-overrides-stellar-cooldown-20260928.result.json",
+      "damageApplications": 8,
+      "healingApplications": 5,
+      "calculations": 1445,
+      "helperOperations": {
+        "character-cooldown:duration": 3,
+        "character-cooldown:remaining": 8,
+        "character-healing:base": 5,
+        "character-healing:bonus": 5,
+        "character-healing:amount": 5,
+        "character-healing:receive": 5,
+        "character-healing:overheal": 5,
+        "character-cooldown:source": 1,
+        "character-cooldown:route": 1,
+        "character-cooldown:reduce": 2
+      }
+    }
+  ],
+  "finalRuntime": {
+    "schemaVersion": "source-character-overrides-validation-v1",
+    "laneFilter": "both",
+    "sceneFilter": "both",
+    "measurements": [
+      {
+        "lane": "classic",
+        "scene": "healing",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "cae2f558f9ae44bcee62494765ffc066589ecad11fb8e89f2f8f1cafab09b262",
+        "healing": [
+          {
+            "id": 1,
+            "frame": 25,
+            "source": "Bake-Kurage",
+            "targetIndex": 0,
+            "finalAmount": 1545.51047554,
+            "receivedAmount": 1545.51047554,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive",
+              "overheal"
+            ]
+          },
+          {
+            "id": 2,
+            "frame": 151,
+            "source": "Bake-Kurage",
+            "targetIndex": 1,
+            "finalAmount": 1545.51047554,
+            "receivedAmount": 0,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-override",
+              "overheal"
+            ]
+          },
+          {
+            "id": 4,
+            "frame": 297,
+            "source": "Balemoon Rising (Heal)",
+            "targetIndex": 1,
+            "finalAmount": 1360.2132177,
+            "receivedAmount": 1360.2132177,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-delegation",
+              "receive",
+              "overheal"
+            ]
+          },
+          {
+            "id": 5,
+            "frame": 391,
+            "source": "Bake-Kurage",
+            "targetIndex": 2,
+            "finalAmount": 1545.51047554,
+            "receivedAmount": 0,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-conversion",
+              "receive-override",
+              "overheal"
+            ]
+          },
+          {
+            "id": 6,
+            "frame": 472,
+            "source": "Impale the Night (<100% BoL)",
+            "targetIndex": 2,
+            "finalAmount": 1607.3308945616,
+            "receivedAmount": 61.820419021599946,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-delegation",
+              "receive",
+              "overheal"
+            ]
+          }
+        ],
+        "edit": {
+          "originalConverted": 1545.51047554,
+          "editedConverted": 1670.51047554,
+          "originalCaptureUnchanged": true
+        }
+      },
+      {
+        "lane": "classic",
+        "scene": "cooldown",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "cae2f558f9ae44bcee62494765ffc066589ecad11fb8e89f2f8f1cafab09b262",
+        "cooldown": {
+          "sourceId": 328,
+          "routeId": 329,
+          "remainingId": 330,
+          "reductionId": 331,
+          "remaining": 446,
+          "reducedTo": 386,
+          "replayDifference": 0
+        }
+      },
+      {
+        "lane": "stellar",
+        "scene": "healing",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "2786376a66c4db689ebfd353de1323f72124a282f71c397903d0d6d4d1f723b5",
+        "healing": [
+          {
+            "id": 1,
+            "frame": 25,
+            "source": "Bake-Kurage",
+            "targetIndex": 0,
+            "finalAmount": 1545.51047554,
+            "receivedAmount": 1545.51047554,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive",
+              "overheal"
+            ]
+          },
+          {
+            "id": 2,
+            "frame": 151,
+            "source": "Bake-Kurage",
+            "targetIndex": 1,
+            "finalAmount": 1545.51047554,
+            "receivedAmount": 0,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-override",
+              "overheal"
+            ]
+          },
+          {
+            "id": 4,
+            "frame": 297,
+            "source": "Balemoon Rising (Heal)",
+            "targetIndex": 1,
+            "finalAmount": 1360.2132177,
+            "receivedAmount": 1360.2132177,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-delegation",
+              "receive",
+              "overheal"
+            ]
+          },
+          {
+            "id": 5,
+            "frame": 391,
+            "source": "Bake-Kurage",
+            "targetIndex": 2,
+            "finalAmount": 1545.51047554,
+            "receivedAmount": 0,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-conversion",
+              "receive-override",
+              "overheal"
+            ]
+          },
+          {
+            "id": 6,
+            "frame": 472,
+            "source": "Impale the Night (<100% BoL)",
+            "targetIndex": 2,
+            "finalAmount": 1607.3308945616,
+            "receivedAmount": 61.820419021599946,
+            "replayDifference": 0,
+            "operations": [
+              "base",
+              "bonus",
+              "amount",
+              "receive-delegation",
+              "receive",
+              "overheal"
+            ]
+          }
+        ]
+      },
+      {
+        "lane": "stellar",
+        "scene": "cooldown",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "2786376a66c4db689ebfd353de1323f72124a282f71c397903d0d6d4d1f723b5",
+        "cooldown": {
+          "sourceId": 328,
+          "routeId": 329,
+          "remainingId": 330,
+          "reductionId": 331,
+          "remaining": 446,
+          "reducedTo": 386,
+          "replayDifference": 0
+        }
+      },
+      {
+        "scene": "standalone-trace-report",
+        "nodes": 49,
+        "operations": 67
+      }
+    ],
+    "pageErrors": []
+  },
+  "validationLimits": [
+    "Runtime coverage is two scenes per lane and one independent worked-example report, not every new branch.",
+    "Ifa/Durin raw helper rules and Varka/Odette routes have core/static/build evidence but no new native runtime scenario.",
+    "First core run failed because the test still used the preserved legacy IDs; only that file was retried after updating IDs.",
+    "First Web build failed on type narrowing and optional fields; retry1 passed.",
+    "No historical full-suite, character matrix, data promotion, or game verification.",
+    "git diff --check covered tracked changes; inherited new implementation modules remain untracked."
+  ]
+}

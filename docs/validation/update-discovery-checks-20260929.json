@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "1.0.0",
+  "evidenceType": "Transcription of commands and outputs already executed in this task; no commands rerun for this receipt.",
+  "focusedUnitCheck": {
+    "command": "./node_modules/.bin/vitest run packages/game-data/src/update-discovery-review.test.ts",
+    "toolExitCode": 0,
+    "vitestOutput": {
+      "testFiles": "1 passed (1)",
+      "tests": "1 passed (1)",
+      "duration": "495ms",
+      "transform": "190ms",
+      "setup": "0ms",
+      "import": "317ms",
+      "testExecution": "5ms",
+      "environment": "0ms"
+    },
+    "scopeNote": "This run preceded the final assertion edit from sourceDiscovery === null to schema round-trip equality. The amended test was not rerun, per instruction."
+  },
+  "syntheticFailureFixture": {
+    "path": "docs/validation/update-discovery-fixture-20260929.review.json",
+    "setup": "Ephemeral observations used http://127.0.0.1:1/synthetic-unreachable; a PATH-injected fake git printed synthetic git failure and exited 42. No provider URL was fetched.",
+    "commands": [
+      {
+        "commandTemplate": "node packages/game-data/scripts/update-data.mjs discover --store <temporary-store>",
+        "observedExitCode": 1
+      },
+      {
+        "commandTemplate": "PATH=<fake-git-dir>:$PATH node packages/game-data/scripts/sync-genshin-db-candidate.mjs --output <temporary-candidates>",
+        "observedExitCode": 1
+      },
+      {
+        "commandTemplate": "node packages/game-data/scripts/update-data.mjs review --store <temporary-store> --candidate-run <temporary-candidates>/run-status.json --output docs/validation/update-discovery-fixture-20260929.review.json --fail-on-errors",
+        "observedExitCode": 1
+      }
+    ],
+    "observedToolOutput": {
+      "discoveryExit": 1,
+      "candidateExit": 1,
+      "reviewExit": 1,
+      "failureHistoryCount": 2,
+      "candidateStage": "resolve-upstream"
+    },
+    "harnessExitCode": 0
+  },
+  "syntheticLocalStatusCheck": {
+    "setup": "Ephemeral unreachable localhost URL, synthetic blocked candidate run receipt and synthetic candidate failure JSONL.",
+    "observedToolOutput": {
+      "syntheticOfflineCheck": "passed",
+      "discoverExit": 1,
+      "reviewFailOnErrorsExit": 1,
+      "statusExit": 0,
+      "combinedFailureCount": 2
+    },
+    "harnessExitCode": 0
+  },
+  "localStatusGeneration": {
+    "command": "node packages/game-data/scripts/update-data.mjs status --store packages/game-data/manifests --write --output packages/game-data/src/generated/update-status.json",
+    "observedExitCode": 0,
+    "measuredCommandWallSeconds": 0.729,
+    "timingSource": "Python time.perf_counter around subprocess.run",
+    "pointerAndRuntimeSelectorHashesUnchanged": true,
+    "sourceDiscoveryStatusAtGeneration": null,
+    "candidateReviewAtGeneration": null,
+    "failureCountAtGeneration": 0,
+    "note": "No provider fetch, coverage generator, README/docs status regeneration or pointer operation."
+  },
+  "syntaxAndWhitespaceChecks": {
+    "commands": [
+      "node --check packages/game-data/scripts/update-data.mjs",
+      "node --check packages/game-data/scripts/sync-genshin-db-candidate.mjs",
+      "git diff --check -- .github/workflows/data-discovery.yml packages/game-data/scripts/update-data.mjs packages/game-data/scripts/sync-genshin-db-candidate.mjs packages/game-data/src/update-status.ts"
+    ],
+    "observedExitCodes": [
+      0,
+      0,
+      0
+    ]
+  }
+}

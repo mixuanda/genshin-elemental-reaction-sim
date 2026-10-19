@@ -15,6 +15,23 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
+.product-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; border-bottom: 1px solid var(--border); padding-bottom: 16px; }
+.product-nav a { color: var(--muted); padding: 10px 14px; border-radius: 10px; text-decoration: none; }
+.product-nav a:hover, .product-nav a[aria-current="page"] { color: var(--text); background: var(--panel-2); box-shadow: inset 0 -2px var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.workspace-stack { display: grid; gap: 16px; }
+.workspace-stack p { line-height: 1.7; }
+.workspace-fields { display: grid; grid-template-columns: repeat(auto-fit,minmax(180px,1fr)); gap: 12px; }
+.workspace-stack textarea { min-height: 160px; font-family: ui-monospace, monospace; }
+.workspace-stack pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.workspace-stack td { white-space: normal; }
+#rotation-list li { margin: 10px 0; padding: 12px; border: 1px solid var(--border); border-radius: 10px; line-height: 1.8; overflow-wrap: anywhere; }
+#rotation-list label { display: inline-flex; align-items: center; margin: 8px 12px; }
+#rotation-list input { width: 130px; }
+#rotation-list button { margin: 3px; }
+#sharedHitTrace { margin-top: 18px; }
+#simulationProgress { color: var(--muted); font-size: 12px; }
 body { margin: 0; background: radial-gradient(circle at top right, rgba(104,118,255,.12), transparent 28%), var(--bg); color: var(--text); }
 button, input, select, textarea { font: inherit; }
 button, .file-button { border: 1px solid var(--border); background: var(--panel-2); color: var(--text); border-radius: 10px; padding: 9px 13px; cursor: pointer; transition: .15s ease; }
@@ -131,7 +148,7 @@ tbody tr.selected { background: rgba(141,182,255,.12); }
 .factor .v { font-size: 17px; margin-top: 4px; font-variant-numeric: tabular-nums; }
 .config-layout { grid-template-columns: minmax(0, 1.35fr) minmax(280px, .65fr); }
 #jsonEditor { min-height: 640px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; line-height: 1.55; tab-size: 2; }
-.editor-actions { display: flex; gap: 8px; margin-top: 10px; }
+.editor-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
 .error-box { color: #ffd1d6; background: rgba(255,99,119,.09); border: 1px solid rgba(255,99,119,.35); border-radius: 10px; padding: 12px; white-space: pre-wrap; }
 .docs dl { display: grid; gap: 8px; }
 .docs dt { color: var(--accent); font-family: ui-monospace, monospace; font-weight: 700; }

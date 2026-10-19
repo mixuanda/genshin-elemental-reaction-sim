@@ -1,0 +1,323 @@
+{
+  "schemaVersion": "source-owned-generators-measurements-v1",
+  "asOf": "2026-09-29",
+  "scope": "109 fixed-source finite task declarations and exact-status-owned coordinated damage; not whole game coverage or game verification",
+  "commands": [
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.368,
+      "log": "docs/validation/source-owned-generators-classic-build-20260929.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.686,
+      "log": "docs/validation/source-owned-generators-stellar-build-20260929.log"
+    },
+    {
+      "name": "typecheck-initial",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 3.286,
+      "log": "docs/validation/source-owned-generators-typecheck-initial-20260929.log"
+    },
+    {
+      "name": "offline-regression",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-producer-declarations.test.ts",
+        "packages/sim-core/src/source-host-producer-analysis.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.214,
+      "log": "docs/validation/source-owned-generators-offline-regression-20260929.log"
+    },
+    {
+      "name": "classic-build-final",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.022,
+      "log": "docs/validation/source-owned-generators-classic-build-final-20260929.log"
+    },
+    {
+      "name": "stellar-build-final",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.473,
+      "log": "docs/validation/source-owned-generators-stellar-build-final-20260929.log"
+    },
+    {
+      "name": "talent-registry",
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.157,
+      "log": "docs/validation/source-owned-generators-talent-registry-20260929.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.915,
+      "log": "docs/validation/source-owned-generators-web-build-20260929.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-owned-generators.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.185,
+      "log": "docs/validation/source-owned-generators-browser-20260929.log"
+    }
+  ],
+  "counts": {
+    "distinctSkillContracts": 35,
+    "producerPlanEntries": 26,
+    "producerSiteIds": 42,
+    "newFiniteFamilies": 11,
+    "newOwnedGeneratorFamilies": 3,
+    "nativeRunsThisBatch": 1,
+    "browserCases": 1,
+    "offlineTests": 2
+  },
+  "runtime": {
+    "schemaVersion": "source-owned-generators-browser-v1",
+    "measurements": {
+      "rawPath": "docs/validation/source-owned-generators-team-20260929.capture.json",
+      "nativeResultArchived": true,
+      "invocationId": 1,
+      "generatorId": 1,
+      "statusInstanceId": 1,
+      "triggerKinds": [
+        "state-change",
+        "ticker",
+        "skill-hit"
+      ],
+      "triggerCount": 9,
+      "ownedApplications": 32,
+      "ownedSubtotal": 28378.67210456749,
+      "nativeTotalDamage": 34526.939080662196,
+      "normalOwnApplications": 10,
+      "skillOwnApplications": 1,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "missingTriggerCloses": false,
+      "openStatusCloses": false,
+      "collectionImportExportSame": true
+    },
+    "pageErrors": [],
+    "scope": "One actual classic Yelan C2 Q team run through status expiry; fixed-source generator ownership excludes the later actors' own hits."
+  },
+  "artifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 44888257,
+      "sha256": "9c5b11034792c62018246cc6917db88227028cc8ae20f11933f9fad5dbbc04f8"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 69212786,
+      "sha256": "c83ceb72b4f984b9e2c613cad30492f71b6b7ec660dc9846db837f1575fd16f6"
+    },
+    {
+      "path": "packages/source-host/patches/109-finite-producer-sites.patch",
+      "bytes": 5973,
+      "sha256": "ceb544596ba413959b07c7e8ced11c2004017232bc6c67eb81af36fc535aac6c"
+    },
+    {
+      "path": "packages/source-host/patches/109-owned-generators.patch",
+      "bytes": 6715,
+      "sha256": "5598e8f6c5febc1b0a455ae602738509d3d77d27c6ce2dcf8736ea39ef5a2183"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-producer-plans.json",
+      "bytes": 31641,
+      "sha256": "7dd23c54653cba51fd9d492acb1c9df10697f7e242048cc55e511823793a38b9"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-producer-contracts.json",
+      "bytes": 30902,
+      "sha256": "f5618e7a2793bf6a7f3e8725219b04d2e48ad391f6a8a63ad0078d0e61c7097b"
+    },
+    {
+      "path": "docs/validation/source-owned-generators-team-20260929.capture.json",
+      "bytes": 1888860,
+      "sha256": "0d08644b0f5743db9177442d3003f0fbe08ee7d23ea484fd925a64b78bcd387e"
+    },
+    {
+      "path": "docs/validation/source-finite-batch-a-20260929.json",
+      "bytes": 15829,
+      "sha256": "3013f6dbbbf79068b043bcfbae9acfc59428656c625777998e3107af294b10a1"
+    },
+    {
+      "path": "docs/validation/source-finite-batch-b-20260929.json",
+      "bytes": 22901,
+      "sha256": "9af6ae2ae612e6d7af03db6593faaa6418a57e5a529ead97410c7f7fd4a83a8e"
+    },
+    {
+      "path": "docs/validation/source-owned-generators-audit-20260929.json",
+      "bytes": 16943,
+      "sha256": "25c7d8cfc4ec02bcdf6f62fafe9120e3cee1d6582886557eb7a7018a0471201c"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "repairs": [
+    {
+      "failure": "Both initial native builds failed to apply Xiangling/Kirara finite producer hunks",
+      "cause": "Patch context referenced talent-read instrumentation that exists only after the build patch stage",
+      "repair": "Regenerated these two file hunks against pre-instrumentation source using ordinary unified context; both final native builds passed."
+    },
+    {
+      "failure": "Initial typecheck rejected skill-ownership at ordinary association selector",
+      "repair": "selectSourceSingleSkillAction explicitly rejects skill-ownership as an ordinary association; finite-skill collections own that association. Final typecheck/build passed."
+    }
+  ],
+  "limits": [
+    "Only classic Yelan C2 had a new native runtime sample; Stellar was built, not run.",
+    "The 11 finite task/eager families and Xingqiu/Thoma owned generators have source-audit/declaration/build evidence, not new per-family runtime samples.",
+    "Missing-trigger and still-active-status negatives modify saved receipts offline; no additional truncated native run occurred.",
+    "Declaration migration regression reuses four existing captures and one structural Venti termination case; it is not new native/game evidence.",
+    "No full suite, coverage promotion, released/preview promotion, commit, push or deployment.",
+    "Global master goal remains active; remaining code/source/external evidence gaps are maintained in docs/remaining-product-implementation-20260928.json."
+  ],
+  "runtimeDetails": {
+    "statusInstance": {
+      "actorIndex": 0,
+      "statusKey": "yelanburst",
+      "instanceId": 1,
+      "createdFrame": 77,
+      "creationActionSequence": 1,
+      "initialExpiryFrame": 977,
+      "finalExpiryFrame": 977,
+      "endState": "expired-at-end",
+      "endFrame": 1380,
+      "nativeOverwrite": false
+    },
+    "generator": {
+      "id": 1,
+      "siteId": "yelan.burst.dice-status",
+      "invocationId": 1,
+      "statusInstanceId": 1,
+      "actorIndex": 0,
+      "activatedFrame": 77,
+      "triggerIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    "lifecycleObservationFrame": 1380,
+    "activationProducers": [
+      {
+        "id": 1,
+        "invocationId": 1,
+        "siteId": "yelan.burst.activate",
+        "actorIndex": 0,
+        "queuedFrame": 1,
+        "startedFrame": 77,
+        "completedFrame": 77,
+        "state": "completed",
+        "queuedAttacks": []
+      }
+    ],
+    "triggerAttackCounts": [
+      4,
+      3,
+      4,
+      3,
+      4,
+      3,
+      4,
+      3,
+      3
+    ],
+    "teamApplicationCount": 43,
+    "notes": "The 32 Q applications comprise one initial hit plus 31 owned coordinated applications; later E direct attack and 10 Kaeya normals are not part of Q total."
+  }
+}

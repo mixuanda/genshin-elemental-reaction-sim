@@ -1,0 +1,777 @@
+--- a/internal/characters/furina/attack.go
++++ b/internal/characters/furina/attack.go
+@@ -70,7 +70,9 @@
+ 		// https://www.youtube.com/watch?v=sbKIEzelynE
+ 		// Furina's 18% Max HP boost applies to her Arkhe attacks
+ 		if c.Base.Cons >= 6 && c.StatusIsActive(c6Key) {
+-			ai.FlatDmg = c.c6BonusDMGNoExtra()
++			flatValue, flatHP, flatRead := c.c6BonusNoExtraObserved()
++			ai.FlatDmg = flatValue
++			c.recordSourceFlat(&ai, nil, "char-flat-furina-c6-no-extra", 0, map[string]any{"maxHp": flatHP}, flatRead)
+ 		}
+ 
+ 		ap := combat.NewBoxHitOnTarget(
+@@ -110,7 +112,9 @@
+ 				c6Index = 1
+ 				ai.Element = attributes.Hydro
+ 				ai.IgnoreInfusion = true
+-				ai.FlatDmg = c.c6BonusDMG()
++				flatValue, flatHP, flatRead, flatPneuma := c.c6BonusObserved()
++				ai.FlatDmg = flatValue
++				c.recordSourceFlat(&ai, nil, "char-flat-furina-c6-extra", 0, map[string]any{"maxHp": flatHP, "pneuma": flatPneuma}, flatRead)
+ 				c6cb = c.c6cb
+ 			}
+ 			switch c.NormalCounter {
+--- a/internal/characters/furina/charge.go
++++ b/internal/characters/furina/charge.go
+@@ -48,7 +48,9 @@
+ 		var c6cb info.AttackCBFunc
+ 		// TODO: Check if DMG bonus still applies if c6 runs out between start of CA and the hit
+ 		if c.Base.Cons >= 6 && c.StatusIsActive(c6Key) {
+-			ai.FlatDmg = c.c6BonusDMG()
++			flatValue, flatHP, flatRead, flatPneuma := c.c6BonusObserved()
++			ai.FlatDmg = flatValue
++			c.recordSourceFlat(&ai, nil, "char-flat-furina-c6-extra", 0, map[string]any{"maxHp": flatHP, "pneuma": flatPneuma}, flatRead)
+ 			c6cb = c.c6cb
+ 			ai.Element = attributes.Hydro
+ 			ai.IgnoreInfusion = true
+--- a/internal/characters/furina/plunge.go
++++ b/internal/characters/furina/plunge.go
+@@ -96,7 +96,9 @@
+ 	if c.Base.Cons >= 6 && c.StatusIsActive(c6Key) {
+ 		ai.Element = attributes.Hydro
+ 		ai.IgnoreInfusion = true
+-		ai.FlatDmg = c.c6BonusDMG()
++		flatValue, flatHP, flatRead, flatPneuma := c.c6BonusObserved()
++		ai.FlatDmg = flatValue
++		c.recordSourceFlat(&ai, nil, "char-flat-furina-c6-extra", 0, map[string]any{"maxHp": flatHP, "pneuma": flatPneuma}, flatRead)
+ 		c6cb = c.c6cb
+ 	}
+ 
+@@ -157,7 +159,9 @@
+ 	if c.Base.Cons >= 6 && c.StatusIsActive(c6Key) {
+ 		ai.Element = attributes.Hydro
+ 		ai.IgnoreInfusion = true
+-		ai.FlatDmg = c.c6BonusDMG()
++		flatValue, flatHP, flatRead, flatPneuma := c.c6BonusObserved()
++		ai.FlatDmg = flatValue
++		c.recordSourceFlat(&ai, nil, "char-flat-furina-c6-extra", 0, map[string]any{"maxHp": flatHP, "pneuma": flatPneuma}, flatRead)
+ 		c6cb = c.c6cb
+ 	}
+ 
+@@ -196,7 +200,9 @@
+ 	if c.Base.Cons >= 6 && c.StatusIsActive(c6Key) {
+ 		ai.Element = attributes.Hydro
+ 		ai.IgnoreInfusion = true
+-		ai.FlatDmg = c.c6BonusDMGNoExtra()
++		flatValue, flatHP, flatRead := c.c6BonusNoExtraObserved()
++		ai.FlatDmg = flatValue
++		c.recordSourceFlat(&ai, nil, "char-flat-furina-c6-no-extra", 0, map[string]any{"maxHp": flatHP}, flatRead)
+ 	}
+ 
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: 1}, 1), delay, delay)
+--- a/internal/characters/furina/burst.go
++++ b/internal/characters/furina/burst.go
+@@ -164,6 +164,11 @@
+ }
+ 
+ func (c *char) Burst(p map[string]int) (action.Info, error) {
++	furina_burst_hp := 0.0
++	var furina_burst_read *info.SourceHostStatRead
++	furina_burst_maxHP := func() float64 { furina_burst_hp, furina_burst_read = c.MaxHPWithProvenance(); return furina_burst_hp }
++	furina_burst_talent := 0
++	furina_burst_talentLevel := func() int { furina_burst_talent = c.TalentLvlBurst(); return furina_burst_talent }
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Let the People Rejoice",
+@@ -173,8 +178,9 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+-		FlatDmg:    c.MaxHP() * burstDMG[c.TalentLvlBurst()],
++		FlatDmg:    furina_burst_maxHP() * burstDMG[furina_burst_talentLevel()],
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-furina-burst", 0, map[string]any{"talent": furina_burst_talent, "maxHp": furina_burst_hp}, furina_burst_read)
+ 
+ 	c.curFanfare = 0
+ 	c.DeleteStatus(burstKey)
+--- a/internal/characters/furina/skill.go
++++ b/internal/characters/furina/skill.go
+@@ -106,6 +106,14 @@
+ }
+ 
+ func (c *char) skillOusia(_ map[string]int) (action.Info, error) {
++	furina_bubble_hp := 0.0
++	var furina_bubble_read *info.SourceHostStatRead
++	furina_bubble_maxHP := func() float64 {
++		furina_bubble_hp, furina_bubble_read = c.MaxHPWithProvenance()
++		return furina_bubble_hp
++	}
++	furina_bubble_talent := 0
++	furina_bubble_talentLevel := func() int { furina_bubble_talent = c.TalentLvlSkill(); return furina_bubble_talent }
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Salon Solitaire: Ousia Bubble",
+@@ -115,8 +123,9 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+-		FlatDmg:    skillOusiaBubble[c.TalentLvlSkill()] * c.MaxHP(),
++		FlatDmg:    skillOusiaBubble[furina_bubble_talentLevel()] * furina_bubble_maxHP(),
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-furina-bubble", 0, map[string]any{"talent": furina_bubble_talent, "maxHp": furina_bubble_hp}, furina_bubble_read)
+ 
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 5), ousiaBubbleHitmark, ousiaBubbleHitmark)
+ 
+@@ -197,6 +206,14 @@
+ 		alliesWithDrainedHPCounter := c.consumeAlliesHealth(0.016)
+ 		damageMultiplier := 1 + 0.1*float64(alliesWithDrainedHPCounter)
+ 
++		furina_chevalmarin_hp := 0.0
++		var furina_chevalmarin_read *info.SourceHostStatRead
++		furina_chevalmarin_maxHP := func() float64 {
++			furina_chevalmarin_hp, furina_chevalmarin_read = c.MaxHPWithProvenance()
++			return furina_chevalmarin_hp
++		}
++		furina_chevalmarin_talent := 0
++		furina_chevalmarin_talentLevel := func() int { furina_chevalmarin_talent = c.TalentLvlSkill(); return furina_chevalmarin_talent }
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       fmt.Sprintf("%v: Surintendante Chevalmarin", salonMemberKey),
+@@ -206,8 +223,9 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    attributes.Hydro,
+ 			Durability: 25,
+-			FlatDmg:    skillChevalmarin[c.TalentLvlSkill()] * c.MaxHP() * damageMultiplier,
++			FlatDmg:    skillChevalmarin[furina_chevalmarin_talentLevel()] * furina_chevalmarin_maxHP() * damageMultiplier,
+ 		}
++		c.recordSourceFlat(&ai, nil, "char-flat-furina-chevalmarin", 0, map[string]any{"talent": furina_chevalmarin_talent, "maxHp": furina_chevalmarin_hp, "drainedAllies": alliesWithDrainedHPCounter}, furina_chevalmarin_read)
+ 		ap := combat.NewCircleHitOnTarget(c.Core.Combat.PrimaryTarget(), nil, chevalmarinAoE)
+ 		c.queueSalonAttack(src, ai, ap, chevalmarinTravel)
+ 		interval := c.calcSalonTick(tick+1, chevalmarinInitialTick, chevalmarinIntervalMean) - (c.Core.F - src)
+@@ -232,6 +250,11 @@
+ 		alliesWithDrainedHPCounter := c.consumeAlliesHealth(0.024)
+ 		damageMultiplier := 1 + 0.1*float64(alliesWithDrainedHPCounter)
+ 
++		furina_usher_hp := 0.0
++		var furina_usher_read *info.SourceHostStatRead
++		furina_usher_maxHP := func() float64 { furina_usher_hp, furina_usher_read = c.MaxHPWithProvenance(); return furina_usher_hp }
++		furina_usher_talent := 0
++		furina_usher_talentLevel := func() int { furina_usher_talent = c.TalentLvlSkill(); return furina_usher_talent }
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       fmt.Sprintf("%v: Gentilhomme Usher", salonMemberKey),
+@@ -241,8 +264,9 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    attributes.Hydro,
+ 			Durability: 25,
+-			FlatDmg:    skillUsher[c.TalentLvlSkill()] * c.MaxHP() * damageMultiplier,
++			FlatDmg:    skillUsher[furina_usher_talentLevel()] * furina_usher_maxHP() * damageMultiplier,
+ 		}
++		c.recordSourceFlat(&ai, nil, "char-flat-furina-usher", 0, map[string]any{"talent": furina_usher_talent, "maxHp": furina_usher_hp, "drainedAllies": alliesWithDrainedHPCounter}, furina_usher_read)
+ 
+ 		ap := combat.NewCircleHitOnTarget(c.Core.Combat.PrimaryTarget(), nil, usherAoE)
+ 		c.queueSalonAttack(src, ai, ap, usherTravel)
+@@ -268,6 +292,14 @@
+ 		alliesWithDrainedHPCounter := c.consumeAlliesHealth(0.036)
+ 		damageMultiplier := 1 + 0.1*float64(alliesWithDrainedHPCounter)
+ 
++		furina_crabaletta_hp := 0.0
++		var furina_crabaletta_read *info.SourceHostStatRead
++		furina_crabaletta_maxHP := func() float64 {
++			furina_crabaletta_hp, furina_crabaletta_read = c.MaxHPWithProvenance()
++			return furina_crabaletta_hp
++		}
++		furina_crabaletta_talent := 0
++		furina_crabaletta_talentLevel := func() int { furina_crabaletta_talent = c.TalentLvlSkill(); return furina_crabaletta_talent }
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       fmt.Sprintf("%v: Mademoiselle Crabaletta", salonMemberKey),
+@@ -277,8 +309,9 @@
+ 			StrikeType: attacks.StrikeTypeDefault,
+ 			Element:    attributes.Hydro,
+ 			Durability: 25,
+-			FlatDmg:    skillCrabaletta[c.TalentLvlSkill()] * c.MaxHP() * damageMultiplier,
++			FlatDmg:    skillCrabaletta[furina_crabaletta_talentLevel()] * furina_crabaletta_maxHP() * damageMultiplier,
+ 		}
++		c.recordSourceFlat(&ai, nil, "char-flat-furina-crabaletta", 0, map[string]any{"talent": furina_crabaletta_talent, "maxHp": furina_crabaletta_hp, "drainedAllies": alliesWithDrainedHPCounter}, furina_crabaletta_read)
+ 
+ 		ap := combat.NewCircleHitOnTarget(c.Core.Combat.PrimaryTarget(), nil, crabalettaAoE)
+ 
+--- a/internal/characters/furina/sourcehost_flat.go
++++ b/internal/characters/furina/sourcehost_flat.go
+@@ -0,0 +1,32 @@
++package furina
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++// recordSourceFlat replaces this exact native FlatDmg write with the shared
++// result, retaining the already evaluated native value when no host is attached.
++func (c *char) recordSourceFlat(ai *info.AttackInfo, snap *info.Snapshot, rule string, prior float64, state map[string]any, read *info.SourceHostStatRead) {
++	if c.Core.SourceHost == nil {
++		return
++	}
++	host := c.Core.SourceHost
++	value, id := host.CharacterFlatCompute(c.Index(), rule, prior, state,
++		[]*info.SourceHostStatRead{read}, snap, host.CharacterFlatPrior(ai, snap))
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, snap, id, value)
++}
++
++func (c *char) c6BonusObserved() (float64, float64, *info.SourceHostStatRead, int) {
++	scaleHP := 0.18
++	pneumaFlag := 0
++	if c.arkhe == pneuma {
++		scaleHP += 0.25
++		pneumaFlag = 1
++	}
++	hp, read := c.MaxHPWithProvenance()
++	return scaleHP * hp, hp, read, pneumaFlag
++}
++func (c *char) c6BonusNoExtraObserved() (float64, float64, *info.SourceHostStatRead) {
++	scaleHP := 0.18
++	hp, read := c.MaxHPWithProvenance()
++	return scaleHP * hp, hp, read
++}
+--- a/internal/characters/neuvillette/burst.go
++++ b/internal/characters/neuvillette/burst.go
+@@ -42,6 +42,11 @@
+ 	c.chargeEarlyCancelled = false
+ 	player := c.Core.Combat.Player()
+ 
++	neuv_burst_hp := 0.0
++	var neuv_burst_read *info.SourceHostStatRead
++	neuv_burst_maxHP := func() float64 { neuv_burst_hp, neuv_burst_read = c.MaxHPWithProvenance(); return neuv_burst_hp }
++	neuv_burst_talent := 0
++	neuv_burst_talentLevel := func() int { neuv_burst_talent = c.TalentLvlBurst(); return neuv_burst_talent }
+ 	aiInitialHit := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "O Tides, I Have Returned: Skill DMG",
+@@ -51,8 +56,17 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+-		FlatDmg:    burst[c.TalentLvlBurst()] * c.MaxHP(),
++		FlatDmg:    burst[neuv_burst_talentLevel()] * neuv_burst_maxHP(),
+ 	}
++	c.recordSourceFlat(&aiInitialHit, nil, "char-flat-neuv-burst", 0, map[string]any{"talent": neuv_burst_talent, "maxHp": neuv_burst_hp}, neuv_burst_read)
++	neuv_burstwaterfall_hp := 0.0
++	var neuv_burstwaterfall_read *info.SourceHostStatRead
++	neuv_burstwaterfall_maxHP := func() float64 {
++		neuv_burstwaterfall_hp, neuv_burstwaterfall_read = c.MaxHPWithProvenance()
++		return neuv_burstwaterfall_hp
++	}
++	neuv_burstwaterfall_talent := 0
++	neuv_burstwaterfall_talentLevel := func() int { neuv_burstwaterfall_talent = c.TalentLvlBurst(); return neuv_burstwaterfall_talent }
+ 	aiWaterfall := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "O Tides, I Have Returned: Waterfall DMG",
+@@ -62,8 +76,9 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+-		FlatDmg:    burstWaterfall[c.TalentLvlBurst()] * c.MaxHP(),
++		FlatDmg:    burstWaterfall[neuv_burstwaterfall_talentLevel()] * neuv_burstwaterfall_maxHP(),
+ 	}
++	c.recordSourceFlat(&aiWaterfall, nil, "char-flat-neuv-burstwaterfall", 0, map[string]any{"talent": neuv_burstwaterfall_talent, "maxHp": neuv_burstwaterfall_hp}, neuv_burstwaterfall_read)
+ 	for i := range 3 {
+ 		dropletCount := 3 - i
+ 		ai := aiInitialHit
+--- a/internal/characters/neuvillette/skill.go
++++ b/internal/characters/neuvillette/skill.go
+@@ -41,6 +41,11 @@
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+ 	c.chargeEarlyCancelled = false
+ 
++	neuv_skill_hp := 0.0
++	var neuv_skill_read *info.SourceHostStatRead
++	neuv_skill_maxHP := func() float64 { neuv_skill_hp, neuv_skill_read = c.MaxHPWithProvenance(); return neuv_skill_hp }
++	neuv_skill_talent := 0
++	neuv_skill_talentLevel := func() int { neuv_skill_talent = c.TalentLvlSkill(); return neuv_skill_talent }
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "O Tears, I Shall Repay",
+@@ -50,8 +55,9 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+-		FlatDmg:    skill[c.TalentLvlSkill()] * c.MaxHP(),
++		FlatDmg:    skill[neuv_skill_talentLevel()] * neuv_skill_maxHP(),
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-neuv-skill", 0, map[string]any{"talent": neuv_skill_talent, "maxHp": neuv_skill_hp}, neuv_skill_read)
+ 	// TODO: if target is out of range then pos should be player pos + Y: 8 offset
+ 	skillPos := c.Core.Combat.PrimaryTarget().Pos()
+ 	c.Core.QueueAttack(
+--- a/internal/characters/neuvillette/charge.go
++++ b/internal/characters/neuvillette/charge.go
+@@ -95,6 +95,14 @@
+ 		orbs := c.legalEvalFindDroplets()
+ 		chargeLegalEvalLeft -= dropletLegalEvalReduction[orbs]
+ 
++		neuv_chargejudgement_hp := 0.0
++		var neuv_chargejudgement_read *info.SourceHostStatRead
++		neuv_chargejudgement_maxHP := func() float64 {
++			neuv_chargejudgement_hp, neuv_chargejudgement_read = c.MaxHPWithProvenance()
++			return neuv_chargejudgement_hp
++		}
++		neuv_chargejudgement_talent := 0
++		neuv_chargejudgement_talentLevel := func() int { neuv_chargejudgement_talent = c.TalentLvlAttack(); return neuv_chargejudgement_talent }
+ 		c.chargeAi = info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       chargeJudgementName,
+@@ -104,8 +112,9 @@
+ 			StrikeType: attacks.StrikeTypePierce,
+ 			Element:    attributes.Hydro,
+ 			Durability: 25,
+-			FlatDmg:    chargeJudgement[c.TalentLvlAttack()] * c.MaxHP(),
++			FlatDmg:    chargeJudgement[neuv_chargejudgement_talentLevel()] * neuv_chargejudgement_maxHP(),
+ 		}
++		c.recordSourceFlat(&c.chargeAi, nil, "char-flat-neuv-chargejudgement", 0, map[string]any{"talent": neuv_chargejudgement_talent, "maxHp": neuv_chargejudgement_hp}, neuv_chargejudgement_read)
+ 
+ 		c.chargeJudgeStartF = c.Core.F + chargeLegalEvalLeft
+ 		c.chargeJudgeDur = 173
+@@ -196,7 +205,16 @@
+ 	// calculated every hit since canqueueafter is after the first tick, so configs can change the primary target/entity positions while the CA happens
+ 	ap := combat.NewBoxHitOnTarget(c.Core.Combat.Player(), nil, 3.5, 15)
+ 	if c.Base.Ascension >= 1 {
+-		c.chargeAi.FlatDmg = chargeJudgement[c.TalentLvlAttack()] * c.MaxHP() * a1Multipliers[c.countA1()]
++		flatTalent := c.TalentLvlAttack()
++		flatHP, flatRead := c.MaxHPWithProvenance()
++		flatCount, flatStatuses := c.countA1Observed()
++		priorFlat := c.chargeAi.FlatDmg
++		c.chargeAi.FlatDmg = chargeJudgement[flatTalent] * flatHP * a1Multipliers[flatCount]
++		flatState := map[string]any{"talent": flatTalent, "maxHp": flatHP, "baseStacks": c.a1BaseStackCount}
++		for i, active := range flatStatuses {
++			flatState[fmt.Sprintf("status%d", i)] = active
++		}
++		c.recordSourceFlat(&c.chargeAi, nil, "char-flat-neuv-judgement-a1", priorFlat, flatState, flatRead)
+ 	}
+ 	if c.Base.Cons >= 6 {
+ 		c.Core.QueueAttack(c.chargeAi, ap, 0, 0, c.c6cb)
+--- a/internal/characters/neuvillette/cons.go
++++ b/internal/characters/neuvillette/cons.go
+@@ -1,6 +1,7 @@
+ package neuvillette
+ 
+ import (
++	"fmt"
+ 	"strings"
+ 
+ 	"github.com/genshinsim/gcsim/internal/template/sourcewaterdroplet"
+@@ -119,6 +120,8 @@
+ 		return
+ 	}
+ 	c.AddStatus(c6ICDKey, 2*60, true)
++	flatHP, flatRead := c.MaxHPWithProvenance()
++	flatCount, flatStatuses := c.countA1Observed()
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       chargeJudgementName + " (C6)",
+@@ -128,8 +131,13 @@
+ 		StrikeType: attacks.StrikeTypePierce,
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+-		FlatDmg:    0.1 * c.MaxHP() * a1Multipliers[c.countA1()],
++		FlatDmg:    0.1 * flatHP * a1Multipliers[flatCount],
+ 	}
++	flatState := map[string]any{"maxHp": flatHP, "baseStacks": c.a1BaseStackCount}
++	for i, active := range flatStatuses {
++		flatState[fmt.Sprintf("status%d", i)] = active
++	}
++	c.recordSourceFlat(&ai, nil, "char-flat-neuv-c6", 0, flatState, flatRead)
+ 	// C6 projectile stops on first target hit, with 0.5 rad sphere hitbox.
+ 	// Because we don't simulate the projectile, it's just a circle hit
+ 	ap := combat.NewCircleHitOnTarget(c.Core.Combat.PrimaryTarget(), nil, 0.5)
+--- a/internal/characters/neuvillette/asc.go
++++ b/internal/characters/neuvillette/asc.go
+@@ -45,20 +45,24 @@
+ 	}
+ }
+ 
+-func (c *char) countA1() int {
++func (c *char) countA1() int { count, _ := c.countA1Observed(); return count }
++
++func (c *char) countA1Observed() (int, [9]int) {
++	var status [9]int
+ 	if c.Base.Ascension < 1 {
+-		return 0
++		return 0, status
+ 	}
+-	a1TriggeredReactionsCount := c.a1BaseStackCount
+-	for _, val := range c.a1Statuses {
++	count := c.a1BaseStackCount
++	for i, val := range c.a1Statuses {
+ 		if c.StatusIsActive(val.Key) {
+-			a1TriggeredReactionsCount += 1
++			count++
++			status[i] = 1
+ 		}
+-		if a1TriggeredReactionsCount == 3 {
++		if count == 3 {
+ 			break
+ 		}
+ 	}
+-	return a1TriggeredReactionsCount
++	return count, status
+ }
+ 
+ func (c *char) a4() {
+--- a/internal/characters/neuvillette/sourcehost_flat.go
++++ b/internal/characters/neuvillette/sourcehost_flat.go
+@@ -0,0 +1,16 @@
++package neuvillette
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++// recordSourceFlat replaces this exact native FlatDmg write with the shared
++// result, retaining the already evaluated native value when no host is attached.
++func (c *char) recordSourceFlat(ai *info.AttackInfo, snap *info.Snapshot, rule string, prior float64, state map[string]any, read *info.SourceHostStatRead) {
++	if c.Core.SourceHost == nil {
++		return
++	}
++	host := c.Core.SourceHost
++	value, id := host.CharacterFlatCompute(c.Index(), rule, prior, state,
++		[]*info.SourceHostStatRead{read}, snap, host.CharacterFlatPrior(ai, snap))
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, snap, id, value)
++}
+--- a/internal/characters/yelan/attack.go
++++ b/internal/characters/yelan/attack.go
+@@ -48,7 +48,10 @@
+ 			Element:    attributes.Hydro,
+ 			Durability: 25,
+ 		}
+-		ai.FlatDmg = barb[c.TalentLvlAttack()] * c.MaxHP() * 1.56
++		flatTalent := c.TalentLvlAttack()
++		flatHP, flatRead := c.MaxHPWithProvenance()
++		ai.FlatDmg = barb[flatTalent] * flatHP * 1.56
++		c.recordSourceFlat(&ai, nil, "char-flat-yelan-c6-barb", 0, map[string]any{"talent": flatTalent, "maxHp": flatHP}, flatRead)
+ 
+ 		for i := range attack[c.NormalCounter] {
+ 			c.c6count++
+--- a/internal/characters/yelan/aimed.go
++++ b/internal/characters/yelan/aimed.go
+@@ -62,6 +62,14 @@
+ 		c.breakthrough = false
+ 		c.Core.Log.NewEvent("breakthrough state deleted", glog.LogCharacterEvent, c.Index())
+ 
++		yelan_aimed_barb_hp := 0.0
++		var yelan_aimed_barb_read *info.SourceHostStatRead
++		yelan_aimed_barb_maxHP := func() float64 {
++			yelan_aimed_barb_hp, yelan_aimed_barb_read = c.MaxHPWithProvenance()
++			return yelan_aimed_barb_hp
++		}
++		yelan_aimed_barb_talent := 0
++		yelan_aimed_barb_talentLevel := func() int { yelan_aimed_barb_talent = c.TalentLvlAttack(); return yelan_aimed_barb_talent }
+ 		ai := info.AttackInfo{
+ 			ActorIndex:   c.Index(),
+ 			Abil:         "Breakthrough Barb",
+@@ -71,9 +79,10 @@
+ 			StrikeType:   attacks.StrikeTypePierce,
+ 			Element:      attributes.Hydro,
+ 			Durability:   25,
+-			FlatDmg:      barb[c.TalentLvlAttack()] * c.MaxHP(),
++			FlatDmg:      barb[yelan_aimed_barb_talentLevel()] * yelan_aimed_barb_maxHP(),
+ 			HitWeakPoint: weakspot == 1,
+ 		}
++		c.recordSourceFlat(&ai, nil, "char-flat-yelan-aimed-barb", 0, map[string]any{"talent": yelan_aimed_barb_talent, "maxHp": yelan_aimed_barb_hp}, yelan_aimed_barb_read)
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewCircleHit(
+--- a/internal/characters/yelan/burst.go
++++ b/internal/characters/yelan/burst.go
+@@ -29,6 +29,11 @@
+ }
+ 
+ func (c *char) Burst(p map[string]int) (action.Info, error) {
++	yelan_burst_hp := 0.0
++	var yelan_burst_read *info.SourceHostStatRead
++	yelan_burst_maxHP := func() float64 { yelan_burst_hp, yelan_burst_read = c.MaxHPWithProvenance(); return yelan_burst_hp }
++	yelan_burst_talent := 0
++	yelan_burst_talentLevel := func() int { yelan_burst_talent = c.TalentLvlBurst(); return yelan_burst_talent }
+ 	ai := info.AttackInfo{
+ 		ActorIndex:       c.Index(),
+ 		Abil:             "Depth-Clarion Dice",
+@@ -39,11 +44,12 @@
+ 		Element:          attributes.Hydro,
+ 		Durability:       50,
+ 		Mult:             0,
+-		FlatDmg:          burst[c.TalentLvlBurst()] * c.MaxHP(),
++		FlatDmg:          burst[yelan_burst_talentLevel()] * yelan_burst_maxHP(),
+ 		HitlagHaltFrames: 0.05 * 60,
+ 		HitlagFactor:     0.05,
+ 		IsDeployable:     true,
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-yelan-burst", 0, map[string]any{"talent": yelan_burst_talent, "maxHp": yelan_burst_hp}, yelan_burst_read)
+ 
+ 	travel, ok := p["travel"]
+ 	if ok {
+@@ -90,7 +96,9 @@
+ }
+ 
+ func (c *char) summonExquisiteThrow() {
+-	hp := c.MaxHP()
++	hp, flatRead := c.MaxHPWithProvenance()
++	flatLevel := 0
++	flatTalent := func() int { flatLevel = c.TalentLvlBurst(); return flatLevel }
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Exquisite Throw",
+@@ -101,8 +109,9 @@
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+ 		Mult:       0,
+-		FlatDmg:    burstDice[c.TalentLvlBurst()] * hp,
++		FlatDmg:    burstDice[flatTalent()] * hp,
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-yelan-burstdice", 0, map[string]any{"talent": flatLevel, "maxHp": hp}, flatRead)
+ 	snap := c.Snapshot(&ai)
+ 	for i := range 3 {
+ 		c.Core.QueueAttackWithSnap(
+@@ -121,7 +130,9 @@
+ 		ai.Abil = "Exquisite Throw (C2)"
+ 		ai.ICDTag = attacks.ICDTagNone
+ 		ai.ICDGroup = attacks.ICDGroupDefault
++		priorFlat := ai.FlatDmg
+ 		ai.FlatDmg = 14.0 / 100 * hp
++		c.recordSourceFlat(&ai, nil, "char-flat-yelan-c2", priorFlat, map[string]any{"maxHp": hp}, flatRead)
+ 		c.c2icd = c.Core.F + 1.8*60
+ 		// TODO: frames timing on this?
+ 		c.Core.QueueAttack(
+--- a/internal/characters/yelan/skill.go
++++ b/internal/characters/yelan/skill.go
+@@ -38,6 +38,11 @@
+ *
+ */
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
++	yelan_skill_hp := 0.0
++	var yelan_skill_read *info.SourceHostStatRead
++	yelan_skill_maxHP := func() float64 { yelan_skill_hp, yelan_skill_read = c.MaxHPWithProvenance(); return yelan_skill_hp }
++	yelan_skill_talent := 0
++	yelan_skill_talentLevel := func() int { yelan_skill_talent = c.TalentLvlSkill(); return yelan_skill_talent }
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Lingering Lifeline",
+@@ -48,8 +53,9 @@
+ 		Element:    attributes.Hydro,
+ 		Durability: 25,
+ 		Mult:       0,
+-		FlatDmg:    skill[c.TalentLvlSkill()] * c.MaxHP(),
++		FlatDmg:    skill[yelan_skill_talentLevel()] * yelan_skill_maxHP(),
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-yelan-skill", 0, map[string]any{"talent": yelan_skill_talent, "maxHp": yelan_skill_hp}, yelan_skill_read)
+ 
+ 	// clear all existing tags
+ 	for _, t := range c.Core.Combat.Enemies() {
+--- a/internal/characters/yelan/sourcehost_flat.go
++++ b/internal/characters/yelan/sourcehost_flat.go
+@@ -0,0 +1,16 @@
++package yelan
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++// recordSourceFlat replaces this exact native FlatDmg write with the shared
++// result, retaining the already evaluated native value when no host is attached.
++func (c *char) recordSourceFlat(ai *info.AttackInfo, snap *info.Snapshot, rule string, prior float64, state map[string]any, read *info.SourceHostStatRead) {
++	if c.Core.SourceHost == nil {
++		return
++	}
++	host := c.Core.SourceHost
++	value, id := host.CharacterFlatCompute(c.Index(), rule, prior, state,
++		[]*info.SourceHostStatRead{read}, snap, host.CharacterFlatPrior(ai, snap))
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, snap, id, value)
++}
+--- a/internal/characters/sigewinne/burst.go
++++ b/internal/characters/sigewinne/burst.go
+@@ -141,6 +141,14 @@
+ 	ap := combat.NewBoxHitOnTarget(c.Core.Combat.Player(), nil, 4, 10)
+ 
+ 	// TODO: is deployable?
++	sigewinne_burstdmg_hp := 0.0
++	var sigewinne_burstdmg_read *info.SourceHostStatRead
++	sigewinne_burstdmg_maxHP := func() float64 {
++		sigewinne_burstdmg_hp, sigewinne_burstdmg_read = c.MaxHPWithProvenance()
++		return sigewinne_burstdmg_hp
++	}
++	sigewinne_burstdmg_talent := 0
++	sigewinne_burstdmg_talentLevel := func() int { sigewinne_burstdmg_talent = c.TalentLvlAttack(); return sigewinne_burstdmg_talent }
+ 	ai := info.AttackInfo{
+ 		ActorIndex:   c.Index(),
+ 		Abil:         "Super Saturated Syringing",
+@@ -150,9 +158,10 @@
+ 		StrikeType:   attacks.StrikeTypeDefault,
+ 		Element:      attributes.Hydro,
+ 		Durability:   25,
+-		FlatDmg:      burstDMG[c.TalentLvlAttack()] * c.MaxHP(),
++		FlatDmg:      burstDMG[sigewinne_burstdmg_talentLevel()] * sigewinne_burstdmg_maxHP(),
+ 		HitlagFactor: 0.01,
+ 	}
++	c.recordSourceFlat(&ai, nil, "char-flat-sigewinne-burstdmg", 0, map[string]any{"talent": sigewinne_burstdmg_talent, "maxHp": sigewinne_burstdmg_hp}, sigewinne_burstdmg_read)
+ 	c.Core.QueueAttack(ai, ap, 0, 0, c.c2CB)
+ }
+ 
+--- a/internal/characters/sigewinne/skill.go
++++ b/internal/characters/sigewinne/skill.go
+@@ -175,6 +175,17 @@
+ 	}
+ 	c.AddStatus(skillAlignedICDKey, skillAlignedICD, true)
+ 
++	sigewinne_surgingbladedmg_hp := 0.0
++	var sigewinne_surgingbladedmg_read *info.SourceHostStatRead
++	sigewinne_surgingbladedmg_maxHP := func() float64 {
++		sigewinne_surgingbladedmg_hp, sigewinne_surgingbladedmg_read = c.MaxHPWithProvenance()
++		return sigewinne_surgingbladedmg_hp
++	}
++	sigewinne_surgingbladedmg_talent := 0
++	sigewinne_surgingbladedmg_talentLevel := func() int {
++		sigewinne_surgingbladedmg_talent = c.TalentLvlSkill()
++		return sigewinne_surgingbladedmg_talent
++	}
+ 	aiThorn := info.AttackInfo{
+ 		ActorIndex:   c.Index(),
+ 		Abil:         "Spiritbreath Thorn (" + c.Base.Key.String() + ")",
+@@ -184,9 +195,10 @@
+ 		StrikeType:   attacks.StrikeTypePierce,
+ 		Element:      attributes.Hydro,
+ 		Durability:   0,
+-		FlatDmg:      surgingBladeDMG[c.TalentLvlSkill()] * c.MaxHP(),
++		FlatDmg:      surgingBladeDMG[sigewinne_surgingbladedmg_talentLevel()] * sigewinne_surgingbladedmg_maxHP(),
+ 		HitlagFactor: 0.01,
+ 	}
++	c.recordSourceFlat(&aiThorn, nil, "char-flat-sigewinne-surgingbladedmg", 0, map[string]any{"talent": sigewinne_surgingbladedmg_talent, "maxHp": sigewinne_surgingbladedmg_hp}, sigewinne_surgingbladedmg_read)
+ 	c.Core.QueueAttack(
+ 		aiThorn,
+ 		combat.NewCircleHitOnTarget(target, nil, 3),
+@@ -305,6 +317,17 @@
+ }
+ 
+ func (c *char) generateSkillSnapshot() {
++	sigewinne_bolsteringbubblebalmdmg_hp := 0.0
++	var sigewinne_bolsteringbubblebalmdmg_read *info.SourceHostStatRead
++	sigewinne_bolsteringbubblebalmdmg_maxHP := func() float64 {
++		sigewinne_bolsteringbubblebalmdmg_hp, sigewinne_bolsteringbubblebalmdmg_read = c.MaxHPWithProvenance()
++		return sigewinne_bolsteringbubblebalmdmg_hp
++	}
++	sigewinne_bolsteringbubblebalmdmg_talent := 0
++	sigewinne_bolsteringbubblebalmdmg_talentLevel := func() int {
++		sigewinne_bolsteringbubblebalmdmg_talent = c.TalentLvlSkill()
++		return sigewinne_bolsteringbubblebalmdmg_talent
++	}
+ 	c.skillAttackInfo = info.AttackInfo{
+ 		ActorIndex:   c.Index(),
+ 		Abil:         "Rebound Hydrotherapy",
+@@ -314,8 +337,9 @@
+ 		StrikeType:   attacks.StrikeTypeDefault,
+ 		Element:      attributes.Hydro,
+ 		Durability:   25,
+-		FlatDmg:      bolsteringBubblebalmDMG[c.TalentLvlSkill()] * c.MaxHP(),
++		FlatDmg:      bolsteringBubblebalmDMG[sigewinne_bolsteringbubblebalmdmg_talentLevel()] * sigewinne_bolsteringbubblebalmdmg_maxHP(),
+ 		HitlagFactor: 0.02,
+ 	}
++	c.recordSourceFlat(&c.skillAttackInfo, nil, "char-flat-sigewinne-bolsteringbubblebalmdmg", 0, map[string]any{"talent": sigewinne_bolsteringbubblebalmdmg_talent, "maxHp": sigewinne_bolsteringbubblebalmdmg_hp}, sigewinne_bolsteringbubblebalmdmg_read)
+ 	c.skillSnapshot = c.Snapshot(&c.skillAttackInfo)
+ }
+--- a/internal/characters/sigewinne/sourcehost_flat.go
++++ b/internal/characters/sigewinne/sourcehost_flat.go
+@@ -0,0 +1,16 @@
++package sigewinne
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++// recordSourceFlat replaces this exact native FlatDmg write with the shared
++// result, retaining the already evaluated native value when no host is attached.
++func (c *char) recordSourceFlat(ai *info.AttackInfo, snap *info.Snapshot, rule string, prior float64, state map[string]any, read *info.SourceHostStatRead) {
++	if c.Core.SourceHost == nil {
++		return
++	}
++	host := c.Core.SourceHost
++	value, id := host.CharacterFlatCompute(c.Index(), rule, prior, state,
++		[]*info.SourceHostStatRead{read}, snap, host.CharacterFlatPrior(ai, snap))
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, snap, id, value)
++}
+--- a/internal/characters/mualani/attack.go
++++ b/internal/characters/mualani/attack.go
+@@ -126,7 +126,16 @@
+ 
+ 	c.QueueCharTask(func() {
+ 		c.momentumStacks = 0
+-		mult := bite[c.TalentLvlSkill()] + momentumBonus[c.TalentLvlSkill()]*float64(momentumStacks) + c.c1()
++		flatTalentBite := c.TalentLvlSkill()
++		flatTalentMomentum := c.TalentLvlSkill()
++		flatC1Eligible := 0
++		if c.Base.Cons >= 1 && !c.c1Done {
++			flatC1Eligible = 1
++		}
++		mult := bite[flatTalentBite] + momentumBonus[flatTalentMomentum]*float64(momentumStacks) + c.c1()
++		flatTalentSurge := 0
++		flatMarked := 0
++		flatNeighbours := 0
+ 		ai := info.AttackInfo{
+ 			ActorIndex:     c.Index(),
+ 			Abil:           fmt.Sprintf("Sharky's Bite (%v momentum)", momentumStacks),
+@@ -141,7 +150,8 @@
+ 
+ 		if momentumStacks >= 3 {
+ 			ai.Abil = "Sharky's Surging Bite"
+-			mult += surgingBite[c.TalentLvlSkill()]
++			flatTalentSurge = c.TalentLvlSkill()
++			mult += surgingBite[flatTalentSurge]
+ 		}
+ 
+ 		primaryEnemy, ok := c.Core.Combat.PrimaryTarget().(info.Enemy)
+@@ -156,10 +166,14 @@
+ 				func(e info.Enemy) bool { return e.StatusIsActive(markedAsPreyKey) && e != primaryEnemy },
+ 			)
+ 			neighbours := len(enemiesMissile)
++			flatMarked = 1
++			flatNeighbours = neighbours
+ 			mult *= max(1.00-0.14*float64(neighbours), 0.72)
+ 		}
+ 
+-		ai.FlatDmg = mult * c.MaxHP()
++		flatHP, flatRead := c.MaxHPWithProvenance()
++		ai.FlatDmg = mult * flatHP
++		c.recordSourceFlat(&ai, nil, "char-flat-mualani-bite", 0, map[string]any{"talentBite": flatTalentBite, "talentMomentum": flatTalentMomentum, "talentSurge": flatTalentSurge, "maxHp": flatHP, "stacks": momentumStacks, "c1Eligible": flatC1Eligible, "marked": flatMarked, "neighbours": flatNeighbours}, flatRead)
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewSingleTargetHit(primaryEnemy.Key()),
+--- a/internal/characters/mualani/burst.go
++++ b/internal/characters/mualani/burst.go
+@@ -50,10 +50,14 @@
+ 		snap = c.Snapshot(&ai)
+ 		c.Core.Tasks.Add(func() {
+ 			// TODO: verify if snapshot is used or if maxhp is recalced here
+-			hp := c.MaxHP()
+-			ai.FlatDmg = burst[c.TalentLvlBurst()] * hp
++			hp, flatRead := c.MaxHPWithProvenance()
++			flatTalent := c.TalentLvlBurst()
++			ai.FlatDmg = burst[flatTalent] * hp
++			c.recordSourceFlat(&ai, &snap, "char-flat-mualani-burst", 0, map[string]any{"talent": flatTalent, "maxHp": hp}, flatRead)
+ 			if c.Base.Ascension >= 4 {
++				priorFlat := ai.FlatDmg
+ 				ai.FlatDmg += 0.15 * float64(stacks) * hp
++				c.recordSourceFlat(&ai, &snap, "char-flat-mualani-a4", priorFlat, map[string]any{"stacks": stacks, "maxHp": hp}, flatRead)
+ 			}
+ 
+ 			c.Core.QueueAttackWithSnap(ai, snap, burstArea, 0)
+--- a/internal/characters/mualani/sourcehost_flat.go
++++ b/internal/characters/mualani/sourcehost_flat.go
+@@ -0,0 +1,16 @@
++package mualani
++
++import "github.com/genshinsim/gcsim/pkg/core/info"
++
++// recordSourceFlat replaces this exact native FlatDmg write with the shared
++// result, retaining the already evaluated native value when no host is attached.
++func (c *char) recordSourceFlat(ai *info.AttackInfo, snap *info.Snapshot, rule string, prior float64, state map[string]any, read *info.SourceHostStatRead) {
++	if c.Core.SourceHost == nil {
++		return
++	}
++	host := c.Core.SourceHost
++	value, id := host.CharacterFlatCompute(c.Index(), rule, prior, state,
++		[]*info.SourceHostStatRead{read}, snap, host.CharacterFlatPrior(ai, snap))
++	ai.FlatDmg = value
++	host.CharacterFlatAttach(ai, snap, id, value)
++}

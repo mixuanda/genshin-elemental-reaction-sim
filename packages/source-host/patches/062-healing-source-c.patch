@@ -1,0 +1,595 @@
+--- a/internal/characters/gorou/burst.go
++++ b/internal/characters/gorou/burst.go
+@@ -77,7 +77,13 @@
+ 			// 	Abil:      "Inuzaka All-Round Defense C4",
+ 			// 	AttackTag: attacks.AttackTagNone,
+ 			// }
+-			c.healFieldStats, _ = c.Stats()
++			var fieldRead *info.SourceHostStatRead
++			c.healFieldStats, _, fieldRead = c.StatsWithProvenance()
++			fieldDef := c.healFieldStats.TotalDEF()
++			c.healFieldDefID = 0
++			if c.Core.SourceHost != nil {
++				_, c.healFieldDefID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-gorou-field-def", map[string]any{"totalDef": fieldDef}, []*info.SourceHostStatRead{fieldRead}, nil)
++			}
+ 			c.Core.Tasks.Add(c.gorouBurstHealField(c.Core.F), 90)
+ 		}
+ 
+@@ -180,12 +186,25 @@
+ 		}
+ 		// When General's Glory is in the "Impregnable" or "Crunch" states, it will also heal active characters
+ 		// within its AoE by 50% of Gorou's own DEF every 1.5s.
++		savedDef := c.healFieldStats.TotalDEF()
++		healSrc := savedDef * 0.5
++		srcID := 0
++		if c.Core.SourceHost != nil {
++			healSrc, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-gorou-field-tick", map[string]any{"savedDef": savedDef}, nil, nil, map[string]int{"savedDef": c.healFieldDefID})
++		}
++		bonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++		bonusID := 0
++		if c.Core.SourceHost != nil {
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Core.Player.Active(),
+-			Message: "Lapping Hound: Warm as Water",
+-			Src:     c.healFieldStats.TotalDEF() * 0.5,
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            c.Core.Player.Active(),
++			Message:           "Lapping Hound: Warm as Water",
++			Src:               healSrc,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 
+ 		// tick every 1.5s
+--- a/internal/characters/gorou/gorou.go
++++ b/internal/characters/gorou/gorou.go
+@@ -31,6 +31,7 @@
+ 	c6BuffID       int
+ 	a1Buff         []float64
+ 	healFieldStats attributes.Stats
++	healFieldDefID int
+ }
+ 
+ func NewChar(s *core.Core, w *character.CharWrapper, _ info.CharacterProfile) error {
+--- a/internal/characters/jean/asc.go
++++ b/internal/characters/jean/asc.go
+@@ -22,12 +22,25 @@
+ 
+ 		snap := a.AttackEvent.Snapshot
+ 		if c.Core.Rand.Float64() < 0.5 {
++			totalAtk := snap.Stats.TotalATK()
++			healSrc := totalAtk * .15
++			srcID := 0
++			if c.Core.SourceHost != nil {
++				healSrc, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-jean-a1", map[string]any{"totalAtk": totalAtk}, nil, &snap)
++			}
++			bonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++			bonusID := 0
++			if c.Core.SourceHost != nil {
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  -1,
+-				Message: "Wind Companion",
+-				Src:     snap.Stats.TotalATK() * .15,
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            -1,
++				Message:           "Wind Companion",
++				Src:               healSrc,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}
+ 	}
+--- a/internal/characters/jean/burst.go
++++ b/internal/characters/jean/burst.go
+@@ -64,16 +64,28 @@
+ 	// heal on burst start
+ 	hpplus := snap.Stats[attributes.Heal]
+ 	atk := snap.Stats.TotalATK()
+-	heal := burstInitialHealFlat[c.TalentLvlBurst()] + atk*burstInitialHealPer[c.TalentLvlBurst()]
+-	healDot := burstDotHealFlat[c.TalentLvlBurst()] + atk*burstDotHealPer[c.TalentLvlBurst()]
++	initialFlat := burstInitialHealFlat[c.TalentLvlBurst()]
++	initialRatio := burstInitialHealPer[c.TalentLvlBurst()]
++	heal := initialFlat + atk*initialRatio
++	dotFlat := burstDotHealFlat[c.TalentLvlBurst()]
++	dotRatio := burstDotHealPer[c.TalentLvlBurst()]
++	healDot := dotFlat + atk*dotRatio
++	healID, healDotID, bonusID := 0, 0, 0
++	if c.Core.SourceHost != nil {
++		heal, healID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-jean-burst-initial", map[string]any{"flat": initialFlat, "totalAtk": atk, "ratio": initialRatio}, nil, &snap)
++		healDot, healDotID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-jean-burst-dot", map[string]any{"flat": dotFlat, "totalAtk": atk, "ratio": dotRatio}, nil, &snap)
++		hpplus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": hpplus}, nil, &snap)
++	}
+ 
+ 	c.Core.Tasks.Add(func() {
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  -1,
+-			Message: "Dandelion Breeze",
+-			Src:     heal,
+-			Bonus:   hpplus,
++			Caller:            c.Index(),
++			Target:            -1,
++			Message:           "Dandelion Breeze",
++			Src:               heal,
++			Bonus:             hpplus,
++			SourceHostSrcID:   healID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}, burstStart)
+ 
+@@ -103,11 +115,13 @@
+ 			if c.Core.Combat.Player().IsWithinArea(c.burstArea) {
+ 				// heal
+ 				c.Core.Player.Heal(info.HealInfo{
+-					Caller:  c.Index(),
+-					Target:  c.Core.Player.Active(),
+-					Message: "Dandelion Field",
+-					Src:     healDot,
+-					Bonus:   hpplus,
++					Caller:            c.Index(),
++					Target:            c.Core.Player.Active(),
++					Message:           "Dandelion Field",
++					Src:               healDot,
++					Bonus:             hpplus,
++					SourceHostSrcID:   healDotID,
++					SourceHostBonusID: bonusID,
+ 				})
+ 
+ 				// self swirl
+--- a/internal/characters/kaeya/skill.go
++++ b/internal/characters/kaeya/skill.go
+@@ -46,12 +46,26 @@
+ 		// A1:
+ 		// Every hit with Frostgnaw regenerates HP for Kaeya equal to 15% of his ATK.
+ 		if c.Base.Ascension >= 1 {
++			snap := &a.AttackEvent.Snapshot
++			totalAtk := snap.Stats.TotalATK()
++			healSrc := totalAtk * .15
++			srcID := 0
++			if c.Core.SourceHost != nil {
++				healSrc, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-kaeya-a1", map[string]any{"totalAtk": totalAtk}, nil, snap)
++			}
++			bonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++			bonusID := 0
++			if c.Core.SourceHost != nil {
++				bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  c.Core.Player.Active(),
+-				Message: "Cold-Blooded Strike",
+-				Src:     a.AttackEvent.Snapshot.Stats.TotalATK() * .15,
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            c.Core.Player.Active(),
++				Message:           "Cold-Blooded Strike",
++				Src:               healSrc,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}
+ 	}
+--- a/internal/characters/kokomi/burst.go
++++ b/internal/characters/kokomi/burst.go
+@@ -158,25 +158,44 @@
+ 		}
+ 		done = true
+ 
+-		heal := burstHealPct[c.TalentLvlBurst()]*c.MaxHP() + burstHealFlat[c.TalentLvlBurst()]
++		ratio := burstHealPct[c.TalentLvlBurst()]
++		maxHP, baseRead := c.MaxHPWithProvenance()
++		flat := burstHealFlat[c.TalentLvlBurst()]
++		heal := ratio*maxHP + flat
++		healID := 0
++		if c.Core.SourceHost != nil {
++			heal, healID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-kokomi-burst-base", map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{baseRead}, nil)
++		}
+ 		for _, char := range c.Core.Player.Chars() {
+ 			src := heal
++			srcID := healID
+ 
+ 			// C2 handling
+ 			// Sangonomiya Kokomi gains the following Healing Bonuses with regard to characters with 50% or less HP via the following methods:
+ 			// Nereid's Ascension Normal and Charged Attacks: 0.6% of Kokomi's Max HP.
+ 			if c.Base.Cons >= 2 && char.CurrentHPRatio() <= 0.5 {
+-				bonus := 0.006 * c.MaxHP()
++				bonusMaxHP, bonusRead := c.MaxHPWithProvenance()
++				bonus := 0.006 * bonusMaxHP
+ 				src += bonus
++				if c.Core.SourceHost != nil {
++					src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-kokomi-burst-c2", map[string]any{"baseHeal": heal, "maxHp": bonusMaxHP}, []*info.SourceHostStatRead{bonusRead}, nil, map[string]int{"baseHeal": healID})
++				}
+ 				c.Core.Log.NewEvent("kokomi c2 proc'd", glog.LogCharacterEvent, char.Index()).
+ 					Write("bonus", bonus)
+ 			}
++			bonusValue, bonusRead := c.StatWithProvenance(attributes.Heal)
++			bonusID := 0
++			if c.Core.SourceHost != nil {
++				bonusValue, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonusValue}, []*info.SourceHostStatRead{bonusRead}, nil)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  char.Index(),
+-				Message: "Ceremonial Garment",
+-				Src:     src,
+-				Bonus:   c.Stat(attributes.Heal),
++				Caller:            c.Index(),
++				Target:            char.Index(),
++				Message:           "Ceremonial Garment",
++				Src:               src,
++				Bonus:             bonusValue,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}
+ 
+--- a/internal/characters/kokomi/skill.go
++++ b/internal/characters/kokomi/skill.go
+@@ -122,7 +122,10 @@
+ 	// handle healing
+ 	if c.Core.Combat.Player().IsWithinArea(d.Pattern) {
+ 		maxhp := d.Snapshot.Stats.MaxHP()
+-		src := skillHealPct[c.TalentLvlSkill()]*maxhp + skillHealFlat[c.TalentLvlSkill()]
++		ratio := skillHealPct[c.TalentLvlSkill()]
++		flat := skillHealFlat[c.TalentLvlSkill()]
++		src := ratio*maxhp + flat
++		c2Heal := 0
+ 
+ 		// C2 handling
+ 		// Sangonomiya Kokomi gains the following Healing Bonuses with regard to characters with 50% or less HP via the following methods:
+@@ -132,17 +135,29 @@
+ 			if active.CurrentHPRatio() <= 0.5 {
+ 				bonus := 0.045 * maxhp
+ 				src += bonus
++				c2Heal = 1
+ 				c.Core.Log.NewEvent("kokomi c2 proc'd", glog.LogCharacterEvent, active.Index()).
+ 					Write("bonus", bonus)
+ 			}
+ 		}
+ 
++		srcID := 0
++		if c.Core.SourceHost != nil {
++			src, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-kokomi-skill-tick", map[string]any{"ratio": ratio, "maxHp": maxhp, "flat": flat, "c2": c2Heal}, nil, &d.Snapshot)
++		}
++		bonusValue := d.Snapshot.Stats[attributes.Heal]
++		bonusID := 0
++		if c.Core.SourceHost != nil {
++			bonusValue, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": bonusValue}, nil, &d.Snapshot)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Core.Player.Active(),
+-			Message: "Bake-Kurage",
+-			Src:     src,
+-			Bonus:   d.Snapshot.Stats[attributes.Heal],
++			Caller:            c.Index(),
++			Target:            c.Core.Player.Active(),
++			Message:           "Bake-Kurage",
++			Src:               src,
++			Bonus:             bonusValue,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}
+ }
+--- a/internal/characters/noelle/skill.go
++++ b/internal/characters/noelle/skill.go
+@@ -112,14 +112,28 @@
+ 			}
+ 			if c.Core.Rand.Float64() < prob {
+ 				// heal target
+-				def := atk.AttackEvent.Snapshot.Stats.TotalDEF()
+-				heal := shieldHeal[c.TalentLvlSkill()]*def + shieldHealFlat[c.TalentLvlSkill()]
++				snap := &atk.AttackEvent.Snapshot
++				def := snap.Stats.TotalDEF()
++				ratio := shieldHeal[c.TalentLvlSkill()]
++				flat := shieldHealFlat[c.TalentLvlSkill()]
++				heal := ratio*def + flat
++				srcID := 0
++				if c.Core.SourceHost != nil {
++					heal, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-noelle-skill-attack", map[string]any{"ratio": ratio, "totalDef": def, "flat": flat}, nil, snap)
++				}
++				bonus := snap.Stats[attributes.Heal]
++				bonusID := 0
++				if c.Core.SourceHost != nil {
++					bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": bonus}, nil, snap)
++				}
+ 				c.Core.Player.Heal(info.HealInfo{
+-					Caller:  c.Index(),
+-					Target:  -1,
+-					Message: "Breastplate (Attack)",
+-					Src:     heal,
+-					Bonus:   atk.AttackEvent.Snapshot.Stats[attributes.Heal],
++					Caller:            c.Index(),
++					Target:            -1,
++					Message:           "Breastplate (Attack)",
++					Src:               heal,
++					Bonus:             bonus,
++					SourceHostSrcID:   srcID,
++					SourceHostBonusID: bonusID,
+ 				})
+ 				done = true
+ 			}
+--- a/internal/characters/qiqi/burst.go
++++ b/internal/characters/qiqi/burst.go
+@@ -87,13 +87,20 @@
+ 			return
+ 		}
+ 
+-		healAmt := c.healDynamic(burstHealPer, burstHealFlat, c.TalentLvlBurst())
++		healAmt, srcID := c.healDynamic(burstHealPer, burstHealFlat, c.TalentLvlBurst())
++		bonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++		bonusID := 0
++		if c.Core.SourceHost != nil {
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  atk.Info.ActorIndex,
+-			Message: "Fortune-Preserving Talisman",
+-			Src:     healAmt,
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            atk.Info.ActorIndex,
++			Message:           "Fortune-Preserving Talisman",
++			Src:               healAmt,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 		e.SetTag(talismanICDKey, c.Core.F+60)
+ 	}, "talisman-heal-hook")
+@@ -143,12 +150,20 @@
+ 
+ 		// Qiqi NA/CA healing proc in skill duration
+ 		if c.StatusIsActive(skillBuffKey) {
++			healSrc, srcID := c.healSnapshot(&c.skillHealSnapshot, skillHealOnHitPer, skillHealOnHitFlat, c.TalentLvlSkill(), "heal-source-qiqi-skill-attack")
++			healBonus := c.skillHealSnapshot.Stats[attributes.Heal]
++			bonusID := 0
++			if c.Core.SourceHost != nil {
++				healBonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": healBonus}, nil, &c.skillHealSnapshot)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  -1,
+-				Message: "Herald of Frost (Attack)",
+-				Src:     c.healSnapshot(&c.skillHealSnapshot, skillHealOnHitPer, skillHealOnHitFlat, c.TalentLvlSkill()),
+-				Bonus:   c.skillHealSnapshot.Stats[attributes.Heal],
++				Caller:            c.Index(),
++				Target:            -1,
++				Message:           "Herald of Frost (Attack)",
++				Src:               healSrc,
++				Bonus:             healBonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 		}
+ 	}, "qiqi-onhit-naca-hook")
+--- a/internal/characters/qiqi/qiqi.go
++++ b/internal/characters/qiqi/qiqi.go
+@@ -48,17 +48,27 @@
+ }
+ 
+ // Helper function to calculate healing amount dynamically using current character stats, which has all mods applied
+-func (c *char) healDynamic(healScalePer, healScaleFlat []float64, talentLevel int) float64 {
+-	atk := c.TotalAtk()
+-	heal := healScaleFlat[talentLevel] + atk*healScalePer[talentLevel]
+-	return heal
++func (c *char) healDynamic(healScalePer, healScaleFlat []float64, talentLevel int) (float64, int) {
++	atk, atkRead := c.TotalAtkWithProvenance()
++	flat := healScaleFlat[talentLevel]
++	ratio := healScalePer[talentLevel]
++	heal := flat + atk*ratio
++	if c.Core.SourceHost != nil {
++		return c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-qiqi-talisman", map[string]any{"flat": flat, "totalAtk": atk, "ratio": ratio}, []*info.SourceHostStatRead{atkRead}, nil)
++	}
++	return heal, 0
+ }
+ 
+ // Helper function to calculate healing amount from a snapshot instance
+-func (c *char) healSnapshot(d *info.Snapshot, healScalePer, healScaleFlat []float64, talentLevel int) float64 {
++func (c *char) healSnapshot(d *info.Snapshot, healScalePer, healScaleFlat []float64, talentLevel int, ruleID string) (float64, int) {
+ 	atk := d.Stats.TotalATK()
+-	heal := healScaleFlat[talentLevel] + atk*healScalePer[talentLevel]
+-	return heal
++	flat := healScaleFlat[talentLevel]
++	ratio := healScalePer[talentLevel]
++	heal := flat + atk*ratio
++	if c.Core.SourceHost != nil {
++		return c.Core.SourceHost.HealSourceCompute(c.Index(), ruleID, map[string]any{"flat": flat, "totalAtk": atk, "ratio": ratio}, nil, d)
++	}
++	return heal, 0
+ }
+ 
+ func (c *char) AnimationStartDelay(k info.AnimationDelayKey) int {
+--- a/internal/characters/qiqi/skill.go
++++ b/internal/characters/qiqi/skill.go
+@@ -50,12 +50,20 @@
+ 		snap := c.Snapshot(&ai)
+ 
+ 		// One healing proc happens immediately on cast
++		healSrc, srcID := c.healSnapshot(&snap, skillHealContPer, skillHealContFlat, c.TalentLvlSkill(), "heal-source-qiqi-skill-initial")
++		healBonus := snap.Stats[attributes.Heal]
++		bonusID := 0
++		if c.Core.SourceHost != nil {
++			healBonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": healBonus}, nil, &snap)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Core.Player.Active(),
+-			Message: "Herald of Frost (Tick)",
+-			Src:     c.healSnapshot(&snap, skillHealContPer, skillHealContFlat, c.TalentLvlSkill()),
+-			Bonus:   snap.Stats[attributes.Heal],
++			Caller:            c.Index(),
++			Target:            c.Core.Player.Active(),
++			Message:           "Herald of Frost (Tick)",
++			Src:               healSrc,
++			Bonus:             healBonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 
+ 		// Healing and damage instances are snapshot
+@@ -152,12 +160,20 @@
+ 			return
+ 		}
+ 
++		healSrc, srcID := c.healSnapshot(&c.skillHealSnapshot, skillHealContPer, skillHealContFlat, c.TalentLvlSkill(), "heal-source-qiqi-skill-tick")
++		healBonus := c.skillHealSnapshot.Stats[attributes.Heal]
++		bonusID := 0
++		if c.Core.SourceHost != nil {
++			healBonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": healBonus}, nil, &c.skillHealSnapshot)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Core.Player.Active(),
+-			Message: "Herald of Frost (Tick)",
+-			Src:     c.healSnapshot(&c.skillHealSnapshot, skillHealContPer, skillHealContFlat, c.TalentLvlSkill()),
+-			Bonus:   c.skillHealSnapshot.Stats[attributes.Heal],
++			Caller:            c.Index(),
++			Target:            c.Core.Player.Active(),
++			Message:           "Herald of Frost (Tick)",
++			Src:               healSrc,
++			Bonus:             healBonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 
+ 		// Queue next instance
+--- a/internal/characters/sayu/asc.go
++++ b/internal/characters/sayu/asc.go
+@@ -38,13 +38,25 @@
+ 			c.AddEnergy("sayu-c4", 1.2)
+ 		}
+ 
+-		heal := 300 + c.Stat(attributes.EM)*1.2
++		em, emRead := c.StatWithProvenance(attributes.EM)
++		heal := 300 + em*1.2
++		srcID := 0
++		if c.Core.SourceHost != nil {
++			heal, srcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-sayu-a1", map[string]any{"em": em}, []*info.SourceHostStatRead{emRead}, nil)
++		}
++		bonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++		bonusID := 0
++		if c.Core.SourceHost != nil {
++			bonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": bonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  -1,
+-			Message: "Someone More Capable",
+-			Src:     heal,
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            -1,
++			Message:           "Someone More Capable",
++			Src:               heal,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}
+ 
+--- a/internal/characters/sayu/burst.go
++++ b/internal/characters/sayu/burst.go
+@@ -48,19 +48,36 @@
+ 
+ 	// heal
+ 	atk := snap.Stats.TotalATK()
+-	heal := initHealFlat[c.TalentLvlBurst()] + atk*initHealPP[c.TalentLvlBurst()]
++	initialFlat := initHealFlat[c.TalentLvlBurst()]
++	initialRatio := initHealPP[c.TalentLvlBurst()]
++	heal := initialFlat + atk*initialRatio
++	healID := 0
++	if c.Core.SourceHost != nil {
++		heal, healID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-sayu-burst-initial", map[string]any{"flat": initialFlat, "totalAtk": atk, "ratio": initialRatio}, nil, &snap)
++	}
++	healBonus := snap.Stats[attributes.Heal]
++	bonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, bonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": healBonus}, nil, &snap)
++	}
+ 	c.Core.Player.Heal(info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  -1,
+-		Message: "Yoohoo Art: Mujina Flurry",
+-		Src:     heal,
+-		Bonus:   snap.Stats[attributes.Heal],
++		Caller:            c.Index(),
++		Target:            -1,
++		Message:           "Yoohoo Art: Mujina Flurry",
++		Src:               heal,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healID,
++		SourceHostBonusID: bonusID,
+ 	})
+ 
+ 	// ticks
+ 	d := c.createBurstSnapshot()
+ 	atk = d.Snapshot.Stats.TotalATK()
+-	heal = burstHealFlat[c.TalentLvlBurst()] + atk*burstHealPP[c.TalentLvlBurst()]
++	dotFlat := burstHealFlat[c.TalentLvlBurst()]
++	dotRatio := burstHealPP[c.TalentLvlBurst()]
++	heal = dotFlat + atk*dotRatio
++	dotEM := 0.0
++	dotRuleID := "heal-source-sayu-burst-tick"
+ 
+ 	if c.Base.Cons >= 6 {
+ 		// TODO: is it snapshots?
+@@ -74,9 +91,18 @@
+ 		} else {
+ 			d.Info.FlatDmg += atk * min(em*0.002, 4.0)
+ 		}
+-		heal += min(d.Snapshot.Stats[attributes.EM]*3, 6000)
++		dotEM = d.Snapshot.Stats[attributes.EM]
++		heal += min(dotEM*3, 6000)
++		dotRuleID = "heal-source-sayu-burst-tick-c6"
+ 	}
+-
++	dotHealID := 0
++	if c.Core.SourceHost != nil {
++		state := map[string]any{"flat": dotFlat, "totalAtk": atk, "ratio": dotRatio}
++		if dotRuleID == "heal-source-sayu-burst-tick-c6" {
++			state["em"] = dotEM
++		}
++		heal, dotHealID = c.Core.SourceHost.HealSourceCompute(c.Index(), dotRuleID, state, nil, &d.Snapshot)
++	}
+ 	// make sure that this task gets executed:
+ 	// - after q initial hit hitlag happened
+ 	// - before sayu can get affected by any more hitlag
+@@ -102,12 +128,19 @@
+ 					c.Core.QueueAttackEvent(d, 0)
+ 				}
+ 				if needHeal {
++					dotBonus := d.Snapshot.Stats[attributes.Heal]
++					dotBonusID := 0
++					if c.Core.SourceHost != nil {
++						dotBonus, dotBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": dotBonus}, nil, &d.Snapshot)
++					}
+ 					c.Core.Player.Heal(info.HealInfo{
+-						Caller:  c.Index(),
+-						Target:  char.Index(),
+-						Message: "Muji-Muji Daruma",
+-						Src:     heal,
+-						Bonus:   d.Snapshot.Stats[attributes.Heal],
++						Caller:            c.Index(),
++						Target:            char.Index(),
++						Message:           "Muji-Muji Daruma",
++						Src:               heal,
++						Bonus:             dotBonus,
++						SourceHostSrcID:   dotHealID,
++						SourceHostBonusID: dotBonusID,
+ 					})
+ 				}
+ 			}, i)

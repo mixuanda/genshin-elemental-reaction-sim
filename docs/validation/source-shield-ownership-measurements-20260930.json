@@ -1,0 +1,232 @@
+{
+  "schemaVersion": "source-shield-ownership-measurements-v1",
+  "asOf": "2026-09-30",
+  "baseline": {
+    "workingTree": "/Users/evan/Documents/gidps",
+    "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+    "preservedExistingChanges": true,
+    "committedOrPublished": false,
+    "classicCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellarCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "node": "v24.15.0"
+  },
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.142
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.196
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.11
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.088
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.222,
+      "viteElapsedMilliseconds": 981,
+      "warnings": [
+        "Existing ineffective dynamic import for workspace-panels.ts",
+        "Some chunks exceed 500 kB after minification"
+      ]
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shield-ownership.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 6.56,
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      }
+    },
+    "browser-retry": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shield-ownership.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 9.502,
+      "environment": {
+        "GIDPS_PREBUILT": "1",
+        "GIDPS_REUSE_SHIELD_OWNERSHIP_CAPTURE": "1"
+      }
+    }
+  },
+  "browserFailure": {
+    "kind": "test-field-lookup",
+    "reason": "Application does not expose actorKey/ability; select its Calculation.request by application.calculationId.",
+    "productCodeChangedAfterFailure": false,
+    "reusedArchivedNativeCapture": true,
+    "finalPageErrors": []
+  },
+  "counts": {
+    "distinctFiniteSkillContracts": 61,
+    "producerPlanEntries": 52,
+    "producerSites": 65,
+    "newFiniteSkillContracts": 1,
+    "nativeRuns": 1,
+    "browserCases": 1,
+    "browserAttempts": 2,
+    "additionalNativeRunsOnRetry": 0,
+    "offlineGapProbes": 2
+  },
+  "wasm": {
+    "classic": {
+      "bytes": 45153000,
+      "sha256": "26c32b11d8caba6f9ec07703878fae184a16086bb901c767a7a654f6e48686e5"
+    },
+    "stellar": {
+      "bytes": 69726546,
+      "sha256": "6ed4ded5dc47ecf0ea611c80f359029e0a68e679584ae3eed6f9119edb46347f"
+    }
+  },
+  "native": {
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "seed": "20260930115",
+    "observationWindow": {
+      "policy": "native",
+      "configuredEndFrame": 1440,
+      "actualEndFrame": 1149,
+      "endReason": "actions-exhausted"
+    },
+    "lifecycleObservationFrame": 1149,
+    "resultDurationFrames": 1149,
+    "nativeTotalDamage": 8090.870325254429,
+    "applicationDamageSum": 8090.870325254429,
+    "applicationsCount": 13,
+    "shieldInstancesCount": 8,
+    "shieldHooksCount": 15,
+    "rawPath": "docs/validation/source-shield-ownership-team-20260930.capture.json",
+    "rawSha256": "5771c004ebfa5914f325aa97a55e90a0cfb2402bed2d7b3d353e76223ae5acd6"
+  },
+  "selected": {
+    "invocationId": 1,
+    "qShieldIds": [
+      1,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "excludedC6ShieldIds": [
+      2,
+      3
+    ],
+    "closed": true,
+    "producerCount": 6,
+    "endedShieldCount": 6,
+    "hookCounts": {
+      "refresh": 5,
+      "overwrite": 5,
+      "expiry": 1,
+      "damage": 0
+    },
+    "hitCount": 6,
+    "subtotal": 5525.524907224306,
+    "replayDifferences": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "missingBirthClosed": false,
+    "missingExpiryHookClosed": false,
+    "editedAndRoundTripped": true
+  },
+  "runtimeResult": "docs/validation/source-shield-ownership-team-20260930.result.json",
+  "sourceAudits": [
+    {
+      "path": "docs/validation/source-shield-lifecycle-native-20260930.json",
+      "sha256": "b6f78f5db4865f5cd0f2237035f72467ccafa6846ee827b564384a346ef604b5"
+    },
+    {
+      "path": "docs/validation/source-shield-ownership-baizhu-20260930.json",
+      "sha256": "63b6498e8fee9515f7e077f413c6915e2e28569c22d5b3be126f72655af3427b"
+    }
+  ],
+  "patches": [
+    {
+      "path": "packages/source-host/patches/115-shield-lifecycle.patch",
+      "sha256": "3c97bc84f1f1021673b7c4da6d58e725a4d4b53f333689e86e31c62ae471d6ae"
+    },
+    {
+      "path": "packages/source-host/patches/115-baizhu-shield.patch",
+      "sha256": "37250019afa89ecde58fdae050b9a4402398937961f96fe1e786cc189e490304"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "matchesPre115": true
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "matchesPre115": true
+    }
+  ],
+  "dataEvidence": "docs/data-evidence-refresh-20260930.json",
+  "limitations": [
+    "Only Baizhu Q has a new finite shield-owned damage contract; generic instance observation is not full character skill ownership.",
+    "Classic one run covers Q refresh/overwrite/expiry and E/C2 C6 replacements; no enemy-damage break sample; Stellar build only.",
+    "Existing independent calculator, worked examples, showcase import and other contracts remain implemented; no repeat of old browser matrix.",
+    "No game verification or released/preview promotion. Full master goal remains active."
+  ]
+}

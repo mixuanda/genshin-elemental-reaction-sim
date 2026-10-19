@@ -1,0 +1,183 @@
+{
+  "batch": 126,
+  "date": "2026-09-30",
+  "status": "integrated; both source builds and final focused browser check passed within recorded scope",
+  "authority": "pinned source-backed only; not game-verified",
+  "frozenRoots": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-CHWLQf/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch124/classic/receipt.json"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-9hFTdx/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch124/stellar/receipt.json"
+    }
+  },
+  "originalLaneAudit": "/Users/evan/Library/Caches/gidps-source-host/126-layla/lane-audit.json",
+  "laneDifferences": "E/Q/shield/cons/asc/init files are byte-identical. Only inspected normal attack file differs at N3->CA cancel; unchanged and outside this patch.",
+  "implementedScopes": {
+    "skill": [
+      "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+      "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+      "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+      "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+      "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+      "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+    ],
+    "burst": [
+      "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+      "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+      "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+      "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+    ]
+  },
+  "sharedMetadataChanges": [
+    "ShieldHook optional original abilityProducerId/shieldProducerId/hitCallbackId/eventListenerCallId and numerical entryFacts; new cause trigger for positive shield contribution calls.",
+    "ShieldProducer optional parentHookId/spawnAbilityProducerId, preserving existing parentProducer links and explicit object binding.",
+    "New Character.SourceHostQueueShieldCharTask keeps original QueueCharTask and binds exact shield returned by original gate; existing SourceHostQueueShieldTask remains native core scheduler.",
+    "ShieldInstanceID uses observed object map only. Refresh retains original shield instance and records before/after Expires in the refresh hook; no fake Add or new generation."
+  ],
+  "nativeSemantics": [
+    "Original MaxHP/talent/stat/random/target-selection reads unchanged in order and count. Replaced single nightStars getter in min expression with one cached local used by the same min.",
+    "Original callbacks, source-token and shooting-tag gates, ICD state, buff state, loops and delays retained. All metadata writes are SourceHost sidecars; no gameplay Origin rewriting.",
+    "Q callback contributes E-owned tasks through actual ShieldHook; no attack copied into both Q and E. Same shield may be refreshed by another E, while ownership stays with actual birth."
+  ],
+  "closureEvidence": [
+    "Task ID/queue kind/core or character clock/delay and parent task identity; completed source branch chooses exact child task count.",
+    "Full actual shield lifecycle with HP continuity, refresh expiry transitions and final actual terminal; every owned tick/shoot producer must finish, every emitted star must dispatch/settle through existing finite-cast checks.",
+    "OnSkill native event call/registration/emission and Q parent queue/callback link bind external contributions to the exact shield object.",
+    "Q shared callback census distinguishes misses/blocked/pending, then source-specific first-callback and shield-object facts prove E handoff without claiming E attacks as Q."
+  ],
+  "sourceFiles": {
+    "classic": [
+      {
+        "path": "internal/characters/layla/burst.go",
+        "beforeSha256": "951a824682242b9be452cb2563344dcbf131076ee2bbd46e068576b2473c9fad",
+        "afterSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289"
+      },
+      {
+        "path": "internal/characters/layla/shield.go",
+        "beforeSha256": "664e594f1611fcccbf39f180781a6e0c386cb64815e3012d105a6c834c63c28f",
+        "afterSha256": "7ec9e62bac387510d0b9aeabe1870a7b16a6d3f892b90c97d0acf30f240309a1"
+      },
+      {
+        "path": "internal/characters/layla/skill.go",
+        "beforeSha256": "e665f32d1159a866e552e352ab933a897fd3de55e5833b668f5acc0e0055e560",
+        "afterSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+      }
+    ],
+    "stellar": [
+      {
+        "path": "internal/characters/layla/burst.go",
+        "beforeSha256": "951a824682242b9be452cb2563344dcbf131076ee2bbd46e068576b2473c9fad",
+        "afterSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289"
+      },
+      {
+        "path": "internal/characters/layla/shield.go",
+        "beforeSha256": "664e594f1611fcccbf39f180781a6e0c386cb64815e3012d105a6c834c63c28f",
+        "afterSha256": "7ec9e62bac387510d0b9aeabe1870a7b16a6d3f892b90c97d0acf30f240309a1"
+      },
+      {
+        "path": "internal/characters/layla/skill.go",
+        "beforeSha256": "e665f32d1159a866e552e352ab933a897fd3de55e5833b668f5acc0e0055e560",
+        "afterSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+      }
+    ]
+  },
+  "integrationFiles": [
+    "packages/sim-core/src/source-host-action-collection.ts",
+    "packages/sim-core/src/source-host-hit-callback-analysis.ts",
+    "packages/sim-core/src/source-host-layla-burst-analysis.ts",
+    "packages/sim-core/src/source-host-layla-shield-analysis.ts",
+    "packages/sim-core/src/source-host-owned-shield-analysis.ts",
+    "packages/sim-core/src/source-host-owned-shield-types.ts",
+    "packages/source-host/go/pkg/core/player/character/sourcehost_shield_producer.go",
+    "packages/source-host/go/pkg/core/sourcehost/shield_lifecycle.go",
+    "packages/source-host/go/pkg/core/sourcehost/shield_producer.go",
+    "packages/source-host/go/pkg/core/sourcehost_shield.go",
+    "packages/source-host/stellar-overlay/go/pkg/core/player/character/sourcehost_shield_producer.go",
+    "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/shield_lifecycle.go",
+    "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/shield_producer.go",
+    "packages/source-host/stellar-overlay/go/pkg/core/sourcehost_shield.go"
+  ],
+  "checks": {
+    "gofmt": "14 private Go files only",
+    "applyCheck": {
+      "repo": "passed against current /Users/evan/Documents/gidps",
+      "classic": "passed against frozen build-CHWLQf/source",
+      "stellar": "passed against frozen stellar-build-9hFTdx/source"
+    },
+    "testsExecuted": 0,
+    "buildsExecuted": 0,
+    "nativeExecutions": 0
+  },
+  "remaining": [
+    "Broader project action, private-phase and source/data coverage remains open.",
+    "Unsampled branches are source-reviewed/build evidence only; see measurements."
+  ],
+  "artifacts": [
+    {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/126-layla/126-layla-classic.patch",
+      "sha256": "4a2f5414002141785d1ba20e4c738590c535adfdf821fcffe15b0790da103d00"
+    },
+    {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/126-layla/126-layla-repo.patch",
+      "sha256": "38168fd5995da5c389a5c436baee3471fc49ae79f5c58a85250575dac2cb36c6"
+    },
+    {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/126-layla/126-layla-stellar.patch",
+      "sha256": "4a2f5414002141785d1ba20e4c738590c535adfdf821fcffe15b0790da103d00"
+    }
+  ],
+  "reviewNotes": [
+    "Focused read-only Luna review checked lane equivalence and E/Q source paths; parent corrected Q queued-frame versus dispatch-frame comparison and scoped callback hooks to selected invocation.",
+    "Refresh-only E validates the newly registered old-owned tick task identity/parent/clock and synchronous expiry hook but does not claim completion or damage of the old shield generation.",
+    "Final-shot immediate tick calls SourceHostShieldTaskGate inside the still-active old shoot wrapper: that row records new gate instance B while keeping owner A; new character tick binds B from this actual gate. This is intentional cross-generation ancestry, not inferred ownership."
+  ],
+  "integrationNotes": [
+    "Merge contracts.fragment.json into producer registry rows and plans.fragment.json into producer plans; install lane source patches, apply repo patch, then parent runs consolidated checks.",
+    "Optional UI copy: shieldHookLabels currently falls back to raw trigger; root may label the new trigger cause as 技能触发. No UI file was edited."
+  ],
+  "parentReview": {
+    "scope": "Focused read-only native semantics and E/Q ownership/closure joins review",
+    "result": "No concrete blockers found; no additional native/test runs"
+  },
+  "integrationChanges": [
+    "Two contract rows and producer plans merged into shared registries.",
+    "Both source patches installed; Stellar explicit build list updated.",
+    "Shared shield trigger/producer ancestry and Layla E/Q analysis integrated.",
+    "Root extended shared event observer to OnSkill and added exact native zero-argument listener labeling in both bridges.",
+    "Added Chinese trigger label; duplicate edit removed before final successful Web build."
+  ],
+  "integrationFindings": [
+    "Initial native run exposed absent OnSkill observer support: shield hooks existed but had no event call IDs. Shared observer now includes native OnSkill and labels its actual zero-argument dispatch; enemy event argument identity checks stay unchanged.",
+    "Concurrent tiny UI edits duplicated trigger label, causing final Web typecheck to fail. Root removed the duplicate. Root prematurely launched one stale-dist browser command before inspecting this failed build, causing two redundant native executions; both failures/captures are retained and are not final verification.",
+    "Initial spec incorrectly required every E-owned hit to carry the E action origin. Removed before final checks: native trigger origin and explicit shield ownership are separate; baseline comparison retains all original origins."
+  ],
+  "measurements": "docs/validation/source-layla-ownership-measurements-20260930.json",
+  "integratedPatchSHA256": {
+    "classic": "526827749021ff1d285a446c9899b053b6e2469010cdaff28ec8378497eeaff8",
+    "stellar": "cac21789406926d68956118f42a7a6ddd9a8706fc819c4d96b2568e583c570c8"
+  },
+  "rootIntegrationEvidence": {
+    "skillEventArguments": "Native player/exec.go action dispatcher calls h.Events.Emit(state) with zero arguments. Shared OnSkill listener label is tied to the active event/call, without a fabricated target.",
+    "laneSources": {
+      "classic": {
+        "root": "/Users/evan/Library/Caches/gidps-source-host/build-QXUbVz/source",
+        "fileSHA256": {
+          "pkg/core/event/event.go": "8343e0b091573509c301b871df016edc3ce1cfbaeab5e52dd02dd1fce1defb7f",
+          "pkg/core/player/exec.go": "2939f466a6bd7903705fb8ac4b56f7d91a639d9d65f799c62ca4389a5a47c43d",
+          "pkg/core/sourcehost/event_receipt.go": "665616e3c5fa433cd462991a74c793478700587a95c26c9b6a77372f0d68443f"
+        }
+      },
+      "stellar": {
+        "root": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-JfY6G4/source",
+        "fileSHA256": {
+          "pkg/core/event/event.go": "f68ac459d2f9781fab25273b592476d3058c7675feeb5bd0332dbd4ac8cddbe6",
+          "pkg/core/player/exec.go": "bc780bc9f8c19527dc39785018af676858b39003a8ed323ab0d1ebb5911af77a",
+          "pkg/core/sourcehost/event_receipt.go": "665616e3c5fa433cd462991a74c793478700587a95c26c9b6a77372f0d68443f"
+        }
+      }
+    }
+  }
+}

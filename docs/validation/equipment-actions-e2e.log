@@ -1,0 +1,43 @@
+
+Running 2 tests using 1 worker
+
+(node:29933) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/equipment-actions.spec.ts:37:1 › sourced equipment base additions and tag crit survive action changes, final JSON and re-equipping once (30.1s)
+(node:30036) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/equipment-actions.spec.ts:95:1 › Amber sourced E and Q execute their delayed energy, summon lifecycle and reproducible hits from Rotation (1.7s)
+
+
+  1) [chromium] › apps/web/e2e/equipment-actions.spec.ts:37:1 › sourced equipment base additions and tag crit survive action changes, final JSON and re-equipping once 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#calc-skill option').filter({ hasText: /普通攻击第 1 段|基础普通攻击 N1/ })
+
+
+      16 |
+      17 | async function selectSkill(page: Page, name: string | RegExp): Promise<void> {
+    > 18 |   const value = await page.locator("#calc-skill option").filter({ hasText: name }).getAttribute("value");
+         |                                                                                    ^
+      19 |   await page.locator("#calc-skill").selectOption(value!);
+      20 | }
+      21 |
+        at selectSkill (/Users/evan/Documents/gidps/apps/web/e2e/equipment-actions.spec.ts:18:84)
+        at /Users/evan/Documents/gidps/apps/web/e2e/equipment-actions.spec.ts:41:9
+
+    Error Context: test-results/equipment-actions-sourced--76658--JSON-and-re-equipping-once-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/equipment-actions-sourced--76658--JSON-and-re-equipping-once-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/equipment-actions-sourced--76658--JSON-and-re-equipping-once-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/equipment-actions.spec.ts:37:1 › sourced equipment base additions and tag crit survive action changes, final JSON and re-equipping once 
+  1 passed (32.5s)

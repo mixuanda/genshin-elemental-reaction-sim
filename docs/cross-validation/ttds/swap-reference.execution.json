@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/ttds/swap-reference.gcsl",
+    "-out",
+    "docs/cross-validation/ttds/swap-reference.result.json",
+    "-sample",
+    "docs/cross-validation/ttds/swap-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-23T23:45:10.310327+00:00",
+  "elapsedSeconds": 0.023821291979402304,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 36.00 seconds (min: 36.00 max: 36.00 std: 0.00)\nAverage 65.33 damage over 36.00 seconds, resulting in 2 dps (min: 1.81 max: 1.81 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 4531510499382671790 to docs/cross-validation/ttds/swap-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.gcsl",
+      "bytes": 946,
+      "sha256": "ea13cc3c3bda10f02dac9548117c30b7f4d226cb298eb38c7acc65879c1c06f1"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.result.json",
+      "bytes": 29247,
+      "sha256": "fa614ce19dbb89d24e339b5fb176e6283c0df0e38de303a4d4f6bdfdbf18c840"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.sample.json",
+      "bytes": 47544,
+      "sha256": "2acc6f68a9f5e3b105654e4c01f8ccd11c58a2f6713d3a70c9c88a335b39fe6d"
+    }
+  ]
+}

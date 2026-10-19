@@ -1,0 +1,44 @@
+[
+  {
+    "name": "candidate-utilities-data-generate-20260928",
+    "exitCode": 0,
+    "wallSeconds": 4.706,
+    "log": "docs/validation/candidate-utilities-data-generate-20260928.log"
+  },
+  {
+    "name": "candidate-utilities-build-20260928",
+    "exitCode": 1,
+    "wallSeconds": 2.294,
+    "log": "docs/validation/candidate-utilities-build-20260928.log"
+  },
+  {
+    "name": "candidate-utilities-build-20260928.retry1",
+    "exitCode": 0,
+    "wallSeconds": 3.198,
+    "log": "docs/validation/candidate-utilities-build-20260928.retry1.log"
+  },
+  {
+    "name": "candidate-utilities-browser-20260928",
+    "exitCode": 0,
+    "wallSeconds": 4.068,
+    "log": "docs/validation/candidate-utilities-browser-20260928.log"
+  },
+  {
+    "name": "candidate-utilities-status-20260928",
+    "exitCode": 0,
+    "wallSeconds": 3.806,
+    "log": "docs/validation/candidate-utilities-status-20260928.log"
+  },
+  {
+    "name": "candidate-utilities-final-bundle-20260928",
+    "exitCode": 0,
+    "wallSeconds": 0.913,
+    "log": "docs/validation/candidate-utilities-final-bundle-20260928.log"
+  },
+  {
+    "name": "candidate-utilities-diff-check-20260928",
+    "exitCode": 0,
+    "wallSeconds": 0.064,
+    "log": "docs/validation/candidate-utilities-diff-check-20260928.log"
+  }
+]

@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "files": [
+    {
+      "path": "libs/gi/sheets/src/Characters/Baizhu/index.tsx",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/sheets/src/Characters/Baizhu/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Baizhu/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Baizhu/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.237665+00:00",
+      "bytes": 12358,
+      "sha256": "1df1208df67f2e4c65b445261d37a8753bccbd7cfeaaa80d9e35df26b23d8a16",
+      "gitBlobSha": "51d2f43c55569f859f21cd338187ed5e1202e579",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Baizhu/skillParam.json",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/stats/Data/Characters/Baizhu/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Baizhu/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Baizhu/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.121501+00:00",
+      "bytes": 5576,
+      "sha256": "e5f84413f67bc66d64138d3536e6cbe7a41ae9e48cb2c0f9712cedaaba3c0ab2",
+      "gitBlobSha": "0e2c20a2743c997604f5f1ddc0ac28bebaf55593",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Dori/index.tsx",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/sheets/src/Characters/Dori/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Dori/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Dori/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.143937+00:00",
+      "bytes": 10584,
+      "sha256": "a64149bd78fdd17196a8885ef0cd90a221063aeb2ccf166180c33c8b4e002633",
+      "gitBlobSha": "a88ab08a48edc4d90ee8c37042bb5703d56f2be6",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Dori/skillParam.json",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/stats/Data/Characters/Dori/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Dori/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Dori/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.093828+00:00",
+      "bytes": 4932,
+      "sha256": "992bc890bf42ec4f6a705a28d77ae90335b47efe649c56c80eafea095a28a009",
+      "gitBlobSha": "a8c6239fbcf89be3a37a4011bd97539269659793",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Nilou/index.tsx",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/sheets/src/Characters/Nilou/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nilou/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nilou/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.748860+00:00",
+      "bytes": 13584,
+      "sha256": "dde4cf00e143c48991279f01c7eb06d03edc86b2d593bc6dbfc0653f4c4ca2c0",
+      "gitBlobSha": "a04d34151637dcc0d2e24e82d93364381cea9cb3",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Nilou/skillParam.json",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/stats/Data/Characters/Nilou/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nilou/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nilou/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.772421+00:00",
+      "bytes": 5844,
+      "sha256": "f3de15df920d665c10266d8a69e09ce5a6f2303ed30f7ab30512d452c75ca437",
+      "gitBlobSha": "c3c17a5c7592e39e4a271d1193b8603590fc68e1",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Ganyu/index.tsx",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/sheets/src/Characters/Ganyu/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Ganyu/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Ganyu/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:36.878278+00:00",
+      "bytes": 9357,
+      "sha256": "fe6eb57ea5c8830f7b7c8fdc5e900f58f83c6b173a54ac3e3300a9280bc40ebf",
+      "gitBlobSha": "5b854e9fbd28aa9f7b0f7bea94605e09907c22ce",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Ganyu/skillParam.json",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/libs/gi/stats/Data/Characters/Ganyu/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Ganyu/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Ganyu/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:37.033221+00:00",
+      "bytes": 4788,
+      "sha256": "a672f2862e1ec00ded0339ca309475e4e8ad85b46f3e8d1d5ed5f51a2d31b543",
+      "gitBlobSha": "056348158ef0a0dd775ed4c6169c2785e9917fdf",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/complete-followup-skills/raw/optimizer/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:14:37.574095+00:00",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true
+    }
+  ]
+}

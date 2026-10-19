@@ -1,0 +1,136 @@
+{
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "verifiedSourceFiles": {
+    "internal/characters/tighnari/skill.go": {
+      "classicSha256": "7f4c8c220f95201571a69bd16a82ec43eba67c4d9bf19a3758c6510fac0e6311",
+      "stellarSha256": "7f4c8c220f95201571a69bd16a82ec43eba67c4d9bf19a3758c6510fac0e6311"
+    },
+    "internal/characters/tighnari/tighnari.go": {
+      "classicSha256": "4628dcd1f8e5e305009958fee926666011d3786e42c7b0f4bea9f7280f861895",
+      "stellarSha256": "4628dcd1f8e5e305009958fee926666011d3786e42c7b0f4bea9f7280f861895"
+    },
+    "internal/characters/tighnari/asc.go": {
+      "classicSha256": "c328b1c8aae7c04de11a96bb3cfbaeeb69d37730ae2ad8b776480bef2ea5b299",
+      "stellarSha256": "c328b1c8aae7c04de11a96bb3cfbaeeb69d37730ae2ad8b776480bef2ea5b299"
+    },
+    "internal/characters/tighnari/cons.go": {
+      "classicSha256": "26cc61ef1de925a8194b8bde9b1b954f84e71b6d3856616585c51f33db736cdf",
+      "stellarSha256": "26cc61ef1de925a8194b8bde9b1b954f84e71b6d3856616585c51f33db736cdf"
+    },
+    "internal/characters/escoffier/burst.go": {
+      "classicSha256": "748483aeba48de4f816116a04fcb3e647be667044bee0fa6d6d0ae73fd9878dd",
+      "stellarSha256": "748483aeba48de4f816116a04fcb3e647be667044bee0fa6d6d0ae73fd9878dd",
+      "classicPatchedSha256": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca",
+      "stellarPatchedSha256": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca"
+    },
+    "internal/characters/escoffier/escoffier.go": {
+      "classicSha256": "8185efb48068184d11233180f3c0584dfe2cfe34c77b738fbb5b5fc7a5868e4c",
+      "stellarSha256": "8185efb48068184d11233180f3c0584dfe2cfe34c77b738fbb5b5fc7a5868e4c"
+    },
+    "internal/characters/escoffier/asc.go": {
+      "classicSha256": "77ca763b9b3e2958268408b637f216e8e16a4568b879917b7556657e4a7a9aea",
+      "stellarSha256": "77ca763b9b3e2958268408b637f216e8e16a4568b879917b7556657e4a7a9aea"
+    },
+    "internal/characters/escoffier/cons.go": {
+      "classicSha256": "f2e21f27abf4c6482df452afa782d535e3e13440bcd8bfd0507c393a23bc86bb",
+      "stellarSha256": "f2e21f27abf4c6482df452afa782d535e3e13440bcd8bfd0507c393a23bc86bb"
+    },
+    "pkg/core/player/character/sourcehost_ability_producer.go": {
+      "classicSha256": "79e6e81faad35a79f5276407edd31288ccb3532819e205eae800ec5bb0ba3a27",
+      "stellarSha256": "79e6e81faad35a79f5276407edd31288ccb3532819e205eae800ec5bb0ba3a27"
+    },
+    "internal/characters/ororon/skill.go": {
+      "classicSha256": "c0c2a567d957a9a2b9941f8b56a21ed084aa984f22c9346fe54c6d4850308a19",
+      "stellarSha256": "259bb46b1b71ce4230db2a9e2a81fa551a535777e4279be86feedf7408565aa2",
+      "classicPatchedSha256": "8d219b1cc4b4e5a99a91bdd65e8dfaadb8a586f365df91655b5819b124de8913",
+      "stellarPatchedSha256": "18056d2e29bb4b9319887f829d4c06272f7b11e665aa95c69ee8c9fbb60eb6d4"
+    },
+    "internal/characters/ororon/ororon.go": {
+      "classicSha256": "753a8cf4af063c5b387af179d6b9b2e1fdd937090c34f50854b8138ee93a1591",
+      "stellarSha256": "ff48f30606241c7fed83fb857df2a61891d497984c3e2c3bdc2aaa34977a9cd9"
+    },
+    "internal/characters/ororon/asc.go": {
+      "classicSha256": "f92325368e6985a25ab0b41c38aeae6b4c67794451909caa37daf4271ed56af5",
+      "stellarSha256": "871b51b4f5476e4eed1ec8bdfc37da40a6ce6819383121e88250bf0fb2aa5de5"
+    },
+    "internal/characters/ororon/cons.go": {
+      "classicSha256": "2c22ef0f5f7aa47fbabc3cc4f2be66cc19821212417d3aeaca844187f66bfe0b",
+      "stellarSha256": "2c22ef0f5f7aa47fbabc3cc4f2be66cc19821212417d3aeaca844187f66bfe0b"
+    },
+    "internal/characters/ororon/attack.go": {
+      "classicSha256": "c567eae9e712a47f008c1a09f7d35e86794b45b29e6b4a98c2a93bf9c55c1f41",
+      "stellarSha256": "c567eae9e712a47f008c1a09f7d35e86794b45b29e6b4a98c2a93bf9c55c1f41"
+    }
+  },
+  "recommendedForThisBatch": [
+    "tighnari-skill",
+    "escoffier-burst",
+    "ororon-skill"
+  ],
+  "tighnariSummary": "Direct E root count 1; native snapshot at frame 15 and hit/damage at 15+travel. travel omitted=>5; source input has no imposed cap.",
+  "escoffierSummary": "Q attack is nested in QueueCharTask at local frame 92. Only proposed instrumentation is replacing that scheduler call with existing `SourceHostQueueCharTask(\"escoffier.burst.initial-hit\", ...)`; callback body and delay remain unchanged. Native Q directRootCount=0, plan site rootCount=1, outcome attackCount=1.",
+  "escoffierSourceHashes": {
+    "classicOriginal": "748483aeba48de4f816116a04fcb3e647be667044bee0fa6d6d0ae73fd9878dd",
+    "stellarOriginal": "748483aeba48de4f816116a04fcb3e647be667044bee0fa6d6d0ae73fd9878dd",
+    "classicExpectedAfterPatch": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca",
+    "stellarExpectedAfterPatch": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca"
+  },
+  "previouslyProposedKukiNote": "Kuki Q is already in the current producer registry/plan (source-host-producer-contracts.json id kuki-burst; producer plan uses kuki.burst.low-hp 0=>7, 1=>12). It is not a new contract and has been removed from the proposed fragments.",
+  "importantExcludedOwnershipFindings": [
+    {
+      "id": "xingqiu-skill-shared-orbital",
+      "sourceRefs": [
+        "internal/characters/xingqiu/skill.go:49-78",
+        "internal/characters/xingqiu/orbital.go:13-39",
+        "internal/characters/xingqiu/orbital.go:42-80"
+      ],
+      "finding": "E queues its two direct slash roots but also starts or extends shared E/Q orbital state; when started, first tick is delay 43 and requeues damage every 135 character-local frames. Existing Xingqiu Q contract explicitly excludes shared orbitals. A direct-only E row would be partial; allocate the shared stream once across E/Q with actual originating task/action ownership before claiming completeness."
+    },
+    {
+      "id": "faruzan-skill",
+      "sourceRefs": [
+        "internal/characters/faruzan/skill.go:63-74",
+        "internal/characters/faruzan/skill.go:95-128",
+        "internal/characters/faruzan/cons.go:35-79"
+      ],
+      "finding": "E status enables subsequent charged-shot Hurricane Arrow/Pressurized Collapse roots, and C6 enables later on-field Anemo-damage-triggered proc. Treat E as delayed cross-action producer, not one-cast direct root."
+    },
+    {
+      "id": "layla-skill",
+      "sourceRefs": [
+        "internal/characters/layla/skill.go:43-85"
+      ],
+      "finding": "E direct hit plus night-star/shield delayed attack state. Not a direct-only complete E total."
+    },
+    {
+      "id": "sara-skill",
+      "sourceRefs": [
+        "internal/characters/sara/skill.go:39-57",
+        "internal/characters/sara/aimed.go:66,121-141"
+      ],
+      "finding": "E-generated cover can cause a later fully charged aimed shot to queue Tengu Juurai: Ambush (E scaling). Keep partial until cross-action ownership binding."
+    },
+    {
+      "id": "kaveh-skill",
+      "sourceRefs": [
+        "internal/characters/kaveh/skill.go:44"
+      ],
+      "finding": "E attack can trigger extant Dendro Core explosions; those core-owned reactions must retain separate source attribution, not be folded into an E direct root."
+    }
+  ],
+  "runtimeClaims": "No native runtime, browser, test, or build was performed for these source fragments.",
+  "ororonSummary": "E owns only the inherent Spirit Orb attacks already queued for each element of its native selected enemy slice. Proposed RecordAbilityFact captures len(enemies) once from that existing slice before its queue loop. It does not query target count again and does not infer a min formula. First damage deadline is frame 31; subsequent target deadlines are 31 + travel × (i+1), with travel default 10 and no added bounds. The contract excludes distinct A1 Hypersense and reaction/event follow-ups; these can occur, including when an E hit causes Electro-Charged and the native OnElectroCharged callback conditions are met.",
+  "ororonSourceHashes": {
+    "classicOriginal": "c0c2a567d957a9a2b9941f8b56a21ed084aa984f22c9346fe54c6d4850308a19",
+    "stellarOriginal": "259bb46b1b71ce4230db2a9e2a81fa551a535777e4279be86feedf7408565aa2",
+    "classicExpectedAfterPatch": "8d219b1cc4b4e5a99a91bdd65e8dfaadb8a586f365df91655b5819b124de8913",
+    "stellarExpectedAfterPatch": "18056d2e29bb4b9319887f829d4c06272f7b11e665aa95c69ee8c9fbb60eb6d4"
+  },
+  "ororonEventSemantics": {
+    "A1": "asc.go:72-86 listens to OnElectroCharged and OnLunarCharged; asc.go:88-100 listens to other-actor Nightsoul-tagged OnEnemyDamage. The OnEnemyDamage branch ignores Ororon-owned damage, but reaction listeners can follow an E-caused reaction. A1 Hypersense is a separate event proc and outside the finite Spirit Orb cast scope.",
+    "A4": "A4 energy handler is installed in asc.go:160 onward for qualifying later active-character Normal/Charged/Plunging attacks; these are later player actions."
+  }
+}

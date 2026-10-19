@@ -1,0 +1,466 @@
+--- a/pkg/core/player/stam.go
++++ b/pkg/core/player/stam.go
+@@ -3,6 +3,7 @@
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ type StamPercentModFunc func(action.Action) (float64, bool)
+@@ -12,6 +13,7 @@
+ 	Amount StamPercentModFunc
+ 	Expiry int
+ 	Event  glog.Event
++	Phase  phase.Descriptor
+ }
+ 
+ func (h *Handler) StamPercentMod(a action.Action) float64 {
+@@ -51,10 +53,16 @@
+ 
+ // TODO: not sure if this is affected by hitlag?
+ func (h *Handler) AddStamPercentMod(key string, dur int, f StamPercentModFunc) {
++	h.AddStamPercentModWithPhase(key, dur, f, phase.Descriptor{})
++}
++
++// AddStamPercentModWithPhase preserves the native callback and stores only its read-only descriptor.
++func (h *Handler) AddStamPercentModWithPhase(key string, dur int, f StamPercentModFunc, descriptor phase.Descriptor) {
+ 	mod := stamPercentMod{
+ 		Key:    key,
+ 		Expiry: *h.F + dur,
+ 		Amount: f,
++		Phase:  descriptor,
+ 	}
+ 	ind := -1
+ 	for i, v := range h.stamPercentMods {
+--- a/pkg/core/player/sourcehost_phase_state.go
++++ b/pkg/core/player/sourcehost_phase_state.go
+@@ -30,13 +30,23 @@
+ 		} else if remaining < 0 {
+ 			remaining = -2
+ 		}
+-		staminaMods = append(staminaMods, map[string]any{
++		entry := map[string]any{
+ 			"key": mod.Key, "expiryRemaining": remaining,
+ 			"active": mod.Expiry == -1 || mod.Expiry > *h.F,
+-		})
++		}
+ 		if mod.Amount != nil {
+-			gaps = append(gaps, fmt.Sprintf("player.staminaModifier[%d].Amount callback", index))
++			entry["source"] = mod.Phase.Source
++			if mod.Phase.Source == "" || mod.Phase.Observe == nil {
++				gaps = append(gaps, fmt.Sprintf("player.staminaModifier[%d].Amount callback lacks a descriptor", index))
++			} else {
++				capture, missing := mod.Phase.Observe()
++				entry["capture"] = capture
++				for _, gap := range missing {
++					gaps = append(gaps, fmt.Sprintf("player.staminaModifier[%d]: %s", index, gap))
++				}
++			}
+ 		}
++		staminaMods = append(staminaMods, entry)
+ 	}
+ 	animationState, animationGaps := h.AnimationHandler.SourceHostPhaseState()
+ 	shieldState, shieldGaps := h.Shields.SourceHostPhaseState()
+--- a/pkg/core/player/shield/template.go
++++ b/pkg/core/player/shield/template.go
+@@ -1,21 +1,25 @@
+ package shield
+ 
+-import "github.com/genshinsim/gcsim/pkg/core/attributes"
++import (
++	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
++)
+ 
+ type SourceHostDamageFunc func(*Tmpl, float64, attributes.Element, float64) (float64, float64)
+ 
+ type Tmpl struct {
+-	SourceHostDamage  SourceHostDamageFunc
+-	SourceHostHPID    int
+-	SourceHostBonusID int
+-	ActorIndex        int
+-	Target            int
+-	Name              string
+-	Src               int
+-	ShieldType        Type
+-	Ele               attributes.Element
+-	HP                float64
+-	Expires           int
++	SourceHostDamage      SourceHostDamageFunc
++	SourceHostDamagePhase phase.Descriptor
++	SourceHostHPID        int
++	SourceHostBonusID     int
++	ActorIndex            int
++	Target                int
++	Name                  string
++	Src                   int
++	ShieldType            Type
++	Ele                   attributes.Element
++	HP                    float64
++	Expires               int
+ }
+ 
+ // SourceHostHPSource identifies the actual creation, refresh, or most recent
+@@ -65,8 +69,9 @@
+ 	return t.HP * same * (1 + bonus)
+ }
+ 
+-func (t *Tmpl) SetSourceHostDamage(resolve SourceHostDamageFunc) {
++func (t *Tmpl) SetSourceHostDamage(resolve SourceHostDamageFunc, descriptor phase.Descriptor) {
+ 	t.SourceHostDamage = resolve
++	t.SourceHostDamagePhase = descriptor
+ }
+ 
+ func (t *Tmpl) OnDamage(dmg float64, ele attributes.Element, bonus float64) (float64, bool) {
+--- a/pkg/core/player/shield/handler.go
++++ b/pkg/core/player/shield/handler.go
+@@ -4,6 +4,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ type SourceHostLifecycleObserver interface {
+@@ -22,11 +23,12 @@
+ 	events  event.Eventter
+ 	f       *int
+ 
+-	SourceHostLifecycle SourceHostLifecycleObserver
+-	SourceHostDamage    SourceHostDamageFunc
+-	SourceHostMinimum   func(float64, float64) float64
+-	SourceHostBonus     SourceHostBonusCallbacks
+-	shieldBonusMods     []shieldBonusMod
++	SourceHostLifecycle   SourceHostLifecycleObserver
++	SourceHostDamage      SourceHostDamageFunc
++	SourceHostDamagePhase phase.Descriptor
++	SourceHostMinimum     func(float64, float64) float64
++	SourceHostBonus       SourceHostBonusCallbacks
++	shieldBonusMods       []shieldBonusMod
+ }
+ 
+ func New(f *int, log glog.Logger, events event.Eventter) *Handler {
+@@ -64,8 +66,10 @@
+ // TODO: do shields get affected by hitlag? if so.. which timer? active char?
+ func (h *Handler) Add(shd Shield) {
+ 	if h.SourceHostDamage != nil {
+-		if attached, ok := shd.(interface{ SetSourceHostDamage(SourceHostDamageFunc) }); ok {
+-			attached.SetSourceHostDamage(h.SourceHostDamage)
++		if attached, ok := shd.(interface {
++			SetSourceHostDamage(SourceHostDamageFunc, phase.Descriptor)
++		}); ok {
++			attached.SetSourceHostDamage(h.SourceHostDamage, h.SourceHostDamagePhase)
+ 		}
+ 	}
+ 	// we always assume over write of the same type and target
+--- a/pkg/core/player/shield/bonus.go
++++ b/pkg/core/player/shield/bonus.go
+@@ -3,6 +3,7 @@
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ //nolint:revive // stat name should be at the front for readibility so cannot just strip Shield in the front, will be changed as part of mod rewrite someday
+@@ -13,6 +14,7 @@
+ 	Amount ShieldBonusModFunc
+ 	Expiry int
+ 	Event  glog.Event
++	Phase  phase.Descriptor
+ }
+ 
+ // SourceHostBonusCallbacks records this getter without importing sourcehost.
+@@ -92,10 +94,16 @@
+ }
+ 
+ func (h *Handler) AddShieldBonusMod(key string, dur int, f ShieldBonusModFunc) {
++	h.AddShieldBonusModWithPhase(key, dur, f, phase.Descriptor{})
++}
++
++// AddShieldBonusModWithPhase does not evaluate the bonus callback during observation.
++func (h *Handler) AddShieldBonusModWithPhase(key string, dur int, f ShieldBonusModFunc, descriptor phase.Descriptor) {
+ 	mod := shieldBonusMod{
+ 		Key:    key,
+ 		Expiry: *h.f + dur,
+ 		Amount: f,
++		Phase:  descriptor,
+ 	}
+ 	if dur < 0 {
+ 		mod.Expiry = -1
+--- a/pkg/core/player/shield/sourcehost_phase_state.go
++++ b/pkg/core/player/shield/sourcehost_phase_state.go
+@@ -10,18 +10,28 @@
+ 	for index, item := range h.shields {
+ 		state := map[string]any{
+ 			"owner": item.ShieldOwner(), "target": item.ShieldTarget(),
+-			"key": item.Key(), "type": int(item.Type()), "description": item.Desc(),
++			"type": int(item.Type()), "description": item.Desc(),
+ 			"element": item.Element().String(), "hp": item.CurrentHP(),
+ 			"expiryRemaining": item.Expiry() - *h.f,
+ 			"implementation":  fmt.Sprintf("%T", item),
+ 		}
+ 		if tmpl, ok := item.(*Tmpl); ok {
+-			state["sourceHostHPSource"] = tmpl.SourceHostHPID
+-			state["sourceHostBonusSource"] = tmpl.SourceHostBonusID
++			// Exact Tmpl Src and calculation IDs are receipt identity only. Its
++			// combat methods consume the quantities above, not those identities.
+ 			if tmpl.SourceHostDamage != nil {
+-				gaps = append(gaps, fmt.Sprintf("shield[%d].SourceHostDamage callback", index))
++				state["damageSource"] = tmpl.SourceHostDamagePhase.Source
++				if tmpl.SourceHostDamagePhase.Source == "" || tmpl.SourceHostDamagePhase.Observe == nil {
++					gaps = append(gaps, fmt.Sprintf("shield[%d].SourceHostDamage callback lacks a descriptor", index))
++				} else {
++					capture, missing := tmpl.SourceHostDamagePhase.Observe()
++					state["damageCapture"] = capture
++					for _, gap := range missing {
++						gaps = append(gaps, fmt.Sprintf("shield[%d].SourceHostDamage: %s", index, gap))
++					}
++				}
+ 			}
+ 		} else {
++			state["key"] = item.Key()
+ 			gaps = append(gaps, fmt.Sprintf("shield[%d] custom implementation private state", index))
+ 		}
+ 		shields = append(shields, state)
+@@ -34,12 +44,22 @@
+ 		} else if expiry < 0 {
+ 			expiry = -2
+ 		}
+-		bonusMods = append(bonusMods, map[string]any{
++		entry := map[string]any{
+ 			"key": mod.Key, "expiryRemaining": expiry, "active": mod.Expiry == -1 || mod.Expiry > *h.f,
+-		})
++		}
+ 		if mod.Amount != nil {
+-			gaps = append(gaps, fmt.Sprintf("shield bonus modifier[%d].Amount callback", index))
++			entry["source"] = mod.Phase.Source
++			if mod.Phase.Source == "" || mod.Phase.Observe == nil {
++				gaps = append(gaps, fmt.Sprintf("shield bonus modifier[%d].Amount callback lacks a descriptor", index))
++			} else {
++				capture, missing := mod.Phase.Observe()
++				entry["capture"] = capture
++				for _, gap := range missing {
++					gaps = append(gaps, fmt.Sprintf("shield bonus modifier[%d]: %s", index, gap))
++				}
++			}
+ 		}
++		bonusMods = append(bonusMods, entry)
+ 	}
+ 	return map[string]any{"shields": shields, "bonusModifiers": bonusMods}, gaps
+ }
+--- a/pkg/enemy/attack.go
++++ b/pkg/enemy/attack.go
+@@ -1,6 +1,7 @@
+ package enemy
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"log"
+ 	"math"
+ 
+@@ -93,7 +94,9 @@
+ 			applicationDamage = e.Core.SourceHost.TargetApplication(atk, e.Key(), dmg, hpBefore, e.Core.Flags.DamageMode)
+ 		}
+ 		actualDmg := e.applyDamage(atk, applicationDamage)
+-		if e.Core.SourceHost != nil { e.Core.SourceHost.Applied(atk, e.Key(), dmg, actualDmg, hpBefore, e.hp, crit, e.Core.Flags.DamageMode) }
++		if e.Core.SourceHost != nil {
++			e.Core.SourceHost.Applied(atk, e.Key(), dmg, actualDmg, hpBefore, e.hp, crit, e.Core.Flags.DamageMode)
++		}
+ 		e.Core.Combat.TotalDamage += actualDmg
+ 		if hitConfirmBlocked {
+ 			counts := e.Core.Events.EmitObserved(event.OnEnemyDamage, e, atk, actualDmg, crit)
+@@ -216,7 +219,7 @@
+ 	count, element := e.tryHPDropParticle()
+ 	if count > 0 {
+ 		e.Core.Log.NewEvent("particle hp threshold triggered", glog.LogEnemyEvent, atk.Info.ActorIndex)
+-		e.Core.Tasks.Add(
++		e.Core.Tasks.AddWithPhase(
+ 			func() {
+ 				e.Core.Player.DistributeParticle(character.Particle{
+ 					Source: "hp_drop",
+@@ -225,6 +228,9 @@
+ 				})
+ 			},
+ 			100, // TODO: should be subject to global delay maybe??
++			"enemy-hp-drop-particle", phase.Descriptor{Source: "pkg/enemy/attack.go:hp-drop-particle", Observe: func() (map[string]any, []string) {
++				return map[string]any{"source": "hp_drop", "count": count, "element": element}, nil
++			}},
+ 		)
+ 	}
+ 
+--- a/pkg/simulation/setup.go
++++ b/pkg/simulation/setup.go
+@@ -237,7 +237,9 @@
+ 			//
+ 			// DMG dealt increased by 15%, dealing DMG to enemies will decrease their Geo RES by 20% for 15s.
+ 			f := func() (float64, bool) { return 0.15, true }
+-			s.Player.Shields.AddShieldBonusMod(geoResKey, -1, f)
++			s.Player.Shields.AddShieldBonusModWithPhase(geoResKey, -1, f, phase.Descriptor{Source: "pkg/simulation/setup.go:geo-shield-bonus", Observe: func() (map[string]any, []string) {
++				return map[string]any{"shieldBonus": 0.15, "removeAfterRead": true}, nil
++			}})
+ 
+ 			geoResTickerSrc := 0
+ 			geoTickerPhase := phase.Descriptor{
+@@ -307,9 +309,9 @@
+ 			}, "geo-res-on-shield-break", geoTickerPhase)
+ 
+ 		case attributes.Anemo:
+-			s.Player.AddStamPercentMod("anemo-res-stam", -1, func(a action.Action) (float64, bool) {
++			s.Player.AddStamPercentModWithPhase("anemo-res-stam", -1, func(a action.Action) (float64, bool) {
+ 				return -0.15, false
+-			})
++			}, phase.Descriptor{Source: "pkg/simulation/setup.go:anemo-stamina", Observe: func() (map[string]any, []string) { return map[string]any{"staminaPercent": -0.15}, nil }})
+ 			// TODO: movement spd increase?
+ 			for _, c := range chars {
+ 				c.AddCooldownMod(character.CooldownMod{
+--- a/internal/weapons/common/goldenmajesty.go
++++ b/internal/weapons/common/goldenmajesty.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+@@ -31,7 +32,7 @@
+ 	shd := .15 + float64(r)*.05
+ 	atkbuff := 0.03 + 0.01*float64(r)
+ 	key := fmt.Sprintf("golden-majesty-%v", char.Base.Key.String())
+-	c.Player.Shields.AddShieldBonusMod(key, -1, func() (float64, bool) { return shd, false })
++	c.Player.Shields.AddShieldBonusModWithPhase(key, -1, func() (float64, bool) { return shd, false }, phase.Descriptor{Source: "internal/weapons/common/goldenmajesty.go:shield-bonus", Observe: func() (map[string]any, []string) { return map[string]any{"shieldBonus": shd}, nil }})
+ 
+ 	stacks := 0
+ 	m := make([]float64, attributes.EndStatType)
+--- a/internal/artifacts/bolide/bolide.go
++++ b/internal/artifacts/bolide/bolide.go
+@@ -5,6 +5,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+@@ -23,12 +24,14 @@
+ 
+ 	if count >= 2 {
+ 		// shield bonus always active
+-		c.Player.Shields.AddShieldBonusMod("bolide-2pc", -1, func() (float64, bool) {
++		c.Player.Shields.AddShieldBonusModWithPhase("bolide-2pc", -1, func() (float64, bool) {
+ 			if c.SourceHost != nil {
+ 				return c.SourceHost.ArtifactScalar(char.Index(), "bolide-2pc-shield", nil, nil, c.SourceHost.CurrentPlayerAttackID), false
+ 			}
+ 			return 0.35, false
+-		})
++		}, phase.Descriptor{Source: "internal/artifacts/bolide/bolide.go:shield-bonus", Observe: func() (map[string]any, []string) {
++			return map[string]any{"characterIndex": char.Index(), "shieldBonus": 0.35}, nil
++		}})
+ 	}
+ 	if count >= 4 {
+ 		m := make([]float64, attributes.EndStatType)
+--- a/internal/artifacts/tenacity/tenacity.go
++++ b/internal/artifacts/tenacity/tenacity.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+@@ -78,12 +79,14 @@
+ 			}
+ 
+ 			// TODO: this needs to be affected by hitlag as well
+-			s.core.Player.Shields.AddShieldBonusMod("tom-4pc", 180, func() (float64, bool) {
++			s.core.Player.Shields.AddShieldBonusModWithPhase("tom-4pc", 180, func() (float64, bool) {
+ 				if s.core.SourceHost != nil {
+ 					return s.core.SourceHost.ArtifactScalar(char.Index(), "tenacity-4pc-shield", nil, nil, s.core.SourceHost.CurrentPlayerAttackID), false
+ 				}
+ 				return 0.30, false
+-			})
++			}, phase.Descriptor{Source: "internal/artifacts/tenacity/tenacity.go:shield-bonus", Observe: func() (map[string]any, []string) {
++				return map[string]any{"characterIndex": char.Index(), "shieldBonus": 0.30}, nil
++			}})
+ 
+ 			c.Log.NewEvent("tom 4pc proc", glog.LogArtifactEvent, char.Index()).Write("expiry (without hitlag)", c.F+180).Write("icd (without hitlag)", c.F+s.icd)
+ 		}, fmt.Sprintf("tom4-%v", char.Base.Key.String()))
+--- a/internal/artifacts/bloodstained/bloodstained.go
++++ b/internal/artifacts/bloodstained/bloodstained.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+@@ -82,12 +83,14 @@
+ 
+ 		// charged attack stamina part
+ 		// TODO: should this be affected by hitlag? (stam percent mod)
+-		c.Player.AddStamPercentMod("bloodstained-4pc-stamina", 600, func(a action.Action) (float64, bool) {
++		c.Player.AddStamPercentModWithPhase("bloodstained-4pc-stamina", 600, func(a action.Action) (float64, bool) {
+ 			if a == action.ActionCharge {
+ 				return -1, false
+ 			}
+ 			return 0, false
+-		})
++		}, phase.Descriptor{Source: "internal/artifacts/bloodstained/bloodstained.go:charged-stamina", Observe: func() (map[string]any, []string) {
++			return map[string]any{"action": int(action.ActionCharge), "staminaPercent": -1}, nil
++		}})
+ 	}, fmt.Sprintf("bloodstained-4pc-%v", char.Base.Key.String()))
+ 
+ 	return &s, nil
+--- a/internal/weapons/sword/sturdybone/sturdybone.go
++++ b/internal/weapons/sword/sturdybone/sturdybone.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+@@ -31,9 +32,9 @@
+ 	w := &Weapon{}
+ 	r := p.Refine
+ 
+-	c.Player.AddStamPercentMod(buffKey, -1, func(a action.Action) (float64, bool) {
++	c.Player.AddStamPercentModWithPhase(buffKey, -1, func(a action.Action) (float64, bool) {
+ 		return -0.15, false
+-	})
++	}, phase.Descriptor{Source: "internal/weapons/sword/sturdybone/sturdybone.go:stamina", Observe: func() (map[string]any, []string) { return map[string]any{"staminaPercent": -0.15}, nil }})
+ 
+ 	naDmg := 0.12 + 0.4*float64(r)
+ 	c.Events.Subscribe(event.OnDash, func(args ...any) {
+--- a/internal/weapons/catalyst/wine/wine.go
++++ b/internal/weapons/catalyst/wine/wine.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+@@ -57,12 +58,14 @@
+ 			return
+ 		}
+ 
+-		c.Player.AddStamPercentMod(key, 300, func(a action.Action) (float64, bool) {
++		c.Player.AddStamPercentModWithPhase(key, 300, func(a action.Action) (float64, bool) {
+ 			if a == action.ActionDash {
+ 				return -stamReduction, false
+ 			}
+ 			return 0, false
+-		})
++		}, phase.Descriptor{Source: "internal/weapons/catalyst/wine/wine.go:dash-stamina", Observe: func() (map[string]any, []string) {
++			return map[string]any{"action": int(action.ActionDash), "staminaReduction": stamReduction}, nil
++		}})
+ 	}, key)
+ 
+ 	return w, nil

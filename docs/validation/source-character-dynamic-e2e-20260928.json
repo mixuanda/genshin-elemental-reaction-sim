@@ -1,0 +1,12 @@
+{
+  "command": [
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-dynamic.spec.ts"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 3.457,
+  "log": "docs/validation/source-character-dynamic-e2e-20260928.log"
+}

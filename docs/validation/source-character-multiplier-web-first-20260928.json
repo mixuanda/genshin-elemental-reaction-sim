@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.715,
+  "log": "docs/validation/source-character-multiplier-web-first-20260928.log"
+}

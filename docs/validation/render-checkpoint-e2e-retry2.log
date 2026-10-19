@@ -1,0 +1,14 @@
+
+Running 3 tests using 3 workers
+
+(node:60351) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:60352) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  3 [chromium] › apps/web/e2e/calculator.spec.ts:72:1 › calculator independently renders fixture A arithmetic from its execution trace (789ms)
+  ✓  1 [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:36:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits (2.0s)
+  ✓  2 [chromium] › apps/web/e2e/yanfei-startup.spec.ts:24:1 › Yanfei charged cast conditions A4 on main critical probability and preserves independent hit context in JSON (4.2s)
+
+  3 passed (5.0s)

@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-09-25T04:05:28.860530+00:00",
+  "status": "source-assumed; no game-frame validation",
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archive": {
+    "path": "packages/game-data/sources/observed-character-resources/source.json.gz",
+    "sha256": "0d1b3fbee2fb3575fb7fa3cb20184b4d526647fdf7bdcc9aa68d8559fcee51a2",
+    "fileCount": 6,
+    "bytes": 22507
+  },
+  "fixedSourceIdentity": {
+    "allArchivedFilesMatchCompleteTree": false,
+    "treeResponseSha256": "3fb9ff8b883c2a63c5ccb6569719795389ccd8b8f055a10d5c5af9ae77e612eb",
+    "treeTruncated": false,
+    "optimizerFilesMatchCompleteTree": 5,
+    "kqmContentApiBlobMatched": true
+  },
+  "corroboratingPrimaryRecord": "https://library.keqingmains.com/characters/cryo/lohen",
+  "recordScope": "KQM says findings have not yet been added; readable character tooltip is corroboration, not frame testing. Numerical authoritative original bytes above are pinned.",
+  "noInventedTiming": [
+    "No animations, attack orders, teamdamage, or precise expiry/read order are generated.",
+    "Exact6-frame cooldown or780-frame phase boundary requires explicit observed readiness/activity if another event shares it."
+  ],
+  "remaining": [
+    "Automatic Lohen stance N/CA/plunge, A4 andHighSpirits buff scheduler, allconstellations andteamexecution."
+  ],
+  "testsOrBuildsRun": false,
+  "dataCommandsRun": false,
+  "kqm": {
+    "repository": "KQM-git/TCL",
+    "revision": "0239a3b101f23b9b82a6dec6070151d1cbbdc5cf",
+    "path": "src/data/characters/Lohen.json",
+    "gitBlobSha": "c03cbc60733c37518cfa67e94cbdf6c1b21f0339"
+  },
+  "retainedConflict": {
+    "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+    "keys": [
+      "11290003",
+      "11290004"
+    ],
+    "incorrectSubstitutedValues": [
+      "Joy0.381298",
+      "Willthreshold55.2868%",
+      "Willgain0.829302"
+    ],
+    "chosen": "Numerical skillParam.skill[12/13]=17,[14]=10,[15]=20 with explicit sheet field mapping, independently corroborated by pinned KQM character tooltip. Structural0.1s/cap100/exit rules retained from pinned tooltip."
+  }
+}

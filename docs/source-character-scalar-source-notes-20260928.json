@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "implementation": {
+    "descriptor": "packages/sim-core/src/source-host-character-scalar-rules-b.ts",
+    "classicPatch": "packages/source-host/patches/032-character-scalar-b.patch",
+    "stellarPatch": "packages/source-host/stellar-overlay/patches/032-character-scalar-b.patch",
+    "ruleCount": 23,
+    "classicRuleReferences": 11,
+    "stellarRuleReferences": 22
+  },
+  "sourceDifferences": [
+    {
+      "subject": "ifa-a1",
+      "classic": "internal/characters/ifa is absent from the pinned b4 source",
+      "stellar": "a7 internal/characters/ifa/asc.go has Swirl/Electro-Charged and Lunar-Charged/Stellar-Swirl branches",
+      "implementation": "Ifa rules and Go patch exist only for a7"
+    },
+    {
+      "subject": "mizuki-skill-swirl",
+      "classic": "swirlDMG[talent] * Stat(EM), with source table 0.0018 through 0.006",
+      "stellar": "swirlDMG[talent] * Stat(EM) * 0.01, with source table 0.18 through 0.6; a7 also has stellarSwirlDMG[talent] * Stat(EM) * 0.01",
+      "implementation": "Version-specific rule IDs preserve each source table and arithmetic order"
+    },
+    {
+      "subject": "stellar-only-reactions",
+      "classic": "No matching pinned callbacks for Qiqi Revelation Stellar Conduct/Swirl, Cryo Traveler C6 Stellar Glimmer, Yae Miko C1 Stellar Conduct, or Odette",
+      "stellar": "Callbacks exist in qiqi/stellar.go, traveler/common/cryo/cons.go, yaemiko/cons.go, and odette/{asc,burst,cons}.go",
+      "implementation": "Only the a7 patch and a7 sourceCommit descriptors include those callbacks"
+    }
+  ],
+  "exactSourceSemantics": [
+    {
+      "subject": "baizhu-a4",
+      "observation": "Go switch has empty Bloom, Hyperbloom, Burgeon, and BurningDamage cases; each keeps initialized mult 0.02. Only DirectLunarBloom case assigns mult 0.007. Catalyzed Aggravate/Spread returns limitHP * 0.008 before the switch.",
+      "implementation": "Three rule IDs retain separate 0.008, 0.02, and 0.007 branches; MaxHP is read once before the original branch gates. The original audit summary's 0.02/0.007 distinction is correct."
+    },
+    {
+      "subject": "nilou-a4",
+      "observation": "a4Bonus is a zero-valued struct field until the first 30-frame update. Re-entering a4 does not reset its existing value; each periodic update reads MaxHP and replaces the stored value.",
+      "implementation": "An initial zero creation receipt is registered only when no creation ID exists. Re-entry retains the last value and ID until the original update task replaces both."
+    },
+    {
+      "subject": "mona-astral-glow",
+      "observation": "The Vaporize callback computes its value from current stacks and then clears all stacks before returning.",
+      "implementation": "The scalar resolver receives the captured pre-clear stack count; Go clears stacks at the original callback location."
+    }
+  ],
+  "unexpandedNativeStateHelpers": [
+    {
+      "subject": "ifa-a1",
+      "observation": "getTeamNightsoul remains a native team-state aggregation; c2BonusPoints and c2CapIncrease remain native helper results. The shared AST begins with their observed numeric outputs and computes the final min and reaction-specific multiplier."
+    },
+    {
+      "subject": "durin-a1-black",
+      "observation": "hexereiA1Bonus remains the native gate/selection helper that returns 1 or 1.75. The shared AST multiplies that observed factor by 0.40."
+    }
+  ],
+  "verificationBoundary": "These are fixed pinned source behaviors, not independently verified game mechanics. The two 032 patches passed static git apply checks against both raw source and an existing 029-applied source tree, and transformed Go passed gofmt -d. No build or test was run by this agent."
+}

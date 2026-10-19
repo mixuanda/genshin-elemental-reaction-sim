@@ -1,0 +1,20 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-action-calculator.ts(35,101): error TS2379: Argument of type '{ schemaVersion: "source-host-action-collection-v1"; scope: "observed-action-hits"; association: "creation" | "status-owner" | "trigger"; observationEndFrame?: number | undefined; ... 6 more ...; exclusions: { ...; }; }' is not assignable to parameter of type '{ lifecycleObservationFrame?: number; statusInstances?: { actorIndex: number; statusKey: string; instanceId: number; createdFrame: number; creationActionSequence?: number | undefined; initialExpiryFrame: number; ... 4 more ...; nativeOverwrite?: boolean | undefined; }[]; pendingAttackStages?: { ...; }[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'lifecycleObservationFrame' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+apps/web/src/source-host-origin-panel.ts(37,108): error TS2379: Argument of type '{ [x: string]: unknown; lifecycleObservationFrame?: number | undefined; statusInstances?: { actorIndex: number; statusKey: string; instanceId: number; createdFrame: number; creationActionSequence?: number | undefined; ... 5 more ...; nativeOverwrite?: boolean | undefined; }[] | undefined; ... 26 more ...; explanatio...' is not assignable to parameter of type '{ lifecycleObservationFrame?: number; statusInstances?: { actorIndex: number; statusKey: string; instanceId: number; createdFrame: number; creationActionSequence?: number | undefined; initialExpiryFrame: number; ... 4 more ...; nativeOverwrite?: boolean | undefined; }[]; pendingAttackStages?: { ...; }[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'lifecycleObservationFrame' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+apps/web/src/source-host-origin-panel.ts(50,105): error TS2379: Argument of type '{ [x: string]: unknown; lifecycleObservationFrame?: number | undefined; statusInstances?: { actorIndex: number; statusKey: string; instanceId: number; createdFrame: number; creationActionSequence?: number | undefined; ... 5 more ...; nativeOverwrite?: boolean | undefined; }[] | undefined; ... 26 more ...; explanatio...' is not assignable to parameter of type '{ lifecycleObservationFrame?: number; statusInstances?: { actorIndex: number; statusKey: string; instanceId: number; createdFrame: number; creationActionSequence?: number | undefined; initialExpiryFrame: number; ... 4 more ...; nativeOverwrite?: boolean | undefined; }[]; pendingAttackStages?: { ...; }[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'lifecycleObservationFrame' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.

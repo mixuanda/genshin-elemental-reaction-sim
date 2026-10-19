@@ -1,0 +1,11 @@
+[WebServer] (node:50171) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:50172) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/yanfei-startup.spec.ts:24:1 › Yanfei charged cast conditions A4 on main critical probability and preserves independent hit context in JSON (4.9s)
+  ✓  2 [chromium] › apps/web/e2e/yanfei-startup.spec.ts:140:1 › Finite stochastic startup runs four continuous trajectories and exports paired samples and boundary energy (783ms)
+
+  2 passed (6.7s)

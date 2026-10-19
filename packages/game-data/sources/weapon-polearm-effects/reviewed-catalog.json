@@ -1,0 +1,984 @@
+[
+  {
+    "id": "weapon:13424",
+    "slug": "balladofthefjords",
+    "name": "峡湾长歌",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/balladofthefjords.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/balladofthefjords/balladofthefjords.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "队伍中存在至少三种不同元素类型的角色时，元素精通提升120点。",
+        "values": [
+          "120"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "队伍中存在至少三种不同元素类型的角色时，元素精通提升150点。",
+        "values": [
+          "150"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "队伍中存在至少三种不同元素类型的角色时，元素精通提升180点。",
+        "values": [
+          "180"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "队伍中存在至少三种不同元素类型的角色时，元素精通提升210点。",
+        "values": [
+          "210"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "队伍中存在至少三种不同元素类型的角色时，元素精通提升240点。",
+        "values": [
+          "240"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13303",
+    "slug": "blacktassel",
+    "name": "黑缨枪",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/blacktassel.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/blacktassel/blacktassel.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/BlackTassel/index.tsx"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "对史莱姆类敌人造成的伤害增加40%。",
+        "values": [
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "对史莱姆类敌人造成的伤害增加50%。",
+        "values": [
+          "50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "对史莱姆类敌人造成的伤害增加60%。",
+        "values": [
+          "60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "对史莱姆类敌人造成的伤害增加70%。",
+        "values": [
+          "70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "对史莱姆类敌人造成的伤害增加80%。",
+        "values": [
+          "80%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13516",
+    "slug": "bloodsoakedruins",
+    "name": "血染荒城",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/bloodsoakedruins.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/bloodsoakedruins/bloodsoakedruins.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "施放元素爆发后的3.5秒内，装备者对敌人造成的月感电反应伤害提高36%。此外，装备者触发月感电反应后，将获得「荒落的挽歌」：暴击伤害提高28%，持续6秒；并为装备者恢复12点元素能量，每14秒至多通过这种方式恢复一次元素能量。",
+        "values": [
+          "36%",
+          "28%",
+          "12"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "施放元素爆发后的3.5秒内，装备者对敌人造成的月感电反应伤害提高48%。此外，装备者触发月感电反应后，将获得「荒落的挽歌」：暴击伤害提高35%，持续6秒；并为装备者恢复13点元素能量，每14秒至多通过这种方式恢复一次元素能量。",
+        "values": [
+          "48%",
+          "35%",
+          "13"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "施放元素爆发后的3.5秒内，装备者对敌人造成的月感电反应伤害提高60%。此外，装备者触发月感电反应后，将获得「荒落的挽歌」：暴击伤害提高42%，持续6秒；并为装备者恢复14点元素能量，每14秒至多通过这种方式恢复一次元素能量。",
+        "values": [
+          "60%",
+          "42%",
+          "14"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "施放元素爆发后的3.5秒内，装备者对敌人造成的月感电反应伤害提高72%。此外，装备者触发月感电反应后，将获得「荒落的挽歌」：暴击伤害提高49%，持续6秒；并为装备者恢复15点元素能量，每14秒至多通过这种方式恢复一次元素能量。",
+        "values": [
+          "72%",
+          "49%",
+          "15"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "施放元素爆发后的3.5秒内，装备者对敌人造成的月感电反应伤害提高84%。此外，装备者触发月感电反应后，将获得「荒落的挽歌」：暴击伤害提高56%，持续6秒；并为装备者恢复16点元素能量，每14秒至多通过这种方式恢复一次元素能量。",
+        "values": [
+          "84%",
+          "56%",
+          "16"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13512",
+    "slug": "crimsonmoonssemblance",
+    "name": "赤月之形",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/crimsonmoonssemblance.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/crimsonmoonssemblance/crimsonmoonssemblance.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "重击命中敌人时，赋予生命值上限25%的生命之契，该效果每14秒至多触发一次。此外，装备者具有生命之契时，造成的伤害提升12%；若生命之契的数值大于等于生命值上限的30%，造成的伤害将进一步提升24%。",
+        "values": [
+          "12%",
+          "24%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "重击命中敌人时，赋予生命值上限25%的生命之契，该效果每14秒至多触发一次。此外，装备者具有生命之契时，造成的伤害提升16%；若生命之契的数值大于等于生命值上限的30%，造成的伤害将进一步提升32%。",
+        "values": [
+          "16%",
+          "32%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "重击命中敌人时，赋予生命值上限25%的生命之契，该效果每14秒至多触发一次。此外，装备者具有生命之契时，造成的伤害提升20%；若生命之契的数值大于等于生命值上限的30%，造成的伤害将进一步提升40%。",
+        "values": [
+          "20%",
+          "40%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "重击命中敌人时，赋予生命值上限25%的生命之契，该效果每14秒至多触发一次。此外，装备者具有生命之契时，造成的伤害提升24%；若生命之契的数值大于等于生命值上限的30%，造成的伤害将进一步提升48%。",
+        "values": [
+          "24%",
+          "48%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "重击命中敌人时，赋予生命值上限25%的生命之契，该效果每14秒至多触发一次。此外，装备者具有生命之契时，造成的伤害提升28%；若生命之契的数值大于等于生命值上限的30%，造成的伤害将进一步提升56%。",
+        "values": [
+          "28%",
+          "56%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13515",
+    "slug": "fracturedhalo",
+    "name": "支离轮光",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fracturedhalo.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/fracturedhalo/fracturedhalo.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "施放元素战技或元素爆发后的20秒内，攻击力提升24%。持续期间内，若装备者创造了护盾，则接下来的20秒内，还会获得「流电圣敕」效果：队伍中附近所有角色触发的月感电反应造成的伤害提升40%。",
+        "values": [
+          "24%",
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "施放元素战技或元素爆发后的20秒内，攻击力提升30%。持续期间内，若装备者创造了护盾，则接下来的20秒内，还会获得「流电圣敕」效果：队伍中附近所有角色触发的月感电反应造成的伤害提升50%。",
+        "values": [
+          "30%",
+          "50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "施放元素战技或元素爆发后的20秒内，攻击力提升36%。持续期间内，若装备者创造了护盾，则接下来的20秒内，还会获得「流电圣敕」效果：队伍中附近所有角色触发的月感电反应造成的伤害提升60%。",
+        "values": [
+          "36%",
+          "60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "施放元素战技或元素爆发后的20秒内，攻击力提升42%。持续期间内，若装备者创造了护盾，则接下来的20秒内，还会获得「流电圣敕」效果：队伍中附近所有角色触发的月感电反应造成的伤害提升70%。",
+        "values": [
+          "42%",
+          "70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "施放元素战技或元素爆发后的20秒内，攻击力提升48%。持续期间内，若装备者创造了护盾，则接下来的20秒内，还会获得「流电圣敕」效果：队伍中附近所有角色触发的月感电反应造成的伤害提升80%。",
+        "values": [
+          "48%",
+          "80%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13414",
+    "slug": "kitaincrossspear",
+    "name": "喜多院十文字",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/kitaincrossspear.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/kitain/kitain.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技造成的伤害提升6%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复3点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+        "values": [
+          "6%",
+          "3"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技造成的伤害提升7.5%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复3.5点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+        "values": [
+          "7.5%",
+          "3.5"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技造成的伤害提升9%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复4点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+        "values": [
+          "9%",
+          "4"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技造成的伤害提升10.5%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复4.5点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+        "values": [
+          "10.5%",
+          "4.5"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技造成的伤害提升12%。元素战技命中后，角色流失3点元素能量，并在此后的6秒内，每2秒恢复5点元素能量。该效果每10秒至多触发一次，角色处于队伍后台也能触发。",
+        "values": [
+          "12%",
+          "5"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13513",
+    "slug": "lumidouceelegy",
+    "name": "柔灯挽歌",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lumidouceelegy.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/lumidouceelegy/lumidouceelegy.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/LumidouceElegy/index.tsx"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "攻击力提升15%；装备者对敌人触发燃烧反应或对处于燃烧状态下的敌人造成草元素伤害后，造成的伤害提高18%。该效果持续8秒，至多叠加2层；叠加至2层或2层的持续时间刷新时，恢复12点元素能量，每12秒至多通过这种方式恢复一次元素能量。上述2种效果角色处于队伍后台时也能触发。",
+        "values": [
+          "15%",
+          "18%",
+          "12"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "攻击力提升19%；装备者对敌人触发燃烧反应或对处于燃烧状态下的敌人造成草元素伤害后，造成的伤害提高23%。该效果持续8秒，至多叠加2层；叠加至2层或2层的持续时间刷新时，恢复13点元素能量，每12秒至多通过这种方式恢复一次元素能量。上述2种效果角色处于队伍后台时也能触发。",
+        "values": [
+          "19%",
+          "23%",
+          "13"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "攻击力提升23%；装备者对敌人触发燃烧反应或对处于燃烧状态下的敌人造成草元素伤害后，造成的伤害提高28%。该效果持续8秒，至多叠加2层；叠加至2层或2层的持续时间刷新时，恢复14点元素能量，每12秒至多通过这种方式恢复一次元素能量。上述2种效果角色处于队伍后台时也能触发。",
+        "values": [
+          "23%",
+          "28%",
+          "14"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "攻击力提升27%；装备者对敌人触发燃烧反应或对处于燃烧状态下的敌人造成草元素伤害后，造成的伤害提高33%。该效果持续8秒，至多叠加2层；叠加至2层或2层的持续时间刷新时，恢复15点元素能量，每12秒至多通过这种方式恢复一次元素能量。上述2种效果角色处于队伍后台时也能触发。",
+        "values": [
+          "27%",
+          "33%",
+          "15"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "攻击力提升31%；装备者对敌人触发燃烧反应或对处于燃烧状态下的敌人造成草元素伤害后，造成的伤害提高38%。该效果持续8秒，至多叠加2层；叠加至2层或2层的持续时间刷新时，恢复16点元素能量，每12秒至多通过这种方式恢复一次元素能量。上述2种效果角色处于队伍后台时也能触发。",
+        "values": [
+          "31%",
+          "38%",
+          "16"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13417",
+    "slug": "moonpiercer",
+    "name": "贯月矢",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/moonpiercer.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/moonpiercer/moonpiercer.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「苏生之叶」。拾取苏生之叶的角色攻击力提升16%，持续12秒。每20秒至多通过这种方式产生一枚苏生之叶。角色处于队伍后台时也能触发。",
+        "values": [
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「苏生之叶」。拾取苏生之叶的角色攻击力提升20%，持续12秒。每20秒至多通过这种方式产生一枚苏生之叶。角色处于队伍后台时也能触发。",
+        "values": [
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「苏生之叶」。拾取苏生之叶的角色攻击力提升24%，持续12秒。每20秒至多通过这种方式产生一枚苏生之叶。角色处于队伍后台时也能触发。",
+        "values": [
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「苏生之叶」。拾取苏生之叶的角色攻击力提升28%，持续12秒。每20秒至多通过这种方式产生一枚苏生之叶。角色处于队伍后台时也能触发。",
+        "values": [
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「苏生之叶」。拾取苏生之叶的角色攻击力提升32%，持续12秒。每20秒至多通过这种方式产生一枚苏生之叶。角色处于队伍后台时也能触发。",
+        "values": [
+          "32%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13430",
+    "slug": "mountainbracingbolt",
+    "name": "镇山之钉",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mountainbracingbolt.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/mountainbracingbolt/mountainbracingbolt.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "攀爬消耗的体力降低15%，元素战技造成的伤害提升12%；此外，队伍中附近的其他角色施放元素战技后，装备者的元素战技造成的伤害还会提升12%，持续8秒。",
+        "values": [
+          "12%",
+          "12%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "攀爬消耗的体力降低15%，元素战技造成的伤害提升15%；此外，队伍中附近的其他角色施放元素战技后，装备者的元素战技造成的伤害还会提升15%，持续8秒。",
+        "values": [
+          "15%",
+          "15%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "攀爬消耗的体力降低15%，元素战技造成的伤害提升18%；此外，队伍中附近的其他角色施放元素战技后，装备者的元素战技造成的伤害还会提升18%，持续8秒。",
+        "values": [
+          "18%",
+          "18%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "攀爬消耗的体力降低15%，元素战技造成的伤害提升21%；此外，队伍中附近的其他角色施放元素战技后，装备者的元素战技造成的伤害还会提升21%，持续8秒。",
+        "values": [
+          "21%",
+          "21%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "攀爬消耗的体力降低15%，元素战技造成的伤害提升24%；此外，队伍中附近的其他角色施放元素战技后，装备者的元素战技造成的伤害还会提升24%，持续8秒。",
+        "values": [
+          "24%",
+          "24%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13427",
+    "slug": "prospectorsdrill",
+    "name": "勘探钻机",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prospectorsdrill.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prospectorsdrill/prospectorsdrill.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高3%攻击力与7%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "3%",
+          "7%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高4%攻击力与8.5%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "4%",
+          "8.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高5%攻击力与10%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "5%",
+          "10%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高6%攻击力与11.5%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "6%",
+          "11.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高7%攻击力与13%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "7%",
+          "13%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13433",
+    "slug": "prospectorsshovel",
+    "name": "掘金之锹",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prospectorsshovel.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prospectorsshovel/prospectorsshovel.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "感电反应造成的伤害提升48%，月感电反应造成的伤害提升12%。月兆·满辉：月感电反应造成的伤害额外提升12%。",
+        "values": [
+          "48%",
+          "12%",
+          "12%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "感电反应造成的伤害提升60%，月感电反应造成的伤害提升15%。月兆·满辉：月感电反应造成的伤害额外提升15%。",
+        "values": [
+          "60%",
+          "15%",
+          "15%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "感电反应造成的伤害提升72%，月感电反应造成的伤害提升18%。月兆·满辉：月感电反应造成的伤害额外提升18%。",
+        "values": [
+          "72%",
+          "18%",
+          "18%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "感电反应造成的伤害提升84%，月感电反应造成的伤害提升21%。月兆·满辉：月感电反应造成的伤害额外提升21%。",
+        "values": [
+          "84%",
+          "21%",
+          "21%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "感电反应造成的伤害提升96%，月感电反应造成的伤害提升24%。月兆·满辉：月感电反应造成的伤害额外提升24%。",
+        "values": [
+          "96%",
+          "24%",
+          "24%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13434",
+    "slug": "sacrificersstaff",
+    "name": "圣祭者的辉杖",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificersstaff.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/sacrificersstaff/sacrificersstaff.go",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/SacrificersStaff/index.tsx"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技命中敌人后的6秒内，攻击力提升8%，元素充能效率提升6%。该效果至多叠加3层，装备者处于队伍后台时依然能触发。",
+        "values": [
+          "8%",
+          "6%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技命中敌人后的6秒内，攻击力提升10%，元素充能效率提升7.5%。该效果至多叠加3层，装备者处于队伍后台时依然能触发。",
+        "values": [
+          "10%",
+          "7.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技命中敌人后的6秒内，攻击力提升12%，元素充能效率提升9%。该效果至多叠加3层，装备者处于队伍后台时依然能触发。",
+        "values": [
+          "12%",
+          "9%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技命中敌人后的6秒内，攻击力提升14%，元素充能效率提升10.5%。该效果至多叠加3层，装备者处于队伍后台时依然能触发。",
+        "values": [
+          "14%",
+          "10.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技命中敌人后的6秒内，攻击力提升16%，元素充能效率提升12%。该效果至多叠加3层，装备者处于队伍后台时依然能触发。",
+        "values": [
+          "16%",
+          "12%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13502",
+    "slug": "skywardspine",
+    "name": "天空之脊",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/skywardspine.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/skyward/skyward.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "暴击率提升8%，普通攻击速度提升12%。此外，普通攻击与重击命中敌人时，有50%概率触发真空刃，在小范围内造成额外40%攻击力的伤害。该效果每2秒至多触发一次。",
+        "values": [
+          "8%",
+          "12%",
+          "50%",
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "暴击率提升10%，普通攻击速度提升12%。此外，普通攻击与重击命中敌人时，有50%概率触发真空刃，在小范围内造成额外55%攻击力的伤害。该效果每2秒至多触发一次。",
+        "values": [
+          "10%",
+          "12%",
+          "50%",
+          "55%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "暴击率提升12%，普通攻击速度提升12%。此外，普通攻击与重击命中敌人时，有50%概率触发真空刃，在小范围内造成额外70%攻击力的伤害。该效果每2秒至多触发一次。",
+        "values": [
+          "12%",
+          "12%",
+          "50%",
+          "70%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "暴击率提升14%，普通攻击速度提升12%。此外，普通攻击与重击命中敌人时，有50%概率触发真空刃，在小范围内造成额外85%攻击力的伤害。该效果每2秒至多触发一次。",
+        "values": [
+          "14%",
+          "12%",
+          "50%",
+          "85%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "暴击率提升16%，普通攻击速度提升12%。此外，普通攻击与重击命中敌人时，有50%概率触发真空刃，在小范围内造成额外100%攻击力的伤害。该效果每2秒至多触发一次。",
+        "values": [
+          "16%",
+          "12%",
+          "50%",
+          "100%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13514",
+    "slug": "symphonistofscents",
+    "name": "香韵奏者",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/symphonistofscents.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/symphonist/symphonist.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "攻击力提升12%；当装备此武器的角色处于队伍后台时，攻击力额外提升12%。进行治疗后，装备者与受到治疗的角色会获得「甘美回奏」的效果，攻击力提升32%，持续3秒。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "12%",
+          "12%",
+          "32%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "攻击力提升15%；当装备此武器的角色处于队伍后台时，攻击力额外提升15%。进行治疗后，装备者与受到治疗的角色会获得「甘美回奏」的效果，攻击力提升40%，持续3秒。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "15%",
+          "15%",
+          "40%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "攻击力提升18%；当装备此武器的角色处于队伍后台时，攻击力额外提升18%。进行治疗后，装备者与受到治疗的角色会获得「甘美回奏」的效果，攻击力提升48%，持续3秒。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "18%",
+          "18%",
+          "48%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "攻击力提升21%；当装备此武器的角色处于队伍后台时，攻击力额外提升21%。进行治疗后，装备者与受到治疗的角色会获得「甘美回奏」的效果，攻击力提升56%，持续3秒。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "21%",
+          "21%",
+          "56%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "攻击力提升24%；当装备此武器的角色处于队伍后台时，攻击力额外提升24%。进行治疗后，装备者与受到治疗的角色会获得「甘美回奏」的效果，攻击力提升64%，持续3秒。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "24%",
+          "24%",
+          "64%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13432",
+    "slug": "tamayurateinoohanashi",
+    "name": "且住亭御咄",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/tamayurateinoohanashi.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/tamayuratei/tamayuratei.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "施放元素战技时，提高20%攻击力和10%移动速度，持续10秒。",
+        "values": [
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "施放元素战技时，提高25%攻击力和10%移动速度，持续10秒。",
+        "values": [
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "施放元素战技时，提高30%攻击力和10%移动速度，持续10秒。",
+        "values": [
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "施放元素战技时，提高35%攻击力和10%移动速度，持续10秒。",
+        "values": [
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "施放元素战技时，提高40%攻击力和10%移动速度，持续10秒。",
+        "values": [
+          "40%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13415",
+    "slug": "thecatch",
+    "name": "「渔获」",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thecatch.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/catch/catch.go"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素爆发造成的伤害提升16%，元素爆发的暴击率提升6%。",
+        "values": [
+          "16%",
+          "6%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素爆发造成的伤害提升20%，元素爆发的暴击率提升7.5%。",
+        "values": [
+          "20%",
+          "7.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素爆发造成的伤害提升24%，元素爆发的暴击率提升9%。",
+        "values": [
+          "24%",
+          "9%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素爆发造成的伤害提升28%，元素爆发的暴击率提升10.5%。",
+        "values": [
+          "28%",
+          "10.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素爆发造成的伤害提升32%，元素爆发的暴击率提升12%。",
+        "values": [
+          "32%",
+          "12%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13517",
+    "slug": "disasterandremorse",
+    "name": "灾悔",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/disasterandremorse.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/DisasterAndRemorse/index.tsx"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备者施放元素战技后，获得持续17秒的「纷争之途」，和分别持续3秒的「无赦」与「无愈」效果，每18秒至多触发一次。\n无赦：装备者的普通攻击与重击伤害提升40%。\n无愈：装备者的元素战技与元素爆发伤害提升40%。\n「纷争之途」期间，装备者的普通攻击与重击命中敌人时，将延长1秒「无愈」；装备者的元素战技与元素爆发命中敌人时，将延长1秒「无赦」。上述效果每0.1秒分别至多触发一次。「纷争之途」结束或装备者退场将解除「无赦」与「无愈」。\n魔导·秘仪：上述所有伤害提升效果提升75%。",
+        "values": [
+          "40%",
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备者施放元素战技后，获得持续17秒的「纷争之途」，和分别持续3秒的「无赦」与「无愈」效果，每18秒至多触发一次。\n无赦：装备者的普通攻击与重击伤害提升50%。\n无愈：装备者的元素战技与元素爆发伤害提升50%。\n「纷争之途」期间，装备者的普通攻击与重击命中敌人时，将延长1秒「无愈」；装备者的元素战技与元素爆发命中敌人时，将延长1秒「无赦」。上述效果每0.1秒分别至多触发一次。「纷争之途」结束或装备者退场将解除「无赦」与「无愈」。\n魔导·秘仪：上述所有伤害提升效果提升75%。",
+        "values": [
+          "50%",
+          "50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备者施放元素战技后，获得持续17秒的「纷争之途」，和分别持续3秒的「无赦」与「无愈」效果，每18秒至多触发一次。\n无赦：装备者的普通攻击与重击伤害提升60%。\n无愈：装备者的元素战技与元素爆发伤害提升60%。\n「纷争之途」期间，装备者的普通攻击与重击命中敌人时，将延长1秒「无愈」；装备者的元素战技与元素爆发命中敌人时，将延长1秒「无赦」。上述效果每0.1秒分别至多触发一次。「纷争之途」结束或装备者退场将解除「无赦」与「无愈」。\n魔导·秘仪：上述所有伤害提升效果提升75%。",
+        "values": [
+          "60%",
+          "60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备者施放元素战技后，获得持续17秒的「纷争之途」，和分别持续3秒的「无赦」与「无愈」效果，每18秒至多触发一次。\n无赦：装备者的普通攻击与重击伤害提升70%。\n无愈：装备者的元素战技与元素爆发伤害提升70%。\n「纷争之途」期间，装备者的普通攻击与重击命中敌人时，将延长1秒「无愈」；装备者的元素战技与元素爆发命中敌人时，将延长1秒「无赦」。上述效果每0.1秒分别至多触发一次。「纷争之途」结束或装备者退场将解除「无赦」与「无愈」。\n魔导·秘仪：上述所有伤害提升效果提升75%。",
+        "values": [
+          "70%",
+          "70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备者施放元素战技后，获得持续17秒的「纷争之途」，和分别持续3秒的「无赦」与「无愈」效果，每18秒至多触发一次。\n无赦：装备者的普通攻击与重击伤害提升80%。\n无愈：装备者的元素战技与元素爆发伤害提升80%。\n「纷争之途」期间，装备者的普通攻击与重击命中敌人时，将延长1秒「无愈」；装备者的元素战技与元素爆发命中敌人时，将延长1秒「无赦」。上述效果每0.1秒分别至多触发一次。「纷争之途」结束或装备者退场将解除「无赦」与「无愈」。\n魔导·秘仪：上述所有伤害提升效果提升75%。",
+        "values": [
+          "80%",
+          "80%"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13435",
+    "slug": "frostbreath",
+    "name": "寒息",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbreath.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Frostbreath/index.tsx"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "触发冰元素或水元素相关反应后的15秒内，装备者的攻击力提升20%，并为队伍中自己的其他角色恢复6点元素能量。该效果每16秒至多触发一次。",
+        "values": [
+          "20%",
+          "6"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "触发冰元素或水元素相关反应后的15秒内，装备者的攻击力提升25%，并为队伍中自己的其他角色恢复7.5点元素能量。该效果每16秒至多触发一次。",
+        "values": [
+          "25%",
+          "7.5"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "触发冰元素或水元素相关反应后的15秒内，装备者的攻击力提升30%，并为队伍中自己的其他角色恢复9点元素能量。该效果每16秒至多触发一次。",
+        "values": [
+          "30%",
+          "9"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "触发冰元素或水元素相关反应后的15秒内，装备者的攻击力提升35%，并为队伍中自己的其他角色恢复10.5点元素能量。该效果每16秒至多触发一次。",
+        "values": [
+          "35%",
+          "10.5"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "触发冰元素或水元素相关反应后的15秒内，装备者的攻击力提升40%，并为队伍中自己的其他角色恢复12点元素能量。该效果每16秒至多触发一次。",
+        "values": [
+          "40%",
+          "12"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "weapon:13436",
+    "slug": "songofthevigil",
+    "name": "戍望谣歌",
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/songofthevigil.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/SongOfTheVigil/index.tsx"
+    ],
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "触发元素反应后，为装备者恢复4点元素能量，该效果每9秒至多触发一次；触发星烁反应的12秒内，装备者的攻击力提升20%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "4",
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "触发元素反应后，为装备者恢复5点元素能量，该效果每9秒至多触发一次；触发星烁反应的12秒内，装备者的攻击力提升25%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "5",
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "触发元素反应后，为装备者恢复6点元素能量，该效果每9秒至多触发一次；触发星烁反应的12秒内，装备者的攻击力提升30%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "6",
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "触发元素反应后，为装备者恢复7点元素能量，该效果每9秒至多触发一次；触发星烁反应的12秒内，装备者的攻击力提升35%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "7",
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "触发元素反应后，为装备者恢复8点元素能量，该效果每9秒至多触发一次；触发星烁反应的12秒内，装备者的攻击力提升40%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "8",
+          "40%"
+        ]
+      }
+    ]
+  }
+]

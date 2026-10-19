@@ -1,0 +1,51 @@
+{
+  "receipts": [
+    {
+      "lane": "classic",
+      "artifact": {
+        "wasmSha256": "23204f23a9359ab64c4fa6f7178c0d8ca22882f873a43c4329b2422d2d3d8f16",
+        "wasmBytes": 43444334
+      },
+      "applications": 38,
+      "creationSequence": 2,
+      "collectionHits": 2,
+      "originalRawTotal": 1966.0871939310314,
+      "replayDifference": 0,
+      "statusOwnerSequence": 1,
+      "statusOwnerHits": 6,
+      "statusOwnerTotal": 2403.863077651348,
+      "statusOwnerReplayDifference": 0,
+      "statusInstances": [
+        1
+      ],
+      "rainswordCreationUnknown": true,
+      "rainswordTriggerKnown": true,
+      "gameplayUnchanged": true
+    },
+    {
+      "lane": "stellar",
+      "artifact": {
+        "wasmSha256": "5f0c867e8359224233a09ff22db77a33768df324d2035c64656556d9eba4c5d1",
+        "wasmBytes": 65346785
+      },
+      "applications": 38,
+      "creationSequence": 2,
+      "collectionHits": 2,
+      "originalRawTotal": 1966.0871939310314,
+      "replayDifference": 0,
+      "statusOwnerSequence": 1,
+      "statusOwnerHits": 6,
+      "statusOwnerTotal": 2403.863077651348,
+      "statusOwnerReplayDifference": 0,
+      "statusInstances": [
+        1
+      ],
+      "rainswordCreationUnknown": true,
+      "rainswordTriggerKnown": true,
+      "gameplayUnchanged": true
+    }
+  ],
+  "pageErrors": [],
+  "collectionRoundtrip": true,
+  "editedTotal": 2136.111260020432
+}

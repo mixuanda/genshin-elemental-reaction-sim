@@ -1,0 +1,25 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/player-health-controls.ts(115,27): error TS2322: Type '({ id: string; label: string; frameOffset: number; target: HealthChangeTarget; source: { kind: "custom"; note: string; }; operation: string; amount: { basis: "fixed" | "target-max-hp"; value: number; }; } | ({ ...; } & { ...; }) | ({ ...; } & { ...; }) | ({ ...; } & { ...; }))[]' is not assignable to type 'HealthChangeDefinition[]'.
+  Type '{ id: string; label: string; frameOffset: number; target: HealthChangeTarget; source: { kind: "custom"; note: string; }; operation: string; amount: { basis: "fixed" | "target-max-hp"; value: number; }; } | ({ ...; } & { ...; }) | ({ ...; } & { ...; }) | ({ ...; } & { ...; })' is not assignable to type 'HealthChangeDefinition'.
+    Type '{ id: string; label: string; frameOffset: number; target: HealthChangeTarget; source: { kind: "custom"; note: string; }; operation: string; amount: { basis: "fixed" | "target-max-hp"; value: number; }; }' is not assignable to type 'HealthChangeDefinition'.
+      Type '{ id: string; label: string; frameOffset: number; target: HealthChangeTarget; source: { kind: "custom"; note: string; }; operation: string; amount: { basis: "fixed" | "target-max-hp"; value: number; }; }' is not assignable to type '{ id: string; label: string; frameOffset: number; target: HealthChangeTarget; source: { kind: "custom"; note: string; } | { kind: "source"; refs: string[]; }; } & { operation: "bond-add" | "bond-remove"; amount: { ...; }; }'.
+        Type '{ id: string; label: string; frameOffset: number; target: HealthChangeTarget; source: { kind: "custom"; note: string; }; operation: string; amount: { basis: "fixed" | "target-max-hp"; value: number; }; }' is not assignable to type '{ operation: "bond-add" | "bond-remove"; amount: { basis: "fixed" | "target-max-hp"; value: number; }; }'.
+          Types of property 'operation' are incompatible.
+            Type 'string' is not assignable to type '"bond-add" | "bond-remove"'.
+packages/sim-core/src/random-checkpoint.ts(19,99): error TS2322: Type 'ParticleDefinition[] | FrameParticleDefinition[]' is not assignable to type 'ParticleDefinition | readonly ParticleDefinition[]'.
+  Type 'FrameParticleDefinition[]' is not assignable to type 'ParticleDefinition | readonly ParticleDefinition[]'.
+    Type 'FrameParticleDefinition[]' is not assignable to type 'readonly ParticleDefinition[]'.
+      Property 'travelTime' is missing in type 'FrameParticleDefinition' but required in type 'ParticleDefinition'.
+packages/sim-core/src/random-checkpoint.ts(20,53): error TS18046: 'particle' is of type 'unknown'.
+packages/sim-core/src/random-checkpoint.ts(21,41): error TS18046: 'particle' is of type 'unknown'.
+packages/sim-core/src/simulator.ts(9525,33): error TS2379: Argument of type '{ maxHp: number; hpBefore: number; hpAfter: number; baseAmount: number; bonusMultiplier: number; requestedAmount: number; actualChange: number; overheal: number; minimumHp: number; ... 13 more ...; periodicEntityLogId?: number; }' is not assignable to parameter of type 'PlayerHealthEvent' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'bondOfLife' are incompatible.
+    Type 'BondOfLifeEventAudit | undefined' is not assignable to type 'BondOfLifeEventAudit'.
+      Type 'undefined' is not assignable to type 'BondOfLifeEventAudit'.

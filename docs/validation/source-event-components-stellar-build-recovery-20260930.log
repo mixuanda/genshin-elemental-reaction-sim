@@ -1,0 +1,27 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs
+
+go: downloading google.golang.org/protobuf v1.34.2
+go: downloading github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794
+go: downloading github.com/tinylib/msgp v1.1.9
+go: downloading github.com/mailru/easyjson v0.7.7
+go: downloading github.com/josharian/intern v1.0.0
+go: downloading github.com/philhofer/fwd v1.1.2
+file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21
+  if (result.error || result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed: ${result.error ?? result.stderr ?? result.status}`);
+                                                 ^
+
+Error: /Users/evan/.local/share/mise/installs/node/24.15.0/bin/node /Users/evan/Documents/gidps/packages/source-host/stellar-overlay/generate-inventory.mjs --source-dir /tmp/gidps-source-host-cache/upstream/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/source --manifest /tmp/gidps-source-host-cache/stellar-build-Wj2jPi/dist/manifest.json --output /tmp/gidps-source-host-cache/stellar-build-Wj2jPi/dist/inventory-metadata.json failed: file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/generate-inventory.mjs:124
+if (extracted.error || extracted.status !== 0) throw new Error(`Action capability extraction failed: ${extracted.error ?? extracted.stderr}`);
+                                                     ^
+
+Error: Action capability extraction failed: Error: spawnSync /tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/bin/go EPIPE
+    at file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/generate-inventory.mjs:124:54
+
+Node.js v24.15.0
+
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21:50)
+    at file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:470:1
+
+Node.js v24.15.0

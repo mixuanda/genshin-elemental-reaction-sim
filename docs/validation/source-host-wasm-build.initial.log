@@ -1,0 +1,27 @@
+started_at=2026-09-25T05:39:05.556Z
+command=node packages/source-host/scripts/build-source-host.mjs
+Exporting verified source into /tmp/gidps-source-host-cache/build-ULbqFu/source
+go version go1.25.0 darwin/arm64; building ./cmd/sourcehost once
+go: downloading google.golang.org/protobuf v1.34.2
+go: downloading github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794
+go: downloading github.com/tinylib/msgp v1.1.9
+go: downloading github.com/mailru/easyjson v0.7.7
+go: downloading github.com/philhofer/fwd v1.1.2
+go: downloading github.com/josharian/intern v1.0.0
+{
+  "outputDir": "/Users/evan/Documents/gidps/packages/source-host/dist",
+  "publicDir": "/Users/evan/Documents/gidps/apps/web/public/source-host",
+  "workspace": "/tmp/gidps-source-host-cache/build-ULbqFu",
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "a43a9e8f57845505d9721ecea963c6eb3c8349bab67674b7d8f01b3ead3f7024",
+    "size": 41439681
+  },
+  "linkedDependencyCount": 6,
+  "missingDependencyLicenses": []
+}
+
+finished_at=2026-09-25T05:39:18.783Z
+elapsed_seconds=13.227
+exit_code=0
+signal=

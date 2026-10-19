@@ -1,0 +1,27 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/character-mappings/optimizer-normal-mappings.test.ts(30,12): error TS2532: Object is possibly 'undefined'.
+packages/game-data/src/character-mappings/optimizer-skill-mappings.test.ts(31,12): error TS2532: Object is possibly 'undefined'.
+packages/game-data/src/character-mappings/optimizer-skill-mappings.test.ts(33,12): error TS2532: Object is possibly 'undefined'.
+packages/game-data/src/character-mappings/optimizer-skill-mappings.test.ts(36,14): error TS2532: Object is possibly 'undefined'.
+packages/game-data/src/character-mappings/optimizer-skill-mappings.test.ts(68,12): error TS2532: Object is possibly 'undefined'.
+packages/game-data/src/character-mappings/optimizer-skill-mappings.test.ts(72,35): error TS2532: Object is possibly 'undefined'.
+packages/game-data/src/character-mappings/optimizer-skill-mappings.test.ts(77,14): error TS2532: Object is possibly 'undefined'.
+packages/sim-core/src/special-reaction-state.test.ts(81,43): error TS2345: Argument of type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; auraBefore?: SpecialAuraSnapshot; ordinaryReaction: undefined; }' is not assignable to parameter of type 'SpecialStateEvent'.
+  Type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; auraBefore?: SpecialAuraSnapshot; ordinaryReaction: undefined; }' is not assignable to type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; ordinaryReaction?: "bloom" | ... 3 more ... | "swirlCryo"; auraBefore?: SpecialAuraSnapshot; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'ordinaryReaction' are incompatible.
+      Type 'undefined' is not assignable to type '"bloom" | "crystallizeHydro" | "electroCharged" | "superconduct" | "swirlCryo"'.
+packages/sim-core/src/special-reaction-state.test.ts(86,43): error TS2345: Argument of type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; auraBefore?: SpecialAuraSnapshot; ordinaryReaction: undefined; }' is not assignable to parameter of type 'SpecialStateEvent'.
+  Type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; auraBefore?: SpecialAuraSnapshot; ordinaryReaction: undefined; }' is not assignable to type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; ordinaryReaction?: "bloom" | ... 3 more ... | "swirlCryo"; auraBefore?: SpecialAuraSnapshot; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'ordinaryReaction' are incompatible.
+      Type 'undefined' is not assignable to type '"bloom" | "crystallizeHydro" | "electroCharged" | "superconduct" | "swirlCryo"'.
+packages/sim-core/src/special-reaction-state.test.ts(88,43): error TS2345: Argument of type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; auraBefore?: SpecialAuraSnapshot; ordinaryReaction: undefined; }' is not assignable to parameter of type 'SpecialStateEvent'.
+  Type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; auraBefore?: SpecialAuraSnapshot; ordinaryReaction: undefined; }' is not assignable to type '{ kind: "application"; frame: number; sourceActorId: string; sourceEventId: string; attackId: string; targetId: string; element: SpecialElement; gaugeUnits: number; actualIcdAllowed: boolean; resolutionOrigin: "aura-engine"; ordinaryReaction?: "bloom" | ... 3 more ... | "swirlCryo"; auraBefore?: SpecialAuraSnapshot; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'ordinaryReaction' are incompatible.
+      Type 'undefined' is not assignable to type '"bloom" | "crystallizeHydro" | "electroCharged" | "superconduct" | "swirlCryo"'.

@@ -1,3 +1,6 @@
+import { renderSourceHostPanel, disposeSourceHostPanel, addSourceTeamRoster } from "./source-host-panel";
+import { renderEnemyShieldLedger } from "./enemy-shield-panel";
+import { renderWeaponHitStackLedger } from "./weapon-hit-stack-panel";
 import {
   createGraduationBuildPlaceholder,
   gameDataRuntimeIndex,
@@ -20,9 +23,29 @@ import {
   type DamageEvent,
   type GraduationBuildPlaceholder,
   type SimConfig,
+  type SimulationOptions,
+  type ResolvedSimulationRuntimeOptions,
   type SimulationResult
 } from "@genshin-dps-lab/schemas";
 import { simulate } from "@genshin-dps-lab/sim-core";
+import { runSimulationBatchInWorker } from "./worker-client";
+import { applyBenchmarkProfile, BENCHMARK_PROFILES } from "../../../packages/sim-core/src/benchmark-profiles";
+import { summarizeRotationExecution } from "../../../packages/sim-core/src/simulation-analysis";
+import type { CalculatorController } from "./calculator-ui";
+import { renderTeamPanel, renderRotationPanel, renderDataPanel, renderComparePanel } from "./workspace-panels";
+import { renderAnalysisPanel } from "./analysis-panel";
+import { renderActionStateLedger } from "./action-state-ledger";
+import { renderWeaponProcLedger } from "./weapon-proc-ledger";
+import { renderThrillingTalesLedger } from "./thrilling-tales-ledger";
+import { renderSacrificialLedger } from "./sacrificial-ledger";
+import { renderArtifactEventLedger } from "./artifact-event-ledger";
+import { renderPagedLog } from "./log-page-controls";
+import { renderArtifactDamageLedger } from "./artifact-damage-panel";
+import { renderArtifactBuffLedger } from "./artifact-buff-panel";
+import { renderPlayerShieldLedger } from "./player-shield-panel";
+import type { ExecutionProfile } from "../../../packages/sim-core/src/execution-profiles";
+import { restoreSimulationInputs, type SimulationRecord } from "./simulation-record";
+import type { LunarSimulationPanelController } from "./lunar-simulation-panel";
 
 const ELEMENT_LABELS: Record<string, string> = {
   pyro: "火",
@@ -234,6 +257,12 @@ const availablePresets = [
 
 let currentConfig: SimConfig = migrateConfig(availablePresets[0]);
 let lastResult: SimulationResult | null = null;
+let executionProfile: ExecutionProfile | null = null;
+let benchmarkRecord: SimulationRecord["benchmark"] = null;
+let lastSimulationRecord: SimulationRecord | null = null;
+let restoredRunOptions: ResolvedSimulationRuntimeOptions | null = null;
+let lunarPanel: LunarSimulationPanelController | null = null;
+let lunarMountGeneration = 0;
 let currentPage = 1;
 let selectedHitId: number | null = null;
 let timelineSecondFilter: number | null = null;
@@ -250,6 +279,7 @@ function populatePresetSelect(): void {
 }
 
 function syncControlsFromConfig(): void {
+  byId<HTMLInputElement>("randomSeedInput").value = currentConfig.randomSeed;
   byId<HTMLInputElement>("durationInput").value = String(
     currentConfig.duration
   );
@@ -283,9 +313,7 @@ function syncControlsFromConfig(): void {
     scalarConsumerNames.length === 0;
   const usesSharedElementalResistanceTable =
     currentConfig.enemy.resistances !== undefined;
-  resistanceInput.value = String(
-    round(currentConfig.enemy.resistance * 100, 2)
-  );
+  resistanceInput.value = String(currentConfig.enemy.resistance * 100);
   resistanceInput.disabled = scalarResistanceIsUnused;
   resistanceInput.title = usesSharedElementalResistanceTable
     ? "逐元素抗性由 enemy.resistances JSON 配置控制"
@@ -311,6 +339,7 @@ function syncControlsFromConfig(): void {
 }
 
 function syncConfigFromControls(): void {
+  currentConfig.randomSeed = byId<HTMLInputElement>("randomSeedInput").value;
   currentConfig.duration = clamp(
     numericInput("durationInput", 120),
     1,
@@ -326,40 +355,101 @@ function syncConfigFromControls(): void {
     1,
     200
   );
-  if (!byId<HTMLInputElement>("resInput").disabled) {
+  const resistanceInput = byId<HTMLInputElement>("resInput");
+  // An unchanged display must not overwrite the exact imported input.
+  if (!resistanceInput.disabled && resistanceInput.value !== String(currentConfig.enemy.resistance * 100)) {
     currentConfig.enemy.resistance = numericInput("resInput", 10) / 100;
   }
 }
 
-function runSimulation(): void {
+let pendingSimulation: AbortController | null = null;
+
+function currentRuntimeOptions(): SimulationOptions {
+  const criticalSelection = byId<HTMLSelectElement>("critModeInput").value;
+  const cycleFrames = Math.max(1, Math.round(currentConfig.cycleLength * 60));
+  const durationFrames = Math.round(currentConfig.duration * 60);
+  return {
+    randomSeed: byId<HTMLInputElement>("randomSeedInput").value,
+    energyMode: byId<HTMLSelectElement>("energyModeInput").value as "configured" | "zero" | "full",
+    critMode: (criticalSelection === "seeded-random-v1" ? "average" : criticalSelection) as "average" | "allCrit" | "noCrit",
+    compatibilityMode: currentConfig.timeline ? "legal-frame-v1" : "legacy-v0.1",
+    execution: {
+      captureHits: true,
+      detailedTraces: byId<HTMLInputElement>("detailedTraceInput").checked,
+      ...(criticalSelection === "seeded-random-v1" ? { criticalSampling: "seeded-random-v1" as const } : {}),
+      ...(byId<HTMLInputElement>("checkpointInput").checked ? { checkpointFrames: Array.from({ length: Math.floor(durationFrames / cycleFrames) + 1 }, (_, i) => i * cycleFrames) } : {})
+    },
+    ...(restoredRunOptions ?? {})
+  };
+}
+
+async function mountLunarPanel(): Promise<void> {
+  if (!["/", "/results"].includes(location.pathname)) return;
+  if (lunarPanel) { lunarPanel.resume(); return; }
+  const generation = ++lunarMountGeneration;
+  const { renderLunarSimulationPanel } = await import("./lunar-simulation-panel");
+  if (generation !== lunarMountGeneration || !["/", "/results"].includes(location.pathname)) return;
+  lunarPanel = renderLunarSimulationPanel(byId<HTMLElement>("lunarSimulationHost"), {
+    getConfig: () => {
+      syncConfigFromControls();
+      return migrateConfig(currentConfig);
+    },
+    getRuntimeOptions: currentRuntimeOptions,
+    getExecutionProfile: () => executionProfile,
+    openCalculatorDocument: async (document) => {
+      const controller = await ensureCalculator();
+      controller.loadDocument(document);
+      navigateProduct("/calculator");
+    },
+    openCalculatorCapture: async (capture) => {
+      const controller = await ensureCalculator();
+      controller.loadSimulationCapture(capture);
+      navigateProduct("/calculator");
+    }
+  });
+}
+
+async function runSimulation(): Promise<void> {
+  pendingSimulation?.abort();
+  const controller = new AbortController();
+  pendingSimulation = controller;
+  byId<HTMLButtonElement>("cancelRunButton").hidden = false;
+  byId<HTMLElement>("simulationProgress").textContent = "正在计算…";
   try {
     syncConfigFromControls();
     currentConfig = migrateConfig(currentConfig);
-    lastResult = simulate(currentConfig, {
-      energyMode: byId<HTMLSelectElement>("energyModeInput").value as
-        | "configured"
-        | "zero"
-        | "full",
-      critMode: byId<HTMLSelectElement>("critModeInput").value as
-        | "average"
-        | "allCrit"
-        | "noCrit",
-      compatibilityMode: currentConfig.timeline
-        ? "legal-frame-v1"
-        : "legacy-v0.1"
-    });
+    // Commit editor state before dispatch. A completed worker must not erase
+    // edits or validation errors produced while it was running.
+    byId<HTMLTextAreaElement>("jsonEditor").value = JSON.stringify(currentConfig, null, 2);
+    byId<HTMLElement>("jsonError").hidden = true;
+    const iterations = Number(byId<HTMLInputElement>("iterationInput").value);
+    const sourceConfig = deepClone(currentConfig);
+    const runExecutionProfile = executionProfile ? deepClone(executionProfile) : null;
+    const runBenchmark = benchmarkRecord ? deepClone(benchmarkRecord) : null;
+    const runOptions = currentRuntimeOptions();
+    const { result, summary, appliedProfile } = await runSimulationBatchInWorker(sourceConfig, runOptions, iterations, { ...(runExecutionProfile ? { executionProfile: runExecutionProfile } : {}), signal: controller.signal, onProgress: ({ completed, total }) => {
+      if (pendingSimulation === controller) byId<HTMLElement>("simulationProgress").textContent = `已完成 ${completed} / ${total}`;
+    }});
+    if (pendingSimulation !== controller) return;
+    lastResult = result;
+    lastSimulationRecord = { format: "simulation-record-v1", sourceConfig, options: { ...result.resolvedRuntimeOptions, randomSeed: summary.seed }, iterations, executionProfile: runExecutionProfile, benchmark: runBenchmark, result, batchSummary: summary, rotationSummary: summarizeRotationExecution(result),
+      ...(appliedProfile?.baselineRuntimeOptions ? { executionBaseline: { policy: "fixed-reference-v1" as const, options: appliedProfile.baselineRuntimeOptions, changes: appliedProfile.changes, baselineExecutableTicks: appliedProfile.baselineExecutableTicks } } : {}) };
+    byId<HTMLButtonElement>("exportRunButton").disabled = false;
+    const batch = byId<HTMLElement>("batchSummary");
+    batch.hidden = iterations <= 1;
+    batch.textContent = `已完成 ${summary.iterations} 次；种子 ${summary.seed}；${summary.criticalPolicy === "seeded-random-v1" ? "逐击随机暴击；暴击使用独立随机流" : `暴击采用 ${summary.criticalPolicy} 规则`}。随机政策 ${summary.rngPolicy}。均值总伤 ${formatNumber(summary.meanDamage, 3)}；样本分布 P05/P50/P95：${formatNumber(summary.spreadPercentiles.p05, 3)} / ${formatNumber(summary.spreadPercentiles.p50, 3)} / ${formatNumber(summary.spreadPercentiles.p95, 3)}。均值95%置信区间${summary.meanConfidenceInterval ? ` [${formatNumber(summary.meanConfidenceInterval.low, 3)}, ${formatNumber(summary.meanConfidenceInterval.high, 3)}]（正态近似）` : "未估计"}。下方逐击为第一轮，非平均后的虚构轨迹。${appliedProfile?.baselineRuntimeOptions ? `执行请求表固定由参考种子 ${appliedProfile.baselineRuntimeOptions.randomSeed} 生成，不随各轮随机结果改写。` : ""}${summary.warnings.join("；")}`;
     currentPage = 1;
     selectedHitId = null;
     timelineSecondFilter = null;
-    byId<HTMLTextAreaElement>("jsonEditor").value = JSON.stringify(
-      currentConfig,
-      null,
-      2
-    );
-    byId<HTMLElement>("jsonError").hidden = true;
     renderAll();
   } catch (error) {
-    showConfigError(error);
+    if (!controller.signal.aborted) showConfigError(error);
+  } finally {
+    if (pendingSimulation === controller) {
+      pendingSimulation = null;
+      byId<HTMLButtonElement>("cancelRunButton").hidden = true;
+      byId<HTMLElement>("simulationProgress").textContent = controller.signal.aborted ? "已取消" : "";
+    }
   }
 }
 
@@ -369,6 +459,8 @@ function renderAll(): void {
   renderCharacterBreakdown();
   renderSkillTable();
   renderEnergy();
+  renderAnalysisPanel(byId<HTMLElement>("simulationAnalysis"), lastResult);
+  void mountLunarPanel();
   renderLegalTimeline();
   renderHitFilters();
   renderHitTable();
@@ -842,6 +934,8 @@ function renderHitTable(): void {
 
 function renderHitDetail(): void {
   const detail = byId<HTMLElement>("hitDetail");
+  byId<HTMLButtonElement>("openHitCalculator").disabled = true;
+  byId<HTMLElement>("sharedHitTrace").textContent = "";
   if (!lastResult || selectedHitId === null) {
     detail.className = "formula-detail empty";
     detail.textContent = "尚未选择伤害事件。";
@@ -851,6 +945,7 @@ function renderHitDetail(): void {
     (candidate) => candidate.id === selectedHitId
   );
   if (!hit) return;
+  void renderSharedHitTrace(lastResult, hit.id);
   const targetResolution = lastResult.hitResolutionLog.find(
     (entry) => entry.id === hit.targetResolutionId
   );
@@ -1419,6 +1514,21 @@ function renderHitDetail(): void {
     .join("");
 }
 
+async function renderSharedHitTrace(result: SimulationResult, hitId: number): Promise<void> {
+  const host = byId<HTMLElement>("sharedHitTrace");
+  try {
+    const [{ captureSimulationHit, replaySimulationHit }, { renderTraceHtml }] = await Promise.all([
+      import("../../../packages/sim-core/src/calculator-bridge"), import("./calculator-ui")
+    ]);
+    if (selectedHitId !== hitId || lastResult !== result) return;
+    const replay = replaySimulationHit(captureSimulationHit(result, hitId));
+    host.innerHTML = `<h3>共享计算执行轨迹</h3><p>原事件 ${formatNumber(replay.originalDamage, 6)} · 还原 ${formatNumber(replay.reproducedDamage, 6)} · 差值 ${replay.difference}</p>${renderTraceHtml(replay.trace)}`;
+    byId<HTMLButtonElement>("openHitCalculator").disabled = false;
+  } catch (error) {
+    if (selectedHitId === hitId && lastResult === result) host.textContent = `完整还原已阻塞：${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
 function renderTimeline(): void {
   if (!lastResult) return;
   const canvas = byId<HTMLCanvasElement>("timelineCanvas");
@@ -1910,6 +2020,86 @@ function renderEnergyAudit(): void {
   if (!lastResult) return;
   const card = byId<HTMLElement>("energyAuditCard");
   const result = lastResult;
+  let actionStateHost = document.getElementById("actionStateAudit");
+  if (!actionStateHost) {
+    actionStateHost = document.createElement("article");
+    actionStateHost.id = "actionStateAudit";
+    actionStateHost.className = "card";
+    card.after(actionStateHost);
+  }
+  renderActionStateLedger(actionStateHost, result);
+  let weaponProcHost = document.getElementById("weaponProcAudit");
+  if (!weaponProcHost) {
+    weaponProcHost = document.createElement("article");
+    weaponProcHost.id = "weaponProcAudit";
+    weaponProcHost.className = "card";
+    actionStateHost.after(weaponProcHost);
+  }
+  renderWeaponProcLedger(weaponProcHost, result);
+  let thrillingTalesHost = document.getElementById("thrillingTalesAudit");
+  if (!thrillingTalesHost) {
+    thrillingTalesHost = document.createElement("article");
+    thrillingTalesHost.id = "thrillingTalesAudit";
+    thrillingTalesHost.className = "card";
+    weaponProcHost.after(thrillingTalesHost);
+  }
+  renderThrillingTalesLedger(thrillingTalesHost, result);
+  let sacrificialHost = document.getElementById("sacrificialAudit");
+  if (!sacrificialHost) {
+    sacrificialHost = document.createElement("article");
+    sacrificialHost.id = "sacrificialAudit";
+    sacrificialHost.className = "card";
+    thrillingTalesHost.after(sacrificialHost);
+  }
+  renderSacrificialLedger(sacrificialHost, result);
+  let artifactEventHost = document.getElementById("artifactEventAudit");
+  if (!artifactEventHost) {
+    artifactEventHost = document.createElement("article");
+    artifactEventHost.id = "artifactEventAudit";
+    artifactEventHost.className = "card";
+    sacrificialHost.after(artifactEventHost);
+  }
+  renderArtifactEventLedger(artifactEventHost, result);
+  let artifactDamageHost = document.getElementById("artifactDamageAudit");
+  if (!artifactDamageHost) {
+    artifactDamageHost = document.createElement("article");
+    artifactDamageHost.id = "artifactDamageAudit";
+    artifactDamageHost.className = "card";
+    artifactEventHost.after(artifactDamageHost);
+  }
+  renderArtifactDamageLedger(artifactDamageHost, result);
+  let playerShieldHost = document.getElementById("playerShieldAudit");
+  if (!playerShieldHost) {
+    playerShieldHost = document.createElement("article");
+    playerShieldHost.id = "playerShieldAudit";
+    playerShieldHost.className = "card";
+    artifactDamageHost.after(playerShieldHost);
+  }
+  renderPlayerShieldLedger(playerShieldHost, result);
+  let artifactBuffHost = document.getElementById("artifactBuffAudit");
+  if (!artifactBuffHost) {
+    artifactBuffHost = document.createElement("article");
+    artifactBuffHost.id = "artifactBuffAudit";
+    artifactBuffHost.className = "card";
+    playerShieldHost.after(artifactBuffHost);
+  }
+  renderArtifactBuffLedger(artifactBuffHost, result);
+  let weaponHitStackHost = document.getElementById("weaponHitStackAudit");
+  if (!weaponHitStackHost) {
+    weaponHitStackHost = document.createElement("article");
+    weaponHitStackHost.id = "weaponHitStackAudit";
+    weaponHitStackHost.className = "card";
+    artifactBuffHost.after(weaponHitStackHost);
+  }
+  renderWeaponHitStackLedger(weaponHitStackHost, result);
+  let enemyShieldHost = document.getElementById("enemyShieldAudit");
+  if (!enemyShieldHost) {
+    enemyShieldHost = document.createElement("article");
+    enemyShieldHost.id = "enemyShieldAudit";
+    enemyShieldHost.className = "card";
+    weaponHitStackHost.after(enemyShieldHost);
+  }
+  renderEnemyShieldLedger(enemyShieldHost, result);
   const hasEvents =
     result.energyLog.length > 0 ||
     result.particleEvents.length > 0 ||
@@ -2058,9 +2248,29 @@ function renderEnergyAudit(): void {
       .join("") +
     `<span class="muted">虚线为生成帧，实线竖标为接收帧；曲线只读取核心能量快照。</span>`;
 
-  byId<HTMLElement>("particleEventSummary").innerHTML =
-    result.particleTriggerLog
-      .map((entry) => {
+  const particleEvents = [
+    ...result.particleTriggerLog.map(entry => ({ kind: "trigger" as const, entry })),
+    ...result.particleEvents.map(entry => ({ kind: "particle" as const, entry }))
+  ];
+  const particleStatusLabels: Record<string, string> = {
+    triggered: "命中确认产球", INTERNAL_COOLDOWN: "粒子 ICD 阻止", TARGET_MISS: "目标 Miss",
+    TARGET_HIT_CONFIRM_BLOCKED: "目标策略阻止回调", PROBABILITY_FAILED: "未通过产球概率",
+    received: "已在模拟内接收", pending: "模拟结束后到达"
+  };
+  const particleStatus = (row: typeof particleEvents[number]): string => row.kind === "trigger"
+    ? row.entry.blockedReason ?? "triggered" : row.entry.receivedWithinSimulation ? "received" : "pending";
+  renderPagedLog({
+    body: byId<HTMLElement>("particleEventSummary"), entries: particleEvents,
+    label: "产球检查与粒子事件", searchPlaceholder: "来源、角色、命中标识或帧",
+    searchText: row => `${row.entry.source} ${row.entry.sourceActorId} ${characters.get(row.entry.sourceActorId)?.name ?? ""} ${row.kind === "trigger" ? `${row.entry.hitId} ${row.entry.frame}` : `${row.entry.triggerHitId ?? ""} ${row.entry.spawnFrame} ${row.entry.receiveFrame}`}`,
+    filters: [
+      { label: "记录类型", options: [{ value: "trigger", label: "命中产球检查" }, { value: "particle", label: "实际生成粒子" }], value: row => row.kind },
+      { label: "实际状态", options: Object.entries(particleStatusLabels).map(([value, label]) => ({ value, label })), value: particleStatus }
+    ],
+    emptyHtml: '<p>没有符合筛选条件的产球检查或粒子事件。</p>',
+    renderRow: row => {
+      if (row.kind === "trigger") {
+        const entry = row.entry;
         const status =
           entry.blockedReason === "INTERNAL_COOLDOWN"
             ? `<span class="badge warn">粒子 ICD 阻止</span>`
@@ -2068,6 +2278,8 @@ function renderEnergyAudit(): void {
               ? `<span class="badge warn">目标 Miss</span>`
               : entry.blockedReason === "TARGET_HIT_CONFIRM_BLOCKED"
                 ? `<span class="badge warn">目标策略阻止回调</span>`
+              : entry.blockedReason === "PROBABILITY_FAILED"
+                ? `<span class="badge warn">未通过产球概率</span>`
               : `<span class="badge good">命中确认产球</span>`;
         const cooldown =
           entry.internalCooldownKey === null
@@ -2082,27 +2294,36 @@ function renderEnergyAudit(): void {
                       : `既有 ICD 至 ${entry.internalCooldownReadyFrame}f`
                   }`
                 : ` · ${escapeHtml(entry.internalCooldownKey)} · 至 ${entry.internalCooldownReadyFrame ?? "—"}f`;
+        const chance = entry.probability === undefined ? "" : ` · 产球概率 ${formatNumber(entry.probability * 100, 2)}%` +
+          (entry.roll === null || entry.roll === undefined ? " · 本次未抽样" : ` · 独立随机流第 ${entry.drawIndex} 次：${entry.roll} < ${entry.probability} ${entry.roll < entry.probability ? "成立" : "不成立"}`);
         return (
-          `<span class="particle-event"><strong>${escapeHtml(entry.source)}</strong> · ` +
-          `${escapeHtml(entry.hitId)} · ${entry.frame}f · ${status}${cooldown}` +
+          `<span class="particle-event" data-particle-trigger-outcome="${entry.blockedReason ?? "triggered"}" data-particle-trigger-frame="${entry.frame}"><strong>${escapeHtml(entry.source)}</strong> · ` +
+          `${escapeHtml(entry.hitId)} · ${entry.frame}f · ${status}${cooldown}${chance}` +
           `${entry.checkedTargetIds.length > 1 ? ` · 检查 ${entry.checkedTargetIds.length} 目标 / 确认 ${entry.confirmedTargetIds.length}` : ""}</span>`
         );
-      })
-      .join("") +
-    result.particleEvents
-      .map(
-        (event) =>
+      }
+      const event = row.entry;
+      return (
           `<span class="particle-event"><strong>${escapeHtml(event.source)}</strong> · ` +
           `${escapeHtml(ELEMENT_LABELS[event.particleElement] ?? event.particleElement)}${event.particleKind === "orb" ? "晶球" : "微粒"} × ${formatNumber(event.particleCount, 2)} · ` +
           `${event.spawnFrame}f → ${event.receiveFrame}f` +
           `${event.triggerHitId ? ` · 由 ${escapeHtml(event.triggerHitId)} 命中触发` : ""}` +
           `${event.receivedWithinSimulation ? "" : " · 模拟结束后到达"}</span>`
-      )
-      .join("");
+      );
+    }
+  });
 
-  byId<HTMLTableSectionElement>("energyLogBody").innerHTML =
-    result.energyLog
-      .map((entry) => {
+  renderPagedLog({
+    body: byId<HTMLTableSectionElement>("energyLogBody"), entries: result.energyLog,
+    label: "角色能量入账", searchPlaceholder: "来源、角色、动作标识或帧",
+    searchText: entry => `${entry.source} ${entry.sourceActorId} ${entry.sourceActionId} ${entry.receiverId} ${characters.get(entry.receiverId)?.name ?? ""} ${entry.frame} ${entry.id}`,
+    filters: [
+      { label: "接收者", options: result.config.characters.map(actor => ({ value: actor.id, label: actor.name })), value: entry => entry.receiverId },
+      { label: "回能类型", options: [{ value: "particle", label: "粒子结算" }, { value: "fixed", label: "固定回能" }], value: entry => entry.kind },
+      { label: "执行结果", options: [{ value: "applied", label: "实际结算" }, { value: "blocked", label: "被阻止" }], value: entry => entry.applied ? "applied" : "blocked" }
+    ],
+    emptyHtml: '<tr><td colspan="11">没有符合筛选条件的能量入账记录。</td></tr>',
+    renderRow: entry => {
         const receiver = characters.get(entry.receiverId);
         const particle =
           entry.kind === "particle"
@@ -2129,8 +2350,8 @@ function renderEnergyAudit(): void {
           `<td>${formatNumber(entry.gainedEnergy, 3)} / ${formatNumber(entry.wastedEnergy, 3)}</td>` +
           `<td>${formatNumber(entry.energyBefore, 3)} → ${formatNumber(entry.energyAfter, 3)}</td></tr>`
         );
-      })
-      .join("");
+    }
+  });
 }
 
 function renderCrystallizeAudit(): void {
@@ -2355,9 +2576,18 @@ function renderAuraTimeline(): void {
     reactionDamageLog.length === 0
       ? "当前结果没有独立转化反应伤害"
       : `${reactionDamageLog.length} 次转化反应触发/扩散攻击 · ${reactionDamageLog.filter((entry) => entry.scheduled).length} 次通过队列 GCD · ${reactionDamageLog.reduce((total, entry) => total + entry.damageEventIds.length, 0)} 段逐目标伤害事件`;
-  byId<HTMLTableSectionElement>("reactionDamageBody").innerHTML =
-    reactionDamageLog
-      .map((entry) => {
+  const reactionBody = byId<HTMLTableSectionElement>("reactionDamageBody");
+  renderPagedLog({
+    body: reactionBody, entries: reactionDamageLog,
+    label: "独立转化反应伤害队列", searchPlaceholder: "反应、目标、伤害标识或帧",
+    searchText: entry => `${REACTION_LABELS[entry.reaction] ?? entry.reaction} ${entry.reaction} ${entry.sourceTargetId} ${lastResult?.enemyTargets.find(target => target.id === entry.sourceTargetId)?.name ?? ""} ${entry.triggerFrame} ${entry.damageFrame} ${entry.damageEventIds.join(" ")}`,
+    filters: [
+      { label: "反应", options: [...new Set(reactionDamageLog.map(entry => entry.reaction))].map(value => ({ value, label: REACTION_LABELS[value] ?? value })), value: entry => entry.reaction },
+      { label: "触发目标", options: lastResult.enemyTargets.map(target => ({ value: target.id, label: target.name })), value: entry => entry.sourceTargetId },
+      { label: "调度结果", options: [{ value: "delivered", label: "模拟内已调度" }, { value: "blocked", label: "GCD 阻止" }, { value: "outside", label: "模拟结束后" }], value: entry => !entry.scheduled ? "blocked" : entry.withinSimulation ? "delivered" : "outside" }
+    ],
+    emptyHtml: '<tr><td colspan="7">没有符合筛选条件的独立转化反应记录。</td></tr>',
+    renderRow: entry => {
         const sourceTarget = lastResult?.enemyTargets.find(
           (target) => target.id === entry.sourceTargetId
         );
@@ -2391,11 +2621,23 @@ function renderAuraTimeline(): void {
           `<td>${scheduleDetail}</td>` +
           `<td>${targetMode}</td>` +
           `<td>${entry.checkedTargetIds.length} / ${entry.hitTargetIds.length} / ${entry.unresolvedTargetIds.length}${entry.unresolvedTargetIds.length ? ` <span class="muted">(${entry.unresolvedTargetIds.map(escapeHtml).join(", ")})</span>` : ""}${entry.damageGroupBlockedTargetIds.length ? ` <span class="muted">/ ReactionA 阻止 ${entry.damageGroupBlockedTargetIds.map(escapeHtml).join(", ")}</span>` : ""}</td>` +
-          `<td>${entry.damageEventIds.length ? entry.damageEventIds.map((id) => `#${id}`).join(", ") : "—"}</td></tr>`
+          `<td>${entry.damageEventIds.length ? entry.damageEventIds.map((id) => `<button type="button" data-reaction-damage-id="${id}" aria-label="查看伤害事件 ${id} 的详情">#${id}</button>`).join(" ") : "—"}</td></tr>`
         );
-      })
-      .join("") ||
-    `<tr><td colspan="7">没有独立转化反应伤害。</td></tr>`;
+    }
+  });
+  reactionBody.onclick = event => {
+    const trigger = (event.target as HTMLElement).closest<HTMLElement>("[data-reaction-damage-id]");
+    if (!trigger) return;
+    selectedHitId = Number(trigger.dataset.reactionDamageId);
+    timelineSecondFilter = null;
+    currentPage = 1;
+    activateTab("hits");
+    renderHitTable();
+    renderHitDetail();
+    const detail = byId<HTMLElement>("hitDetail");
+    detail.tabIndex = -1;
+    detail.focus();
+  };
   const operationLabels: Record<string, string> = {
     start: "启动",
     refresh: "刷新",
@@ -2529,10 +2771,11 @@ function renderAuraTimeline(): void {
     stop: "停止",
     "fuel-expire": "Fuel 到期"
   };
+  const playerSelfDamageEnabled = lastResult.config.playerDamageModel.mode === "reaction-self-v1";
   byId<HTMLElement>("burningStateSummary").textContent =
     burningStateLog.length === 0
       ? "当前结果没有燃烧状态"
-      : `${burningStateLog.length} 条燃烧状态记录 · ${burningStateLog.filter((entry) => entry.operation === "start").length} 次启动 · ${burningStateLog.filter((entry) => entry.operation === "refresh-fuel" || entry.operation === "refresh-snapshot").length} 次刷新 · ${burningStateLog.filter((entry) => entry.operation === "tick").length} 次伤害 Tick · ${burningStateLog.filter((entry) => entry.operation === "tick-skipped").length} 次第 9 Tick 跳过 · 目标局部时钟（未实现敌方 Hitlag 暂停） · 玩家自伤未模拟（玩家受击模型缺失）`;
+      : `${burningStateLog.length} 条燃烧状态记录 · ${burningStateLog.filter((entry) => entry.operation === "start").length} 次启动 · ${burningStateLog.filter((entry) => entry.operation === "refresh-fuel" || entry.operation === "refresh-snapshot").length} 次刷新 · ${burningStateLog.filter((entry) => entry.operation === "tick").length} 次伤害 Tick · ${burningStateLog.filter((entry) => entry.operation === "tick-skipped").length} 次第 9 Tick 跳过 · 目标局部时钟（未实现敌方 Hitlag 暂停） · ${playerSelfDamageEnabled ? "反应自伤已启用，实际生命见生命记录" : "反应自伤未启用"}`;
   byId<HTMLTableSectionElement>("burningStateBody").innerHTML =
     burningStateLog
       .map((entry) => {
@@ -2600,7 +2843,7 @@ function renderAuraTimeline(): void {
           `<td>${formatNumber(entry.burningGaugeUnitsBefore, 6)}U → ${formatNumber(entry.burningGaugeUnitsAfter, 6)}U</td>` +
           `<td>${formatNumber(entry.fuelGaugeUnitsBefore, 6)}U → ${formatNumber(entry.fuelGaugeUnitsAfter, 6)}U <span class="muted">/ ${formatNumber(entry.fuelDecayPerFrame, 8)}U/f / ${entry.fuelExpiresAtFrame === null ? "—" : `${entry.fuelExpiresAtFrame}f`}</span></td>` +
           `<td>${escapeHtml(tick)} <span class="muted">/ ${entry.icdTag} · ${entry.icdResetFrames}f · ${entry.icdHitIndex === null ? "—" : `hit ${entry.icdHitIndex + 1}`} · ${escapeHtml(application)} · ${escapeHtml(damage)}</span></td>` +
-          `<td>${links === "" ? "—" : escapeHtml(links)}${entry.reason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.reason)}</span>`}<br><span class="muted">${escapeHtml(entry.selfDamageStatus)}：玩家自伤未模拟（玩家受击模型缺失）；${escapeHtml(entry.clockModel)} / ${escapeHtml(entry.hitlagStatus)}：目标局部时钟未含敌方 Hitlag 暂停</span></td></tr>`
+          `<td>${links === "" ? "—" : escapeHtml(links)}${entry.reason === null ? "" : ` <span class="muted">/ ${escapeHtml(entry.reason)}</span>`}<br><span class="muted">${escapeHtml(entry.selfDamageStatus)}：${playerSelfDamageEnabled ? "反应自伤按实际受击记录结算" : "反应自伤未启用"}；${escapeHtml(entry.clockModel)} / ${escapeHtml(entry.hitlagStatus)}：目标局部时钟未含敌方 Hitlag 暂停</span></td></tr>`
         );
       })
       .join("") ||
@@ -2624,20 +2867,6 @@ function renderAuraTimeline(): void {
       )
       .join("") ||
     `<tr><td colspan="6">没有目标级反应状态。</td></tr>`;
-  document
-    .querySelectorAll<HTMLTableRowElement>(
-      "#reactionDamageBody tr[data-reaction-damage-id]"
-    )
-    .forEach((row) => {
-      row.addEventListener("click", () => {
-        selectedHitId = Number(row.dataset.reactionDamageId);
-        timelineSecondFilter = null;
-        currentPage = 1;
-        activateTab("hits");
-        renderHitTable();
-        renderHitDetail();
-      });
-    });
   document
     .querySelectorAll<HTMLTableRowElement>(
       "#periodicReactionBody tr[data-periodic-hit-id]"
@@ -3139,10 +3368,14 @@ function showConfigError(error: unknown): void {
 }
 
 function applyEditorJson(): void {
+  pendingSimulation?.abort();
   try {
     currentConfig = migrateConfig(
       JSON.parse(byId<HTMLTextAreaElement>("jsonEditor").value) as unknown
     );
+    executionProfile = null;
+    benchmarkRecord = null;
+    restoredRunOptions = null;
     byId<HTMLElement>("jsonError").hidden = true;
     syncControlsFromConfig();
     runSimulation();
@@ -3152,6 +3385,38 @@ function applyEditorJson(): void {
 }
 
 function initEvents(): void {
+  document.querySelectorAll<HTMLInputElement | HTMLSelectElement>(".control-grid input, .control-grid select").forEach((control) => control.addEventListener("change", () => { restoredRunOptions = null; }));
+  byId<HTMLTextAreaElement>("jsonEditor").addEventListener("input", () => pendingSimulation?.abort());
+  byId<HTMLSelectElement>("benchmarkSelect").addEventListener("change", () => {
+    const profile=BENCHMARK_PROFILES.find((p) => p.id === byId<HTMLSelectElement>("benchmarkSelect").value);
+    const notice=byId<HTMLElement>("benchmarkAssumptions");
+    notice.hidden=!profile;
+    if (!profile) { benchmarkRecord = null; return; }
+    try {
+      const benchmark=applyBenchmarkProfile(currentConfig,profile);
+      currentConfig=migrateConfig(benchmark.config);
+      syncControlsFromConfig();
+      byId<HTMLSelectElement>("energyModeInput").value=benchmark.options.energyMode ?? "configured";
+      byId<HTMLSelectElement>("critModeInput").value=benchmark.options.critMode ?? "average";
+      notice.textContent=`${profile.label} · ${profile.id}@${profile.version}。${benchmark.assumptions.join(" ")}`;
+      benchmarkRecord = { id: profile.id, version: profile.version, assumptions: benchmark.assumptions };
+    } catch(error) { notice.textContent=String(error); }
+  });
+  byId<HTMLButtonElement>("openHitCalculator").addEventListener("click", async () => {
+    if (!lastResult || selectedHitId === null) return;
+    try {
+      const { captureSimulationHit } = await import("../../../packages/sim-core/src/calculator-bridge");
+      const capture = captureSimulationHit(lastResult, selectedHitId);
+      const controller = await ensureCalculator();
+      controller.loadSimulationCapture(capture);
+      navigateProduct("/calculator");
+    } catch (error) { byId<HTMLElement>("sharedHitTrace").textContent = String(error); }
+  });
+  byId<HTMLButtonElement>("cancelRunButton").addEventListener("click", () => pendingSimulation?.abort());
+  byId<HTMLSelectElement>("durationPreset").addEventListener("change", (event) => {
+    const value = (event.currentTarget as HTMLSelectElement).value;
+    if (value) byId<HTMLInputElement>("durationInput").value = value;
+  });
   byId<HTMLSelectElement>("presetSelect").addEventListener(
     "change",
     (event) => {
@@ -3159,6 +3424,9 @@ function initEvents(): void {
       const preset = availablePresets[selected];
       if (!preset) return;
       currentConfig = migrateConfig(deepClone(preset));
+      executionProfile = null;
+      benchmarkRecord = null;
+      restoredRunOptions = null;
       syncControlsFromConfig();
       runSimulation();
     }
@@ -3171,17 +3439,41 @@ function initEvents(): void {
     "click",
     downloadJson
   );
+  byId<HTMLButtonElement>("exportRunButton").addEventListener("click", () => {
+    if (!lastSimulationRecord) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(lastSimulationRecord, null, 2)], { type: "application/json" }));
+    const link = document.createElement("a"); link.href = url; link.download = "simulation-record.json"; link.click(); URL.revokeObjectURL(url);
+  });
   byId<HTMLInputElement>("importInput").addEventListener(
     "change",
     async (event) => {
       const input = event.currentTarget as HTMLInputElement;
       const file = input.files?.[0];
       if (!file) return;
+      pendingSimulation?.abort();
       try {
-        currentConfig = migrateConfig(
-          JSON.parse(await file.text()) as unknown
-        );
-        syncControlsFromConfig();
+        const raw = JSON.parse(await file.text()) as unknown;
+        if (raw && typeof raw === "object" && "format" in raw && raw.format === "simulation-record-v1") {
+          const restored = restoreSimulationInputs(raw);
+          currentConfig = restored.sourceConfig;
+          executionProfile = restored.executionProfile;
+          benchmarkRecord = restored.benchmark;
+          restoredRunOptions = restored.options;
+          syncControlsFromConfig();
+          byId<HTMLInputElement>("iterationInput").value = String(restored.iterations);
+          byId<HTMLInputElement>("randomSeedInput").value = restored.options.randomSeed;
+          byId<HTMLSelectElement>("energyModeInput").value = restored.options.energyMode;
+          byId<HTMLSelectElement>("critModeInput").value = restored.options.execution?.criticalSampling ?? restored.options.critMode;
+          byId<HTMLInputElement>("checkpointInput").checked = !!restored.options.execution?.checkpointFrames?.length;
+          byId<HTMLInputElement>("detailedTraceInput").checked = restored.options.execution?.detailedTraces ?? false;
+          const notice = byId<HTMLElement>("benchmarkAssumptions"); notice.hidden = !benchmarkRecord;
+          notice.textContent = benchmarkRecord ? `${benchmarkRecord.id}@${benchmarkRecord.version}：${benchmarkRecord.assumptions.join("；")}` : "";
+        } else {
+          currentConfig = migrateConfig(raw);
+          executionProfile = null; benchmarkRecord = null;
+          restoredRunOptions = null;
+          syncControlsFromConfig();
+        }
         runSimulation();
       } catch (error) {
         showConfigError(error);
@@ -3275,7 +3567,139 @@ populatePresetSelect();
 initEvents();
 syncControlsFromConfig();
 renderShowcase();
-runSimulation();
+if (["/", "/results"].includes(location.pathname)) void runSimulation();
+
+let calculatorController: CalculatorController | null = null;
+let routeGeneration = 0;
+const workspace = byId<HTMLElement>("independentWorkspace");
+workspace.innerHTML = '<div id="calculatorHost" hidden></div><div id="exampleHost" hidden></div><div id="workspacePanel" hidden></div>';
+
+function navigateProduct(path: string): void {
+  if (location.pathname !== path) history.pushState({}, "", path);
+  void renderProductRoute();
+}
+
+async function ensureCalculator(): Promise<CalculatorController> {
+  if (!calculatorController) {
+    const [{ mountCalculator }, { getCharacterDocuments }] = await Promise.all([
+      import("./calculator-ui"), import("./character-calculations")
+    ]);
+    if (!calculatorController) calculatorController = mountCalculator(byId<HTMLElement>("calculatorHost"), { getCharacterDocuments, onNavigate: navigateProduct });
+  }
+  return calculatorController;
+}
+
+async function renderProductRoute(): Promise<void> {
+  const generation = ++routeGeneration;
+  const path = location.pathname;
+  if (path !== "/source-simulation") disposeSourceHostPanel();
+  if (path !== "/calculator") calculatorController?.stopSourceSkillRun();
+  const simulation = path === "/" || path === "/results";
+  byId<HTMLElement>("simulationWorkspace").hidden = !simulation;
+  byId<HTMLElement>("simulationActions").hidden = !simulation;
+  workspace.hidden = simulation;
+  document.querySelectorAll<HTMLAnchorElement>(".product-nav a").forEach((a) => {
+    if (a.pathname === path || (path === "/" && a.pathname === "/results")) a.setAttribute("aria-current", "page");
+    else a.removeAttribute("aria-current");
+  });
+  for (const id of ["calculatorHost", "exampleHost", "workspacePanel"]) byId<HTMLElement>(id).hidden = true;
+  if (simulation) {
+    lunarPanel?.resume();
+    if (!lastResult && !pendingSimulation) void runSimulation();
+    else if (!lunarPanel) void mountLunarPanel();
+    return;
+  }
+  ++lunarMountGeneration;
+  lunarPanel?.suspend();
+  try {
+    if (path === "/calculator" || path === "/examples") {
+      const controller = await ensureCalculator();
+      if (generation !== routeGeneration) return;
+      if (path === "/examples") { const host=byId<HTMLElement>("exampleHost"); host.hidden=false; controller.renderExamples(host); }
+      else byId<HTMLElement>("calculatorHost").hidden = false;
+      return;
+    }
+    const panel = byId<HTMLElement>("workspacePanel"); panel.hidden=false;
+    const controls = {
+      getConfig: () => deepClone(currentConfig),
+      setConfig: (config: SimConfig, options?: { preserveRuntimeOptions?: boolean }) => {
+        const runSeed = options?.preserveRuntimeOptions ? currentRuntimeOptions().randomSeed : undefined;
+        currentConfig = migrateConfig(config);
+        if (runSeed !== undefined) currentConfig.randomSeed = runSeed;
+        if (!options?.preserveRuntimeOptions) restoredRunOptions = null;
+        benchmarkRecord = null;
+        byId<HTMLSelectElement>("benchmarkSelect").value = "";
+        byId<HTMLElement>("benchmarkAssumptions").hidden = true;
+        syncControlsFromConfig();
+      },
+      getResult: () => lastResult,
+      getRuntimeOptions: currentRuntimeOptions,
+      getRecord: () => lastSimulationRecord,
+      getExecutionProfile: () => executionProfile,
+      setExecutionProfile: (profile: ExecutionProfile | null) => { executionProfile = profile; },
+      run: runSimulation,
+      navigate: navigateProduct
+    };
+    if (path === "/source-simulation") renderSourceHostPanel(panel, capture => {
+      void ensureCalculator().then(controller => { controller.loadSourceHostCapture(capture); navigateProduct("/calculator"); });
+    });
+    else if (path === "/builds") {
+      const { renderBuildWorkshop } = await import("./build-workshop");
+      if (generation !== routeGeneration) return;
+      renderBuildWorkshop(panel, {
+        openCalculator: async (input, metadata) => {
+          const controller = await ensureCalculator();
+          await controller.loadEquipmentBuild(input, metadata);
+          navigateProduct("/calculator");
+        },
+        addToTeam: async (input, metadata, selection) => {
+          const { loadSourceTeamInventory, equipmentBuildToSourceTeamMember } = await import("./source-team-builder");
+          const inventory = await loadSourceTeamInventory(selection.hostVariant);
+          const member = equipmentBuildToSourceTeamMember(input, { constellation: metadata.constellation, talents: metadata.baseTalentLevels, characterKey: selection.characterKey }, inventory);
+          await addSourceTeamRoster([member], inventory, "merge");
+          navigateProduct("/source-simulation");
+        },
+        addRosterToTeam: async (entries, selection, mode) => {
+          const { loadSourceTeamInventory, equipmentBuildToSourceTeamMember } = await import("./source-team-builder");
+          const inventory = await loadSourceTeamInventory(selection.hostVariant);
+          if (inventory.revision !== selection.revision) throw new Error("来源版本已变化，请重新选择来源并确认配装映射。");
+          const members = entries.map(entry => equipmentBuildToSourceTeamMember(entry.input, {
+            constellation: entry.metadata.constellation, talents: entry.metadata.baseTalentLevels,
+            characterKey: entry.characterKey,
+          }, inventory));
+          await addSourceTeamRoster(members, inventory, mode);
+          navigateProduct("/source-simulation");
+        },
+        getLocalTeamActors: () => currentConfig.characters.map(actor => ({ id: actor.id, name: actor.name })),
+        applyToLocalTeam: async (actorId, input, metadata) => {
+          const { applyEquipmentBuildToTeam } = await import("../../../packages/sim-core/src/equipment-team-handoff");
+          const { setTeamEquipmentHandoffSummary } = await import("./workspace-panels");
+          const result = applyEquipmentBuildToTeam(currentConfig, actorId, input, metadata);
+          controls.setConfig(result.config);
+          setTeamEquipmentHandoffSummary({ enabled: result.enabled, unmapped: result.unmapped }, currentConfig);
+          navigateProduct("/team");
+        },
+      });
+    }
+    else if (path === "/team") renderTeamPanel(panel, controls);
+    else if (path === "/rotation") renderRotationPanel(panel, controls);
+    else if (path === "/compare") renderComparePanel(panel, controls);
+    else if (path === "/data") await renderDataPanel(panel);
+    else if (path === "/updates") {
+      const { renderUpdatePanel } = await import("./update-panel");
+      if (generation === routeGeneration) renderUpdatePanel(panel);
+    } else panel.innerHTML = '<article class="card"><h2>页面未找到</h2><p><a href="/calculator">打开独立技能计算器</a></p></article>';
+  } catch (error) {
+    const panel=byId<HTMLElement>("workspacePanel"); panel.hidden=false; panel.textContent = `页面无法加载：${error instanceof Error ? error.message : String(error)}`;
+  }
+}
+
+document.querySelectorAll<HTMLAnchorElement>(".product-nav a").forEach((a) => a.addEventListener("click", (event) => {
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault(); navigateProduct(a.pathname);
+}));
+window.addEventListener("popstate", () => { void renderProductRoute(); });
+void renderProductRoute();
 
 window.GenshinDpsLab = {
   simulate,

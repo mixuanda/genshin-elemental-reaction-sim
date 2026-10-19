@@ -1,0 +1,2708 @@
+{
+  "schemaVersion": 1,
+  "generatedDate": "2026-09-28",
+  "scope": "只读静态来源定位；当前 classic build-G1NhgO 与 stellar-build-pu4iUi；不代表实现或验证。以旧inventory中的写入为候选种子，逐条排除新树中写入附近已出现 CharacterAdditiveHit 的条目。",
+  "sourceTrees": [
+    {
+      "lane": "classic",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "root": "/tmp/gidps-source-host-cache/build-G1NhgO/source"
+    },
+    {
+      "lane": "stellar",
+      "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "root": "/tmp/gidps-source-host-cache/stellar-build-pu4iUi/source"
+    }
+  ],
+  "sharedBoundary": {
+    "existing": "source-host-character-additive-group-a/b/c.ts 仅承载 Citlali C1、Clorinde A1、Durin C1、Escoffier C2、Faruzan A4、Kokomi A4、Lauma Burst、Layla C4、Mizuki C1、Nicole C4、Qiqi C6(stellar)、Shenhe quill、Sigewinne A1、Xianyun A4、Xilonen C4/C6、Yun Jin Burst 的规则；DirectCharacterAdditives 接口只挂接 same-hit residual。",
+    "notGeneralized": "未发现通用 queued AttackInfo.FlatDmg talent×stat 或 replacement/multiply FlatDmg producer resolver。仅靠现有 shared formula core 不覆盖 queued 初始化和覆盖消费者；可复用的是 descriptor AST/TraceBuilder、stat/snapshot leaf 约定与 same-hit事件关联。"
+  },
+  "mechanismGroups": [
+    {
+      "id": "replacement_or_computed_producer_ordered",
+      "priority": 2,
+      "migrationGuidance": "事件回调直接覆盖 FlatDmg，需保留同一 hit 的既有 FlatDmg 和回调登记顺序；共享直接加成 core 会保留 residual，但不等价于覆盖算式。",
+      "records": [
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "aino",
+          "sourcePath": "aino/burst.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.a4Dmg()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 62
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 62
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/asc.go",
+          "function": "func(args ...any)",
+          "operator": "=",
+          "expression": "snap.Stats.TotalDEF()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 106
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 106
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/burst.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "snap.Stats.TotalDEF()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 47
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 47
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/cons.go",
+          "function": "c6NAIncrease",
+          "operator": "=",
+          "expression": "snap.Stats.TotalDEF()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 181
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 181
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/kinu.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "snap.Stats.TotalDEF()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 62
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 62
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/skill.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "snap.Stats.TotalDEF()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 129
+            },
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 208
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 129
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 208
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "columbina",
+          "sourcePath": "columbina/skill.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.c4OnGravityTickFlatDMG(maxReaction)",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 242
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 242
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "cyno",
+          "sourcePath": "cyno/skill.go",
+          "function": "skillB",
+          "operator": "=",
+          "expression": "c.a4Bolt()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 117
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 117
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "furina",
+          "sourcePath": "furina/attack.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.c6BonusDMGNoExtra()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 73
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 73
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "furina",
+          "sourcePath": "furina/attack.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.c6BonusDMG()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 113
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 113
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "furina",
+          "sourcePath": "furina/charge.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.c6BonusDMG()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 51
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 51
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "furina",
+          "sourcePath": "furina/plunge.go",
+          "function": "lowPlungeXY",
+          "operator": "=",
+          "expression": "c.c6BonusDMG()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 99
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 99
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "furina",
+          "sourcePath": "furina/plunge.go",
+          "function": "highPlungeXY",
+          "operator": "=",
+          "expression": "c.c6BonusDMG()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 160
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 160
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "furina",
+          "sourcePath": "furina/plunge.go",
+          "function": "plungeCollision",
+          "operator": "=",
+          "expression": "c.c6BonusDMGNoExtra()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 199
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 199
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "kokomi",
+          "sourcePath": "kokomi/attack.go",
+          "function": "Attack",
+          "operator": "=",
+          "expression": "c.burstDmgBonus(ai.AttackTag)",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 55
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 55
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "kokomi",
+          "sourcePath": "kokomi/charge.go",
+          "function": "ChargeAttack",
+          "operator": "=",
+          "expression": "c.burstDmgBonus(ai.AttackTag)",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 42
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 42
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "kokomi",
+          "sourcePath": "kokomi/skill.go",
+          "function": "skillTick",
+          "operator": "=",
+          "expression": "c.skillFlatDmg",
+          "writeKind": "attack-info-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 95
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 95
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "kokomi",
+          "sourcePath": "kokomi/skill.go",
+          "function": "skillTick",
+          "operator": "=",
+          "expression": "c.burstDmgBonus(d.Info.AttackTag)",
+          "writeKind": "attack-info-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 97
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 97
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_computed_producer_ordered",
+          "character": "mavuika",
+          "sourcePath": "mavuika/attack.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.burstBuffNA() + c.c2BikeNA()",
+          "writeKind": "attack-event-flatdmg-write-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 172
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 172
+            }
+          ]
+        }
+      ],
+      "orderConstraint": "保留原回调门、注册顺序与前序 FlatDmg 基数；覆盖不等于加法。"
+    },
+    {
+      "id": "fixed_or_composite_stat_flat_term",
+      "priority": 1,
+      "migrationGuidance": "固定系数×stat及有限复合项；可复用 additive descriptor 的乘加表达式和 trace builder，但目前不存在通用 stat×ratio producer。复杂 state getter需先追溯门控/生命周期。",
+      "records": [
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "aino",
+          "sourcePath": "aino/cons.go",
+          "function": "func(args ...any)",
+          "operator": ":",
+          "expression": "em + c.a4Dmg()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 112
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 112
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "candace",
+          "sourcePath": "candace/cons.go",
+          "function": "func(args ...any)",
+          "operator": ":",
+          "expression": "0.15 * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 73
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 73
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "citlali",
+          "sourcePath": "citlali/cons.go",
+          "function": "c4SkullCB",
+          "operator": ":",
+          "expression": "18 * c.Stat(attributes.EM)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 130
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 130
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "dehya",
+          "sourcePath": "dehya/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "c.c1FlatDmgRatioE * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 82
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 82
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "dehya",
+          "sourcePath": "dehya/skill.go",
+          "function": "skillRecast",
+          "operator": ":",
+          "expression": "c.c1FlatDmgRatioE * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 160
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 160
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "furina",
+          "sourcePath": "furina/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "c.MaxHP() * burstDMG[c.TalentLvlBurst()]",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 176
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 176
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "kuki",
+          "sourcePath": "kuki/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "c.MaxHP() * burst[c.TalentLvlBurst()]",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 34
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 34
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "kuki",
+          "sourcePath": "kuki/cons.go",
+          "function": "func(args ...any)",
+          "operator": ":",
+          "expression": "c.MaxHP() * 0.097",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 53
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 53
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "kuki",
+          "sourcePath": "kuki/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "c.Stat(attributes.EM) * 0.25",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 58
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 58
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "lauma",
+          "sourcePath": "lauma/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "em * frostgroveSanctuaryEM[c.TalentLvlSkill()]",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 261
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 261
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "neuvillette",
+          "sourcePath": "neuvillette/cons.go",
+          "function": "c6cb",
+          "operator": ":",
+          "expression": "0.1 * c.MaxHP() * a1Multipliers[c.countA1()]",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 131
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 131
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "nilou",
+          "sourcePath": "nilou/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "c.MaxHP() * burst[c.TalentLvlBurst()]",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 40
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 40
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "nilou",
+          "sourcePath": "nilou/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.MaxHP() * burstAeon[c.TalentLvlBurst()]",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 79
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 79
+            }
+          ]
+        },
+        {
+          "mechanism": "fixed_or_composite_stat_flat_term",
+          "character": "sayu",
+          "sourcePath": "sayu/burst.go",
+          "function": "Burst",
+          "operator": "+=",
+          "expression": "atk * min(d.Snapshot.Stats[attributes.EM]*0.002, 4.0)",
+          "writeKind": "attack-info-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 67
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 67
+            }
+          ]
+        }
+      ],
+      "orderConstraint": "保存原值采样时点及复合求值次序。"
+    },
+    {
+      "id": "replacement_or_multiplicative_consumer_ordered",
+      "priority": 2,
+      "migrationGuidance": "/=、*=、FlatDmg替换类是消费者顺序规则，不能作为独立 FlatDmg 加项迁移；识别写入前基础值与已执行的前序替换，只有顺序可保留时才适合加共享规则。",
+      "records": [
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "albedo",
+          "sourcePath": "albedo/burst.go",
+          "function": "Burst",
+          "operator": "=",
+          "expression": "c.TotalDef(false) * float64(c2Count) * 0.3",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 46
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 46
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "albedo",
+          "sourcePath": "albedo/burst.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "c.TotalDef(false) * float64(c2Count) * 0.3",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 74
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 74
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "baizhu",
+          "sourcePath": "baizhu/burst.go",
+          "function": "summonSpiritvein",
+          "operator": "=",
+          "expression": "c.MaxHP() * 0.08",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 98
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 98
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/asc.go",
+          "function": "func(args ...any)",
+          "operator": "*=",
+          "expression": "thrustDefScaling[c.TalentLvlSkill()]",
+          "writeKind": "attack-event-flatdmg-write-multiplicative-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 107
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/burst.go",
+          "function": "func()",
+          "operator": "*=",
+          "expression": "burstDefScaling[c.TalentLvlBurst()]",
+          "writeKind": "attack-event-flatdmg-write-multiplicative-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 48
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 48
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/cons.go",
+          "function": "c6NAIncrease",
+          "operator": "*=",
+          "expression": "2.35",
+          "writeKind": "attack-event-flatdmg-write-multiplicative-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 182
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 182
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/kinu.go",
+          "function": "func()",
+          "operator": "*=",
+          "expression": "turretDefScaling[c.TalentLvlSkill()] * kinuDmgRatio",
+          "writeKind": "attack-event-flatdmg-write-multiplicative-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 63
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 63
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/skill.go",
+          "function": "func()",
+          "operator": "*=",
+          "expression": "thrustDefScaling[c.TalentLvlSkill()]",
+          "writeKind": "attack-event-flatdmg-write-multiplicative-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 130
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 130
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "chiori",
+          "sourcePath": "chiori/skill.go",
+          "function": "func()",
+          "operator": "*=",
+          "expression": "turretDefScaling[c.TalentLvlSkill()]",
+          "writeKind": "attack-event-flatdmg-write-multiplicative-overwrite",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 209
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 209
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "itto",
+          "sourcePath": "itto/asc.go",
+          "function": "a4",
+          "operator": "=",
+          "expression": "c.TotalDef(false) * 0.35",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 71
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 71
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "kokomi",
+          "sourcePath": "kokomi/burst.go",
+          "function": "Burst",
+          "operator": "=",
+          "expression": "burstDmg[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 53
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 53
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "kokomi",
+          "sourcePath": "kokomi/cons.go",
+          "function": "c1",
+          "operator": "=",
+          "expression": "0.3 * c.MaxHP()",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 32
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 32
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "lanyan",
+          "sourcePath": "lanyan/attack.go",
+          "function": "reathermoonRingsDetail",
+          "operator": "=",
+          "expression": "c.Stat(attributes.EM) * 3.09",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 141
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 142
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "lanyan",
+          "sourcePath": "lanyan/burst.go",
+          "function": "Burst",
+          "operator": "=",
+          "expression": "c.Stat(attributes.EM) * 7.74",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 39
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 39
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "mualani",
+          "sourcePath": "mualani/attack.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "mult * c.MaxHP()",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 161
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 162
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "mualani",
+          "sourcePath": "mualani/burst.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "burst[c.TalentLvlBurst()] * hp",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 54
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 54
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "nahida",
+          "sourcePath": "nahida/cons.go",
+          "function": "func(a info.AttackCB)",
+          "operator": "=",
+          "expression": "snap.Stats[attributes.EM] * 4",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 175
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 175
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "nahida",
+          "sourcePath": "nahida/skill.go",
+          "function": "triggerTriKarmaDamageIfAvail",
+          "operator": "=",
+          "expression": "em * triKarmaEM[c.TalentLvlSkill()]",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 220
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 220
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "neuvillette",
+          "sourcePath": "neuvillette/charge.go",
+          "function": "judgementWave",
+          "operator": "=",
+          "expression": "chargeJudgement[c.TalentLvlAttack()] * c.MaxHP() * a1Multipliers[c.countA1()]",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 199
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 199
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "nilou",
+          "sourcePath": "nilou/bountifulcore.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "0.02 * ai.FlatDmg",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 41
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 41
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "sethos",
+          "sourcePath": "sethos/attack.go",
+          "function": "func()",
+          "operator": "=",
+          "expression": "burstEM[c.TalentLvlBurst()] * c.Stat(attributes.EM)",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 70
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 70
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "traveler",
+          "sourcePath": "traveler/common/hydro/skill.go",
+          "function": "skillLosingHP",
+          "operator": "=",
+          "expression": "dewdropBonus[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 319
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 319
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "yelan",
+          "sourcePath": "yelan/attack.go",
+          "function": "Attack",
+          "operator": "=",
+          "expression": "barb[c.TalentLvlAttack()] * c.MaxHP() * 1.56",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 51
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 51
+            }
+          ]
+        },
+        {
+          "mechanism": "replacement_or_multiplicative_consumer_ordered",
+          "character": "yelan",
+          "sourcePath": "yelan/burst.go",
+          "function": "summonExquisiteThrow",
+          "operator": "=",
+          "expression": "14.0 / 100 * hp",
+          "writeKind": "attack-event-flatdmg-write-overwrite-multiplication-expression",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 124
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 124
+            }
+          ]
+        }
+      ],
+      "orderConstraint": "先解析该写入前 FlatDmg 基数与更早同帧写入；不可当作加项。"
+    },
+    {
+      "id": "talent_table_x_live_or_saved_stat",
+      "priority": 1,
+      "migrationGuidance": "最适合批量接入：talent table × ATK/HP/DEF/EM；按源码 getter、攻击快照或已保存局部变量分别绑定叶，不得统称为实时 stat。队列前取值应留 creation/queue phase，事件中覆写应留 hit phase。",
+      "records": [
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "alhaitham",
+          "sourcePath": "alhaitham/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "burstEm[c.TalentLvlSkill()] * c.Stat(attributes.EM)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 36
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 36
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "alhaitham",
+          "sourcePath": "alhaitham/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "rushEm[c.TalentLvlSkill()] * c.Stat(attributes.EM)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 79
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 79
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "alhaitham",
+          "sourcePath": "alhaitham/skill.go",
+          "function": "SkillHold",
+          "operator": ":",
+          "expression": "rushEm[c.TalentLvlSkill()] * c.Stat(attributes.EM)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 109
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 109
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "alhaitham",
+          "sourcePath": "alhaitham/skill.go",
+          "function": "projectionAttack",
+          "operator": ":",
+          "expression": "mirrorEm[c.TalentLvlSkill()] * c.Stat(attributes.EM)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 254
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 254
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "candace",
+          "sourcePath": "candace/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "burstDmg[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 43
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 43
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "candace",
+          "sourcePath": "candace/burst.go",
+          "function": "func(args ...any)",
+          "operator": ":",
+          "expression": "burstWaveDmg[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 123
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 123
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "candace",
+          "sourcePath": "candace/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "skillDmg[chargeLevel][c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 55
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 55
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "dehya",
+          "sourcePath": "dehya/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "(c.c1FlatDmgRatioQ + burstPunchHP[c.TalentLvlBurst()]) * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 79
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 79
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "dehya",
+          "sourcePath": "dehya/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "(c.c1FlatDmgRatioQ + burstKickHP[c.TalentLvlBurst()]) * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 120
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 120
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "dehya",
+          "sourcePath": "dehya/skill.go",
+          "function": "addField",
+          "operator": ":",
+          "expression": "(c.c1FlatDmgRatioE + skillDotHP[c.TalentLvlSkill()]) * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 227
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 227
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "furina",
+          "sourcePath": "furina/skill.go",
+          "function": "skillOusia",
+          "operator": ":",
+          "expression": "skillOusiaBubble[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 118
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 118
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "furina",
+          "sourcePath": "furina/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "skillChevalmarin[c.TalentLvlSkill()] * c.MaxHP() * damageMultiplier",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 209
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 209
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "furina",
+          "sourcePath": "furina/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "skillUsher[c.TalentLvlSkill()] * c.MaxHP() * damageMultiplier",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 244
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 244
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "furina",
+          "sourcePath": "furina/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "skillCrabaletta[c.TalentLvlSkill()] * c.MaxHP() * damageMultiplier",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 280
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 280
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "layla",
+          "sourcePath": "layla/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "burst[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 46
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 46
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "neuvillette",
+          "sourcePath": "neuvillette/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "burst[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 54
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 54
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "neuvillette",
+          "sourcePath": "neuvillette/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "burstWaterfall[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 65
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 65
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "neuvillette",
+          "sourcePath": "neuvillette/charge.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "chargeJudgement[c.TalentLvlAttack()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 107
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 107
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "neuvillette",
+          "sourcePath": "neuvillette/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "skill[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 53
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 53
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "nilou",
+          "sourcePath": "nilou/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "skill[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 105
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 105
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "nilou",
+          "sourcePath": "nilou/skill.go",
+          "function": "SwordDance",
+          "operator": ":",
+          "expression": "swordDance[s][c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 214
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 214
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "nilou",
+          "sourcePath": "nilou/skill.go",
+          "function": "WhirlingSteps",
+          "operator": ":",
+          "expression": "whirlingSteps[s][c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 273
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 273
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "sethos",
+          "sourcePath": "sethos/aimed.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "shadowpierceEM[c.TalentLvlAttack()] * em",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 153
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 153
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "sigewinne",
+          "sourcePath": "sigewinne/burst.go",
+          "function": "burstWave",
+          "operator": ":",
+          "expression": "burstDMG[c.TalentLvlAttack()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 153
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 153
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "sigewinne",
+          "sourcePath": "sigewinne/skill.go",
+          "function": "surgingBladeTask",
+          "operator": ":",
+          "expression": "surgingBladeDMG[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 187
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 187
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "sigewinne",
+          "sourcePath": "sigewinne/skill.go",
+          "function": "generateSkillSnapshot",
+          "operator": ":",
+          "expression": "bolsteringBubblebalmDMG[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 317
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 317
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "yelan",
+          "sourcePath": "yelan/aimed.go",
+          "function": "Aimed",
+          "operator": ":",
+          "expression": "barb[c.TalentLvlAttack()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 74
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 74
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "yelan",
+          "sourcePath": "yelan/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "burst[c.TalentLvlBurst()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 42
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 42
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "yelan",
+          "sourcePath": "yelan/burst.go",
+          "function": "summonExquisiteThrow",
+          "operator": ":",
+          "expression": "burstDice[c.TalentLvlBurst()] * hp",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 104
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 104
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "yelan",
+          "sourcePath": "yelan/skill.go",
+          "function": "Skill",
+          "operator": ":",
+          "expression": "skill[c.TalentLvlSkill()] * c.MaxHP()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 51
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 51
+            }
+          ]
+        },
+        {
+          "mechanism": "talent_table_x_live_or_saved_stat",
+          "character": "jahoda",
+          "sourcePath": "jahoda/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "burstSkill[c.TalentLvlBurst()] * c.TotalAtk() * c.a1DmgMult",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 179
+            }
+          ]
+        }
+      ],
+      "orderConstraint": "按原顺序/快照相位读取 talent level 与 stat；确认 queue vs hit。"
+    },
+    {
+      "id": "additive_event_producer",
+      "priority": 2,
+      "migrationGuidance": "事件中的 += producer；保持原事件门和当前 FlatDmg 基数，通常可复用 same-hit CharacterAdditiveHit mechanism，前提是事件身份证据与回调次序可映射。",
+      "records": [
+        {
+          "mechanism": "additive_event_producer",
+          "character": "arlecchino",
+          "sourcePath": "arlecchino/attack.go",
+          "function": "func()",
+          "operator": "+=",
+          "expression": "c.bondBonus()",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 138
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 138
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "arlecchino",
+          "sourcePath": "arlecchino/burst.go",
+          "function": "func()",
+          "operator": "+=",
+          "expression": "c.c6Amount()",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 47
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 47
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "ayato",
+          "sourcePath": "ayato/ayato.go",
+          "function": "Snapshot",
+          "operator": "+=",
+          "expression": "flatdmg",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 90
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 90
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "emilie",
+          "sourcePath": "emilie/cons.go",
+          "function": "applyC6Bonus",
+          "operator": "+=",
+          "expression": "c.TotalAtk() * 3",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 133
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 133
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "hutao",
+          "sourcePath": "hutao/skill.go",
+          "function": "func()",
+          "operator": "+=",
+          "expression": "c.MaxHP() * 0.1",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 149
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 149
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "mualani",
+          "sourcePath": "mualani/burst.go",
+          "function": "func()",
+          "operator": "+=",
+          "expression": "0.15 * float64(stacks) * hp",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 56
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 56
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "razor",
+          "sourcePath": "razor/burst.go",
+          "function": "func(a info.AttackCB)",
+          "operator": "+=",
+          "expression": "0.7 * c.TotalAtk()",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 112
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 112
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "sethos",
+          "sourcePath": "sethos/aimed.go",
+          "function": "func()",
+          "operator": "+=",
+          "expression": "7 * em",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 157
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 157
+            }
+          ]
+        },
+        {
+          "mechanism": "additive_event_producer",
+          "character": "traveler",
+          "sourcePath": "traveler/common/hydro/skill.go",
+          "function": "torrentSurge",
+          "operator": "+=",
+          "expression": "c.a4Bonus",
+          "writeKind": "attack-event-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 286
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 286
+            }
+          ]
+        }
+      ],
+      "orderConstraint": "保留门控、目标/攻击身份及事件中的增量顺序。"
+    },
+    {
+      "id": "queued_value_requires_local_dataflow",
+      "priority": 2,
+      "migrationGuidance": "字段来自局部变量/状态函数/预先计算值，需沿赋值点追出其组成，不能直接迁移此字段；只适用于上游是稳定 stat/talent 算式者。",
+      "records": [
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "citlali",
+          "sourcePath": "citlali/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "c.a4Dmg(iceStormAbil)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 43
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 53
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "citlali",
+          "sourcePath": "citlali/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.a4Dmg(frostFallAbil)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 170
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 170
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "cyno",
+          "sourcePath": "cyno/attack.go",
+          "function": "attackB",
+          "operator": ":",
+          "expression": "c.a4NormalAttack()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 148
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 146
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "cyno",
+          "sourcePath": "cyno/cons.go",
+          "function": "func(a info.AttackCB)",
+          "operator": ":",
+          "expression": "c.a4Bolt()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 176
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 177
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "dehya",
+          "sourcePath": "dehya/skill.go",
+          "function": "skillSelfDoT",
+          "operator": ":",
+          "expression": "dmg",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 334
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 334
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "gorou",
+          "sourcePath": "gorou/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.a4Burst()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 42
+            },
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 122
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 42
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 122
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "gorou",
+          "sourcePath": "gorou/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.a4Skill()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 52
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 52
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "kinich",
+          "sourcePath": "kinich/skill.go",
+          "function": "ScalespikerCannon",
+          "operator": ":",
+          "expression": "c.a4Amount()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 135
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 135
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "kokomi",
+          "sourcePath": "kokomi/asc.go",
+          "function": "func(args ...any)",
+          "operator": "+=",
+          "expression": "a4Bonus",
+          "writeKind": "attack-info-flatdmg-write",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 60
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 60
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "kuki",
+          "sourcePath": "kuki/skill.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.a4Damage()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 120
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 120
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "layla",
+          "sourcePath": "layla/shield.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.a4()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 129
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 129
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "mavuika",
+          "sourcePath": "mavuika/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.burstBuffSunfell() + c.c2BikeQ()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 69
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 69
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "mavuika",
+          "sourcePath": "mavuika/charge.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.burstBuffCA() + c.c2BikeCA()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 403
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 418
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "mavuika",
+          "sourcePath": "mavuika/charge.go",
+          "function": "GetBikeChargeAttackAttackInfo",
+          "operator": ":",
+          "expression": "c.burstBuffCA() + c.c2BikeCA()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 470
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 481
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "nicole",
+          "sourcePath": "nicole/burst.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.hexereiOnProjection(char)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 164
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 164
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "nicole",
+          "sourcePath": "nicole/cons.go",
+          "function": "func()",
+          "operator": ":",
+          "expression": "c.hexereiOnProjection(char)",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 56
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 56
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "thoma",
+          "sourcePath": "thoma/burst.go",
+          "function": "summonFieryCollapse",
+          "operator": ":",
+          "expression": "c.a4()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 90
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 90
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "varesa",
+          "sourcePath": "varesa/burst.go",
+          "function": "volcanicKablam",
+          "operator": ":",
+          "expression": "c.a1PlungeBonus()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 110
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 110
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "varesa",
+          "sourcePath": "varesa/plunge.go",
+          "function": "highPlungeCA",
+          "operator": ":",
+          "expression": "c.a1PlungeBonus() + c.c4FlatBonus()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 171
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 171
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "varesa",
+          "sourcePath": "varesa/plunge.go",
+          "function": "highPlungeXY",
+          "operator": ":",
+          "expression": "c.a1PlungeBonus() + c.c4FlatBonus()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 233
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 233
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "varesa",
+          "sourcePath": "varesa/plunge.go",
+          "function": "lowPlungeXY",
+          "operator": ":",
+          "expression": "c.a1PlungeBonus() + c.c4FlatBonus()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 295
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 295
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "zhongli",
+          "sourcePath": "zhongli/attack.go",
+          "function": "Attack",
+          "operator": ":",
+          "expression": "c.a4Attacks()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 67
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 66
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "zhongli",
+          "sourcePath": "zhongli/burst.go",
+          "function": "Burst",
+          "operator": ":",
+          "expression": "c.a4Burst()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 36
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 36
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "zhongli",
+          "sourcePath": "zhongli/charge.go",
+          "function": "ChargeAttack",
+          "operator": ":",
+          "expression": "c.a4Attacks()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 36
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 36
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "zhongli",
+          "sourcePath": "zhongli/skill.go",
+          "function": "skillHold",
+          "operator": ":",
+          "expression": "c.a4Skill()",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 74
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 74
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "zhongli",
+          "sourcePath": "zhongli/stele.go",
+          "function": "newStele",
+          "operator": ":",
+          "expression": "flat",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 28
+            },
+            {
+              "lane": "classic",
+              "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "line": 70
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 28
+            },
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 70
+            }
+          ]
+        },
+        {
+          "mechanism": "queued_value_requires_local_dataflow",
+          "character": "yaemiko",
+          "sourcePath": "yaemiko/kitsune.go",
+          "function": "func(pos info.Point)",
+          "operator": ":",
+          "expression": "flatDmg",
+          "writeKind": "attack-info-flatdmg-struct-field",
+          "sourceVersions": [
+            {
+              "lane": "stellar",
+              "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "line": 138
+            }
+          ]
+        }
+      ],
+      "orderConstraint": "沿局部变量上游定义追算式，保留定义到 QueueAttack 的时序。"
+    }
+  ],
+  "counts": {
+    "recordsAfterNearCallFilter": 252,
+    "sameBodyGroups": 124,
+    "byMechanism": {
+      "replacement_or_computed_producer_ordered": 19,
+      "fixed_or_composite_stat_flat_term": 14,
+      "replacement_or_multiplicative_consumer_ordered": 24,
+      "talent_table_x_live_or_saved_stat": 31,
+      "additive_event_producer": 9,
+      "queued_value_requires_local_dataflow": 27
+    },
+    "warning": "来源行号/expression继承旧inventory并用于定位；新源码只用于邻近桥接排除，非完整AST重扫或可迁移性证明。"
+  }
+}

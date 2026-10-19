@@ -1,0 +1,305 @@
+{
+  "scope": "One external CLI; one rejected precombat local input and one full local combat; source-backed stateful EndOfTheLine comparison and preserved raw evidence.",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/compare-local-attempt1.mjs",
+      "bytes": 14720,
+      "sha256": "59f8d73d2c7f3ff2cfe8f72e018cddf92addffa8052348dc988a1e69aae6e9ae"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/compare-local.mjs",
+      "bytes": 14704,
+      "sha256": "4fd0f9a605dee6c15244a8d9dce7b17028a1db7c38055e7908e59ad0dd89a2db"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.execution.json",
+      "bytes": 1726,
+      "sha256": "cca81283453069c43a7decbbbc76710ab09b2754c6e79e93ab9715bed055b2c6"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.gcsl",
+      "bytes": 630,
+      "sha256": "f546b79c4c8be92e2623e28df0374312d382aa15d980ce02d6a7b4b72b5664d7"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-0.capture.json",
+      "bytes": 951696,
+      "sha256": "8dbb27404438ce45396e6a50e9eb4d39b5f938ab676be297579543c15862d1c3"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-0.replay.json",
+      "bytes": 1046802,
+      "sha256": "83cd8e42e46c4ef874c04198225aa09ee4c33e1dd32e0ab1770bf42f6612cc15"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-1.capture.json",
+      "bytes": 951696,
+      "sha256": "ce1c1fae332c4af254e8d49a92e05407201d78442c7154d2b8d0b945ac7fd2e9"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-1.replay.json",
+      "bytes": 1046944,
+      "sha256": "7252921df4eb786d5c9ce539ffc1e0adbb16d0f708231124907563dcad714aa9"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-10.capture.json",
+      "bytes": 951697,
+      "sha256": "b9a9c91a78bba6a7c307e0b39b9369018e42a6802429981d02407d6593d56d70"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-10.replay.json",
+      "bytes": 1046987,
+      "sha256": "0c9bf835c9b9546a573a641ebd461f7c37d639b999baa1a04b263403e4f08eb2"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-11.calculator-result.json",
+      "bytes": 146078,
+      "sha256": "ceb44f8932a05f9c65ffc27a9172d1a728aae430ef25717dd518fca1ad011514"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-11.calculator.json",
+      "bytes": 7086,
+      "sha256": "6966ef082945e75fdc58151f7b2d3bb853e6fee7727de699d05399e6596c2721"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-11.capture.json",
+      "bytes": 951697,
+      "sha256": "cf01e076ce3619617bd09def2697669553bc16f177397295db85d9f82334925d"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-11.replay.json",
+      "bytes": 1053144,
+      "sha256": "b5a6ca2a48f8a24e90805519ae2a0f30556a538ed17c0e165ef517fbd986aac6"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-12.capture.json",
+      "bytes": 951697,
+      "sha256": "4bb17c8afc783f5144839234bdeeefa841cbc8d6ba212a68280c041558ad366c"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-12.replay.json",
+      "bytes": 1046856,
+      "sha256": "75966961f1af7b542df5d283631cc682330f072e28ef1950b4bec92003294b9b"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-13.calculator-result.json",
+      "bytes": 146078,
+      "sha256": "ceb44f8932a05f9c65ffc27a9172d1a728aae430ef25717dd518fca1ad011514"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-13.calculator.json",
+      "bytes": 7086,
+      "sha256": "6966ef082945e75fdc58151f7b2d3bb853e6fee7727de699d05399e6596c2721"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-13.capture.json",
+      "bytes": 951697,
+      "sha256": "1c759f79c81da9c730d1a1755db2f89f4fbdf847a7c17f1c339c98aad80a0fce"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-13.replay.json",
+      "bytes": 1053141,
+      "sha256": "11222218bb6742ffdd526f8b74f2b7b7f3f275cf1a8967cba7c6eef4bed74186"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-14.capture.json",
+      "bytes": 951697,
+      "sha256": "9a3b7e1e3460a636f01da9f73dc354ed4cd89674f4eccec31f6a6b6b0372807c"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-14.replay.json",
+      "bytes": 1046861,
+      "sha256": "4de716fcdd91f85b9fbcddf04d4d7143ac05abb45e9d1d920d3691bacfcde2db"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-15.calculator-result.json",
+      "bytes": 146078,
+      "sha256": "ceb44f8932a05f9c65ffc27a9172d1a728aae430ef25717dd518fca1ad011514"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-15.calculator.json",
+      "bytes": 7086,
+      "sha256": "6966ef082945e75fdc58151f7b2d3bb853e6fee7727de699d05399e6596c2721"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-15.capture.json",
+      "bytes": 951697,
+      "sha256": "37ce8f849d05b676fbad30044deb8432575618dc8899e7f0148064e0c6b59363"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-15.replay.json",
+      "bytes": 1053180,
+      "sha256": "209fea5820e2d6846bf618e14864635aa44b09fdea602b5df0d59ed46f7ced02"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-2.calculator-result.json",
+      "bytes": 146078,
+      "sha256": "ceb44f8932a05f9c65ffc27a9172d1a728aae430ef25717dd518fca1ad011514"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-2.calculator.json",
+      "bytes": 7086,
+      "sha256": "6966ef082945e75fdc58151f7b2d3bb853e6fee7727de699d05399e6596c2721"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-2.capture.json",
+      "bytes": 951696,
+      "sha256": "0a647eb1681f649a2d89bccb136cf469be706c62b1f1beb49df1f11d385ce199"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-2.replay.json",
+      "bytes": 1053110,
+      "sha256": "c5aeb65b46ca599cb8c4405b1199aa64f2ef8375646a1c93f653a1f6d395c9be"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-3.capture.json",
+      "bytes": 951696,
+      "sha256": "4f606329cd2ede5aab28596a4b5ef253bf3224e5a84a92c95b6601dff510309e"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-3.replay.json",
+      "bytes": 1046822,
+      "sha256": "4a8e6b688c601ec2955a13b6437a3e5f0572adb4ddbe7c4fca648f10aed76fe0"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-4.calculator-result.json",
+      "bytes": 146078,
+      "sha256": "ceb44f8932a05f9c65ffc27a9172d1a728aae430ef25717dd518fca1ad011514"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-4.calculator.json",
+      "bytes": 7086,
+      "sha256": "6966ef082945e75fdc58151f7b2d3bb853e6fee7727de699d05399e6596c2721"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-4.capture.json",
+      "bytes": 951696,
+      "sha256": "154f7f11e8dc168fde7fcfcbb80501fed68baf093a719e7530ed6551a0c49a98"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-4.replay.json",
+      "bytes": 1053132,
+      "sha256": "21075be2ee3b96f16ab7f0ca7b58bad5d0d37f838d35fd7a3f2403a40607c9f3"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-5.capture.json",
+      "bytes": 951696,
+      "sha256": "8c13c10e151c6a238b953c8372bb6595e560f3e17ca0bb3d6e5fae6af727f99f"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-5.replay.json",
+      "bytes": 1046848,
+      "sha256": "f4424b0121542cc92e4f69a7d412b4b2e5f0c067782e973baef511d38e70be97"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-6.calculator-result.json",
+      "bytes": 146078,
+      "sha256": "ceb44f8932a05f9c65ffc27a9172d1a728aae430ef25717dd518fca1ad011514"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-6.calculator.json",
+      "bytes": 7086,
+      "sha256": "6966ef082945e75fdc58151f7b2d3bb853e6fee7727de699d05399e6596c2721"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-6.capture.json",
+      "bytes": 951696,
+      "sha256": "391626e9f6b6cc0cab767d8f0bda8710ae0dedacc632e73b44d8b3741aca662f"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-6.replay.json",
+      "bytes": 1053116,
+      "sha256": "33fc3e155e697f180934e9b62090e957fe19eda8536cd3567bacf0a2e516194d"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-7.capture.json",
+      "bytes": 951696,
+      "sha256": "91040ede758659b2f185e984f50a5602dd3bf765fdfa63ea0b259eb916f51d51"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-7.replay.json",
+      "bytes": 1047064,
+      "sha256": "45487154b39fceee44ec9c352517bf5b9691ed704685a9eb1f5e93ba41e08aca"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-8.capture.json",
+      "bytes": 951696,
+      "sha256": "e8385c2860a98ce3ab42c5e5833162bcaef30503a830fb748cd90aff4a0628d9"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-8.replay.json",
+      "bytes": 1046953,
+      "sha256": "b29a9841a408f523a51f9a9352a24efbd15d08e5125889d6fc089e1911f6d25b"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-9.capture.json",
+      "bytes": 951696,
+      "sha256": "3b6f1b5df17d2aa522500008cba4690b2f96df12025086a77fceaa677cbe1810"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.hit-9.replay.json",
+      "bytes": 1047060,
+      "sha256": "fb1454cb09fff663b38877db171d60a804a3fd19ad0dd5f919350b8cf6e0e089"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.local-attempt1-config.json",
+      "bytes": 7764,
+      "sha256": "0df71cad152586581c410ff703bea4c42c8ce865380a21a50d720fcbd6a64ddc"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.local-attempt1-error.json",
+      "bytes": 30973,
+      "sha256": "e987ed9a6e2164d87c54157b32bccd6b2ce86ccb48217b8be6cc05f98f85db8f"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.local-attempt1-execution.json",
+      "bytes": 562,
+      "sha256": "f677c2c2758badc22699535ee74b468d6d759f0c832791d9a83552b816324b64"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.local-config.json",
+      "bytes": 7669,
+      "sha256": "0abf08935e1acf0cfee31cd2b1bda91c1e3d8b7741365fed214d86af94d2500e"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.local-metrics.json",
+      "bytes": 80307,
+      "sha256": "9a33bd11b133b023f6f8cf04c59669795454169c27be2e96b4dbdabd7eb1a07d"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.local-result.json",
+      "bytes": 894349,
+      "sha256": "9a30575c2202bc989f5536bc36445c2f12e3c7863c80ba98be24fc2ec5f7f2ff"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.reference.json",
+      "bytes": 75884,
+      "sha256": "ca7e5975f5de5b6cbb88b691146b66514637d594df4ea7f2d35d56d7c514b5bf"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.result.json",
+      "bytes": 17148,
+      "sha256": "5110de206c1a0c63da3a5fd609b742d860189f507fc5537313a3f99c91b9bee4"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/diona-endoftheline-reference.sample.json",
+      "bytes": 66216,
+      "sha256": "d40de61d113e7c79623b75b73659b02a42571bd0d53ebf161ebe7e409a4fb5a3"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/extract-reference.py",
+      "bytes": 7393,
+      "sha256": "b6e1ab1fde0855173463591d861bd93f728a23e2d667f93939405807dffcdd5d"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs/source-review.json",
+      "bytes": 7372,
+      "sha256": "44017be2bdfc10580f05986dcf1d1e3df2f5505b4215878ca2714091ee9620cb"
+    },
+    {
+      "path": "docs/cross-validation/stateful-weapon-procs-external.md",
+      "bytes": 12138,
+      "sha256": "a933083431a5d5fce1074a719c7489f03cf3886e0a5bec155be69ac7a37c21f3"
+    }
+  ]
+}

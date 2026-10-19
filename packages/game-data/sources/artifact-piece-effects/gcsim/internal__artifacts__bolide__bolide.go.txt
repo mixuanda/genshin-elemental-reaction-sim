@@ -1,0 +1,48 @@
+package bolide
+
+import (
+	"github.com/genshinsim/gcsim/pkg/core"
+	"github.com/genshinsim/gcsim/pkg/core/attacks"
+	"github.com/genshinsim/gcsim/pkg/core/attributes"
+	"github.com/genshinsim/gcsim/pkg/core/info"
+	"github.com/genshinsim/gcsim/pkg/core/player/character"
+	"github.com/genshinsim/gcsim/pkg/modifier"
+)
+
+type Set struct {
+	Index int
+	Count int
+}
+
+func (s *Set) SetIndex(idx int) { s.Index = idx }
+func (s *Set) GetCount() int    { return s.Count }
+func (s *Set) Init() error      { return nil }
+
+func NewSet(c *core.Core, char *character.CharWrapper, count int, param map[string]int) (info.Set, error) {
+	s := Set{Count: count}
+
+	if count >= 2 {
+		// shield bonus always active
+		c.Player.Shields.AddShieldBonusMod("bolide-2pc", -1, func() (float64, bool) {
+			return 0.35, false
+		})
+	}
+	if count >= 4 {
+		m := make([]float64, attributes.EndStatType)
+		m[attributes.DmgP] = 0.4
+		char.AddAttackMod(character.AttackMod{
+			Base: modifier.NewBase("bolide-4pc", -1),
+			Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+				if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+					return nil
+				}
+				if !c.Player.Shields.CharacterIsShielded(char.Index(), c.Player.Active()) {
+					return nil
+				}
+				return m
+			},
+		})
+	}
+
+	return &s, nil
+}

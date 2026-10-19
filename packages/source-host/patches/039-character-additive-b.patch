@@ -1,0 +1,126 @@
+--- a/internal/characters/kokomi/asc.go
++++ b/internal/characters/kokomi/asc.go
+@@ -56,7 +56,12 @@
+ 			return
+ 		}
+ 
+-		a4Bonus := c.Stat(attributes.Heal) * 0.15 * c.MaxHP()
++		healBonus, healRead := c.StatWithProvenance(attributes.Heal)
++		maxHP, hpRead := c.MaxHPWithProvenance()
++		a4Bonus := healBonus * 0.15 * maxHP
++		if c.Core.SourceHost != nil {
++			a4Bonus = c.Core.SourceHost.CharacterAdditiveHitWithReads(atk, args[0].(info.Target).Key(), "char-add-kokomi-a4", c.Index(), map[string]any{"healBonus": healBonus, "maxHP": maxHP}, []*info.SourceHostStatRead{healRead, hpRead})
++		}
+ 		atk.Info.FlatDmg += a4Bonus
+ 	}, "kokomi-a4")
+ }
+--- a/internal/characters/lauma/burst.go
++++ b/internal/characters/lauma/burst.go
+@@ -68,7 +68,7 @@
+ 
+ func (c *char) initBurst() {
+ 	c.Core.Events.Subscribe(event.OnEnemyHit, func(args ...any) {
+-		_, ok := args[0].(*enemy.Enemy)
++		e, ok := args[0].(*enemy.Enemy)
+ 		if !ok {
+ 			return
+ 		}
+@@ -77,15 +77,43 @@
+ 		}
+ 
+ 		ae := args[1].(*info.AttackEvent)
+-		em := c.Stat(attributes.EM)
++		em, statRead := c.StatWithProvenance(attributes.EM)
+ 
+ 		switch ae.Info.AttackTag {
+ 		case attacks.AttackTagBountifulCore, attacks.AttackTagBloom, attacks.AttackTagHyperbloom, attacks.AttackTagBurgeon:
+-			ae.Info.FlatDmg += em * bloomDmgIncrease[c.TalentLvlBurst()]
+-			ae.Info.FlatDmg += em * c.c2PaleHymnScalingBloom()
++			talentLevel := c.TalentLvlBurst()
++			baseAdded := em * bloomDmgIncrease[talentLevel]
++			if c.Core.SourceHost != nil {
++				baseAdded = c.Core.SourceHost.CharacterAdditiveHit(ae, e.Key(), "char-add-lauma-bloom-base", c.Index(), map[string]any{"em": em, "talentLevel": talentLevel}, statRead)
++			}
++			ae.Info.FlatDmg += baseAdded
++			c2Scaling := c.c2PaleHymnScalingBloom()
++			c2Added := em * c2Scaling
++			if c.Core.SourceHost != nil {
++				c2Active := 0
++				if c2Scaling != 0 {
++					c2Active = 1
++				}
++				c2Added = c.Core.SourceHost.CharacterAdditiveHit(ae, e.Key(), "char-add-lauma-bloom-c2", c.Index(), map[string]any{"em": em, "c2Active": c2Active}, statRead)
++			}
++			ae.Info.FlatDmg += c2Added
+ 		case attacks.AttackTagDirectLunarBloom:
+-			ae.Info.FlatDmg += em * lunarBloomDmgIncrease[c.TalentLvlBurst()]
+-			ae.Info.FlatDmg += em * c.c2PaleHymnScalingLunarBloom()
++			talentLevel := c.TalentLvlBurst()
++			baseAdded := em * lunarBloomDmgIncrease[talentLevel]
++			if c.Core.SourceHost != nil {
++				baseAdded = c.Core.SourceHost.CharacterAdditiveHit(ae, e.Key(), "char-add-lauma-lunar-bloom-base", c.Index(), map[string]any{"em": em, "talentLevel": talentLevel}, statRead)
++			}
++			ae.Info.FlatDmg += baseAdded
++			c2Scaling := c.c2PaleHymnScalingLunarBloom()
++			c2Added := em * c2Scaling
++			if c.Core.SourceHost != nil {
++				c2Active := 0
++				if c2Scaling != 0 {
++					c2Active = 1
++				}
++				c2Added = c.Core.SourceHost.CharacterAdditiveHit(ae, e.Key(), "char-add-lauma-lunar-bloom-c2", c.Index(), map[string]any{"em": em, "c2Active": c2Active}, statRead)
++			}
++			ae.Info.FlatDmg += c2Added
+ 		default:
+ 			return
+ 		}
+--- a/internal/characters/layla/cons.go
++++ b/internal/characters/layla/cons.go
+@@ -27,7 +27,11 @@
+ 			return
+ 		}
+ 
+-		dmgAdded := 0.05 * c.MaxHP()
++		maxHP, statRead := c.MaxHPWithProvenance()
++		dmgAdded := 0.05 * maxHP
++		if c.Core.SourceHost != nil {
++			dmgAdded = c.Core.SourceHost.CharacterAdditiveHit(ae, args[0].(info.Target).Key(), "char-add-layla-c4", c.Index(), map[string]any{"maxHP": maxHP}, statRead)
++		}
+ 		ae.Info.FlatDmg += dmgAdded
+ 
+ 		c.QueueCharTask(func() { char.DeleteStatus(c4Key) }, 0.05*60)
+--- a/internal/characters/mizuki/mizuki.go
++++ b/internal/characters/mizuki/mizuki.go
+@@ -18,6 +18,7 @@
+ 	cloudSrc                        int
+ 	a4Buff                          []float64
+ 	c1EM                            float64
++	c1EMCreationID                  int
+ 	c2Buff                          []float64
+ 	c4EnergyGenerationsRemaining    int
+ }
+--- a/internal/characters/mizuki/cons.go
++++ b/internal/characters/mizuki/cons.go
+@@ -66,6 +66,9 @@
+ 		}
+ 
+ 		additionalDmg := c1Multiplier * c.c1EM
++		if c.Core.SourceHost != nil {
++			additionalDmg = c.Core.SourceHost.CharacterAdditiveHit(atk, e.Key(), "char-add-mizuki-c1", c.Index(), map[string]any{"savedEM": c.c1EM}, nil, map[string]int{"savedEM": c.c1EMCreationID})
++		}
+ 
+ 		c.Core.Log.NewEvent("mizuki c1 proc", glog.LogPreDamageMod, atk.Info.ActorIndex).
+ 			Write("before", atk.Info.FlatDmg).
+@@ -89,7 +92,11 @@
+ 			return
+ 		}
+ 
+-		c.c1EM = c.Stat(attributes.EM)
++		em, statRead := c.StatWithProvenance(attributes.EM)
++		c.c1EM = em
++		if c.Core.SourceHost != nil {
++			c.c1EM, c.c1EMCreationID = c.Core.SourceHost.CharacterAdditiveCreate(c.Index(), "char-add-mizuki-c1-em", map[string]any{"em": em}, statRead)
++		}
+ 		area := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, c1Range)
+ 		for _, target := range c.Core.Combat.EnemiesWithinArea(area, nil) {
+ 			if e, ok := target.(*enemy.Enemy); ok {

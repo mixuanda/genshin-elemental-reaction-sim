@@ -1,0 +1,456 @@
+--- a/internal/characters/varka/varka.go
++++ b/internal/characters/varka/varka.go
+@@ -20,10 +20,11 @@
+ 	fourWindsCDDoneF        int
+ 	fourWindsCDStacks       int
+ 
+-	a1Buff       float64
+-	a1CreationID int
+-	a1Multiplier float64
+-	a4Stacks     int
++	a1Buff               float64
++	a1CreationID         int
++	a1Multiplier         float64
++	a1MultiplierSourceID int
++	a4Stacks             int
+ 
+ 	c1Extra int
+ }
+--- a/internal/characters/varka/asc.go
++++ b/internal/characters/varka/asc.go
+@@ -72,6 +72,18 @@
+ 		c.a1Multiplier = a1Multiplier[1]
+ 	default:
+ 		c.a1Multiplier = a1Multiplier[0]
++	}
++	if host := c.Core.SourceHost; host != nil {
++		anemoPair, phecPair := 0, 0
++		if twoAnemo {
++			anemoPair = 1
++		}
++		if twoPHEC {
++			phecPair = 1
++		}
++		c.a1Multiplier, c.a1MultiplierSourceID = host.CharacterMultiplierCompute(c.Index(),
++			"char-mult-varka-a1-cache", 0,
++			map[string]any{"twoAnemo": anemoPair, "twoPhec": phecPair}, nil, 0)
+ 	}
+ }
+ 
+--- a/internal/characters/varka/skill.go
++++ b/internal/characters/varka/skill.go
+@@ -127,23 +127,40 @@
+ func (c *char) fourWinds(c6Free bool) (action.Info, error) {
+ 	ele := []attributes.Element{c.conversionElem, attributes.Anemo}
+ 
++	c1ExtraBefore := c.c1Extra
+ 	c1Mult := c.c1OnSpecialSkill()
++	var c1MultID int
++	if host := c.Core.SourceHost; host != nil {
++		c1Mult, c1MultID = host.CharacterMultiplierCompute(c.Index(), "char-mult-varka-c1-factor", 0,
++			map[string]any{"cons": c.Base.Cons, "extraBefore": c1ExtraBefore}, nil, 0)
++	}
+ 	for i := range 2 {
++		var sourceMultID int
+ 		ai := info.AttackInfo{
+-			ActorIndex:         c.Index(),
+-			Abil:               "Four Winds' Ascension",
+-			AttackTag:          attacks.AttackTagElementalArt,
+-			ICDTag:             attacks.ICDTagNone,
+-			ICDGroup:           attacks.ICDGroupDefault,
+-			StrikeType:         attacks.StrikeTypeBlunt,
+-			PoiseDMG:           fourWindsPoiseDmg[i],
+-			Element:            ele[i],
+-			Durability:         25,
+-			Mult:               skillAscension[i][c.TalentLvlSkill()] * c.a1SkillMulti() * c1Mult,
++			ActorIndex: c.Index(),
++			Abil:       "Four Winds' Ascension",
++			AttackTag:  attacks.AttackTagElementalArt,
++			ICDTag:     attacks.ICDTagNone,
++			ICDGroup:   attacks.ICDGroupDefault,
++			StrikeType: attacks.StrikeTypeBlunt,
++			PoiseDMG:   fourWindsPoiseDmg[i],
++			Element:    ele[i],
++			Durability: 25,
++			Mult: func() float64 {
++				base := skillAscension[i][c.TalentLvlSkill()]
++				a1 := c.a1SkillMulti()
++				value, id := c.sourceSkillMultiplier(base, a1, c1Mult, c1MultID, true,
++					"char-mult-varka-four-winds", "char-mult-varka-four-winds-unasc")
++				sourceMultID = id
++				return value
++			}(),
+ 			AdditionalTags:     []attacks.AdditionalTag{attacks.AdditionalTagVarkaSpecial},
+ 			HitlagHaltFrames:   fourWindsHitHaltFrame[i] * 60,
+ 			HitlagFactor:       0.01,
+ 			CanBeDefenseHalted: fourWindsCanBeDefHalted[i],
++		}
++		if sourceMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
+ 		}
+ 		ap := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 6.5)
+ 		c.Core.QueueAttack(ai, ap, fourWindsHitmark[i], fourWindsHitmark[i])
+--- a/internal/characters/varka/attack.go
++++ b/internal/characters/varka/attack.go
+@@ -130,21 +130,32 @@
+ 	}
+ 
+ 	for i, delay := range attackHitmarks[c.NormalCounter] {
++		var sourceMultID int
+ 		ai := info.AttackInfo{
+-			ActorIndex:         c.Index(),
+-			Abil:               fmt.Sprintf("Sturm und Drang Normal %v", c.NormalCounter),
+-			AttackTag:          attacks.AttackTagNormal,
+-			ICDTag:             icdTag[(i+offset)%2],
+-			ICDGroup:           attacks.ICDGroupDefault,
+-			StrikeType:         attacks.StrikeTypeBlunt,
+-			PoiseDMG:           attackPoiseDMG[c.NormalCounter][i],
+-			Element:            ele[(i+offset)%2],
+-			IgnoreInfusion:     ele[(i+offset)%2] != attributes.Physical,
+-			Durability:         25,
+-			Mult:               skillAttack[c.NormalCounter][i][c.TalentLvlSkill()] * c.a1SkillMulti(),
++			ActorIndex:     c.Index(),
++			Abil:           fmt.Sprintf("Sturm und Drang Normal %v", c.NormalCounter),
++			AttackTag:      attacks.AttackTagNormal,
++			ICDTag:         icdTag[(i+offset)%2],
++			ICDGroup:       attacks.ICDGroupDefault,
++			StrikeType:     attacks.StrikeTypeBlunt,
++			PoiseDMG:       attackPoiseDMG[c.NormalCounter][i],
++			Element:        ele[(i+offset)%2],
++			IgnoreInfusion: ele[(i+offset)%2] != attributes.Physical,
++			Durability:     25,
++			Mult: func() float64 {
++				base := skillAttack[c.NormalCounter][i][c.TalentLvlSkill()]
++				a1 := c.a1SkillMulti()
++				value, id := c.sourceSkillMultiplier(base, a1, 1, 0, false,
++					"char-mult-varka-skill-normal", "char-mult-varka-skill-normal-unasc")
++				sourceMultID = id
++				return value
++			}(),
+ 			HitlagFactor:       0.01,
+ 			HitlagHaltFrames:   attackHitlagHaltFrame[c.NormalCounter][i] * 60,
+ 			CanBeDefenseHalted: attackCanBeDefenseHalted[c.NormalCounter][i],
++		}
++		if sourceMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
+ 		}
+ 		var ap info.AttackPattern
+ 		hitbox := attackHitboxes[c.NormalCounter]
+--- a/internal/characters/varka/charge.go
++++ b/internal/characters/varka/charge.go
+@@ -110,23 +110,34 @@
+ 	}
+ 
+ 	for i, hitmark := range chargeHitmarks {
++		var sourceMultID int
+ 		ai := info.AttackInfo{
+-			ActorIndex:         c.Index(),
+-			Abil:               "Sturm und Drang Charge",
+-			AttackTag:          attacks.AttackTagExtra,
+-			ICDTag:             icdTag[i],
+-			ICDGroup:           attacks.ICDGroupDefault,
+-			StrikeType:         attacks.StrikeTypeBlunt,
+-			PoiseDMG:           chargePoiseDmg[i],
+-			Element:            ele[i],
+-			IgnoreInfusion:     ele[i] != attributes.Physical,
+-			Durability:         25,
+-			Mult:               charge[i][c.TalentLvlSkill()] * c.a1SkillMulti(),
++			ActorIndex:     c.Index(),
++			Abil:           "Sturm und Drang Charge",
++			AttackTag:      attacks.AttackTagExtra,
++			ICDTag:         icdTag[i],
++			ICDGroup:       attacks.ICDGroupDefault,
++			StrikeType:     attacks.StrikeTypeBlunt,
++			PoiseDMG:       chargePoiseDmg[i],
++			Element:        ele[i],
++			IgnoreInfusion: ele[i] != attributes.Physical,
++			Durability:     25,
++			Mult: func() float64 {
++				base := charge[i][c.TalentLvlSkill()]
++				a1 := c.a1SkillMulti()
++				value, id := c.sourceSkillMultiplier(base, a1, 1, 0, false,
++					"char-mult-varka-skill-charge", "char-mult-varka-skill-charge-unasc")
++				sourceMultID = id
++				return value
++			}(),
+ 			HitlagHaltFrames:   chargeHitlagHaltFrames[i] * 60,
+ 			HitlagFactor:       0.01,
+ 			CanBeDefenseHalted: chargeCanBeDefenseHalted[i],
+ 		}
+ 
++		if sourceMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
++		}
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewCircleHitOnTarget(
+@@ -164,25 +175,42 @@
+ 
+ 	// Can't do azure devour without converting elem, so c.conversionElem is always non phys
+ 
++	c1ExtraBefore := c.c1Extra
+ 	c1Mult := c.c1OnSpecialSkill()
++	var c1MultID int
++	if host := c.Core.SourceHost; host != nil {
++		c1Mult, c1MultID = host.CharacterMultiplierCompute(c.Index(), "char-mult-varka-c1-factor", 0,
++			map[string]any{"cons": c.Base.Cons, "extraBefore": c1ExtraBefore}, nil, 0)
++	}
+ 	for i, hitmark := range azureDevourHitmarks {
++		var sourceMultID int
+ 		ai := info.AttackInfo{
+-			ActorIndex:         c.Index(),
+-			Abil:               "Azure Devour",
+-			AttackTag:          attacks.AttackTagExtra,
+-			ICDTag:             icdTag[i],
+-			ICDGroup:           attacks.ICDGroupDefault,
+-			StrikeType:         attacks.StrikeTypeBlunt,
+-			PoiseDMG:           azureDevourPoiseDmg[i],
+-			Element:            ele[i],
+-			IgnoreInfusion:     ele[i] != attributes.Physical,
+-			Durability:         25,
+-			Mult:               skillAzureDevour[i][c.TalentLvlSkill()] * c.a1SkillMulti() * c1Mult,
++			ActorIndex:     c.Index(),
++			Abil:           "Azure Devour",
++			AttackTag:      attacks.AttackTagExtra,
++			ICDTag:         icdTag[i],
++			ICDGroup:       attacks.ICDGroupDefault,
++			StrikeType:     attacks.StrikeTypeBlunt,
++			PoiseDMG:       azureDevourPoiseDmg[i],
++			Element:        ele[i],
++			IgnoreInfusion: ele[i] != attributes.Physical,
++			Durability:     25,
++			Mult: func() float64 {
++				base := skillAzureDevour[i][c.TalentLvlSkill()]
++				a1 := c.a1SkillMulti()
++				value, id := c.sourceSkillMultiplier(base, a1, c1Mult, c1MultID, true,
++					"char-mult-varka-azure-devour", "char-mult-varka-azure-devour-unasc")
++				sourceMultID = id
++				return value
++			}(),
+ 			HitlagHaltFrames:   azureDevourHitlagHaltFrames[i] * 60,
+ 			HitlagFactor:       0.01,
+ 			CanBeDefenseHalted: azureDevourCanBeDefenseHalted[i],
+ 		}
+ 
++		if sourceMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
++		}
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewCircleHitOnTarget(
+--- /dev/null
++++ b/internal/characters/varka/multiplier.go
+@@ -0,0 +1,28 @@
++package varka
++
++// sourceSkillMultiplier evaluates the source's complete Mult field at its
++// original struct-literal position. The A1 and C1 values have their own
++// creation receipts, reused by every hit of this action.
++func (c *char) sourceSkillMultiplier(base, a1, c1 float64, c1ID int, withC1 bool, activeRule, unascRule string) (float64, int) {
++	if c.Core.SourceHost == nil {
++		if withC1 {
++			return base * a1 * c1, 0
++		}
++		return base * a1, 0
++	}
++	state := map[string]any{"baseTalent": base}
++	valueSources := map[string]int{}
++	rule := unascRule
++	if c.a1MultiplierSourceID > 0 {
++		rule = activeRule
++		state["a1Factor"] = a1
++		valueSources["a1Factor"] = c.a1MultiplierSourceID
++	} else {
++		state["ascension"] = c.Base.Ascension
++	}
++	if withC1 {
++		state["c1Factor"] = c1
++		valueSources["c1Factor"] = c1ID
++	}
++	return c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), rule, 0, state, nil, 0, valueSources)
++}
+--- a/internal/characters/skirk/asc.go
++++ b/internal/characters/skirk/asc.go
+@@ -135,10 +135,12 @@
+ 	return count
+ }
+ 
+-func (c *char) a4MultAttack() float64 {
+-	return a4MultAttack[c.getA4Stacks()]
++func (c *char) a4MultAttack() (float64, int) {
++	stacks := c.getA4Stacks()
++	return a4MultAttack[stacks], stacks
+ }
+ 
+-func (c *char) a4MultBurst() float64 {
+-	return a4MultBurst[c.getA4Stacks()]
++func (c *char) a4MultBurst() (float64, int) {
++	stacks := c.getA4Stacks()
++	return a4MultBurst[stacks], stacks
+ }
+--- a/internal/characters/skirk/burst.go
++++ b/internal/characters/skirk/burst.go
+@@ -50,9 +50,11 @@
+ }
+ 
+ func (c *char) BurstRuin(p map[string]int) (action.Info, error) {
++	serpentsSubtletyAtStart := c.serpentsSubtlety
+ 	bonusSerpentsSubtlety := c.serpentsSubtlety - 50.0
+ 	bonusSerpentsSubtlety = max(min(bonusSerpentsSubtlety, 12+c.c2OnBurstRuin()), 0)
+ 
++	var sourceMultID int
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Havoc: Ruin (DoT)",
+@@ -62,9 +64,24 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Cryo,
+ 		Durability: 25,
+-		Mult:       (burstDoT[c.TalentLvlBurst()] + bonusSerpentsSubtlety*burstBonus[c.TalentLvlBurst()]) * c.a4MultBurst(),
++		Mult: func() float64 {
++			base := burstDoT[c.TalentLvlBurst()]
++			bonus := burstBonus[c.TalentLvlBurst()]
++			a4, stacks := c.a4MultBurst()
++			if c.Core.SourceHost == nil {
++				return (base + bonusSerpentsSubtlety*bonus) * a4
++			}
++			value, id := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-skirk-burst-dot", 0,
++				map[string]any{"baseTalent": base, "bonusTalent": bonus, "serpentsSubtlety": serpentsSubtletyAtStart,
++					"cons": c.Base.Cons, "a4Stacks": stacks}, nil, 0)
++			sourceMultID = id
++			return value
++		}(),
+ 	}
+ 
++	if sourceMultID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
++	}
+ 	ap := combat.NewBoxHitOnTarget(
+ 		c.Core.Combat.Player(),
+ 		info.Point{Y: -5},
+@@ -76,7 +93,23 @@
+ 	}
+ 
+ 	ai.Abil = "Havoc: Ruin (Final)"
+-	ai.Mult = (burstFinal[c.TalentLvlBurst()] + bonusSerpentsSubtlety*burstBonus[c.TalentLvlBurst()]) * c.a4MultBurst()
++	priorMultiplierID := ai.SourceHostMultiplierID
++	ai.Mult = func() float64 {
++		base := burstFinal[c.TalentLvlBurst()]
++		bonus := burstBonus[c.TalentLvlBurst()]
++		a4, stacks := c.a4MultBurst()
++		if c.Core.SourceHost == nil {
++			return (base + bonusSerpentsSubtlety*bonus) * a4
++		}
++		value, id := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-skirk-burst-final", ai.Mult,
++			map[string]any{"baseTalent": base, "bonusTalent": bonus, "serpentsSubtlety": serpentsSubtletyAtStart,
++				"cons": c.Base.Cons, "a4Stacks": stacks}, nil, priorMultiplierID)
++		sourceMultID = id
++		return value
++	}()
++	if sourceMultID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
++	}
+ 	c.Core.QueueAttack(ai, ap, burstHitmarkFinal, burstHitmarkFinal)
+ 
+ 	c.c6OnBurstRuin()
+--- a/internal/characters/skirk/attack.go
++++ b/internal/characters/skirk/attack.go
+@@ -159,10 +159,21 @@
+ 	}
+ 
+ 	for i, mult := range skillAttack[c.NormalCounter] {
++		var sourceMultID int
+ 		ai := info.AttackInfo{
+-			ActorIndex:       c.Index(),
+-			Abil:             fmt.Sprintf("Normal (Skill) %v", c.NormalCounter),
+-			Mult:             mult[c.TalentLvlSkill()] * c.a4MultAttack(),
++			ActorIndex: c.Index(),
++			Abil:       fmt.Sprintf("Normal (Skill) %v", c.NormalCounter),
++			Mult: func() float64 {
++				base := mult[c.TalentLvlSkill()]
++				a4, stacks := c.a4MultAttack()
++				if c.Core.SourceHost == nil {
++					return base * a4
++				}
++				value, id := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-skirk-skill-normal", 0,
++					map[string]any{"baseTalent": base, "a4Stacks": stacks}, nil, 0)
++				sourceMultID = id
++				return value
++			}(),
+ 			AttackTag:        attacks.AttackTagNormal,
+ 			ICDTag:           attacks.ICDTagNormalAttack,
+ 			ICDGroup:         attacks.ICDGroupDefault,
+@@ -174,6 +185,9 @@
+ 			IgnoreInfusion:   true,
+ 		}
+ 
++		if sourceMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
++		}
+ 		if i == 3 {
+ 			ai.StrikeType = attacks.StrikeTypeSpear
+ 		}
+--- a/internal/characters/skirk/cons.go
++++ b/internal/characters/skirk/cons.go
+@@ -126,16 +126,29 @@
+ 	if c.Base.Cons < 6 {
+ 		return
+ 	}
++	var sourceMultID int
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Havoc: Sever (Burst)",
+-		Mult:       7.5 * c.a4MultBurst(),
++		Mult: func() float64 {
++			a4, stacks := c.a4MultBurst()
++			if c.Core.SourceHost == nil {
++				return 7.5 * a4
++			}
++			value, id := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-skirk-c6-burst", 0,
++				map[string]any{"a4Stacks": stacks}, nil, 0)
++			sourceMultID = id
++			return value
++		}(),
+ 		AttackTag:  attacks.AttackTagElementalBurst,
+ 		ICDTag:     attacks.ICDTagElementalBurst,
+ 		ICDGroup:   attacks.ICDGroupDefault,
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Cryo,
+ 		Durability: 25,
++	}
++	if sourceMultID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
+ 	}
+ 	ap := combat.NewCircleHitOnTarget(
+ 		c.Core.Combat.Player(),
+@@ -188,16 +201,29 @@
+ 		}
+ 		c.AddStatus(c6IcdKey, c6Icd, true)
+ 
++		var sourceMultID int
+ 		ai := info.AttackInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       "Havoc: Sever (Normal)",
+-			Mult:       1.8 * c.a4MultAttack(),
++			Mult: func() float64 {
++				a4, stacks := c.a4MultAttack()
++				if c.Core.SourceHost == nil {
++					return 1.8 * a4
++				}
++				value, id := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-skirk-c6-normal", 0,
++					map[string]any{"a4Stacks": stacks}, nil, 0)
++				sourceMultID = id
++				return value
++			}(),
+ 			AttackTag:  attacks.AttackTagNormal,
+ 			ICDTag:     attacks.ICDTagNormalAttack,
+ 			ICDGroup:   attacks.ICDGroupDefault,
+ 			StrikeType: attacks.StrikeTypeSlash,
+ 			Element:    attributes.Cryo,
+ 			Durability: 25,
++		}
++		if sourceMultID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, sourceMultID)
+ 		}
+ 		ap := combat.NewCircleHitOnTarget(
+ 			c.Core.Combat.Player(),

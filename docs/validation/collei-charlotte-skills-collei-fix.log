@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 2 skipped (4)
+   Start at  06:06:18
+   Duration  1.23s (transform 820ms, setup 0ms, import 1.09s, tests 85ms, environment 0ms)
+

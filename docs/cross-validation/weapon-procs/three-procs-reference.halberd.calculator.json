@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "weapon-proc:halberd:r1",
+  "label": "钺矛 R1 · 独立物理追击",
+  "scope": "single-hit",
+  "characterLevel": 1,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 62.460812648700006,
+      "hp": 1143.984,
+      "def": 57.4368,
+      "em": 0,
+      "critRate": 0,
+      "critDamage": 0.5,
+      "energyRecharge": 1
+    },
+    "source": "外部 gcsim b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541 未舍入追击 calc 面板，无重复武器属性"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "weapon-proc:halberd:r1:hit",
+      "label": "钺矛 · 本次实际追击",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/halberd/halberd.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/halberd.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ],
+      "dependencies": [
+        "weapon-proc-source:halberd"
+      ],
+      "kind": "ordinary",
+      "element": "physical",
+      "attackTag": "proc",
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.6
+        }
+      ],
+      "baseDamageFormula": {
+        "ruleId": "weapon-proc-halberd-r1-b4ae769",
+        "label": "追击取样时攻击力 × R1 固定来源倍率（160%）",
+        "expression": {
+          "kind": "multiply",
+          "terms": [
+            {
+              "kind": "variable",
+              "key": "atk"
+            },
+            {
+              "kind": "variable",
+              "key": "weaponProcCoefficient"
+            }
+          ]
+        },
+        "inputs": [
+          {
+            "key": "weaponProcCoefficient",
+            "value": 1.6,
+            "unit": "ratio",
+            "meaningKey": "钺矛 R1 追击倍率",
+            "origin": "source-table",
+            "allowedValues": [
+              1.6
+            ]
+          }
+        ],
+        "sourceRefs": [
+          "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/halberd/halberd.go",
+          "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/halberd.json",
+          "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+          "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+        ],
+        "requirements": {
+          "elements": [
+            "physical"
+          ],
+          "attackTags": [
+            "proc"
+          ]
+        }
+      },
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1,
+      "excludedModifiers": [
+        {
+          "label": "宿主命中伤害",
+          "reason": "这是一条独立武器追击，单独结算自己的暴击、防御与物理抗性，不加入宿主的基础伤害加算。"
+        },
+        {
+          "label": "普通攻击／战技／爆发专属增伤",
+          "reason": "武器追击标签为 proc，不继承宿主的攻击类型专属增伤。"
+        }
+      ]
+    }
+  ],
+  "selectedHitIds": [
+    "weapon-proc:halberd:r1:hit"
+  ],
+  "assumptions": [
+    "条件输入：本次武器追击已经真实触发并命中所填目标；本计算不证明触发次数、冷却可用、前台状态或自动轮转。",
+    "追击取样时攻击力和暴击等使用实际追击取样面板；最终面板可编辑，不重复加入武器白值或副属性。",
+    "钺矛来源仅由持有者普通攻击回调触发；固定代码未另要求前台或非零宿主伤害。",
+    "钺矛为原目标单体追击，不把范围或其他目标并入。",
+    "固定来源在伤害回调取样后 +1 帧排程，名义冷却 600 帧；此独立计算器不执行这些时钟或卡肉。",
+    "R1–R5倍率来自固定源码与目录。结果仍为来源条件数值，未经当前游戏实测；改精炼需由对应来源定义重新生成文档。"
+  ],
+  "dependencies": [
+    {
+      "id": "weapon-proc-source:halberd",
+      "status": "provisional",
+      "reason": "固定来源的独立追击公式；实际触发与目标命中为明确输入前提，不是自动触发认证。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/halberd/halberd.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/halberd.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Halberd/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "evidenceStatus": "provisional"
+  }
+}

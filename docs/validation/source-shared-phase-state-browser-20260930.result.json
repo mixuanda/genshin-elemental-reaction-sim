@@ -1,0 +1,1091 @@
+{
+  "measurements": {
+    "summaries": [
+      {
+        "lane": "classic",
+        "executionArtifact": {
+          "wasmSha256": "de10cf6611df89329d376c1a368ad3b51ba3c210ffbf910d260429ce52926c35",
+          "wasmBytes": 45254894
+        },
+        "observations": 14,
+        "frames": [
+          7,
+          30,
+          40,
+          46,
+          100,
+          106,
+          160,
+          166,
+          220,
+          226,
+          280,
+          391,
+          404,
+          405
+        ],
+        "applications": 14,
+        "ecTickCaptures": [
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 0,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 6,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 70,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 10,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 60,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 16,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 54,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 70,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 60,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 76,
+              "matchesLiveGeneration": false,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 54,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          }
+        ],
+        "ecWaneCaptures": [
+          {
+            "capture": {
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 7,
+            "key": "reaction-electrocharged-wane",
+            "remainingFrames": 6,
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-task"
+          },
+          {
+            "capture": {
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 6,
+            "key": "reaction-electrocharged-wane",
+            "remainingFrames": 6,
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-task"
+          }
+        ],
+        "ecEventCaptures": [
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          }
+        ],
+        "burningCaptures": [
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 79,
+              "counter": 4,
+              "matchesLiveGeneration": true,
+              "queueTargetKey": 1,
+              "queueTargetType": 0,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 0,
+            "key": "reaction-burning-tick",
+            "remainingFrames": 3,
+            "source": "pkg/reactable/burning.go:nextBurningTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 92,
+              "counter": 5,
+              "matchesLiveGeneration": true,
+              "queueTargetKey": 1,
+              "queueTargetType": 0,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 0,
+            "key": "reaction-burning-tick",
+            "remainingFrames": 5,
+            "source": "pkg/reactable/burning.go:nextBurningTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 93,
+              "counter": 5,
+              "matchesLiveGeneration": true,
+              "queueTargetKey": 1,
+              "queueTargetType": 0,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 0,
+            "key": "reaction-burning-tick",
+            "remainingFrames": 4,
+            "source": "pkg/reactable/burning.go:nextBurningTick"
+          }
+        ],
+        "attackCaptures": [
+          {
+            "capture": {
+              "callbacks": [],
+              "info": {
+                "ActorIndex": 1,
+                "DamageSrc": 1,
+                "Abil": "electrocharged",
+                "AttackTag": 13,
+                "AdditionalTags": null,
+                "PoiseDMG": 0,
+                "ICDTag": 23,
+                "ICDGroup": 3,
+                "Element": "electro",
+                "Durability": 0,
+                "NoImpulse": false,
+                "HitWeakPoint": false,
+                "BaseDmgBonus": 0,
+                "Elevation": 0,
+                "Mult": 0,
+                "StrikeType": 0,
+                "UseDef": false,
+                "UseHP": false,
+                "UseEM": false,
+                "FlatDmg": 5857.833676151254,
+                "IgnoreDefPercent": 1,
+                "IgnoreInfusion": false,
+                "Amped": false,
+                "AmpMult": 0,
+                "AmpType": "",
+                "Catalyzed": false,
+                "CatalyzedType": "",
+                "SourceIsSim": false,
+                "DoNotLog": false,
+                "HitlagHaltFrames": 0,
+                "HitlagFactor": 0,
+                "CanBeDefenseHalted": false,
+                "IsDeployable": false,
+                "HitlagOnHeadshotOnly": false
+              },
+              "pattern": {
+                "ignoredKeys": [],
+                "shape": {
+                  "kind": "single-target",
+                  "targetKey": 1
+                },
+                "skipTargets": [
+                  false,
+                  true,
+                  false
+                ]
+              },
+              "reacted": false,
+              "snapshot": {
+                "characterLevel": 90,
+                "sourceAgeFrames": 0,
+                "stats": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  136.8,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "sourceAgeFrames": 0
+            },
+            "captureReference": 0,
+            "fifoRank": 5,
+            "key": "attack-application",
+            "remainingFrames": 10,
+            "source": "pkg/core/attack.go:queueDmg:application"
+          },
+          {
+            "capture": {
+              "callbacks": [
+                true
+              ],
+              "info": {
+                "ActorIndex": 2,
+                "DamageSrc": 0,
+                "Abil": "Floral Brush",
+                "AttackTag": 4,
+                "AdditionalTags": null,
+                "PoiseDMG": 0,
+                "ICDTag": 0,
+                "ICDGroup": 0,
+                "Element": "dendro",
+                "Durability": 25,
+                "NoImpulse": false,
+                "HitWeakPoint": false,
+                "BaseDmgBonus": 0,
+                "Elevation": 0,
+                "Mult": 1.512,
+                "StrikeType": 3,
+                "UseDef": false,
+                "UseHP": false,
+                "UseEM": false,
+                "FlatDmg": 0,
+                "IgnoreDefPercent": 0,
+                "IgnoreInfusion": false,
+                "Amped": false,
+                "AmpMult": 0,
+                "AmpType": "",
+                "Catalyzed": false,
+                "CatalyzedType": "",
+                "SourceIsSim": false,
+                "DoNotLog": false,
+                "HitlagHaltFrames": 0,
+                "HitlagFactor": 0,
+                "CanBeDefenseHalted": true,
+                "IsDeployable": true,
+                "HitlagOnHeadshotOnly": false
+              },
+              "pattern": {
+                "ignoredKeys": [],
+                "shape": {
+                  "aabb": [
+                    {
+                      "X": -2,
+                      "Y": -2
+                    },
+                    {
+                      "X": 2,
+                      "Y": 2
+                    }
+                  ],
+                  "center": {
+                    "X": 0,
+                    "Y": 0
+                  },
+                  "direction": {
+                    "X": 0,
+                    "Y": 1
+                  },
+                  "fanAngle": 360,
+                  "kind": "circle",
+                  "radius": 2,
+                  "segments": []
+                },
+                "skipTargets": [
+                  false,
+                  true,
+                  false
+                ]
+              },
+              "reacted": false,
+              "snapshot": {
+                "characterLevel": 90,
+                "sourceAgeFrames": 33,
+                "stats": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0.24,
+                  1,
+                  0,
+                  0.05,
+                  0.5,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  9787.4235531,
+                  222.89835947999998,
+                  600.6189420000001
+                ]
+              },
+              "sourceAgeFrames": 53
+            },
+            "captureReference": 0,
+            "fifoRank": 1,
+            "key": "attack-application",
+            "remainingFrames": 85,
+            "source": "pkg/core/attack.go:queueDmg:application"
+          }
+        ],
+        "gaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 23 key \"collei-a1\" has an undescribed callback",
+          "events: event 23 key \"collei-a4\" has an undescribed callback",
+          "events: event 24 key \"collei-a1\" has an undescribed callback",
+          "events: event 24 key \"collei-a4\" has an undescribed callback",
+          "events: event 25 key \"collei-a1\" has an undescribed callback",
+          "events: event 25 key \"collei-a4\" has an undescribed callback",
+          "events: event 26 key \"collei-a1\" has an undescribed callback",
+          "events: event 26 key \"collei-a4\" has an undescribed callback",
+          "events: event 27 key \"collei-a1\" has an undescribed callback",
+          "events: event 27 key \"collei-a4\" has an undescribed callback",
+          "events: event 28 key \"collei-a1\" has an undescribed callback",
+          "events: event 28 key \"collei-a4\" has an undescribed callback",
+          "events: event 29 key \"collei-a1\" has an undescribed callback",
+          "events: event 29 key \"collei-a4\" has an undescribed callback",
+          "events: event 31 key \"collei-a1\" has an undescribed callback",
+          "events: event 31 key \"collei-a4\" has an undescribed callback",
+          "events: event 41 key \"barbara-a4\" has an undescribed callback",
+          "player: animation.FramePausedOnHitlag callback",
+          "player: animation.Frames callback",
+          "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+          "player: character[0].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[0].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+          "player: character[1].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstExtendCount: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.X: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.Y: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.sproutSrc: private numeric clock semantics have not been reviewed",
+          "player: character[3].concrete.*.guobaFlameRange: private numeric clock semantics have not been reviewed",
+          "player: character[3].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[3].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "targets: enemies[0].target.tag-value-temporal-semantics",
+          "tasks: queued task \"\" has an undescribed closure",
+          "tasks: queued task \"attack-application\": attack callback[0] has undescribed captured state",
+          "player: queued task \"\" has an undescribed closure"
+        ],
+        "completeBoundaries": 0,
+        "analysis": {
+          "status": "not-established",
+          "evidence": "provisional-source-state",
+          "periodCycles": null,
+          "steadyStateDps": null,
+          "periodDamage": null,
+          "periodFrames": null,
+          "warmupBoundaryFrame": null,
+          "matchedBoundaryFrames": [],
+          "observationCount": 14,
+          "reasons": [
+            "原生边界并非同一解释器重复输入位置。"
+          ],
+          "stateDifferences": [],
+          "intervalDifferences": []
+        }
+      },
+      {
+        "lane": "stellar",
+        "executionArtifact": {
+          "wasmSha256": "2ba3564790489b47fc06c649b847c58c46a44e57abd1d11f8eb22c30fb763f27",
+          "wasmBytes": 70065409
+        },
+        "observations": 14,
+        "frames": [
+          7,
+          30,
+          40,
+          46,
+          100,
+          106,
+          160,
+          166,
+          220,
+          226,
+          280,
+          391,
+          404,
+          405
+        ],
+        "applications": 14,
+        "ecTickCaptures": [
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 0,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 6,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 70,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 10,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 60,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 16,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 54,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 70,
+              "matchesLiveGeneration": true,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 60,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 76,
+              "matchesLiveGeneration": false,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 5,
+            "key": "reaction-electrocharged-tick",
+            "remainingFrames": 54,
+            "source": "pkg/reactable/electrocharged.go:nextECTick"
+          }
+        ],
+        "ecWaneCaptures": [
+          {
+            "capture": {
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 7,
+            "key": "reaction-electrocharged-wane",
+            "remainingFrames": 6,
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-task"
+          },
+          {
+            "capture": {
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 6,
+            "key": "reaction-electrocharged-wane",
+            "remainingFrames": 6,
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-task"
+          }
+        ],
+        "ecEventCaptures": [
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "capture": {
+              "removalEventKey": "ec-1",
+              "removalEventType": 3,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "enabled": true,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          },
+          {
+            "enabled": false,
+            "key": "ec-1",
+            "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event"
+          }
+        ],
+        "burningCaptures": [
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 79,
+              "counter": 4,
+              "matchesLiveGeneration": true,
+              "queueTargetKey": 1,
+              "queueTargetType": 0,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 0,
+            "key": "reaction-burning-tick",
+            "remainingFrames": 3,
+            "source": "pkg/reactable/burning.go:nextBurningTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 92,
+              "counter": 5,
+              "matchesLiveGeneration": true,
+              "queueTargetKey": 1,
+              "queueTargetType": 0,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 0,
+            "key": "reaction-burning-tick",
+            "remainingFrames": 5,
+            "source": "pkg/reactable/burning.go:nextBurningTick"
+          },
+          {
+            "capture": {
+              "capturedGenerationAgeFrames": 93,
+              "counter": 5,
+              "matchesLiveGeneration": true,
+              "queueTargetKey": 1,
+              "queueTargetType": 0,
+              "targetKey": 1,
+              "targetType": 0
+            },
+            "fifoRank": 0,
+            "key": "reaction-burning-tick",
+            "remainingFrames": 4,
+            "source": "pkg/reactable/burning.go:nextBurningTick"
+          }
+        ],
+        "attackCaptures": [
+          {
+            "capture": {
+              "callbacks": [],
+              "info": {
+                "ActorIndex": 1,
+                "DamageSrc": 1,
+                "Abil": "electrocharged",
+                "AttackTag": 16,
+                "AdditionalTags": null,
+                "PoiseDMG": 0,
+                "ICDTag": 23,
+                "ICDGroup": 3,
+                "Element": "electro",
+                "Durability": 0,
+                "NoImpulse": false,
+                "HitWeakPoint": false,
+                "BaseDmgBonus": 0,
+                "Elevation": 0,
+                "Mult": 0,
+                "StrikeType": 0,
+                "UseDef": false,
+                "UseHP": false,
+                "UseEM": false,
+                "FlatDmg": 5857.833676151254,
+                "IgnoreDefPercent": 1,
+                "IgnoreInfusion": false,
+                "Amped": false,
+                "AmpMult": 0,
+                "AmpType": "",
+                "Catalyzed": false,
+                "CatalyzedType": "",
+                "SourceIsSim": false,
+                "DoNotLog": false,
+                "HitlagHaltFrames": 0,
+                "HitlagFactor": 0,
+                "CanBeDefenseHalted": false,
+                "IsDeployable": false,
+                "HitlagOnHeadshotOnly": false
+              },
+              "pattern": {
+                "ignoredKeys": [],
+                "shape": {
+                  "kind": "single-target",
+                  "targetKey": 1
+                },
+                "skipTargets": [
+                  false,
+                  true,
+                  false
+                ]
+              },
+              "reacted": false,
+              "snapshot": {
+                "characterLevel": 90,
+                "sourceAgeFrames": 0,
+                "stats": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  136.8,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "sourceAgeFrames": 0
+            },
+            "captureReference": 0,
+            "fifoRank": 5,
+            "key": "attack-application",
+            "remainingFrames": 10,
+            "source": "pkg/core/attack.go:queueDmg:application"
+          },
+          {
+            "capture": {
+              "callbacks": [
+                true
+              ],
+              "info": {
+                "ActorIndex": 2,
+                "DamageSrc": 0,
+                "Abil": "Floral Brush",
+                "AttackTag": 4,
+                "AdditionalTags": null,
+                "PoiseDMG": 0,
+                "ICDTag": 0,
+                "ICDGroup": 0,
+                "Element": "dendro",
+                "Durability": 25,
+                "NoImpulse": false,
+                "HitWeakPoint": false,
+                "BaseDmgBonus": 0,
+                "Elevation": 0,
+                "Mult": 1.512,
+                "StrikeType": 3,
+                "UseDef": false,
+                "UseHP": false,
+                "UseEM": false,
+                "FlatDmg": 0,
+                "IgnoreDefPercent": 0,
+                "IgnoreInfusion": false,
+                "Amped": false,
+                "AmpMult": 0,
+                "AmpType": "",
+                "Catalyzed": false,
+                "CatalyzedType": "",
+                "SourceIsSim": false,
+                "DoNotLog": false,
+                "HitlagHaltFrames": 0,
+                "HitlagFactor": 0,
+                "CanBeDefenseHalted": true,
+                "IsDeployable": true,
+                "HitlagOnHeadshotOnly": false
+              },
+              "pattern": {
+                "ignoredKeys": [],
+                "shape": {
+                  "aabb": [
+                    {
+                      "X": -2,
+                      "Y": -2
+                    },
+                    {
+                      "X": 2,
+                      "Y": 2
+                    }
+                  ],
+                  "center": {
+                    "X": 0,
+                    "Y": 0
+                  },
+                  "direction": {
+                    "X": 0,
+                    "Y": 1
+                  },
+                  "fanAngle": 360,
+                  "kind": "circle",
+                  "radius": 2,
+                  "segments": []
+                },
+                "skipTargets": [
+                  false,
+                  true,
+                  false
+                ]
+              },
+              "reacted": false,
+              "snapshot": {
+                "characterLevel": 90,
+                "sourceAgeFrames": 33,
+                "stats": [
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0.24,
+                  1,
+                  0,
+                  0.05,
+                  0.5,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  9787.4235531,
+                  222.89835947999998,
+                  600.6189420000001
+                ]
+              },
+              "sourceAgeFrames": 53
+            },
+            "captureReference": 0,
+            "fifoRank": 1,
+            "key": "attack-application",
+            "remainingFrames": 85,
+            "source": "pkg/core/attack.go:queueDmg:application"
+          }
+        ],
+        "gaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 24 key \"collei-a1\" has an undescribed callback",
+          "events: event 24 key \"collei-a4\" has an undescribed callback",
+          "events: event 25 key \"collei-a1\" has an undescribed callback",
+          "events: event 25 key \"collei-a4\" has an undescribed callback",
+          "events: event 26 key \"collei-a1\" has an undescribed callback",
+          "events: event 26 key \"collei-a4\" has an undescribed callback",
+          "events: event 27 key \"collei-a1\" has an undescribed callback",
+          "events: event 27 key \"collei-a4\" has an undescribed callback",
+          "events: event 28 key \"collei-a1\" has an undescribed callback",
+          "events: event 28 key \"collei-a4\" has an undescribed callback",
+          "events: event 29 key \"collei-a1\" has an undescribed callback",
+          "events: event 29 key \"collei-a4\" has an undescribed callback",
+          "events: event 30 key \"collei-a1\" has an undescribed callback",
+          "events: event 30 key \"collei-a4\" has an undescribed callback",
+          "events: event 32 key \"collei-a1\" has an undescribed callback",
+          "events: event 32 key \"collei-a4\" has an undescribed callback",
+          "events: event 44 key \"barbara-a4\" has an undescribed callback",
+          "player: animation.FramePausedOnHitlag callback",
+          "player: animation.Frames callback",
+          "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+          "player: character[0].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[0].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+          "player: character[1].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstExtendCount: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.X: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.Y: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.sproutSrc: private numeric clock semantics have not been reviewed",
+          "player: character[3].concrete.*.guobaFlameRange: private numeric clock semantics have not been reviewed",
+          "player: character[3].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[3].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "targets: enemies[0].target.tag-value-temporal-semantics",
+          "tasks: queued task \"\" has an undescribed closure",
+          "tasks: queued task \"attack-application\": attack callback[0] has undescribed captured state",
+          "player: queued task \"\" has an undescribed closure"
+        ],
+        "completeBoundaries": 0,
+        "analysis": {
+          "status": "not-established",
+          "evidence": "provisional-source-state",
+          "periodCycles": null,
+          "steadyStateDps": null,
+          "periodDamage": null,
+          "periodFrames": null,
+          "warmupBoundaryFrame": null,
+          "matchedBoundaryFrames": [],
+          "observationCount": 14,
+          "reasons": [
+            "原生边界并非同一解释器重复输入位置。"
+          ],
+          "stateDifferences": [],
+          "intervalDifferences": []
+        }
+      }
+    ],
+    "capturePath": "docs/validation/source-shared-phase-state-browser-20260930.capture.json",
+    "scope": "Two finite source-state probes, not a periodic or energy benchmark. Different marker positions cannot establish a repeated input phase. Unknown provider gaps remain independently asserted.",
+    "nativeRunsPerformed": true,
+    "phaseJsonRoundtripEqual": true
+  },
+  "pageErrors": []
+}

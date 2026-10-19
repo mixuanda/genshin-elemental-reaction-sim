@@ -1,0 +1,454 @@
+﻿An Extensive Look Into Shield Damage in Genshin Impact
+Last updated 11th September 2022
+Compiled by rolloblanco on Discord thanks to resources provided by the Genshin Impact Fandom Wiki.
+Special thanks to Keqingmains Theorycrafting Community for discussion and new information on some of the concepts.
+To suggest edits or ask for clarification, please message me on Discord.
+
+
+Disclaimer: This information is an aggregation (and in some cases a simplification) of the information available at https://genshin-impact.fandom.com/wiki/Shields. If you are looking for a further look into shield damage outside the scope of this document, you are likely to find your answer there.
+
+
+Genshin Impact does not use a generic single-variable HP system for enemy shields like other games. Instead, total Shield HP is in the form of its Shield Gauge Units (Shield GU), a value which represents the shield’s “elemental strength”. This can be decreased to 0 (thereby breaking the shield) through reactions, character damage (excluding Elemental Armor) and the Poise values of your talents. The term “shield” has various subsets such as Elemental Force Shields, Elemental Armor, Object Shields and Guard Shields. Different subsets interact with the three main components of shield damage in different ways, which is explored in this document.
+(Poise values are explained in the document and affect Geo   / Frozen* shields only)
+
+
+*Disclaimer: "Cryo  " Shields/Armor on enemies are considered as “Frozen”. Frozen is a sibling element to Cryo  , and shares most features from Cryo  , but it cannot react with Hydro   except in a few cases. 
+
+
+Total Shield Damage = Reaction Cost + Damage Cost + Poise Cost
+
+
+  
+Table of Contents (tap on the text to move)
+If on mobile, please turn on “Print Layout”    
+Reaction Cost
+Reaction Coefficient (RC)
+Elemental Gauge for Reaction (Character GU)
+Reaction Cost Summary
+Damage Cost
+Damage Conversion Ratio
+Final Damage Value
+Elemental Gauge of Shield (Shield GU)
+Shield HP Ratio
+Max HP of Target
+Damage Cost Example
+Damage Cost Summary
+Poise Cost
+Initial Poise Damage of Attack
+Poise Damage Conversion Ratio
+Poise Cost Example
+Poise Cost Summary
+Practical Example
+Glossary
+Gauge
+Character Gauge Units (Character GU)
+Shield Gauge Units (Shield GU)
+Shield Types
+Elemental Armor
+Elemental Force Shield
+Elemental Guard Shield
+Poise
+Reaction
+References
+________________
+
+
+All technical terms used can be found alongside a definition in the glossary at the end of the document.
+Reaction Cost
+  
+
+Reaction Cost is affected by the reaction coefficient and the elemental gauge for reaction. 
+Reaction Coefficient (RC)
+The reaction coefficient (RC) is a variable which represents how effective your character ability's element is when dealing damage to an elemental shield. The RC then multiplies with your character ability's Gauge Units (GU) in order to deal damage to a shield. Usually when considering transformative reactions the RC is 1. When using the same element against a shield the RC is 0. Hence, the Reaction Cost of an attack which matches its element with the enemy shield is nullified in the total shield damage calculation. This includes Geo  .
+
+
+RC values of Fatui Skirmishers are different to all other enemies, which is why Hydro   Fatui have a different weakness compared to Hydro   Abyss Mages. A list can be found here (Shield Gauge Data by Genshin Fandom Wiki). 
+Important Note: All shields in the game have a set Shield GU which acts as their total effective HP post calculation. A compact table in which lists resistances for all enemies alongside GU of shields/armor where applicable can be found here (Resistances and Shield Durability by Genshin Academy)
+
+
+Elemental Force Shields / Armor 
+(Slimes, Abyss/Cicin Mages, Lectors, Heralds)
+	
+
+	Fatui Skirmishers’ Elemental Armor
+	Shield Type
+	Application RC
+	Armor Type
+	Application RC
+	  
+
+	  
+
+	  
+
+	  
+  
+  
+
+	  
+
+	  
+  
+
+	  
+
+	Other
+	2
+	1
+	0.5
+	0
+	2
+	0.1
+	  
+
+	  
+
+	  
+
+	  
+  
+  
+
+	  
+
+	  
+  
+
+	  
+
+	Other
+	2
+	1
+	0.5
+	↓
+	↓
+	0.05
+	  
+
+	  
+
+	  
+
+	  
+  
+
+	  
+  
+
+	  
+  
+
+	  
+
+	Other
+	2
+	1
+	0.5
+	0
+	2
+	0.1
+	  
+
+	  
+  
+  
+
+	  
+  
+
+	  
+
+	  
+  
+
+	  
+
+	Other
+	1
+	0.5
+	↓
+	2
+	0.1
+	Electro-Charged is special. Against Elemental Force Shields It applies a DoT (damage over time) across its duration instead of a single instance of damage, and the Character ability GU (CGU) applied will coexist alongside the shield’s aura throughout the reaction. For example, applying 2CGU Hydro   to an Electro   Abyss Lector will result in both auras being visible.*
+
+
+Electro-Charged cannot be "refreshed" when rapid instances of Electro  /Hydro   are applied. The exception to this is when one application duration ends and another starts directly after (0.5sec delay between ending and starting a new tick chain).
+
+
+Each tick consumes 0.4GU from the shield’s aura and the applied aura (see above). The CGU applied increases the total number of ticks while keeping the same frequency (once per second, however the ending tick of Electro-Charged can occur on the target prematurely if the total GU runs out between 0.5-1sec from the last tick). This is significant because the RC calculation does not use CGU directly, but instead calculates every separate DoT as its own instance. This is technically multiplication but it also takes unit decay into account as seen with 4CGU applications. 
+
+
+In a vacuum (uninterrupted), Electro-Charged ticks 2x from a 1CGU application, 4x from a 2CGU application and 7x from a 4CGU application.
+
+
+*Other reactions prioritise the Electro    aura over the Hydro   aura and can destroy Electro-Charged before all ticks occur.
+	* A simplified version of this infographic can be found here: Shield Damage in Genshin Impact Simplified
+
+
+Geo   Force Shields* / Elemental Armor* work differently to Geo   Object Shields* (physical entities). For Force Shields / Elemental Armor, applying an element does not consume the Geo   but instead maintains aura on the enemy. This aura can then be reacted from a character’s Geo   application to produce crystallise, which uses an RC value of 2 and uses the Character GU of the elemental ability which applied aura.
+For Object Shields, this scenario only works when the Cryo   element is applied.
+*All three shield types are explained in the Glossary
+
+
+Elemental Gauge for Reaction (Character GU)
+The elemental gauge for reaction refers to Gauge Units (GU) applied by character abilities. In the previous section this was referred to as Character ability GU (CGU). This value varies between characters. See here (Elemental Gauge Theory by Keqingmains) for a further in-depth analysis. A link to all known values for each character can be found in the Elemental Gauge Database.
+
+
+Example: If Kaeya uses his elemental skill (2 Character GU) onto a Hydro   Abyss Mage’s Elemental Force Shield, it will have a Reaction Cost value of 2 x 1 = 2. As Abyss Mages have a Shield GU value of 12, this will result in 1/6 of the Hydro   Abyss Mage’s shield being removed at minimum. 
+
+
+Reaction Cost Summary
+Reaction Cost can therefore be considered as the effectiveness of your element (RC) multiplied by the strength of the ability (CGU).
+________________
+
+
+Damage Cost
+  
+
+Some shields have a total HP that is affected by character damage. The final value dealt to an enemy shield is in the form of Shield GU, so this equation works as a conversion from character damage to GU. 
+An example of Damage Cost being used to calculate total damage against a shield can be found in the Practical Example.
+
+
+Damage Cost is affected by the damage conversion ratio, the final damage value, the elemental gauge of the shield, the shield HP ratio and the max HP of the target. 
+Damage Conversion Ratio
+The damage conversion ratio is the major factor for the Damage Cost, and it determines to what degree a shield can be affected by character damage. 
+
+
+For Elemental Force/Guard Shields this value is usually 0.2, meaning shields take 20% of normal damage dealt (there are some exceptions, such as Golden Wolflord’s summons and Hydro Hypostasis’ droplets, which have a value of 0). For Elemental Armor (Whopperflowers, Lawachurls, Fatui) where your damage bypasses the shield, this value is 0, resulting in a 0 for the entirety of the Damage Cost calculation. This then relies on the Reaction Cost and Poise Cost for shield damage. 
+
+
+Character shields also have a damage conversion ratio. Most shields have a value of 1, though against their corresponding element (where applicable, See Diona, Xinyan, Beidou C1) the damage conversion ratio is 0.4. That is how the 250% element DMG absorption bonus is calculated. Using this, you can think of an enemy shield’s damage conversion ratio as an x% total DMG absorption bonus.
+Final Damage Value
+The final damage value is the damage value of the character’s attack, considering critical strikes, damage bonuses and damage reductions (defense, resistance, etc). This does not consider amplifying reaction damage bonuses like Melt or Vaporise, but does consider transformative reactions and EM modifiers placed upon them. This is equal to 0 if the attack’s element matches the shield (except for Geo  )
+
+
+Elemental Gauge of Shield (Shield GU)
+The elemental gauge of shield is affected by base elemental gauges and special multipliers. Different enemy shields have different base elemental gauges, known as Gauge Units (GU). A list can be found here (Shield Gauge Data by Genshin Fandom Wiki), though the most relevant will be listed below. 
+Pyro / Hydro / Cryo Abyss Mages → 12 Shield GU
+Electro Abyss Mages → 8 Shield GU
+Fatui Skirmishers → 8 Shield GU
+Hydro Abyss Heralds / Electro Lectors → 36 Shield GU
+Pyro Lectors → 72 Shield GU
+
+
+There are three types of special multipliers which increase the effective Shield GU of an Elemental Force Shield, which apply in their own respective situations. These are Domain, Abyss and Co-Op multipliers. A list of the following can be seen below.
+
+
+Special Multipliers for Elemental Gauge of Shield
+	Spiral Abyss
+	Floor 1-7
+	Per-enemy basis (not consistent)
+	Floor 8 - 11
+	Floor 12
+	Co-Op Mode
+	2 Players in the Same Area
+	1.5x
+	3 Players in the Same Area
+	1.7x
+	4 Players in the Same Area
+	2.0x
+	Only Elemental Force Shields (Large Slimes, Abyss Mages, Cicin Mages, Heralds/Lectors etc) will receive this multiplier.
+Shield HP Ratio
+The shield HP ratio acts to connect the elemental gauge of the shield with the HP value of enemies. For most enemies or objects, the shield HP ratio is 1. This means the HP of their shield is at a 1:1 ratio with their own HP. This then uses the Damage Conversion Ratio to calculate EHP (Effective HP).
+
+
+Example: If an enemy shield has a 0.2 Damage Conversion Ratio and a 1 shield HP ratio, the EHP of the shield will be at a 5:1 ratio with their own HP, as the shield takes 20% of normal damage, effectively making the shield’s health 5x larger than the enemy’s health.
+Max HP of Target
+The max HP of targets are different for different enemies. In fact, it is found that the base HP of all enemies are in proportion to some baseline multiplied by a ratio. The max HP is affected by base HP, the level multiplier* and special multipliers**.
+
+*Level multipliers refer to a ratio at which enemy HP is converted at any given level for an enemy. These can be found in the hyperlink above.
+**Special multipliers include the Abyss multiplier and the Co-Op multiplier. This applies to all enemies, so it is not exclusive to calculating shield damage.
+
+
+(Swipe across if on mobile, it’s a table)
+Special Multipliers for Max HP of Target
+	Spiral Abyss
+	Floor 3-7
+	1.5x
+	Floor 8 - 11
+	2.0x
+	Floor 12
+	2.5x
+	Co-Op Mode
+	2 Players in the Same Area
+	1.5x
+	3 Players in the Same Area
+	2.0x
+	4 Players in the Same Area
+	2.5x
+	
+
+Damage Cost Example 
+A player deals 100 Pyro   damage Against a Cryo   Abyss Mage (12 Shield GU) with 1000 base HP in the Overworld. Elemental Force Shields have a damage conversion ratio of 0.2 and a shield HP ratio of 1. Their Damage Cost is 
+ = 0.24 Shield GU.
+Damage Cost Summary
+Damage Cost can therefore be considered as the percentage of damage done to the target’s shield EHP (shield HP ratio multiplied by enemy HP) in terms of GU. Majority of Force Shields have a shield EHP equal to 5x their max HP.
+________________
+Poise Cost
+  
+
+Poise Cost is affected by the initial Poise damage of attack and the Poise damage conversion ratio.
+
+
+Before covering these variables, Poise as a concept should first be explained. An enemy is placed into the vulnerable status once their Poise has reduced to 0, which will then cause an enemy to stagger once the enemy is attacked. Different stagger levels exist for different attacks that trigger it. If you’re familiar with Sekiro or similar games, this works the same as a concept. Different enemies have different total stagger values which can be reduced to 0 through dealing initial Poise damage.
+
+
+All attacks performed by characters have two tags associated with them. These are the Attack Type and the Strike Type.
+Attack Type: Denotes the combat style of the attack. Categories include None, Melee and Range.
+Strike Type: Subset of the Melee Attack Type. Denotes the strike effect of the attack. Categories include None, Default, Slash, Pierce, Blunt and Spear.
+
+
+The important ones here are the Melee Attack Type and the Blunt Strike Type. A list of what attacks these include are shown below. 
+
+
+Attacks Included in Melee Attack Type and Blunt Strike Type
+	Melee
+	Blunt
+	* Most normal/charged/plunge attacks with melee characters.
+	* Most normal/charged attacks with claymore characters.
+	* Most elemental skill/bursts with melee characters.
+	* Most elemental skills/bursts with claymore characters.
+	* Most plunge attacks with bow characters.
+	* Most plunge attacks with melee characters.
+	
+
+	* Most attacks from explosions (Klee, overload).
+	* Most Geo   attacks.
+	Initial Poise Damage of Attack
+Geo   shields and Frozen shields are the only shields that are affected* by Poise damages. An attack’s initial Poise damage is their talent scaling at level 1 multiplied by a certain number which changes depending on the talent specified. All talents have a different initial Poise damage value when calculating for stagger and are listed here (Interruption Resistance - Data by Genshin Fandom Wiki).
+
+
+*Please note that this is only referring to the Poise Cost section of the total shield damage formula. All attacks still have the potential to deal damage to Elemental Force Shields, but shields that are not Geo   or Frozen will not include a Poise Cost value in that calculation.
+Poise Damage Conversion Ratio
+The Initial Poise Damage of Attack can then be converted into GU damage through the Poise damage conversion ratio. This takes the initial Poise damage then multiplies it by a certain value. This value depends on whether the attack is Melee or Blunt and whether it is hitting a Geo   shield or Frozen shield. 
+(Swipe across if on mobile, it’s a table)
+Initial Poise Damage of Attack Conversion Ratios
+	Combination
+	Poise Damage Conversion Ratio
+	Melee vs Geo   shield
+	0.002
+	Blunt vs Geo   shield
+	0.014
+	Blunt vs Frozen shield
+	0.006
+	Poise Cost Example 
+Diluc’s elemental skill has an Initial Poise Damage value of 120. Against a Cryo   Abyss Mage, this will be multiplied by the 0.006 Poise damage conversion ratio and therefore at minimum it will deal 2 (1 Character GU multiplied by RC of 2) Reaction Cost + 0.72 Poise Cost worth of Shield GU damage per hit. This will result in the shield being destroyed after 5 consecutive skill uses minimum (2.72 x 5＞12). This calculation ignores Damage Cost for simplicity due to its value changing between players.
+Poise Cost Summary
+Poise Cost can therefore be considered as the reason why Geo   shields can be damaged by their own elements even when the Reaction Cost is nullified, and why both Geo   and Frozen shields can be damaged by physical attacks at a higher degree than other elements outside of Reaction Cost (with Blunt attacks being more potent due to having a higher Poise Damage Conversion Ratio).
+Practical Example
+Before reading this example, please familiarise yourself with the formula for Damage Cost and its respective constants when considering damage onto an Abyss Mage’s shield. For convenience they will be listed below.
+Damage Conversion Ratio: 0.2
+Elemental Gauge of Shield: 12
+Shield HP Ratio: 1
+Abyss Mage HP at level 90: 48708 (4 x Cicin Base at level 90)
+
+
+A level 90 Hu Tao in her Elemental Skill with the following stats and a level 7 elemental burst talent uses her (above 50% HP) Elemental Burst, which does not critically strike, against a level 90 Cryo   Abyss Mage with no domain / Co-op multiplier active.  
+Her Elemental Burst applies 2 Character GU Pyro  . This is then multiplied by the Reaction Coefficient of Pyro   onto a Frozen Elemental Force Shield, which is 2RC. Therefore, her total Reaction Cost is 4 Shield GU.
+Her Damage Cost is
+, where Final Damage Value =
+2745
+	×
+	1.616
+	×
+	4.23
+	×
+	0.5
+	×
+	0.9
+	(Total ATK)
+	
+
+	(Pyro DMG bonus)
+	
+
+	(Talent scaling)
+	
+
+	(DEF multiplier)
+	
+
+	(RES multiplier)
+	= 8443.77
+0.2 × 8443.77 × 12 = 20265        
+1 × 4 × 12177 = 48708
+20265 ÷ 48708 = 0.416 Shield GU.
+
+
+Her Poise Damage Cost is 0 Shield GU due to not falling under Blunt Strike Type.
+Therefore, her total shield damage will be 4.416GU against a 12 Shield GU Cryo   Abyss Mage’s shield, subtracting 36.8% of the shield’s total GU.
+  
+
+  
+
+  
+
+70px / 190px = 36.84%
+
+
+The foundation of this document was collected from the Genshin Impact Fandom Wiki, namely this link. This document is simply a way of presenting such information in a logical and easy to understand manner. All information compiled in this document can be found in References in its original form.
+________________
+
+
+Glossary
+Gauge
+Elemental gauges are a value used in equations relating to reactions and shield health. These are commonly denoted in the form Gauge Units (GU). For shields, GU are directly related to the post-calculation max HP. See Gauge Unit Theory for a further in-depth analysis.
+
+
+Character Gauge Units (Character GU)
+The measurement used for a character’s elemental application strength in the form of Gauge Units. All character abilities have a different elemental strength when applying their element, which is directly correlated to their Character GU application when casting. This value can be 1GU, 2GU or 4GU, and a higher number means a “stronger” application. For example, Bennett’s elemental burst applies 2GU of Pyro   to enemies when cast, while Amber’s charged shot applies 1GU of Pyro  .
+Shield Gauge Units (Shield GU)
+The measurement used for an enemy shield’s HP in the form of Gauge Units. All enemy shields have their total post-calculation HP in the form of Shield GU, which can be decreased to 0 for all shields through reactions. This value does not change as the level of the enemy increases. Some shields also consider character damage, while others also consider the Poise values of the attack used. Poise values do not change as the level of the enemy or character increases.
+
+
+Shield Types
+Not all shields in Genshin Impact are the same, but they can be grouped into different categories depending on their visual properties and how they interact with reactions / character damage. These include Elemental Armor, Elemental Force Shields, Elemental Guard Shields, Enemy Object Shields and Object Shields.
+
+
+Elemental Armor
+A type of shield that cannot be affected by character damage. Instead, it acts as a “state” inflicted on an enemy in which they may gain increased resistances or other special effects. The enemy itself can still take character damage directly, hence the distinction made between Armor and Shields. Elemental Armor can only be broken with elemental reactions. 
+Fatui Skirmishers, Whopperflowers, Lawachurls and Regisvines fall into this category.
+Elemental Armor
+
+
+Elemental Force Shield
+A type of shield that fully protects an enemy from character damage before the shield is removed. Some have a health bar which can be considered in terms of both Shield GU and damageable HP.
+Large Slimes, Abyss Mages, Cicin Mages and Abyss Lectors/Heralds fall into this category. Elemental Force Shield
+Elemental Guard Shield
+A type of shield wielded by enemies in the overworld. These differ to Elemental Force Shields in the sense that they are physically held, and as such can be bypassed through hitting the enemy from the back or sides.  
+Shields physically held by Hilichurls and Mitachurls fall into this category.
+Poise
+A mechanic which relates to enemy stagger and the related equations. An enemy is placed into the vulnerable status once their Poise has reduced to 0, which will then cause an enemy to stagger once the enemy is attacked. Different stagger levels exist for different attacks that trigger it. If you’re familiar with Sekiro or similar games, this works the same as a concept, with all character attacks having different stagger values. This is further explained in the Poise section of this document.
+
+
+Reaction
+A combination of two elements to produce another effect. Reactions against shields produce a Reaction Cost which multiplies the Character GU of the attack with that specific shield’s Reaction Coefficient.
+References
+Shields | Genshin Impact Wiki | Fandom
+Shields/Shield Poise Data | Genshin Impact Wiki | Fandom
+Shields/Shield Gauge Data | Genshin Impact Wiki | Fandom
+Level Scaling/Enemy | Genshin Impact Wiki | Fandom
+Damage | Genshin Impact Wiki | Fandom
+Interruption Resistance | Genshin Impact Wiki | Fandom
+Interruption Resistance/Theoretical Data | Genshin Impact Wiki | Fandom
+Genshin Impact Mob HP and Particle Threshold Database
+Resistances and Shield/Armor durabilities of monsters | Genshin Impact
+Elemental Gauges
+Elemental Shields/Armor Guide
+Poise
+
+
+Changelog (D/MM/YY)
+18/09/22 - Fixed Fatui in RC infographic
+16/09/22 - Fixed dead hyperlinks
+11/09/22 - Added Dendro into the RC infographic. Reworded Electro-Charged section (again)
+7/05/22 - Added disclaimer regarding https://genshin-impact.fandom.com/wiki/Shields at the beginning of the document
+24/01/22 - Added disclaimer to turn on “print layout” for mobile, fixed section breaks, installed “Page Sizer” addon to remove page breaks, reworded Electrocharged section in Reaction Cost infographic, added Damage Cost Example
+16/01/22 - Adjusted References, readded Bokrokot’s sheet, added info about Pyro Lectors, reworded Electrocharged section in Reaction Cost infographic and created simplified version (with hyperlink)
+27/11/21 - Reworked links and added Genshin Academy’s resistance table to replace Bobrokot’s
+30/09/21 - Removed shatter GU abuse section entirely (fixed as of 2.1)
+8/09/21 - Moved Frostarm Lawachurls to “does not work” in shatter GU abuse (fixed as of 2.1)
+29/08/21 - Added hyperlinks to summaries + reworded Damage Cost preface / summary. Also expanded document preface
+27/07/21 - Added information regarding Electro Abyss Mages
+17/07/21 - Added into "Final Damage Value" that transformative reactions contribute to damage cost
+23/06/21 - Added disclaimer at the top which explains the difference between “Frozen” and “Cryo” shields. Geo shields’ special interactions were reworded and expanded on (Reaction Coefficient section)

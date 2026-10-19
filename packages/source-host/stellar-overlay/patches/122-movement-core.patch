@@ -1,0 +1,121 @@
+diff --git a/pkg/core/action/action.go b/pkg/core/action/action.go
+--- a/pkg/core/action/action.go
++++ b/pkg/core/action/action.go
+@@ -64,14 +64,25 @@
+ 	f      func()
+ 	delay  float64
+ 	origin info.SourceHostOrigin
++	phase  *phase.Descriptor
+ }
+ 
+ func (a *Info) QueueAction(f func(), delay int) {
++	a.queueAction(f, delay, nil)
++}
++
++// QueueActionWithPhase associates read-only metadata with the same queue entry.
++// Tick removes or compacts the callback and its descriptor together.
++func (a *Info) QueueActionWithPhase(f func(), delay int, descriptor phase.Descriptor) {
++	a.queueAction(f, delay, &descriptor)
++}
++
++func (a *Info) queueAction(f func(), delay int, descriptor *phase.Descriptor) {
+ 	var origin info.SourceHostOrigin
+ 	if a.SourceHostOrigin != nil {
+ 		origin = a.SourceHostOrigin.CaptureForChild()
+ 	}
+-	a.queued = append(a.queued, queuedAction{f: f, delay: float64(delay), origin: origin})
++	a.queued = append(a.queued, queuedAction{f: f, delay: float64(delay), origin: origin, phase: descriptor})
+ }
+ 
+ func (a *Info) BindSourceHostOrigin(tracker *info.SourceHostOriginTracker) {
+diff --git a/pkg/core/action/sourcehost_phase_state.go b/pkg/core/action/sourcehost_phase_state.go
+--- a/pkg/core/action/sourcehost_phase_state.go
++++ b/pkg/core/action/sourcehost_phase_state.go
+@@ -5,9 +5,19 @@
+ // SourceHostPhaseState copies animation progress without advancing queued work
+ // or invoking character-specific animation rules.
+ func (a *Info) SourceHostPhaseState() (map[string]any, []string) {
++	var gaps []string
+ 	queued := make([]map[string]any, 0, len(a.queued))
+ 	for _, item := range a.queued {
+-		queued = append(queued, map[string]any{"remainingTime": item.delay - a.TimePassed})
++		row := map[string]any{"remainingTime": item.delay - a.TimePassed}
++		if item.phase == nil || item.phase.Observe == nil {
++			gaps = append(gaps, "animation queued action callbacks")
++		} else {
++			captured, callbackGaps := item.phase.Observe()
++			row["source"] = item.phase.Source
++			row["captured"] = captured
++			gaps = append(gaps, callbackGaps...)
++		}
++		queued = append(queued, row)
+ 	}
+ 	state := map[string]any{
+ 		"animationLength":      a.AnimationLength,
+@@ -17,7 +27,6 @@
+ 		"normalizedTimePassed": a.NormalizedTimePassed,
+ 		"queuedActions":        queued,
+ 	}
+-	var gaps []string
+ 	describe := func(slot, missing string, present bool, descriptor *phase.Descriptor) {
+ 		if !present {
+ 			return
+@@ -38,8 +47,5 @@
+ 	if a.UseNormalizedTime != nil {
+ 		gaps = append(gaps, "animation.UseNormalizedTime callback")
+ 	}
+-	if len(a.queued) > 0 {
+-		gaps = append(gaps, "animation queued action callbacks")
+-	}
+ 	return state, gaps
+ }
+diff --git a/pkg/core/player/exec.go b/pkg/core/player/exec.go
+--- a/pkg/core/player/exec.go
++++ b/pkg/core/player/exec.go
+@@ -146,14 +146,12 @@
+ 		}
+ 
+ 		x := action.Info{
+-			Frames: action.OpaqueFrameFunc(func(action.Action) int {
+-				return h.Delays.Swap
+-			}),
++			Frames:          h.sourceHostSwapFrames(),
+ 			AnimationLength: h.Delays.Swap,
+ 			CanQueueAfter:   h.Delays.Swap,
+ 			State:           action.SwapState,
+ 		}
+-		x.QueueAction(h.swap(k), h.Delays.Swap)
++		x.QueueActionWithPhase(h.swap(k), h.Delays.Swap, h.sourceHostSwapPhase(k))
+ 		h.SetActionUsed(h.active, t, &x)
+ 		h.LastAction.Type = t
+ 		h.LastAction.Param = param
+diff --git a/pkg/core/player/sourcehost_phase_movement.go b/pkg/core/player/sourcehost_phase_movement.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/sourcehost_phase_movement.go
+@@ -0,0 +1,25 @@
++package player
++
++import (
++	"github.com/genshinsim/gcsim/pkg/core/action"
++	"github.com/genshinsim/gcsim/pkg/core/keys"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
++)
++
++func (h *Handler) sourceHostSwapFrames() action.FrameFunc {
++	return action.FrameFunc{
++		Run: func(action.Action) int { return h.Delays.Swap },
++		Phase: &phase.Descriptor{Source: "pkg/core/player/exec.go:swap:frames", Observe: func() (map[string]any, []string) {
++			return map[string]any{"swapFrames": h.Delays.Swap}, nil
++		}},
++	}
++}
++
++// The native swap callback reads player and character state at execution time.
++// Those providers export the live active actor, cooldowns and normal counters;
++// this descriptor adds the closure's destination and its live index mapping.
++func (h *Handler) sourceHostSwapPhase(to keys.Char) phase.Descriptor {
++	return phase.Descriptor{Source: "pkg/core/player/player.go:swap", Observe: func() (map[string]any, []string) {
++		return map[string]any{"destinationCharacter": to.String(), "destinationIndex": h.charPos[to]}, nil
++	}}
++}

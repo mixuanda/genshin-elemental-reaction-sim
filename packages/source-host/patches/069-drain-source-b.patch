@@ -1,0 +1,168 @@
+diff --git a/internal/characters/dori/burst.go b/internal/characters/dori/burst.go
+index 9caa6e5..b810b8b 100644
+--- a/internal/characters/dori/burst.go
++++ b/internal/characters/dori/burst.go
+@@ -66,11 +66,16 @@ func (c *char) Burst(p map[string]int) (action.Info, error) {
+ 			// dori self application
+ 			// TODO: change this to a ST attack later when self reactions need to be implemented
+ 			idx := c.Core.Player.ActiveChar().Index()
++			amount, amountID := 0.0, 0
++			if c.Core.SourceHost != nil {
++				amount, amountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dori-burst-zero-event", map[string]any{}, nil)
++			}
+ 			c.Core.Player.Drain(info.DrainInfo{
+-				ActorIndex: idx,
+-				Abil:       ai.Abil,
+-				Amount:     0,
+-				External:   true,
++				ActorIndex:         idx,
++				Abil:               ai.Abil,
++				Amount:             amount,
++				External:           true,
++				SourceHostAmountID: amountID,
+ 			})
+ 			if c.Core.F > icdSrc[idx]+attacks.ICDGroupResetTimer[attacks.ICDGroupDoriBurst] {
+ 				dur := info.Durability(25)
+diff --git a/internal/characters/neuvillette/charge.go b/internal/characters/neuvillette/charge.go
+index 8d9ab93..97fe997 100644
+--- a/internal/characters/neuvillette/charge.go
++++ b/internal/characters/neuvillette/charge.go
+@@ -304,12 +304,24 @@ func (c *char) consumeHp(src int) func() {
+ 			return
+ 		}
+ 		if c.CurrentHPRatio() > 0.5 {
+-			hpDrain := 0.08 * c.MaxHP()
++			maxHP, maxHPRead := 0.0, (*info.SourceHostStatRead)(nil)
++			if c.Core.SourceHost != nil {
++				maxHP, maxHPRead = c.MaxHPWithProvenance()
++			} else {
++				maxHP = c.MaxHP()
++			}
++			hpDrain := 0.08 * maxHP
++			drainID := 0
++			if c.Core.SourceHost != nil {
++				hpDrain, drainID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-neuvillette-charge",
++					map[string]any{"maxHp": maxHP}, []*info.SourceHostStatRead{maxHPRead})
++			}
+ 
+ 			c.Core.Player.Drain(info.DrainInfo{
+-				ActorIndex: c.Index(),
+-				Abil:       "Charged Attack: Equitable Judgment",
+-				Amount:     hpDrain,
++				ActorIndex:         c.Index(),
++				Abil:               "Charged Attack: Equitable Judgment",
++				Amount:             hpDrain,
++				SourceHostAmountID: drainID,
+ 			})
+ 		}
+ 		c.QueueCharTask(c.consumeHp(src), 30)
+diff --git a/internal/characters/sara/skill.go b/internal/characters/sara/skill.go
+index c1c892f..40b55e4 100644
+--- a/internal/characters/sara/skill.go
++++ b/internal/characters/sara/skill.go
+@@ -115,11 +115,16 @@ func (c *char) attackBuff(a info.AttackPattern, delay int) {
+ 		})
+ 
+ 		// TODO: change this to a ST attack later
++		amount, amountID := 0.0, 0
++		if c.Core.SourceHost != nil {
++			amount, amountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-sara-skill-zero-event", map[string]any{}, nil)
++		}
+ 		c.Core.Player.Drain(info.DrainInfo{
+-			ActorIndex: active.Index(),
+-			Abil:       "Tengu Juurai: Ambush",
+-			Amount:     0,
+-			External:   true,
++			ActorIndex:         active.Index(),
++			Abil:               "Tengu Juurai: Ambush",
++			Amount:             amount,
++			External:           true,
++			SourceHostAmountID: amountID,
+ 		})
+ 
+ 		if c.Base.Cons >= 1 {
+diff --git a/internal/characters/traveler/common/hydro/skill.go b/internal/characters/traveler/common/hydro/skill.go
+index 6ab410e..1c4e659 100644
+--- a/internal/characters/traveler/common/hydro/skill.go
++++ b/internal/characters/traveler/common/hydro/skill.go
+@@ -343,11 +343,18 @@ func (c *Traveler) skillLosingHP(ai *info.AttackInfo) {
+ 		ai.FlatDmg = dewdropBonus[talent] * c.MaxHP()
+ 	}
+ 
+-	drainHP := 0.04 * c.CurrentHP()
++	currentHP := c.CurrentHP()
++	drainHP := 0.04 * currentHP
++	drainID := 0
++	if c.Core.SourceHost != nil {
++		drainHP, drainID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-hydro-traveler-suffusion",
++			map[string]any{"currentHP": currentHP}, nil)
++	}
+ 	c.Core.Player.Drain(info.DrainInfo{
+-		ActorIndex: c.Index(),
+-		Abil:       "Suffusion",
+-		Amount:     drainHP,
++		ActorIndex:         c.Index(),
++		Abil:               "Suffusion",
++		Amount:             drainHP,
++		SourceHostAmountID: drainID,
+ 	})
+ 
+ 	// If HP has been consumed via Suffusion while using the Hold Mode Aquacrest Saber, the Torrent Surge at the skill's end
+diff --git a/internal/characters/wriothesley/skill.go b/internal/characters/wriothesley/skill.go
+index 726861e..be423e4 100644
+--- a/internal/characters/wriothesley/skill.go
++++ b/internal/characters/wriothesley/skill.go
+@@ -76,10 +76,23 @@ func (c *char) chillingPenalty(a info.AttackCB) {
+ 		return
+ 	}
+ 	c.AddStatus(skillLoseHPICDKey, skillLoseHPICD, true)
++	maxHP, maxHPRead := 0.0, (*info.SourceHostStatRead)(nil)
++	if c.Core.SourceHost != nil {
++		maxHP, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
++	amount := 0.045 * maxHP
++	amountID := 0
++	if c.Core.SourceHost != nil {
++		amount, amountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-wriothesley-chilling-penalty",
++			map[string]any{"maxHp": maxHP}, []*info.SourceHostStatRead{maxHPRead})
++	}
+ 	c.Core.Player.Drain(info.DrainInfo{
+-		ActorIndex: c.Index(),
+-		Abil:       "Chilling Penalty",
+-		Amount:     0.045 * c.MaxHP(),
++		ActorIndex:         c.Index(),
++		Abil:               "Chilling Penalty",
++		Amount:             amount,
++		SourceHostAmountID: amountID,
+ 	})
+ }
+ 
+diff --git a/internal/characters/xiao/burst.go b/internal/characters/xiao/burst.go
+index 8745f49..061a43b 100644
+--- a/internal/characters/xiao/burst.go
++++ b/internal/characters/xiao/burst.go
+@@ -39,10 +39,19 @@ func (c *char) Burst(p map[string]int) (action.Info, error) {
+ 			if c.StatusIsActive(burstBuffKey) && c.Core.F >= hpICD {
+ 				// TODO: not sure if this is affected by hitlag
+ 				hpICD = c.Core.F + 60
++				ratio := burstDrain[c.TalentLvlBurst()]
++				currentHP := c.CurrentHP()
++				amount := ratio * currentHP
++				amountID := 0
++				if c.Core.SourceHost != nil {
++					amount, amountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-xiao-burst",
++						map[string]any{"ratio": ratio, "currentHP": currentHP}, nil)
++				}
+ 				c.Core.Player.Drain(info.DrainInfo{
+-					ActorIndex: c.Index(),
+-					Abil:       "Bane of All Evil",
+-					Amount:     burstDrain[c.TalentLvlBurst()] * c.CurrentHP(),
++					ActorIndex:         c.Index(),
++					Abil:               "Bane of All Evil",
++					Amount:             amount,
++					SourceHostAmountID: amountID,
+ 				})
+ 			}
+ 		}, i)

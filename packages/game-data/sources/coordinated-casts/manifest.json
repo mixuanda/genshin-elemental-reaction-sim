@@ -1,0 +1,1578 @@
+{
+  "schemaVersion": 1,
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-24T14:40:21.474673+00:00",
+  "evidenceStatus": "fixed-source-provisional",
+  "protocol": "explicit-coordinated-schedule-v1",
+  "originalArchiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+  "archive": {
+    "path": "packages/game-data/sources/coordinated-casts/source.json.gz",
+    "bytes": 93950,
+    "sha256": "1dc31e9ad312a5748fd11e6e892e093d8ffa2b8ef76e5a66f98e6795d8756ee0"
+  },
+  "verification": {
+    "gitTreeCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "gitTreeTruncated": false,
+    "allArchivedGitBlobHashesMatch": true,
+    "reviewedManifestSha256Matches": 42,
+    "catalogFile": "packages/game-data/src/generated/catalog.zh-CN.json",
+    "catalogSha256": "92eb478fbe1f84292c12b8a623e43233d233973563d4519a5af68192247094df",
+    "catalogCoefficientRule": "All 20 source vectors equal the active parameter vectors exactly at all 15 effective talent levels."
+  },
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/albedo.go",
+      "bytes": 1221,
+      "sha256": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+      "gitBlobSha1": "390a15da2b139a4f1605509e5a404cbee41aeb82"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/asc.go",
+      "bytes": 1543,
+      "sha256": "11a0fa216c2fb8802a2b900ca37213b0f17da392fec4e320f6a0e0ceedc75ec1",
+      "gitBlobSha1": "7a5c6890d6e16bfb880afa1cd255e7eac64e0205"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/attack.go",
+      "bytes": 3189,
+      "sha256": "314b1dd4004c15bc8953bd40fd926c83137aa80c49f6befcf044482981d4e756",
+      "gitBlobSha1": "01772fd373a68cc261e49c22ea90f6a57af83457"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/burst.go",
+      "bytes": 3168,
+      "sha256": "756f6661a3f163cb7f4e51033928ebb0eae62789b2ae0283dd17fcb34db315ad",
+      "gitBlobSha1": "9593f45a95fd14dc753ebda301c0a2caae76c3e5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/charge.go",
+      "bytes": 1807,
+      "sha256": "67a6c7348cd896f09d9a76f4b4387ed1c4f8684c09dc533e22921f9bed1e338f",
+      "gitBlobSha1": "44383fd1c38dbfc83128afd760b6dc1278e42ade"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/cons.go",
+      "bytes": 2839,
+      "sha256": "d5ad532eb4eb57e73e51bcd0de37ee739851941f9ab772f963762de47dcb598d",
+      "gitBlobSha1": "affa8491d91b784194f805a838ebc3845e5084ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/construct.go",
+      "bytes": 1075,
+      "sha256": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355",
+      "gitBlobSha1": "84b83fdd1003730e8b3e014669dd3fa094a45227"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/plunge.go",
+      "bytes": 4843,
+      "sha256": "99444bd7a5358bfb1b1bcbea16ab1a95c49ca2c09a848757a49b5942bbbe3f3c",
+      "gitBlobSha1": "f55b27ca18e03e23e26801821cfa40637f36fc4a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/skill.go",
+      "bytes": 4457,
+      "sha256": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+      "gitBlobSha1": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/albedo/zz_albedo.dm.go",
+      "bytes": 4251,
+      "sha256": "d8faedb3aa35bfc1ac21912c4eaf006039aa60a6405d7c9664b43a13175d4869",
+      "gitBlobSha1": "511abd3e08eda91bcd9db1ef8d188083dbb31a69"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/asc.go",
+      "bytes": 2749,
+      "sha256": "a0ac2d7f7b5f4456558acae42b9caa015554d7afc38489ca8887ed78d8c78f55",
+      "gitBlobSha1": "bcf50abacae4e43a636ebbb5080f52d2f0093fad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/attack.go",
+      "bytes": 2679,
+      "sha256": "40f37f98f56fe05d832c0f037bb355c0904b7bbd9438593346fac11e3d86b64c",
+      "gitBlobSha1": "7748674f933d0996740ee44a980e4d2a0345539d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/burst.go",
+      "bytes": 4839,
+      "sha256": "1629c22bd1c4d9d23dc736117abe2aa375112148c22acca32ba48a759690d4bc",
+      "gitBlobSha1": "04b87b953cfd2dbc2b9595fdce5217c0d7f60c29"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/cons.go",
+      "bytes": 4391,
+      "sha256": "d60f1752472ae3e114cffa94fa98f9d1688ff6e6bec59afd2be59d66d8080a89",
+      "gitBlobSha1": "a2cb8aeca551fe794e4fa33253019a3b317d9abe"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/dash.go",
+      "bytes": 1033,
+      "sha256": "e3c5b8503ba0e34f8fcbfe0a97d7eed8e6bfd0c50fbd7b9b663a122399387049",
+      "gitBlobSha1": "90fd2fc166987bcd632205ccdbd6a1f92cbe161b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/dehya.go",
+      "bytes": 2434,
+      "sha256": "ce28e25480aedc86cc2a843e1fe2873bc4356de9024862bdf6b8153b5dee9762",
+      "gitBlobSha1": "c32c6adff15aa717296e9539f94522603f442f32"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/jump.go",
+      "bytes": 1002,
+      "sha256": "12c7b412311c956f1d055347b5a240b8fffb1bd4c4f89292903e7ac331df12f2",
+      "gitBlobSha1": "754abe9417a25389830767bdd5aa7730d0b464c2"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/plunge.go",
+      "bytes": 4842,
+      "sha256": "b4b58cdf0591db636e4d1407fcb2c7a7d8aa660290e9bf0c3a057eb7db4e40b9",
+      "gitBlobSha1": "12b7dcd22b3274169f414e13a2169a706cdabe17"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/skill.go",
+      "bytes": 11563,
+      "sha256": "d58e17efd9cb4b18851c725178aa7bccf6eee456e5cf04df2b7d5968c0b6f66d",
+      "gitBlobSha1": "a8e1616d1b542930cec1b0bf5a0173598f96d217"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/zz_dehya.dm.go",
+      "bytes": 4780,
+      "sha256": "4c92bfc19c6f07f48a86e67bfe8531865e16b31d12dc0fc5a378b7005e4fd8fd",
+      "gitBlobSha1": "858f895fe5bc198b49505b3534d798c7697433f2"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/aimed.go",
+      "bytes": 2280,
+      "sha256": "4bf5c15f9ca54583585aece3854e778282dc66a0d85c4d878f60883a54ca066b",
+      "gitBlobSha1": "f54d894abd916c900bdefc566031f6808de99c6b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/asc.go",
+      "bytes": 4931,
+      "sha256": "ac7887afb79cb757a6d1847796e86181174d20da355bba67e6799caa8696f089",
+      "gitBlobSha1": "bab57f4b3d6f4f33953c128bc1c4857a74c6492d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/attack.go",
+      "bytes": 2548,
+      "sha256": "b91ee8878f271a1fd74540c596bcd4ca4c69e882a2c4b6ea5dc6f4f1a60e2f2f",
+      "gitBlobSha1": "682ae1ae4e9f8c35166769e66951eafc1669ed81"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/burst.go",
+      "bytes": 3624,
+      "sha256": "b257315fa65e7cd520c7d946b7a001b0392c8bc4addee4ab5ad10eaa15cf5e19",
+      "gitBlobSha1": "1b0ba584b3dade6471804a5a73d805ad483d42cc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/cons.go",
+      "bytes": 1083,
+      "sha256": "69f47a040a4d117aa6f22b371ae4d8ff4db5a069ffc33efdbe2b218d272555b7",
+      "gitBlobSha1": "2d0932169447e3228322d2db06c93343408eef29"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/fischl.go",
+      "bytes": 2657,
+      "sha256": "008dc741889be3036d3a4c119c1f5f1e2366d983ebbe34d2b7d52df33eb520da",
+      "gitBlobSha1": "1aacf4f03b91eda21cc3e3588397bd0eb4b9ef66"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/skill.go",
+      "bytes": 6087,
+      "sha256": "654f4a57a418bc1926a791133717b7a1984079844db6e87422f496feeccca069",
+      "gitBlobSha1": "171ece2d58bb928bf9165b005ea0a93798187b09"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/zz_fischl.dm.go",
+      "bytes": 3055,
+      "sha256": "48342136ccb5a429a60d11779137b0fb640cadb35f31bf58c9e14263b885bd3a",
+      "gitBlobSha1": "cc75631141dad527ee3ef2380b867b3e1132bbdf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/asc.go",
+      "bytes": 1986,
+      "sha256": "5410e61d3c7aed9b0e07fa9cf62a2aaf0eff1f073add0f619ad289d41482aa91",
+      "gitBlobSha1": "302d2e859e12250be9d6c9f8378c08d217f23232"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/attack.go",
+      "bytes": 6090,
+      "sha256": "b43ca77b80d49583b9a687a414786dd35dde9136b0d2ba594d9a9d36a8fe2169",
+      "gitBlobSha1": "0803af7b3c44399b09ba73aecb12f3a156931cf6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/burst.go",
+      "bytes": 4108,
+      "sha256": "008804c54f54f204b5d258f979a604a390b8f085af5a491ee54e49bd7fae2496",
+      "gitBlobSha1": "254baa50b81fc821197a9eef04ecde73a84e2471"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/charge.go",
+      "bytes": 3300,
+      "sha256": "be38d3e04e72b5c2ff198f372b7328b672e3efa8b6c11cb817b40975a927d4b3",
+      "gitBlobSha1": "6097c0e0f27cc881831430aec73f417e7f116547"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/cons.go",
+      "bytes": 1729,
+      "sha256": "f98c36168d5a326fde533f3b291087a9dc45eeeaa07b0459b9c32253a7bb65d2",
+      "gitBlobSha1": "f44010e99a53280264cdddef4d0a66d0d1aa4e7f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/plunge.go",
+      "bytes": 8902,
+      "sha256": "433c5605832c75ea89f5d6464a5e5d998df7761565dc528273aa05735eb9de4e",
+      "gitBlobSha1": "9c63a12883df9a88d1650da818cd395be135bd9d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/raiden.go",
+      "bytes": 1349,
+      "sha256": "cc69de33fefcc136d8535b29c72ce5ac7d468e4ff7e767aabbc283d2d2d7c994",
+      "gitBlobSha1": "3ac9d4e53771a303d9b567052d49ea58d96dc740"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/skill.go",
+      "bytes": 4461,
+      "sha256": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363",
+      "gitBlobSha1": "d24bad4bb7173d918dee8d47781ae336a0ddf45b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/raiden/zz_raidenshogun.dm.go",
+      "bytes": 7230,
+      "sha256": "789977d99772eabef1107255b0d6713fb5082fc056e37b5dfde01b9fee572dc2",
+      "gitBlobSha1": "e671fef2533b926574026f8cdf3bb2f594dfa5b6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/asc.go",
+      "bytes": 882,
+      "sha256": "fd4203fe6f09b38a36100afaaffa202285ed20cbfa2997b247accf1d39a9f49e",
+      "gitBlobSha1": "8179b9d393699cdf5c49401fd8762c4ef7914c2d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/attack.go",
+      "bytes": 3179,
+      "sha256": "b91617a8f5dac185f2308d7cc7b8cf1202c25da27d61e703673e44c9c779d14c",
+      "gitBlobSha1": "315a805f5071673c96b6eccca42b0bd93c7447cc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/burst.go",
+      "bytes": 2746,
+      "sha256": "dcc7ef53541bb38ab88e3b01842bd00ea48674055eca9938ced651c2575d4a80",
+      "gitBlobSha1": "9b10eba6b33c200e986301c161eb178c1ff233d2"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/charge.go",
+      "bytes": 1593,
+      "sha256": "a4ee63c42b24709a36561935af6008ff9fd975b9347fd97e815e91d6f94d3969",
+      "gitBlobSha1": "b3f519dfa04e2f4744acef8a5c1be18247a12e4e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/shield.go",
+      "bytes": 1592,
+      "sha256": "05bf22fc076ad5a140817996da0ecb573b389acd4fe5e05703026fccaca85586",
+      "gitBlobSha1": "96e36e5105721388f8aa3b2215db1f98ee0de4df"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/skill.go",
+      "bytes": 2637,
+      "sha256": "495df1599b6646a8d1754fe99896de195203f1988cb6a0d1f7a19402bfed3e64",
+      "gitBlobSha1": "e73636f7a4d656fa7b221641d1c550b957fe5686"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/thoma.go",
+      "bytes": 1612,
+      "sha256": "8155c44b224c00b20294239558cfb948a30396bf6f11cbb01544a3d6292037ca",
+      "gitBlobSha1": "5f586acb38f0c8852d3870c2fc8bab0830acc003"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/thoma/zz_thoma.dm.go",
+      "bytes": 4451,
+      "sha256": "2af90aa8b53ccae183a0f7c2bc55621e97c5f063ea1519bc581eb6bac1e150be",
+      "gitBlobSha1": "b526cb94a7018dc00634aa3e9958b9b6dcebfa48"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/attack.go",
+      "bytes": 4624,
+      "sha256": "a695bcd6c9992c2496a65cfb74853241bcc235f0fa187cfb709af5198c0e0188",
+      "gitBlobSha1": "9089e657b34d602f0afa1ed2ac29f9fd82e03d4f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/burst.go",
+      "bytes": 5238,
+      "sha256": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56",
+      "gitBlobSha1": "8748735bdfab28b08137f493a19fd60ac8c951eb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/charge.go",
+      "bytes": 2500,
+      "sha256": "663f61d9c482ff57f54a6d290097c36ca5ea4dacd7e7ab54243ef4e82829d448",
+      "gitBlobSha1": "ef3ae4d6fbc5649030bc36474fafe4a362b8926d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/cons.go",
+      "bytes": 1993,
+      "sha256": "312c51e549af66a269459769d357973bdec44090b9c131e327ae21afc043c662",
+      "gitBlobSha1": "ab176c3299ec687ff2a7acdf259b706d479842ce"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/skill.go",
+      "bytes": 5529,
+      "sha256": "99932e7e824b8953ad9322a4bb57ebff7bd1eb15d6400ef18868b8ca484b4764",
+      "gitBlobSha1": "bd395866918df1f306201c3fd7d52796122a8301"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/stats.go",
+      "bytes": 2433,
+      "sha256": "19eed83f1a976e379efaf4eaa47b1b3070e4f689a337d7192cb2ce8db0494596",
+      "gitBlobSha1": "8f1512e99237b7e1a360368bb603d51be67b55c6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/electro/travelerelectro.go",
+      "bytes": 1270,
+      "sha256": "b627e2e6ce0b3423f3923842abca2f87f42d1b0946b23ccf04aff38d76435ec6",
+      "gitBlobSha1": "a7de1e600999534c9ab391af93f23ee21e40a48e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/storybuffs.go",
+      "bytes": 1229,
+      "sha256": "44b884a1f14c304387f48fca48e949c41d38b4e29d72c2d8b182defaa290033f",
+      "gitBlobSha1": "b17213a3361b0852e5b87f5df991ff244dbd62aa"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/electro/aether/aether.go",
+      "bytes": 511,
+      "sha256": "094135032e7d043f241f040225e66ca8081c532401e8c5e8aae2d207b0e97920",
+      "gitBlobSha1": "b279bdeec93ab6623bb603445ffd9915530df639"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/electro/aether/zz_aetherelectro.dm.go",
+      "bytes": 768,
+      "sha256": "d9a110a8308050e98db0f0d89b802e4d42ba95c4744890b3bc4182bb238ea4db",
+      "gitBlobSha1": "73f4c54b5c21d7ca9991b1780ecbb970680ec62a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/electro/lumine/lumine.go",
+      "bytes": 511,
+      "sha256": "3a6f06d4314417b32269be3697a2cd9f83f994d5e3b25f60df2e9cf18a024691",
+      "gitBlobSha1": "51750a3af1ee81837a17765096e8a32b354bc89a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/electro/lumine/zz_lumineelectro.dm.go",
+      "bytes": 768,
+      "sha256": "fd45dada6b26b6e3e032f581b2448c4d4f8ff174629c0d07e47e6457adc11ec9",
+      "gitBlobSha1": "28d890d24cba2de21045257de0c9bb9eebe2a4cb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/asc.go",
+      "bytes": 700,
+      "sha256": "ea1217f61c236b3ed6eefdf974a2a23aeb781519d26bec520aacf765a1481265",
+      "gitBlobSha1": "fb424f18e77eb724b96421be3734d1c84331d5e5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/attack.go",
+      "bytes": 2959,
+      "sha256": "bb954d5a2eb0409e8bfb7c6e3b9b6d4bbeb02d00e93f971ae97fa48629edef06",
+      "gitBlobSha1": "36115c2b2fc90fd9110f72bbdf225ba1b7918a06"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/burst.go",
+      "bytes": 3776,
+      "sha256": "2ab6c2b1c3cfc6e99ef7ad770570b95e6e478c8dd4568a54cd5da0dbf59690b7",
+      "gitBlobSha1": "68b5b949a346b485056c3310778a236876d3c226"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/charge.go",
+      "bytes": 1507,
+      "sha256": "b7f5152ddfcac2c51f9f50feb0b28baf0c1844aa140484b4c8ecb704dc455717",
+      "gitBlobSha1": "8af1b353fafaa6bd0fcc2e0a7e7a5146c0742823"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/orbital.go",
+      "bytes": 2167,
+      "sha256": "2ba81e0e3e55e375dad57c94e792377c8cbc93300e3c87ee1b68d0b75d7aa3c1",
+      "gitBlobSha1": "aeb2406225ffcd5c9b3b75eba2812359898fbb3c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/skill.go",
+      "bytes": 2637,
+      "sha256": "86f7996a15fc3790b6c1329714ca83966699c468a077c0e062c2a2db62350a43",
+      "gitBlobSha1": "7f5abaa35cd61c62cee25466c706ef4b13d72a5b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/xingqiu.go",
+      "bytes": 1341,
+      "sha256": "9a893da712c6cbd299fd6b4b47e50fe7244150b33071f76bd3f40747ab045e75",
+      "gitBlobSha1": "935f97c9a7ef346ce0f3f83eddd43fb2c2fba41f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/xingqiu/zz_xingqiu.dm.go",
+      "bytes": 3631,
+      "sha256": "3cc4dae9ad0cbd6900ba1b714784cc45a630619c2b0cc7f6da3c81c647f3a6d4",
+      "gitBlobSha1": "a821bb1f3202ccb8096c779e59f3155c06d7b7dc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/aimed.go",
+      "bytes": 3440,
+      "sha256": "b5e363e15a5c64967876f93cd57d6acc3a46e839c63a1f9710c8088d7a8740c9",
+      "gitBlobSha1": "cb276a46cf24e917019e1dca4653e759749757ec"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/asc.go",
+      "bytes": 1724,
+      "sha256": "0ba947273e8155b29f0608aa5df80867d4675374562f3945a2f0795f08ab0882",
+      "gitBlobSha1": "b83c6d634d5e29dad9c0d13f0d4be9715a337c35"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/attack.go",
+      "bytes": 3032,
+      "sha256": "edb8a13a46a3786a75c8968a3c28c4b6c1455247391477efa38261d6649309b1",
+      "gitBlobSha1": "9a637a9bf80a92cdacb207c35da120d28986faf2"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/burst.go",
+      "bytes": 3457,
+      "sha256": "12551772f864b1fa8dfb3ef25a4ca223a7a9fdf1199d8f59feaecf027a26668f",
+      "gitBlobSha1": "b4670bb080a8ece3cd574850be71aad4b9762368"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/skill.go",
+      "bytes": 4892,
+      "sha256": "638450f741780ce0e430b40d99ccff7d9ad108e866e841a5e0d4351249f09bd6",
+      "gitBlobSha1": "eff101b2885b036f0845a4a14d4dfc44bc290965"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/yelan.go",
+      "bytes": 2174,
+      "sha256": "787f8b7e0608d4ac58d53ab87649657f7feb416e2ea269048d7ce6fe97f67db5",
+      "gitBlobSha1": "87675c89471e27b2f3fe25ed6659b4d22948d3e0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/zz_yelan.dm.go",
+      "bytes": 3501,
+      "sha256": "6471d245eed61acde032ab5274c0090dd9fd1092663d5c747e00cbd4b2272106",
+      "gitBlobSha1": "00a8fdcb1873a6790cca6f31661bd173208c777f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/aimed.go",
+      "bytes": 4142,
+      "sha256": "b2888ef672c239e03c67f0b11a6fed57f7af07af40b66f13c6ce7235c77d69fc",
+      "gitBlobSha1": "43bd7a02be9ecc12d5a4b7f4e39380ec16584141"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/asc.go",
+      "bytes": 1798,
+      "sha256": "2f069a69a000aa369a0c08a747cdc047bedb886275236efebd9d2557157928d1",
+      "gitBlobSha1": "451444b52414355093047d4e9d3b9696085193f8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/attack.go",
+      "bytes": 3037,
+      "sha256": "c6a711abc83bfc35380046c56ff3ae624fdc83d9d2437a15fcc753ef5a423ff3",
+      "gitBlobSha1": "30a958cfbeba760b1e2af13b43ee4a41b901f710"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/burst.go",
+      "bytes": 4315,
+      "sha256": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+      "gitBlobSha1": "336e43fc90fd1bc26387d028a1c2d211e2572d77"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/cons.go",
+      "bytes": 1553,
+      "sha256": "368d72e0a18ebb1097e9eff4f40ff0f1e1632c3f0d416be1e2a75dd9247302cc",
+      "gitBlobSha1": "aea5d80960eb7e28066f646d4755dfbaa6b9d085"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/skill.go",
+      "bytes": 1656,
+      "sha256": "f2458c60f02c1732b9372215d25683bda38ea1ec573b44888d1f349f7d79452b",
+      "gitBlobSha1": "a9cbe6af6f5a4e58f6e98f0d091ef18631f1bf27"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/yoimiya.go",
+      "bytes": 1549,
+      "sha256": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+      "gitBlobSha1": "8cd6d12e652e09f1df658138ffe4ce11a987217e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yoimiya/zz_yoimiya.dm.go",
+      "bytes": 3903,
+      "sha256": "c0df84e195f01d6da060416fdd8766dce11b09c75581193d4701848d53673c3b",
+      "gitBlobSha1": "e29da9bad08420c22d9e11ad982ffed31b064f5b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/animation.go",
+      "bytes": 155,
+      "sha256": "97c61df00fa31e7d65363c6366a949b2290375d608adfd1dedf08561cdd9b2f0",
+      "gitBlobSha1": "d3fc9a811a39bc1aa6c97eb390f3c4b7b0d06ed6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlobSha1": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/cooldown.go",
+      "bytes": 7269,
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "gitBlobSha1": "0ef808a53ae22f7eec9d1c0c680aa0d1c80a20d1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/default.go",
+      "bytes": 226,
+      "sha256": "798e50e474f27fbee50182c0771ba1b3795882aaceee8080d06e8724a3d2cda0",
+      "gitBlobSha1": "122e5fb12e42b9e005cfc783a7c0dda885f2666b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/heal.go",
+      "bytes": 2632,
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "gitBlobSha1": "f8b39ba0edc7532e3f955520c42914baafba472a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/hp.go",
+      "bytes": 1572,
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "gitBlobSha1": "287f1dfe98e3af969e0113877ed329e52e799f38"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/ready.go",
+      "bytes": 1602,
+      "sha256": "d8226df747ea6181d5edb40ea3131ff948cf165d1f5c948704402808ed049ef1",
+      "gitBlobSha1": "b121ecf707885873328debcf2c1fbd5a5b2d665d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/stam.go",
+      "bytes": 4593,
+      "sha256": "414c7c87cdc498e0551dd9a90ee4d03b414ad7d7cca0028fe037c5cc2e077767",
+      "gitBlobSha1": "d4ff61db98367713de3d9604e808cf7bca3420c1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/minazuki/minazuki.go",
+      "bytes": 6431,
+      "sha256": "f2dde80d5ada0b33ecb0c10af1d0da2fead7071c07c40f7a3a5c8172c2c91e9e",
+      "gitBlobSha1": "e11f13dc0088fe944c91a0f4efd2ae997b8d6d21"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/aim.go",
+      "bytes": 365,
+      "sha256": "c8bd86a11af5875e0a6399560819f6c42a7afcdd3202570bc28921050b82c292",
+      "gitBlobSha1": "9a188beec3b4718956b0f91647205f08bf780c22"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/attack.go",
+      "bytes": 1484,
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "gitBlobSha1": "63b9b3cc74984420e93df17b90eec90ece9665bd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/icd_groups.dm.go",
+      "bytes": 15409,
+      "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4",
+      "gitBlobSha1": "1b423f2c537fba74458d39358d19cc61b00cc562"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/icd_tags.dm.go",
+      "bytes": 2005,
+      "sha256": "aa0e0ed56ed0713cdf81be7df1ee9686050d1b35b28ccc7e35425bd5fbcea85e",
+      "gitBlobSha1": "bd914e453eb73796e30e63b864d56b7a4cc23c89"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/construct/construct.go",
+      "bytes": 1162,
+      "sha256": "63491d0e253be27f01ab29fd6549d085516245d33555f590f3895b54229ebdc4",
+      "gitBlobSha1": "b0bee52bac1e420100dd8e6bfd11ecd374912da4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/construct/handler.go",
+      "bytes": 5432,
+      "sha256": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+      "gitBlobSha1": "42bbbd11620db6dabc598e5e0dbfddab4c0ef490"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "gitBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/actionlist.go",
+      "bytes": 2749,
+      "sha256": "f8805ab6f23dfcb2364fc10a7e2c0e1220e66ecc23352246d9875f90866ba312",
+      "gitBlobSha1": "2028e5d23545225b6d80184372f471684f7d7af1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/animation.go",
+      "bytes": 161,
+      "sha256": "8c9e854d76b9dc8150d60424e9c9defa9ce29590be4595496caf3301695d1f09",
+      "gitBlobSha1": "f0efd2ea941dbc1338e844f65e7161eaf27e8275"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/character.go",
+      "bytes": 3177,
+      "sha256": "79f32dea9696faf270e797c9e7fd42f5ee24027c9cdbb1c6d51a10241cd00d12",
+      "gitBlobSha1": "8b40d9da49225b4cfbbd573875251830a28e0cab"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/circle.go",
+      "bytes": 3746,
+      "sha256": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83",
+      "gitBlobSha1": "112bc6df9641d0eb5f114f1702c99e1fb2908c10"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "gitBlobSha1": "c2e89e614a2513d00c710478f8dc55f2773d2ead"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/convert.go",
+      "bytes": 4328,
+      "sha256": "8a0e0468fb398c735017bd6345041eeb3af1a24946010733d8d62283a484c885",
+      "gitBlobSha1": "d47e723e09e51539b158b1b54d515e38e4ca0031"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/coord.go",
+      "bytes": 102,
+      "sha256": "b32642395caa3a850b0cdbd5b8c36184d302ffaf30e818f340a804526f41f2b2",
+      "gitBlobSha1": "8801f6581c7da353a820c58f0cf9f78254a17f65"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/enemy.go",
+      "bytes": 1774,
+      "sha256": "534ca2155dd1fc81305879d2a1269cada2f6de5bcf23d4ec91eef696ac32ad87",
+      "gitBlobSha1": "11961fe115168b2ab698b6d7d45f106eb7e5bf47"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/gadget.go",
+      "bytes": 548,
+      "sha256": "ca81eb4efb0c0626f7b016f7a09617e431f53a6cd5450cf73e11093b0d64f61b",
+      "gitBlobSha1": "df79e5bdc817e16aef5bd02305a36bb1908dba66"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/heal.go",
+      "bytes": 505,
+      "sha256": "a1f203dd4d703e9789e2a02b4a27a09cf8c685013b360674965826e72211d37d",
+      "gitBlobSha1": "e37f4314ec596e6a25aa489b39be70bace651361"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/modifier.go",
+      "bytes": 358,
+      "sha256": "8e940d04c143d161f188498fcfd4d85abd6b31e4a46fc2a12563ae6418603882",
+      "gitBlobSha1": "00b6b746bfde09742849e65b03961cc1d1274f3f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/point.go",
+      "bytes": 1404,
+      "sha256": "eee7f859f512ca5e86ebb5589da64bf59b0be8c45f87c1b4ece4dd79c5564641",
+      "gitBlobSha1": "5ea23287dd586036e2c5d93e467d74c27c9f308b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/reaction.go",
+      "bytes": 4124,
+      "sha256": "e7eed4ea1a6e26dbb18e3b99ba3360110827270eb88e7a26c1f47e4050dc26be",
+      "gitBlobSha1": "0b537e34fcf1ff08d6872844653066ddd588d24b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/reactionmodifier.go",
+      "bytes": 1727,
+      "sha256": "66737a5926b9318b3c6b56b6f15c6568e8fcb095af8764960e70eccdba6c105a",
+      "gitBlobSha1": "6092c4f4a54b5fc13424175fa65c4bb0b81595e8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/rectangle.go",
+      "bytes": 4765,
+      "sha256": "f7c656a7aaf34b625e7dd051fce54b16280aea1bad30040374cef45585358b7a",
+      "gitBlobSha1": "b656fe616583718cbc1ee47364364f8e118a9d19"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/sets.go",
+      "bytes": 580,
+      "sha256": "42cd245e9b5bcb1e60d00da7a15ad13cb8d591d06d2ebb8686dd0d8c3dbf70dc",
+      "gitBlobSha1": "91b1345fef737a413fcd13381d939da477d7f2a0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/shape.go",
+      "bytes": 4356,
+      "sha256": "e2d91f48c10940510035dbd48b33ac8312f239cb7ede5feb40c20430720b80c2",
+      "gitBlobSha1": "6af9ac6fb50fb5237870f50a82e1b7291e78fc81"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/singletarget.go",
+      "bytes": 519,
+      "sha256": "a46f404f531a894cdc9a73206556bd63939e4a18f3db290a3d97cdad5f395932",
+      "gitBlobSha1": "a1256ec2357da619b1b16a7894dc008d1fa936fc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/talents.go",
+      "bytes": 126,
+      "sha256": "95a9e180998b46e0f3559e4524ad5b095c1bbee6344210ecbca938bd3893a228",
+      "gitBlobSha1": "2076135a1dcf2e1091ceaaf58468182251b21dad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/target.go",
+      "bytes": 210,
+      "sha256": "a57daebff34407de919a0aaec8867cfa2795338274375aa3430cf36b882d9294",
+      "gitBlobSha1": "cb2ec2c8dd96a17b5771d40d082f2b9ed6e9fd87"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/weapon.go",
+      "bytes": 1211,
+      "sha256": "3da40cb2bd5c1d5449043ec0fdb0726972cbbb83a71428a7521a26928c622f41",
+      "gitBlobSha1": "49c56061650bd2ac2859a7c893ddd3dcb317dec0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/animation/animation.go",
+      "bytes": 3385,
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "gitBlobSha1": "a11a10d7afbe88a8d1eefb60439a2c07e8823c88"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/basestat.go",
+      "bytes": 3278,
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+      "gitBlobSha1": "5fe8a567471550f150af747910cd2fdcb17446e6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/character.go",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlobSha1": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "gitBlobSha1": "89bcd35ff58041104029be9e3828e2154d724da9"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/enemy.go",
+      "bytes": 2280,
+      "sha256": "fcaf7992ff86ef7d24aac62822ec07b331b967799fcc25bebe246f6ae07c252d",
+      "gitBlobSha1": "b65ed03359dd9c47c77811b8d34fbda3ba520377"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/mods.go",
+      "bytes": 4013,
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "gitBlobSha1": "d1c63e76895a0b8964567f0697aa9df8375ada71"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    }
+  ],
+  "coefficients": [
+    {
+      "id": "xingqiu-burst",
+      "sourceSlug": "xingqiu",
+      "sourcePath": "internal/characters/xingqiu/zz_xingqiu.dm.go",
+      "sourceField": "burst",
+      "talentSetId": "talent-set:xingqiu",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        0.54272,
+        0.583424,
+        0.624128,
+        0.6784,
+        0.719104,
+        0.759808,
+        0.81408,
+        0.868352,
+        0.922624,
+        0.976896,
+        1.031168,
+        1.08544,
+        1.15328,
+        1.22112,
+        1.28896
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "yelan-burst",
+      "sourceSlug": "yelan",
+      "sourcePath": "internal/characters/yelan/zz_yelan.dm.go",
+      "sourceField": "burst",
+      "talentSetId": "talent-set:yelan",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "scalingStat": "hp",
+      "values": [
+        0.07308,
+        0.078561,
+        0.084042,
+        0.09135,
+        0.096831,
+        0.102312,
+        0.10962,
+        0.116928,
+        0.124236,
+        0.131544,
+        0.138852,
+        0.14616,
+        0.155295,
+        0.16443,
+        0.173565
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "yelan-burstDice",
+      "sourceSlug": "yelan",
+      "sourcePath": "internal/characters/yelan/zz_yelan.dm.go",
+      "sourceField": "burstDice",
+      "talentSetId": "talent-set:yelan",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "scalingStat": "hp",
+      "values": [
+        0.04872,
+        0.052374,
+        0.056028,
+        0.0609,
+        0.064554,
+        0.068208,
+        0.07308,
+        0.077952,
+        0.082824,
+        0.087696,
+        0.092568,
+        0.09744,
+        0.10353,
+        0.10962,
+        0.11571
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "thoma-burst",
+      "sourceSlug": "thoma",
+      "sourcePath": "internal/characters/thoma/zz_thoma.dm.go",
+      "sourceField": "burst",
+      "talentSetId": "talent-set:thoma",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        0.88,
+        0.946,
+        1.012,
+        1.1,
+        1.166,
+        1.232,
+        1.32,
+        1.408,
+        1.496,
+        1.584,
+        1.672,
+        1.76,
+        1.87,
+        1.98,
+        2.09
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "thoma-burstproc",
+      "sourceSlug": "thoma",
+      "sourcePath": "internal/characters/thoma/zz_thoma.dm.go",
+      "sourceField": "burstproc",
+      "talentSetId": "talent-set:thoma",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "scalingStat": "atk",
+      "values": [
+        0.58,
+        0.6235,
+        0.667,
+        0.725,
+        0.7685,
+        0.812,
+        0.87,
+        0.928,
+        0.986,
+        1.044,
+        1.102,
+        1.16,
+        1.2325,
+        1.305,
+        1.3775
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "raiden-skill",
+      "sourceSlug": "raiden",
+      "sourcePath": "internal/characters/raiden/zz_raidenshogun.dm.go",
+      "sourceField": "skill",
+      "talentSetId": "talent-set:raidenshogun",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        1.172,
+        1.2599,
+        1.3478,
+        1.465,
+        1.5529,
+        1.6408,
+        1.758,
+        1.8752,
+        1.9924,
+        2.1096,
+        2.2268,
+        2.344,
+        2.4905,
+        2.637,
+        2.7835
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "raiden-skillTick",
+      "sourceSlug": "raiden",
+      "sourcePath": "internal/characters/raiden/zz_raidenshogun.dm.go",
+      "sourceField": "skillTick",
+      "talentSetId": "talent-set:raidenshogun",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "scalingStat": "atk",
+      "values": [
+        0.42,
+        0.4515,
+        0.483,
+        0.525,
+        0.5565,
+        0.588,
+        0.63,
+        0.672,
+        0.714,
+        0.756,
+        0.798,
+        0.84,
+        0.8925,
+        0.945,
+        0.9975
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "yoimiya-burst",
+      "sourceSlug": "yoimiya",
+      "sourcePath": "internal/characters/yoimiya/zz_yoimiya.dm.go",
+      "sourceField": "burst",
+      "talentSetId": "talent-set:yoimiya",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        1.272,
+        1.3674,
+        1.4628,
+        1.59,
+        1.6854,
+        1.7808,
+        1.908,
+        2.0352,
+        2.1624,
+        2.2896,
+        2.4168,
+        2.544,
+        2.703,
+        2.862,
+        3.021
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "yoimiya-burstExplode",
+      "sourceSlug": "yoimiya",
+      "sourcePath": "internal/characters/yoimiya/zz_yoimiya.dm.go",
+      "sourceField": "burstExplode",
+      "talentSetId": "talent-set:yoimiya",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "scalingStat": "atk",
+      "values": [
+        1.22,
+        1.3115,
+        1.403,
+        1.525,
+        1.6165,
+        1.708,
+        1.83,
+        1.952,
+        2.074,
+        2.196,
+        2.318,
+        2.44,
+        2.5925,
+        2.745,
+        2.8975
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "albedo-skill",
+      "sourceSlug": "albedo",
+      "sourcePath": "internal/characters/albedo/zz_albedo.dm.go",
+      "sourceField": "skill",
+      "talentSetId": "talent-set:albedo",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        1.304,
+        1.4018,
+        1.4996,
+        1.63,
+        1.7278,
+        1.8256,
+        1.956,
+        2.0864,
+        2.2168,
+        2.3472,
+        2.4776,
+        2.608,
+        2.771,
+        2.934,
+        3.097
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "albedo-skillTick",
+      "sourceSlug": "albedo",
+      "sourcePath": "internal/characters/albedo/zz_albedo.dm.go",
+      "sourceField": "skillTick",
+      "talentSetId": "talent-set:albedo",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "scalingStat": "def",
+      "values": [
+        1.336,
+        1.4362,
+        1.5364,
+        1.67,
+        1.7702,
+        1.8704,
+        2.004,
+        2.1376,
+        2.2712,
+        2.4048,
+        2.5384,
+        2.672,
+        2.839,
+        3.006,
+        3.173
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "dehya-skill",
+      "sourceSlug": "dehya",
+      "sourcePath": "internal/characters/dehya/zz_dehya.dm.go",
+      "sourceField": "skill",
+      "talentSetId": "talent-set:dehya",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        1.1288,
+        1.21346,
+        1.29812,
+        1.411,
+        1.49566,
+        1.58032,
+        1.6932,
+        1.80608,
+        1.91896,
+        2.03184,
+        2.14472,
+        2.2576,
+        2.3987,
+        2.5398,
+        2.6809
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "dehya-skillReposition",
+      "sourceSlug": "dehya",
+      "sourcePath": "internal/characters/dehya/zz_dehya.dm.go",
+      "sourceField": "skillReposition",
+      "talentSetId": "talent-set:dehya",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "scalingStat": "atk",
+      "values": [
+        1.328,
+        1.4276,
+        1.5272,
+        1.66,
+        1.7596,
+        1.8592,
+        1.992,
+        2.1248,
+        2.2576,
+        2.3904,
+        2.5232,
+        2.656,
+        2.822,
+        2.988,
+        3.154
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "dehya-skillDotAtk",
+      "sourceSlug": "dehya",
+      "sourcePath": "internal/characters/dehya/zz_dehya.dm.go",
+      "sourceField": "skillDotAtk",
+      "talentSetId": "talent-set:dehya",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "scalingStat": "atk",
+      "values": [
+        0.602,
+        0.64715,
+        0.6923,
+        0.7525,
+        0.79765,
+        0.8428,
+        0.903,
+        0.9632,
+        1.0234,
+        1.0836,
+        1.1438,
+        1.204,
+        1.27925,
+        1.3545,
+        1.42975
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "dehya-skillDotHP",
+      "sourceSlug": "dehya",
+      "sourcePath": "internal/characters/dehya/zz_dehya.dm.go",
+      "sourceField": "skillDotHP",
+      "talentSetId": "talent-set:dehya",
+      "abilityKey": "combat2",
+      "parameterKey": "param4",
+      "scalingStat": "hp",
+      "values": [
+        0.01032,
+        0.011094,
+        0.011868,
+        0.0129,
+        0.013674,
+        0.014448,
+        0.01548,
+        0.016512,
+        0.017544,
+        0.018576,
+        0.019608,
+        0.02064,
+        0.02193,
+        0.02322,
+        0.02451
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "fischl-birdSum",
+      "sourceSlug": "fischl",
+      "sourcePath": "internal/characters/fischl/zz_fischl.dm.go",
+      "sourceField": "birdSum",
+      "talentSetId": "talent-set:fischl",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "scalingStat": "atk",
+      "values": [
+        1.1544,
+        1.24098,
+        1.32756,
+        1.443,
+        1.52958,
+        1.61616,
+        1.7316,
+        1.84704,
+        1.96248,
+        2.07792,
+        2.19336,
+        2.3088,
+        2.4531,
+        2.5974,
+        2.7417
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "fischl-birdAtk",
+      "sourceSlug": "fischl",
+      "sourcePath": "internal/characters/fischl/zz_fischl.dm.go",
+      "sourceField": "birdAtk",
+      "talentSetId": "talent-set:fischl",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        0.888,
+        0.9546,
+        1.0212,
+        1.11,
+        1.1766,
+        1.2432,
+        1.332,
+        1.4208,
+        1.5096,
+        1.5984,
+        1.6872,
+        1.776,
+        1.887,
+        1.998,
+        2.109
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "fischl-burst",
+      "sourceSlug": "fischl",
+      "sourcePath": "internal/characters/fischl/zz_fischl.dm.go",
+      "sourceField": "burst",
+      "talentSetId": "talent-set:fischl",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        2.08,
+        2.236,
+        2.392,
+        2.6,
+        2.756,
+        2.912,
+        3.12,
+        3.328,
+        3.536,
+        3.744,
+        3.952,
+        4.16,
+        4.42,
+        4.68,
+        4.94
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "travelerelectro-burst",
+      "sourceSlug": "travelerelectro",
+      "sourcePath": "internal/characters/traveler/common/electro/stats.go",
+      "sourceField": "burst",
+      "talentSetId": "talent-set:travelerelectro",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "scalingStat": "atk",
+      "values": [
+        1.144,
+        1.2298,
+        1.3156,
+        1.43,
+        1.5158,
+        1.6016,
+        1.716,
+        1.8304,
+        1.9448,
+        2.0592,
+        2.1736,
+        2.288,
+        2.431,
+        2.574,
+        2.717
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    },
+    {
+      "id": "travelerelectro-burstTick",
+      "sourceSlug": "travelerelectro",
+      "sourcePath": "internal/characters/traveler/common/electro/stats.go",
+      "sourceField": "burstTick",
+      "talentSetId": "talent-set:travelerelectro",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "scalingStat": "atk",
+      "values": [
+        0.328,
+        0.3526,
+        0.3772,
+        0.41,
+        0.4346,
+        0.4592,
+        0.492,
+        0.5248,
+        0.5576,
+        0.5904,
+        0.6232,
+        0.656,
+        0.697,
+        0.738,
+        0.779
+      ],
+      "maximumAbsoluteDifference": 0,
+      "coefficientTolerance": 0
+    }
+  ],
+  "fixedTerms": [
+    {
+      "id": "thoma-a4",
+      "scalingStat": "hp",
+      "coefficient": 0.022,
+      "sourcePath": "internal/characters/thoma/asc.go",
+      "sourceField": "a4",
+      "minimumAscension": 4,
+      "blockedAscensions": [
+        1,
+        2,
+        3
+      ],
+      "reason": "The pinned function incorrectly checks Ascension < 1 while describing A4. Only ascension 0 and 4-6 are admitted; no claim is made for 1-3."
+    }
+  ],
+  "protocolNotes": [
+    "Mapping rows are representative components. Complete-action calculation must compile an explicit fully observed event schedule; never sum one representative proc as the lifetime total.",
+    "All candidates, target eligibility, snapshots and passive already-included shares must be explicit; unknown dependencies stay blocked.",
+    "Character and enemy StatusIsActive uses inclusive expiry via modifier.FindCheckExpiry. Core.Status.Duration and AttackMods differ.",
+    "Minazuki state entry checks ICD; its recurring ticker deliberately does not. A rejected state entry does not replace tickSrc.",
+    "Fischl fresh E spawns at 18, first tick 64 after spawn, interval59; full unshortened Q spawns113, first tick69 after spawn, interval59. Oz status checks include the tick exactly at600.",
+    "Dehya reposition initial uses the prior field snapshot; the restored field takes a new snapshot at41 and preserves remaining cooldown with40-frame delay and remaining life plus24.",
+    "No automatic team rotation, aura, ICD, hitlag, collision, target-death transfer, recast/replacement, Hexerei or extra Fischl A4 triggers are certified.",
+    "Raiden Eye is an AttackMod: at expiry ApplyAttackMods purges it for ordinary attacks before damage events, but ordinary reactions bypass that cleanup; expiry-frame qualification requires source actor event order."
+  ],
+  "definitions": {
+    "path": "packages/game-data/sources/coordinated-casts/definitions.json",
+    "sha256": "4019844d88daaa28c2dc065e23dd2735d235059ca65aa43fda7fca962c40146a",
+    "templates": 12,
+    "representativeHitTemplates": 23,
+    "replacedPartialActions": 18
+  }
+}

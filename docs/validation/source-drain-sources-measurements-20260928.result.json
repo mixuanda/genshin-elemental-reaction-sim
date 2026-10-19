@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "source-drain-sources-validation-v1",
+  "laneFilter": "both",
+  "configs": {
+    "ordinary": "options iteration=1 duration=18;\nkuki char lvl=90/90 cons=0 talent=1,1,1;\nkuki add weapon=\"favoniussword\" refine=1 lvl=90/90;\nkuki add stats hp=4000 em=200 cr=0.2 cd=0.4;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nhutao add stats hp=3000 cr=0.2 cd=0.4;\nlynette char lvl=90/90 cons=0 talent=1,1,1;\nlynette add weapon=\"favoniussword\" refine=1 lvl=90/90;\nlynette add stats atk=200 cr=0.2 cd=0.4;\nxiao char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxiao add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nxiao add stats atk=200 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nhurt once interval=60 amount=14500,14500 element=physical;\nactive kuki;\nwait(65);\nkuki skill;\nhutao skill;\nlynette skill;\nxiao burst;\nwait(600);",
+    "dehya": "options iteration=1 duration=8;\ndehya char lvl=90/90 cons=0 talent=1,1,1;\ndehya add weapon=\"favoniusgreatsword\" refine=1 lvl=90/90;\ndehya add stats hp=4000 cr=0.2 cd=0.4;\nnoelle char lvl=90/90 cons=0 talent=1,1,1;\nnoelle add weapon=\"favoniusgreatsword\" refine=1 lvl=90/90;\nnoelle add stats def=500 cr=0.2 cd=0.4;\nbarbara char lvl=90/90 cons=0 talent=1,1,1;\nbarbara add weapon=\"magicguide\" refine=1 lvl=90/90;\nlisa char lvl=90/90 cons=0 talent=1,1,1;\nlisa add weapon=\"magicguide\" refine=1 lvl=90/90;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nhurt once interval=120 amount=6500,6500 element=physical;\nactive dehya;\ndehya skill;\nnoelle skill;\nwait(360);",
+    "nilou": "options iteration=1 duration=18;\nnilou char lvl=90/90 cons=0 talent=1,1,1;\nnilou add weapon=\"favoniussword\" refine=1 lvl=90/90;\nnilou add stats hp=30000 cr=0.2 cd=0.4;\nfurina char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nfurina add weapon=\"favoniussword\" refine=1 lvl=90/90;\nbarbara char lvl=90/90 cons=0 talent=1,1,1;\nbarbara add weapon=\"magicguide\" refine=1 lvl=90/90;\nbaizhu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nbaizhu add weapon=\"magicguide\" refine=1 lvl=90/90;\nbaizhu add stats hp=10000 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive nilou;\nnilou skill;\nnilou skill;\nnilou skill;\nnilou skill;\nfurina burst;\nbaizhu burst;\nbarbara attack;\nwait(240);\nbarbara attack:3;\nbaizhu skill;\nbarbara attack:4;\nwait(300);"
+  },
+  "measurements": [
+    {
+      "lane": "classic",
+      "scene": "ordinary",
+      "rawPath": "docs/validation/source-drain-sources-classic-ordinary-20260928.result.json",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+      "drainApplications": 19,
+      "linkedApplications": 19,
+      "sourceCalculationIds": 19,
+      "observedRules": {
+        "drain-source-kuki-skill": 1,
+        "drain-source-hutao-skill": 1,
+        "drain-source-lynette-skill": 3,
+        "drain-source-xiao-burst": 13
+      },
+      "maximumReplayDifference": 0,
+      "pageErrors": [],
+      "threshold": {
+        "sourceId": 6,
+        "currentHp": 4737.931506964,
+        "maxHp": 19237.931506964,
+        "amount": 890.3452055711996,
+        "resultingRatio": 0.2
+      },
+      "edit": {
+        "applicationId": 18,
+        "sourceId": 16,
+        "originalCurrentHp": 18552.3066196,
+        "editedCurrentHp": 18652.3066196,
+        "originalAmount": 5565.69198588,
+        "editedAmount": 5595.69198588,
+        "originalRatio": 0.7000000000000001,
+        "editedRatio": 0.6983829503999085,
+        "difference": -0.001617049600091569,
+        "originalCaptureUnchanged": true,
+        "editablePath": "docs/validation/source-drain-sources-calculator-20260928.result.json"
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "dehya",
+      "rawPath": "docs/validation/source-drain-sources-classic-dehya-20260928.result.json",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+      "drainApplications": 7,
+      "linkedApplications": 7,
+      "sourceCalculationIds": 25,
+      "observedRules": {
+        "drain-source-dehya-mitigation": 7,
+        "drain-source-dehya-after-mitigation": 1,
+        "drain-source-dehya-pool-add": 6,
+        "drain-source-dehya-tick-raw": 21,
+        "drain-source-dehya-pool-consume": 15
+      },
+      "maximumReplayDifference": 0,
+      "pageErrors": [],
+      "special": {
+        "mitigationApplicationId": 46,
+        "externalShieldAbsorbed": 3230.76948324,
+        "externalDamageAfterShield": 3269.23051676,
+        "selfHitApplicationId": 52,
+        "selfHitFrame": 127,
+        "manualIncomingIds": [
+          50
+        ]
+      }
+    },
+    {
+      "lane": "classic",
+      "scene": "nilou",
+      "rawPath": "docs/validation/source-drain-sources-classic-nilou-20260928.result.json",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+      "drainApplications": 1,
+      "linkedApplications": 1,
+      "sourceCalculationIds": 15,
+      "observedRules": {},
+      "maximumReplayDifference": 0,
+      "pageErrors": [],
+      "special": {
+        "selfHitApplicationId": 448,
+        "flatCalculationIds": [
+          321,
+          357,
+          434
+        ],
+        "playerHits": 1
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "ordinary",
+      "rawPath": "docs/validation/source-drain-sources-stellar-ordinary-20260928.result.json",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "d73d770c3276da7dbc42938f60ec035634641526abaab74aca810ba15038ce7f",
+      "drainApplications": 19,
+      "linkedApplications": 19,
+      "sourceCalculationIds": 19,
+      "observedRules": {
+        "drain-source-kuki-skill": 1,
+        "drain-source-hutao-skill": 1,
+        "drain-source-lynette-skill": 3,
+        "drain-source-xiao-burst": 13
+      },
+      "maximumReplayDifference": 0,
+      "pageErrors": [],
+      "threshold": {
+        "sourceId": 6,
+        "currentHp": 4737.931506964,
+        "maxHp": 19237.931506964,
+        "amount": 890.3452055711996,
+        "resultingRatio": 0.2
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "dehya",
+      "rawPath": "docs/validation/source-drain-sources-stellar-dehya-20260928.result.json",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "d73d770c3276da7dbc42938f60ec035634641526abaab74aca810ba15038ce7f",
+      "drainApplications": 7,
+      "linkedApplications": 7,
+      "sourceCalculationIds": 25,
+      "observedRules": {
+        "drain-source-dehya-mitigation": 7,
+        "drain-source-dehya-after-mitigation": 1,
+        "drain-source-dehya-pool-add": 6,
+        "drain-source-dehya-tick-raw": 21,
+        "drain-source-dehya-pool-consume": 15
+      },
+      "maximumReplayDifference": 0,
+      "pageErrors": [],
+      "special": {
+        "mitigationApplicationId": 46,
+        "externalShieldAbsorbed": 3230.76948324,
+        "externalDamageAfterShield": 3269.23051676,
+        "selfHitApplicationId": 52,
+        "selfHitFrame": 127,
+        "manualIncomingIds": [
+          50
+        ]
+      }
+    },
+    {
+      "lane": "stellar",
+      "scene": "nilou",
+      "rawPath": "docs/validation/source-drain-sources-stellar-nilou-20260928.result.json",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "d73d770c3276da7dbc42938f60ec035634641526abaab74aca810ba15038ce7f",
+      "drainApplications": 2,
+      "linkedApplications": 2,
+      "sourceCalculationIds": 18,
+      "observedRules": {},
+      "maximumReplayDifference": 0,
+      "pageErrors": [],
+      "special": {
+        "selfHitApplicationId": 448,
+        "flatCalculationIds": [
+          337,
+          347,
+          434
+        ],
+        "playerHits": 1
+      }
+    }
+  ],
+  "pageErrors": [],
+  "scope": "Only real source-linked Drain applications; native threshold, mitigation, self-hit and shield gates are preserved."
+}

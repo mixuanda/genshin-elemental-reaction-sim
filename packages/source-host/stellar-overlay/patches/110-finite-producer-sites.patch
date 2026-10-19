@@ -1,0 +1,237 @@
+--- a/internal/characters/cyno/skill.go
++++ b/internal/characters/cyno/skill.go
+@@ -40,7 +40,11 @@
+ }
+ 
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+-	if c.StatusIsActive(burstKey) {
++	burstActive := c.StatusIsActive(burstKey)
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("cyno.skill.burst-active", burstActive)
++	}
++	if burstActive {
+ 		return c.skillB()
+ 	}
+ 
+@@ -104,7 +108,11 @@
+ 		6,
+ 	)
+ 	particleCB := c.makeParticleCB(true)
+-	if !c.StatusIsActive(a1Key) { // check for endseer buff
++	a1Active := c.StatusIsActive(a1Key)
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("cyno.skill.a1-active", a1Active)
++	}
++	if !a1Active { // check for endseer buff
+ 		c.Core.QueueAttack(ai, ap, skillBHitmark, skillBHitmark, particleCB)
+ 	} else {
+ 		// apply the extra damage on skill
+--- a/internal/characters/freminet/skill.go
++++ b/internal/characters/freminet/skill.go
+@@ -57,7 +57,11 @@
+ }
+ 
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+-	if c.StatusIsActive(persTimeKey) {
++	persActive := c.StatusIsActive(persTimeKey)
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("freminet.skill.pers-active", persActive)
++	}
++	if persActive {
+ 		return c.detonateSkill()
+ 	}
+ 
+@@ -107,7 +111,11 @@
+ }
+ 
+ func (c *char) skillAligned() {
+-	if c.StatusIsActive(skillAlignedICDKey) {
++	alignedICDActive := c.StatusIsActive(skillAlignedICDKey)
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("freminet.skill.aligned-icd-active", alignedICDActive)
++	}
++	if alignedICDActive {
+ 		return
+ 	}
+ 	c.AddStatus(skillAlignedICDKey, skillAlignedICD, true)
+@@ -135,6 +143,9 @@
+ }
+ 
+ func (c *char) detonateSkill() (action.Info, error) {
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact("freminet.skill.stacks", float64(c.skillStacks))
++	}
+ 	pressureFrameIndex := 0
+ 	if c.skillStacks == 4 {
+ 		pressureFrameIndex = 1
+--- a/internal/characters/heizou/skill.go
++++ b/internal/characters/heizou/skill.go
+@@ -45,7 +45,7 @@
+ }
+ 
+ func (c *char) skillRelease(delay int) action.Info {
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("heizou.skill.release", c.Index(), func() {
+ 		hitDelay := skillHitmark - skillCDStart
+ 		multID := 0
+ 		ai := info.AttackInfo{
+--- a/internal/characters/dori/burst.go
++++ b/internal/characters/dori/burst.go
+@@ -49,7 +49,7 @@
+ 	icdSrc := []int{math.MinInt32, math.MinInt32, math.MinInt32, math.MinInt32}
+ 	// 32 damage ticks
+ 	for i := range 32 {
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("dori.burst.connector", c.Index(), func() {
+ 			p, ok := c.Core.Combat.Player().(*avatar.Player)
+ 			if !ok {
+ 				panic("target 0 should be Player but is not!!")
+@@ -103,7 +103,7 @@
+ 	}
+ 
+ 	for i := range 6 {
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("dori.burst.heal", c.Index(), func() {
+ 			if !c.Core.Combat.Player().IsWithinArea(burstArea) {
+ 				return
+ 			}
+--- a/internal/characters/gorou/skill.go
++++ b/internal/characters/gorou/skill.go
+@@ -37,7 +37,7 @@
+ *
+ */
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("gorou.skill.initial", c.Index(), func() {
+ 		skillMult := skill[c.TalentLvlSkill()]
+ 		flat, flatID := c.a4Skill()
+ 		ai := info.AttackInfo{
+--- a/internal/characters/gorou/burst.go
++++ b/internal/characters/gorou/burst.go
+@@ -27,7 +27,7 @@
+ func (c *char) Burst(p map[string]int) (action.Info, error) {
+ 	// Initial Hit
+ 	// A1/C6/Q duration all start on Initial Hit
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("gorou.burst.initial", c.Index(), func() {
+ 		burstMult := burst[c.TalentLvlBurst()]
+ 		flat, flatID := c.a4Burst()
+ 		ai := info.AttackInfo{
+@@ -66,7 +66,7 @@
+ 		// Pulls 1 elemental shard in the skill's AoE to your active character's position every 1.5s (elemental
+ 		// shards are created by Crystallize reactions).
+ 		c.qFieldSrc = c.Core.F
+-		c.Core.Tasks.Add(c.gorouCrystalCollapse(c.Core.F), 90) // first crystal collapse is 1.5s after Hitmark Initial
++		c.Core.SourceHostQueueTask("gorou.burst.collapse", c.Index(), c.gorouCrystalCollapse(c.Core.F), 90) // first crystal collapse is 1.5s after Hitmark Initial
+ 
+ 		c.a1()
+ 
+@@ -170,7 +170,7 @@
+ 		}
+ 
+ 		// tick every 1.5s
+-		c.Core.Tasks.Add(c.gorouCrystalCollapse(src), 90)
++		c.Core.SourceHostQueueTask("gorou.burst.collapse", c.Index(), c.gorouCrystalCollapse(src), 90)
+ 	}
+ }
+ 
+--- a/internal/characters/kuki/skill.go
++++ b/internal/characters/kuki/skill.go
+@@ -93,11 +93,11 @@
+ 
+ 	// this gets executed before kuki can experience hitlag so no need for char queue
+ 	// ring duration starts after hitmark
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("kuki.skill.activate", c.Index(), func() {
+ 		// E duration and ticks are not affected by hitlag
+ 		c.Core.Status.Add(ringKey, skilldur)
+ 		c.ringSrc = c.Core.F
+-		c.Core.Tasks.Add(c.bellTick(c.Core.F), 90) // Assuming this executes every 90 frames = 1.5s
++		c.Core.SourceHostQueueTask("kuki.skill.bell-tick", c.Index(), c.bellTick(c.Core.F), 90) // Assuming this executes every 90 frames = 1.5s
+ 		c.Core.Log.NewEvent("Bell activated", glog.LogCharacterEvent, c.Index()).
+ 			Write("next expected tick", c.Core.F+90).
+ 			Write("expected end", c.Core.F+skilldur)
+@@ -206,6 +206,6 @@
+ 		if c.Core.Status.Duration(ringKey) == 0 {
+ 			return
+ 		}
+-		c.Core.Tasks.Add(c.bellTick(src), 90)
+-	}
+-}
++		c.Core.SourceHostQueueTask("kuki.skill.bell-tick", c.Index(), c.bellTick(src), 90)
++	}
++}
+--- a/internal/characters/kuki/burst.go
++++ b/internal/characters/kuki/burst.go
+@@ -48,7 +48,11 @@
+ 	snap := c.Snapshot(&ai)
+ 
+ 	count := 7 // can be 11 at low HP
+-	if c.CurrentHPRatio() <= 0.5 {
++	lowHP := c.CurrentHPRatio() <= 0.5
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("kuki.burst.low-hp", lowHP)
++	}
++	if lowHP {
+ 		count = 12
+ 	}
+ 	interval := 2 * 60 / 7
+--- a/internal/characters/ayato/burst.go
++++ b/internal/characters/ayato/burst.go
+@@ -47,3 +47,3 @@
+ 	var snap info.Snapshot
+-	c.Core.Tasks.Add(func() { snap = c.Snapshot(&ai) }, burstStart)
++	c.Core.SourceHostQueueTask("ayato.burst.snapshot", c.Index(), func() { snap = c.Snapshot(&ai) }, burstStart)
+ 
+@@ -59,3 +59,3 @@
+ 	for i := 0; i < 18*60; i += 30 {
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("ayato.burst.rain-tick", c.Index(), func() {
+ 			// burst tick
+--- a/internal/characters/arlecchino/burst.go
++++ b/internal/characters/arlecchino/burst.go
+@@ -45,3 +45,3 @@
+ 	skillArea := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: 6}, 6.5)
+-	c.QueueCharTask(c.absorbDirectives, 22)
++	c.SourceHostQueueCharTask("arlecchino.burst.absorb-directives", c.absorbDirectives, 22)
+ 
+@@ -49,3 +49,3 @@
+ 
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("arlecchino.burst.main-hit", func() {
+ 		// the BoL can change during the burst
+--- a/internal/characters/neuvillette/burst.go
++++ b/internal/characters/neuvillette/burst.go
+@@ -88,3 +88,3 @@
+ 
+-		c.QueueCharTask(func() {
++		c.SourceHostQueueCharTask("neuvillette.burst.waterfall-tick", func() {
+ 			// spawn droplets for current tick using random point from player pos with offset
+--- a/internal/characters/dehya/burst.go
++++ b/internal/characters/dehya/burst.go
+@@ -42,3 +42,3 @@
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("dehya.burst.initial-auto-punch", c.Index(), func() {
+ 		c.burstHitSrc = 0
+@@ -111,3 +111,3 @@
+ 			c.AddStatus(kickKey, burstKickHitmark, true)
+-			c.Core.Tasks.Add(c.burstKickFunc(c.burstHitSrc), burstKickHitmark)
++			c.Core.SourceHostQueueTask("dehya.burst.auto-kick", c.Index(), c.burstKickFunc(c.burstHitSrc), burstKickHitmark)
+ 			return
+@@ -116,3 +116,3 @@
+ 		c.burstHitSrc++
+-		c.Core.Tasks.Add(c.burstPunchFunc(c.burstHitSrc), burstPunchSlowHitmark)
++		c.Core.SourceHostQueueTask("dehya.burst.next-auto-punch", c.Index(), c.burstPunchFunc(c.burstHitSrc), burstPunchSlowHitmark)
+ 	}
+--- a/internal/characters/yaemiko/kitsune.go
++++ b/internal/characters/yaemiko/kitsune.go
+@@ -86,3 +86,7 @@
+ func (c *char) kitsuneBurst(ai info.AttackInfo, pattern info.AttackPattern) {
+-	for i := 0; i < c.kitsuneCount(); i++ {
++	count := c.kitsuneCount()
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact("yae.burst.kitsune-count", float64(count))
++	}
++	for i := 0; i < count; i++ {
+ 		c.Core.QueueAttack(ai, pattern, burstThunderbolt1Hitmark+i*24, burstThunderbolt1Hitmark+i*24)

@@ -1,0 +1,252 @@
+--- a/internal/artifacts/berserker/berserker.go
++++ b/internal/artifacts/berserker/berserker.go
+@@ -28,6 +28,9 @@
+ 			Base:         modifier.NewBase("berserker-2pc", -1),
+ 			AffectedStat: attributes.CR,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "const-berserker-2pc-cr", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -42,6 +45,9 @@
+ 				if char.CurrentHPRatio() > 0.7 {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "const-berserker-4pc-cr", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/blizzard/blizzard.go
++++ b/internal/artifacts/blizzard/blizzard.go
+@@ -29,6 +29,9 @@
+ 			Base:         modifier.NewBase("bs-2pc", -1),
+ 			AffectedStat: attributes.CryoP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.CryoP] = c.SourceHost.ArtifactScalar(char.Index(), "const-blizzard-2pc-cryo-p", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -50,10 +53,16 @@
+ 			// Frozen check first so we don't mistaken coexisting cryo
+ 			if r.AuraContains(attributes.Frozen) {
+ 				m[attributes.CR] = 0.4
++				if c.SourceHost != nil {
++					m[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "const-blizzard-4pc-frozen-cr", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			}
+ 			if r.AuraContains(attributes.Cryo) {
+ 				m[attributes.CR] = 0.2
++				if c.SourceHost != nil {
++					m[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "const-blizzard-4pc-cryo-cr", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/artifacts/bloodstained/bloodstained.go
++++ b/internal/artifacts/bloodstained/bloodstained.go
+@@ -34,6 +34,9 @@
+ 			Base:         modifier.NewBase("bloodstained-2pc", -1),
+ 			AffectedStat: attributes.PhyP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.PhyP] = c.SourceHost.ArtifactScalar(char.Index(), "const-bloodstained-2pc-phy-p", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -70,6 +73,9 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagExtra {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-bloodstained-4pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/bolide/bolide.go
++++ b/internal/artifacts/bolide/bolide.go
+@@ -39,6 +39,9 @@
+ 				if !c.Player.Shields.CharacterIsShielded(char.Index(), c.Player.Active()) {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-bolide-4pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/braveheart/braveheart.go
++++ b/internal/artifacts/braveheart/braveheart.go
+@@ -29,6 +29,9 @@
+ 			Base:         modifier.NewBase("braveheart-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "const-braveheart-2pc-atk-p", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -48,3 +51,3 @@
+ 		Base: modifier.NewBase("braveheart-4pc", -1),
+-		Amount: func(_ *info.AttackEvent, t info.Target) []float64 {
++		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			x, ok := t.(*enemy.Enemy)
+@@ -52,6 +55,9 @@
+ 				return nil
+ 			}
+ 			if x.HP()/x.MaxHP() > 0.5 {
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-braveheart-4pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/artifacts/defenderswill/defenderswill.go
++++ b/internal/artifacts/defenderswill/defenderswill.go
+@@ -29,6 +29,9 @@
+ 			Base:         modifier.NewBase("defenderswill-2pc", -1),
+ 			AffectedStat: attributes.DEFP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.DEFP] = c.SourceHost.ArtifactScalar(char.Index(), "const-defenderswill-2pc-def-p", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go
++++ b/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go
+@@ -36,6 +36,9 @@
+ 			Base:         modifier.NewBase("desert-2pc", -1),
+ 			AffectedStat: attributes.AnemoP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.AnemoP] = c.SourceHost.ArtifactScalar(char.Index(), "const-desertpavilionchronicle-2pc-anemo-p", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -60,6 +63,9 @@
+ 					if c.Player.CurrentState() != action.NormalAttackState {
+ 						return nil
+ 					}
++					if c.SourceHost != nil {
++						mSpd[attributes.AtkSpd] = c.SourceHost.ArtifactScalar(char.Index(), "const-desertpavilionchronicle-4pc-atk-spd", nil, nil, 0)
++					}
+ 					return mSpd
+ 				},
+ 			})
+@@ -76,6 +82,9 @@
+ 					default:
+ 						return nil
+ 					}
++					if c.SourceHost != nil {
++						mDmg[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-desertpavilionchronicle-4pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++					}
+ 					return mDmg
+ 				},
+ 			})
+--- a/internal/artifacts/exile/exile.go
++++ b/internal/artifacts/exile/exile.go
+@@ -32,6 +32,9 @@
+ 			Base:         modifier.NewBase("exile-2pc", -1),
+ 			AffectedStat: attributes.ER,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ER] = c.SourceHost.ArtifactScalar(char.Index(), "const-exile-2pc-er", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/gambler/gambler.go
++++ b/internal/artifacts/gambler/gambler.go
+@@ -38,6 +38,9 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagElementalArt {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-gambler-2pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/gladiator/gladiator.go
++++ b/internal/artifacts/gladiator/gladiator.go
+@@ -11,6 +11,7 @@
+ 
+ type Set struct {
+ 	char  *character.CharWrapper
++	core  *core.Core
+ 	Index int
+ 	Count int
+ }
+@@ -39,6 +40,9 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagNormal {
+ 				return nil
+ 			}
++			if s.core.SourceHost != nil {
++				m[attributes.DmgP] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "const-gladiator-4pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++			}
+ 			return m
+ 		},
+ 	})
+@@ -49,6 +53,7 @@
+ func NewSet(c *core.Core, char *character.CharWrapper, count int, param map[string]int) (info.Set, error) {
+ 	s := Set{
+ 		char:  char,
++		core:  c,
+ 		Count: count,
+ 	}
+ 
+@@ -59,6 +64,9 @@
+ 			Base:         modifier.NewBase("glad-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++				m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "const-gladiator-2pc-atk-p", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/instructor/instructor.go
++++ b/internal/artifacts/instructor/instructor.go
+@@ -33,6 +33,9 @@
+ 			Base:         modifier.NewBase("instructor-2pc", -1),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++				m[attributes.EM] = c.SourceHost.ArtifactScalar(char.Index(), "const-instructor-2pc-em", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -59,6 +62,9 @@
+ 					Base:         modifier.NewBaseWithHitlag("instructor-4pc", 480),
+ 					AffectedStat: attributes.EM,
+ 					Amount: func() []float64 {
++						if c.SourceHost != nil {
++							m[attributes.EM] = c.SourceHost.ArtifactScalar(this.Index(), "const-instructor-4pc-em", nil, nil, 0)
++						}
+ 						return m
+ 					},
+ 				})
+--- a/internal/artifacts/lavawalker/lavawalker.go
++++ b/internal/artifacts/lavawalker/lavawalker.go
+@@ -36,6 +36,9 @@
+ 				}
+ 
+ 				if r.AuraContains(attributes.Pyro) {
++					if c.SourceHost != nil {
++						m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "const-lavawalker-4pc-dmg-p", nil, &atk.Info, atk.SourceHostAttackID, t.Key())
++					}
+ 					return m
+ 				}
+ 				return nil

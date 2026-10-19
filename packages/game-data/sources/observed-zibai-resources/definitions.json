@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "protocol": "observed-zibai-resources-v1",
+  "constants": {
+    "cap": 100,
+    "cost": 70,
+    "durationSeconds": 15,
+    "timeGain": 10,
+    "timeIntervalSeconds": 1,
+    "normalGain": 5,
+    "normalIntervalSeconds": 0.5,
+    "lunarGain": 35,
+    "lunarIntervalSeconds": 4,
+    "requiredMoonsign": 2,
+    "maxUses": 4,
+    "burstExtensionSeconds": 1.7,
+    "framesPerSecond": 60
+  },
+  "sourceRefs": [
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+    "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+    "https://library.keqingmains.com/characters/geo/zibai",
+    "https://library.keqingmains.com/evidence/characters/geo/zibai"
+  ],
+  "observationContract": {
+    "scope": "C0; real observed Phase Shift Radiance ledger for one Lunar Phase Shift lifecycle or a selected Steed consumption prefix; not an automatic rotation or source-verified frame simulator.",
+    "framesAndOrder": "Every entry frame and same-frame order is observed input. Seconds are converted using the application timebase; do not infer a first tick phase, action impact frame, cooldown boundary inclusivity or internal callback order from talent text.",
+    "firstTimeGainPhase": "unknown; must be explicitly observed, never generated from an assumed cast+60 or cast+0 phase",
+    "normalGainEvidence": "actual qualifying Normal Attack contact; do not substitute a button press, charged hit or automatically counted candidate",
+    "lunarGainEvidence": "actual qualifying nearby-party Lunar-Crystallize trigger with Ascendant Gleam; Lunar-Crystallize damage tags alone do not prove a resource-gain trigger",
+    "steedConsumption": "requires at least cost before the observed valid release; deduct cost and count a use; the release resets only the Lunar-Crystallize resource-gain cooldown, not the Normal Attack gain cooldown",
+    "steedResetOrder": "the talent states that a valid Steed release resets the LC-gain cooldown, but does not establish consumption/reset/same-frame LC order; preserve the observed event order",
+    "fourthUseExitOrder": "four valid Steed releases end the mode, but the relation between exit, release, its two damage instances and other same-frame events is not source-proven",
+    "burstExtension": "an actual Q cast while the mode is active extends the current duration; no extension while already inactive and no source claim of only one extension per lifecycle",
+    "completeLifecycleRequiresExplicitExit": true,
+    "completeLifecycleExit": "require an observed exit record; do not synthesize a verified exact exit frame from the fourth release or duration arithmetic alone",
+    "singleUsePrefixIncludesMatchedConsumption": true,
+    "singleUsePrefix": "truncate the ordered observation ledger immediately after the selected valid Steed consumption; retain only prior and same-frame-earlier entries needed to establish that consumption",
+    "singleUseRequiresFutureExit": false,
+    "singleUseFuturePolicy": "later gains, attacks, fourth-use exit and full lifecycle observation are not evidence requirements for an already observed selected consumption",
+    "timebase": "framesPerSecond=60 is the application ledger unit, not an independently established timing phase or animation model"
+  },
+  "sourceAuthority": {
+    "repository": "frzyc/genshin-optimizer",
+    "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+    "rules": "fixed-commit talent and tooltip text; static sheet values and named Ascendant Gleam condition corroboration",
+    "frameOrderStatus": "not implemented or established by these sources; requires real observed input",
+    "crossReference": {
+      "url": "https://library.keqingmains.com/characters/geo/zibai",
+      "kind": "dynamic community theorycrafting reference; no fixed commit claimed",
+      "fixedFrameEvidence": false
+    }
+  }
+}

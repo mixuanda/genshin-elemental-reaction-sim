@@ -1,0 +1,110 @@
+--- a/pkg/simulation/setup.go
++++ b/pkg/simulation/setup.go
+@@ -133,3 +133,5 @@
+ 				c.AddStatMod(character.StatMod{
+-					Base:         modifier.NewBase("pyro-res", -1),
++					Base: modifier.WithPhase(modifier.NewBase("pyro-res", -1), "pkg/simulation/setup.go:SetupResonance:pyro", func() (map[string]any, []string) {
++						return map[string]any{"characterIndex": c.Index(), "statVector": append([]float64(nil), m...)}, nil
++					}),
+ 					AffectedStat: attributes.NoStat,
+@@ -146,3 +148,5 @@
+ 				c.AddStatMod(character.StatMod{
+-					Base:         modifier.NewBase("hydro-res-hpp", -1),
++					Base: modifier.WithPhase(modifier.NewBase("hydro-res-hpp", -1), "pkg/simulation/setup.go:SetupResonance:hydro", func() (map[string]any, []string) {
++						return map[string]any{"characterIndex": c.Index(), "statVector": append([]float64(nil), m...)}, nil
++					}),
+ 					AffectedStat: attributes.HPP,
+@@ -158,3 +162,5 @@
+ 				c.AddAttackMod(character.AttackMod{
+-					Base: modifier.NewBase("cryo-res", -1),
++					Base: modifier.WithPhase(modifier.NewBase("cryo-res", -1), "pkg/simulation/setup.go:SetupResonance:cryo", func() (map[string]any, []string) {
++						return map[string]any{"characterIndex": c.Index(), "statVector": append([]float64(nil), m...), "condition": "enemy target has Cryo or Frozen aura at attack"}, nil
++					}),
+ 					Amount: func(ae *info.AttackEvent, t info.Target) []float64 {
+@@ -269,3 +275,5 @@
+ 				c.AddAttackMod(character.AttackMod{
+-					Base: modifier.NewBase(geoResKey, -1),
++					Base: modifier.WithPhase(modifier.NewBase(geoResKey, -1), "pkg/simulation/setup.go:SetupResonance:geo-attack", func() (map[string]any, []string) {
++						return map[string]any{"characterIndex": c.Index(), "activeCharacterIndex": s.Player.Active(), "geoResFlag": s.Flags.Custom[geoResKey], "statVector": append([]float64(nil), m...)}, nil
++					}),
+ 					Amount: func(ae *info.AttackEvent, t info.Target) []float64 {
+@@ -304,3 +312,5 @@
+ 				c.AddCooldownMod(character.CooldownMod{
+-					Base:   modifier.NewBase("anemo-res-cd", -1),
++					Base: modifier.WithPhase(modifier.NewBase("anemo-res-cd", -1), "pkg/simulation/setup.go:SetupResonance:anemo-cooldown", func() (map[string]any, []string) {
++						return map[string]any{"characterIndex": c.Index(), "cooldownFraction": -0.05}, nil
++					}),
+ 					Amount: func(a action.Action) float64 { return -0.05 },
+@@ -313,3 +323,5 @@
+ 				c.AddStatMod(character.StatMod{
+-					Base:         modifier.NewBase("dendro-res-50", -1),
++					Base: modifier.WithPhase(modifier.NewBase("dendro-res-50", -1), "pkg/simulation/setup.go:SetupResonance:dendro-50", func() (map[string]any, []string) {
++						return map[string]any{"characterIndex": c.Index(), "statVector": append([]float64(nil), m...)}, nil
++					}),
+ 					AffectedStat: attributes.EM,
+@@ -329,3 +341,5 @@
+ 					c.AddStatMod(character.StatMod{
+-						Base:         modifier.NewBaseWithHitlag("dendro-res-30", 6*60),
++						Base: modifier.WithPhase(modifier.NewBaseWithHitlag("dendro-res-30", 6*60), "pkg/simulation/setup.go:SetupResonance:dendro-30", func() (map[string]any, []string) {
++							return map[string]any{"characterIndex": c.Index(), "statVector": append([]float64(nil), twoBuff...)}, nil
++						}),
+ 						AffectedStat: attributes.EM,
+@@ -347,3 +361,5 @@
+ 					c.AddStatMod(character.StatMod{
+-						Base:         modifier.NewBaseWithHitlag("dendro-res-20", 6*60),
++						Base: modifier.WithPhase(modifier.NewBaseWithHitlag("dendro-res-20", 6*60), "pkg/simulation/setup.go:SetupResonance:dendro-20", func() (map[string]any, []string) {
++							return map[string]any{"characterIndex": c.Index(), "statVector": append([]float64(nil), threeBuff...)}, nil
++						}),
+ 						AffectedStat: attributes.EM,
+@@ -523,3 +539,5 @@
+ 			c.AddReactBonusMod(character.ReactBonusMod{
+-				Base: modifier.NewBase("ascendant-gleam", 20*60),
++				Base: modifier.WithPhase(modifier.NewBase("ascendant-gleam", 20*60), "pkg/simulation/setup.go:setupAscendantGleam:bonus", func() (map[string]any, []string) {
++					return map[string]any{"sourceCharacterIndex": char.Index(), "recipientCharacterIndex": c.Index(), "buff": buff, "condition": "lunar attack tag"}, nil
++				}),
+ 				Amount: func(ai info.AttackInfo) float64 {
+--- a/internal/weapons/common/goldenmajesty.go
++++ b/internal/weapons/common/goldenmajesty.go
+@@ -62,3 +62,5 @@
+ 		char.AddStatMod(character.StatMod{
+-			Base:         modifier.NewBaseWithHitlag(buffKey, 60*8),
++			Base: modifier.WithPhase(modifier.NewBaseWithHitlag(buffKey, 60*8), "internal/weapons/common/goldenmajesty.go:NewWeapon:attack-buff", func() (map[string]any, []string) {
++				return map[string]any{"characterIndex": char.Index(), "activeCharacterIndex": c.Player.Active(), "stacks": stacks, "attackPercentPerStack": atkbuff, "statVector": append([]float64(nil), m...), "shieldCondition": "shield state for character and active character"}, nil
++			}),
+ 			AffectedStat: attributes.NoStat,
+--- a/internal/weapons/common/wavebreaker.go
++++ b/internal/weapons/common/wavebreaker.go
+@@ -53,3 +53,5 @@
+ 		char.AddAttackMod(character.AttackMod{
+-			Base: modifier.NewBase("wavebreaker", -1),
++			Base: modifier.WithPhase(modifier.NewBase("wavebreaker", -1), "internal/weapons/common/wavebreaker.go:NewWeapon:burst-bonus", func() (map[string]any, []string) {
++				return map[string]any{"characterIndex": char.Index(), "amount": amt, "statVector": append([]float64(nil), m...), "condition": "elemental burst attack tag"}, nil
++			}),
+ 			Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+--- a/internal/weapons/common/royal.go
++++ b/internal/weapons/common/royal.go
+@@ -58,3 +58,5 @@
+ 	char.AddStatMod(character.StatMod{
+-		Base:         modifier.NewBase("royal", -1),
++		Base: modifier.WithPhase(modifier.NewBase("royal", -1), "internal/weapons/common/royal.go:NewWeapon:crit-buff", func() (map[string]any, []string) {
++			return map[string]any{"characterIndex": char.Index(), "stacks": stacks, "critRatePerStack": rate, "statVector": append([]float64(nil), m...)}, nil
++		}),
+ 		AffectedStat: attributes.NoStat,
+--- a/internal/weapons/common/blackcliff.go
++++ b/internal/weapons/common/blackcliff.go
+@@ -54,3 +54,5 @@
+ 		char.AddStatMod(character.StatMod{
+-			Base:         modifier.NewBaseWithHitlag("blackcliff", 1800),
++			Base: modifier.WithPhase(modifier.NewBaseWithHitlag("blackcliff", 1800), "internal/weapons/common/blackcliff.go:NewWeapon:attack-buff", func() (map[string]any, []string) {
++				return map[string]any{"characterIndex": char.Index(), "attackPercentPerStack": atkRefine, "nextStackIndex": index, "stackStatusKeys": append([]string(nil), stackKey...), "statVector": append([]float64(nil), m...), "statusCondition": "count active character stack statuses"}, nil
++			}),
+ 			AffectedStat: attributes.ATKP,
+--- a/internal/weapons/common/lithic.go
++++ b/internal/weapons/common/lithic.go
+@@ -41,3 +41,5 @@
+ 	char.AddStatMod(character.StatMod{
+-		Base:         modifier.NewBase("lithic", -1),
++		Base: modifier.WithPhase(modifier.NewBase("lithic", -1), "internal/weapons/common/lithic.go:NewWeapon:team-buff", func() (map[string]any, []string) {
++			return map[string]any{"characterIndex": char.Index(), "refinement": r, "liyueCharacterCount": stacks, "statVector": append([]float64(nil), m...)}, nil
++		}),
+ 		AffectedStat: attributes.NoStat,

@@ -1,0 +1,726 @@
+{
+  "schemaVersion": 1,
+  "protocol": "explicit-entity-followup-v1",
+  "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "templates": [
+    {
+      "skillId": "entity-followup-jahoda-burst-c0",
+      "characterSlug": "jahoda",
+      "sourceSlug": "jahoda",
+      "talentSetId": "talent-set:jahoda",
+      "abilityKey": "combat3",
+      "label": "雅珂达Q·完整协调器观察（C0）",
+      "protocol": "explicit-entity-followup-v1",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "initial": {
+          "mappingId": "entity-followup-jahoda-burst-c0-initial",
+          "label": "秘器·初击",
+          "element": "anemo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.072,
+                2.2274,
+                2.3828,
+                2.59,
+                2.7454,
+                2.9008,
+                3.108,
+                3.3152,
+                3.5224,
+                3.7296,
+                3.9368,
+                4.144,
+                4.403,
+                4.662,
+                4.921
+              ],
+              "sourceValues": [
+                2.072,
+                2.2274,
+                2.3828,
+                2.59,
+                2.7454,
+                2.9008,
+                3.108,
+                3.3152,
+                3.5224,
+                3.7296,
+                3.9368,
+                4.144,
+                4.403,
+                4.662,
+                4.921
+              ],
+              "parameterKey": "param1",
+              "sourceField": "burst",
+              "sourcePath": "internal/characters/jahoda/zz_jahoda.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/jahoda.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/zz_jahoda.dm.go"
+          ]
+        },
+        "robot": {
+          "mappingId": "entity-followup-jahoda-burst-c0-robot",
+          "label": "互助协调器·实际吸收元素攻击",
+          "element": "pyro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param2",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.172664,
+                0.185614,
+                0.198564,
+                0.21583,
+                0.22878,
+                0.24173,
+                0.258996,
+                0.276262,
+                0.293529,
+                0.310795,
+                0.328062,
+                0.345328,
+                0.366911,
+                0.388494,
+                0.410077
+              ],
+              "sourceValues": [
+                0.172664,
+                0.185614,
+                0.198564,
+                0.21583,
+                0.22878,
+                0.24173,
+                0.258996,
+                0.276262,
+                0.293529,
+                0.310795,
+                0.328062,
+                0.345328,
+                0.366911,
+                0.388494,
+                0.410077
+              ],
+              "parameterKey": "param2",
+              "sourceField": "burstSkill",
+              "sourcePath": "internal/characters/jahoda/zz_jahoda.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/jahoda.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/jahoda/zz_jahoda.dm.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "完整观察至实体自然结束及已发出攻击尾段；逐事件实际接触、归属和取样明确，不按周期总倍率替代。",
+        "新生C0实体，无卡肉、中断、替换或重复施放。",
+        "固定源码非Pyro A1未初始化伤害乘数；月兆≥2机器人分支仅在突破≥1且A1实际选择Pyro时完成，其他分支保留来源冲突。",
+        "A1按完整队伍火水雷冰人数及火水雷冰优先级选取；每台机器人吸收检查、最近三目标和A4治疗前状态逐次记录。"
+      ]
+    },
+    {
+      "skillId": "entity-followup-nicole-burst-c0",
+      "characterSlug": "nicole",
+      "sourceSlug": "nicole",
+      "talentSetId": "talent-set:nicole",
+      "abilityKey": "combat3",
+      "label": "尼可Q·完整造影观察（C0）",
+      "protocol": "explicit-entity-followup-v1",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "roles": {
+        "initial": {
+          "mappingId": "entity-followup-nicole-burst-c0-initial",
+          "label": "天路历程·初击",
+          "element": "pyro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                3.168,
+                3.4056,
+                3.6432,
+                3.96,
+                4.1976,
+                4.4352,
+                4.752,
+                5.0688,
+                5.3856,
+                5.7024,
+                6.0192,
+                6.336,
+                6.732,
+                7.128,
+                7.524
+              ],
+              "sourceValues": [
+                3.168,
+                3.4056,
+                3.6432,
+                3.96,
+                4.1976,
+                4.4352,
+                4.752,
+                5.0688,
+                5.3856,
+                5.7024,
+                6.0192,
+                6.336,
+                6.732,
+                7.128,
+                7.524
+              ],
+              "parameterKey": "param1",
+              "sourceField": "burstInitial",
+              "sourcePath": "internal/characters/nicole/zz_nicole.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/nicole.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/zz_nicole.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/skill.go"
+          ]
+        },
+        "projection": {
+          "mappingId": "entity-followup-nicole-burst-c0-projection",
+          "label": "奥迹造影·触发角色所有",
+          "element": "pyro",
+          "attackTag": "proc",
+          "abilityKey": "combat3",
+          "parameterKey": "param2",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.99,
+                1.08,
+                1.17,
+                1.26,
+                1.35,
+                1.44,
+                1.53,
+                1.62,
+                1.71,
+                1.8,
+                1.908,
+                2.016,
+                2.124,
+                2.232,
+                2.34
+              ],
+              "sourceValues": [
+                0.99,
+                1.08,
+                1.17,
+                1.26,
+                1.35,
+                1.44,
+                1.53,
+                1.62,
+                1.71,
+                1.8,
+                1.908,
+                2.016,
+                2.124,
+                2.232,
+                2.34
+              ],
+              "parameterKey": "param2",
+              "sourceField": "burstProjection",
+              "sourcePath": "internal/characters/nicole/zz_nicole.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/nicole.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/zz_nicole.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nicole/skill.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "完整观察至实体自然结束及已发出攻击尾段；逐事件实际接触、归属和取样明确，不按周期总倍率替代。",
+        "新生C0实体，无卡肉、中断、替换或重复施放。",
+        "造影归实际触发角色，使用其30帧后真实面板与本命元素；魔导额外基伤使用同帧尼可攻击。",
+        "本分支无尼可E增益，避免把未实现的E/A1/A4升级时序或突破门控源码差异默认为正确状态。"
+      ]
+    },
+    {
+      "skillId": "entity-followup-odette-skill-c0",
+      "characterSlug": "odette",
+      "sourceSlug": "odette",
+      "talentSetId": "talent-set:odette",
+      "abilityKey": "combat2",
+      "label": "奥黛塔E·新生倒影完整生命期（C0）",
+      "protocol": "explicit-entity-followup-v1",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "initial": {
+          "mappingId": "entity-followup-odette-skill-c0-initial",
+          "label": "幻灵夜舞·初击",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.0808,
+                1.16186,
+                1.24292,
+                1.351,
+                1.43206,
+                1.51312,
+                1.6212,
+                1.72928,
+                1.83736,
+                1.94544,
+                2.05352,
+                2.1616,
+                2.2967,
+                2.4318,
+                2.5669
+              ],
+              "sourceValues": [
+                1.0808,
+                1.16186,
+                1.24292,
+                1.351,
+                1.43206,
+                1.51312,
+                1.6212,
+                1.72928,
+                1.83736,
+                1.94544,
+                2.05352,
+                2.1616,
+                2.2967,
+                2.4318,
+                2.5669
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skill",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        },
+        "plume": {
+          "mappingId": "entity-followup-odette-skill-c0-plume",
+          "label": "独舞倒影·拂羽",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param5",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.4304,
+                0.46268,
+                0.49496,
+                0.538,
+                0.57028,
+                0.60256,
+                0.6456,
+                0.68864,
+                0.73168,
+                0.77472,
+                0.81776,
+                0.8608,
+                0.9146,
+                0.9684,
+                1.0222
+              ],
+              "sourceValues": [
+                0.4304,
+                0.46268,
+                0.49496,
+                0.538,
+                0.57028,
+                0.60256,
+                0.6456,
+                0.68864,
+                0.73168,
+                0.77472,
+                0.81776,
+                0.8608,
+                0.9146,
+                0.9684,
+                1.0222
+              ],
+              "parameterKey": "param5",
+              "sourceField": "plume",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        },
+        "wing": {
+          "mappingId": "entity-followup-odette-skill-c0-wing",
+          "label": "独舞倒影·旋翼",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param8",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.51464,
+                0.553238,
+                0.591836,
+                0.6433,
+                0.681898,
+                0.720496,
+                0.77196,
+                0.823424,
+                0.874888,
+                0.926352,
+                0.977816,
+                1.02928,
+                1.09361,
+                1.15794,
+                1.22227
+              ],
+              "sourceValues": [
+                0.51464,
+                0.553238,
+                0.591836,
+                0.6433,
+                0.681898,
+                0.720496,
+                0.77196,
+                0.823424,
+                0.874888,
+                0.926352,
+                0.977816,
+                1.02928,
+                1.09361,
+                1.15794,
+                1.22227
+              ],
+              "parameterKey": "param8",
+              "sourceField": "wing",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "完整观察至实体自然结束及已发出攻击尾段；逐事件实际接触、归属和取样明确，不按周期总倍率替代。",
+        "新生C0实体，无卡肉、中断、替换或重复施放。",
+        "本分支为无旧倒影、无升级的新生实体，直到自然结束均不执行破晓终奏或刷新实体；E重施复合星烁伤害另属独立完整动作。",
+        "奥黛塔A1/A4和Q星烁加成不作用于此未升级分支的普通伤害；Q所生倒影仍使用独立E天赋等级。"
+      ]
+    },
+    {
+      "skillId": "entity-followup-odette-burst-c0",
+      "characterSlug": "odette",
+      "sourceSlug": "odette",
+      "talentSetId": "talent-set:odette",
+      "abilityKey": "combat3",
+      "label": "奥黛塔Q·新生倒影完整生命期（C0）",
+      "protocol": "explicit-entity-followup-v1",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "slash": {
+          "mappingId": "entity-followup-odette-burst-c0-slash",
+          "label": "苍羽一梦·斩击",
+          "element": "cryo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.10176,
+                1.184392,
+                1.267024,
+                1.3772,
+                1.459832,
+                1.542464,
+                1.65264,
+                1.762816,
+                1.872992,
+                1.983168,
+                2.093344,
+                2.20352,
+                2.34124,
+                2.47896,
+                2.61668
+              ],
+              "sourceValues": [
+                1.10176,
+                1.184392,
+                1.267024,
+                1.3772,
+                1.459832,
+                1.542464,
+                1.65264,
+                1.762816,
+                1.872992,
+                1.983168,
+                2.093344,
+                2.20352,
+                2.34124,
+                2.47896,
+                2.61668
+              ],
+              "parameterKey": "param1",
+              "sourceField": "burst",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        },
+        "final": {
+          "mappingId": "entity-followup-odette-burst-c0-final",
+          "label": "苍羽一梦·末段",
+          "element": "cryo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param2",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.70272,
+                1.830424,
+                1.958128,
+                2.1284,
+                2.256104,
+                2.383808,
+                2.55408,
+                2.724352,
+                2.894624,
+                3.064896,
+                3.235168,
+                3.40544,
+                3.61828,
+                3.83112,
+                4.04396
+              ],
+              "sourceValues": [
+                1.70272,
+                1.830424,
+                1.958128,
+                2.1284,
+                2.256104,
+                2.383808,
+                2.55408,
+                2.724352,
+                2.894624,
+                3.064896,
+                3.235168,
+                3.40544,
+                3.61828,
+                3.83112,
+                4.04396
+              ],
+              "parameterKey": "param2",
+              "sourceField": "burstFinal",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        },
+        "plume": {
+          "mappingId": "entity-followup-odette-burst-c0-plume",
+          "label": "独舞倒影·拂羽",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param5",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.4304,
+                0.46268,
+                0.49496,
+                0.538,
+                0.57028,
+                0.60256,
+                0.6456,
+                0.68864,
+                0.73168,
+                0.77472,
+                0.81776,
+                0.8608,
+                0.9146,
+                0.9684,
+                1.0222
+              ],
+              "sourceValues": [
+                0.4304,
+                0.46268,
+                0.49496,
+                0.538,
+                0.57028,
+                0.60256,
+                0.6456,
+                0.68864,
+                0.73168,
+                0.77472,
+                0.81776,
+                0.8608,
+                0.9146,
+                0.9684,
+                1.0222
+              ],
+              "parameterKey": "param5",
+              "sourceField": "plume",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        },
+        "wing": {
+          "mappingId": "entity-followup-odette-burst-c0-wing",
+          "label": "独舞倒影·旋翼",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param8",
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.51464,
+                0.553238,
+                0.591836,
+                0.6433,
+                0.681898,
+                0.720496,
+                0.77196,
+                0.823424,
+                0.874888,
+                0.926352,
+                0.977816,
+                1.02928,
+                1.09361,
+                1.15794,
+                1.22227
+              ],
+              "sourceValues": [
+                0.51464,
+                0.553238,
+                0.591836,
+                0.6433,
+                0.681898,
+                0.720496,
+                0.77196,
+                0.823424,
+                0.874888,
+                0.926352,
+                0.977816,
+                1.02928,
+                1.09361,
+                1.15794,
+                1.22227
+              ],
+              "parameterKey": "param8",
+              "sourceField": "wing",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "完整观察至实体自然结束及已发出攻击尾段；逐事件实际接触、归属和取样明确，不按周期总倍率替代。",
+        "新生C0实体，无卡肉、中断、替换或重复施放。",
+        "本分支为无旧倒影、无升级的新生实体，直到自然结束均不执行破晓终奏或刷新实体；E重施复合星烁伤害另属独立完整动作。",
+        "奥黛塔A1/A4和Q星烁加成不作用于此未升级分支的普通伤害；Q所生倒影仍使用独立E天赋等级。"
+      ]
+    }
+  ]
+}

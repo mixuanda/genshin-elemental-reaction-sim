@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "source-finite-native-key-audit-v1",
+  "asOf": "2026-09-30",
+  "trigger": "First batch117 browser run reached native Ayato invocation keyed kamisatoayato, while finite registry used DSL/package alias ayato.",
+  "basis": "Pinned native character config.yml name in both frozen pre117 roots, not guessed display/package names.",
+  "checkedRows": 71,
+  "distinctContracts": 70,
+  "correctedCharacterKeyRows": 11,
+  "correctedSourcePathRows": 5,
+  "fixes": [
+    {
+      "registry": "source-host-finite-cast-contracts.json",
+      "id": "ayaka-skill",
+      "configPath": "internal/characters/ayaka/config.yml",
+      "canonicalCharacterKey": "kamisatoayaka",
+      "configHashes": {
+        "classic": "348c1e715e21a7d2f2af3864623177a716a9b1e0f9a4e32082f9116a916ae35a",
+        "stellar": "348c1e715e21a7d2f2af3864623177a716a9b1e0f9a4e32082f9116a916ae35a"
+      },
+      "previousCharacterKey": "ayaka"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "raiden-burst",
+      "configPath": "internal/characters/raiden/config.yml",
+      "canonicalCharacterKey": "raidenshogun",
+      "configHashes": {
+        "classic": "6c1250be6f612a11dd24298ebd4d1ed76db374a520e3dd4726b623bfba785928",
+        "stellar": "6c1250be6f612a11dd24298ebd4d1ed76db374a520e3dd4726b623bfba785928"
+      },
+      "previousCharacterKey": "raiden"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "kazuha-burst",
+      "configPath": "internal/characters/kazuha/config.yml",
+      "canonicalCharacterKey": "kaedeharakazuha",
+      "configHashes": {
+        "classic": "e506f4b96b75d998934a5b8f402e250ee54abd7ae3f6b2190352a3b174fa5993",
+        "stellar": "e506f4b96b75d998934a5b8f402e250ee54abd7ae3f6b2190352a3b174fa5993"
+      },
+      "previousCharacterKey": "kazuha"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "ayaka-burst",
+      "configPath": "internal/characters/ayaka/config.yml",
+      "canonicalCharacterKey": "kamisatoayaka",
+      "configHashes": {
+        "classic": "348c1e715e21a7d2f2af3864623177a716a9b1e0f9a4e32082f9116a916ae35a",
+        "stellar": "348c1e715e21a7d2f2af3864623177a716a9b1e0f9a4e32082f9116a916ae35a"
+      },
+      "previousCharacterKey": "ayaka",
+      "previousSourcePath": "internal/characters/ayaka/ayaka/burst.go",
+      "correctedSourcePath": "internal/characters/ayaka/burst.go"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "jean-burst",
+      "configPath": "internal/characters/jean/config.yml",
+      "canonicalCharacterKey": "jean",
+      "configHashes": {
+        "classic": "8e717bc0f61413dc4246f7dc86af78350a2747e4c3066fd2dfdfaea69459f862",
+        "stellar": "8e717bc0f61413dc4246f7dc86af78350a2747e4c3066fd2dfdfaea69459f862"
+      },
+      "previousSourcePath": "internal/characters/jean/jean/burst.go",
+      "correctedSourcePath": "internal/characters/jean/burst.go"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "sayu-burst",
+      "configPath": "internal/characters/sayu/config.yml",
+      "canonicalCharacterKey": "sayu",
+      "configHashes": {
+        "classic": "9a9724b931363acbd0e6086185d8830f86e0d1f789449f03a6a4990cbac8231a",
+        "stellar": "9a9724b931363acbd0e6086185d8830f86e0d1f789449f03a6a4990cbac8231a"
+      },
+      "previousSourcePath": "internal/characters/sayu/sayu/burst.go",
+      "correctedSourcePath": "internal/characters/sayu/burst.go"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "kokomi-skill",
+      "configPath": "internal/characters/kokomi/config.yml",
+      "canonicalCharacterKey": "sangonomiyakokomi",
+      "configHashes": {
+        "classic": "e886e4c0ef5694d34d5e9fd898d35c283d1bdcb0850687223011911ad983e1b5",
+        "stellar": "e886e4c0ef5694d34d5e9fd898d35c283d1bdcb0850687223011911ad983e1b5"
+      },
+      "previousCharacterKey": "kokomi",
+      "previousSourcePath": "internal/characters/kokomi/kokomi/skill.go",
+      "correctedSourcePath": "internal/characters/kokomi/skill.go"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "kirara-burst",
+      "configPath": "internal/characters/kirara/config.yml",
+      "canonicalCharacterKey": "kirara",
+      "configHashes": {
+        "classic": "cf7c1fbf2376c297e2b7d18aacde8447a7a098c1fc207f62d1d738621dd03489",
+        "stellar": "cf7c1fbf2376c297e2b7d18aacde8447a7a098c1fc207f62d1d738621dd03489"
+      },
+      "previousSourcePath": "internal/characters/kirara/kirara/burst.go",
+      "correctedSourcePath": "internal/characters/kirara/burst.go"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "heizou-skill",
+      "configPath": "internal/characters/heizou/config.yml",
+      "canonicalCharacterKey": "shikanoinheizou",
+      "configHashes": {
+        "classic": "ffb36dbfd09fedd94596eeb3fb6b82e8bfd7bdb40ba107f643f1c10e96450f74",
+        "stellar": "ffb36dbfd09fedd94596eeb3fb6b82e8bfd7bdb40ba107f643f1c10e96450f74"
+      },
+      "previousCharacterKey": "heizou"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "sara-burst",
+      "configPath": "internal/characters/sara/config.yml",
+      "canonicalCharacterKey": "kujousara",
+      "configHashes": {
+        "classic": "10c6ca5f5359f12c66a4c0f6effe0070ad7990f42489dd2c25f7b91987e08503",
+        "stellar": "10c6ca5f5359f12c66a4c0f6effe0070ad7990f42489dd2c25f7b91987e08503"
+      },
+      "previousCharacterKey": "sara"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "kuki-skill",
+      "configPath": "internal/characters/kuki/config.yml",
+      "canonicalCharacterKey": "kukishinobu",
+      "configHashes": {
+        "classic": "d4d167f5e0d8cfccabf54024fb44515ca1bcd9409ca780343a2cf48f0c8b4595",
+        "stellar": "d4d167f5e0d8cfccabf54024fb44515ca1bcd9409ca780343a2cf48f0c8b4595"
+      },
+      "previousCharacterKey": "kuki"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "kuki-burst",
+      "configPath": "internal/characters/kuki/config.yml",
+      "canonicalCharacterKey": "kukishinobu",
+      "configHashes": {
+        "classic": "d4d167f5e0d8cfccabf54024fb44515ca1bcd9409ca780343a2cf48f0c8b4595",
+        "stellar": "d4d167f5e0d8cfccabf54024fb44515ca1bcd9409ca780343a2cf48f0c8b4595"
+      },
+      "previousCharacterKey": "kuki"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "ayato-burst",
+      "configPath": "internal/characters/ayato/config.yml",
+      "canonicalCharacterKey": "kamisatoayato",
+      "configHashes": {
+        "classic": "f31fa62204710c8bcebd0f0e9c995d1d6e5823ac429393fb55340eb6c5cae0c5",
+        "stellar": "f31fa62204710c8bcebd0f0e9c995d1d6e5823ac429393fb55340eb6c5cae0c5"
+      },
+      "previousCharacterKey": "ayato"
+    },
+    {
+      "registry": "source-host-producer-contracts.json",
+      "id": "ayato-skill",
+      "configPath": "internal/characters/ayato/config.yml",
+      "canonicalCharacterKey": "kamisatoayato",
+      "configHashes": {
+        "classic": "f31fa62204710c8bcebd0f0e9c995d1d6e5823ac429393fb55340eb6c5cae0c5",
+        "stellar": "f31fa62204710c8bcebd0f0e9c995d1d6e5823ac429393fb55340eb6c5cae0c5"
+      },
+      "previousCharacterKey": "ayato"
+    }
+  ],
+  "contractIdsUnchanged": true,
+  "limits": "Metadata binding correction; no extra native character/constellation runs or gameplay verification. Existing source hashes remain tied to their original source audit stages, and only duplicated path segments were corrected."
+}

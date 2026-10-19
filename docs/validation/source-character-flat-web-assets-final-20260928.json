@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build",
+    "--workspace",
+    "@genshin-dps-lab/web"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 5.18,
+  "log": "docs/validation/source-character-flat-web-assets-final-20260928.log"
+}

@@ -1,0 +1,64 @@
+{
+  "characters": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "talentSets": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "weapons": {
+    "added": [],
+    "removed": [],
+    "changed": [
+      "weapon:11101",
+      "weapon:11201",
+      "weapon:12101",
+      "weapon:12201",
+      "weapon:13101",
+      "weapon:13201",
+      "weapon:14101",
+      "weapon:14201",
+      "weapon:15101",
+      "weapon:15201"
+    ]
+  },
+  "artifactSets": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "constellationSets": {
+    "added": [],
+    "removed": [],
+    "changed": []
+  },
+  "fieldAssessmentsChanged": [
+    "weapon:11101:mainStatType",
+    "weapon:11101:stats.specialized",
+    "weapon:11201:mainStatType",
+    "weapon:11201:stats.specialized",
+    "weapon:12101:mainStatType",
+    "weapon:12101:stats.specialized",
+    "weapon:12201:mainStatType",
+    "weapon:12201:stats.specialized",
+    "weapon:13101:mainStatType",
+    "weapon:13101:stats.specialized",
+    "weapon:13201:mainStatType",
+    "weapon:13201:stats.specialized",
+    "weapon:14101:mainStatType",
+    "weapon:14101:stats.specialized",
+    "weapon:14201:mainStatType",
+    "weapon:14201:stats.specialized",
+    "weapon:15101:mainStatType",
+    "weapon:15101:stats.specialized",
+    "weapon:15201:mainStatType",
+    "weapon:15201:stats.specialized"
+  ],
+  "release": {
+    "from": "released",
+    "to": "released"
+  }
+}

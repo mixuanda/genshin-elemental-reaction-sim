@@ -1,0 +1,238 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "linnea-lumi-heavy-overdrive-hammer-component",
+  "label": "露米重锤 · 实际单次月结晶",
+  "gameContext": {
+    "observedLinneaLifecycle": {
+      "character": "linnea",
+      "constellation": 0,
+      "initialLumiAbsentKnown": true,
+      "eventsObservedThroughSelected": true,
+      "observedOrderConfirmed": true,
+      "events": [
+        {
+          "id": "skill",
+          "frame": 0,
+          "order": 0,
+          "kind": "skill-tap",
+          "summonId": "lumi",
+          "observedEffect": "summon",
+          "observedExpiresFrame": 1400,
+          "actionReadyConfirmed": true
+        },
+        {
+          "id": "hammer",
+          "frame": 120,
+          "order": 0,
+          "kind": "attack-contact",
+          "summonId": "lumi",
+          "attackId": "hammer-120",
+          "component": "hammer",
+          "targetId": "enemy",
+          "contactConfirmed": true,
+          "targetWithinLumiA1Range": true,
+          "nearbyMoondrift": true,
+          "moonsignLevel": 2,
+          "snapshotFrame": 120,
+          "snapshotId": "panel-120"
+        }
+      ],
+      "selectedEventId": "hammer"
+    },
+    "observedSpecialComponent": {
+      "casterId": "linnea",
+      "targetId": "enemy",
+      "actualComponentOccurred": true,
+      "independentEvent": {
+        "candidateId": "hammer-120",
+        "frame": 120,
+        "snapshotFrame": 120,
+        "snapshotId": "panel-120",
+        "targetId": "enemy"
+      },
+      "sharedState": {
+        "intrinsicStatMatchesSnapshot": true,
+        "specialBaseBonus": 0,
+        "includedIntrinsicBaseBonus": 0,
+        "reactionBonus": 0,
+        "specialAdditive": 0,
+        "elevationMultiplier": 1,
+        "includedCharacterEm": 0,
+        "a4PreConversionStat": 1000,
+        "moonsignLevel": 2,
+        "lumiPresent": true,
+        "targetWithinLumiA1Range": true,
+        "includedResistanceReduction": 0,
+        "linneaA4AppliesToSelf": true,
+        "lumiForm": "super-power",
+        "nearbyMoondrift": true
+      },
+      "hitStates": {
+        "linnea-lumi-heavy-overdrive-hammer-component:hammer-120": {
+          "moonsignLevel": 2,
+          "lumiPresent": true,
+          "targetWithinLumiA1Range": true,
+          "lumiForm": "super-power",
+          "nearbyMoondrift": true
+        }
+      }
+    },
+    "characterId": "character:linnea",
+    "characterName": "莉奈娅",
+    "abilityId": "talent:linnea:combat2",
+    "skillId": "linnea-lumi-heavy-overdrive-hammer-component",
+    "skillName": "露米重锤 · 实际单次月结晶",
+    "effectiveTalentLevel": 1,
+    "ascension": 6,
+    "constellation": 0,
+    "scopeCoverage": "single-hit",
+    "attributionPolicy": "实际单次特殊组成；不承诺完整实体、持按或技能次数。普通被替代段不得重复计入。"
+  },
+  "scope": "single-hit",
+  "characterLevel": 90,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 1000,
+      "hp": 20000,
+      "def": 1000,
+      "em": 0,
+      "critRate": 0.5,
+      "critDamage": 1
+    },
+    "source": "明确的观察式示例最终面板",
+    "ascension": 6
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "linnea-lumi-heavy-overdrive-hammer-component:hammer-120",
+      "label": "露米重锤 · 实际单次月结晶",
+      "kind": "special",
+      "dependencies": [
+        "observed-special-component:source",
+        "linnea-observed:linnea-lumi-heavy-overdrive-hammer-component:hammer-120"
+      ],
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ],
+      "context": {
+        "branch": "lunar-crystallize-direct",
+        "ruleVersion": "kqm-lunar-luna-vi-20260922-v1",
+        "context": {
+          "mode": "conditioned",
+          "enablement": "assumed-enabled",
+          "contributorEligibility": "assumed",
+          "assumptions": [
+            "C0；本击确为露米的指定月结晶段，按实际最终 DEF、EM、双暴及目标岩抗执行共享直接月结晶公式。",
+            "固有基础提升为 min(实际 DEF × 0.007 / 100, 0.14)，与普通伤害加成及其他特殊基础提升分开记账。",
+            "A1 在突破≥1、露米在场且目标在范围内时减岩抗：月兆<2为0.15，≥2总量0.30；输入已含份额必须扣除。",
+            "A4 在突破≥4时按转换前 DEF × 0.05 提供 EM；当前月兆前台接受增益，否则由莉奈娅本人接受。需明确本击本人是否接受及面板已含份额。"
+          ]
+        },
+        "contributors": [
+          {
+            "id": "linnea",
+            "base": {
+              "kind": "direct-stat-talent",
+              "scalingStat": "def",
+              "statValue": 0,
+              "talentCoefficient": 1,
+              "sourceRefs": [
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts",
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+                "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+              ]
+            },
+            "elementalMastery": 0,
+            "critRate": 0,
+            "critDamage": 0,
+            "specialBaseBonus": 0,
+            "reactionBonus": 0,
+            "specialAdditive": 0,
+            "elevationMultiplier": 1,
+            "modifierSourceRefs": [
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+            ]
+          }
+        ],
+        "effectiveResistance": 0.1
+      },
+      "observedSpecialComponentEvent": {
+        "candidateId": "hammer-120",
+        "frame": 120,
+        "snapshotFrame": 120,
+        "snapshotId": "panel-120",
+        "targetId": "enemy"
+      }
+    }
+  ],
+  "selectedHitIds": [
+    "linnea-lumi-heavy-overdrive-hammer-component:hammer-120"
+  ],
+  "assumptions": [
+    "C0；本击确为露米的指定月结晶段，按实际最终 DEF、EM、双暴及目标岩抗执行共享直接月结晶公式。",
+    "固有基础提升为 min(实际 DEF × 0.007 / 100, 0.14)，与普通伤害加成及其他特殊基础提升分开记账。",
+    "A1 在突破≥1、露米在场且目标在范围内时减岩抗：月兆<2为0.15，≥2总量0.30；输入已含份额必须扣除。",
+    "A4 在突破≥4时按转换前 DEF × 0.05 提供 EM；当前月兆前台接受增益，否则由莉奈娅本人接受。需明确本击本人是否接受及面板已含份额。",
+    "只计算用户明确还原的一次实际命中；不从持续时间、静态伤害行或相邻组成推算总次数。",
+    "没有自动动作帧、ICD、产球、取消窗、资源获得消费或完整实体状态机；不注册为已认证团队能力。",
+    "本批固定来源的 C0 条件公式仍为 provisional；不代表实机验证，也不晋升为整角色或完整生命周期支持。",
+    "不重建 E/Q 召唤、喂食次数、普通双击间隔、锤击交替周期、形态替换或 Q 重置露米寿命；C1及以上不在本组件域内。"
+  ],
+  "dependencies": [
+    {
+      "id": "observed-special-component:source",
+      "status": "provisional",
+      "reason": "Linnea/index.tsx dm.skill.hammerDmg = skill[1]; lunarDmgNode(..., 'def', 'lunarcrystallize'). char_Linnea_gen skill.skillParamsEncoding.1 maps parameter 1; tooltips_gen /11300001 states Super Power alternates Pummeler and Hammer when a Moondrift is nearby. Exact raw 15-level vector, no coefficient tolerance.",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ]
+    },
+    {
+      "id": "linnea-observed:linnea-lumi-heavy-overdrive-hammer-component:hammer-120",
+      "status": "provisional",
+      "reason": "实际事件 hammer 已绑定；未来露米攻击次数和首击时点未推断。",
+      "sourceRefs": [
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json"
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "synthetic-linnea-observed",
+    "gameVersion": "synthetic",
+    "releaseStatus": "synthetic",
+    "evidenceStatus": "synthetic"
+  }
+}

@@ -1,0 +1,40 @@
+[WebServer] (node:76745) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:76746) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-shield-task-casts.spec.ts:41:1 › Noelle and Xinyan skill casts close their native shield callback and recursive task lifecycles (9.3s)
+
+
+  1) [chromium] › apps/web/e2e/source-shield-task-casts.spec.ts:41:1 › Noelle and Xinyan skill casts close their native shield callback and recursive task lifecycles 
+
+    Error: the two in-range target contacts should each execute Xinyan E shield callbacks
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: 2
+    Received: 8
+
+      128 |     expect(xinyanQShields.every(row => qOwnedIds.has(row.id))).toBe(true);
+      129 |     expect(xinyanECase.analysis.finiteCast?.hitCallbackCount,
+    > 130 |       'the two in-range target contacts should each execute Xinyan E shield callbacks').toBe(2);
+          |                                                                                         ^
+      131 |     const eShieldProducers = native.shieldProducers!.filter(row => row.ownerInstanceId !== undefined
+      132 |       && eOwnedIds.has(row.ownerInstanceId));
+      133 |     const eDotProducers = eShieldProducers.filter(row => row.siteId === 'xinyan.shield.dot-next-task');
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-shield-task-casts.spec.ts:130:89
+
+    Error Context: test-results/source-shield-task-casts-N-1b6e9-d-recursive-task-lifecycles-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-shield-task-casts-N-1b6e9-d-recursive-task-lifecycles-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-shield-task-casts-N-1b6e9-d-recursive-task-lifecycles-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-shield-task-casts.spec.ts:41:1 › Noelle and Xinyan skill casts close their native shield callback and recursive task lifecycles 

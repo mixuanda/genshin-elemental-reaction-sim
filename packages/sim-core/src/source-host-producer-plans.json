@@ -1,0 +1,3827 @@
+{
+  "rosaria-skill": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": 2,
+    "sites": [
+      {
+        "siteId": "rosaria.skill.followup",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "rosaria-burst": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 2
+      },
+      "then": 8,
+      "else": 6
+    },
+    "sites": [
+      {
+        "siteId": "rosaria.burst.lance",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "constellation"
+                },
+                "right": 2
+              },
+              "then": 7,
+              "else": 5
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "albedo-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "albedo.burst.fatal-blossoms",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 7
+          }
+        ]
+      }
+    ]
+  },
+  "raiden-burst": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "raiden.burst.initial-strike",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "本规则仅汇总 Q 首击；梦想一心期间的普攻／重击属于后续独立动作，未计入本次完整范围。"
+    ]
+  },
+  "lisa-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "lisa.burst.discharge-tick",
+        "rootCount": 30,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1
+          },
+          {
+            "attackCount": 2,
+            "when": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "constellation"
+              },
+              "right": 4
+            }
+          },
+          {
+            "attackCount": 3,
+            "when": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "constellation"
+              },
+              "right": 4
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "diona-burst": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": 7,
+    "sites": [
+      {
+        "siteId": "diona.burst.schedule-ticks",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "diona.burst.tick": 6
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "diona.burst.tick",
+        "rootCount": 0,
+        "parentSites": [
+          "diona.burst.schedule-ticks"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "navia-burst": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": 18,
+    "sites": [
+      {
+        "siteId": "navia.burst.schedule-cannons",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "navia.burst.cannon": 17
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "navia.burst.cannon",
+        "rootCount": 0,
+        "parentSites": [
+          "navia.burst.schedule-cannons"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "kaeya-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "kaeya.burst.initial-ticker",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 6
+          },
+          "then": 4,
+          "else": 3
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "kaeya.burst.next-ticker": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "kaeya.burst.next-ticker",
+        "rootCount": 0,
+        "parentSites": [
+          "kaeya.burst.initial-ticker",
+          "kaeya.burst.next-ticker"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "kaeya.burst.next-ticker": 1
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "bennett-skill": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "if",
+          "test": {
+            "op": "and",
+            "terms": [
+              {
+                "op": "compare",
+                "cmp": "eq",
+                "left": {
+                  "op": "param",
+                  "name": "hold_c4",
+                  "default": 0
+                },
+                "right": 1
+              },
+              {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "constellation"
+                },
+                "right": 4
+              }
+            ]
+          },
+          "then": 1,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "lt",
+              "left": {
+                "op": "param",
+                "name": "hold",
+                "default": 0
+              },
+              "right": 0
+            },
+            "then": 0,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "gt",
+                "left": {
+                  "op": "param",
+                  "name": "hold",
+                  "default": 0
+                },
+                "right": 2
+              },
+              "then": 0,
+              "else": {
+                "op": "param",
+                "name": "hold",
+                "default": 0
+              }
+            }
+          }
+        },
+        "right": 0
+      },
+      "then": 1,
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "and",
+          "terms": [
+            {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "param",
+                "name": "hold_c4",
+                "default": 0
+              },
+              "right": 1
+            },
+            {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "constellation"
+              },
+              "right": 4
+            }
+          ]
+        },
+        "then": 1,
+        "else": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "lt",
+                "left": {
+                  "op": "param",
+                  "name": "hold",
+                  "default": 0
+                },
+                "right": 0
+              },
+              "then": 0,
+              "else": {
+                "op": "if",
+                "test": {
+                  "op": "compare",
+                  "cmp": "gt",
+                  "left": {
+                    "op": "param",
+                    "name": "hold",
+                    "default": 0
+                  },
+                  "right": 2
+                },
+                "then": 0,
+                "else": {
+                  "op": "param",
+                  "name": "hold",
+                  "default": 0
+                }
+              }
+            },
+            "right": 2
+          },
+          "then": 1,
+          "else": 0
+        }
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "if",
+          "test": {
+            "op": "and",
+            "terms": [
+              {
+                "op": "compare",
+                "cmp": "eq",
+                "left": {
+                  "op": "param",
+                  "name": "hold_c4",
+                  "default": 0
+                },
+                "right": 1
+              },
+              {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "constellation"
+                },
+                "right": 4
+              }
+            ]
+          },
+          "then": 1,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "lt",
+              "left": {
+                "op": "param",
+                "name": "hold",
+                "default": 0
+              },
+              "right": 0
+            },
+            "then": 0,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "gt",
+                "left": {
+                  "op": "param",
+                  "name": "hold",
+                  "default": 0
+                },
+                "right": 2
+              },
+              "then": 0,
+              "else": {
+                "op": "param",
+                "name": "hold",
+                "default": 0
+              }
+            }
+          }
+        },
+        "right": 0
+      },
+      "then": 1,
+      "else": {
+        "op": "add",
+        "left": {
+          "op": "if",
+          "test": {
+            "op": "and",
+            "terms": [
+              {
+                "op": "compare",
+                "cmp": "eq",
+                "left": {
+                  "op": "param",
+                  "name": "hold_c4",
+                  "default": 0
+                },
+                "right": 1
+              },
+              {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "constellation"
+                },
+                "right": 4
+              }
+            ]
+          },
+          "then": 1,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "if",
+                "test": {
+                  "op": "compare",
+                  "cmp": "lt",
+                  "left": {
+                    "op": "param",
+                    "name": "hold",
+                    "default": 0
+                  },
+                  "right": 0
+                },
+                "then": 0,
+                "else": {
+                  "op": "if",
+                  "test": {
+                    "op": "compare",
+                    "cmp": "gt",
+                    "left": {
+                      "op": "param",
+                      "name": "hold",
+                      "default": 0
+                    },
+                    "right": 2
+                  },
+                  "then": 0,
+                  "else": {
+                    "op": "param",
+                    "name": "hold",
+                    "default": 0
+                  }
+                }
+              },
+              "right": 2
+            },
+            "then": 1,
+            "else": 0
+          }
+        },
+        "right": 2
+      }
+    },
+    "sites": [
+      {
+        "siteId": "bennett.skill.hold-hit",
+        "rootCount": 2,
+        "parentSites": [],
+        "when": {
+          "op": "compare",
+          "cmp": "gt",
+          "left": {
+            "op": "if",
+            "test": {
+              "op": "and",
+              "terms": [
+                {
+                  "op": "compare",
+                  "cmp": "eq",
+                  "left": {
+                    "op": "param",
+                    "name": "hold_c4",
+                    "default": 0
+                  },
+                  "right": 1
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "op": "constellation"
+                  },
+                  "right": 4
+                }
+              ]
+            },
+            "then": 1,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "lt",
+                "left": {
+                  "op": "param",
+                  "name": "hold",
+                  "default": 0
+                },
+                "right": 0
+              },
+              "then": 0,
+              "else": {
+                "op": "if",
+                "test": {
+                  "op": "compare",
+                  "cmp": "gt",
+                  "left": {
+                    "op": "param",
+                    "name": "hold",
+                    "default": 0
+                  },
+                  "right": 2
+                },
+                "then": 0,
+                "else": {
+                  "op": "param",
+                  "name": "hold",
+                  "default": 0
+                }
+              }
+            }
+          },
+          "right": 0
+        },
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "venti-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "venti.burst.anemo-tick",
+        "rootCount": 20,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "venti.burst.absorb-check-initial",
+        "rootCount": 1,
+        "parentSites": [],
+        "maxDepth": 21,
+        "outcomes": [
+          {
+            "attackCount": 15,
+            "maxDepth": 20
+          },
+          {
+            "attackCount": 0,
+            "minDepth": 21,
+            "maxDepth": 21
+          },
+          {
+            "attackCount": 0,
+            "children": {
+              "venti.burst.absorb-check-next": 1
+            },
+            "maxDepth": 20
+          }
+        ]
+      },
+      {
+        "siteId": "venti.burst.absorb-check-next",
+        "rootCount": 0,
+        "parentSites": [
+          "venti.burst.absorb-check-initial",
+          "venti.burst.absorb-check-next"
+        ],
+        "maxDepth": 21,
+        "outcomes": [
+          {
+            "attackCount": 15,
+            "maxDepth": 20
+          },
+          {
+            "attackCount": 0,
+            "minDepth": 21,
+            "maxDepth": 21
+          },
+          {
+            "attackCount": 0,
+            "children": {
+              "venti.burst.absorb-check-next": 1
+            },
+            "maxDepth": 20
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "元素转化次数取自实际任务；若同一角色的 Q 在此伤害流程结束前重叠，共享转化状态不满足本规则的完整性条件。"
+    ]
+  },
+  "ganyu-burst": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 50,
+    "sites": [
+      {
+        "siteId": "ganyu.burst.shower-tick",
+        "rootCount": 50,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "sucrose-burst": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 2
+      },
+      "then": 4,
+      "else": 3
+    },
+    "sites": [
+      {
+        "siteId": "sucrose.burst.absorbed-tick",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 2
+          },
+          "then": 4,
+          "else": 3
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "sucrose.burst.absorb-check-initial",
+        "rootCount": 1,
+        "parentSites": [],
+        "maxDepth": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 2
+          },
+          "then": 26,
+          "else": 20
+        },
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 0,
+            "children": {
+              "sucrose.burst.absorb-check-next": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "sucrose.burst.absorb-check-next",
+        "rootCount": 0,
+        "parentSites": [
+          "sucrose.burst.absorb-check-initial",
+          "sucrose.burst.absorb-check-next"
+        ],
+        "maxDepth": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 2
+          },
+          "then": 26,
+          "else": 20
+        },
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 0,
+            "children": {
+              "sucrose.burst.absorb-check-next": 1
+            }
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "转化伤害取自每次任务的实际状态；同一角色 Q 的伤害流程重叠时，当前规则不宣告完整。"
+    ]
+  },
+  "aino-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "aino.skill.musecatcher",
+        "rootCount": 2,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ]
+  },
+  "charlotte-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "charlotte.burst.field-start",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "charlotte.burst.kamera-tick": 8
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "charlotte.burst.kamera-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "charlotte.burst.field-start"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "范围为Q初击与八次场地固有伤害；治疗另列，C6后续普通／重击触发不归入Q固有攻击。"
+    ]
+  },
+  "xinyan-burst": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 2
+      },
+      "then": 3,
+      "else": 1
+    },
+    "sites": [
+      {
+        "siteId": "xinyan.burst.first-dot",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {
+              "xinyan.burst.remaining-dots": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "xinyan.burst.remaining-dots",
+        "rootCount": 0,
+        "parentSites": [
+          "xinyan.burst.first-dot"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 6
+          }
+        ]
+      },
+      {
+        "siteId": "xinyan.burst.c2-shield-task",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 2
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "xinyan.burst.c2-shield-birth-count",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "C0–C1 为 Q 初击及七段火焰。C2 起另含两次独立施放脉冲、实际创建的三级护盾及其递归 DoT；两次 65/83 帧额外脉冲属于 Q 直接攻击，不伪装成护盾周期攻击。递归次数以实际门控和父子任务回执决定，包含最后停止任务，替换护盾不会改写旧链的出生归属。"
+    ]
+  },
+  "xiangling-burst": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 4
+      },
+      "then": 15,
+      "else": 12
+    },
+    "sites": [
+      {
+        "siteId": "xiangling.burst.initial-hit",
+        "rootCount": 3,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "xiangling.burst.pyronado-start",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "xiangling.burst.pyronado-spin": {
+                "op": "if",
+                "test": {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "op": "constellation"
+                  },
+                  "right": 4
+                },
+                "then": 12,
+                "else": 9
+              }
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "xiangling.burst.pyronado-spin",
+        "rootCount": 0,
+        "parentSites": [
+          "xiangling.burst.pyronado-start",
+          "xiangling.burst.pyronado-spin"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "旋火轮计数沿用固定来源中的约73帧周期标注；这是来源执行计数，不代表实机命中频率。只计固有Q攻击，C2普攻标记爆炸独立。"
+    ]
+  },
+  "collei-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "collei.burst.field-start",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "collei.burst.leap": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "collei.burst.leap",
+        "rootCount": 0,
+        "parentSites": [
+          "collei.burst.field-start",
+          "collei.burst.leap"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "collei.burst.leap": 1
+            }
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "不预设状态驱动跃击次数；以已记录生产任务闭合。相同角色Q重施会改写共享位置／状态；A4反应可按来源状态延长。"
+    ]
+  },
+  "kazuha-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "kazuha.burst.initialize",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "kazuha.burst.tick-start": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "kazuha.burst.tick-start",
+        "rootCount": 0,
+        "parentSites": [
+          "kazuha.burst.initialize"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "kazuha.burst.tick": 5
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "kazuha.burst.tick",
+        "rootCount": 0,
+        "parentSites": [
+          "kazuha.burst.tick-start",
+          "kazuha.burst.tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          },
+          {
+            "attackCount": 2
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "五次领域任务每次实际产生一段风击及0或1段实际元素吸收追加击；不预设吸收。Q重施会覆盖共享吸收状态与快照。"
+    ]
+  },
+  "ayaka-burst": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 2
+      },
+      "then": 60,
+      "else": 20
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 2
+      },
+      "then": 60,
+      "else": 20
+    },
+    "sites": [],
+    "scopeNotes": [
+      "只计固有Q队列攻击机会；C2为60段，C0–C1为20段。反应伤害与后续动作不计入。"
+    ]
+  },
+  "jean-burst": {
+    "directRootCount": {
+      "op": "add",
+      "left": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "gte",
+          "left": {
+            "op": "param",
+            "name": "enter",
+            "default": 0
+          },
+          "right": 1
+        },
+        "then": {
+          "op": "param",
+          "name": "enter",
+          "default": 0
+        },
+        "else": 1
+      },
+      "right": 2
+    },
+    "expectedRootAttackCount": {
+      "op": "add",
+      "left": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "gte",
+          "left": {
+            "op": "param",
+            "name": "enter",
+            "default": 0
+          },
+          "right": 1
+        },
+        "then": {
+          "op": "param",
+          "name": "enter",
+          "default": 0
+        },
+        "else": 1
+      },
+      "right": 2
+    },
+    "sites": [],
+    "scopeNotes": [
+      "入场人数使用源码 max(enter,1) 后加Q初击与退场击；治疗、自身扩散及辅助效果不计入伤害。"
+    ]
+  },
+  "sayu-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "sayu.burst.schedule-daruma-ticks",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "sayu.burst.daruma-tick": 6
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "sayu.burst.daruma-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "sayu.burst.schedule-daruma-ticks"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "实际根攻击数由六个任务的敌人／玩家生命与C1条件决定；治疗、粒子、扩散和E另计。"
+    ]
+  },
+  "kokomi-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "kokomi.skill.first-tick",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "kokomi.skill.initial-recurring-tick",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "kokomi.skill.next-recurring-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "kokomi.skill.next-recurring-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "kokomi.skill.initial-recurring-tick",
+          "kokomi.skill.next-recurring-tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "kokomi.skill.next-recurring-tick": 1
+            }
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "实际递归任务计数决定水母固有伤害总数，不假定七段；同角色E共享状态、Q可延长状态，重叠施放不纳入闭合。"
+    ]
+  },
+  "kirara-burst": {
+    "when": {
+      "op": "and",
+      "terms": [
+        {
+          "op": "compare",
+          "cmp": "gte",
+          "left": {
+            "op": "param",
+            "name": "hits",
+            "default": 2
+          },
+          "right": 0
+        },
+        {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "param",
+            "name": "mine_delay",
+            "default": 180
+          },
+          "right": 180
+        }
+      ]
+    },
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "kirara.burst.mine-snapshot",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      },
+      {
+        "siteId": "kirara.burst.box",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "kirara.burst.mine-hits",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1
+          },
+          {
+            "attackCount": 2
+          },
+          {
+            "attackCount": 3
+          },
+          {
+            "attackCount": 4
+          },
+          {
+            "attackCount": 5
+          },
+          {
+            "attackCount": 6
+          },
+          {
+            "attackCount": 7
+          },
+          {
+            "attackCount": 8
+          },
+          {
+            "attackCount": 9
+          },
+          {
+            "attackCount": 10
+          }
+        ]
+      },
+      {
+        "siteId": "kirara.burst.mine-expiry",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1
+          },
+          {
+            "attackCount": 2
+          },
+          {
+            "attackCount": 3
+          },
+          {
+            "attackCount": 4
+          },
+          {
+            "attackCount": 5
+          },
+          {
+            "attackCount": 6
+          },
+          {
+            "attackCount": 7
+          },
+          {
+            "attackCount": 8
+          },
+          {
+            "attackCount": 9
+          },
+          {
+            "attackCount": 10
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "hits缺省按原生默认2且必须非负；mine_delay缺省按180帧且只能为180。原生实际任务决定0–10次种子命中，C1生命值影响不可预设；同角色Q重叠不纳入闭合。"
+    ]
+  },
+  "xingqiu-burst": {
+    "directRootCount": 0,
+    "sites": [],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "统计Q雨帘剑状态拥有的实际协同触发；不含E与Q共用的剑雨轨道，也不计能量／减抗等非伤害回调。"
+    ]
+  },
+  "thoma-burst": {
+    "directRootCount": 1,
+    "sites": [],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "包含Q首击及Q状态拥有的实际火焰崩破触发；护盾回调、能量与后续动作不计入。"
+    ]
+  },
+  "yelan-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "yelan.burst.activate",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "包含Q初击与Q骰子状态拥有的实际协同触发；骰子在Q后的原生任务执行时创建，E触发须有显式来源，A4／C6后续效果排除。"
+    ]
+  },
+  "beidou-skill": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": 1,
+    "sites": [],
+    "scopeNotes": [
+      "每次 E 调用队列仅一个 Tidecaller；counter 参数至多2层影响倍率和盾，不增加攻击机会。后续 C4 普攻追击属于后续动作。"
+    ]
+  },
+  "cyno-skill": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "cyno.skill.burst-active"
+        },
+        "right": 0
+      },
+      "then": 1,
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "cyno.skill.burst-active"
+          },
+          "right": 1
+        },
+        "then": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "cyno.skill.a1-active"
+            },
+            "right": 0
+          },
+          "then": 1,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "cyno.skill.a1-active"
+              },
+              "right": 1
+            },
+            "then": 4,
+            "else": -1
+          }
+        },
+        "else": -1
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "cyno.skill.burst-active"
+        },
+        "right": 0
+      },
+      "then": 1,
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "cyno.skill.burst-active"
+          },
+          "right": 1
+        },
+        "then": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "cyno.skill.a1-active"
+            },
+            "right": 0
+          },
+          "then": 1,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "cyno.skill.a1-active"
+              },
+              "right": 1
+            },
+            "then": 4,
+            "else": -1
+          }
+        },
+        "else": -1
+      }
+    },
+    "sites": [],
+    "scopeNotes": [
+      "仅本次 E 调用：常态一击；Q 态非末途一击；Q 态末途为主击加三道 Duststalker Bolt。Q 架势后的普攻/重击和 C6 后续触发独立。分支事实在本次 Skill 进入时与 skillB 选择时原位记录。"
+    ]
+  },
+  "diluc-skill": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": 1,
+    "sites": [],
+    "scopeNotes": [
+      "每次 E 行为是一段；三段连招须实际执行三次 E，不能将本次单调用冒称整套连招。"
+    ]
+  },
+  "freminet-skill": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "freminet.skill.pers-active"
+        },
+        "right": 1
+      },
+      "then": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "freminet.skill.stacks"
+          },
+          "right": 0
+        },
+        "then": 1,
+        "else": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "freminet.skill.stacks"
+            },
+            "right": 1
+          },
+          "then": 2,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.stacks"
+              },
+              "right": 2
+            },
+            "then": 2,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "eq",
+                "left": {
+                  "op": "fact",
+                  "name": "freminet.skill.stacks"
+                },
+                "right": 3
+              },
+              "then": 2,
+              "else": {
+                "op": "if",
+                "test": {
+                  "op": "compare",
+                  "cmp": "eq",
+                  "left": {
+                    "op": "fact",
+                    "name": "freminet.skill.stacks"
+                  },
+                  "right": 4
+                },
+                "then": 1,
+                "else": -1
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "freminet.skill.pers-active"
+          },
+          "right": 0
+        },
+        "then": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "freminet.skill.aligned-icd-active"
+            },
+            "right": 0
+          },
+          "then": 2,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.aligned-icd-active"
+              },
+              "right": 1
+            },
+            "then": 1,
+            "else": -1
+          }
+        },
+        "else": -1
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "freminet.skill.pers-active"
+        },
+        "right": 1
+      },
+      "then": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "freminet.skill.stacks"
+          },
+          "right": 0
+        },
+        "then": 1,
+        "else": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "freminet.skill.stacks"
+            },
+            "right": 1
+          },
+          "then": 2,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.stacks"
+              },
+              "right": 2
+            },
+            "then": 2,
+            "else": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "eq",
+                "left": {
+                  "op": "fact",
+                  "name": "freminet.skill.stacks"
+                },
+                "right": 3
+              },
+              "then": 2,
+              "else": {
+                "op": "if",
+                "test": {
+                  "op": "compare",
+                  "cmp": "eq",
+                  "left": {
+                    "op": "fact",
+                    "name": "freminet.skill.stacks"
+                  },
+                  "right": 4
+                },
+                "then": 1,
+                "else": -1
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "freminet.skill.pers-active"
+          },
+          "right": 0
+        },
+        "then": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "freminet.skill.aligned-icd-active"
+            },
+            "right": 0
+          },
+          "then": 2,
+          "else": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "eq",
+              "left": {
+                "op": "fact",
+                "name": "freminet.skill.aligned-icd-active"
+              },
+              "right": 1
+            },
+            "then": 1,
+            "else": -1
+          }
+        },
+        "else": -1
+      }
+    },
+    "sites": [],
+    "scopeNotes": [
+      "仅本次 E 行为：入态上挑1，若灵息之棘未在ICD再加1；已有佩尔状态再次E时压力0级1冰、1–3级冰+物2、4级1物。佩尔状态中的后续普攻由后续动作决定。"
+    ]
+  },
+  "heizou-skill": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "heizou.skill.release",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "按下或长按均由 release task 生成一击；蓄力叠层 task 无伤害，C6更改这次攻击快照。"
+    ]
+  },
+  "mika-skill": {
+    "directRootCount": 1,
+    "sites": [],
+    "scopeNotes": [
+      "点按分支为一击Flowfrost Arrow；非零hold分支为一击Rimestar Flare，并按实际命中回调事实记录0至3枚Rimestar Shard。碎片目标由来源选择回执确定，不从场景或静态目标数推断；检测层数、粒子、增益和后续物理伤害排除。"
+    ]
+  },
+  "sara-burst": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 4
+      },
+      "then": 37,
+      "else": 25
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 4
+      },
+      "then": 37,
+      "else": 25
+    },
+    "sites": [],
+    "scopeNotes": [
+      "本次Q固有排队机会为初击1+4/6组×6=25/37；几何落空为明确零，攻击增益与C1减冷却不计伤害。"
+    ]
+  },
+  "dori-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "dori.burst.connector",
+        "rootCount": 32,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "dori.burst.heal",
+        "rootCount": 6,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 1,
+            "when": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "constellation"
+              },
+              "right": 2
+            }
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "32次连接回调每次依玩家是否在原生区域内入队0/1；6次治疗任务仅C2及在区域内时每次另生一击。治疗与回能本身非伤害；由实际任务回执给动态根数。"
+    ]
+  },
+  "gorou-skill": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "gorou.skill.initial",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "E在技能命中帧由一个task入队一击；若Q场已活动则不置E旗，但这一击仍存在。"
+    ]
+  },
+  "gorou-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "gorou.burst.initial",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {
+              "gorou.burst.collapse": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "gorou.burst.collapse",
+        "rootCount": 0,
+        "parentSites": [
+          "gorou.burst.initial",
+          "gorou.burst.collapse"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          },
+          {
+            "attackCount": 0,
+            "children": {
+              "gorou.burst.collapse": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "gorou.burst.collapse": 1
+            }
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "Q初击后每90帧注册结晶崩碎；每次源状态活动且范围内有最近敌人时最多1击；任务继续到过期/被覆写后终止。C2拾取结晶可延长原生状态，上限3次；不预设总击数。同角色重施Q共享qFieldSrc，闭合前不纳入。"
+    ]
+  },
+  "kuki-skill": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "kuki.skill.activate",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "kuki.skill.bell-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "kuki.skill.bell-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "kuki.skill.activate",
+          "kuki.skill.bell-tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "kuki.skill.bell-tick": 1
+            }
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "初击1根；第23帧任务启动环并注册首个90帧tick；每个实际tick入队1击，若状态仍活动再注册下一tick。C2延长原生状态，结束tick仍可先入队一次；不猜总跳数。C4由后续普通/重击/下落击触发，独立。"
+    ]
+  },
+  "kuki-burst": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "kuki.burst.low-hp"
+        },
+        "right": 0
+      },
+      "then": 7,
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "kuki.burst.low-hp"
+          },
+          "right": 1
+        },
+        "then": 12,
+        "else": -1
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "kuki.burst.low-hp"
+        },
+        "right": 0
+      },
+      "then": 7,
+      "else": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "kuki.burst.low-hp"
+          },
+          "right": 1
+        },
+        "then": 12,
+        "else": -1
+      }
+    },
+    "sites": [],
+    "scopeNotes": [
+      "Burst 方法当下HP比不高于50%时排队12段，否则7段；同一原生循环初帧50，步长 floor(120/7)=17；C1仅改变范围。"
+    ]
+  },
+  "ayato-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "ayato.burst.snapshot",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          }
+        ]
+      },
+      {
+        "siteId": "ayato.burst.rain-tick",
+        "rootCount": 36,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "expectedRootAttackCount": 36
+  },
+  "wanderer-burst": {
+    "directRootCount": 5,
+    "expectedRootAttackCount": 5,
+    "sites": [],
+    "allowsOnRemoved": true,
+    "scopeNotes": [
+      "两分支均直接排队五次Q攻击；仅对审阅后的Windfavored非伤害OnRemoved放行。"
+    ]
+  },
+  "arlecchino-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "arlecchino.burst.absorb-directives",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          },
+          {
+            "attackCount": 1,
+            "children": {},
+            "when": {
+              "op": "and",
+              "terms": [
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "op": "constellation"
+                  },
+                  "right": 2
+                },
+                {
+                  "op": "compare",
+                  "cmp": "gte",
+                  "left": {
+                    "op": "ascension"
+                  },
+                  "right": 1
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "arlecchino.burst.main-hit",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "22帧指令吸收任务在C2且突破1后可能排队一次额外攻击；110帧主击任务必排一次，均取原生实际任务回执。"
+    ]
+  },
+  "neuvillette-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "neuvillette.burst.waterfall-tick",
+        "rootCount": 3,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "expectedRootAttackCount": 3
+  },
+  "clorinde-burst": {
+    "directRootCount": 5,
+    "sites": [],
+    "expectedRootAttackCount": 5
+  },
+  "yaemiko-burst": {
+    "directRootCount": {
+      "op": "add",
+      "left": 1,
+      "right": {
+        "op": "fact",
+        "name": "yae.burst.kitsune-count"
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "add",
+      "left": 1,
+      "right": {
+        "op": "fact",
+        "name": "yae.burst.kitsune-count"
+      }
+    },
+    "sites": [],
+    "when": {
+      "op": "and",
+      "terms": [
+        {
+          "op": "compare",
+          "cmp": "gte",
+          "left": {
+            "op": "fact",
+            "name": "yae.burst.kitsune-count"
+          },
+          "right": 0
+        },
+        {
+          "op": "compare",
+          "cmp": "lte",
+          "left": {
+            "op": "fact",
+            "name": "yae.burst.kitsune-count"
+          },
+          "right": 3
+        }
+      ]
+    }
+  },
+  "tighnari-burst": {
+    "directRootCount": 12,
+    "sites": [],
+    "expectedRootAttackCount": 12
+  },
+  "dehya-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "dehya.burst.initial-auto-punch",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "dehya.burst.next-auto-punch": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "dehya.burst.next-auto-punch",
+        "rootCount": 0,
+        "parentSites": [
+          "dehya.burst.initial-auto-punch",
+          "dehya.burst.next-auto-punch"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "dehya.burst.next-auto-punch": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "children": {
+              "dehya.burst.auto-kick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "dehya.burst.auto-kick",
+        "rootCount": 0,
+        "parentSites": [
+          "dehya.burst.next-auto-punch"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          },
+          {
+            "attackCount": 1,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "迪希雅Q仅统计Q起始自动拳链与自动终踢；后续N/E/J输入的手动动作另算。src、前台和Q状态按原生运行时分支决定0/1及后继任务。"
+    ]
+  },
+  "amber-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "amber.skill.spawn-bunny",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖E生成的同一兔兔伯爵实体及唯一终止爆炸，适用各命座；C2手动引爆和超载终止仍归属该实体回调，触发动作/反应自身伤害不计入本E。"
+    ]
+  },
+  "yaoyao-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "yaoyao.skill.spawn-yuegui",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖E创建的投掷月桂实体；C6仅第3和第6次实际投掷附加一段直发萝卜伤害，后续飞行任务按真实落地分支闭合。"
+    ]
+  },
+  "dori-skill": {
+    "directRootCount": 1,
+    "sites": [],
+    "scopeNotes": [
+      "E固有伤害包含一击Troubleshooter Shot；售后服务弹只由首个实际执行的指定命中回调产生，数量使用原生事实2或3。所有回调批次和追加攻击按实际命中及派发回执闭合；粒子、回能、治疗及后续C6普攻排除。"
+    ]
+  },
+  "baizhu-skill": {
+    "when": {
+      "op": "compare",
+      "cmp": "lte",
+      "left": {
+        "op": "constellation"
+      },
+      "right": 1
+    },
+    "directRootCount": 1,
+    "sites": [],
+    "prohibitOverlappingInvocations": true,
+    "scopeNotes": [
+      "仅C0–C1的E固有攻击链：一击Universal Diagnosis及逐目标命中回调产生的后续链击，最多深度3；RandomEnemyWithinArea结果和父子攻击均需实际回执。禁止技能链未闭合时重叠施放E，因为后续回调读取可变c.skillAtk。C2 Splice与C6护盾生命周期攻击不在本契约。"
+    ]
+  },
+  "navia-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "navia.skill.fire",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCountFromProducerFact": "navia.skill.selected-enemy-count",
+            "whenProducerFact": {
+              "name": "navia.skill.arkhe-icd-active",
+              "equals": 0
+            },
+            "children": {
+              "navia.skill.surging-arm": 1
+            }
+          },
+          {
+            "attackCountFromProducerFact": "navia.skill.selected-enemy-count",
+            "whenProducerFact": {
+              "name": "navia.skill.arkhe-icd-active",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      },
+      {
+        "siteId": "navia.skill.surging-arm",
+        "rootCount": 0,
+        "parentSites": [
+          "navia.skill.fire"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "navia.skill.surging-release": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "navia.skill.surging-release",
+        "rootCount": 0,
+        "parentSites": [
+          "navia.skill.surging-arm"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖E按下／长按的固有伤害：fire任务实际选择的敌数N由同一次EnemiesWithinArea调用记录，N个霰弹攻击及其每目标C2命中回调追加伤害都使用原生回执；若原生Arkhe ICD事实为未激活，则追踪arm→release→Surging Blade，否则该链为零。C4抗性减益、A1/C1资源状态、C6弹片留存与外部结晶事件不是此伤害闭合声明的组成部分。"
+    ]
+  },
+  "baizhu-burst": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "baizhu.burst.first-shield",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "baizhu.burst.shield-birth-count",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      },
+      {
+        "siteId": "baizhu.burst.refresh-shield",
+        "rootCount": 5,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "baizhu.burst.shield-birth-count",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "Q固有伤害按本次Q实际创建的六个护盾实例归属；出生任务实际偏移81、223、369、515、661、807帧，原生到期偏移152帧。出生次数不等同于固定攻击次数：每个实例须有真实覆盖、破裂或到期终点，灵气脉按对应钩子排队及逐目标派发回执闭合。独立C6护盾保留替换关系但不加入Q伤害；治疗、护盾量、A4/C4增益、E/C2伤害和独立反应伤害另算。"
+    ]
+  },
+  "xinyan-skill": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "xinyan.skill.initial-shield-task",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "xinyan.skill.initial-shield-present"
+            },
+            "right": 0
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "xinyan.skill.initial-shield-birth-count",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      },
+      {
+        "siteId": "xinyan.skill.hit-shield-upgrade-task",
+        "rootCount": 0,
+        "parentSites": [],
+        "parentCallbackSites": [
+          "xinyan.skill.shield-hit-callback"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "xinyan.skill.birth-level",
+              "equals": 0
+            },
+            "children": {}
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "xinyan.skill.birth-level",
+              "equals": 2
+            },
+            "children": {}
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "xinyan.skill.birth-level",
+              "equals": 3
+            },
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "E 包含初击与本次调用真正创建的三级护盾 DoT。升级按每个实际命中回调登记的 13 本地帧角色任务和真实分支；没有出生的分支不补造护盾。一级／二级盾没有后续固有攻击，其无伤害寿命不阻塞伤害范围闭合。三级盾链须观测到全部 Core 任务结束，包括最后不发出攻击的门控分支；任务原始出生归属与实际门控护盾分别保留。"
+    ]
+  },
+  "noelle-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "noelle.skill.initial-hit",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "noelle.skill.initial-hit.attack-count",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      },
+      {
+        "siteId": "noelle.skill.c4-timer",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "constellation"
+            },
+            "right": 4
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "noelle.skill.c4-timer.attack-count",
+              "equals": 0
+            },
+            "children": {}
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "noelle.skill.c4-timer.attack-count",
+              "equals": 1
+            },
+            "children": {}
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "E 初击通过实际 14 本地帧角色任务结算；C0–C3 没有后续护盾伤害，非伤害护盾仍存在不妨碍完整固有伤害。C4 起需观察 E 护盾真实破裂、覆盖或到期所发出的爆炸，以及独立 720 帧 Core 计时任务的实际零／一分支；计时任务未结束不能仅凭护盾已消失宣布完整。治疗、A1 独立护盾和普通／重击伤害排除。"
+    ]
+  },
+  "ayato-skill": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "ayato.skill.illusion-explosion",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "本规则仅汇总本次 E 方法创建的水影爆炸伤害，不代表完整站场输出循环。",
+      "瞬水剑由后续独立普攻动作产生，C6 追击只由该普攻的命中回调触发；计算瞬水剑及 C6 需使用自定义动作序列，均不并入本次 E 水影爆炸。",
+      "A1 仅调整浪闪层数；浪闪、C2 生命值、C1 普攻增伤、粒子及 A4 回能不构成本 E 的额外攻击生产任务。"
+    ]
+  },
+  "yunjin-burst": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "yunjin.burst.initial-hit",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "本规则仅汇总本次 Q 施放的固有岩元素伤害。",
+      "飞云旗阵对后续普通攻击增加的基础伤害，以及 C2／C6 队伍增益，归入相应后续攻击的计算，不计入本次 Q 固有伤害。"
+    ]
+  },
+  "kirara-skill": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": {
+      "op": "add",
+      "left": 1,
+      "right": {
+        "op": "fact",
+        "name": "kirara.skill.roll-task-count"
+      }
+    },
+    "sites": [
+      {
+        "siteId": "kirara.skill.short-hold.roll",
+        "rootCount": 1,
+        "parentSites": [],
+        "when": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "kirara.skill.resolved-mode"
+          },
+          "right": 1
+        },
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "kirara.skill.hold.roll",
+        "rootCount": {
+          "op": "fact",
+          "name": "kirara.skill.roll-task-count"
+        },
+        "parentSites": [],
+        "when": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "kirara.skill.resolved-mode"
+          },
+          "right": 2
+        },
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "本规则按原生实际分支汇总一次 E 的踢击和滚动碰撞；长按时长按来源上限 600 帧处理，每次滚动排队独立归属。",
+      "C4 后续队友攻击触发的协同伤害属于独立事件组件，不纳入本次 E 固有踢击／滚动小计；护盾量、A1 护盾叠层和 C6 增益不计作额外伤害。"
+    ]
+  },
+  "qiqi-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "qiqi.skill.initial",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {
+              "qiqi.skill.first-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "qiqi.skill.first-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "qiqi.skill.initial"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "qiqi.skill.next-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "qiqi.skill.next-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "qiqi.skill.first-tick",
+          "qiqi.skill.next-tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "qiqi.skill.next-tick": 1
+            }
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖该次 E 的初始伤害及完整轮转伤害任务链；实际次数来自任务、分支事实与最终零子任务，不能按源码注释固定为九次轮转。",
+      "固定源码明确注明伤害／治疗帧数为近似估计，并将祭礼剑重放暂按仅一个实例处理；这里复现该版本模拟实现，不代表已验证游戏实测。",
+      "治疗任务、C1 回能、A1 受治疗加成、A4 符箓及独立普通／重击、Q、反应、武器／圣遗物伤害另计。"
+    ]
+  },
+  "yaemiko-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "yaemiko.skill.spawn",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "children": {
+              "yaemiko.skill.first-tick": 1,
+              "yaemiko.skill.expire": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaemiko.skill.first-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "yaemiko.skill.spawn"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 1
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 3
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaemiko.skill.next-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "yaemiko.skill.first-tick",
+          "yaemiko.skill.next-tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 1
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 3
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaemiko.skill.expire",
+        "rootCount": 0,
+        "parentSites": [
+          "yaemiko.skill.spawn"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖本次 E 新建杀生樱的完整原生任务链；允许多次 E 重叠，每条链沿原闭包持有同一图腾指针并归属于创建它的 E。",
+      "任务如实区分已删除、无可选目标、选中敌人和选中机关；无目标仍会继续排下一次任务，已删除才以零攻击、零子任务结束。",
+      "第四柱替换、原生到期任务和经典 Q 消耗仍按源代码删除图腾；Q 的天狐霆雷归于 Q，不并入 E。到期任务本身不产生伤害，但必须取得执行回执。",
+      "本契约用于 classic 固定来源；Stellar 的启示、额外攻击与寿命差异使用独立规则，不套用本规则。"
+    ]
+  },
+  "beidou-burst": {
+    "directRootCount": 1,
+    "sites": [],
+    "scopeNotes": [
+      "本次 Q 首击及该次 900 帧状态实际触发的闪雷连锁归属于本技能；后续普攻／重击自身伤害不计入。",
+      "每条闪雷沿原生首击、目标命中回调与弹跳身份追踪；状态结束后仍在途的已发出攻击也需要结算。",
+      "固定来源行为复现不代表游戏实测核验；独立反应、装备伤害和护盾／减伤数值另计。"
+    ]
+  },
+  "qiqi-skill-stellar": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "qiqi.skill.initial",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "children": {
+              "qiqi.skill.first-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "qiqi.skill.first-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "qiqi.skill.initial"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "qiqi.skill.next-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "qiqi.skill.next-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "qiqi.skill.first-tick",
+          "qiqi.skill.next-tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "qiqi.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "qiqi.skill.next-tick": 1
+            }
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖该次 E 的初始伤害、完整轮转伤害任务链，以及属于其实际寒病鬼差状态实例的协同攻击；revelation=0 时协同监听器未注册，零次触发合法。",
+      "轮转链依据实际 expired／replaced／emit 分支闭合；协同攻击依据实际 E 状态替换、移除或到期闭合。不同 E 的实际状态实例与任务归属分别核对。",
+      "Stellar 原源码仍注明轮转／治疗帧数为近似估计，以及祭礼剑重放按仅一个实例处理的 TODO；本契约复现固定源码，不代表游戏实测。",
+      "治疗、粒子、C1 回能、受治疗加成、反应增益、Q 与 C6 对其他角色反应追加基础伤害另计。"
+    ]
+  },
+  "yaemiko-skill-stellar": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "yaemiko.skill.spawn",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.spawn.attack-count",
+              "equals": 0
+            },
+            "children": {
+              "yaemiko.skill.first-tick": 1,
+              "yaemiko.skill.expire": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.spawn.attack-count",
+              "equals": 1
+            },
+            "children": {
+              "yaemiko.skill.first-tick": 1,
+              "yaemiko.skill.expire": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaemiko.skill.first-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "yaemiko.skill.spawn"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 1
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 3
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaemiko.skill.next-tick",
+        "rootCount": 0,
+        "parentSites": [
+          "yaemiko.skill.first-tick",
+          "yaemiko.skill.next-tick"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 1
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 2
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaemiko.skill.tick.branch",
+              "equals": 3
+            },
+            "children": {
+              "yaemiko.skill.next-tick": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaemiko.skill.expire",
+        "rootCount": 0,
+        "parentSites": [
+          "yaemiko.skill.spawn"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "覆盖该次 E 新建杀生樱的完整原生任务链、替换第四柱时本次施放产生的 A1 雷击，以及该图腾强化雷击的实际命中追击。",
+      "每个 E 的任务沿创建时原生图腾指针继承；任务区分已删除、无目标、敌人、机关，必须观察到期任务和最终零子任务后才闭合。",
+      "revelation 默认开启，原生图腾寿命增加600帧，Q不销毁图腾；revelation关闭时保留原生Q销毁行为，不强行套用经典生命周期。",
+      "强化追击要求原生revelationEnhanceDMG实际返回回调；每个父雷击队列至多由一次成功敌人命中回调追加一击。槽位存在性使用返回值事实，不重读启示或Radiance条件。",
+      "额外天狐霆雷属于Q；独立普攻、反应、武器／圣遗物伤害及粒子、能量、队伍增益另计。"
+    ]
+  },
+  "xiangling-skill": {
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "xiangling.skill.spawn-guoba",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "锅巴实际出生、Tick 分支与移除记录确定本次 E 的攻击次数；已发出的喷火必须继续结算。",
+      "锅巴引发的独立反应及 A4 辣椒攻击力增益另计；复现固定源码不表示游戏实测已核验。"
+    ]
+  },
+  "yaoyao-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "yaoyao.burst.jump-yuegui-1",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      },
+      {
+        "siteId": "yaoyao.burst.jump-yuegui-2",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      },
+      {
+        "siteId": "yaoyao.burst.jump-yuegui-3",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      },
+      {
+        "siteId": "yaoyao.burst.a1-ticker",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "ascension"
+            },
+            "right": 1
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [
+          "yaoyao.burst.a1-ticker"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaoyao.burst.a1-ticker.branch",
+              "equals": 0
+            },
+            "children": {}
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaoyao.burst.a1-ticker.branch",
+              "equals": 1
+            },
+            "children": {
+              "yaoyao.burst.a1-ticker": 1
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaoyao.burst.a1-ticker.branch",
+              "equals": 2
+            },
+            "children": {
+              "yaoyao.burst.a1-ticker": 1
+            }
+          },
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "yaoyao.burst.a1-ticker.branch",
+              "equals": 3
+            },
+            "children": {
+              "yaoyao.burst.a1-ticker": 1,
+              "yaoyao.burst.a1-radish-flight": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "yaoyao.burst.a1-radish-flight",
+        "rootCount": 0,
+        "parentSites": [
+          "yaoyao.burst.a1-ticker"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaoyao.burst.a1-radish.burst-mode",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "yaoyao.burst.a1-radish.burst-mode",
+              "equals": 1
+            }
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "包含本次 Q 首击、实际创建的零至三个月桂及 A1 冲刺／跳跃萝卜任务；已发出萝卜在月桂移除后仍按出生实体归属。",
+      "A1 仅在原生状态与选敌分支实际产生飞行任务时计入；延迟攻击按执行时状态使用实际技能或爆发倍率。",
+      "E 创建的月桂始终保留 E 出生归属，其在 Q 期间转换的实际倍率保存在对应命中公式中，不在 Q 自生伤害总额中重复计算。治疗、回能与增益数值另计。"
+    ]
+  },
+  "shenhe-burst": {
+    "directRootCount": 1,
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "gte",
+        "left": {
+          "op": "constellation"
+        },
+        "right": 2
+      },
+      "then": 19,
+      "else": 13
+    },
+    "sites": [
+      {
+        "siteId": "shenhe.burst.snapshot-and-dots",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": {
+              "op": "if",
+              "test": {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "constellation"
+                },
+                "right": 2
+              },
+              "then": 18,
+              "else": 12
+            }
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "初始1击；原生47帧任务先快照，再按C2前6组/C2后9组各排2击。实际派发回执必须全部结束。",
+      "同帧A1/C2及领域减抗刷新仍按原队列顺序执行；它们不是额外攻击。技能状态结束不是该有限伤害排队的取消条件。"
+    ]
+  },
+  "chongyun-skill": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "chongyun.skill.a4-expiry",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "gte",
+            "left": {
+              "op": "ascension"
+            },
+            "right": 4
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "chongyun.skill.a4.attack-count",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "chongyun.skill.a4.attack-count",
+              "equals": 1
+            }
+          }
+        ]
+      },
+      {
+        "siteId": "chongyun.skill.a4-replacement",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "and",
+            "terms": [
+              {
+                "op": "compare",
+                "cmp": "gte",
+                "left": {
+                  "op": "ascension"
+                },
+                "right": 4
+              },
+              {
+                "op": "compare",
+                "cmp": "eq",
+                "left": {
+                  "op": "fact",
+                  "name": "chongyun.skill.replaced-field"
+                },
+                "right": 1
+              }
+            ]
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0,
+            "whenProducerFact": {
+              "name": "chongyun.skill.a4.attack-count",
+              "equals": 0
+            }
+          },
+          {
+            "attackCount": 1,
+            "whenProducerFact": {
+              "name": "chongyun.skill.a4.attack-count",
+              "equals": 1
+            }
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "初击1根；A4已解锁时登记655帧领域终结任务。入口实际旧领域分支成立时还登记81帧强制终结任务。",
+      "每个A4生产者按原src与fieldSrc判定，取消记0、实际入队记1；不固定总攻击数，也不排除重叠E。",
+      "新E明确登记的强制旧领域终结伤害归属新E调用，但沿用原代码捕获的旧快照与旧区域；旧E原计时器保留其旧调用身份，执行时可取消为0。",
+      "附魔、攻速、C2冷却减免、产球、A4减抗及C4回能保持执行，不作为额外攻击根。"
+    ]
+  },
+  "shenhe-skill": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "shenhe.skill.press-hit",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "param",
+              "name": "hold",
+              "default": 0
+            },
+            "right": 0
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      },
+      {
+        "siteId": "shenhe.skill.hold-hit",
+        "rootCount": {
+          "op": "if",
+          "test": {
+            "op": "compare",
+            "cmp": "neq",
+            "left": {
+              "op": "param",
+              "name": "hold",
+              "default": 0
+            },
+            "right": 0
+          },
+          "then": 1,
+          "else": 0
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "原Skill按hold非零选择长按，否则点按；点按4帧/长按33帧各登记一个伤害生产者，执行时快照并加原C4增伤后入队1击。",
+      "粒子回调不生成伤害；冰翎与A4增益任务、同击附加与C4层数回调保持原位置，不作为额外攻击根。",
+      "保留两条来源的冰翎授予差异：Classic随A4门控增益任务授予，Stellar独立授予冰翎再调用A4门控增益。"
+    ]
+  },
+  "chasca-skill": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "chasca.skill.blessing-at-entry"
+        },
+        "right": 1
+      },
+      "then": 0,
+      "else": 1
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "chasca.skill.blessing-at-entry"
+        },
+        "right": 1
+      },
+      "then": 0,
+      "else": 1
+    },
+    "sites": [],
+    "scopeNotes": [
+      "Plan is available only when `chasca.skill.pending-aim-release` is 0. If the original AimState branch is taken, pending charged-shot ownership is unbound and this cast remains partial. Capture blessing-at-entry from the single original query; false=>1 root at3, true=>0."
+    ],
+    "when": {
+      "op": "compare",
+      "cmp": "eq",
+      "left": {
+        "op": "fact",
+        "name": "chasca.skill.pending-aim-release"
+      },
+      "right": 0
+    }
+  },
+  "xilonen-skill": {
+    "directRootCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "xilonen.skill.blessing-at-entry"
+        },
+        "right": 1
+      },
+      "then": 0,
+      "else": 1
+    },
+    "expectedRootAttackCount": {
+      "op": "if",
+      "test": {
+        "op": "compare",
+        "cmp": "eq",
+        "left": {
+          "op": "fact",
+          "name": "xilonen.skill.blessing-at-entry"
+        },
+        "right": 1
+      },
+      "then": 0,
+      "else": 1
+    },
+    "sites": [],
+    "scopeNotes": [
+      "Capture `xilonen.skill.blessing-at-entry` from the one original HasBlessing() result; false=>1 root, true=>0. Observe through frame 6 for hit branch, then native terminal dispatch; zero branch closes with no attack dispatch."
+    ]
+  },
+  "qiqi-burst": {
+    "directRootCount": {
+      "op": "add",
+      "left": 2,
+      "right": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "qiqi.burst.stellar-conduct-at-entry"
+          },
+          "right": 1
+        },
+        "then": 1,
+        "else": 0
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "add",
+      "left": 2,
+      "right": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "eq",
+          "left": {
+            "op": "fact",
+            "name": "qiqi.burst.stellar-conduct-at-entry"
+          },
+          "right": 1
+        },
+        "then": 1,
+        "else": 0
+      }
+    },
+    "sites": [],
+    "scopeNotes": [
+      "Two unconditional deliveries in both lanes: zero-damage talisman application at frame 40 and Cryo Q hit at frame 82. Stellar third direct root at 82 only when `qiqi.burst.stellar-conduct-at-entry` is 1. Close only after all observed roots finish native dispatch; talisman status application is target-hit-dependent."
+    ]
+  },
+  "aloy-skill": {
+    "directRootCount": {
+      "op": "add",
+      "left": 1,
+      "right": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "gt",
+          "left": {
+            "op": "param",
+            "name": "bomblets",
+            "default": 2
+          },
+          "right": 0
+        },
+        "then": {
+          "op": "param",
+          "name": "bomblets",
+          "default": 2
+        },
+        "else": 0
+      }
+    },
+    "expectedRootAttackCount": {
+      "op": "add",
+      "left": 1,
+      "right": {
+        "op": "if",
+        "test": {
+          "op": "compare",
+          "cmp": "gt",
+          "left": {
+            "op": "param",
+            "name": "bomblets",
+            "default": 2
+          },
+          "right": 0
+        },
+        "then": {
+          "op": "param",
+          "name": "bomblets",
+          "default": 2
+        },
+        "else": 0
+      }
+    },
+    "sites": [],
+    "scopeNotes": [
+      "Native count is 1+max(0,bomblets); omitted bomblets=2. No cap is inferred. `travel` and `bomb_delay` change dispatch timing; observe through max(main hitmark, final scheduled bomblet hitmark) plus terminal dispatch."
+    ]
+  },
+  "nilou-burst": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "nilou.burst.lingering-aeon-task",
+        "rootCount": 0,
+        "parentSites": [],
+        "parentCallbackSites": [
+          "nilou.burst.lingering-aeon-hit"
+        ],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "初击在调用时读取生命值倍率，91帧后 AoE；每个实际敌人命中回调独立登记 lingering-aeon 任务，不写死两击或固定目标数。",
+      "第二段保留敌人自己的局部时钟：原 121 local frames 后任务执行时重读生命值/天赋，立刻向该父回调目标发出一次单体攻击；停帧不会被误换算为全局 +121。",
+      "完整范围包含本次初击及其所有实际敌人回调任务；初击落空、跳过或命中确认阻断不会产生任务。目标死亡后敌人队列不 tick，未执行任务继续 pending，不能宣告完整。",
+      "不伪造 Origin；原生 callback→producer→taskId→enemy queue targetKey 的明确链接建立所有权，entry Origin 仅用于隔离同步嵌套反应/独立追击。",
+      "lingeringaeon 状态只在原命中处添加；延迟任务未检查状态或新 Q，因此重叠 Q 不取消旧任务，全部按真实父回调独立追踪。",
+      "同击支持的增幅/加算反应仍进入该击；独立反应、丰穰之核、装备或其他事件追击保留独立范围。固定源码证据不是实机机制验证。"
+    ]
+  },
+  "escoffier-burst": {
+    "directRootCount": 0,
+    "expectedRootAttackCount": 1,
+    "sites": [
+      {
+        "siteId": "escoffier.burst.initial-hit",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "Burst method schedules the initial hit as one native character-local task at hitmark 92. The existing SourceHostQueueCharTask helper records invocation producer/site/task linkage while preserving the original QueueCharTask delay and local clock."
+    ]
+  },
+  "ororon-skill": {
+    "directRootCount": {
+      "op": "fact",
+      "name": "ororon.skill.root-count"
+    },
+    "expectedRootAttackCount": {
+      "op": "fact",
+      "name": "ororon.skill.root-count"
+    },
+    "sites": [],
+    "scopeNotes": [
+      "Native loop queues one direct attack per selected target. Capture `len(enemies)` from the original already-built target slice and preserve target order; no repeated EnemyCount/primary target queries. The attack loop start is frame 31; each target dispatch deadline extends by supplied/default travel × (i+1)."
+    ]
+  },
+  "layla-skill": {
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "layla.skill.shield-update",
+        "rootCount": 1,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+      "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+      "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+      "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+      "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+      "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+    ]
+  },
+  "layla-burst": {
+    "when": {
+      "op": "compare",
+      "cmp": "gte",
+      "left": {
+        "op": "param",
+        "name": "travel",
+        "default": 22
+      },
+      "right": 0
+    },
+    "directRootCount": 0,
+    "sites": [
+      {
+        "siteId": "layla.burst.slug",
+        "rootCount": 8,
+        "parentSites": [],
+        "outcomes": [
+          {
+            "whenProducerFact": {
+              "name": "layla.burst.slug.attack-count",
+              "equals": 0
+            },
+            "attackCount": 0
+          },
+          {
+            "whenProducerFact": {
+              "name": "layla.burst.slug.attack-count",
+              "equals": 1
+            },
+            "attackCount": 1
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+      "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+      "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+      "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+    ]
+  },
+  "raiden-skill": {
+    "when": {
+      "op": "and",
+      "terms": [
+        {
+          "op": "compare",
+          "cmp": "gte",
+          "left": {
+            "op": "fact",
+            "name": "raiden.skill.party-count"
+          },
+          "right": 1
+        },
+        {
+          "op": "compare",
+          "cmp": "lte",
+          "left": {
+            "op": "fact",
+            "name": "raiden.skill.party-count"
+          },
+          "right": 4
+        }
+      ]
+    },
+    "directRootCount": 1,
+    "sites": [
+      {
+        "siteId": "raiden.skill.eye-activate",
+        "rootCount": {
+          "op": "fact",
+          "name": "raiden.skill.party-count"
+        },
+        "parentSites": [],
+        "outcomes": [
+          {
+            "attackCount": 0
+          }
+        ]
+      }
+    ],
+    "scopeNotes": [
+      "本次 E 初击和实际队伍每名持有者的原生 AttackMod 状态所触发的恶曜之眼攻击归属于本次 E；每人都有独立 +66 帧激活任务和可被卡肉延长的 1500 帧原生状态。",
+      "所有持有者共享雷电的 54 帧恶曜之眼冷却；每个成功事件只排队一次攻击，并在 +5 帧采雷电快照且同帧派发，不把状态持有者数量折算成攻击次数。",
+      "每名持有者的状态都需取得真实替换、移除或到期终点；状态结束后仍在途的已发出攻击保留触发时状态实例归属，并需完成逐目标结算。",
+      "触发 E 协同攻击的后续动作伤害、独立反应、装备伤害、爆发增伤数值、产球和能量都另计；已审阅范围复现固定源码，不等同于游戏实测。"
+    ]
+  }
+}

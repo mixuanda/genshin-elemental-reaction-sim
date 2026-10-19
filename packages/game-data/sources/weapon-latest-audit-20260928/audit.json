@@ -1,0 +1,31 @@
+{
+  "auditDate": "2026-09-28",
+  "checkedAtUtc": "2026-09-28T01:43:13Z",
+  "scope": "Read-only check of official GitHub current HEAD trees and gcsim weapon registry for six missing released weapons. No source files copied.",
+  "weapons": [
+    { "id": 11437, "name": "New Bough", "slug": "newbough" },
+    { "id": 11438, "name": "Silver Light", "slug": "silverlight" },
+    { "id": 11522, "name": "Beyond the Chrysalis", "slug": "beyondthechrysalis" },
+    { "id": 14437, "name": "Winter's Heavy Heart", "slug": "wintersheavyheart" },
+    { "id": 14524, "name": "Hymn of the Maelstrom", "slug": "hymnofthemaelstrom" },
+    { "id": 15437, "name": "Breezeborne Refrain", "slug": "breezebornerefrain" }
+  ],
+  "sources": [
+    {
+      "repository": "https://github.com/frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "treeUrl": "https://api.github.com/repos/frzyc/genshin-optimizer/git/trees/180a0a1015cb725c7570cd828eb086749960df98?recursive=1",
+      "treeTruncated": false,
+      "result": "No tree paths matched any of the six weapon slugs or numeric IDs. HEAD is the same commit already pinned by the existing audit. No new implementation found."
+    },
+    {
+      "repository": "https://github.com/genshinsim/gcsim",
+      "commit": "3f528e2c7f57d91dfb2edc35f836ebdd286e4ca9",
+      "treeUrl": "https://api.github.com/repos/genshinsim/gcsim/git/trees/3f528e2c7f57d91dfb2edc35f836ebdd286e4ca9?recursive=1",
+      "treeTruncated": false,
+      "registryFile": "https://raw.githubusercontent.com/genshinsim/gcsim/3f528e2c7f57d91dfb2edc35f836ebdd286e4ca9/pkg/core/keys/weapon.dm.go",
+      "result": "No tree paths matched the six weapon slugs or IDs; the generated weapon registry also contains none of the six names or IDs. No corresponding simulation source found."
+    }
+  ],
+  "interpretation": "This is a bounded current-HEAD check of two official repositories, not proof that no implementation exists anywhere. No matching new formula source was found, so nothing was copied or promoted. Existing localized/catalog metadata does not resolve the mechanic gaps by itself."
+}

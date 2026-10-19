@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-single-skill.ts(104,30): error TS2345: Argument of type '"creation" | "skill-ownership" | "status-owner" | "trigger"' is not assignable to parameter of type '"creation" | "status-owner" | "trigger"'.
+  Type '"skill-ownership"' is not assignable to type '"creation" | "status-owner" | "trigger"'.
+apps/web/src/source-single-skill.ts(107,40): error TS2345: Argument of type '"creation" | "skill-ownership" | "status-owner" | "trigger"' is not assignable to parameter of type '"creation" | "status-owner" | "trigger"'.
+  Type '"skill-ownership"' is not assignable to type '"creation" | "status-owner" | "trigger"'.
+apps/web/src/source-single-skill.ts(108,39): error TS2345: Argument of type '"creation" | "skill-ownership" | "status-owner" | "trigger"' is not assignable to parameter of type '"creation" | "status-owner" | "trigger"'.
+  Type '"skill-ownership"' is not assignable to type '"creation" | "status-owner" | "trigger"'.
+apps/web/src/source-single-skill.ts(111,74): error TS2345: Argument of type '"creation" | "skill-ownership" | "status-owner" | "trigger"' is not assignable to parameter of type 'ObservedAssociation'.
+  Type '"skill-ownership"' is not assignable to type 'ObservedAssociation'.

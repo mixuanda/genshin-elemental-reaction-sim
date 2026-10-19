@@ -1,0 +1,9 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 15.194
+}

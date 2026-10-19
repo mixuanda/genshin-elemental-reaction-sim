@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-native-phase.spec.ts"
+  ],
+  "startedAt": "2026-09-28T13:35:39.461036+00:00",
+  "finishedAt": "2026-09-28T13:35:44.333631+00:00",
+  "wallSeconds": 4.872,
+  "exitCode": 0,
+  "log": "docs/validation/native-phase-browser-20260928.log"
+}

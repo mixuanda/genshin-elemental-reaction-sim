@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/formula-lookup.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.597
+}

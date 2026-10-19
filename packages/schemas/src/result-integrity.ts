@@ -1,4 +1,28 @@
+import { validateWeaponHitStackIntegrity, weaponHitStackValuesAt } from "./weapon-hit-stack-replay";
+import { validatePlayerShieldIntegrity } from "./player-shield-integrity";
+import { validateSourceNormalChainIntegrity } from "./source-normal-chain-integrity";
+import { resolveTimelineCommandAbilityId } from "./source-normal-chain";
+import { getSourceNormalChainMetadata } from "./source-normal-family";
+import { hasExplicitSourceSnapshots, sourceSnapshotKey, sourceSnapshotReplayPoint, validateSourceSnapshotIntegrity } from "./source-snapshot-integrity";
+import { validateTargetHealthIntegrity } from "./target-health-integrity";
 import type { RefinementCtx } from "zod";
+import { validatePlayerMaxHpIntegrity } from "./player-max-hp-integrity";
+import { validateSimulationExecutionAudit } from "./execution-audit-integrity";
+import { validatePlayerHealthIntegrity } from "./player-health-integrity";
+import { validatePeriodicEntityIntegrity } from "./periodic-entity-integrity";
+import { replayPeriodicEntities } from "./periodic-entity-replay";
+import { replayWeaponProcOccurrences } from "./weapon-proc-replay";
+import { validateWeaponProcIntegrity } from "./weapon-proc-integrity";
+import { replayThrillingTales, thrillingTalesBuffsAt } from "./thrilling-tales-replay";
+import { validateThrillingTalesIntegrity } from "./thrilling-tales-integrity";
+import { validateSacrificialIntegrity } from "./sacrificial-integrity";
+import { validateArtifactEventIntegrity } from "./artifact-event-integrity";
+import { hasEnemyShieldDamageLink, validateEnemyShieldIntegrity } from "./enemy-shield-integrity";
+import { validateArtifactDamageIntegrity } from "./artifact-damage-integrity";
+import { artifactBuffsAt, artifactReactionBonusAt, validateArtifactBuffIntegrity } from "./artifact-buff-integrity";
+import { moonlightStatBonusAt, validateMoonlightArtifactIntegrity } from "./moonlight-artifact-integrity";
+import { getRuntimeSkillCooldownActors } from "./skill-cooldown-model";
+import { actionChildEventPriority, actionEventPriority, validateActionConditionIntegrity } from "./action-condition-integrity";
 import {
   CLASSIC_REACTION_FORMULA_PROFILE,
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
@@ -69,7 +93,10 @@ import {
   REACTION_FORMULA_RUN_MANIFEST_VERSION,
   REACTION_FORMULA_ROOT_ENGINE_VERSION,
   REACTION_FORMULA_ROOT_SCHEMA_VERSION,
+  type ActiveStatusSnapshot,
   type AuraGaugeEntry,
+  type AbilityDefinition,
+  type ActionDefinition,
   type AuraReactionEngineConfig,
   type AuraStateEntry,
   type CharacterStats,
@@ -571,13 +598,15 @@ function hasElectroChargedCoexistence(
   );
 }
 
-function validateElectroChargedWaneAuraDeadline(
+function validateRetainedAuraDecayDeadline(
   context: RefinementCtx,
   path: IssuePath,
   currentGlobalFrame: number,
   currentTargetFrame: number | null,
   before: AuraStateEntry,
-  after: AuraStateEntry
+  after: AuraStateEntry,
+  operationName = "Electro-Charged Wane",
+  allowDeadlineExtension = false
 ): number | null {
   if (
     before.expiresAtFrame === null ||
@@ -586,7 +615,7 @@ function validateElectroChargedWaneAuraDeadline(
     addIssue(
       context,
       path,
-      "Electro-Charged Wane normal Aura requires a finite decay deadline"
+      `${operationName} normal Aura requires a finite decay deadline`
     );
     return null;
   }
@@ -602,7 +631,7 @@ function validateElectroChargedWaneAuraDeadline(
       addIssue(
         context,
         path,
-        "global-clock Electro-Charged Wane Aura cannot claim target-local deadlines"
+        `global-clock ${operationName} Aura cannot claim target-local deadlines`
       );
     }
     beforeRemainingFrames =
@@ -619,7 +648,7 @@ function validateElectroChargedWaneAuraDeadline(
       addIssue(
         context,
         path,
-        "Hitlag-aware Electro-Charged Wane Aura requires target-local decay deadlines"
+        `Hitlag-aware ${operationName} Aura requires target-local decay deadlines`
       );
       return null;
     }
@@ -640,7 +669,7 @@ function validateElectroChargedWaneAuraDeadline(
       addIssue(
         context,
         path,
-        "Electro-Charged Wane target-clock projection cannot have negative pending Hitlag"
+        `${operationName} target-clock projection cannot have negative pending Hitlag`
       );
     }
     expectEqual(
@@ -648,7 +677,7 @@ function validateElectroChargedWaneAuraDeadline(
       path,
       frozenFramesAfter,
       frozenFramesBefore,
-      "Electro-Charged Wane target-clock projection"
+      `${operationName} target-clock projection`
     );
   }
 
@@ -656,7 +685,7 @@ function validateElectroChargedWaneAuraDeadline(
     addIssue(
       context,
       path,
-      "Electro-Charged Wane retained Aura cannot have a past decay deadline"
+      `${operationName} retained Aura cannot have a past decay deadline`
     );
     return projectedFrozenFrames;
   }
@@ -715,14 +744,14 @@ function validateElectroChargedWaneAuraDeadline(
     afterDecay.maximum
   );
   if (
-    afterRemainingFrames > beforeRemainingFrames ||
+    (!allowDeadlineExtension && afterRemainingFrames > beforeRemainingFrames) ||
     (Number.isFinite(sharedDecayMaximum) &&
       sharedDecayMinimum >= sharedDecayMaximum)
   ) {
     addIssue(
       context,
       path,
-      "Electro-Charged Wane Aura deadline must retain one feasible pre-Wane decay rate"
+      `${operationName} Aura deadline must retain one feasible pre-mutation decay rate`
     );
   }
   return projectedFrozenFrames;
@@ -826,7 +855,7 @@ function validateElectroChargedWaneAuraMutation(
     const afterEntry = afterEntries[0];
     if (afterEntry !== undefined) {
       const projectedFrozenFrames =
-        validateElectroChargedWaneAuraDeadline(
+        validateRetainedAuraDecayDeadline(
           context,
           path,
           currentGlobalFrame,
@@ -5718,12 +5747,23 @@ function validateReactionFormulaProfileV145(
 
 type ConfiguredDirectDamageHit = Pick<
   HitDefinition,
-  "id" | "groupMultiplier" | "directDamageGroup"
+  "id" | "groupMultiplier" | "directDamageGroup" | "critEligible" | "hitWeakPoint" |
+  "snapshot" | "snapshotFrame" | "scalingOwnerId" | "flatSources" | "element" | "application" | "infusion" |
+  "scaling" | "scalingStat" | "flat" | "reactionBonus"
 >;
 
 interface ConfiguredDirectDamageHitLookup {
   rotationHits: Map<string, ConfiguredDirectDamageHit[]>;
   abilityHits: Map<string, ConfiguredDirectDamageHit[]>;
+  weaponProcHits: Map<string, ReplayedWeaponProcOccurrence>;
+}
+
+type ReplayedWeaponProcOccurrence = ReturnType<typeof replayWeaponProcOccurrences>[number];
+
+function buildWeaponProcHitLookup(result: SimulationResult): Map<string, ReplayedWeaponProcOccurrence> {
+  return new Map(result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION
+    ? replayWeaponProcOccurrences(result).map(occurrence => [occurrence.actionId, occurrence])
+    : []);
 }
 
 const RESERVED_INTERNAL_DAMAGE_GROUPS = new Set<string>([
@@ -5756,7 +5796,7 @@ function buildConfiguredDirectDamageHitLookup(
       [...(ability.hits ?? [])]
     );
   }
-  return { rotationHits, abilityHits };
+  return { rotationHits, abilityHits, weaponProcHits: buildWeaponProcHitLookup(result) };
 }
 
 function parseConfiguredDirectDamageHitIndex(
@@ -5791,6 +5831,14 @@ function findConfiguredDirectDamageHit(
 ): ConfiguredDirectDamageHit | undefined {
   const hitIndex = parseConfiguredDirectDamageHitIndex(event);
   if (hitIndex === undefined) return undefined;
+
+  const proc = lookup.weaponProcHits.get(event.actionId);
+  if (proc !== undefined || event.weaponProcLogId !== undefined) {
+    return proc !== undefined && event.weaponProcLogId === proc.logId && hitIndex === 0 &&
+      event.sourceActorId === proc.actorId && event.cycle === proc.cycle &&
+      event.frame === proc.frame && event.hitId === proc.hitId
+      ? proc.hit : undefined;
+  }
 
   let configuredHits: ConfiguredDirectDamageHit[] | undefined;
   if (
@@ -5843,7 +5891,8 @@ function validateDirectDamageGroupV146(
     .filter(
       (event) =>
         event.kind === "direct" &&
-        event.parentDamageEventId === null
+        (event.parentDamageEventId === null ||
+          result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION && event.weaponProcLogId !== undefined)
     )
     .sort(
       (left, right) =>
@@ -6353,11 +6402,16 @@ type ConfiguredElementalApplicationHit = Pick<
   | "element"
   | "scalingOwnerId"
   | "application"
+  | "infusion"
+  | "strikeType" | "reaction" | "reactionOverride" | "ampBase"
+  | "defIgnore" | "critRate" | "critDmg" | "reactionBonus" | "critEligible" | "hitWeakPoint" | "normalHitEnergyTag" | "attackTag"
 >;
 
 interface ConfiguredElementalApplicationHitLookup {
   rotationHits: Map<string, ConfiguredElementalApplicationHit[]>;
   abilityHits: Map<string, ConfiguredElementalApplicationHit[]>;
+  weaponProcHits: Map<string, ReplayedWeaponProcOccurrence>;
+  statReplay: CurrentStatReplay | undefined;
 }
 
 type DirectHitResolution =
@@ -6415,7 +6469,8 @@ function buildConfiguredElementalApplicationHitLookup(
       [...(ability.hits ?? [])] as ConfiguredElementalApplicationHit[]
     );
   }
-  return { rotationHits, abilityHits };
+  return { rotationHits, abilityHits, weaponProcHits: buildWeaponProcHitLookup(result),
+    statReplay: buildCurrentStatReplay(result) };
 }
 
 /**
@@ -6453,6 +6508,13 @@ function findConfiguredElementalApplicationHit(
   const hitIndex = parseConfiguredApplicationHitIndex(resolution);
   if (hitIndex === undefined) return undefined;
 
+  const proc = lookup.weaponProcHits.get(resolution.sourceActionId);
+  if (proc !== undefined) {
+    return hitIndex === 0 && resolution.sourceActorId === proc.actorId &&
+      resolution.cycle === proc.cycle && resolution.frame === proc.frame && resolution.hitId === proc.hitId
+      ? proc.hit : undefined;
+  }
+
   const configuredHits =
     resolution.timelineCommandIndex !== undefined &&
     resolution.sourceAbilityId !== undefined
@@ -6474,7 +6536,8 @@ function findConfiguredElementalApplicationHit(
     configuredHit.id ??
     `${resolution.sourceActionId}:hit-${hitIndex}`;
   return effectiveHitId === resolution.hitId
-    ? configuredHit
+    ? resolveCurrentInfusedHit(configuredHit, resolution.sourceActorId,
+        resolution.frame, resolution.timeSeconds, lookup.statReplay, resolution.eventPriority ?? 3)
     : undefined;
 }
 
@@ -6840,6 +6903,19 @@ function validateApplicationReactionAuditV147(
         [],
         "mechanics-truncated fail-closed Aura projection"
       );
+    }
+    return;
+  }
+
+  if (hasEnemyShieldDamageLink(result, event)) {
+    // The same independently replayed target ICD feeds the force shield. It
+    // does not attach an ordinary Aura or manufacture a second application.
+    const shield = result.enemyShieldLog![event.enemyShieldLogId!];
+    expectEqual(context, [...logPath, "damageEventId"], shield?.damageEventId, event.id, "actual shield contact damage owner");
+    expectEqual(context, [...logPath, "id"], shield?.elementalApplicationIcdLogId, event.elementalApplicationIcdLogId, "actual shield contact ICD backlink");
+    for (const [field, expected] of Object.entries({ triggered: false, reaction: "none", reactions: [], icdAllowed: null,
+      icdTag: null, icdGroup: null, applicationGaugeUnits: null, auraBefore: [], auraApplied: [], auraConsumed: [], auraAfter: [] })) {
+      expectSemanticEqual(context, [...auditPath, field], audit[field as keyof typeof audit], expected, "shield-owned application has no ordinary Aura mutation");
     }
     return;
   }
@@ -7285,7 +7361,7 @@ function validateElementalApplicationIcdV147(
         context,
         [...eventPath, "parentDamageEventId"],
         event.parentDamageEventId,
-        null,
+        lookup.weaponProcHits.get(resolution.sourceActionId)?.parent.id ?? null,
         "application direct damage parent"
       );
       expectEqual(
@@ -8612,9 +8688,32 @@ function validateDamageEvent(
     string,
     SimulationResult["config"]["characters"][number]
   >,
-  hasDamagePlugin: boolean
+  hasDamagePlugin: boolean,
+  configuredHitLookup: ConfiguredDirectDamageHitLookup
 ): void {
   const path = ["damageEvents", index] satisfies IssuePath;
+  const capturedHit = result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION
+    ? result.executionAudit?.hits[index] : undefined;
+  const capturedInput = capturedHit?.eventId === event.id && capturedHit.inputKind === "ordinary"
+    ? capturedHit.input : undefined;
+  const configuredHit = findConfiguredDirectDamageHit(configuredHitLookup, event);
+  if (result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION) {
+    expectEqual(context, [...path, "hitWeakPoint"], event.hitWeakPoint,
+      event.kind === "direct" ? configuredHit?.hitWeakPoint : undefined,
+      "explicit configured or independently replayed source weak-point fact");
+  }
+  if (capturedInput !== undefined && capturedHit !== undefined) {
+    expectEqual(context, ["executionAudit", "hits", index, "input", "hitWeakPoint"],
+      capturedInput.hitWeakPoint, configuredHit?.hitWeakPoint, "source-bound weak-point formula context");
+    expectEqual(context, ["executionAudit", "hits", index, "critical", "eligible"],
+      capturedHit.critical.eligible, configuredHit?.critEligible !== false,
+      "configured hit critical eligibility");
+    if (!hasDamagePlugin && capturedHit.critical.mode === "configured" && capturedHit.critical.eligible) {
+      expectEqual(context, ["executionAudit", "hits", index, "input", "critMode"],
+        capturedInput.critMode, configuredHit?.hitWeakPoint === true ? "allCrit" : result.resolvedRuntimeOptions.critMode,
+        "configured critical mode or source weak-point guarantee without plugin override");
+    }
+  }
   if (event.id !== index) {
     addIssue(
       context,
@@ -8742,14 +8841,14 @@ function validateDamageEvent(
     context,
     [...path, "damageFactors", "effectiveResistance"],
     factors.effectiveResistance,
-    event.enemyStateBeforeHit.effectiveResistance,
+    hasDamagePlugin && capturedInput !== undefined ? capturedInput.effectiveResistance : event.enemyStateBeforeHit.effectiveResistance,
     "enemy-state effective resistance"
   );
   expectNearlyEqual(
     context,
     [...path, "damageFactors", "defenseReduction"],
     factors.defenseReduction,
-    event.enemyStateBeforeHit.effectiveDefenseReduction,
+    !hasDamagePlugin || capturedInput === undefined ? event.enemyStateBeforeHit.effectiveDefenseReduction : clamp(capturedInput.defenseReduction, -1, 0.9),
     "enemy-state effective defense reduction"
   );
   expectNearlyEqual(
@@ -8781,9 +8880,9 @@ function validateDamageEvent(
       `references missing scaling owner ${event.scalingOwnerId}`
     );
   } else {
-    const characterTerm = scalingOwner.level + 100;
+    const characterTerm = (hasDamagePlugin && capturedInput !== undefined ? capturedInput.characterLevel : scalingOwner.level) + 100;
     const enemyTerm =
-      (event.enemyStateBeforeHit.level + 100) *
+      ((hasDamagePlugin && capturedInput !== undefined ? capturedInput.enemyLevel : event.enemyStateBeforeHit.level) + 100) *
       (1 + factors.defenseReduction) *
       (1 - factors.defenseIgnore);
     expectNearlyEqual(
@@ -8794,10 +8893,13 @@ function validateDamageEvent(
       "defense multiplier"
     );
   }
+  const criticalMode = capturedInput?.critMode ??
+    (configuredHit?.hitWeakPoint === true ? "allCrit" : configuredHit?.critEligible === false
+      ? "noCrit" : result.resolvedRuntimeOptions.critMode);
   const expectedCritMultiplier =
-    result.resolvedRuntimeOptions.critMode === "allCrit"
+    criticalMode === "allCrit"
       ? 1 + factors.critDamage
-      : result.resolvedRuntimeOptions.critMode === "noCrit"
+      : criticalMode === "noCrit"
         ? 1
         : 1 + factors.critRate * factors.critDamage;
   expectNearlyEqual(
@@ -8986,7 +9088,7 @@ function validateDamageEvent(
           factors.reactionBonus),
       "amplifying reaction multiplier"
     );
-    if (factors.reactionBase === 1) {
+    if (factors.reactionBase === 1 && (!hasDamagePlugin || capturedInput === undefined)) {
       expectNearlyEqual(
         context,
         [...path, "em"],
@@ -9455,6 +9557,7 @@ function validateDamageAggregates(
           (capability) => capability === "damage-modifier"
         )
       : result.runManifest.plugins.length > 0;
+  const configuredHitLookup = buildConfiguredDirectDamageHitLookup(result);
   let totalDamage = 0;
   let reactedHits = 0;
   let previousFrame: number | undefined;
@@ -9478,7 +9581,8 @@ function validateDamageAggregates(
       result,
       context,
       characterById,
-      hasDamagePlugin
+      hasDamagePlugin,
+      configuredHitLookup
     );
     if (
       previousFrame !== undefined &&
@@ -13447,7 +13551,7 @@ function validateParticleBacklinks(
   for (const [particleIndex, particle] of
     result.particleEvents.entries()) {
     if (
-      !actorIds.has(particle.sourceActorId) ||
+      (!actorIds.has(particle.sourceActorId) && !(result.config.targetHealthModel !== undefined && particle.origin !== undefined)) ||
       particle.receiveFrame < particle.spawnFrame
     ) {
       addIssue(
@@ -15559,6 +15663,13 @@ function validateCrystallizeShardProjection(
             row.timeSeconds
           );
         if (expectedElementalMastery !== undefined) {
+          const trigger = row.triggerDamageEventId === null ? undefined : result.damageEvents[row.triggerDamageEventId];
+          const artifactEm = artifactBuffsAt(result, actor.id, {
+            frame: row.frame, timeSeconds: row.timeSeconds,
+            priority: trigger?.eventPriority ?? 3,
+            ...(trigger === undefined ? {} : { eventSequence: trigger.eventSequence, parentDamageEventId: trigger.id }),
+            artifactStage: "after-reaction"
+          }).filter(buff => buff.stat === "em").reduce((sum, buff) => sum + (buff.value ?? 0), 0);
           expectNearlyEqual(
             context,
             [
@@ -15567,7 +15678,10 @@ function validateCrystallizeShardProjection(
               "sourceElementalMastery"
             ],
             row.sourceElementalMastery ?? Number.NaN,
-            expectedElementalMastery,
+            expectedElementalMastery + artifactEm + moonlightStatBonusAt(result, actor.id, "em", {
+              frame: row.frame, ...(trigger === undefined ? {} : { priority: trigger.eventPriority, eventSequence: trigger.eventSequence, parentDamageEventId: trigger.id }),
+              artifactStage: "after-reaction"
+            }),
             "Crystallize shard spawn-frame elemental mastery"
           );
         }
@@ -19840,6 +19954,14 @@ function validateTimelineExecutionProjection(
   };
   const expectedStateLog: TimelineState[] = [];
   const activeStates = new Map<string, ActiveTimelineState>();
+  // The explicit Stellar profile publishes every real detonation as a Cryo
+  // delivery. Reconstruct the global jump token from those audited deliveries,
+  // then consume it only at an accepted jump (not from a caller-provided state).
+  const stellarDetonations = result.resolvedRuntimeOptions.execution?.stellarSwirl === undefined ? []
+    : result.targetStateTimeline.points.filter(point => point.cause === "stellar-swirl-attachment").sort((a, b) => a.frame - b.frame);
+  let stellarDetonationIndex = 0;
+  let stellarJumpExpiry = -1;
+  let stellarAirborneActorId: string | undefined;
   const durationFrames = Math.round(result.config.duration * 60);
   let stateSequence = 0;
   const scopedStateKey = (
@@ -19967,6 +20089,12 @@ function validateTimelineExecutionProjection(
   >();
   let cursor = 0;
   let activeCharacterId = timeline.initialActiveCharacterId;
+  const runtimeCooldownActors = getRuntimeSkillCooldownActors(result.config);
+  const sourceNormals = result.config.sourceAbilityBindings?.some(binding => getSourceNormalChainMetadata(binding.sourceActionId) !== undefined) === true;
+  const sourceSwapFrames = sourceNormals ? Math.max(1, timeline.swapFrames) : timeline.swapFrames;
+  let lastAcceptedSourceAnimation: { ability: (typeof timeline.abilities)[number]; startFrame: number } | undefined;
+  const scheduledActionPhases: Array<{ frame: number; priority: number }> =
+    result.config.characters[0]?.id !== timeline.initialActiveCharacterId ? [{ frame: 0, priority: 0 }] : [];
 
   for (const [index, sourceCommand] of
     timeline.commands.entries()) {
@@ -20002,12 +20130,16 @@ function validateTimelineExecutionProjection(
           : null,
       "timeline command actor"
     );
+    const genericNormal = sourceCommand.type === "normal" && sourceCommand.sourceNormalChain === "next-v1";
+    if (genericNormal && resolveTimelineCommandAbilityId(sourceCommand, command.abilityId, result.config.sourceAbilityBindings) !== command.abilityId) {
+      addIssue(context, [...path, "abilityId"], "generic normal must resolve to a bound source segment of its actor");
+    }
     expectEqual(
       context,
       [...path, "abilityId"],
       command.abilityId,
       "abilityId" in sourceCommand
-        ? sourceCommand.abilityId
+        ? genericNormal ? command.abilityId : sourceCommand.abilityId
         : null,
       "timeline command ability"
     );
@@ -20034,17 +20166,30 @@ function validateTimelineExecutionProjection(
       );
       continue;
     }
-    const baseAttemptFrame = Math.max(cursor, requestedFrame);
+    const anchoredFrame = Math.max(cursor, requestedFrame);
+    const requestedActionFrame = anchoredFrame + (sourceCommand.type === "swap" ? sourceSwapFrames : 0);
+    const requestedActionPriority = actionEventPriority("abilityId" in sourceCommand
+      ? timeline.abilities.find(ability => ability.id === (genericNormal ? command.abilityId : sourceCommand.abilityId))
+      : sourceNormals && (sourceCommand.type === "dash" || sourceCommand.type === "jump" || sourceCommand.type === "walk") ? { actionPhase: "after-frame-tasks-v1" } : undefined);
+    const phaseOverlap = (runtimeCooldownActors.size > 0 || sourceNormals) &&
+      sourceCommand.type !== "wait" && sourceCommand.type !== "pickUpCrystallize" &&
+      scheduledActionPhases.some(action => action.frame === requestedActionFrame && action.priority > requestedActionPriority);
+    let requiredCursor = phaseOverlap ? anchoredFrame + 1 : cursor;
+    if (sourceNormals && lastAcceptedSourceAnimation && sourceCommand.type !== "wait" && sourceCommand.type !== "pickUpCrystallize") {
+      const previous = lastAcceptedSourceAnimation;
+      requiredCursor = Math.max(requiredCursor, previous.startFrame + (previous.ability.cancelFrames?.[sourceCommand.type] ?? previous.ability.cancelFrame));
+    }
+    const baseAttemptFrame = Math.max(requiredCursor, requestedFrame);
     const adjustments = adjustmentsByCommand.get(index) ?? [];
     const overlap = adjustments.find(
       (adjustment) => adjustment.code === "ACTION_OVERLAP"
     );
-    if (requestedFrame < cursor) {
+    if (requestedFrame < requiredCursor) {
       if (
         overlap === undefined ||
         overlap.requestedFrame !== requestedFrame ||
-        overlap.executedFrame !== cursor ||
-        overlap.waitedFrames !== cursor - requestedFrame
+        overlap.executedFrame !== requiredCursor ||
+        overlap.waitedFrames !== requiredCursor - requestedFrame
       ) {
         addIssue(
           context,
@@ -20063,10 +20208,18 @@ function validateTimelineExecutionProjection(
       (adjustment) =>
         adjustment.code === "ABILITY_ON_COOLDOWN"
     );
-    const expectedAttemptFrame =
-      cooldown === undefined
-        ? baseAttemptFrame
-        : cooldown.executedFrame;
+    const afterCooldownFrame = cooldown?.executedFrame ?? baseAttemptFrame;
+    const stamina = adjustments.find(adjustment => adjustment.code === "INSUFFICIENT_STAMINA");
+    const expectedAttemptFrame = stamina?.executedFrame ?? afterCooldownFrame;
+    if (stamina !== undefined && (
+      result.config.staminaModel === undefined ||
+      stamina.requestedFrame !== afterCooldownFrame ||
+      stamina.executedFrame <= afterCooldownFrame ||
+      stamina.waitedFrames !== stamina.executedFrame - afterCooldownFrame ||
+      sourceCommand.type === "wait" || sourceCommand.type === "swap" || sourceCommand.type === "pickUpCrystallize"
+    )) {
+      addIssue(context, ["timelineExecution", "adjustments"], `command ${index} has an invalid stamina adjustment`);
+    }
     if (
       cooldown !== undefined &&
       (cooldown.requestedFrame !== baseAttemptFrame ||
@@ -20077,6 +20230,7 @@ function validateTimelineExecutionProjection(
         sourceCommand.type === "swap" ||
         sourceCommand.type === "pickUpCrystallize" ||
         sourceCommand.type === "dash" ||
+        sourceCommand.type === "walk" ||
         sourceCommand.type === "jump")
     ) {
       addIssue(
@@ -20178,6 +20332,13 @@ function validateTimelineExecutionProjection(
         "accepted commands cannot own a failure"
       );
     }
+    // Source-chain movement runs after frame tasks; legacy movement keeps phase 0.
+    while (stellarDetonations[stellarDetonationIndex] !== undefined && (stellarDetonations[stellarDetonationIndex]!.frame < attemptedFrame || sourceNormals && stellarDetonations[stellarDetonationIndex]!.frame === attemptedFrame)) {
+      stellarJumpExpiry = stellarDetonations[stellarDetonationIndex++]!.frame + 300;
+    }
+    if (stellarAirborneActorId !== undefined && sourceCommand.type !== "wait" && sourceCommand.type !== "pickUpCrystallize" && sourceCommand.type !== "plunge") {
+      addIssue(context, [...path, "status"], "Stellar-Swirl airborne state only permits an accepted plunge to land");
+    }
     const expectedStatus =
       attemptedFrame > requestedFrame ? "waited" : "executed";
     expectEqual(
@@ -20225,24 +20386,33 @@ function validateTimelineExecutionProjection(
     let actionId: string;
     let actionName: string;
     let sourceAbilityId: string | undefined;
+    let actionPriority = 0;
     if (sourceCommand.type === "swap") {
-      cancelFrame = attemptedFrame + timeline.swapFrames;
+      cancelFrame = attemptedFrame + sourceSwapFrames;
       animationEndFrame = cancelFrame;
       actionFrame = cancelFrame;
       actionId = `__swap#${index}`;
       actionName = `切换至 ${sourceCommand.characterId}`;
       activeCharacterId = sourceCommand.characterId;
+      lastAcceptedSourceAnimation = undefined;
     } else if (
       sourceCommand.type === "dash" ||
+      sourceCommand.type === "walk" ||
       sourceCommand.type === "jump"
     ) {
       cancelFrame = attemptedFrame + sourceCommand.frames;
       animationEndFrame = cancelFrame;
       actionId = `__${sourceCommand.type}#${index}`;
       actionName =
-        sourceCommand.type === "dash" ? "冲刺" : "跳跃";
+        sourceCommand.type === "dash" ? "冲刺" : sourceCommand.type === "walk" ? "行走" : "跳跃";
+      if (sourceNormals) actionPriority = 8;
+      lastAcceptedSourceAnimation = undefined;
+      if (sourceCommand.type === "jump" && stellarJumpExpiry > attemptedFrame) {
+        stellarAirborneActorId = sourceCommand.actorId;
+        stellarJumpExpiry = -1;
+      }
     } else {
-      const configuredAbilityId = (
+      const configuredAbilityId = genericNormal ? command.abilityId : (
         sourceCommand as { abilityId?: string }
       ).abilityId;
       const ability = timeline.abilities.find(
@@ -20256,6 +20426,9 @@ function validateTimelineExecutionProjection(
           "accepted ability command must reference a configured ability"
         );
         continue;
+      }
+      if (ability.kind === "plunge" && !activeStates.has(scopedStateKey(ability.actorId, "airborne")) && stellarAirborneActorId !== ability.actorId) {
+        addIssue(context, [...path, "status"], "accepted plunge requires an unexpired airborne state from an earlier accepted declared action");
       }
       const nextType = timeline.commands[index + 1]?.type;
       const followup =
@@ -20275,6 +20448,8 @@ function validateTimelineExecutionProjection(
       actionId = `${ability.id}#${index}`;
       actionName = ability.name;
       sourceAbilityId = ability.id;
+      actionPriority = actionEventPriority(ability);
+      if (sourceNormals) lastAcceptedSourceAnimation = { ability, startFrame: attemptedFrame };
       acceptedAbilities.set(index, {
         actorId: ability.actorId,
         abilityId: ability.id,
@@ -20284,7 +20459,9 @@ function validateTimelineExecutionProjection(
         actionId
       });
       applyAbilityStates(ability, index, attemptedFrame);
+      if (ability.kind === "plunge" && stellarAirborneActorId === ability.actorId) stellarAirborneActorId = undefined;
     }
+    scheduledActionPhases.push({ frame: actionFrame, priority: actionPriority });
     for (const [field, expected] of [
       ["startFrame", attemptedFrame],
       ["cancelFrame", cancelFrame],
@@ -20303,6 +20480,7 @@ function validateTimelineExecutionProjection(
     if (
       sourceCommand.type === "swap" ||
       sourceCommand.type === "dash" ||
+      sourceCommand.type === "walk" ||
       sourceCommand.type === "jump"
     ) {
       expireStatesThrough(cancelFrame);
@@ -20479,7 +20657,24 @@ function validateTimelineExecutionProjection(
     }
   }
 
+  const weaponProcHits = buildWeaponProcHitLookup(result);
   for (const [index, event] of result.damageEvents.entries()) {
+    const proc = weaponProcHits.get(event.actionId);
+    if (proc !== undefined && event.kind === "direct" &&
+        event.weaponProcLogId === proc.logId && event.parentDamageEventId === proc.parent.id &&
+        event.sourceActorId === proc.actorId && event.hitId === proc.hitId &&
+        event.cycle === proc.cycle && event.frame === proc.frame &&
+        event.hitGroupId === `${proc.actionId}:${proc.cycle}:0:${proc.frame}`) {
+      // Callback-owned attacks have their own source-derived identity. Their
+      // host still passes the accepted-command checks below, and the weapon
+      // facet authenticates the complete callback, snapshot and child group.
+      for (const field of ["timelineCommandIndex", "sourceAbilityId", "actionStartFrame",
+        "actionCancelFrame", "actionAnimationEndFrame"] as const) {
+        expectEqual(context, ["damageEvents", index, field], event[field], undefined,
+          "independent weapon attacks cannot borrow accepted ability metadata");
+      }
+      continue;
+    }
     if (event.timelineCommandIndex === undefined) {
       addIssue(
         context,
@@ -20521,10 +20716,99 @@ function validateTimelineExecutionProjection(
   }
 }
 
+function validateStaminaIntegrity(result: SimulationResult, context: RefinementCtx): void {
+  const model = result.config.staminaModel;
+  const stamina = result.stamina;
+  if (model === undefined) {
+    if (stamina !== undefined) addIssue(context, ["stamina"], "requires the explicit shared stamina model");
+    return;
+  }
+  if (stamina === undefined) {
+    addIssue(context, ["stamina"], "the shared stamina model requires its resource audit");
+    return;
+  }
+  expectEqual(context, ["stamina", "profileId"], stamina.profileId, model.profileId, "stamina profile");
+  expectNearlyEqual(context, ["stamina", "initialStamina"], stamina.initialStamina, model.initialStamina, "initial stamina");
+  const timeline = result.config.timeline;
+  const execution = result.timelineExecution;
+  const durationFrames = Math.round(result.config.duration * 60);
+  const spends = new Map<number, { frame: number; amount: number; actorId: string }>();
+  for (const command of execution?.commandResults ?? []) {
+    if (command.status === "rejected" || command.startFrame === null) continue;
+    const source = timeline?.commands[command.commandIndex];
+    if (source === undefined || !("actorId" in source)) continue;
+    const cost = "abilityId" in source
+      ? timeline?.abilities.find(ability => ability.id === resolveTimelineCommandAbilityId(source, command.abilityId, result.config.sourceAbilityBindings))?.staminaCost
+      : source.staminaCost;
+    if (cost === undefined || (cost.amount === 0 && cost.consumeWhenZero !== true) || command.startFrame + cost.consumeFrame > durationFrames) continue;
+    spends.set(command.commandIndex, { frame: command.startFrame + cost.consumeFrame, amount: cost.amount, actorId: source.actorId });
+  }
+  let balance = model.initialStamina;
+  let previousFrame = -1;
+  let lastUseFrame = 0;
+  let afterLastUse = model.initialStamina;
+  for (const [index, row] of stamina.logs.entries()) {
+    const path = ["stamina", "logs", index] satisfies IssuePath;
+    expectEqual(context, [...path, "sequence"], row.sequence, index, "stamina log sequence");
+    expectNearlyEqual(context, [...path, "before"], row.before, balance, "stamina balance continuity");
+    if (row.frame < previousFrame || row.frame > durationFrames || row.startFrame > row.frame) {
+      addIssue(context, path, "stamina entries must preserve frame order inside the simulation duration");
+    }
+    if (row.operation === "spend") {
+      const expected = row.commandIndex === null ? undefined : spends.get(row.commandIndex);
+      if (expected === undefined) {
+        addIssue(context, path, "stamina spend must reference one accepted command with a configured in-duration debit");
+      } else {
+        expectEqual(context, [...path, "frame"], row.frame, expected.frame, "configured stamina debit frame");
+        expectEqual(context, [...path, "actorId"], row.actorId, expected.actorId, "configured stamina spender");
+        expectEqual(context, [...path, "startFrame"], row.startFrame, row.frame, "stamina debit start frame");
+        expectNearlyEqual(context, [...path, "after"], row.after, Math.max(0, balance - expected.amount), "configured stamina debit");
+        spends.delete(row.commandIndex!);
+      }
+      expectNearlyEqual(context, [...path, "amount"], row.amount, row.before - row.after, "actual stamina debit");
+      lastUseFrame = row.frame;
+      afterLastUse = row.after;
+    } else {
+      if (row.actorId !== null || row.commandIndex !== null || row.startFrame < lastUseFrame + 91 || row.startFrame <= previousFrame) {
+        addIssue(context, path, "recovery is an unowned interval after the strict 90-frame recovery delay");
+      }
+      expectNearlyEqual(context, [...path, "after"], row.after,
+        Math.min(240, balance + (row.frame - row.startFrame + 1) * 25 / 60), "fixed-source stamina recovery");
+      expectNearlyEqual(context, [...path, "amount"], row.amount, row.after - row.before, "actual stamina recovery");
+    }
+    balance = row.after;
+    previousFrame = row.frame;
+  }
+  if (spends.size > 0) addIssue(context, ["stamina", "logs"], "every accepted in-duration stamina debit must be logged");
+  expectNearlyEqual(context, ["stamina", "finalStamina"], stamina.finalStamina, balance, "final logged stamina");
+  expectNearlyEqual(context, ["stamina", "finalStamina"], stamina.finalStamina,
+    Math.min(240, afterLastUse + Math.max(0, durationFrames - lastUseFrame - 90) * 25 / 60), "stamina recovery through the final frame");
+}
+
 function validateMechanicsAndBoundaries(
   result: SimulationResult,
   context: RefinementCtx
 ): void {
+  if (result.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION) {
+    if (result.energyCostLog !== undefined || result.summonLog !== undefined ||
+        result.statConversionLog !== undefined || result.sourceNormalChainLog !== undefined || result.sourceNormalChainState !== undefined || result.sourceSnapshotLog !== undefined || result.playerShieldLog !== undefined || result.playerShieldState !== undefined || result.normalHitEnergyLog !== undefined || result.favoniusLog !== undefined || result.weaponProcLog !== undefined || result.weaponProcLifecycleLog !== undefined || result.thrillingTalesLog !== undefined || result.sacrificialLog !== undefined || result.skillCooldownLog !== undefined || result.artifactBuffLog !== undefined || result.artifactBuffState !== undefined || result.artifactDamageLog !== undefined || result.artifactDamageState !== undefined || result.artifactEventLog !== undefined || result.nightsoulBurstLog !== undefined || result.stamina !== undefined || result.playerHealthEvents !== undefined || result.periodicEntityLog !== undefined || result.actionConditionLog !== undefined) {
+      addIssue(context, [], "delayed energy, summon, stat conversion, stamina, action condition, weapon proc, Thrilling Tales, Sacrificial, skill cooldown and random weapon energy logs are current-only result fields");
+    }
+    for (const [index, event] of result.damageEvents.entries()) {
+      if (event.weaponProcLogId !== undefined) addIssue(context,
+        ["damageEvents", index, "weaponProcLogId"], "weapon proc provenance is a current-only damage field");
+      if (event.sourceSnapshotLogId !== undefined) addIssue(context,
+        ["damageEvents", index, "sourceSnapshotLogId"], "explicit source snapshot provenance is a current-only damage field");
+      for (const [detailIndex, detail] of event.flatDetails.entries()) if (detail.sourceSnapshotLogId !== undefined) addIssue(context,
+        ["damageEvents", index, "flatDetails", detailIndex, "sourceSnapshotLogId"], "explicit flat-source snapshot provenance is a current-only damage field");
+    }
+    for (const [index, row] of result.energyLog.entries()) if (row.artifactEventLogId !== undefined) addIssue(context,
+      ["energyLog", index, "artifactEventLogId"], "artifact energy provenance is a current-only field");
+    for (const [index, point] of result.targetStateTimeline.points.entries()) {
+      if (point.cause === "lunar-charged-consumption" || point.cause === "stellar-swirl-attachment") addIssue(context,
+        ["targetStateTimeline", "points", index, "cause"], `${point.cause} is not part of frozen result vocabularies`);
+    }
+  }
   const damageEventIds = new Set(
     result.damageEvents.map((event) => event.id)
   );
@@ -20563,7 +20847,17 @@ function validateMechanicsAndBoundaries(
     ["energyLog", result.energyLog],
     ["particleEvents", result.particleEvents],
     ["particleTriggerLog", result.particleTriggerLog],
-    ["energyCurve", result.energyCurve]
+    ["energyCurve", result.energyCurve],
+    ["weaponProcLifecycleLog", result.weaponProcLifecycleLog ?? []],
+    ["sacrificialLog", result.sacrificialLog ?? []],
+    ["skillCooldownLog", result.skillCooldownLog ?? []],
+    ["artifactDamageLog", result.artifactDamageLog ?? []],
+    ["artifactBuffLog", result.artifactBuffLog ?? []],
+    ["sourceSnapshotLog", result.sourceSnapshotLog ?? []],
+    ["sourceNormalChainLog", result.sourceNormalChainLog ?? []],
+    ["playerShieldLog", result.playerShieldLog ?? []],
+    ["artifactEventLog", result.artifactEventLog ?? []],
+    ["nightsoulBurstLog", result.nightsoulBurstLog ?? []]
   ];
   for (const [path, entries] of idLogs) {
     for (let index = 0; index < entries.length; index += 1) {
@@ -20607,11 +20901,21 @@ function validateMechanicsAndBoundaries(
   validateReactionBacklinks(result, context);
   validateSwirlBacklinks(result, context);
   validateParticleBacklinks(result, context);
-  validateParticleProvenanceIntegrity(result, context);
+  const statReplay = buildCurrentStatReplay(result);
+  validateParticleProvenanceIntegrity(result, context, statReplay === undefined
+    ? undefined
+    : (action, hitIndex, frame, timeSeconds, configuredElement) => {
+        const hit = configuredStatAction(result, action)?.hits?.[hitIndex];
+        return hit === undefined ? configuredElement :
+          resolveCurrentInfusedHit(hit, action.actorId, frame, timeSeconds, statReplay,
+            actionDescendantPriority(result, action, frame, 3)).element ??
+            configuredElement;
+      });
   validateFrozenStateProjection(result, context);
   validateCrystallizeShardProjection(result, context);
   validateBurningStateProjection(result, context);
   validateTimelineExecutionProjection(result, context);
+  if (result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION) validateStaminaIntegrity(result, context);
   const rawResult = result as unknown as Record<string, unknown>;
   const rawConfig = rawResult.config;
   const rawFreezeBrokenAttackLog = rawResult.freezeBrokenAttackLog;
@@ -20732,6 +21036,12 @@ function validateEnergy(
       entry.gainedEnergy
     );
   }
+  for (const entry of result.normalHitEnergyLog ?? []) {
+    if (entry.kind !== "damage") continue;
+    addToRecord(gainedByCharacter, entry.actorId, entry.gainedEnergy);
+    addToRecord(fixedGainedByCharacter, entry.actorId, entry.gainedEnergy);
+    addToRecord(wastedByCharacter, entry.actorId, entry.wastedEnergy);
+  }
   const spentByCharacter: Record<string, number> = {};
   for (const action of result.actionLog) {
     addToRecord(
@@ -20739,6 +21049,11 @@ function validateEnergy(
       action.actorId,
       action.energyBefore - action.energyAfter
     );
+  }
+  for (const entry of result.energyCostLog ?? []) {
+    if (entry.operation !== "debit") continue;
+    const action = result.actionLog[entry.actionLogIndex];
+    if (action !== undefined) addToRecord(spentByCharacter, action.actorId, entry.energyBefore - entry.energyAfter);
   }
   const skippedByCharacter: Record<string, number> = {};
   for (const skipped of result.skippedActions) {
@@ -21218,6 +21533,672 @@ export function validateSimulationResultV152Integrity(
   validateTargetPhaseV3Integrity(frozenTargetPhaseIdentityResult, context);
 }
 
+/** Validate the explicit special-result bridge without weakening ordinary Aura continuity. */
+export function validateLunarChargedConsumptionIntegrity(
+  result: Pick<SimulationResult, "schemaVersion" | "resolvedRuntimeOptions" | "config" | "targetStateTimeline">,
+  context: RefinementCtx
+): void {
+  const execution = result.resolvedRuntimeOptions.execution;
+  const option = execution?.lunarMixedV2 ?? execution?.lunarMixed ?? execution?.lunarCharged;
+  const mixedV2 = option?.profileId === "lunar-mixed-reference-v2";
+  const mixed = mixedV2 || option?.profileId === "lunar-mixed-reference-v1";
+  const partyActorIds = new Set(option?.party.map(member => member.actorId) ?? []);
+  const configuredActorIds = new Set(result.config.characters.map(character => character.id));
+  for (const [index, point] of result.targetStateTimeline.points.entries()) {
+    if (point.cause !== "lunar-charged-consumption") continue;
+    const path: IssuePath = ["targetStateTimeline", "points", index];
+    if (result.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION || (!mixed && option?.profileId !== "lunar-charged-reference-v1")) {
+      addIssue(context, [...path, "cause"], "Lunar-Charged consumption requires the current result and explicit lunar-charged-reference-v1, lunar-mixed-reference-v1, or lunar-mixed-reference-v2 execution profile");
+    }
+    if (mixedV2 && (result.config.reactionEngine?.mode !== "aura-v7" || result.config.targetClockModel.mode !== "disabled" || result.config.targetTaskModel.mode !== "legacy-event-heap-v1" || point.targetFrame !== undefined)) {
+      addIssue(context, path, "Mixed Lunar v2 consumption requires aura-v7, the global clock, and the legacy event heap");
+    }
+    if (point.pointKind !== "mutation" || point.eventType !== "hit" || point.eventPriority === null || (mixed ? point.eventPriority !== 2.5 : point.eventPriority < 0 && point.eventPriority !== -1) || point.eventSequence === null || point.intraEventSequence === null) {
+      addIssue(context, [...path, "eventType"], mixed
+        ? "Mixed Lunar-Charged consumption requires a queued hit event tuple at priority 2.5 and mutation kind"
+        : "Lunar-Charged consumption requires an explicit hit event tuple and mutation kind");
+    }
+    if (point.reaction !== "none" || point.reactions.length !== 0 || point.auraApplied.length !== 0 || point.primaryDamageEventId !== null || point.links.length !== 0) {
+      addIssue(context, path, "Lunar-Charged consumption cannot claim ordinary reaction, application, damage, or log ownership; the special envelope owns the event link");
+    }
+    for (const element of ["hydro", "electro"] as const) {
+      const slots = point.auraBefore.find(aura => aura.element === element)?.sourceSlots;
+      if (slots === undefined || slots.length === 0) {
+        addIssue(context, [...path, "auraBefore"], `Lunar-Charged consumption requires explicit ${element} personal Aura ownership`);
+      }
+      for (const slot of slots ?? []) {
+        if (slot.sourceActorId === null || !partyActorIds.has(slot.sourceActorId) || !configuredActorIds.has(slot.sourceActorId)) {
+          addIssue(context, [...path, "auraBefore"], `Lunar-Charged ${element} source actor must belong to the explicit configured party`);
+        }
+      }
+    }
+    // The reference profile uses the same exact personal-slot 0.4U operation
+    // as Wane; retain its rounding, deadline, and unaffected-Aura proofs.
+    const lunarContext = {
+      addIssue(issue: { path?: PropertyKey[]; message?: string }): void {
+        context.addIssue({ code: "custom", path: issue.path ?? path,
+          message: (issue.message ?? "invalid Aura consumption").replaceAll("Electro-Charged Wane", "Lunar-Charged consumption") });
+      }
+    } as unknown as RefinementCtx;
+    validateElectroChargedWaneAuraMutation(lunarContext, path, point.frame, point.targetFrame ?? null, point.auraBefore, point.auraConsumed, point.auraAfter);
+  }
+}
+
+/** Prove the source-owned Cryo feedback delivered by the explicit guide profile. */
+export function validateStellarSwirlAttachmentIntegrity(
+  result: Pick<SimulationResult, "schemaVersion" | "resolvedRuntimeOptions" | "config" | "targetStateTimeline">,
+  context: RefinementCtx
+): void {
+  const option = result.resolvedRuntimeOptions.execution?.stellarSwirl;
+  const partyActorIds = new Set(option?.party.map(member => member.actorId) ?? []);
+  const configuredActorIds = new Set(result.config.characters.map(character => character.id));
+  for (const [index, point] of result.targetStateTimeline.points.entries()) {
+    if (point.cause !== "stellar-swirl-attachment") continue;
+    const path: IssuePath = ["targetStateTimeline", "points", index];
+    if (result.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION || option?.profileId !== "stellar-swirl-guide-reference-v1") {
+      addIssue(context, [...path, "cause"], "Stellar-Swirl attachment requires the current result and explicit stellar-swirl-guide-reference-v1 execution profile");
+    }
+    if (result.config.targetClockModel.mode !== "disabled" || result.config.targetTaskModel.mode !== "legacy-event-heap-v1" || !usesCurrentAuraDurability(result.config.reactionEngine?.mode) || point.targetFrame !== undefined) {
+      addIssue(context, path, "Stellar-Swirl guide attachment requires global-clock personal Aura and the legacy event heap");
+    }
+    if (point.pointKind !== "mutation" || point.eventType !== "hit" || point.eventPriority !== 3 || point.eventSequence === null || point.intraEventSequence === null) {
+      addIssue(context, [...path, "eventType"], "Stellar-Swirl attachment requires an explicit queued hit tuple at priority 3 and mutation kind");
+    }
+    if (point.reaction !== "none" || point.reactions.length !== 0 || point.auraConsumed.length !== 0 || point.primaryDamageEventId !== null || point.links.length !== 0) {
+      addIssue(context, path, "Stellar-Swirl attachment cannot claim ordinary reaction, consumption, damage, or log ownership; the special envelope owns the event link");
+    }
+    const applied = point.auraApplied[0];
+    if (point.auraApplied.length !== 1 || applied?.element !== "cryo" || applied.gaugeUnits !== 1 || applied.sourceMutations !== undefined || applied.sourceActorId === undefined || !partyActorIds.has(applied.sourceActorId) || !configuredActorIds.has(applied.sourceActorId)) {
+      addIssue(context, [...path, "auraApplied"], "Stellar-Swirl attachment requires nominal 1U Cryo owned by an actor in the explicit configured party");
+      continue;
+    }
+    const before = point.auraBefore.find(aura => aura.element === "cryo");
+    const after = point.auraAfter.find(aura => aura.element === "cryo");
+    if (point.auraBefore.filter(aura => aura.element === "cryo").length > 1 || point.auraAfter.filter(aura => aura.element === "cryo").length !== 1 || after === undefined) {
+      addIssue(context, [...path, "auraAfter"], "Stellar-Swirl attachment must leave exactly one Cryo Aura entry");
+      continue;
+    }
+    expectAuraStateProjection(context, [...path, "auraAfter"],
+      point.auraAfter.filter(aura => aura.element !== "cryo"),
+      point.auraBefore.filter(aura => aura.element !== "cryo"),
+      "Stellar-Swirl attachment preserves unrelated Aura");
+    if (before !== undefined && (before.sourceSlots === undefined || before.sourceSlots.length === 0)) {
+      addIssue(context, [...path, "auraBefore"], "Stellar-Swirl attachment requires existing Cryo personal Aura ownership");
+      continue;
+    }
+    const expectedSlots = new Map((before?.sourceSlots ?? []).map(slot => [slot.sourceActorId, slot.gaugeUnits]));
+    expectedSlots.set(applied.sourceActorId, Math.max(expectedSlots.get(applied.sourceActorId) ?? 0, NORMAL_AURA_RATIO));
+    const sourceSlots = [...expectedSlots].sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0)
+      .map(([sourceActorId, gaugeUnits]) => ({ sourceActorId, gaugeUnits }));
+    expectAuraStateProjection(context, [...path, "auraAfter"], [after], [{
+      ...after,
+      gaugeUnits: Math.max(...expectedSlots.values()),
+      sourceSlots
+    }], "Stellar-Swirl Cryo max refill after the normal 0.8 Aura tax");
+    if (before !== undefined) {
+      validateRetainedAuraDecayDeadline(context, [...path, "auraAfter"], point.frame, null, before, after, "Stellar-Swirl attachment", true);
+    } else {
+      expectEqual(context, [...path, "auraAfter"], after.expiresAtFrame,
+        point.frame + NORMAL_AURA_BASE_DURATION_FRAMES + CURRENT_NORMAL_AURA_DURATION_PER_UNIT_FRAMES,
+        "Stellar-Swirl fresh Cryo 570-frame deadline");
+      if (after.expiresAtTargetFrame !== undefined) {
+        addIssue(context, [...path, "auraAfter"], "global-clock Stellar-Swirl attachment cannot claim a target-local deadline");
+      }
+    }
+  }
+}
+
+type ExecutedStatAction = SimulationResult["actionLog"][number];
+
+function configuredStatAction(
+  result: SimulationResult,
+  action: ExecutedStatAction
+): ActionDefinition | AbilityDefinition | undefined {
+  return action.sourceAbilityId !== undefined && result.config.timeline !== undefined
+    ? result.config.timeline.abilities.find(ability =>
+        ability.id === action.sourceAbilityId && ability.actorId === action.actorId)
+    : result.config.rotation.find(definition =>
+        definition.id === action.actionId && definition.actorId === action.actorId);
+}
+
+function configuredActionPriority(result: SimulationResult, action: ExecutedStatAction): number {
+  return actionEventPriority(configuredStatAction(result, action));
+}
+
+function actionDescendantPriority(
+  result: SimulationResult, action: ExecutedStatAction, frame: number, basePriority: number
+): number {
+  return actionChildEventPriority(configuredStatAction(result, action), frame - action.frame, basePriority);
+}
+
+interface StatReplayPoint {
+  frame: number;
+  timeSeconds: number;
+  priority: number;
+  actionOrder?: number;
+  conversionOrder?: number;
+  eventSequence?: number;
+  parentDamageEventId?: number;
+  artifactStage?: "before-reaction" | "after-reaction";
+}
+
+interface ExpectedStatConversion {
+  actionLogIndex: number;
+  conversionOrder: number;
+  priority: number;
+  actorId: string;
+  key: string;
+  frame: number;
+  timeSeconds: number;
+  expiresAtFrame: number;
+  sourceValue: number;
+  appliedValue: number;
+  snapshot: CharacterStats;
+}
+
+interface CurrentStatReplay {
+  declared: boolean;
+  actionExtensions: boolean;
+  sourceSnapshots: boolean;
+  conversions: ExpectedStatConversion[];
+  statsAt(actorId: string, point: StatReplayPoint): CharacterStats | undefined;
+  buffsAt(actorId: string, point: StatReplayPoint): ActiveStatusSnapshot[];
+  conversionAt(actorId: string, key: string, frame: number, timeSeconds: number, priority?: number): ExpectedStatConversion | undefined;
+}
+
+function runtimeBuffStatKey(result: SimulationResult, stat: string): string {
+  if (result.compatibilityMode !== "legal-frame-v1" || result.resolvedRuntimeOptions.flatStatBuffSemantics !== "canonical-v1") return stat;
+  return stat === "atkFlat" ? "flatAtk" : stat === "hpFlat" ? "flatHp" : stat === "defFlat" ? "flatDef" : stat;
+}
+
+/** No result snapshot or conversion audit value participates in this replay. */
+function buildCurrentStatReplay(result: SimulationResult): CurrentStatReplay | undefined {
+  if (result.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION) return undefined;
+  const owners = [...result.config.rotation, ...(result.config.timeline?.abilities ?? [])];
+  const declared = owners.some(owner => (owner.statConversions?.length ?? 0) > 0);
+  const actionExtensions = owners.some(owner => owner.actionPhase !== undefined || owner.conditionalHitGroups?.length);
+  const sourceSnapshots = hasExplicitSourceSnapshots(result);
+  if (!declared && !actionExtensions && !sourceSnapshots && result.config.playerShieldModel === undefined && result.config.playerMaxHpModel === undefined && result.config.weaponHitStackModel === undefined && result.config.artifactBuffModel === undefined && result.config.moonlightArtifactModel === undefined && result.config.artifactDamageModel === undefined && result.config.weaponProcModel === undefined &&
+      result.config.thrillingTalesModel === undefined &&
+      !owners.some(owner => owner.periodicEntities?.length || owner.hits?.some(hit => hit.infusion !== undefined))) {
+    return undefined;
+  }
+  const thrillingTalesReplay = replayThrillingTales(result);
+  const conversions: ExpectedStatConversion[] = [];
+  const buffs: Array<{
+    key: string; targetId: string; stat: string; value: number; sourceActorId: string; label: string;
+    start: number; frame: number; end: number; priority: number; actionOrder: number; buffOrder: number;
+  }> = [];
+  for (const [actionOrder, action] of result.actionLog.entries()) {
+    for (const [buffOrder, buff] of (configuredStatAction(result, action)?.buffs ?? []).entries()) {
+      const requestedStart = action.time +
+        ("durationFrames" in buff ? (buff.startFrame ?? 0) / 60 : buff.offset ?? 0);
+      const frame = Math.round(requestedStart * 60);
+      const start = result.compatibilityMode === "legal-frame-v1" ? frame / 60 : requestedStart;
+      const duration = "durationFrames" in buff ? buff.durationFrames / 60 : buff.duration;
+      for (const targetId of crystallizeBuffTargets(result, action.actorId, buff.target)) {
+        buffs.push({ key: `${buff.key ?? buff.stat}:${targetId}`, targetId,
+          stat: buff.stat, value: buff.value, sourceActorId: action.actorId, label: buff.label ?? buff.key ?? buff.stat,
+          start, frame, end: start + duration,
+          priority: actionDescendantPriority(result, action, frame, 1), actionOrder, buffOrder });
+      }
+    }
+  }
+  buffs.sort((left, right) => left.start - right.start || left.priority - right.priority ||
+    left.actionOrder - right.actionOrder || left.buffOrder - right.buffOrder);
+  const clockOrder = (frame: number, timeSeconds: number, point: StatReplayPoint): number =>
+    result.compatibilityMode === "legal-frame-v1"
+      ? frame - point.frame : timeSeconds - point.timeSeconds;
+  const activeConversionsAt = (actorId: string, point: StatReplayPoint) => {
+    const latest = new Map<string, ExpectedStatConversion>();
+    for (const entry of conversions) {
+      if (entry.actorId !== actorId) continue;
+      const order = clockOrder(entry.frame, entry.timeSeconds, point);
+      if (order > 0 || order === 0 && entry.priority > point.priority) continue;
+      if (order === 0 && entry.priority === point.priority && point.actionOrder !== undefined) {
+        const actionOrder = point.actionOrder ?? -1;
+        if (entry.actionLogIndex > actionOrder || entry.actionLogIndex === actionOrder &&
+            entry.conversionOrder >= (point.conversionOrder ?? Number.POSITIVE_INFINITY)) continue;
+      }
+      latest.set(entry.key, entry);
+    }
+    return [...latest.values()].filter(entry => point.frame < entry.expiresAtFrame);
+  };
+  const buffsAt = (actorId: string, point: StatReplayPoint): ActiveStatusSnapshot[] => {
+    const active = new Map<string, typeof buffs[number]>();
+    for (const buff of buffs) {
+      if (buff.targetId !== actorId) continue;
+      const order = clockOrder(buff.frame, buff.start, point);
+      // Input-time snapshots precede their own queued buffs. A late input
+      // sees the ordinary frame tasks, but its priority-11 buffs wait for it.
+      if (order > 0 || order === 0 && buff.priority >= point.priority) continue;
+      active.set(buff.key, buff);
+    }
+    return [...[...active.values()].filter(buff => buff.end > point.timeSeconds + FLOAT_TOLERANCE).map(buff => ({
+      key: buff.key, kind: "buff" as const, sourceActorId: buff.sourceActorId, targetId: buff.targetId,
+      stat: buff.stat as NonNullable<ActiveStatusSnapshot["stat"]>, value: buff.value,
+      startTimeSeconds: buff.start, endTimeSeconds: buff.end, label: buff.label
+    })), ...thrillingTalesBuffsAt(result, thrillingTalesReplay, actorId, point), ...artifactBuffsAt(result, actorId, point)];
+  };
+  const statsAt = (actorId: string, point: StatReplayPoint): CharacterStats | undefined => {
+    const actor = result.config.characters.find(character => character.id === actorId);
+    if (actor === undefined) return undefined;
+    const snapshot = { ...actor.stats } as unknown as Record<string, number>;
+    for (const buff of buffsAt(actorId, point)) {
+      const stat = runtimeBuffStatKey(result, buff.stat!);
+      snapshot[stat] = (snapshot[stat] ?? 0) + buff.value!;
+    }
+    for (const conversion of activeConversionsAt(actorId, point)) {
+      snapshot.flatAtk = (snapshot.flatAtk ?? 0) + conversion.appliedValue;
+    }
+    const weaponStacks=weaponHitStackValuesAt(result,actorId,point);
+    snapshot.atkPct=(snapshot.atkPct??0)+weaponStacks.atkPct; snapshot.defPct=(snapshot.defPct??0)+weaponStacks.defPct;
+    snapshot.critRate=(snapshot.critRate??0)+weaponStacks.critRate; snapshot.dmgBonus=(snapshot.dmgBonus??0)+weaponStacks.dmgBonus;
+    snapshot.em=(snapshot.em??0)+moonlightStatBonusAt(result,actorId,"em",point);
+    snapshot.critRate=(snapshot.critRate??0)+moonlightStatBonusAt(result,actorId,"critRate",point);
+    snapshot.critRate = clamp(snapshot.critRate!, 0, 1);
+    snapshot.defIgnore = clamp(snapshot.defIgnore!, 0, 1);
+    return snapshot as unknown as CharacterStats;
+  };
+  for (const [actionLogIndex, action] of result.actionLog.entries()) {
+    for (const [conversionOrder, conversion] of
+      (configuredStatAction(result, action)?.statConversions ?? []).entries()) {
+      const snapshot = statsAt(action.actorId, { frame: action.frame,
+        timeSeconds: action.time, priority: configuredActionPriority(result, action), actionOrder: actionLogIndex, conversionOrder });
+      if (snapshot === undefined) continue;
+      const sourceValue = totalScalingStat(snapshot, "def");
+      conversions.push({ actionLogIndex, conversionOrder, priority: configuredActionPriority(result, action), actorId: action.actorId,
+        key: conversion.key, frame: action.frame, timeSeconds: action.time,
+        expiresAtFrame: action.frame + conversion.durationFrames,
+        sourceValue, appliedValue: sourceValue * conversion.coefficient, snapshot });
+    }
+  }
+  return { declared, actionExtensions, sourceSnapshots, conversions, statsAt, buffsAt,
+    conversionAt: (actorId, key, frame, timeSeconds, priority = 3) => activeConversionsAt(actorId,
+      { frame, timeSeconds, priority }).find(entry => entry.key === key) };
+}
+
+function resolveCurrentInfusedHit<T extends ConfiguredElementalApplicationHit>(
+  hit: T,
+  sourceActorId: string,
+  frame: number,
+  timeSeconds: number,
+  replay: CurrentStatReplay | undefined,
+  priority = 3
+): T {
+  if (hit.infusion === undefined || replay === undefined) return hit;
+  if (replay.conversionAt(sourceActorId, hit.infusion.statusKey, frame, timeSeconds, priority) !== undefined) {
+    return { ...hit, element: hit.infusion.element, application: hit.infusion.application };
+  }
+  return hit;
+}
+
+function expectReplayedStats(
+  context: RefinementCtx,
+  path: IssuePath,
+  actual: CharacterStats,
+  expected: CharacterStats,
+  label: string
+): void {
+  const actualStats = actual as unknown as Record<string, number>;
+  const expectedStats = expected as unknown as Record<string, number>;
+  expectSemanticEqual(context, path, Object.keys(actualStats).sort(),
+    Object.keys(expectedStats).sort(), `${label} stat keys`);
+  for (const [stat, value] of Object.entries(expectedStats)) {
+    expectNearlyEqual(context, [...path, stat], actualStats[stat] ?? Number.NaN, value, label);
+  }
+}
+
+function validateStatConversionIntegrity(
+  result: SimulationResult,
+  context: RefinementCtx,
+  replay: CurrentStatReplay | undefined,
+  artifactFlat: ReadonlyMap<number, number> = new Map(),
+  sourceSnapshots: ReadonlyMap<string, NonNullable<SimulationResult["sourceSnapshotLog"]>[number]> = new Map()
+): void {
+  if ((result.statConversionLog !== undefined) !== (replay?.declared ?? false)) {
+    addIssue(context, ["statConversionLog"],
+      "statConversionLog must be present exactly when the current config declares stat conversions");
+  }
+  if (replay === undefined) return;
+  const rows = result.statConversionLog ?? [];
+  expectEqual(context, ["statConversionLog"], rows.length, replay.conversions.length,
+    "one conversion apply row per executed configured declaration");
+  const sequenceByAction = new Map<number, number>();
+  const actionBySequence = new Map<number, number>();
+  for (const [index, expected] of replay.conversions.entries()) {
+    const row = rows[index];
+    const path: IssuePath = ["statConversionLog", index];
+    if (row === undefined) continue;
+    for (const [field, value] of [
+      ["id", index], ["actionLogIndex", expected.actionLogIndex], ["key", expected.key],
+      ["frame", expected.frame], ["expiresAtFrame", expected.expiresAtFrame], ["eventPriority", expected.priority]
+    ] as const) expectEqual(context, [...path, field], row[field], value, `configured conversion ${field}`);
+    for (const field of ["timeSeconds", "sourceValue", "appliedValue"] as const) {
+      expectNearlyEqual(context, [...path, field], row[field], expected[field],
+        `independently replayed conversion ${field}`);
+    }
+    expectReplayedStats(context, [...path, "snapshot"], row.snapshot, expected.snapshot,
+      "conversion input-time source snapshot");
+    expectNonNegativeSafeInteger(context, [...path, "eventSequence"], row.eventSequence,
+      "conversion source action sequence");
+    const previousSequence = sequenceByAction.get(expected.actionLogIndex);
+    if (previousSequence !== undefined) {
+      expectEqual(context, [...path, "eventSequence"], row.eventSequence, previousSequence,
+        "conversions on one action share their source event sequence");
+    }
+    const previousAction = actionBySequence.get(row.eventSequence);
+    if (previousAction !== undefined && previousAction !== expected.actionLogIndex) {
+      addIssue(context, [...path, "eventSequence"], "different conversion actions cannot share a queue sequence");
+    }
+    const previous = rows[index - 1];
+    const sameClock = previous !== undefined && (result.compatibilityMode === "legal-frame-v1"
+      ? previous.frame === expected.frame : previous.timeSeconds === expected.timeSeconds);
+    if (previous !== undefined && sameClock &&
+        previous.actionLogIndex !== expected.actionLogIndex && previous.eventPriority === row.eventPriority &&
+        row.eventSequence <= previous.eventSequence) {
+      addIssue(context, [...path, "eventSequence"], "same-clock conversion actions must preserve queue sequence order");
+    }
+    const reservation = result.energyCostLog?.find(cost => cost.operation === "reserve" &&
+      cost.actionLogIndex === expected.actionLogIndex);
+    if (reservation !== undefined) expectEqual(context, [...path, "eventSequence"], row.eventSequence,
+      reservation.eventSequence, "conversion and energy reservation share their source action event");
+    sequenceByAction.set(expected.actionLogIndex, row.eventSequence);
+    actionBySequence.set(row.eventSequence, expected.actionLogIndex);
+  }
+
+  const lookup = buildConfiguredElementalApplicationHitLookup(result);
+  for (const [index, resolution] of result.hitResolutionLog.entries()) {
+    if (resolution.resolutionKind !== "direct") continue;
+    const hit = findConfiguredElementalApplicationHit(lookup, resolution);
+    if (hit?.infusion === undefined) continue;
+    const element = hit.element ?? result.config.characters.find(character =>
+      character.id === (hit.scalingOwnerId ?? resolution.sourceActorId))?.element;
+    expectEqual(context, ["hitResolutionLog", index, "element"], resolution.element,
+      element, "hit-time actor-owned infusion element or configured fallback");
+    if (hit.application === undefined) expectEqual(context,
+      ["hitResolutionLog", index, "elementalApplicationIcdLogId"],
+      resolution.elementalApplicationIcdLogId, null, "configured infusion fallback without application has no attempt");
+    if (resolution.damageEventId !== null) {
+      const event = result.damageEvents[resolution.damageEventId];
+      if (event !== undefined) expectEqual(context, ["damageEvents", event.id, "element"],
+        event.element, element, "infused damage element must follow the hit-time selector");
+    }
+  }
+  const periodicTicks = replayPeriodicEntities(result).filter(entry => entry.operation === "tick");
+  const directLookup = buildConfiguredDirectDamageHitLookup(result);
+  if (!replay.declared && !replay.actionExtensions && !replay.sourceSnapshots && result.config.weaponHitStackModel === undefined && result.config.artifactBuffModel === undefined && result.config.moonlightArtifactModel === undefined && result.config.artifactDamageModel === undefined && result.config.thrillingTalesModel === undefined && periodicTicks.length === 0 &&
+      directLookup.weaponProcHits.size === 0) return;
+  const thrillingTalesReplay = replayThrillingTales(result);
+  const hasDamagePlugin = result.runManifest.pluginCapabilities.includes("damage-modifier");
+  for (const event of result.damageEvents) {
+    if (event.kind !== "direct") continue;
+    const hit = findConfiguredDirectDamageHit(directLookup, event);
+    if (hit === undefined) continue;
+    const actionLogIndex = result.actionLog.findIndex(action => action.actorId === event.sourceActorId &&
+      action.actionId === event.actionId && action.cycle === event.cycle &&
+      action.timelineCommandIndex === event.timelineCommandIndex);
+    const action = result.actionLog[actionLogIndex];
+    const proc = directLookup.weaponProcHits.get(event.actionId);
+    if (action === undefined && proc === undefined) {
+      addIssue(context, ["damageEvents", event.id, "actionId"],
+        "conversion-aware direct stats require an executed configured action owner");
+      continue;
+    }
+    const periodicTick = periodicTicks.find(tick => tick.actionLogIndex === actionLogIndex &&
+      tick.frame + tick.definition.hitDelayFrames === event.frame && tick.definition.hitIds.includes(event.hitId));
+    if (!replay.declared && !replay.actionExtensions && !replay.sourceSnapshots && result.config.weaponHitStackModel === undefined && result.config.artifactBuffModel === undefined && result.config.moonlightArtifactModel === undefined && result.config.artifactDamageModel === undefined && result.config.thrillingTalesModel === undefined &&
+        periodicTick === undefined && proc === undefined) continue;
+    const definition = action === undefined ? undefined : configuredStatAction(result, action);
+    const summon = definition?.summons?.find(candidate => candidate.hitIds.includes(event.hitId));
+    const expectedMode = hit.snapshot ?? "hit";
+    expectEqual(context, ["damageEvents", event.id, "snapshot"], event.snapshot, expectedMode,
+      "configured direct stat snapshot mode");
+    const explicitPoint = (ownerId: string, relativeFrame: number, actualId: number | undefined, path: IssuePath): StatReplayPoint => {
+      const row = sourceSnapshots.get(sourceSnapshotKey(actionLogIndex, ownerId, relativeFrame));
+      expectEqual(context, path, actualId, row?.id, "configured explicit source snapshot backlink");
+      if (row === undefined || row.status !== "sampled") addIssue(context, path,
+        "damage requires its executed configured source snapshot");
+      return sourceSnapshotReplayPoint(result, { actionLogIndex, actionId: action!.actionId,
+        sourceActorId: action!.actorId, ownerId, cycle: action!.cycle, relativeFrame,
+        frame: action!.frame + relativeFrame, timeSeconds: (action!.frame + relativeFrame) / 60 });
+    };
+    const scalingOwnerId = hit.scalingOwnerId ?? proc?.actorId ?? action!.actorId;
+    if (hit.snapshotFrame === undefined && event.sourceSnapshotLogId !== undefined) addIssue(context,
+      ["damageEvents", event.id, "sourceSnapshotLogId"], "a main snapshot backlink requires an explicit configured main snapshot frame");
+    const point: StatReplayPoint = hit.snapshotFrame !== undefined && action !== undefined
+      ? explicitPoint(scalingOwnerId, hit.snapshotFrame, event.sourceSnapshotLogId, ["damageEvents", event.id, "sourceSnapshotLogId"])
+      : proc !== undefined
+      ? { frame: proc.snapshotFrame, timeSeconds: proc.snapshotTimeSeconds, priority: proc.snapshotPriority, eventSequence: proc.snapshotEventSequence ?? proc.callbackEventSequence ?? proc.parent.eventSequence, artifactStage: "after-reaction" }
+      : summon !== undefined
+        ? { frame: action!.frame + summon.spawnFrame,
+            timeSeconds: (action!.frame + summon.spawnFrame) / 60,
+            priority: actionDescendantPriority(result, action!, action!.frame + summon.spawnFrame, 2) }
+        : expectedMode === "action" && periodicTick !== undefined
+          ? { frame: periodicTick.frame, timeSeconds: periodicTick.frame / 60, priority: periodicTick.eventPriority }
+          : expectedMode === "action"
+            ? { frame: action!.frame, timeSeconds: action!.time,
+                priority: configuredActionPriority(result, action!), actionOrder: actionLogIndex }
+            : { frame: event.frame, timeSeconds: event.timeSeconds, priority: event.eventPriority, eventSequence: event.eventSequence, artifactStage: "before-reaction" };
+    expectEqual(context, ["damageEvents", event.id, "scalingOwnerId"], event.scalingOwnerId,
+      scalingOwnerId, "configured conversion-aware scaling owner");
+    if (result.config.thrillingTalesModel !== undefined) {
+      expectSemanticEqual(context, ["damageEvents", event.id, "activeStatuses"],
+        event.activeStatuses.filter(status => status.kind === "buff" && status.key === `ttds:${scalingOwnerId}`),
+        thrillingTalesBuffsAt(result, thrillingTalesReplay, scalingOwnerId, point),
+        "Thrilling Tales labels must describe the actual source-owned stat snapshot");
+    }
+    if (hit.snapshotFrame !== undefined) {
+      const canonicalBuffs = (buffs: ActiveStatusSnapshot[]) => buffs.map(buff => canonicalStringify(buff)).sort();
+      expectSemanticEqual(context, ["damageEvents", event.id, "activeStatuses"],
+        canonicalBuffs(event.activeStatuses.filter(status => status.kind === "buff")),
+        canonicalBuffs(replay.buffsAt(scalingOwnerId, point)), "explicit main snapshot buff labels");
+      if (!hasDamagePlugin) {
+        const amplifying = ["melt", "reverseMelt", "vaporize", "reverseVaporize"].includes(event.reaction);
+        const reactionStats = replay.statsAt(amplifying ? event.sourceActorId : scalingOwnerId, point);
+        if (reactionStats !== undefined) expectNearlyEqual(context, ["damageEvents", event.id, "em"], event.em,
+          reactionStats.em, "explicit source snapshot elemental mastery");
+        if (amplifying) {
+          const liveStats = replay.statsAt(event.sourceActorId, { frame: event.frame, timeSeconds: event.timeSeconds, priority: event.eventPriority, eventSequence: event.eventSequence, parentDamageEventId: event.id, artifactStage: "after-reaction" });
+          if (liveStats !== undefined) expectNearlyEqual(context, ["damageEvents", event.id, "damageFactors", "reactionBonus"],
+            event.damageFactors.reactionBonus, liveStats.reactionBonus + (hit.reactionBonus ?? 0), "amplifying bonus retains its live source clock");
+        }
+      }
+    }
+    const expectedStats = replay.statsAt(scalingOwnerId, point);
+    if (expectedStats !== undefined) expectReplayedStats(context,
+      ["damageEvents", event.id, "statsBeforeDamage"], event.statsBeforeDamage, expectedStats,
+      "source-owned direct stat snapshot with conversions");
+    if (result.config.artifactBuffModel !== undefined && event.additiveReactionFactors !== null) {
+      const liveStats = replay.statsAt(event.additiveReactionFactors.sourceActorId, { frame: event.frame, timeSeconds: event.timeSeconds,
+        priority: event.eventPriority, eventSequence: event.eventSequence, parentDamageEventId: event.id, artifactStage: "after-reaction" });
+      if (liveStats !== undefined) expectNearlyEqual(context, ["damageEvents", event.id, "additiveReactionFactors", "elementalMastery"],
+        event.additiveReactionFactors.elementalMastery, liveStats.em, "additive reaction uses actual post-reaction live EM, not the attack snapshot");
+    }
+    const flatSources = hit.flatSources ?? [];
+    let ordinaryFlatDamage = hit.flat ?? 0;
+    expectEqual(context, ["damageEvents", event.id, "flatDetails"], event.flatDetails.length,
+      flatSources.length, "configured flat-source contribution count");
+    for (const [sourceIndex, source] of flatSources.entries()) {
+      const detail = event.flatDetails[sourceIndex];
+      if (detail === undefined) continue;
+      const ownerId = source.ownerId ?? scalingOwnerId;
+      const explicitFlatFrame = source.snapshotFrame ?? hit.snapshotFrame;
+      if (explicitFlatFrame === undefined && detail.sourceSnapshotLogId !== undefined) addIssue(context,
+        ["damageEvents", event.id, "flatDetails", sourceIndex, "sourceSnapshotLogId"], "a flat-source snapshot backlink requires its own or the main explicit snapshot frame");
+      const flatPoint: StatReplayPoint = explicitFlatFrame !== undefined && action !== undefined
+        ? explicitPoint(ownerId, explicitFlatFrame, detail.sourceSnapshotLogId,
+            ["damageEvents", event.id, "flatDetails", sourceIndex, "sourceSnapshotLogId"])
+        : periodicTick === undefined ? point :
+          { frame: periodicTick.frame, timeSeconds: periodicTick.frame / 60,
+            priority: actionDescendantPriority(result, action!, periodicTick.frame, 2) };
+      const stats = replay.statsAt(ownerId, flatPoint);
+      if (stats === undefined) continue;
+      const stat = source.stat ?? "atk";
+      const sourceValue = totalScalingStat(stats, stat);
+      ordinaryFlatDamage += sourceValue * source.multiplier;
+      const path: IssuePath = ["damageEvents", event.id, "flatDetails", sourceIndex];
+      expectEqual(context, [...path, "ownerId"], detail.ownerId, ownerId, "configured flat-source owner");
+      expectEqual(context, [...path, "stat"], detail.stat, stat, "configured flat-source stat");
+      expectNearlyEqual(context, [...path, "multiplier"], detail.multiplier, source.multiplier,
+        "configured flat-source multiplier");
+      expectNearlyEqual(context, [...path, "sourceValue"], detail.sourceValue, sourceValue,
+        "independently replayed flat-source value");
+      expectNearlyEqual(context, [...path, "amount"], detail.amount, sourceValue * source.multiplier,
+        "independently replayed flat-source amount");
+    }
+    if (!hasDamagePlugin) {
+      const path: IssuePath = ["damageEvents", event.id, "damageFactors"];
+      expectEqual(context, [...path, "scalingStat"], event.damageFactors.scalingStat,
+        hit.scalingStat ?? "atk", "configured conversion-aware scaling stat");
+      expectNearlyEqual(context, [...path, "scaling"], event.damageFactors.scaling,
+        hit.scaling, "configured conversion-aware scaling multiplier");
+      expectNearlyEqual(context, [...path, "flatDamage"], event.damageFactors.flatDamage,
+        ordinaryFlatDamage + (artifactFlat.get(event.id) ?? 0) + (event.additiveReactionFactors?.appliedFlatDamage ?? 0),
+        "independently replayed direct flat contributions plus audited additive reaction");
+    }
+  }
+  if (result.config.artifactBuffModel !== undefined && !hasDamagePlugin) for (const event of result.damageEvents) {
+    const factors = event.transformativeReactionFactors;
+    if (factors === null) continue;
+    const reaction = result.reactionDamageLog.find(row => row.damageEventIds.includes(event.id));
+    if (reaction === undefined) continue;
+    const core = reaction.scheduleKind.startsWith("dendro-core-");
+    const parentId = reaction.triggerDamageEventId ?? (reaction.sourceCoreLogId === null ? null : result.dendroCoreLog[reaction.sourceCoreLogId]?.originDamageEventId ?? null);
+    const parent = parentId === null ? undefined : result.damageEvents[parentId];
+    if (!core && !["one-shot", "swirl-self", "swirl-propagation"].includes(reaction.scheduleKind)) continue;
+    if (!core && parent === undefined) continue;
+    const sample: StatReplayPoint = core
+      ? { frame: event.frame, timeSeconds: event.timeSeconds, priority: event.eventPriority, eventSequence: event.eventSequence, artifactStage: "before-reaction" }
+      : { frame: parent!.frame, timeSeconds: parent!.timeSeconds, priority: parent!.eventPriority, eventSequence: parent!.eventSequence, parentDamageEventId: parent!.id, artifactStage: "after-reaction" };
+    const sourceStats = replay.statsAt(event.sourceActorId, sample);
+    if (sourceStats === undefined) continue;
+    expectNearlyEqual(context, ["damageEvents", event.id, "transformativeReactionFactors", "elementalMastery"], factors.elementalMastery,
+      sourceStats.em, "reaction attack uses its actual creation/live core-delivery EM clock");
+    const hit = parent === undefined ? undefined : findConfiguredDirectDamageHit(directLookup, parent);
+    // A nested reaction retains its already verified hit-local delta; direct
+    // source declarations and core origins give that delta without using the
+    // newly generated reaction output as its own proof.
+    if (hit !== undefined || parent === undefined) expectNearlyEqual(context,
+      ["damageEvents", event.id, "transformativeReactionFactors", "reactionBonus"], factors.reactionBonus,
+      sourceStats.reactionBonus + (hit?.reactionBonus ?? 0) + (core ? artifactReactionBonusAt(result, event.sourceActorId, factors.reaction, sample) : 0),
+      "ordinary reaction bonus includes the independently replayed Paradise window exactly once");
+  }
+}
+
+/** Fixed-lifetime summons replay their declarations and the spawn-time owner buffs. */
+function validateSummonIntegrity(
+  result: SimulationResult,
+  context: RefinementCtx,
+  statReplay?: CurrentStatReplay
+): void {
+  const declared = result.config.rotation.some(action => (action.summons?.length ?? 0) > 0) ||
+    (result.config.timeline?.abilities.some(ability => (ability.summons?.length ?? 0) > 0) ?? false);
+  if ((result.summonLog !== undefined) !== declared) {
+    addIssue(context, ["summonLog"], "summonLog must be present exactly when the current config declares summons");
+  }
+  if (!declared && result.summonLog === undefined) return;
+  const definitionFor = (action: SimulationResult["actionLog"][number]) =>
+    action.sourceAbilityId !== undefined && result.config.timeline !== undefined
+      ? result.config.timeline.abilities.find(ability => ability.id === action.sourceAbilityId && ability.actorId === action.actorId)
+      : result.config.rotation.find(definition => definition.id === action.actionId && definition.actorId === action.actorId);
+  type ExpectedSummon = { action: SimulationResult["actionLog"][number]; summon: NonNullable<SimulationResult["config"]["rotation"][number]["summons"]>[number]; spawnFrame: number; expiresAtFrame: number; attackFrame: number };
+  const expectedByInstance = new Map<string, ExpectedSummon>();
+  const endFrame = Math.round(result.config.duration * 60);
+  for (const action of result.actionLog) {
+    for (const summon of definitionFor(action)?.summons ?? []) {
+      const spawnFrame = action.frame + summon.spawnFrame;
+      if (spawnFrame > endFrame) continue;
+      expectedByInstance.set(`${action.actionId}:${action.cycle}:${summon.id}:${action.frame}`, {
+        action, summon, spawnFrame, expiresAtFrame: spawnFrame + summon.lifetimeFrames,
+        attackFrame: spawnFrame + summon.lifetimeFrames + summon.expiryAttackDelayFrames
+      });
+    }
+  }
+  const snapshotAt = (actorId: string, frame: number, priority: number): Record<string, number> | undefined => {
+    if (statReplay !== undefined) return statReplay.statsAt(actorId,
+      { frame, timeSeconds: frame / 60, priority }) as unknown as Record<string, number> | undefined;
+    const actor = result.config.characters.find(character => character.id === actorId);
+    if (actor === undefined) return undefined;
+    const events: Array<{ key: string; stat: string; value: number; start: number; end: number; actionOrder: number; buffOrder: number }> = [];
+    for (const [actionOrder, action] of result.actionLog.entries()) {
+      const definition = definitionFor(action);
+      for (const [buffOrder, buff] of (definition?.buffs ?? []).entries()) {
+        if (!crystallizeBuffTargets(result, action.actorId, buff.target).includes(actorId)) continue;
+        const start = action.time + ("durationFrames" in buff ? (buff.startFrame ?? 0) / 60 : buff.offset ?? 0);
+        const duration = "durationFrames" in buff ? buff.durationFrames / 60 : buff.duration;
+        events.push({ key: buff.key ?? buff.stat, stat: buff.stat, value: buff.value, start, end: start + duration, actionOrder, buffOrder });
+      }
+    }
+    events.sort((left, right) => left.start - right.start || left.actionOrder - right.actionOrder || left.buffOrder - right.buffOrder);
+    const active = new Map<string, typeof events[number]>();
+    for (const event of events) if (event.start <= frame / 60 + FLOAT_TOLERANCE) active.set(event.key, event);
+    const snapshot = { ...actor.stats } as unknown as Record<string, number>;
+    for (const event of active.values()) if (event.end > frame / 60 + FLOAT_TOLERANCE) {
+      const stat = runtimeBuffStatKey(result, event.stat);
+      snapshot[stat] = (snapshot[stat] ?? 0) + event.value;
+    }
+    snapshot.critRate = clamp(snapshot.critRate!, 0, 1);
+    snapshot.defIgnore = clamp(snapshot.defIgnore!, 0, 1);
+    return snapshot;
+  };
+  const spawnByInstance = new Map<string, NonNullable<SimulationResult["summonLog"]>[number]>();
+  const counts = new Map<string, number>();
+  let previous: NonNullable<SimulationResult["summonLog"]>[number] | undefined;
+  for (const [index, row] of (result.summonLog ?? []).entries()) {
+    const path: IssuePath = ["summonLog", index];
+    const expected = expectedByInstance.get(row.instanceId);
+    expectEqual(context, [...path, "id"], row.id, index, "summon lifecycle contiguous ID");
+    if (expected === undefined) {
+      addIssue(context, [...path, "instanceId"], "summon lifecycle must belong to an executed configured action");
+      continue;
+    }
+    const key = `${row.instanceId}:${row.operation}`;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+    for (const [field, value] of [
+      ["summonId", expected.summon.id], ["actorId", expected.action.actorId], ["actionId", expected.action.actionId],
+      ["cycle", expected.action.cycle], ["spawnFrame", expected.spawnFrame], ["expiresAtFrame", expected.expiresAtFrame],
+      ["attackFrame", expected.attackFrame], ["snapshotFrame", expected.spawnFrame],
+      ["eventPriority", actionDescendantPriority(result, expected.action, row.frame, 2)],
+      ["frame", row.operation === "spawn" ? expected.spawnFrame : expected.expiresAtFrame]
+    ] as const) expectEqual(context, [...path, field], row[field], value, `configured summon ${field}`);
+    expectNearlyEqual(context, [...path, "timeSeconds"], row.timeSeconds, row.frame / 60, "summon lifecycle time");
+    expectSemanticEqual(context, [...path, "hitIds"], row.hitIds, expected.summon.hitIds, "summon owned hit IDs");
+    if (row.frame > endFrame || !Number.isInteger(row.eventSequence) || row.eventSequence < 0 ||
+        previous !== undefined && (row.frame < previous.frame || row.frame === previous.frame &&
+          (row.eventPriority < previous.eventPriority || row.eventPriority === previous.eventPriority && row.eventSequence <= previous.eventSequence))) {
+      addIssue(context, [...path, "eventSequence"], "summon lifecycle requires in-range ordered real event tuples");
+    }
+    previous = row;
+    if (row.operation === "spawn") {
+      spawnByInstance.set(row.instanceId, row);
+      const snapshot = snapshotAt(row.actorId, row.spawnFrame,
+        actionDescendantPriority(result, expected.action, row.spawnFrame, 2));
+      if (snapshot !== undefined) {
+        const actual = row.snapshot as unknown as Record<string, number>;
+        expectSemanticEqual(context, [...path, "snapshot"], Object.keys(actual).sort(), Object.keys(snapshot).sort(), "summon snapshot stat keys");
+        for (const [stat, value] of Object.entries(snapshot)) expectNearlyEqual(context, [...path, "snapshot", stat], actual[stat] ?? Number.NaN, value, "source-owned summon spawn snapshot");
+      }
+    } else {
+      const spawn = spawnByInstance.get(row.instanceId);
+      if (spawn === undefined || row.eventSequence <= spawn.eventSequence) addIssue(context, path, "summon expiry must follow its actual spawn event");
+      else expectSemanticEqual(context, [...path, "snapshot"], row.snapshot, spawn.snapshot, "summon retained spawn snapshot");
+    }
+  }
+  for (const [instanceId, expected] of expectedByInstance) {
+    for (const operation of ["spawn", "expire"] as const) {
+      const expectedCount = operation === "spawn" || expected.expiresAtFrame <= endFrame ? 1 : 0;
+      expectEqual(context, ["summonLog"], counts.get(`${instanceId}:${operation}`) ?? 0, expectedCount, `summon ${instanceId} ${operation} cardinality`);
+    }
+    const spawn = spawnByInstance.get(instanceId);
+    for (const event of result.damageEvents) {
+      if (event.kind !== "direct" || event.actionId !== expected.action.actionId || event.cycle !== expected.action.cycle || !expected.summon.hitIds.includes(event.hitId)) continue;
+      expectEqual(context, ["damageEvents", event.id, "frame"], event.frame, expected.attackFrame, "summon expiry attack frame");
+      if (spawn !== undefined && event.scalingOwnerId === expected.action.actorId) expectSemanticEqual(context, ["damageEvents", event.id, "statsBeforeDamage"], event.statsBeforeDamage, spawn.snapshot, "summon attack spawn-time owner snapshot");
+    }
+  }
+}
+
 /**
  * Cross-field proof for exact 1.53 results. The inherited mechanics remain
  * authoritative while the eighth root binds deterministic callback registry
@@ -21227,6 +22208,43 @@ export function validateSimulationResultV153Integrity(
   result: SimulationResultForV153,
   context: RefinementCtx
 ): void {
+  validateSimulationExecutionAudit(result, context);
+  validateLunarChargedConsumptionIntegrity(result, context);
+  validateStellarSwirlAttachmentIntegrity(result, context);
+  validateTargetHealthIntegrity(result, context);
+  validateThrillingTalesIntegrity(result, context);
+  validateSacrificialIntegrity(result, context);
+  validateArtifactEventIntegrity(result, context);
+  validateWeaponHitStackIntegrity(result, context);
+  validateArtifactBuffIntegrity(result, context);
+  validateMoonlightArtifactIntegrity(result, context);
+  validateSourceNormalChainIntegrity(result, context);
+  const statReplay = buildCurrentStatReplay(result);
+  const shieldHitLookup = result.config.enemyShieldModel === undefined ? undefined : buildConfiguredElementalApplicationHitLookup(result);
+  validateEnemyShieldIntegrity(result, context, event => {
+    const resolution = result.hitResolutionLog[event.targetResolutionId];
+    return shieldHitLookup === undefined || resolution === undefined ? undefined : findConfiguredElementalApplicationHit(shieldHitLookup, resolution);
+  });
+  const artifactFlat = validateArtifactDamageIntegrity(result, context, (actorId, point) => statReplay?.statsAt(actorId, point));
+  const sourceSnapshots = validateSourceSnapshotIntegrity(result, context,
+    (actorId, point) => statReplay?.statsAt(actorId, point),
+    (actorId, point) => statReplay?.buffsAt(actorId, point) ?? []);
+  if (!hasExplicitSourceSnapshots(result)) for (const event of result.damageEvents) {
+    if (event.sourceSnapshotLogId !== undefined) addIssue(context, ["damageEvents", event.id, "sourceSnapshotLogId"],
+      "source snapshot provenance requires an explicit configured snapshot frame");
+    for (const [index, detail] of event.flatDetails.entries()) if (detail.sourceSnapshotLogId !== undefined) addIssue(context,
+      ["damageEvents", event.id, "flatDetails", index, "sourceSnapshotLogId"], "flat snapshot provenance requires an explicit configured snapshot frame");
+  }
+  validatePlayerMaxHpIntegrity(result, context);
+  validateWeaponProcIntegrity(result, context, (actorId, point) =>
+    statReplay?.statsAt(actorId, { ...point, priority: point.priority ?? 3 }));
+  const periodicHealing = validatePeriodicEntityIntegrity(result, context, (actorId, frame, priority = 2) =>
+    statReplay?.statsAt(actorId, { frame, timeSeconds: frame / 60, priority }));
+  validatePlayerHealthIntegrity(result, context, periodicHealing);
+  validatePlayerShieldIntegrity(result, context, (actorId, point) => statReplay?.statsAt(actorId, point));
+  validateActionConditionIntegrity(result, context);
+  validateStatConversionIntegrity(result, context, statReplay, artifactFlat, sourceSnapshots);
+  validateSummonIntegrity(result, context, statReplay);
   const {
     reactionOwnedPolicy,
     reactionDamageGroupPolicy,

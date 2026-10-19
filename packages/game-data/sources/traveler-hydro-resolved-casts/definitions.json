@@ -1,0 +1,381 @@
+{
+  "schemaVersion": 1,
+  "protocol": "observed-hydro-suffusion-v1",
+  "templates": [
+    {
+      "skillId": "traveler-hydro-resolved-aether-hold-c0",
+      "characterSlug": "aether",
+      "talentSetId": "talent-set:travelerhydro",
+      "variantId": "aether-hydro",
+      "variantName": "水元素旅行者（空）",
+      "label": "水纹剑·充盈长按完整观察（C0·跨源裁决）",
+      "protocol": "observed-hydro-suffusion-v1",
+      "roles": {
+        "dew": {
+          "mappingId": "traveler-hydro-resolved-aether-hold-c0-dew",
+          "label": "露滴",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "values": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceValues": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+            "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/travelerhydro.json",
+            "https://github.com/KQM-git/TCL/blob/3b228d151a7f9d1daeb7b6f10e4f780ec1089b51/docs/evidence/characters/hydro/traveler-hydro.md"
+          ]
+        },
+        "torrent": {
+          "mappingId": "traveler-hydro-resolved-aether-hold-c0-torrent",
+          "label": "结束喷发激流",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "values": [
+            1.8928,
+            2.03476,
+            2.17672,
+            2.366,
+            2.50796,
+            2.64992,
+            2.8392,
+            3.02848,
+            3.21776,
+            3.40704,
+            3.59632,
+            3.7856,
+            4.0222,
+            4.2588,
+            4.4954
+          ],
+          "sourceValues": [
+            1.8928,
+            2.03476,
+            2.17672,
+            2.366,
+            2.50796,
+            2.64992,
+            2.8392,
+            3.02848,
+            3.21776,
+            3.40704,
+            3.59632,
+            3.7856,
+            4.0222,
+            4.2588,
+            4.4954
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+            "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/travelerhydro.json",
+            "https://github.com/KQM-git/TCL/blob/3b228d151a7f9d1daeb7b6f10e4f780ec1089b51/docs/evidence/characters/hydro/traveler-hydro.md"
+          ]
+        },
+        "thorn": {
+          "mappingId": "traveler-hydro-resolved-aether-hold-c0-thorn",
+          "label": "灵息之刺",
+          "abilityKey": "combat2",
+          "parameterKey": "param3",
+          "values": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceValues": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+            "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/travelerhydro.json",
+            "https://github.com/KQM-git/TCL/blob/3b228d151a7f9d1daeb7b6f10e4f780ec1089b51/docs/evidence/characters/hydro/traveler-hydro.md"
+          ]
+        }
+      },
+      "suffusionBonusValues": [
+        0.0064,
+        0.00688,
+        0.00736,
+        0.008,
+        0.00848,
+        0.00896,
+        0.0096,
+        0.01024,
+        0.01088,
+        0.01152,
+        0.01216,
+        0.0128,
+        0.0136,
+        0.0144,
+        0.0152
+      ],
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "assumptions": [
+        "生命事件和发射／命中顺序取实际完整观察，不采纳旧gcsim有冲突的自动扣血日程。",
+        "真月剧情增益关闭；角色、装备、反应与历史进攻面板保留可编辑，未知实际顺序阻塞。"
+      ]
+    },
+    {
+      "skillId": "traveler-hydro-resolved-lumine-hold-c0",
+      "characterSlug": "lumine",
+      "talentSetId": "talent-set:travelerhydro",
+      "variantId": "lumine-hydro",
+      "variantName": "水元素旅行者（荧）",
+      "label": "水纹剑·充盈长按完整观察（C0·跨源裁决）",
+      "protocol": "observed-hydro-suffusion-v1",
+      "roles": {
+        "dew": {
+          "mappingId": "traveler-hydro-resolved-lumine-hold-c0-dew",
+          "label": "露滴",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "values": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceValues": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+            "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/travelerhydro.json",
+            "https://github.com/KQM-git/TCL/blob/3b228d151a7f9d1daeb7b6f10e4f780ec1089b51/docs/evidence/characters/hydro/traveler-hydro.md"
+          ]
+        },
+        "torrent": {
+          "mappingId": "traveler-hydro-resolved-lumine-hold-c0-torrent",
+          "label": "结束喷发激流",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "values": [
+            1.8928,
+            2.03476,
+            2.17672,
+            2.366,
+            2.50796,
+            2.64992,
+            2.8392,
+            3.02848,
+            3.21776,
+            3.40704,
+            3.59632,
+            3.7856,
+            4.0222,
+            4.2588,
+            4.4954
+          ],
+          "sourceValues": [
+            1.8928,
+            2.03476,
+            2.17672,
+            2.366,
+            2.50796,
+            2.64992,
+            2.8392,
+            3.02848,
+            3.21776,
+            3.40704,
+            3.59632,
+            3.7856,
+            4.0222,
+            4.2588,
+            4.4954
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+            "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/travelerhydro.json",
+            "https://github.com/KQM-git/TCL/blob/3b228d151a7f9d1daeb7b6f10e4f780ec1089b51/docs/evidence/characters/hydro/traveler-hydro.md"
+          ]
+        },
+        "thorn": {
+          "mappingId": "traveler-hydro-resolved-lumine-hold-c0-thorn",
+          "label": "灵息之刺",
+          "abilityKey": "combat2",
+          "parameterKey": "param3",
+          "values": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceValues": [
+            0.328,
+            0.3526,
+            0.3772,
+            0.41,
+            0.4346,
+            0.4592,
+            0.492,
+            0.5248,
+            0.5576,
+            0.5904,
+            0.6232,
+            0.656,
+            0.697,
+            0.738,
+            0.779
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+            "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/travelerhydro.json",
+            "https://github.com/KQM-git/TCL/blob/3b228d151a7f9d1daeb7b6f10e4f780ec1089b51/docs/evidence/characters/hydro/traveler-hydro.md"
+          ]
+        }
+      },
+      "suffusionBonusValues": [
+        0.0064,
+        0.00688,
+        0.00736,
+        0.008,
+        0.00848,
+        0.00896,
+        0.0096,
+        0.01024,
+        0.01088,
+        0.01152,
+        0.01216,
+        0.0128,
+        0.0136,
+        0.0144,
+        0.0152
+      ],
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "assumptions": [
+        "生命事件和发射／命中顺序取实际完整观察，不采纳旧gcsim有冲突的自动扣血日程。",
+        "真月剧情增益关闭；角色、装备、反应与历史进攻面板保留可编辑，未知实际顺序阻塞。"
+      ]
+    }
+  ],
+  "rules": {
+    "hpCostRatio": 0.04,
+    "hpThreshold": 0.5,
+    "a4Ratio": 0.45,
+    "a4Cap": 5000,
+    "maximumDewdrops": 22
+  },
+  "conflicts": [
+    {
+      "field": "suffusion consumption basis",
+      "old": "0.04*CurrentHP()",
+      "chosen": "0.04*actual MaxHP at the recorded consumption event",
+      "authority": "Optimizer hydro.tsx suffusion_hpCost and game talent param5 label"
+    },
+    {
+      "field": "A4 ownership and ordering",
+      "old": "torrentSurge reads and clears a4Bonus at cast call, before future dew callbacks",
+      "chosen": "45% of this cast Suffusion amounts strictly before the recorded release point, capped5000",
+      "authority": "game passive2 description; Optimizer a4HpConsumed_surge_dmgInc"
+    },
+    {
+      "field": "dewdrop flat damage qualification",
+      "old": "skillLosingHP sets FlatDmg only on drain-ICD success",
+      "chosen": "every independently observed dewdrop whose actual HP qualification read exceeds50%",
+      "authority": "game combat2 description; Optimizer suffusion_dewdrop_dmgInc independent condition"
+    },
+    {
+      "field": "automatic consume/projectile order",
+      "old": "54+travel+15*i callbacks; Torrent57+15*(n-1); 54frame drain status",
+      "chosen": null,
+      "remaining": "First drain time, exact same-frame HP read/consumption order and travel relation have not been independently measured here. Explicit observations are required; no automatic corrected cadence is claimed."
+    }
+  ]
+}

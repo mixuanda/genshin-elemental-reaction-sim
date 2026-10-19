@@ -1,0 +1,41 @@
+{
+  "scenes": [
+    {
+      "profile": "linnea-lumi",
+      "coverage": "complete-cast",
+      "originalExpected": 3913.3773424390247,
+      "editedExpected": 4010.5293424390247,
+      "exportedRestoredExpected": 4010.5293424390247,
+      "absoluteRoundtripDifference": 0,
+      "missingComponentStatus": "blocked",
+      "missingComponentKnownSubtotal": {
+        "nonCritical": 1704.435512195122,
+        "critical": 3749.758126829269,
+        "expected": 3136.161342439025
+      },
+      "reattachedExpected": 4010.5293424390247,
+      "missTraceVisible": true,
+      "observedTraceVisible": true,
+      "provenance": "Catalog-source formulas with explicit editable teaching panels and observations; not in-game verification."
+    },
+    {
+      "profile": "sandrone-fagio-window",
+      "coverage": "complete-observed-window",
+      "originalExpected": 7724.315187692308,
+      "editedExpected": 7825.786587692308,
+      "exportedRestoredExpected": 7825.786587692308,
+      "absoluteRoundtripDifference": 0,
+      "missingComponentStatus": "blocked",
+      "missingComponentKnownSubtotal": {
+        "nonCritical": 3095.047384615385,
+        "critical": 6809.104246153847,
+        "expected": 5694.8871876923085
+      },
+      "reattachedExpected": 7825.786587692308,
+      "missTraceVisible": true,
+      "observedTraceVisible": true,
+      "provenance": "Catalog-source formulas with explicit editable teaching panels and observations; not in-game verification."
+    }
+  ],
+  "pageErrors": []
+}

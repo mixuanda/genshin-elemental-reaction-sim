@@ -1,0 +1,36 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/lunar-artifact-runtime.test.ts (3 tests | 1 failed) 259ms
+     × obtains Flower stacks from real Bloom ownership in standalone and shared mixed-v2 captures 95ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/lunar-artifact-runtime.test.ts > source-backed Lunar artifact event integration > obtains Flower stacks from real Bloom ownership in standalone and shared mixed-v2 captures
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+    "kind": "flower-of-paradise-lost-4pc",
+-   "stacks": 1,
++   "stacks": 0,
+  }
+
+ ❯ packages/sim-core/src/__tests__/lunar-artifact-runtime.test.ts:93:86
+     91|     const direct = mixed.specialDamageEvents.filter(event => event.kin…
+     92|     expect(direct).toHaveLength(3);
+     93|     for (const event of direct) expect(event.context.contributors[0]!.…
+       |                                                                                      ^
+     94|     for (const event of mixed.specialDamageEvents) expect(calculateDoc…
+     95|     expect(mixed.baseResult.resolvedRuntimeOptions.execution?.lunarMix…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:29:42
+   Duration  1.28s (transform 743ms, setup 0ms, import 962ms, tests 259ms, environment 0ms)
+

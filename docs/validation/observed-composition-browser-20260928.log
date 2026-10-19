@@ -1,0 +1,10 @@
+[WebServer] (node:50869) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:50870) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/observed-composition.spec.ts:9:1 › observed compositions keep independent editable hits, honest scope, misses and complete JSON context (6.7s)
+
+  1 passed (7.5s)

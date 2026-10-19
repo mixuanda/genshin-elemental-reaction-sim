@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "repository": "Dimbreath/AnimeGameData2",
+  "sourceHost": "gitlab",
+  "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+  "rawReleaseCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99",
+  "rawReleaseLabel": "CNRELWin7.1.0_R48145775_S48131320_D48145775",
+  "retrievedAt": "2026-09-25T05:27:36Z",
+  "evidenceStatus": "source-provisional",
+  "numericEvidenceStatus": "single-source-extracted",
+  "identityEvidence": {
+    "officialUrl": "https://blog.playstation.com/2025/10/10/genshin-impact-version-luna-ii-new-ugc-system-miliastra-wonderland-launches-oct-22/",
+    "officialAuthor": "Zhenzhong Yi, Studio Technical Director, HoYoverse",
+    "officialPublicationDate": "2025-10-10",
+    "conclusion": "官方确认可自定义奇偶可用于千星奇域且可带入提瓦特；固定原始数据另确认两个独立正式avatar ID拥有共同LittleIdol战斗技能，不是旅行者别名。"
+  },
+  "archive": {
+    "path": "source.json.gz",
+    "sha256": "10f078902b2696580eda37a64577f3f7917426c851010223df21890512fdfb67",
+    "bytes": 9692004,
+    "originalFiles": 11
+  },
+  "definitions": {
+    "path": "definitions.json",
+    "sha256": "a9c18750f8eaaf25ed9131bdba98083a6b073190222347670bb0fd01dbf63854"
+  },
+  "sourceFiles": [
+    {
+      "path": "ExcelBinOutput/AvatarExcelConfigData.json",
+      "bytes": 351799,
+      "gitBlob": "b9376cd637d59deb46fd0e7d6dc29c10c1eb3685",
+      "sha256": "a0ac92f1abb48e2ef6552cae2fefad95d51973dec9632f15dc51d85594efcfaf",
+      "lastCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99"
+    },
+    {
+      "path": "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+      "bytes": 119963,
+      "gitBlob": "7298f4de70991ed117a6e1d6d34a032ca509ba2a",
+      "sha256": "bdaf9a832ebfee3fa85f60ee8c09a0af77f1b257018d5f802324a9700eb731c2",
+      "lastCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99"
+    },
+    {
+      "path": "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+      "bytes": 502318,
+      "gitBlob": "57cb186b308e13b90590964b479673472f3df5cb",
+      "sha256": "4505c55534b71dfd8551011e0229ff8f0fb737da924ffbe558a50b18221a9575",
+      "lastCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99"
+    },
+    {
+      "path": "ExcelBinOutput/ProudSkillExcelConfigData.json",
+      "bytes": 8158447,
+      "gitBlob": "53672a02a4946794765abc3f321228eaf21038ea",
+      "sha256": "381b70963eb3ede60de040b8da6f167c77c5065a613adeaf99121f1358294fe5",
+      "lastCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99"
+    },
+    {
+      "path": "TextMap/TextMap_MediumCHS.json",
+      "bytes": 18801724,
+      "gitBlob": "ddf41a92f596f3f3300d7b0901c2b8f61a3ecb6d",
+      "sha256": "199dbfde784867efa49e209ef3c219420c28bf3da6f51a83b6acc84298c0ba66",
+      "lastCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99"
+    },
+    {
+      "path": "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_LittleIdol.json",
+      "bytes": 461964,
+      "gitBlob": "4eb480e787d8b04fa5d44269e9546b08047c72e1",
+      "sha256": "529efda211b6078e98c0c623cb22048153faa4375cc1c1c67b58b99c23f3c8a2",
+      "lastCommit": "9587d1afbd9ab0419cdd00dc05ecd114b9e3fe99"
+    },
+    {
+      "path": "BinOutput/Talent/AvatarTalents/c43eab63.json",
+      "bytes": 6353,
+      "gitBlob": "9996157340591c14875b399e79468a9d458c4ad6",
+      "sha256": "4f77a2413bf12cdc00daaf95377eac30295a71c65a78d12ead23696dc8422b77",
+      "lastCommit": "5930a9caf54a57ff2b60bb816a9c492dfaa6b488"
+    },
+    {
+      "path": "README.md",
+      "bytes": 866,
+      "gitBlob": "c00840742e1979ca9c3739d4f3560d84ae55aaa7",
+      "sha256": "b93c289ab7489ceea3444bf1b422557a59aafa52b7d6e2e5a8e71fe4b82258c6",
+      "lastCommit": "b061b403c8afc7bca633cf4f201edc4a3baa75fe"
+    }
+  ],
+  "counts": {
+    "characters": 2,
+    "candidateSkillDepots": 16,
+    "talentSets": 2,
+    "abilitiesIncludingPassive": 12,
+    "uniqueParameterizedGroups": 3,
+    "coefficientVectors": 18,
+    "coefficientValues": 270,
+    "completeActions": 28,
+    "hitTemplates": 32
+  },
+  "sourceLimitations": [
+    "未建立自动行动帧、取消、命中停滞、附着/ICD、粒子与能量执行。",
+    "原始15级参数表不证明全部等级可在当前游戏取得；必须输入实际可用的有效天赋等级。",
+    "男女各自combat/animator身份不同；共同参数和技能配置不能证明相同动画时序。",
+    "七元素、无元素及UGC场景规则不得互相冒用；此补充仅覆盖提瓦特固定技能定义。",
+    "两性别共同原始源的重复值不构成独立交叉核验；本批不继承全局cross-checked标签。",
+    "固定dump为社区分发的原始客户端表/执行结构；并非HoYoverse公开源代码或独立游戏实测。",
+    "不修改原catalog/releaseStatus/preview身份。"
+  ]
+}

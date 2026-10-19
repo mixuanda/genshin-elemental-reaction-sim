@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 5.106,
+  "log": "docs/validation/source-character-vectors-stellar-build-20260928.log"
+}

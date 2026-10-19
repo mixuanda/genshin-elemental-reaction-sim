@@ -1,0 +1,123 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-source-batch.test.ts (1 test | 1 failed) 33ms
+   × compiles the remaining shared source lifecycles, preserves mixed panel accounting and opens one special hit without a future schedule 32ms
+ ❯ packages/sim-core/src/__tests__/nonperiodic-reaction-checkpoint.test.ts (1 test | 1 failed) 161ms
+   × captures actual ordinary reaction lifecycles, queued attacks, target debuffs and repeating mechanical state 161ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-source-batch.test.ts > compiles the remaining shared source lifecycles, preserves mixed panel accounting and opens one special hit without a future schedule
+ZodError: [
+  {
+    "code": "unrecognized_keys",
+    "keys": [
+      "freshCastConfirmed"
+    ],
+    "path": [],
+    "message": "Unrecognized key: \"freshCastConfirmed\""
+  }
+]
+ ❯ prepareMixedSourceCastDocument packages/sim-core/src/mixed-source-formulas.ts:79:138
+
+ ❯ prepareSourceCastDocument packages/sim-core/src/source-cast-context.ts:23:14
+ ❯ complete packages/sim-core/src/remaining-source-batch.test.ts:18:58
+ ❯ packages/sim-core/src/remaining-source-batch.test.ts:49:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/nonperiodic-reaction-checkpoint.test.ts > captures actual ordinary reaction lifecycles, queued attacks, target debuffs and repeating mechanical state
+ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      7,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 7 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      14,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 14 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      21,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 21 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      28,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 28 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      35,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 35 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      42,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 42 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      49,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 49 (frozen-expiry) requires exactly one Reactable.Tick transition"
+  }
+]
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:18590:41
+    18588|     targetPhaseV3ResultReferencesSchema.parse(frozenTargetPhaseV3Facet…
+    18589|   } else if (targetPhaseV2Enabled) {
+    18590|     targetPhaseV2ResultReferencesSchema.parse(frozenReactionDamageGrou…
+       |                                         ^
+    18591|   } else {
+    18592|     // The public v2 result-reference schema deliberately performs a d…
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:18920:18
+ ❯ simulate packages/sim-core/src/simulator.ts:18978:12
+ ❯ packages/sim-core/src/__tests__/nonperiodic-reaction-checkpoint.test.ts:33:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed (2)
+   Start at  08:27:46
+   Duration  2.69s (transform 1.74s, setup 0ms, import 2.38s, tests 194ms, environment 0ms)
+
+
+exit 1 wall 3.189

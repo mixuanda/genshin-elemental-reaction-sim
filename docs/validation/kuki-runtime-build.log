@@ -1,0 +1,31 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/schemas/src/periodic-entity-replay.ts(30,9): error TS2322: Type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }[]' is not assignable to type 'Event[]'.
+  Type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }' is not assignable to type 'Event'.
+    Type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }' is not assignable to type '{ frame: number; priority: number; order: number; } & { kind: "spawn"; actionLogIndex: number; definition: PeriodicEntityDefinition; }'.
+      Property 'definition' is missing in type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }' but required in type '{ kind: "spawn"; actionLogIndex: number; definition: PeriodicEntityDefinition; }'.
+packages/schemas/src/periodic-entity-replay.ts(32,12): error TS2345: Argument of type '(a: Event, b: Event) => number' is not assignable to parameter of type '(a: { kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }, b: { kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }) => number'.
+  Types of parameters 'a' and 'a' are incompatible.
+    Type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }' is not assignable to type 'Event'.
+      Type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }' is not assignable to type '{ frame: number; priority: number; order: number; } & { kind: "spawn"; actionLogIndex: number; definition: PeriodicEntityDefinition; }'.
+        Property 'definition' is missing in type '{ kind: string; actionLogIndex: number; frame: number; priority: number; order: number; }' but required in type '{ kind: "spawn"; actionLogIndex: number; definition: PeriodicEntityDefinition; }'.
+packages/sim-core/src/kuki-source-action.ts(54,7): error TS2322: Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 7 more ...; poiseDamage: number; }' is not assignable to type 'FrameHitDefinition<ElementalApplication>'.
+  Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 7 more ...; poiseDamage: number; }' is not assignable to type 'Omit<HitDefinition<ElementalApplication>, "offset">'.
+    The types of 'application.icd' are incompatible between these types.
+      Type '{ mode: "fixed-gcsim-application-v1"; icdTag: string; groupId: string; }' is not assignable to type 'ElementalApplicationIcdSelector'.
+        Type '{ mode: "fixed-gcsim-application-v1"; icdTag: string; groupId: string; }' is not assignable to type '{ mode: "fixed-gcsim-application-v1"; icdTag: string; groupId: GcsimConfigurableElementalApplicationGroupId; }'.
+          Types of property 'groupId' are incompatible.
+            Type 'string' is not assignable to type 'GcsimConfigurableElementalApplicationGroupId'.
+packages/sim-core/src/kuki-source-action.ts(55,7): error TS2322: Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 5 more ...; scaling: number; }' is not assignable to type 'FrameHitDefinition<ElementalApplication>'.
+  Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 5 more ...; scaling: number; }' is not assignable to type 'Omit<HitDefinition<ElementalApplication>, "offset">'.
+    The types of 'application.icd' are incompatible between these types.
+      Type '{ mode: "fixed-gcsim-application-v1"; icdTag: string; groupId: string; }' is not assignable to type 'ElementalApplicationIcdSelector'.
+        Type '{ mode: "fixed-gcsim-application-v1"; icdTag: string; groupId: string; }' is not assignable to type '{ mode: "fixed-gcsim-application-v1"; icdTag: string; groupId: GcsimConfigurableElementalApplicationGroupId; }'.
+          Types of property 'groupId' are incompatible.
+            Type 'string' is not assignable to type 'GcsimConfigurableElementalApplicationGroupId'.

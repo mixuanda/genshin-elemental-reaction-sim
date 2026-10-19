@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "source-shared-delayed-events-browser-v1",
+  "measurements": {
+    "nativeRunsPerformed": true,
+    "nativeResultArchived": true,
+    "rawPath": "docs/validation/source-shared-delayed-events-team-20260930.capture.json",
+    "directEvents": [
+      {
+        "siteId": "mona.bubble.on-enemy-damage",
+        "componentId": "mona-burst-bubble",
+        "listenerCallId": 180,
+        "entryFacts": {
+          "mona.bubble.on-enemy-damage.attack-count": 1
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 0,
+        "completedProducerCount": 0,
+        "pendingProducerCount": 0,
+        "hitCount": 1,
+        "componentSubtotal": 1040.1457191052034,
+        "reasons": []
+      },
+      {
+        "siteId": "charlotte.c6.enemy-damage",
+        "componentId": "charlotte-c6",
+        "listenerCallId": 277,
+        "entryFacts": {
+          "charlotte.c6.enemy-damage.producer-count": 1
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 1,
+        "completedProducerCount": 1,
+        "pendingProducerCount": 0,
+        "hitCount": 2,
+        "componentSubtotal": 719.126366738158,
+        "reasons": []
+      },
+      {
+        "siteId": "faruzan.c6.enemy-damage",
+        "componentId": "faruzan-c6-collapse",
+        "listenerCallId": 118,
+        "entryFacts": {
+          "faruzan.c6.enemy-damage.producer-count": 1
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 1,
+        "completedProducerCount": 1,
+        "pendingProducerCount": 0,
+        "hitCount": 2,
+        "componentSubtotal": 665.531497852868,
+        "reasons": []
+      },
+      {
+        "siteId": "beidou.burst.enemy-damage",
+        "componentId": "beidou-burst-proc",
+        "listenerCallId": 279,
+        "entryFacts": {
+          "beidou.burst.attack-count": 1,
+          "beidou.burst.max-hit-count": 5
+        },
+        "deliveryClosed": true,
+        "attackCount": 5,
+        "producerCount": 0,
+        "completedProducerCount": 0,
+        "pendingProducerCount": 0,
+        "hitCount": 5,
+        "componentSubtotal": 1018.653568268538,
+        "reasons": []
+      },
+      {
+        "siteId": "chiori.c4.enemy-damage",
+        "componentId": "chiori-c4-kinu",
+        "listenerCallId": 14,
+        "entryFacts": {
+          "chiori.c4.enemy-damage.producer-count": 2
+        },
+        "deliveryClosed": true,
+        "attackCount": 1,
+        "producerCount": 4,
+        "completedProducerCount": 4,
+        "pendingProducerCount": 0,
+        "hitCount": 2,
+        "componentSubtotal": 2413.3720588859705,
+        "reasons": []
+      }
+    ],
+    "taskTreeOriginExportImportAndEdit": {
+      "siteId": "chiori.c4.enemy-damage",
+      "componentId": "chiori-c4-kinu",
+      "listenerCallId": 14,
+      "label": "千织 C4 · 绢任务树事件组件",
+      "closedBeforeAndAfter": true
+    },
+    "offlineGapProbes": {
+      "additionalNativeRuns": 0,
+      "missingDelayedProducer": {
+        "siteId": "charlotte.c6.enemy-damage",
+        "listenerCallId": 277,
+        "reasons": [
+          "本次监听器发出的直接攻击或延迟任务数与实际分支不符。"
+        ]
+      },
+      "missingBeidouCallbackEvidence": {
+        "siteId": "beidou.burst.enemy-damage",
+        "listenerCallId": 279,
+        "reasons": [
+          "缺少北斗闪雷的原生命中回调批次或槽位回执。",
+          "闪雷目标 1 缺少精确父队列、攻击、派发身份的唯一回调批次。"
+        ]
+      },
+      "missingChioriTaskTreeChild": {
+        "siteId": "chiori.c4.enemy-damage",
+        "listenerCallId": 14,
+        "producerId": 3,
+        "reasons": [
+          "Kinu 任务 #2 的实际分支、子任务数或攻击数不完整。",
+          "存活 Kinu 检查任务 #2 缺少唯一的攻击尝试与下一次检查。"
+        ]
+      }
+    },
+    "offline113Regression": {
+      "siteId": "albedo.skill.enemy-damage",
+      "componentId": "albedo-skill-proc",
+      "listenerCallId": 18,
+      "deliveryClosed": true,
+      "hitCount": 2,
+      "replayDifferences": [
+        0,
+        0
+      ],
+      "componentSubtotal": 1356.88886407622,
+      "reasons": [],
+      "rawPath": "docs/validation/source-direct-events-team-20260930.capture.json"
+    }
+  },
+  "pageErrors": [],
+  "scope": "Two classic native captures cover positive Mona bubble, Charlotte C6, Faruzan C6, Beidou C2 callback-chain, and Chiori C4 Kinu task-tree event components. Only Chiori is opened and edited in the UI. Offline probes remove evidence from archived results; one 113 Albedo capture is recalculated as the prior-kind regression. These samples do not establish full skill, burst, task lifecycle beyond selected closures, or current-game verification."
+}

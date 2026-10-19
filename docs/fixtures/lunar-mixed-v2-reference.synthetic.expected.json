@@ -1,0 +1,190 @@
+{
+  "notice": "合成机制输入；UI来源动作追加前的原始config不含Moondew占位能力",
+  "sourceAbilityRequest": {
+    "actorId": "h",
+    "atFrame": 160,
+    "talentLevel": 10,
+    "ascension": 6,
+    "constellation": 0
+  },
+  "options": {
+    "party": [
+      {
+        "actorId": "h",
+        "characterKey": "columbina"
+      },
+      {
+        "actorId": "e",
+        "characterKey": "fischl"
+      },
+      {
+        "actorId": "d",
+        "characterKey": "lauma"
+      },
+      {
+        "actorId": "g",
+        "characterKey": "zibai"
+      }
+    ],
+    "abilities": [
+      {
+        "sourceAbilityId": "ui-moondew-cleanse",
+        "actorId": "h",
+        "abilityKey": "columbina-moondew-cleanse-idle-v1",
+        "talentLevel": 10,
+        "ascension": 6,
+        "constellation": 0
+      }
+    ],
+    "critMode": "average",
+    "compatibilityMode": "legal-frame-v1"
+  },
+  "profile": {
+    "id": "lunar-mixed-reference-v2",
+    "stateProfileId": "special-state-reference-60fps-no-hitlag-v1",
+    "evidence": "fixed-source-provisional",
+    "assumptions": [
+      "aura-v7，水雷草岩物理，单个静止目标、60 FPS、无卡肉。",
+      "普通Bloom、Q→Bloom零延迟任务、草原核与实际Electro接触Hyperbloom保留，三类Lunar共用Aura和主队列。",
+      "草露采用verdant-dew-fixed-core-order-v2：先当帧旧窗口生产，再+1全局刷新；新窗首累计+2/首枚+147。",
+      "显式Moondew闲置动作锁124帧，+55真实消费1草露，+62/+70/+92实时人物与抗性三段；不附着，不另造普通草命中。",
+      "特殊状态wake2.5、角色消费2.75、攻击3；同优先级依主堆真实sequence。",
+      "LC/LCrys专属加成为显式0/1；Moondew执行来源月兆HP提升，其他未建模角色效果不自动启用。",
+      "固定来源参考，未声明当前游戏实测；火冰风/Stellar、多目标、玩家受伤与特殊随机暴击未接入。"
+    ]
+  },
+  "totalDamage": 44568.16159662175,
+  "totalDps": 7428.026932770292,
+  "classicDamage": 23110.385481818183,
+  "lunarChargedDamage": 5992.856862332142,
+  "lunarCrystallizeDamage": 11398.06384097143,
+  "lunarBloomDamage": 4066.8554115,
+  "verdantDew": {
+    "ruleId": "verdant-dew-fixed-core-order-v2",
+    "full": 0,
+    "partialFrames": 2,
+    "activeFrom": 10,
+    "activeUntil": 157,
+    "frame": 360
+  },
+  "resourceGainFrames": [
+    155
+  ],
+  "resourceConsumptionFrames": [
+    215
+  ],
+  "specialEvents": [
+    {
+      "id": 0,
+      "kind": "reaction",
+      "branch": "lunar-charged-reaction",
+      "frame": 57,
+      "damage": 5992.856862332142,
+      "executionOrder": {
+        "frame": 57,
+        "priority": 2.5,
+        "sequence": 31
+      }
+    },
+    {
+      "id": 1,
+      "kind": "reaction",
+      "branch": "lunar-crystallize-reaction",
+      "frame": 105,
+      "damage": 3799.354613657143,
+      "executionOrder": {
+        "frame": 105,
+        "priority": 3,
+        "sequence": 47
+      }
+    },
+    {
+      "id": 2,
+      "kind": "reaction",
+      "branch": "lunar-crystallize-reaction",
+      "frame": 117,
+      "damage": 3799.354613657143,
+      "executionOrder": {
+        "frame": 117,
+        "priority": 3,
+        "sequence": 51
+      }
+    },
+    {
+      "id": 3,
+      "kind": "reaction",
+      "branch": "lunar-crystallize-reaction",
+      "frame": 129,
+      "damage": 3799.354613657143,
+      "executionOrder": {
+        "frame": 129,
+        "priority": 3,
+        "sequence": 56
+      }
+    },
+    {
+      "id": 4,
+      "kind": "direct-ability",
+      "branch": "lunar-bloom-direct",
+      "frame": 222,
+      "damage": 1355.6184705,
+      "executionOrder": {
+        "frame": 222,
+        "priority": 3,
+        "sequence": 68
+      }
+    },
+    {
+      "id": 5,
+      "kind": "direct-ability",
+      "branch": "lunar-bloom-direct",
+      "frame": 230,
+      "damage": 1355.6184705,
+      "executionOrder": {
+        "frame": 230,
+        "priority": 3,
+        "sequence": 69
+      }
+    },
+    {
+      "id": 6,
+      "kind": "direct-ability",
+      "branch": "lunar-bloom-direct",
+      "frame": 252,
+      "damage": 1355.6184705,
+      "executionOrder": {
+        "frame": 252,
+        "priority": 3,
+        "sequence": 70
+      }
+    }
+  ],
+  "hyperbloomEvents": [
+    {
+      "id": 8,
+      "frame": 116,
+      "damage": 9588.692740909091,
+      "sourceActorId": "e"
+    },
+    {
+      "id": 9,
+      "frame": 116,
+      "damage": 9588.692740909091,
+      "sourceActorId": "e"
+    }
+  ],
+  "coreSpawnFrames": [
+    38,
+    38
+  ],
+  "quickenBloomTasks": [
+    {
+      "id": 0,
+      "frame": 8,
+      "sourceActorId": "d",
+      "triggerElement": "dendro",
+      "status": "triggered"
+    }
+  ],
+  "sourceKey": "gdl-v2-fnv1a32-e7225f58"
+}

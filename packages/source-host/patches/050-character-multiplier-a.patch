@@ -1,0 +1,348 @@
+--- a/internal/characters/beidou/skill.go
++++ b/internal/characters/beidou/skill.go
+@@ -39,20 +39,33 @@
+ 		c.a4()
+ 	}
+ 
++	multID := 0
+ 	ai := info.AttackInfo{
+-		ActorIndex:         c.Index(),
+-		Abil:               "Tidecaller",
+-		AttackTag:          attacks.AttackTagElementalArt,
+-		ICDTag:             attacks.ICDTagNone,
+-		ICDGroup:           attacks.ICDGroupDefault,
+-		StrikeType:         attacks.StrikeTypeBlunt,
+-		PoiseDMG:           float64(100 * (counter + 1)),
+-		Element:            attributes.Electro,
+-		Durability:         50,
+-		Mult:               skillbase[c.TalentLvlSkill()] + skillbonus[c.TalentLvlSkill()]*float64(counter),
++		ActorIndex: c.Index(),
++		Abil:       "Tidecaller",
++		AttackTag:  attacks.AttackTagElementalArt,
++		ICDTag:     attacks.ICDTagNone,
++		ICDGroup:   attacks.ICDGroupDefault,
++		StrikeType: attacks.StrikeTypeBlunt,
++		PoiseDMG:   float64(100 * (counter + 1)),
++		Element:    attributes.Electro,
++		Durability: 50,
++		Mult: func() float64 {
++			base := skillbase[c.TalentLvlSkill()]
++			bonus := skillbonus[c.TalentLvlSkill()]
++			stacks := float64(counter)
++			native := base + bonus*stacks
++			if c.Core.SourceHost != nil {
++				native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-beidou-skill-counter", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++			}
++			return native
++		}(),
+ 		HitlagFactor:       0.01,
+ 		HitlagHaltFrames:   skillHitlagStages[counter] * 60,
+ 		CanBeDefenseHalted: true,
++	}
++	if c.Core.SourceHost != nil && multID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 	}
+ 	if counter > 0 {
+ 		ai.Abil += fmt.Sprintf(" (Level %v)", counter)
+--- a/internal/characters/eula/burst.go
++++ b/internal/characters/eula/burst.go
+@@ -98,6 +98,7 @@
+ 	if c.burstCounter > 30 {
+ 		c.burstCounter = 30
+ 	}
++	multID := 0
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       burstLightfallAbil,
+@@ -108,7 +109,19 @@
+ 		PoiseDMG:   400,
+ 		Element:    attributes.Physical,
+ 		Durability: 50,
+-		Mult:       burstExplodeBase[c.TalentLvlBurst()] + burstExplodeStack[c.TalentLvlBurst()]*float64(c.burstCounter),
++		Mult: func() float64 {
++			base := burstExplodeBase[c.TalentLvlBurst()]
++			bonus := burstExplodeStack[c.TalentLvlBurst()]
++			stacks := float64(c.burstCounter)
++			native := base + bonus*stacks
++			if c.Core.SourceHost != nil {
++				native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-eula-lightfall-stacks", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++			}
++			return native
++		}(),
++	}
++	if c.Core.SourceHost != nil && multID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 	}
+ 
+ 	c.Core.Log.NewEvent("eula burst triggering", glog.LogCharacterEvent, c.Index()).
+--- a/internal/characters/heizou/skill.go
++++ b/internal/characters/heizou/skill.go
+@@ -47,19 +47,32 @@
+ func (c *char) skillRelease(delay int) action.Info {
+ 	c.Core.Tasks.Add(func() {
+ 		hitDelay := skillHitmark - skillCDStart
++		multID := 0
+ 		ai := info.AttackInfo{
+-			ActorIndex:         c.Index(),
+-			Abil:               "Heartstopper Strike",
+-			AttackTag:          attacks.AttackTagElementalArt,
+-			ICDTag:             attacks.ICDTagNone,
+-			ICDGroup:           attacks.ICDGroupDefault,
+-			StrikeType:         attacks.StrikeTypeDefault,
+-			Element:            attributes.Anemo,
+-			Durability:         50,
+-			Mult:               skill[c.TalentLvlSkill()] + float64(c.decStack)*decBonus[c.TalentLvlSkill()],
++			ActorIndex: c.Index(),
++			Abil:       "Heartstopper Strike",
++			AttackTag:  attacks.AttackTagElementalArt,
++			ICDTag:     attacks.ICDTagNone,
++			ICDGroup:   attacks.ICDGroupDefault,
++			StrikeType: attacks.StrikeTypeDefault,
++			Element:    attributes.Anemo,
++			Durability: 50,
++			Mult: func() float64 {
++				base := skill[c.TalentLvlSkill()]
++				stacks := float64(c.decStack)
++				bonus := decBonus[c.TalentLvlSkill()]
++				native := base + stacks*bonus
++				if c.Core.SourceHost != nil {
++					native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-heizou-skill-declension", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++				}
++				return native
++			}(),
+ 			HitlagFactor:       0.01,
+ 			HitlagHaltFrames:   skillHitlagHaltFrame * 60,
+ 			CanBeDefenseHalted: false,
++		}
++		if c.Core.SourceHost != nil && multID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 		}
+ 		offset := -0.3
+ 		if c.decStack == 0 {
+@@ -69,7 +82,17 @@
+ 		height := 5.0
+ 		if c.decStack == 4 {
+ 			ai.Abil = "Heartstopper Strike (Max Stacks)"
+-			ai.Mult += convicBonus[c.TalentLvlSkill()]
++			priorMult := ai.Mult
++			priorID := ai.SourceHostMultiplierID
++			bonus := convicBonus[c.TalentLvlSkill()]
++			native := bonus
++			if c.Core.SourceHost != nil {
++				full, multID := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-heizou-skill-conviction", priorMult, map[string]any{"bonus": bonus}, nil, priorID)
++				ai.Mult = full
++				c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
++			} else {
++				ai.Mult += native
++			}
+ 			ai.HitlagHaltFrames = skillHitlagMaxStackHaltFrame * 60
+ 			width += 1
+ 			height += 1
+--- a/internal/characters/lyney/skill.go
++++ b/internal/characters/lyney/skill.go
+@@ -50,6 +50,7 @@
+ 		return c.skillBurst(), nil
+ 	}
+ 
++	multID := 0
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Bewildering Lights",
+@@ -59,7 +60,19 @@
+ 		StrikeType: attacks.StrikeTypeDefault,
+ 		Element:    attributes.Pyro,
+ 		Durability: 25,
+-		Mult:       skill[c.TalentLvlSkill()] + skillBonus[c.TalentLvlSkill()]*float64(c.propSurplusStacks),
++		Mult: func() float64 {
++			base := skill[c.TalentLvlSkill()]
++			bonus := skillBonus[c.TalentLvlSkill()]
++			stacks := float64(c.propSurplusStacks)
++			native := base + bonus*stacks
++			if c.Core.SourceHost != nil {
++				native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-lyney-skill-surplus", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++			}
++			return native
++		}(),
++	}
++	if c.Core.SourceHost != nil && multID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 	}
+ 	skillHeal := info.HealInfo{
+ 		Caller:  c.Index(),
+--- a/internal/characters/raiden/burst.go
++++ b/internal/characters/raiden/burst.go
+@@ -68,7 +68,18 @@
+ 	c.Core.Tasks.Add(func() {
+ 		c.stacksConsumed = c.stacks
+ 		c.stacks = 0
+-		ai.Mult += resolveBaseBonus[c.TalentLvlBurst()] * c.stacksConsumed
++		priorMult := ai.Mult
++		priorID := ai.SourceHostMultiplierID
++		bonus := resolveBaseBonus[c.TalentLvlBurst()]
++		stacks := c.stacksConsumed
++		native := bonus * stacks
++		if c.Core.SourceHost != nil {
++			full, multID := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-raiden-burst-resolve", priorMult, map[string]any{"bonus": bonus, "stacks": stacks}, nil, priorID)
++			ai.Mult = full
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
++		} else {
++			ai.Mult += native
++		}
+ 		c.Core.Log.NewEvent("resolve stacks", glog.LogCharacterEvent, c.Index()).
+ 			Write("stacks", c.stacksConsumed)
+ 		c.Core.QueueAttack(
+--- a/internal/characters/raiden/attack.go
++++ b/internal/characters/raiden/attack.go
+@@ -142,7 +142,18 @@
+ 		}
+ 		// Sword hits are dynamic - group snapshots with damage proc
+ 		ai.Mult = mult[c.TalentLvlBurst()]
+-		ai.Mult += resolveBonus[c.TalentLvlBurst()] * c.stacksConsumed
++		priorMult := ai.Mult
++		priorID := ai.SourceHostMultiplierID
++		bonus := resolveBonus[c.TalentLvlBurst()]
++		stacks := c.stacksConsumed
++		native := bonus * stacks
++		if c.Core.SourceHost != nil {
++			full, multID := c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-raiden-normal-resolve", priorMult, map[string]any{"bonus": bonus, "stacks": stacks}, nil, priorID)
++			ai.Mult = full
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
++		} else {
++			ai.Mult += native
++		}
+ 
+ 		ap := combat.NewBoxHitOnTarget(
+ 			c.Core.Combat.Player(),
+--- a/internal/characters/raiden/charge.go
++++ b/internal/characters/raiden/charge.go
+@@ -74,19 +74,32 @@
+ 	c.burstAnimSrc = c.Core.F
+ 
+ 	for i, mult := range chargeSword {
++		multID := 0
+ 		ai := info.AttackInfo{
+-			ActorIndex:         c.Index(),
+-			Abil:               fmt.Sprintf("Musou Isshin (Charge Attack %v)", i),
+-			AttackTag:          attacks.AttackTagElementalBurst,
+-			ICDTag:             attacks.ICDTagNormalAttack,
+-			ICDGroup:           attacks.ICDGroupDefault,
+-			StrikeType:         attacks.StrikeTypeSlash,
+-			Element:            attributes.Electro,
+-			Durability:         25,
+-			Mult:               mult[c.TalentLvlBurst()] + resolveBonus[c.TalentLvlBurst()]*c.stacksConsumed,
++			ActorIndex: c.Index(),
++			Abil:       fmt.Sprintf("Musou Isshin (Charge Attack %v)", i),
++			AttackTag:  attacks.AttackTagElementalBurst,
++			ICDTag:     attacks.ICDTagNormalAttack,
++			ICDGroup:   attacks.ICDGroupDefault,
++			StrikeType: attacks.StrikeTypeSlash,
++			Element:    attributes.Electro,
++			Durability: 25,
++			Mult: func() float64 {
++				base := mult[c.TalentLvlBurst()]
++				bonus := resolveBonus[c.TalentLvlBurst()]
++				stacks := c.stacksConsumed
++				native := base + bonus*stacks
++				if c.Core.SourceHost != nil {
++					native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-raiden-charge-resolve", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++				}
++				return native
++			}(),
+ 			HitlagHaltFrames:   0.02 * 60, // all raiden normals have 0.02s hitlag
+ 			HitlagFactor:       0.01,
+ 			CanBeDefenseHalted: true,
++		}
++		if c.Core.SourceHost != nil && multID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 		}
+ 		// Sword hits are dynamic - group snapshots with damage proc
+ 		if i == 0 { // Only the last hit has hitlag
+--- a/internal/characters/raiden/plunge.go
++++ b/internal/characters/raiden/plunge.go
+@@ -146,6 +146,7 @@
+ 		c.plungeCollisionB(collisionHitmarkB)
+ 	}
+ 
++	multID := 0
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "Low Plunge (Musou Isshin)",
+@@ -157,7 +158,19 @@
+ 		Element:        attributes.Electro,
+ 		IgnoreInfusion: true,
+ 		Durability:     25,
+-		Mult:           lowPlunge[c.TalentLvlBurst()] + resolveBonus[c.TalentLvlBurst()]*c.stacksConsumed,
++		Mult: func() float64 {
++			base := lowPlunge[c.TalentLvlBurst()]
++			bonus := resolveBonus[c.TalentLvlBurst()]
++			stacks := c.stacksConsumed
++			native := base + bonus*stacks
++			if c.Core.SourceHost != nil {
++				native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-raiden-low-plunge-resolve", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++			}
++			return native
++		}(),
++	}
++	if c.Core.SourceHost != nil && multID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 	}
+ 
+ 	c.Core.QueueAttack(
+@@ -239,6 +252,7 @@
+ 		c.plungeCollisionB(collisionHitmarkB)
+ 	}
+ 
++	multID := 0
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "High Plunge (Musou Isshin)",
+@@ -250,7 +264,19 @@
+ 		Element:        attributes.Electro,
+ 		IgnoreInfusion: true,
+ 		Durability:     25,
+-		Mult:           highPlunge[c.TalentLvlBurst()] + resolveBonus[c.TalentLvlBurst()]*c.stacksConsumed,
++		Mult: func() float64 {
++			base := highPlunge[c.TalentLvlBurst()]
++			bonus := resolveBonus[c.TalentLvlBurst()]
++			stacks := c.stacksConsumed
++			native := base + bonus*stacks
++			if c.Core.SourceHost != nil {
++				native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-raiden-high-plunge-resolve", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++			}
++			return native
++		}(),
++	}
++	if c.Core.SourceHost != nil && multID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 	}
+ 
+ 	c.Core.QueueAttack(
+@@ -288,6 +314,7 @@
+ // Plunge normal falling attack damage queue generator
+ // Standard - Always part of high/low plunge attacks
+ func (c *char) plungeCollisionB(delay int) {
++	multID := 0
+ 	ai := info.AttackInfo{
+ 		ActorIndex:     c.Index(),
+ 		Abil:           "Plunge Collision (Musou Isshin)",
+@@ -298,7 +325,19 @@
+ 		Element:        attributes.Electro,
+ 		IgnoreInfusion: true,
+ 		Durability:     0,
+-		Mult:           collision[c.TalentLvlBurst()] + resolveBonus[c.TalentLvlBurst()]*c.stacksConsumed,
++		Mult: func() float64 {
++			base := collision[c.TalentLvlBurst()]
++			bonus := resolveBonus[c.TalentLvlBurst()]
++			stacks := c.stacksConsumed
++			native := base + bonus*stacks
++			if c.Core.SourceHost != nil {
++				native, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-raiden-collision-resolve", 0, map[string]any{"base": base, "bonus": bonus, "stacks": stacks}, nil, 0)
++			}
++			return native
++		}(),
++	}
++	if c.Core.SourceHost != nil && multID > 0 {
++		c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
+ 	}
+ 
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: 1}, 1), delay, delay)

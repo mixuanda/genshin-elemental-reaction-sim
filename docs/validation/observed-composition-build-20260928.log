@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/linnea-observed-lifecycle.ts(86,48): error TS2379: Argument of type '{ component: "crush" | "hammer" | "pummeler-1" | "pummeler-2"; pairId: string | undefined; summonId: string; form: "standard-power" | "super-power" | "ultimate-power" | null; }' is not assignable to parameter of type '{ component: "crush" | "hammer" | "pummeler-1" | "pummeler-2"; pairId?: string; summonId: string; form: "standard-power" | "super-power" | "ultimate-power" | null; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'pairId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.

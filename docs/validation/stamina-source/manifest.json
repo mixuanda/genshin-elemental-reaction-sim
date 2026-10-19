@@ -1,0 +1,30 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "classification": "fixed-source-assumed",
+  "files": [
+    {
+      "path": "pkg/core/player/player.go",
+      "archive": "pkg__core__player__player.go",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "archive": "pkg__core__player__exec.go",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "archive": "pkg__core__core.go",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "path": "internal/template/character/stam.go",
+      "archive": "internal__template__character__stam.go",
+      "sha256": "414c7c87cdc498e0551dd9a90ee4d03b414ad7d7cca0028fe037c5cc2e077767",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/stam.go"
+    }
+  ]
+}

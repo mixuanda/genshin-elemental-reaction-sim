@@ -1,0 +1,284 @@
+{
+  "schemaVersion": 1,
+  "auditType": "native entity/gadget ownership design and 110 implementation audit",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-eA1lto/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-DSx6Wz/source"
+  },
+  "sourceSHA256": {
+    "classic": {
+      "pkg/core/combat/gadget.go": "6169439303933d100ea1780318bce8db586b2f559c7ec114c07681e1bda54701",
+      "pkg/core/combat/combat.go": "d2c32edb9bbbf08238b11ca3a91257035f0d940eaa5f480b687eeea5f5852272",
+      "pkg/gadget/gadget.go": "9dae7ac35683c46018961b84fee0176aa5806de44841e08b1d4c61fd0a187105",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/sourcehost/ability_producer.go": "16d74131dd375cf4d6049a1b8fd342b52ad2a0b21cd167549a71891eafa979f1",
+      "pkg/core/sourcehost/owned_generator.go": "40c33784843bf1364ae556232b04c62b33c3274f031ac1a051eaaf6d4d511ee7",
+      "pkg/core/sourcehost/attack.go": "a7a51a6a30b918d859eed6c2240dd92388562561b5c60d10b6e6209ff29f519e",
+      "internal/characters/amber/skill.go": "513d849227f7c74411b3b4c00eca7e55ab06e1becbd5ff636d0dd32a9672c22b",
+      "internal/characters/amber/bunny.go": "4877abd473b263f0573c6d117f7d26342961d2bc7b2259e248b5ab69c97b6d92",
+      "internal/characters/amber/aimed.go": "9584af861c32b8d9f89d4457179b868e90fb0f2d394a57e6eff679e6b935d8c4",
+      "internal/characters/amber/amber.go": "d3f63fd6c99d4d93c7502ea6b327762d460c47c9211bc5f23299b17318f08c04",
+      "internal/characters/yaoyao/skill.go": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+      "internal/characters/yaoyao/burst.go": "aedb4909457e3aa54068ecb4655efe43dc41e102656ff9b1442edfaa77355f7b",
+      "internal/characters/yaoyao/yuegui.go": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+      "internal/characters/yaoyao/cons.go": "04a4a7968006c66b6ba4aa20c775686e371659bfb41f44189f4218bf21f4698b",
+      "internal/characters/klee/skill.go": "d35202d139c854d5d5495b73e473b0b77765368cd154a9e50974e9e30b013880",
+      "internal/characters/furina/skill.go": "5e5dab1384c4243e61f3ce4d4a5cd1f75b41f67ff41f8e9ded892edb6dcdf663",
+      "pkg/core/construct/handler.go": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+      "pkg/gadget/sourcehost_phase.go": "6697ef26e490d1995e5efcc8454cbdfaa724678e993669ca2bedc76b09974898",
+      "pkg/core/combat/sourcehost_phase.go": "bb736d0a3fbd1e12d6ae97ec7ddcdd666e8eb3d309bb3b5a6c76deabf058a1a6"
+    },
+    "stellar": {
+      "pkg/core/combat/gadget.go": "6169439303933d100ea1780318bce8db586b2f559c7ec114c07681e1bda54701",
+      "pkg/core/combat/combat.go": "d2c32edb9bbbf08238b11ca3a91257035f0d940eaa5f480b687eeea5f5852272",
+      "pkg/gadget/gadget.go": "2a874bb5a9717883ac177f5edfa5dcae461cd159379d08a1e4fda14fc440b76b",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/sourcehost/ability_producer.go": "16d74131dd375cf4d6049a1b8fd342b52ad2a0b21cd167549a71891eafa979f1",
+      "pkg/core/sourcehost/owned_generator.go": "40c33784843bf1364ae556232b04c62b33c3274f031ac1a051eaaf6d4d511ee7",
+      "pkg/core/sourcehost/attack.go": "6bddb4406fd3ca673fa6fcb9cd805a5d75ae1cac4007174831668334d5728f40",
+      "internal/characters/amber/skill.go": "513d849227f7c74411b3b4c00eca7e55ab06e1becbd5ff636d0dd32a9672c22b",
+      "internal/characters/amber/bunny.go": "4877abd473b263f0573c6d117f7d26342961d2bc7b2259e248b5ab69c97b6d92",
+      "internal/characters/amber/aimed.go": "9584af861c32b8d9f89d4457179b868e90fb0f2d394a57e6eff679e6b935d8c4",
+      "internal/characters/amber/amber.go": "d3f63fd6c99d4d93c7502ea6b327762d460c47c9211bc5f23299b17318f08c04",
+      "internal/characters/yaoyao/skill.go": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+      "internal/characters/yaoyao/burst.go": "aedb4909457e3aa54068ecb4655efe43dc41e102656ff9b1442edfaa77355f7b",
+      "internal/characters/yaoyao/yuegui.go": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+      "internal/characters/yaoyao/cons.go": "04a4a7968006c66b6ba4aa20c775686e371659bfb41f44189f4218bf21f4698b",
+      "internal/characters/klee/skill.go": "d35202d139c854d5d5495b73e473b0b77765368cd154a9e50974e9e30b013880",
+      "internal/characters/furina/skill.go": "5e5dab1384c4243e61f3ce4d4a5cd1f75b41f67ff41f8e9ded892edb6dcdf663",
+      "pkg/core/construct/handler.go": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+      "pkg/gadget/sourcehost_phase.go": "6697ef26e490d1995e5efcc8454cbdfaa724678e993669ca2bedc76b09974898",
+      "pkg/core/combat/sourcehost_phase.go": "bb736d0a3fbd1e12d6ae97ec7ddcdd666e8eb3d309bb3b5a6c76deabf058a1a6"
+    }
+  },
+  "findings": [
+    {
+      "path": "pkg/core/combat/gadget.go",
+      "facts": [
+        "AddGadget kills oldest only when a configured GadgetTyp limit is reached, then appends the new gadget and assigns a fresh target key.",
+        "RemoveGadget delegates to ReplaceGadget(key,nil); ReplaceGadget can also swap a nonnil object by key without calling OnKill/OnExpiry. A target key is an address in the current manager, not a permanent object identity across replacement."
+      ]
+    },
+    {
+      "path": "pkg/gadget/gadget.go",
+      "facts": [
+        "Kill calls Target.Kill, then OnKill if present, then RemoveGadget.",
+        "Tick invokes OnThinkInterval when its local counter reaches ThinkInterval, then decrements positive Duration; at zero it calls OnExpiry if present and removes the gadget. Expiry does not call Kill or OnKill.",
+        "An attack may be enqueued during a terminal callback before the entity is removed and resolve after removal."
+      ]
+    },
+    {
+      "path": "pkg/core/combat/combat.go",
+      "facts": [
+        "Combat.Tick runs collision checks before player/enemy/gadget Tick; collisions may remove gadgets.",
+        "The combat loop may tick concrete gadget subtypes through info.Gadget; source-owned emissions must be explicitly audited at callback queue sites rather than inferred from TargetKey or attack name."
+      ]
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "facts": [
+        "Core, character and enemy handlers keep separate queues and clocks. Task origin and parent task ID are captured at schedule time, but current tracker carries no exact entity ID.",
+        "A gadget tick can schedule a character task that runs after that gadget is removed; empty gadget manager does not close that pending task."
+      ]
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "facts": [
+        "CaptureAttack is called on QueueAttack/QueueAttackWithSnap and QueueAttackEvent; QueueAttackEvent may receive an AttackEvent built earlier.",
+        "Pending snapshot/application stages and dispatch completion already exist; entity emission ownership should attach at the actual audited queue call, then reuse these exact queue/dispatch receipts. AttackID may be reused and is not an emission ID."
+      ]
+    }
+  ],
+  "candidateFamilies": [
+    {
+      "family": "Amber E / Baron Bunny",
+      "sourceSites": [
+        "internal/characters/amber/skill.go:23-29",
+        "internal/characters/amber/bunny.go:127-181",
+        "internal/characters/amber/amber.go:38-45",
+        "internal/characters/amber/aimed.go:53-66"
+      ],
+      "classification": "first implemented entity family across all constellations",
+      "sourceContract": [
+        "Each accepted Amber E invocation schedules exactly one Core.Tasks.Add spawn callback at bunnyLand+hold; that callback invokes makeBunny exactly once and registers one Baron Bunny with an exact spawnProducerId/invocationId.",
+        "makeBunny constructs one AttackEvent, installs the same b.explode callback as OnKill and OnExpiry, and registers the gadget; Baron Bunny has no OnThink emitter.",
+        "The terminal b.explode callback queues that AttackEvent exactly once with damage delay 1. Natural expiry calls OnExpiry then removes the gadget. Explicit Kill calls OnKill then removes it.",
+        "At C2+, the aimed-shot bunny branch schedules manualExplode, which calls the first Bunny.Kill; the Init-installed Overload hook calls Kill on matching bunnies. Both paths use the same OnKill->explode callback; C4 allows two skill charges but each E has a separate spawn task and entity ID.",
+        "Incoming hits on Bunny can cause reactions through Bunny.HandleAttack/React, but these are not intrinsic bunny explosion emissions and are not counted by the explicit explode emit site."
+      ],
+      "closureGuard": "For each exact E invocation, its spawn producer completed and exactly one entity row names it; the actual entity ended via kill or expiry with one completed terminal trigger and one tagged explode queue reference; pending attack stage(s) and exact dispatch close. A later C2 manual/Overload trigger can end the E-owned entity without rewriting the later trigger action as E. If still active or the explosion is pending at the observation window, closure remains pending.",
+      "excluded": "On-hit reactions from attacks hitting Bunny, weapon effects, and particle callback output are outside the intrinsic E damage component."
+    },
+    {
+      "family": "Yaoyao E / Yuegui Throwing",
+      "sourceSites": [
+        "internal/characters/yaoyao/skill.go:22-32",
+        "internal/characters/yaoyao/yuegui.go:27-58",
+        "internal/characters/yaoyao/yuegui.go:99-163",
+        "internal/characters/yaoyao/cons.go:88-130"
+      ],
+      "classification": "implemented gadget family across all constellations; C6 branch explicitly tracked",
+      "sourceContract": [
+        "Each accepted E schedules one delayed spawn producer; it creates and registers one throwing Yuegui. Its duration is 600 local Gadget ticks, but the configured type limit of two can kill an older Yuegui early.",
+        "Each actual think callback registers exactly one character-local radish-flight producer with travelDelay-1. Each completed flight producer queues exactly one radish attack after selecting its AI from the then-current burst status.",
+        "At C6, the pre-increment throwCounter values 2 and 5 add exactly one direct Mega Radish queue per corresponding think callback; all other thinks add none. The callback increments throwCounter once afterward.",
+        "A flight producer may remain pending after the gadget ended. Natural expiry has no OnExpiry callback; explicit type-limit Kill invokes a log-only OnKill callback with zero attacks/producers.",
+        "The separate Q jumping Yuegui AddGadget site is not registered in 110; Q status may change an E Yuegui radish AI at flight completion without changing which entity owns the emission."
+      ],
+      "closureGuard": "Require actual E spawn producer and entity census, actual entity end, every recorded think trigger and its exactly one child flight producer completed, each producer exactly one tagged radish queue, C6 direct queue only on actual third/sixth think, and all resulting attack stages/dispatches closed. Ending the entity alone does not close still-flying radishes.",
+      "excluded": "Radish healing, particle callbacks and C1/C2/C4 buffs are outside intrinsic damage, but any damage-emitting C6 branch must be audited."
+    },
+    {
+      "family": "Yaoyao Q / Yuegui Jumping",
+      "sourceSites": [
+        "internal/characters/yaoyao/burst.go:38-66",
+        "internal/characters/yaoyao/burst.go:105-127",
+        "internal/characters/yaoyao/yuegui.go:61-93"
+      ],
+      "classification": "same gadget ABI but additional status and early-swap termination",
+      "sourceContract": [
+        "Q directly queues an initial hit and schedules three spawn tasks at 104, 162, 221.",
+        "Each spawn is conditional on active burst status and count<3; jumping Yuegui has Duration -1 and is killed by removeBurst at duration or character swap.",
+        "Existing throwing Yuegui may also use burst AI while Q status is active; do not claim those existing entities were created by Q."
+      ],
+      "closureGuard": "Requires all three spawn tasks to complete, actual jumping entity termination via removeBurst/other removal, child throw tasks and attacks closed. Early swap must be observed."
+    },
+    {
+      "family": "Klee E",
+      "sourceSites": [
+        "internal/characters/klee/skill.go:31-160"
+      ],
+      "classification": "not Gadget",
+      "sourceContract": [
+        "An action callback eagerly queues configured bounce and mine attacks. This belongs in finite action/producer contracts, not gadget lifecycle."
+      ]
+    },
+    {
+      "family": "Furina E",
+      "sourceSites": [
+        "internal/characters/furina/skill.go:108-191",
+        "internal/characters/furina/skill.go:193-350"
+      ],
+      "classification": "not Gadget",
+      "sourceContract": [
+        "Salon/Singer behavior is recursive Core.Tasks callbacks guarded by arkhe, skillKey and lastSummonSrc; attack delivery uses further queued tasks.",
+        "Recast/desummon invalidation is current source state; a Gadget instance ledger would invent an entity that native code does not have. A separate task/status generator contract is required."
+      ]
+    }
+  ],
+  "proposedABI": {
+    "principle": "Keep entity ownership observational and separate from SourceHostOrigin.creationActionSequence/triggerActionSequence/statusOwner. Bind to an invocation only through an explicit audited spawn site while that invocation or an annotated descendant producer is active. Never infer by actor, ability string, AttackTag, target key alone, or time.",
+    "ownedEntities": [
+      {
+        "id": "positive run-local entity instance ID",
+        "kind": "gadget",
+        "siteId": "audited spawn source site",
+        "invocationId": "optional exact active invocation or producer-linked invocation",
+        "parentEntityId": "optional exact active entity context at spawn",
+        "actorIndex": "source actor",
+        "targetKey": "actual key after AddGadget SetKey",
+        "createdFrame": "actual AddGadget frame",
+        "endedFrame": "optional actual manager removal frame",
+        "endReason": "optional killed|expired|removed|replaced; active if absent",
+        "triggerIds": "always [] or recorded callback IDs",
+        "producerIds": "always [] or recorded deferred entity-producer IDs"
+      }
+    ],
+    "ownedEntityTriggers": [
+      {
+        "id": "positive run-local callback ID",
+        "entityId": "exact entity instance",
+        "siteId": "audited callback source site",
+        "kind": "think|kill|expiry|collision",
+        "startedFrame": "callback entry",
+        "completedFrame": "callback return",
+        "childProducerIds": "always [] or actual registered deferred producers",
+        "queuedAttacks": "always [] or exact queue references with queueId, optional attackId, emitSiteId"
+      }
+    ],
+    "ownedEntityProducers": [
+      {
+        "id": "positive producer ID",
+        "entityId": "entity captured at actual task registration, even if entity later ends",
+        "parentTriggerId": "optional exact callback that scheduled it",
+        "siteId": "audited deferred emitter source site",
+        "state": "pending|completed",
+        "queuedFrame": "actual task registration frame",
+        "startedFrame": "optional callback start",
+        "completedFrame": "optional callback return",
+        "queuedAttacks": "always [] or exact queue references with emitSiteId"
+      }
+    ],
+    "queueIdentity": "For the audited first families, use the existing CaptureAttack queueId and subsequent pendingAttackStages/attackDispatchCompletions after an explicit entity emit-site wrapper. Do not equate AttackID with a unique emission or dispatch. Any future source that queues one AttackEvent multiple times requires an independent per-queue emission ID at QueueAttackEvent/queueDmg scheduling before being admitted to a complete contract.",
+    "independentLedgers": "Entity.triggerIds and producerIds list the IDs registered at native callback/task insertion time, so omitted child arrays cannot silently appear as zero triggers. The audited source contract still supplies the expected spawn/callback structure; ledger emptiness alone is not completion."
+  },
+  "minimalNativeInsertionPoints": [
+    {
+      "site": "pkg/core/combat/gadget.go:AddGadget",
+      "action": "After SetKey, register the exact gadget object and assigned TargetKey; capture audited site and active producer/invocation context. Surround hard-limit Kill of old gadget with an actual replacement cause if needed."
+    },
+    {
+      "site": "pkg/gadget/gadget.go:Kill/Tick",
+      "action": "Observe real OnKill, OnThinkInterval, OnExpiry callbacks and actual callback return without altering order; removal receipt must follow callback. Use scoped entity context so its direct queued attacks carry entity ID while SourceHostOrigin remains truthful."
+    },
+    {
+      "site": "pkg/core/combat/gadget.go:ReplaceGadget/RemoveGadget",
+      "action": "Close by exact key/object at actual removal/replacement. A nonnil replacement is a new object and must not inherit ownership unless its own audited source registration says so."
+    },
+    {
+      "site": "pkg/core/combat/combat.go:Tick collision calls",
+      "action": "For audited collision emitters, scope the exact entity around OnCollision; do not classify incoming HandleAttack or reactions as intrinsic by default."
+    },
+    {
+      "site": "internal/characters/amber/skill.go and bunny.go",
+      "action": "Tag E spawn task, AddGadget, and the sole terminal QueueAttackEvent call with stable source-site IDs."
+    },
+    {
+      "site": "internal/characters/yaoyao/skill.go, burst.go, yuegui.go, cons.go",
+      "action": "Tag spawn tasks/AddGadget, OnThink callback, flight QueueCharTask producer, normal radish queue and C6 queue; preserve entity ID through delayed task callback even after removal."
+    },
+    {
+      "site": "pkg/core/sourcehost/attack.go and pkg/core/attack.go",
+      "action": "Use explicit active entity emission site at the actual queue call to append queueId/attack pointer; do not change AttackEvent origin or allocate AttackID earlier."
+    }
+  ],
+  "phaseAndBehavior": "New observational fields must be excluded from phase normalization. Gadget and Combat SourceHostPhaseState explicitly enumerate gameplay fields; do not add entity IDs to those projections. No extra Stat/RNG reads, scheduler changes, or callback reorder.",
+  "completenessBoundary": "This ABI can establish source-audited intrinsic entity damage closure only when the fixed source contract enumerates every entity emitter and deferred child producer, the exact entity is actually ended, and every child attack schedule/dispatch is closed. It does not certify weapon effects, reactions caused by incoming hits, heals, buffs, or general all-skill completion.",
+  "implementationAudit": {
+    "patch": "packages/source-host/patches/110-owned-entities.patch",
+    "overlayPaths": [
+      "packages/source-host/go/pkg/core/sourcehost/owned_entity.go",
+      "packages/source-host/go/pkg/core/sourcehost_owned_entity.go",
+      "packages/source-host/go/pkg/core/player/character/sourcehost_owned_entity.go",
+      "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/owned_entity.go",
+      "packages/source-host/stellar-overlay/go/pkg/core/sourcehost_owned_entity.go",
+      "packages/source-host/stellar-overlay/go/pkg/core/player/character/sourcehost_owned_entity.go"
+    ],
+    "wireTopLevel": [
+      "ownedEntities",
+      "ownedEntityTriggers",
+      "ownedEntityProducers"
+    ],
+    "explicitSpawnSites": [
+      "amber.skill.spawn-bunny",
+      "amber.skill.bunny",
+      "yaoyao.skill.spawn-yuegui",
+      "yaoyao.skill.yuegui"
+    ],
+    "explicitEmitterSites": [
+      "amber.skill.bunny.explode",
+      "yaoyao.skill.radish",
+      "yaoyao.skill.mega-radish"
+    ],
+    "deferredProducerSites": [
+      "yaoyao.skill.radish-flight"
+    ],
+    "callbackSiteRule": "ownedEntityTrigger.siteId is entity.siteId followed by .think, .kill or .expiry, only for callbacks that actually ran on a registered entity.",
+    "directRootExclusion": "EndAbilityInvocation and RegisterAbilityProducer exclude queuedAttackReferences with nonzero entityID or ownedTriggerID, so entity/status-owned emissions cannot be counted a second time as direct action/producer roots.",
+    "originRule": "SourceHostOrigin creation/trigger/status fields remain unchanged; entity ownership is a separate observational relationship.",
+    "phaseRule": "Only Bridge and queue-reference sidecars were added; Gadget and Combat phase projections explicitly enumerate gameplay fields and omit these receipts.",
+    "knownBoundary": "110 tags Amber and throwing Yaoyao E only. Yaoyao Q jumping gadget, generic constructs, Furina recurring task salons, and Klee finite bounce/mine action queue are outside this entity contract."
+  }
+}

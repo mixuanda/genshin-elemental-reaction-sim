@@ -1,0 +1,54 @@
+{
+  "batch": 118,
+  "sourcePath": "internal/characters/beidou/burst.go",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "pre118SourceHashes": {
+    "classicSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51",
+    "stellarSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51"
+  },
+  "patchedSha256": "a7bf55f5c54c03371adf037cfdb16b233d86ef08436369d615b5ea948f299e6a",
+  "patchSha256": "98584849808c1bbbea3b5b16fd235ea8e794e81a68855a3b9c18d6cb7e0fc1a3",
+  "sourceRefs": {
+    "initialAttack": "internal/characters/beidou/burst.go:33-53",
+    "statusActivation": "internal/characters/beidou/burst.go:55-57",
+    "listener": "internal/characters/beidou/burst.go:129-173",
+    "callbackChain": "internal/characters/beidou/burst.go:175-213"
+  },
+  "generator": {
+    "siteId": "beidou.burst.stormbreaker-status",
+    "statusKey": "beidouburst",
+    "durationFrames": 900,
+    "hitlagExtendable": false
+  },
+  "trigger": {
+    "siteId": "beidou.burst.stormbreaker.enemy-damage",
+    "kind": "enemy-damage",
+    "ownedEmit": "beidou.burst.bounce",
+    "eventEmit": "beidou.burst.first-bounce",
+    "eventOwnerFact": "beidou.burst.status-instance"
+  },
+  "scope": "One Q initial hit plus every successful native burst listener invocation bound to that exact status instance and all actual callback-chain attacks, including in-flight children after status termination. Q buff/shield effect quantities and separately dispatched reaction/weapon/artifact damage excluded.",
+  "preservation": "Original AddStatus and firstbounce QueueAttackEvent each execute once. Existing event/callback sites and branch facts retained. Additional ownership annotations consume metadata already bound by generator trigger; no new status getter, RNG call, damage formula, gate, scheduler, or callback-order changes.",
+  "checksRun": [],
+  "nonDamageCallbacksAndInitAudit": "beidou.go Init registers only the audited burstProc and C4 HP-drain status listener. C4 damage attaches to later normal attack callbacks, not Q intrinsic attacks. Burst C1 creates shield only; C6 schedules resistance modifiers every30f through900f, no attack queue. Burst action return has no animation Queue or OnRemoved callback. Existing source A1 and C4 charged-attack TODOs remain source limitations, not completed game mechanics.",
+  "relatedSourceHashes": {
+    "internal/characters/beidou/beidou.go": {
+      "classicSha256": "5a474fca851dfdb5ac0f15e4f70da70522477802f5ff02b42aedad4012818cb3",
+      "stellarSha256": "5a474fca851dfdb5ac0f15e4f70da70522477802f5ff02b42aedad4012818cb3",
+      "identical": true
+    },
+    "internal/characters/beidou/cons.go": {
+      "classicSha256": "4c2726cd3d4756b61d6fc63315267666dac7ef0b9f800c3137bd8aad91947a26",
+      "stellarSha256": "4c2726cd3d4756b61d6fc63315267666dac7ef0b9f800c3137bd8aad91947a26",
+      "identical": true
+    },
+    "internal/characters/beidou/asc.go": {
+      "classicSha256": "2e0c5dafcddc7c4136d10b6db04dca7feba2b35f6d1404013b426feb55461eb8",
+      "stellarSha256": "2e0c5dafcddc7c4136d10b6db04dca7feba2b35f6d1404013b426feb55461eb8",
+      "identical": true
+    }
+  }
+}

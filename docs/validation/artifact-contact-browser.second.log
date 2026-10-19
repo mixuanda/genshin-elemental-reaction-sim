@@ -1,0 +1,49 @@
+
+Running 2 tests using 2 workers
+
+(node:20319) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:20320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/2] [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent
+[2/2] [chromium] › apps/web/e2e/artifact-damage-lifecycle.spec.ts:70:1 › Normal team controls execute Echoes and Song lifecycles, explain actual host additions, and restore calculator and full-run JSON
+[chromium] › apps/web/e2e/artifact-damage-lifecycle.spec.ts:70:1 › Normal team controls execute Echoes and Song lifecycles, explain actual host additions, and restore calculator and full-run JSON
+Artifact lifecycle browser measurements {"echoesDraws":11,"echoesSuccesses":6,"echoesDamage":7600,"songRequestedHealing":15000,"songConversionFrame":360,"songConsumedFrames":[361,373,385,397,409],"songDamage":8500,"hostReplayDifference":0,"fullRunRestored":true}
+
+  1) [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.getAttribute: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#calc-skill option').filter({ hasText: '蝶引来生·本次血梅香完整尾段（C0）' })
+
+
+      23 |   const definitions = JSON.parse(await readFile(new URL("../../../packages/game-data/sources/observed-entity-casts/definitions.json", import.meta.url), "utf8")) as { templates: Array<{ skillId: string; label: string }> };
+      24 |   const label = definitions.templates.find(cast => cast.skillId === skillId)!.label;
+    > 25 |   const action = await page.locator("#calc-skill option").filter({ hasText: label }).getAttribute("value");
+         |                                                                                      ^
+      26 |   expect(action).toBeTruthy();
+      27 |   await page.locator("#calc-skill").selectOption(action!);
+      28 |   await page.locator("#calc-constellation").selectOption("0");
+        at selectAction (/Users/evan/Documents/gidps/apps/web/e2e/observed-contact-mark-calculator.spec.ts:25:86)
+        at /Users/evan/Documents/gidps/apps/web/e2e/observed-contact-mark-calculator.spec.ts:110:3
+
+    Error Context: test-results/observed-contact-mark-calc-4313a-keep-a-past-hit-independent-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/observed-contact-mark-calc-4313a-keep-a-past-hit-independent-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/observed-contact-mark-calc-4313a-keep-a-past-hit-independent-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent 
+  1 passed (30.8s)

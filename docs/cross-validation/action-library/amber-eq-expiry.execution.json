@@ -1,0 +1,17 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/action-library/amber-eq-expiry.gcsl",
+    "-out",
+    "docs/cross-validation/action-library/amber-eq-expiry.result.json",
+    "-sample",
+    "docs/cross-validation/action-library/amber-eq-expiry.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-23T12:15:16.356625+00:00",
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 12.00 seconds (min: 12.00 max: 12.00 std: 0.00)\nAverage 82.36 damage over 12.00 seconds, resulting in 7 dps (min: 6.86 max: 6.86 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 9172731396186557696 to docs/cross-validation/action-library/amber-eq-expiry.sample.json\n",
+  "stderr": ""
+}

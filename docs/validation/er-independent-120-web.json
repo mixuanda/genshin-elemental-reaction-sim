@@ -1,0 +1,13 @@
+{
+  "name": "web",
+  "command": [
+    "npm",
+    "run",
+    "build",
+    "--workspace",
+    "@genshin-dps-lab/web"
+  ],
+  "elapsedSeconds": 1.144,
+  "exitCode": 0,
+  "log": "docs/validation/logs/er-independent-120-web.txt"
+}

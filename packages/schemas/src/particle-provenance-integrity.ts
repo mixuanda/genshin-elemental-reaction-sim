@@ -1,5 +1,12 @@
+import { isDeclaredTargetDefeatedMiss } from "./target-health-integrity";
 import type { RefinementCtx } from "zod";
+import { EnergyReplayRandom, replayFavoniusParticleSpawns } from "./energy-replay-integrity";
+import { actionEventPriority, actionOwner, isActionHitSelected } from "./action-condition-integrity";
+import { replayPeriodicEntities } from "./periodic-entity-replay";
+import { replayWeaponProcOccurrences } from "./weapon-proc-replay";
+import { resolveTimelineCommandAbilityId } from "./source-normal-chain";
 import type {
+  ActorPoseDefinition,
   HitDefinition,
   HitGeometry,
   HitTargeting,
@@ -14,6 +21,13 @@ type IssuePath = Array<string | number>;
 type ActionLogEntry = SimulationResult["actionLog"][number];
 type HitResolutionLogEntry =
   SimulationResult["hitResolutionLog"][number];
+type ConfiguredHitElementResolver = (
+  action: ActionLogEntry,
+  hitIndex: number,
+  frame: number,
+  timeSeconds: number,
+  configuredElement: HitResolutionLogEntry["element"]
+) => HitResolutionLogEntry["element"];
 
 const FLOAT_TOLERANCE = 1e-9;
 const GEOMETRY_EPSILON = 1e-9;
@@ -32,6 +46,7 @@ interface NormalizedHitBlueprint {
 
 interface NormalizedParticleTrigger {
   hitIds: readonly string[];
+  probability: number | undefined;
   internalCooldownKey: string | null;
   internalCooldownDurationFrames: number | null;
 }
@@ -49,22 +64,25 @@ interface NormalizedParticleBlueprint {
 }
 
 interface NormalizedActionBlueprint {
+  priority: number;
   actorId: string;
   definitionId: string;
   name: string;
   hits: NormalizedHitBlueprint[];
+  periodicHitIds: ReadonlySet<string>;
   particles: NormalizedParticleBlueprint[];
   configPath: IssuePath;
 }
 
 interface BoundAction {
   logIndex: number;
-  log: ActionLogEntry;
+  log: Pick<ActionLogEntry, "time" | "frame" | "actorId" | "actionId" | "action" | "cycle">;
   blueprint: NormalizedActionBlueprint;
-  /** Configuration-derived action enqueue order; never inferred from result rows. */
+  /** Configured action order, or the independently validated triggering callback's sequence. */
   executionOrder: number;
   timelineCommandIndex: number | undefined;
   sourceAbilityId: string | undefined;
+  weaponProcOccurrence?: ReturnType<typeof replayWeaponProcOccurrences>[number];
 }
 
 interface IndexedHitResolution {
@@ -78,12 +96,17 @@ interface IndexedDirectDamageEvent {
 }
 
 interface ExpectedHitGroup {
+  priority: number;
   action: BoundAction;
   hit: NormalizedHitBlueprint & { id: string };
   hitIndex: number;
   frame: number;
   timeSeconds: number;
   hitGroupId: string;
+  enqueueFrame: number;
+  enqueueTimeSeconds: number;
+  enqueuePriority: number;
+  enqueueOrder: number;
   targetPlans: ExpectedDirectTargetPlan[];
   rows: IndexedHitResolution[];
 }
@@ -139,11 +162,17 @@ interface ExpectedTrigger {
     | "INTERNAL_COOLDOWN"
     | "TARGET_MISS"
     | "TARGET_HIT_CONFIRM_BLOCKED"
+    | "PROBABILITY_FAILED"
     | null;
   internalCooldownReadyFrame: number | null;
+  probability?: number;
+  roll?: number | null;
+  drawIndex?: number | null;
+  rngStream?: "particle-trigger-v1";
 }
 
 interface ExpectedParticleOccurrence {
+  priority: number;
   action: BoundAction;
   particle: NormalizedParticleBlueprint;
   source: string;
@@ -153,8 +182,9 @@ interface ExpectedParticleOccurrence {
   cycle: number;
   triggerLogId: number | null;
   triggerHitId: string | null;
-  enqueueKind: "scheduled" | "hit-confirm";
+  enqueueKind: "scheduled" | "hit-confirm" | "favonius";
   enqueueOrder: number;
+  callbackResolutionIndex?: number | undefined;
 }
 
 function addIssue(
@@ -577,9 +607,11 @@ function normalizeLegacyAction(
   actionIndex: number
 ): NormalizedActionBlueprint {
   return {
+    priority: actionEventPriority(action),
     actorId: action.actorId,
     definitionId: action.id,
     name: action.name,
+    periodicHitIds: new Set((action.periodicEntities ?? []).flatMap(entity => entity.hitIds)),
     hits: (action.hits ?? []).map((hit) => ({
       id: hit.id,
       offsetSeconds: hit.offset,
@@ -607,6 +639,7 @@ function normalizeLegacyAction(
             ? null
             : {
                 hitIds: particle.trigger.hitIds,
+                probability: particle.trigger.probability,
                 internalCooldownKey:
                   particle.trigger.internalCooldown?.key ?? null,
                 internalCooldownDurationFrames:
@@ -632,9 +665,11 @@ function normalizeTimelineAbility(
   abilityIndex: number
 ): NormalizedActionBlueprint {
   return {
+    priority: actionEventPriority(ability),
     actorId: ability.actorId,
     definitionId: ability.id,
     name: ability.name,
+    periodicHitIds: new Set((ability.periodicEntities ?? []).flatMap(entity => entity.hitIds)),
     hits: (ability.hits ?? []).map((hit) => ({
       id: hit.id,
       offsetSeconds: hit.frame / FPS,
@@ -662,6 +697,7 @@ function normalizeTimelineAbility(
             ? null
             : {
                 hitIds: particle.trigger.hitIds,
+                probability: particle.trigger.probability,
                 internalCooldownKey:
                   particle.trigger.internalCooldown?.key ?? null,
                 internalCooldownDurationFrames:
@@ -1084,7 +1120,7 @@ function bindTimelineActions(
     if (
       command === undefined ||
       !("abilityId" in command) ||
-      command.abilityId !== commandResult.abilityId
+      resolveTimelineCommandAbilityId(command, commandResult.abilityId, result.config.sourceAbilityBindings) !== commandResult.abilityId
     ) {
       addIssue(
         context,
@@ -1224,6 +1260,31 @@ function bindActions(
     : bindTimelineActions(result, context);
 }
 
+/** Proc actions are callback-owned occurrences, never additional actionLog rows. */
+function bindWeaponProcActions(result: SimulationResult): BoundAction[] {
+  return replayWeaponProcOccurrences(result).map(occurrence => ({
+    logIndex: -1,
+    log: {
+      time: occurrence.action.at,
+      frame: occurrence.snapshotFrame,
+      actorId: occurrence.actorId,
+      actionId: occurrence.actionId,
+      action: occurrence.action.name,
+      cycle: occurrence.cycle
+    },
+    blueprint: {
+      ...normalizeLegacyAction(occurrence.action, -1),
+      priority: occurrence.snapshotPriority,
+      configPath: ["config", "weaponProcModel", "actors",
+        result.config.weaponProcModel!.actors.findIndex(actor => actor.actorId === occurrence.actorId)]
+    },
+    executionOrder: occurrence.snapshotEventSequence ?? occurrence.callbackEventSequence ?? occurrence.parent.eventSequence,
+    timelineCommandIndex: undefined,
+    sourceAbilityId: undefined,
+    weaponProcOccurrence: occurrence
+  }));
+}
+
 function particleIdentity(
   action: BoundAction,
   particle: NormalizedParticleBlueprint
@@ -1330,7 +1391,7 @@ function createTargetPositionResolver(
 
 function resolveExpectedDirectTargetPlan({
   result,
-  action,
+  actorPose,
   frame,
   target,
   targeting,
@@ -1341,7 +1402,7 @@ function resolveExpectedDirectTargetPlan({
   geometryResolution
 }: {
   result: SimulationResult;
-  action: BoundAction;
+  actorPose: ActorPoseDefinition | undefined;
   frame: number;
   target: ConfiguredEnemyTarget;
   targeting: HitTargeting | undefined;
@@ -1353,9 +1414,6 @@ function resolveExpectedDirectTargetPlan({
     | ReturnType<typeof resolveHitGeometry>
     | null;
 }): ExpectedDirectTargetPlan {
-  const actorPose = result.config.actorPoses?.find(
-    (pose) => pose.actorId === action.log.actorId
-  );
   const outcome =
     geometryResolution === null
       ? (targeting?.outcome ?? "landed")
@@ -1450,17 +1508,17 @@ function resolveExpectedDirectTargetPlan({
 
 function buildExpectedTargetPlans(
   result: SimulationResult,
-  action: BoundAction,
   hit: NormalizedHitBlueprint,
   frame: number,
   targets: readonly ConfiguredEnemyTarget[],
   resolveTargetPosition: (
     targetId: string,
     frame: number
-  ) => { x: number; y: number } | null
+  ) => { x: number; y: number } | null,
+  poseActorId: string | undefined
 ): ExpectedDirectTargetPlan[] {
   const actorPose = result.config.actorPoses?.find(
-    (pose) => pose.actorId === action.log.actorId
+    (pose) => pose.actorId === poseActorId
   );
   const geometry = hit.geometry;
   if (geometry !== undefined) {
@@ -1482,7 +1540,7 @@ function buildExpectedTargetPlans(
       );
       return resolveExpectedDirectTargetPlan({
         result,
-        action,
+        actorPose,
         frame,
         target,
         targeting: {
@@ -1521,7 +1579,7 @@ function buildExpectedTargetPlans(
     }
     return resolveExpectedDirectTargetPlan({
       result,
-      action,
+      actorPose,
       frame,
       target,
       targeting,
@@ -1743,7 +1801,8 @@ function validateDirectTargetDamageCompleteness(
 function buildExpectedHitGroups(
   result: SimulationResult,
   context: RefinementCtx,
-  actions: readonly BoundAction[]
+  actions: readonly BoundAction[],
+  resolveConfiguredHitElement?: ConfiguredHitElementResolver
 ): ExpectedHitGroup[] {
   const frameNative =
     result.compatibilityMode === "legal-frame-v1";
@@ -1782,8 +1841,41 @@ function buildExpectedHitGroups(
     result,
     configuredTargets
   );
+  const periodicTicks = replayPeriodicEntities(result).filter(row => row.operation === "tick");
+  // Action events select the active actor before their energy check, including
+  // skipped actions. Periodic entities capture that actor's static pose at the
+  // tick; a swap during the later hit delay must not move the queued geometry.
+  const activeAttempts = periodicTicks.length === 0 ? [] : [...result.actionLog, ...result.skippedActions].sort((left, right) =>
+    left.frame - right.frame || actionEventPriority(actionOwner(result.config, left)) - actionEventPriority(actionOwner(result.config, right)) || left.cycle - right.cycle ||
+    (left.timelineCommandIndex ?? result.config.rotation.findIndex(action => action.id === left.actionId && action.actorId === left.actorId)) -
+    (right.timelineCommandIndex ?? result.config.rotation.findIndex(action => action.id === right.actionId && action.actorId === right.actorId)));
+  const activeAt = (frame: number, priority: number): string | undefined => {
+    let actorId = result.config.timeline?.initialActiveCharacterId ?? result.config.characters[0]?.id;
+    for (const attempt of activeAttempts) {
+      if (attempt.frame > frame || attempt.frame === frame && actionEventPriority(actionOwner(result.config, attempt)) > priority) break;
+      actorId = attempt.actorId;
+    }
+    return actorId;
+  };
   for (const action of actions) {
-    action.blueprint.hits.forEach((hit, hitIndex) => {
+    const actionTicks = periodicTicks.filter(tick => tick.actionLogIndex === action.logIndex);
+    const hitOccurrences = action.blueprint.hits.flatMap((hit, hitIndex) => {
+      if (action.weaponProcOccurrence === undefined &&
+          !isActionHitSelected(result, action.logIndex, hit.id ?? `${action.log.actionId}:hit-${hitIndex}`)) return [];
+      if (hit.id !== undefined && action.blueprint.periodicHitIds.has(hit.id)) {
+        return actionTicks.filter(tick => tick.definition.hitIds.includes(hit.id!)).map(tick => ({
+          hit, hitIndex, rawTimeSeconds: (tick.frame + tick.definition.hitDelayFrames) / FPS,
+          enqueueFrame: tick.frame, enqueueTimeSeconds: tick.frame / FPS, enqueuePriority: tick.eventPriority, enqueueOrder: tick.order,
+          poseActorId: action.weaponProcOccurrence === undefined ? activeAt(tick.frame, tick.eventPriority) ?? action.log.actorId : undefined
+        }));
+      }
+      return [{ hit, hitIndex, rawTimeSeconds: action.log.time + hit.offsetSeconds,
+        enqueueFrame: action.weaponProcOccurrence?.snapshotFrame ?? action.log.frame,
+        enqueueTimeSeconds: action.weaponProcOccurrence?.snapshotTimeSeconds ?? action.log.time,
+        enqueuePriority: action.weaponProcOccurrence?.snapshotPriority ?? action.blueprint.priority, enqueueOrder: action.executionOrder,
+        poseActorId: action.weaponProcOccurrence === undefined ? action.log.actorId : undefined }];
+    });
+    hitOccurrences.forEach(({ hit, hitIndex, rawTimeSeconds, enqueueFrame, enqueueTimeSeconds, enqueuePriority, enqueueOrder, poseActorId }) => {
       const hitId =
         hit.id ?? `${action.log.actionId}:hit-${hitIndex}`;
       const normalizedHit = { ...hit, id: hitId };
@@ -1797,9 +1889,7 @@ function buildExpectedHitGroups(
           `Hit "${hitId}" passed Schema validation without scaling owner "${scalingOwnerId}".`
         );
       }
-      const expectedElement = hit.element ?? scalingOwner.element;
-      const rawTimeSeconds =
-        action.log.time + hit.offsetSeconds;
+      const configuredElement = hit.element ?? scalingOwner.element;
       if (
         rawTimeSeconds >
         result.config.duration + FLOAT_TOLERANCE
@@ -1817,6 +1907,10 @@ function buildExpectedHitGroups(
       const timeSeconds = frameNative
         ? frame / FPS
         : rawTimeSeconds;
+      const priority = 3 + (enqueuePriority >= 8 && frame === enqueueFrame ? 10 : 0);
+      const expectedElement = action.weaponProcOccurrence !== undefined ? configuredElement : resolveConfiguredHitElement?.(
+        result.actionLog[action.logIndex]!, hitIndex, frame, timeSeconds, configuredElement
+      ) ?? configuredElement;
       const hitGroupId =
         `${action.log.actionId}:${action.log.cycle}:` +
         `${hitIndex}:${frame}`;
@@ -1832,11 +1926,11 @@ function buildExpectedHitGroups(
       const rows = rowsByGroupId.get(hitGroupId) ?? [];
       const targetPlans = buildExpectedTargetPlans(
         result,
-        action,
         hit,
         frame,
         configuredTargets,
-        resolveTargetPosition
+        resolveTargetPosition,
+        poseActorId
       );
       if (rows.length !== targetPlans.length) {
         addIssue(
@@ -1867,6 +1961,15 @@ function buildExpectedHitGroups(
         }
         const indexed = matches[0];
         if (indexed === undefined) return;
+        if (isDeclaredTargetDefeatedMiss(result, indexed.row)) {
+          plan.outcome = "miss";
+          plan.landed = false;
+          plan.reason = "TARGET_DEFEATED";
+          plan.targetEffectSource = "hit";
+          plan.damageAllowed = false;
+          plan.auraAllowed = false;
+          plan.hitConfirmAllowed = false;
+        }
         consumedDirectRowIndexes.add(indexed.index);
         claimedRows.push(indexed);
         validateDirectTargetRow(
@@ -1882,6 +1985,15 @@ function buildExpectedHitGroups(
           targetPlans.length,
           plan
         );
+        const damage = indexed.row.damageEventId === null ? undefined : result.damageEvents[indexed.row.damageEventId];
+        if (damage !== undefined) {
+          expectEqual(context, ["damageEvents", damage.id, "eventPriority"],
+            damage.eventPriority, priority, "configured direct hit priority");
+          expectEqual(context, ["damageEvents", damage.id, "weaponProcLogId"],
+            damage.weaponProcLogId, action.weaponProcOccurrence?.logId, "configured direct hit weapon proc owner");
+          expectEqual(context, ["damageEvents", damage.id, "parentDamageEventId"],
+            damage.parentDamageEventId, action.weaponProcOccurrence?.parent.id ?? null, "configured direct hit callback parent");
+        }
         validateDirectTargetDamageCompleteness(
           result,
           context,
@@ -1891,16 +2003,29 @@ function buildExpectedHitGroups(
         );
       });
       expectedGroups.push({
+        priority,
         action,
         hit: normalizedHit,
         hitIndex,
         frame,
         timeSeconds,
         hitGroupId,
+        enqueueFrame,
+        enqueueTimeSeconds,
+        enqueuePriority,
+        enqueueOrder,
         targetPlans,
         rows: claimedRows
       });
     });
+  }
+
+  for (const action of actions) {
+    const occurrence = action.weaponProcOccurrence;
+    if (occurrence !== undefined && !consumedDirectRowIndexes.has(occurrence.parent.targetResolutionId)) {
+      addIssue(context, ["weaponProcLog", occurrence.logId, "parentDamageEventId"],
+        "weapon proc parent must belong to an independently replayed executed direct hit target");
+    }
   }
 
   let orphanIssues = 0;
@@ -1930,17 +2055,42 @@ function buildExpectedHitGroups(
     );
   }
 
+  // Sword's delayed task is queued by the actual parent hit, then creates its
+  // own immediate hit when it runs. Authenticate the task ID against every
+  // independently bound hit enqueue, so a forged task ID cannot move its hit
+  // across another weapon's deferred callback in the same frame.
+  const delayedTasks = new Map(actions.flatMap(action => {
+    const proc = action.weaponProcOccurrence;
+    return proc?.snapshotEventSequence === undefined ? [] : [[proc.logId, proc] as const];
+  }));
+  for (const proc of delayedTasks.values()) {
+    for (const group of expectedGroups) {
+      const creationOrder = (frameNative ? group.enqueueFrame - proc.parent.frame
+        : group.enqueueTimeSeconds - proc.parent.timeSeconds) ||
+        group.enqueuePriority - proc.parent.eventPriority || group.enqueueOrder - proc.parent.eventSequence;
+      if (creationOrder === 0) continue;
+      for (const { row } of group.rows) {
+        if (creationOrder < 0 ? row.eventSequence! >= proc.snapshotEventSequence! : row.eventSequence! <= proc.snapshotEventSequence!) {
+          addIssue(context, ["weaponProcLog", proc.logId, "snapshotEventSequence"],
+            "delayed weapon task sequence must follow independently replayed hit enqueue order");
+        }
+      }
+    }
+  }
+
   const sortedGroups = expectedGroups.sort((left, right) => {
     const hitClockOrder = frameNative
       ? left.frame - right.frame
       : left.timeSeconds - right.timeSeconds;
     if (hitClockOrder !== 0) return hitClockOrder;
-    const actionClockOrder = frameNative
-      ? left.action.log.frame - right.action.log.frame
-      : left.action.log.time - right.action.log.time;
+    if (left.priority !== right.priority) return left.priority - right.priority;
+    const enqueueClockOrder = frameNative
+      ? left.enqueueFrame - right.enqueueFrame
+      : left.enqueueTimeSeconds - right.enqueueTimeSeconds;
     return (
-      actionClockOrder ||
-      left.action.executionOrder - right.action.executionOrder ||
+      enqueueClockOrder ||
+      left.enqueuePriority - right.enqueuePriority ||
+      left.enqueueOrder - right.enqueueOrder ||
       left.hitIndex - right.hitIndex
     );
   });
@@ -1971,6 +2121,8 @@ function buildExpectedTriggers(
   groups: readonly ExpectedHitGroup[]
 ): ExpectedTrigger[] {
   const cooldownReadyFrames = new Map<string, number>();
+  const probabilityRandom = new EnergyReplayRandom(`${result.resolvedRuntimeOptions.randomSeed}\u0000particle-trigger-v1`);
+  let probabilityDrawCount = 0;
   const expected: ExpectedTrigger[] = [];
   const particlesByActionAndHitId = new Map<
     BoundAction,
@@ -2046,13 +2198,23 @@ function buildExpectedTriggers(
           internalCooldownReadyFrame
         );
       }
+      // The configured trigger commits its ICD before its independent chance
+      // check, including a failed roll; miss/blocked callbacks draw nothing.
+      let roll: number | null = null;
+      let drawIndex: number | null = null;
+      if (trigger.probability !== undefined && hitConfirmAllowed && !blockedByInternalCooldown) {
+        roll = probabilityRandom.next();
+        drawIndex = probabilityDrawCount++;
+      }
       const blockedReason = !landed
         ? ("TARGET_MISS" as const)
         : !hitConfirmAllowed
           ? ("TARGET_HIT_CONFIRM_BLOCKED" as const)
           : blockedByInternalCooldown
             ? ("INTERNAL_COOLDOWN" as const)
-            : null;
+            : trigger.probability !== undefined && roll !== null && roll >= trigger.probability
+              ? ("PROBABILITY_FAILED" as const)
+              : null;
       const identity = particleIdentity(group.action, particle);
       expected.push({
         index: expected.length,
@@ -2065,7 +2227,10 @@ function buildExpectedTriggers(
         confirmedTargetIds,
         triggered: blockedReason === null,
         blockedReason,
-        internalCooldownReadyFrame
+        internalCooldownReadyFrame,
+        ...(trigger.probability === undefined ? {} : {
+          probability: trigger.probability, roll, drawIndex, rngStream: "particle-trigger-v1" as const
+        })
       });
     }
   }
@@ -2093,6 +2258,10 @@ function buildExpectedTriggers(
       ["hitGroupId", trigger.group.hitGroupId],
       ["triggered", trigger.triggered],
       ["blockedReason", trigger.blockedReason],
+      ["probability", trigger.probability],
+      ["roll", trigger.roll],
+      ["drawIndex", trigger.drawIndex],
+      ["rngStream", trigger.rngStream],
       [
         "internalCooldownKey",
         trigger.particle.trigger?.internalCooldownKey ?? null
@@ -2169,6 +2338,7 @@ function scheduledOccurrences(
       }
       const identity = particleIdentity(action, particle);
       occurrences.push({
+        priority: 2 + (action.blueprint.priority === 8 && spawnFrame === action.log.frame ? 10 : 0),
         action,
         particle,
         source: identity.source,
@@ -2194,6 +2364,7 @@ function triggeredOccurrences(
   return triggers
     .filter((trigger) => trigger.triggered)
     .map((trigger) => ({
+      priority: 2 + (trigger.group.priority >= 10 ? 10 : 0),
       action: trigger.action,
       particle: trigger.particle,
       source: trigger.source,
@@ -2204,8 +2375,35 @@ function triggeredOccurrences(
       triggerLogId: trigger.index,
       triggerHitId: trigger.group.hit.id,
       enqueueKind: "hit-confirm" as const,
-      enqueueOrder: trigger.index
+      enqueueOrder: trigger.index,
+      callbackResolutionIndex: trigger.group.rows.at(-1)?.index
     }));
+}
+
+function favoniusOccurrences(
+  result: SimulationResult,
+  context: RefinementCtx,
+  actions: readonly BoundAction[]
+): ExpectedParticleOccurrence[] {
+  return replayFavoniusParticleSpawns(result, context).flatMap(spawn => {
+    const event = spawn.producerDamageEventId === undefined ? undefined : result.damageEvents[spawn.producerDamageEventId];
+    if (event === undefined) return [];
+    const action = actions.find(candidate => candidate.log.actorId === spawn.actorId && candidate.log.actionId === spawn.actionId &&
+      candidate.log.cycle === spawn.cycle && candidate.timelineCommandIndex === event.timelineCommandIndex && candidate.sourceAbilityId === event.sourceAbilityId);
+    if (action === undefined) {
+      addIssue(context, ["favoniusLog"], "Favonius particle producer must bind the independently checked action occurrence");
+      return [];
+    }
+    return [{
+      priority: spawn.priority,
+      action,
+      particle: { index: spawn.particle.index, id: spawn.particleId, source: spawn.source, element: spawn.particle.element,
+        kind: spawn.particle.kind, count: spawn.particle.count, spawnOffsetSeconds: null, travelTimeSeconds: spawn.particle.travelTime, trigger: null },
+      source: spawn.source, particleId: spawn.particleId, spawnFrame: spawn.spawnFrame, spawnTimeSeconds: spawn.spawnTimeSeconds,
+      cycle: spawn.cycle, triggerLogId: null, triggerHitId: null,
+      enqueueKind: "favonius" as const, enqueueOrder: event.id, callbackResolutionIndex: event.targetResolutionId
+    }];
+  });
 }
 
 function sortOccurrences(
@@ -2217,9 +2415,10 @@ function sortOccurrences(
       ? left.spawnFrame - right.spawnFrame
       : left.spawnTimeSeconds - right.spawnTimeSeconds;
     if (timeOrder !== 0) return timeOrder;
-    if (left.enqueueKind !== right.enqueueKind) {
-      // All action events have priority 0 and enqueue scheduled particles
-      // before a same-boundary hit (priority 3) can confirm a trigger.
+    if (left.priority !== right.priority) return left.priority - right.priority;
+    if ((left.enqueueKind === "scheduled") !== (right.enqueueKind === "scheduled")) {
+      // Within either event phase, scheduled particles run before the
+      // hit callbacks which enqueue same-frame triggered particles.
       return left.enqueueKind === "scheduled" ? -1 : 1;
     }
     if (
@@ -2231,10 +2430,18 @@ function sortOccurrences(
         : left.action.log.time - right.action.log.time;
       return (
         actionClockOrder ||
+        left.action.blueprint.priority - right.action.blueprint.priority ||
         left.action.executionOrder -
           right.action.executionOrder ||
         left.particle.index - right.particle.index
       );
+    }
+    if (left.callbackResolutionIndex !== undefined && right.callbackResolutionIndex !== undefined) {
+      const callbackOrder = left.callbackResolutionIndex - right.callbackResolutionIndex;
+      if (callbackOrder !== 0) return callbackOrder;
+      // The direct OnEnemyDamage callback enqueues Favonius before the final
+      // target completes its hit group's configured hit-confirm callbacks.
+      if (left.enqueueKind !== right.enqueueKind) return left.enqueueKind === "favonius" ? -1 : 1;
     }
     return (
       left.enqueueOrder - right.enqueueOrder ||
@@ -2250,10 +2457,11 @@ function validateParticleEvents(
 ): void {
   const frameNative =
     result.compatibilityMode === "legal-frame-v1";
+  const characterParticles = result.particleEvents.map((event, index) => ({ event, index })).filter(({ event }) => event.origin === undefined);
   expectEqual(
     context,
     ["particleEvents", "length"],
-    result.particleEvents.length,
+    characterParticles.length,
     occurrences.length,
     "particle event length"
   );
@@ -2273,11 +2481,12 @@ function validateParticleEvents(
     const receivedWithinSimulation =
       rawReceiveTimeSeconds <=
       result.config.duration + FLOAT_TOLERANCE;
-    const actual = result.particleEvents[index];
-    if (actual === undefined) return;
-    const path = ["particleEvents", index] satisfies IssuePath;
+    const indexed = characterParticles[index];
+    if (indexed === undefined) return;
+    const actual = indexed.event;
+    const path = ["particleEvents", indexed.index] satisfies IssuePath;
     for (const [field, expectedValue] of [
-      ["id", index],
+      ["id", indexed.index],
       ["sourceActorId", occurrence.action.log.actorId],
       ["sourceActionId", occurrence.action.log.actionId],
       ["source", occurrence.source],
@@ -2335,13 +2544,15 @@ function validateParticleEvents(
  */
 export function validateParticleProvenanceIntegrity(
   result: SimulationResult,
-  context: RefinementCtx
+  context: RefinementCtx,
+  resolveConfiguredHitElement?: ConfiguredHitElementResolver
 ): void {
-  const actions = bindActions(result, context);
+  const actions = [...bindActions(result, context), ...bindWeaponProcActions(result)];
   const groups = buildExpectedHitGroups(
     result,
     context,
-    actions
+    actions,
+    resolveConfiguredHitElement
   );
   const triggers = buildExpectedTriggers(
     result,
@@ -2352,7 +2563,8 @@ export function validateParticleProvenanceIntegrity(
     result.compatibilityMode === "legal-frame-v1",
     [
       ...scheduledOccurrences(result, actions),
-      ...triggeredOccurrences(triggers)
+      ...triggeredOccurrences(triggers),
+      ...favoniusOccurrences(result, context, actions)
     ]
   );
   validateParticleEvents(result, context, occurrences);

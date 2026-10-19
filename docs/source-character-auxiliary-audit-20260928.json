@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "sourceCommits": {
+    "b4": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "a7": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "scope": "Pinned character-source helper Amount callbacks for HealBonusMod, ReactBonusMod, and CooldownMod. Go retains modifier creation, triggers, gates, expiry, recipients, and state mutation.",
+  "aggregateSharedStatus": {
+    "healBonus": "HealBonus() aggregate read and 1 + HealBonus() + HealInfo.Bonus are shared; each HealBonusMod.Amount below is not individually shared.",
+    "reactBonus": "ReactBonus() aggregate sum is shared; each ReactBonusMod.Amount below is not individually shared.",
+    "cooldownReduction": "Aggregate cooldown factor and trunc(duration * factor) are shared; each CooldownMod.Amount below is not individually shared."
+  },
+  "items": [
+    {
+      "sourcePath": "internal/characters/aino/cons.go",
+      "modifierKey": "c6Key + \"-buff\"",
+      "kind": "react-bonus",
+      "expression": "c6 active and recipient is active character: 0.15 + (moonsign >= 2 ? 0.20 : 0); otherwise 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "Formula retained. b4 uses AttackTagIsLunar; a7 uses AttackTag.IsLunar(), whose fixed-source tag classification is authoritative.",
+      "goGatesAndSideEffects": "C6 status and active-recipient gates; lunar, EC, Bloom, or Bountiful Core tags. No formula-side mutation.",
+      "sharedStatus": "Amount not individually shared; aggregate reaction sum is shared."
+    },
+    {
+      "sourcePath": "internal/characters/baizhu/asc.go",
+      "modifierKey": "baizhu-a4",
+      "kind": "react-bonus",
+      "expression": "h=min(MaxHP/1000,50); Aggravate/Spread when Catalyzed: h*0.008; Bloom/Hyperbloom/Burgeon/Burning: h*0.02; DirectLunarBloom: h*0.007; else 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "No material formula difference found.",
+      "goGatesAndSideEffects": "A4 required; active recipient receives timed mod. Go selects CatalyzedType/AttackTag and owns duration.",
+      "sharedStatus": "Amount not individually shared. Separate fixed Baizhu A1 Heal StatMod is already shared by rule char-baizhu-baizhu-a1-heal-bonus-heal-0p2."
+    },
+    {
+      "sourcePath": "internal/characters/chongyun/skill.go",
+      "modifierKey": "chongyun-c2",
+      "kind": "cooldown-modifier",
+      "expression": "action in {Skill,Burst,SpecialSkill} ? -0.15 : 0",
+      "phase": "CooldownMod.Amount read inside CDReduction",
+      "b4A7Difference": "b4 includes Skill and Burst; a7 adds SpecialSkill.",
+      "goGatesAndSideEffects": "C2 required; recipient is active character during infusion; expiry duration uses Skill talent table.",
+      "sharedStatus": "Aggregate cooldown factor is shared; per-mod action branch is not."
+    },
+    {
+      "sourcePath": "internal/characters/columbina/burst.go",
+      "modifierKey": "burstBuffKey",
+      "kind": "react-bonus",
+      "expression": "AttackTag.IsLunar() ? burstBuff[TalentLvlBurst] : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "b4 AttackTagIsLunar helper replaced by a7 AttackTag.IsLunar(); use pinned-version tag classification.",
+      "goGatesAndSideEffects": "Burst applies timed party modifier; Go owns timer/tag gate. Debug logging only.",
+      "sharedStatus": "Talent-table/tag-gated Amount is not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/diona/cons.go",
+      "modifierKey": "diona-c6-healbonus",
+      "kind": "heal-bonus",
+      "expression": "0.30",
+      "phase": "HealBonusMod.Amount read",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "C6 path selects incoming heal bonus when active recipient HP is at/below source threshold; 120-frame expiry; optional debug log.",
+      "sharedStatus": "Aggregate healing formula shared; this Amount is not."
+    },
+    {
+      "sourcePath": "internal/characters/dori/cons.go",
+      "modifierKey": "dori-c4-healbonus",
+      "kind": "heal-bonus",
+      "expression": "0.50",
+      "phase": "HealBonusMod.Amount read",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "C4 trigger grants to active character if HP ratio < 0.5; 48-frame expiry. Separate ER branch checks Energy/EnergyMax < 0.5.",
+      "sharedStatus": "Aggregate healing formula shared; this Amount is not."
+    },
+    {
+      "sourcePath": "internal/characters/durin/asc.go",
+      "modifierKey": "a1BlackKey",
+      "kind": "react-bonus",
+      "expression": "Amped ? 0.40 * hexereiA1Bonus() : 0; helper is 1.75 if Hexerei and team Hexerei count >= 2, else 1",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "No material callback difference found.",
+      "goGatesAndSideEffects": "A1 and black burst mode; white mode deletes modifier. Amped gate and live team-count read remain in Go.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/flins/asc.go",
+      "modifierKey": "a1Key",
+      "kind": "react-bonus",
+      "expression": "Moonsign >= 2 and tag in {DirectLunarCharged,ReactionLunarCharge} ? 0.20 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "Amount unchanged. Separate event subscription changes OnLunarReactionAttack in b4 to OnSpecialReactionAttack in a7.",
+      "goGatesAndSideEffects": "A1, event, and Moonsign gates remain native.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/furina/burst.go",
+      "modifierKey": "furina-burst-heal-buff",
+      "kind": "heal-bonus",
+      "expression": "burstActive ? min(curFanfare,maxQFanfare) * burstFanfareHBRatio[TalentLvlBurst] : 0",
+      "phase": "HealBonusMod.Amount read",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "Party recipients; Go owns burst status and fanfare state. Coefficient table is pinned source data.",
+      "sharedStatus": "Aggregate healing formula shared; fanfare/talent Amount is not."
+    },
+    {
+      "sourcePath": "internal/characters/ifa/asc.go",
+      "modifierKey": "ifa-a1",
+      "kind": "react-bonus",
+      "expression": "ns=min(getTeamNightsoul()+c2BonusPoints(ns),150+c2CapIncrease()); Swirl Pyro/Hydro/Electro/Cryo or EC => 0.015*ns; LunarCharged/StellarSwirl => 0.002*ns; else 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7 adds StellarSwirl tags to the 0.002*ns branch; absent in b4.",
+      "goGatesAndSideEffects": "A1 and Nightsoul Blessing; C2 adds points and raises cap. Team stack read/log remain in Go.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/ineffa/cons.go",
+      "modifierKey": "c1Key + \"-buff\"",
+      "kind": "react-bonus",
+      "expression": "c1 active and LunarCharged tag ? min(TotalATK/100*0.025,0.50) : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "Amount unchanged. Separate subscription changes OnLunarReactionAttack in b4 to OnSpecialReactionAttack in a7.",
+      "goGatesAndSideEffects": "C1 state plus DirectLunarCharged/ReactionLunarCharge tags. Source has unresolved hitlag-scope TODO; do not treat timing as verified.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/kaveh/burst.go",
+      "modifierKey": "burstDmgBonusKey",
+      "kind": "react-bonus",
+      "expression": "Bloom tag ? burstDmgBonus[TalentLvlBurst] : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "Burst task creates timed party mods; lifecycle/tag gate remain native.",
+      "sharedStatus": "Talent-table Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/kaveh/cons.go",
+      "modifierKey": "kaveh-c4",
+      "kind": "react-bonus",
+      "expression": "Bloom tag ? 0.60 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "C4 and Bloom tag gates remain native.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/lauma/cons.go",
+      "modifierKey": "lauma-c2-lunarbloom-buff",
+      "kind": "react-bonus",
+      "expression": "DirectLunarBloom tag ? 0.40 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "C2 and ascendantGleam; granted party-wide. Tag/lifecycle remain native.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/mizuki/skill.go",
+      "modifierKey": "dreamDrifterSwirlBuffKey",
+      "kind": "react-bonus",
+      "expression": "dreamDrifter active and not Amped/Catalyzed; traditional Swirl => swirlDMG[TalentLvlSkill]*EM*0.01; StellarSwirl => stellarSwirlDMG[TalentLvlSkill]*EM*0.01; else 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "Traditional math equivalent: b4 coefficients 0.0018..0.006 per EM times EM; a7 coefficients 0.18..0.6 per 100 EM times EM*0.01. a7 adds Stellar Swirl table 0.018..0.06 per 100 EM, or 10% of traditional coefficient.",
+      "goGatesAndSideEffects": "Party modifier; skill state required; Amped/Catalyzed rejected. Go cancels state on swap-out.",
+      "sharedStatus": "Neither talent/EM Amount branch is individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/mona/asc.go",
+      "modifierKey": "mona-hexerei-astral-glow-vaporize",
+      "kind": "react-bonus",
+      "expression": "Amped Vaporize ? 0.05*astralGlowStacks : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "Amount callback unchanged; other Mona Hexerei omen lifecycle changes in a7 are separate.",
+      "goGatesAndSideEffects": "Hexerei/team-count setup gate; excludes Mona recipient. On matching callback read, Go clears astralGlowStacks before returning its computed value; preserve this side effect in Go.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/mona/cons.go",
+      "modifierKey": "mona-c1",
+      "kind": "react-bonus",
+      "expression": "m=0.15; if Hexerei and recipient is off-field then m*=1.6; return m for HydroSwirl, EC, LunarCharged, LunarCrystallize, or AmpedVaporize; else 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "No material difference found in this callback.",
+      "goGatesAndSideEffects": "Native trigger delays creation one frame to exclude triggering hit; 8-second duration; field state checked at read time.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/nilou/asc.go",
+      "modifierKey": "a4Mod",
+      "kind": "react-bonus",
+      "expression": "bonus=clamp((MaxHP-30000)*0.001*0.09,0,4); return only for Bloom tag and ICDTagBountifulCoreDamage",
+      "phase": "stored amount refreshed every 30 frames; consumed by ReactBonusMod.Amount",
+      "b4A7Difference": "No material difference found.",
+      "goGatesAndSideEffects": "A4; party mod 30 seconds. Source TODO questions use of ICDTag versus AttackTag; retain this as implementation evidence, not verified mechanic.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/qiqi/asc.go",
+      "modifierKey": "qiqi-a1",
+      "kind": "heal-bonus",
+      "expression": "0.20",
+      "phase": "HealBonusMod.Amount read",
+      "b4A7Difference": "Amount same; a7 restructures the hook into init method.",
+      "goGatesAndSideEffects": "A1 state; only active recipient/attack actor; 8-second expiry.",
+      "sharedStatus": "Aggregate healing formula shared; this Amount is not."
+    },
+    {
+      "sourcePath": "internal/characters/qiqi/stellar.go",
+      "modifierKey": "qiqi-revelation-ssc",
+      "kind": "react-bonus",
+      "expression": "skillBuff and Radiance==StellarConduct and tag in {DirectStellarConduct,SuperconductDamage} ? 0.50 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only Stellar/Radiance callback; absent in b4.",
+      "goGatesAndSideEffects": "Revelation/skill buff and native Radiance state; party recipient.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/qiqi/stellar.go",
+      "modifierKey": "qiqi-revelation-ssw",
+      "kind": "react-bonus",
+      "expression": "skillBuff and Radiance==StellarSwirl and tag in {DirectStellarSwirl,ReactionStellarSwirl,SwirlCryo} ? 0.50 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only Stellar/Radiance callback; absent in b4.",
+      "goGatesAndSideEffects": "Revelation/skill buff; OnStellarSwirl grants 8-second state in Go; party recipient.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/cryo/cons.go",
+      "modifierKey": "c6Key",
+      "kind": "react-bonus",
+      "expression": "0.05*suppliedStacks for DirectStellarConduct, DirectStellarSwirl, ReactionStellarSwirl; else 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only Stellar Glimmer C6; absent in b4.",
+      "goGatesAndSideEffects": "C6; other party members only; 15-second expiry. Native burst path supplies/caps stacks.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/yaemiko/cons.go",
+      "modifierKey": "c1Key + \"-ssc\"",
+      "kind": "react-bonus",
+      "expression": "DirectStellarConduct tag ? 0.50 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only Stellar C1 callback; absent in b4.",
+      "goGatesAndSideEffects": "C1 and revelation feature; native reaction/direct damage hooks refresh 10-second party modifier.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/odette/asc.go",
+      "modifierKey": "a1Key + \"-buff\" (self recipient)",
+      "kind": "react-bonus",
+      "expression": "danceDouble active and Stellar tag ? a1StacksSelf*0.15 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only character; absent in b4.",
+      "goGatesAndSideEffects": "A1; tags are DirectStellarConduct, DirectStellarSwirl, ReactionStellarSwirl. Native stack/state lifecycle.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/odette/asc.go",
+      "modifierKey": "a1Key + \"-buff\" (other recipient)",
+      "kind": "react-bonus",
+      "expression": "danceDouble active and Stellar tag ? a1StacksOthers*0.15 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only character; absent in b4.",
+      "goGatesAndSideEffects": "A1; each other party recipient uses the other-stack count; native stack/state lifecycle.",
+      "sharedStatus": "Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/odette/burst.go",
+      "modifierKey": "swansDreamKey",
+      "kind": "react-bonus",
+      "expression": "Stellar tag ? burstBuff[TalentLvlBurst] : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only character; absent in b4.",
+      "goGatesAndSideEffects": "Burst talent table captured at grant; 20-second modifier; Go owns tags and expiry.",
+      "sharedStatus": "Talent-table Amount not individually shared."
+    },
+    {
+      "sourcePath": "internal/characters/odette/cons.go",
+      "modifierKey": "swansDreamKey",
+      "kind": "react-bonus",
+      "expression": "Stellar tag ? capturedBurstBuff*0.5 : 0",
+      "phase": "ReactBonusMod.Amount read",
+      "b4A7Difference": "a7-only C4 callback; absent in b4.",
+      "goGatesAndSideEffects": "C4; other party recipients only; 20-second expiry remains native.",
+      "sharedStatus": "Amount not individually shared."
+    }
+  ],
+  "implementationBoundaries": [
+    "025 character-modifier bridge covers fixed StatMod/AttackMod vector slots, not HealBonusMod, ReactBonusMod, or CooldownMod Amount callbacks.",
+    "The aggregate helper outputs already captured/shared do not establish sharing of each modifier's Amount formula.",
+    "A next bridge should capture one helper Amount at its actual Go read with source commit, modifier key, holder, recipient, and numeric state inputs; Go must keep trigger/lifecycle and side effects.",
+    "Mona Astral Glow clears stacks inside the Go callback. Nilou's source TODO and Ineffa's hitlag TODO remain unresolved and must not be described as validated game behavior."
+  ],
+  "statusScope": "Historical source inventory before 030–033 character-scalar implementation; item sharedStatus fields describe that earlier state.",
+  "implementationReport": "docs/source-character-scalar-20260928.zh-CN.md",
+  "corrections": [
+    "Ifa is absent from pinned b4 and present only in a7; its earlier b4/a7 comparison was incorrect.",
+    "Baizhu original 0.02 vs 0.007 distinction was correct: empty Go switch cases do not fall through."
+  ]
+}

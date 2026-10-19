@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "scope": "Two-character observed prerelease candidate only; no active pointer changes and no pipeline commands executed.",
+  "rawVersion": "7.1.50",
+  "released71": {
+    "observedAtWindow": "2026-09-24T14:46:07Z/2026-09-24T14:48:17Z",
+    "url": "https://store.epicgames.com/p/genshin-impact",
+    "method": "Web indexed page text crawled today; direct HTTP403",
+    "sourceByteSha256": null,
+    "observedClaim": "Version7.1 is now available. Official account update-details also readable; HoYoLAB linked body unavailable."
+  },
+  "previewEvidence": {
+    "frontendSourceFile": "lunaris-app.js",
+    "frontendSha256": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b",
+    "sourceSnippet": "async function SS(e){const a=(await(await fetch(\"https://api.lunaris.moe/data/version.json\")).json()).version.split(\".\"),i=a.slice(0,2).join(\".\"),o=a.slice(2).join(\".\"),l=e?`${i}.${o}`:`${i}.0`,c=await fetch(`https://api.lunaris.moe/data/${l}/charlist.json`);if(!c.ok)throw new Error(\"Failed to fetch character data\");const d=await c.json();return Object.entries(d).map(([u,h])=>({id:u,...h})).sort((u,h)=>parseInt(h.id)-parseInt(u.id))}function Ev(){const{showUnreleased:e}=Pe();return w5({queryKey:[\"char\",e],queryFn:()=>SS(e),staleTime:1/0})}const ES={pyro:\"#FF9999FF\",hydro:\"#80C0FFFF\",anemo:\"#80FFD7FF\",electro:\"#FFACFFFF\",dendro:\"#99FF88FF\",cry",
+    "interpretation": "The first-party frontend passes showUnreleased into SS; true selects version.json version7.1.50, false selects7.1.0. Sampled CHS records also have info.description test-character text. This establishes provider unreleased classification, not an official7.2V1 label."
+  },
+  "providerTimestamp": {
+    "value": 1790589600,
+    "decodedUTC": "2026-09-28T10:00:00Z",
+    "meaning": "unknown; later than our observation; must not replace retrievedAt"
+  },
+  "observedEntities": [
+    {
+      "id": 10000136,
+      "name": "米提亚",
+      "englishName": "Mitya"
+    },
+    {
+      "id": 10000137,
+      "name": "瓦列里",
+      "englishName": "Valeriy"
+    }
+  ],
+  "unknownFields": [
+    "No primary proof mapping provider7.1.50 to requested7.2V1 or its beta ordinal.",
+    "Version registry timestamp1790589600 means2026-09-28T10:00:00Z, after retrieval; meaning and accuracy unknown.",
+    "Only two observed character records sampled; full preview inventory, weapon and artifact data are not collected.",
+    "Absolute attribute rows may be rounded display values; source base/curve/promotion decomposition is unavailable.",
+    "Only numeric params array from the source is preserved as uninterpreted source-param indices; formatted level multiplier strings stay raw.",
+    "Energy, attack timing and endure collections are empty in sampled bodies; this does not prove zero cost or no mechanics.",
+    "ICD, trigger conditions, state windows, elemental application, hit grouping and runnable definitions are unverified.",
+    "Provider URL contains a version, but server immutability is not guaranteed; local saved raw bytes and hashes pin this observation.",
+    "No independent expected inventory or numerical/game-mechanic verification."
+  ],
+  "licenseStatus": "No license declaration obtained from the sampled first-party API responses or frontend; redistribution license is unknown. The offline mirror license is not applied to upstream data.",
+  "pipelinePlan": "After root review, data:preview can consume candidate.bundle.json and candidate.metadata.json. Explicit fields override genshin-db-specific default source mappings. Empty unsupported categories are documented not-collected, not full-game zeroes. The preview selection would remain isolated from released/verified pointers. This script did not run ingestion, validation tests, builds, or any pointer mutation."
+}

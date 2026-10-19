@@ -1,0 +1,1156 @@
+--- a/internal/template/character/character.go
++++ b/internal/template/character/character.go
+@@ -12,6 +12,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/keys"
+ 	"github.com/genshinsim/gcsim/pkg/core/player"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ type Character struct {
+@@ -104,7 +105,9 @@
+ 	}
+ 
+ 	// snapshot the stats
+-	s.Stats, debug = c.Stats()
++	var statRead *info.SourceHostStatRead
++	s.Stats, debug, statRead = c.StatsWithProvenance()
++	s.SourceHostStatProvenance = sourcehost.NewStatProvenance(statRead)
+ 
+ 	// check infusion
+ 	var inf attributes.Element
+--- a/internal/template/dendrocore/dendrocore.go
++++ b/internal/template/dendrocore/dendrocore.go
+@@ -172,8 +172,8 @@
+ 	if modify != nil {
+ 		modify(&ai)
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = BloomMultiplier * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BloomMultiplier)
++	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+@@ -190,8 +190,8 @@
+ 		Abil:             string(info.ReactionTypeBurgeon),
+ 		IgnoreDefPercent: 1,
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = BurgeonMultiplier * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BurgeonMultiplier)
++	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+@@ -208,8 +208,8 @@
+ 		Abil:             string(info.ReactionTypeHyperbloom),
+ 		IgnoreDefPercent: 1,
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = HyperbloomMultiplier * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, HyperbloomMultiplier)
++	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+--- a/pkg/core/attack.go
++++ b/pkg/core/attack.go
+@@ -87,6 +87,7 @@
+ }
+ 
+ func (c *Core) queueDmg(a *info.AttackEvent, delay int) {
++	if c.SourceHost != nil { c.SourceHost.PrepareAttack(a) }
+ 	if delay == 0 {
+ 		c.Combat.ApplyAttack(a)
+ 		return
+--- a/pkg/core/combat/attack.go
++++ b/pkg/core/combat/attack.go
+@@ -32,6 +32,7 @@
+ }
+ 
+ func (h *Handler) ApplyAttack(a *info.AttackEvent) float64 {
++	if h.SourceHost != nil { h.SourceHost.PrepareAttack(a) }
+ 	h.Events.Emit(event.OnApplyAttack, a)
+ 	// died := false
+ 	var total float64
+--- a/pkg/core/combat/combat.go
++++ b/pkg/core/combat/combat.go
+@@ -6,6 +6,7 @@
+ package combat
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"math/rand"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+@@ -24,6 +25,7 @@
+ }
+ 
+ type Handler struct {
++	SourceHost *sourcehost.Bridge
+ 	Opt
+ 	enemies     []info.Target
+ 	gadgets     []info.Gadget
+--- a/pkg/core/combat/reaction.go
++++ b/pkg/core/combat/reaction.go
+@@ -1,6 +1,7 @@
+ package combat
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -30,14 +31,36 @@
+ 	return (reactionMultiplier*(1+((6*em)/(2000+em))+reactBonus)*CalcReactionBaseDmg(lvl)*(1+atk.BaseDmgBonus) + atk.FlatDmg) * (1 + atk.Elevation)
+ }
+ 
+-func CalcReactionDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64) (float64, info.Snapshot) {
+-	snap := info.Snapshot{
+-		CharLvl: lvl,
+-	}
+-	snap.Stats[attributes.EM] = em
+-	return (1 + ((16 * em) / (2000 + em)) + src.ReactBonus(atk)) * CalcReactionBaseDmg(lvl), snap
++func CalcReactionDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64, baseMultiplier float64) (float64, info.Snapshot) {
++ snap := info.Snapshot{CharLvl:lvl}
++ snap.Stats[attributes.EM]=em
++ bonus,scalarRead:=sourcehost.ReadReactionBonus(src,atk)
++ if provider,ok:=src.(interface{SourceHostBridge() *sourcehost.Bridge});ok {
++  if host:=provider.SourceHostBridge();host!=nil {
++   request:=host.Request("transformative-base",atk)
++   request.ScalarProvenance=sourcehost.ScalarProvenance(scalarRead)
++   request.DamageCategory="transformative"
++   request.Input=map[string]any{"characterLevel":lvl,"elementalMastery":em,"reactionBonus":bonus,"baseMultiplier":baseMultiplier,"levelBaseDamage":CalcReactionBaseDmg(lvl)}
++   value,id:=host.Resolve(request)
++   snap.SourceFrame=*host.Frame
++   snap.SourceHostComponents=[]info.SourceHostComponent{{ID:id,Multiplier:1,Amount:value}}
++   return value,snap
++  }
++ }
++ return baseMultiplier*(1+((16*em)/(2000+em))+bonus)*CalcReactionBaseDmg(lvl),snap
+ }
+ 
+-func CalcCatalyzeDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64) float64 {
+-	return (1 + ((5 * em) / (1200 + em)) + src.ReactBonus(atk)) * CalcReactionBaseDmg(lvl)
++func CalcCatalyzeDmg(lvl int, src reactionBonusSrc, atk *info.AttackInfo, em float64, baseMultiplier float64) float64 {
++ bonus,scalarRead:=sourcehost.ReadReactionBonus(src,*atk)
++ if provider,ok:=src.(interface{SourceHostBridge() *sourcehost.Bridge});ok {
++  if host:=provider.SourceHostBridge();host!=nil {
++   request:=host.Request("additive-base",*atk)
++   request.ScalarProvenance=sourcehost.ScalarProvenance(scalarRead)
++   request.Input=map[string]any{"characterLevel":lvl,"elementalMastery":em,"reactionBonus":bonus,"baseMultiplier":baseMultiplier,"levelBaseDamage":CalcReactionBaseDmg(lvl)}
++   value,id:=host.Resolve(request)
++   atk.SourceHostComponents=append(atk.SourceHostComponents,info.SourceHostComponent{ID:id,Multiplier:1,Amount:value})
++   return value
++  }
++ }
++ return baseMultiplier*(1+((5*em)/(1200+em))+bonus)*CalcReactionBaseDmg(lvl)
+ }
+--- a/pkg/core/core.go
++++ b/pkg/core/core.go
+@@ -8,6 +8,7 @@
+ package core
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"fmt"
+ 	"math/rand"
+ 
+@@ -24,6 +25,7 @@
+ )
+ 
+ type Core struct {
++	SourceHost *sourcehost.Bridge
+ 	F     int
+ 	Flags Flags
+ 	Seed  int64
+@@ -163,6 +165,7 @@
+ 		return -1, err
+ 	}
+ 
++	char.SourceHost = c.SourceHost
+ 	f, ok := NewCharFuncMap[p.Base.Key]
+ 	if !ok {
+ 		return -1, fmt.Errorf("invalid character: %v", p.Base.Key.String())
+@@ -172,6 +175,7 @@
+ 		return -1, err
+ 	}
+ 	index := c.Player.AddChar(char)
++	if c.SourceHost != nil { c.SourceHost.ActorKeys[index] = p.Base.Key.String() }
+ 
+ 	// get starting hp
+ 	char.StartHP = -1
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -5,7 +5,15 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ )
+ 
++type SourceHostComponent struct {
++	ID int `json:"id"`
++	Multiplier float64 `json:"multiplier"`
++	Amount float64 `json:"amount"`
++}
++
+ type AttackEvent struct {
++	SourceHostAttackID int
++	SourceHostCalculationID int
+ 	Info    AttackInfo
+ 	Pattern AttackPattern
+ 	// Timing        AttackTiming
+@@ -25,6 +33,7 @@
+ type AttackCBFunc func(AttackCB)
+ 
+ type AttackInfo struct {
++	SourceHostComponents []SourceHostComponent `json:"-"`
+ 	ActorIndex       int       // character this attack belongs to
+ 	DamageSrc        TargetKey // source of this attack; should be a unique key identifying the target
+ 	Abil             string    // name of ability triggering the damage
+@@ -66,6 +75,8 @@
+ }
+ 
+ type Snapshot struct {
++	SourceHostStatProvenance *SourceHostStatProvenance `json:"-"`
++	SourceHostComponents []SourceHostComponent `json:"-"`
+ 	Stats   attributes.Stats // total character stats including from artifact, bonuses, etc...
+ 	CharLvl int
+ 
+--- a/pkg/core/info/sourcehost_scalar_provenance.go
++++ b/pkg/core/info/sourcehost_scalar_provenance.go
+@@ -0,0 +1,40 @@
++package info
++
++// Scalar receipts capture only the values and order of original getter calls.
++type SourceHostScalarRead struct {
++	ID string `json:"id"`
++	Kind string `json:"kind"`
++	Frame int `json:"frame"`
++	ActorIndex *int `json:"actorIndex,omitempty"`
++	TargetKey *int `json:"targetKey,omitempty"`
++	Element string `json:"element"`
++	Base float64 `json:"base"`
++	Steps []*SourceHostScalarStep `json:"steps"`
++	Sum float64 `json:"sum"`
++	Transforms []SourceHostScalarTransform `json:"transforms"`
++	Output float64 `json:"output"`
++}
++type SourceHostScalarStep struct {
++	Index int `json:"index"`
++	Key string `json:"key"`
++	ExpiryBefore int `json:"expiryBefore"`
++	ExpiryAfter int `json:"expiryAfter"`
++	AffectedByHitlag bool `json:"affectedByHitlag"`
++	Element string `json:"element"`
++	ClosureOpaque bool `json:"closureOpaque"`
++	Outcome string `json:"outcome"`
++	Before float64 `json:"before"`
++	Delta *float64 `json:"delta"`
++	After float64 `json:"after"`
++	Dependencies []*SourceHostStatRead `json:"dependencies"`
++}
++type SourceHostScalarTransform struct {
++	Kind string `json:"kind"`
++	Before float64 `json:"before"`
++	Limit float64 `json:"limit"`
++	After float64 `json:"after"`
++}
++type SourceHostScalarProvenance struct {
++	Version string `json:"version"`
++	Reads []*SourceHostScalarRead `json:"reads"`
++}
+--- a/pkg/core/info/sourcehost_stat_provenance.go
++++ b/pkg/core/info/sourcehost_stat_provenance.go
+@@ -0,0 +1,47 @@
++package info
++
++import "github.com/genshinsim/gcsim/pkg/core/attributes"
++
++// This is a numerical execution receipt, not a serialized modifier closure.
++type SourceHostStatRead struct {
++	ID string `json:"id"`
++	Kind string `json:"kind"`
++	Frame int `json:"frame"`
++	ActorIndex int `json:"actorIndex"`
++	TargetKey *int `json:"targetKey,omitempty"`
++	Selector []attributes.Stat `json:"selector"`
++	NonExtra bool `json:"nonExtra"`
++	Base attributes.Stats `json:"base"`
++	Steps []*SourceHostStatStep `json:"steps"`
++	Result attributes.Stats `json:"result"`
++}
++
++type SourceHostStatStep struct {
++	Index int `json:"index"`
++	Key string `json:"key"`
++	ExpiryBefore int `json:"expiryBefore"`
++	ExpiryAfter int `json:"expiryAfter"`
++	AffectedStat int `json:"affectedStat"`
++	Extra bool `json:"extra"`
++	AffectedByHitlag bool `json:"affectedByHitlag"`
++	Outcome string `json:"outcome"`
++	Before attributes.Stats `json:"before"`
++	AfterAmount attributes.Stats `json:"afterAmount"`
++	Returned []float64 `json:"returned"`
++	After attributes.Stats `json:"after"`
++	AttackChanges []SourceHostNumericChange `json:"attackChanges"`
++	Dependencies []*SourceHostStatRead `json:"dependencies"`
++}
++
++type SourceHostNumericChange struct {
++	Field string `json:"field"`
++	Before float64 `json:"before"`
++	After float64 `json:"after"`
++}
++
++type SourceHostStatProvenance struct {
++	Version string `json:"version"`
++	SnapshotRead *SourceHostStatRead `json:"snapshotRead"`
++	AttackReads []*SourceHostStatRead `json:"attackReads"`
++	FinalStats attributes.Stats `json:"finalStats"`
++}
+--- a/pkg/core/player/character/character.go
++++ b/pkg/core/player/character/character.go
+@@ -1,6 +1,7 @@
+ package character
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"fmt"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+@@ -74,6 +75,11 @@
+ }
+ 
+ type CharWrapper struct {
++	sourceHostScalarSteps []*info.SourceHostScalarStep
++	sourceHostScalarStatDepths []int
++	sourceHostStatSequence int
++	sourceHostStatStack []*info.SourceHostStatRead
++	SourceHost *sourcehost.Bridge
+ 	index int
+ 	f     *int // current frame
+ 	debug bool // debug mode?
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -8,6 +8,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+ 
+@@ -243,6 +244,9 @@
+ 		return nil
+ 	}
+ 
++	read := c.beginSourceHostStatRead("attack-mods", a.Snapshot.Stats, nil, false)
++	if read != nil { target := int(t.Key()); read.TargetKey = &target }
++	defer c.endSourceHostStatRead(read)
+ 	var sb strings.Builder
+ 	var logDetails []any
+ 
+@@ -258,15 +262,26 @@
+ 			n++
+ 			continue
+ 		}
++		step := c.beginSourceHostAttackStatStep(read, m, a.Snapshot.Stats)
+ 		if m.Expiry() <= *c.f && m.Expiry() != -1 {
+-			continue
+-		}
+-
++			c.finishSourceHostStatStep(step, "expired", nil, a.Snapshot.Stats, m.Expiry())
++			continue
++		}
++
++		beforeInfo := a.Info
+ 		amt := m.Amount(a, t)
+ 		reject := amt == nil
++		returned := sourcehost.CopyStats(amt)
++		if step != nil {
++			step.AfterAmount = a.Snapshot.Stats
++			step.AttackChanges = sourcehost.AttackNumericChanges(beforeInfo, a.Info)
++		}
+ 		for k, v := range amt {
+ 			a.Snapshot.Stats[k] += v
+ 		}
++		outcome := "applied"
++		if reject { outcome = "returned-nil" }
++		c.finishSourceHostStatStep(step, outcome, returned, a.Snapshot.Stats, m.Expiry())
+ 		c.mods[n] = v
+ 		n++
+ 
+@@ -296,6 +311,8 @@
+ 		sb.Reset()
+ 	}
+ 	c.mods = c.mods[:n]
++	if read != nil { read.Result = a.Snapshot.Stats }
++	sourcehost.AppendAttackStatRead(&a.Snapshot, read)
+ 	return logDetails
+ }
+ 
+@@ -369,9 +386,19 @@
+ // TODO: consider merging this with just attack mods? reaction bonus should
+ // maybe just be it's own stat instead of being a separate mod really
+ func (c *CharWrapper) ReactBonus(atk info.AttackInfo) float64 {
++	value, _ := c.ReactBonusWithProvenance(atk)
++	return value
++}
++
++func (c *CharWrapper) ReactBonusWithProvenance(atk info.AttackInfo) (float64, *info.SourceHostScalarRead) {
+ 	evt := c.log.NewEvent(atk.Abil+" [React Bonus]", glog.LogPreDamageMod, c.index)
+ 	n := 0
+ 	amt := 0.0
++	var read *info.SourceHostScalarRead
++	if c.SourceHost != nil {
++		actor := c.index
++		read = c.SourceHost.NewScalarRead("reaction-bonus", 0, &actor, nil, atk.Element.String())
++	}
+ 	for _, v := range c.mods {
+ 		m, ok := v.(*ReactBonusMod)
+ 		if !ok {
+@@ -379,16 +406,23 @@
+ 			n++
+ 			continue
+ 		}
++		step := sourcehost.NewScalarStep(read, m.Key(), m.Expiry(), m.AffectedByHitlag(), amt, "", true)
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
++			c.beginSourceHostScalarStep(step)
+ 			val := m.Amount(atk)
++			c.endSourceHostScalarStep(step)
+ 			amt += val
++			sourcehost.FinishScalarStep(step, "applied", &val, amt, m.Expiry())
+ 			c.mods[n] = v
+ 			n++
+ 			if val != 0 {
+ 				evt.Write(m.ModKey, val)
+ 			}
++		} else {
++			sourcehost.FinishScalarStep(step, "expired", nil, amt, m.Expiry())
+ 		}
+ 	}
+ 	c.mods = c.mods[:n]
+-	return amt
+-}
++	if read != nil { read.Sum = amt; read.Output = amt }
++	return amt, read
++}
+--- a/pkg/core/player/character/sourcehost_stat_provenance.go
++++ b/pkg/core/player/character/sourcehost_stat_provenance.go
+@@ -0,0 +1,75 @@
++package character
++
++import (
++	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++)
++
++func (c *CharWrapper) beginSourceHostStatRead(kind string, base attributes.Stats, selector []attributes.Stat, nonExtra bool) *info.SourceHostStatRead {
++	if c.SourceHost == nil { return nil }
++	c.sourceHostStatSequence++
++	read := &info.SourceHostStatRead{
++		ID: fmt.Sprintf("actor-%d-read-%d", c.index, c.sourceHostStatSequence), Kind: kind,
++		Frame: *c.f, ActorIndex: c.index, Selector: append([]attributes.Stat{}, selector...), NonExtra: nonExtra,
++		Base: base, Result: base, Steps: []*info.SourceHostStatStep{},
++	}
++	scalarDepth := len(c.sourceHostScalarSteps)
++	if scalarDepth > 0 && len(c.sourceHostStatStack) == c.sourceHostScalarStatDepths[scalarDepth-1] {
++		step := c.sourceHostScalarSteps[scalarDepth-1]
++		step.Dependencies = append(step.Dependencies, read)
++	} else if len(c.sourceHostStatStack) > 0 {
++		parent := c.sourceHostStatStack[len(c.sourceHostStatStack)-1]
++		if len(parent.Steps) > 0 {
++			step := parent.Steps[len(parent.Steps)-1]
++			step.Dependencies = append(step.Dependencies, read)
++		}
++	}
++	c.sourceHostStatStack = append(c.sourceHostStatStack, read)
++	return read
++}
++
++func (c *CharWrapper) endSourceHostStatRead(read *info.SourceHostStatRead) {
++	if read != nil { c.sourceHostStatStack = c.sourceHostStatStack[:len(c.sourceHostStatStack)-1] }
++}
++
++func (c *CharWrapper) beginSourceHostStatStep(read *info.SourceHostStatRead, mod *StatMod, before attributes.Stats) *info.SourceHostStatStep {
++	if read == nil { return nil }
++	step := &info.SourceHostStatStep{
++		Index: len(read.Steps), Key: mod.Key(), ExpiryBefore: mod.Expiry(), ExpiryAfter: mod.Expiry(),
++		AffectedStat: int(mod.AffectedStat), Extra: mod.Extra, AffectedByHitlag: mod.AffectedByHitlag(),
++		Before: before, AfterAmount: before, After: before,
++		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
++	}
++	read.Steps = append(read.Steps, step)
++	return step
++}
++
++func (c *CharWrapper) beginSourceHostAttackStatStep(read *info.SourceHostStatRead, mod *AttackMod, before attributes.Stats) *info.SourceHostStatStep {
++	if read == nil { return nil }
++	step := &info.SourceHostStatStep{
++		Index: len(read.Steps), Key: mod.Key(), ExpiryBefore: mod.Expiry(), ExpiryAfter: mod.Expiry(),
++		AffectedStat: int(attributes.NoStat), AffectedByHitlag: mod.AffectedByHitlag(),
++		Before: before, AfterAmount: before, After: before,
++		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
++	}
++	read.Steps = append(read.Steps, step)
++	return step
++}
++
++func (c *CharWrapper) finishSourceHostStatStep(step *info.SourceHostStatStep, outcome string, returned []float64, after attributes.Stats, expiry int) {
++	if step == nil { return }
++	step.Outcome, step.Returned, step.After, step.ExpiryAfter = outcome, returned, after, expiry
++}
++
++// Capture only real stat reads nested inside this particular ReactBonus Amount.
++func (c *CharWrapper) beginSourceHostScalarStep(step *info.SourceHostScalarStep) {
++	if step == nil { return }
++	c.sourceHostScalarSteps = append(c.sourceHostScalarSteps, step)
++	c.sourceHostScalarStatDepths = append(c.sourceHostScalarStatDepths, len(c.sourceHostStatStack))
++}
++func (c *CharWrapper) endSourceHostScalarStep(step *info.SourceHostScalarStep) {
++	if step == nil { return }
++	c.sourceHostScalarSteps = c.sourceHostScalarSteps[:len(c.sourceHostScalarSteps)-1]
++	c.sourceHostScalarStatDepths = c.sourceHostScalarStatDepths[:len(c.sourceHostScalarStatDepths)-1]
++}
+--- a/pkg/core/player/character/stats.go
++++ b/pkg/core/player/character/stats.go
+@@ -6,9 +6,18 @@
+ 	"strings"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ func (c *CharWrapper) Stats() ([attributes.EndStatType]float64, []any) {
++	stats, debug, _ := c.StatsWithProvenance()
++	return stats, debug
++}
++
++// StatsWithProvenance evaluates the original modifier loop exactly once and
++// returns this particular read, not a later/global "last stats" observation.
++func (c *CharWrapper) StatsWithProvenance() ([attributes.EndStatType]float64, []any, *info.SourceHostStatRead) {
+ 	var sb strings.Builder
+ 	var debugDetails []any
+ 
+@@ -16,6 +25,8 @@
+ 
+ 	var stats [attributes.EndStatType]float64
+ 	copy(stats[:], c.BaseStats[:attributes.EndStatType])
++	read := c.beginSourceHostStatRead("stats", attributes.Stats(stats), nil, false)
++	defer c.endSourceHostStatRead(read)
+ 
+ 	if c.debug {
+ 		debugDetails = make([]any, 0, 2*len(c.mods))
+@@ -29,15 +40,21 @@
+ 			n++
+ 			continue
+ 		}
++		step := c.beginSourceHostStatStep(read, m, attributes.Stats(stats))
+ 		if m.Expiry() <= *c.f && m.Expiry() != -1 {
++			c.finishSourceHostStatStep(step, "expired", nil, attributes.Stats(stats), m.Expiry())
+ 			continue
+ 		}
+ 
+ 		amt := m.Amount()
+ 		reject := amt == nil
++		returned := sourcehost.CopyStats(amt)
+ 		for k, v := range amt {
+ 			stats[k] += v
+ 		}
++		outcome := "applied"
++		if reject { outcome = "returned-nil" }
++		c.finishSourceHostStatStep(step, outcome, returned, attributes.Stats(stats), m.Expiry())
+ 		c.mods[n] = m
+ 		n++
+ 
+@@ -68,54 +85,80 @@
+ 	}
+ 	c.mods = c.mods[:n]
+ 
+-	return stats, debugDetails
++	if read != nil { read.Result = attributes.Stats(stats) }
++	return stats, debugDetails, read
+ }
+ 
+ func (c *CharWrapper) Stat(s attributes.Stat) float64 {
+ 	val := c.BaseStats[s]
+-	for _, v := range c.mods {
+-		m, ok := v.(*StatMod)
+-		if !ok {
+-			continue
+-		}
++	var observed attributes.Stats
++	observed[s] = val
++	read := c.beginSourceHostStatRead("stat", observed, []attributes.Stat{s}, false)
++	defer c.endSourceHostStatRead(read)
++	for _, v := range c.mods {
++		m, ok := v.(*StatMod)
++		if !ok {
++			continue
++		}
++		step := c.beginSourceHostStatStep(read, m, observed)
+ 		// ignore this mod if stat type doesnt match
+ 		if m.AffectedStat != attributes.NoStat && m.AffectedStat != s {
++			c.finishSourceHostStatStep(step, "stat-filtered", nil, observed, m.Expiry())
+ 			continue
+ 		}
+ 		// check expiry
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			if amt := m.Amount(); amt != nil {
+-				val += amt[s]
+-			}
+-		}
+-	}
+-
++			amt := m.Amount()
++			returned := sourcehost.CopyStats(amt)
++			outcome := "returned-nil"
++			if amt != nil { val += amt[s]; outcome = "applied" }
++			observed[s] = val
++			c.finishSourceHostStatStep(step, outcome, returned, observed, m.Expiry())
++		} else {
++			c.finishSourceHostStatStep(step, "expired", nil, observed, m.Expiry())
++		}
++	}
++
++	if read != nil { read.Result = observed }
+ 	return val
+ }
+ 
+ func (c *CharWrapper) NonExtraStat(s attributes.Stat) float64 {
+ 	val := c.BaseStats[s]
+-	for _, v := range c.mods {
+-		m, ok := v.(*StatMod)
+-		if !ok {
+-			continue
+-		}
++	var observed attributes.Stats
++	observed[s] = val
++	read := c.beginSourceHostStatRead("non-extra-stat", observed, []attributes.Stat{s}, true)
++	defer c.endSourceHostStatRead(read)
++	for _, v := range c.mods {
++		m, ok := v.(*StatMod)
++		if !ok {
++			continue
++		}
++		step := c.beginSourceHostStatStep(read, m, observed)
+ 		// ignore this mod if stat type doesnt match
+ 		if m.AffectedStat != attributes.NoStat && m.AffectedStat != s {
++			c.finishSourceHostStatStep(step, "stat-filtered", nil, observed, m.Expiry())
+ 			continue
+ 		}
+ 		// is extra stat
+ 		if m.Extra {
++			c.finishSourceHostStatStep(step, "extra-excluded", nil, observed, m.Expiry())
+ 			continue
+ 		}
+ 		// check expiry
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			if amt := m.Amount(); amt != nil {
+-				val += amt[s]
+-			}
+-		}
+-	}
+-
++			amt := m.Amount()
++			returned := sourcehost.CopyStats(amt)
++			outcome := "returned-nil"
++			if amt != nil { val += amt[s]; outcome = "applied" }
++			observed[s] = val
++			c.finishSourceHostStatStep(step, outcome, returned, observed, m.Expiry())
++		} else {
++			c.finishSourceHostStatStep(step, "expired", nil, observed, m.Expiry())
++		}
++	}
++
++	if read != nil { read.Result = observed }
+ 	return val
+ }
+ 
+@@ -125,29 +168,40 @@
+ 		stats[k] += c.BaseStats[k]
+ 	}
+ 
+-	for _, v := range c.mods {
+-		m, ok := v.(*StatMod)
+-		if !ok {
+-			continue
+-		}
++	read := c.beginSourceHostStatRead("select-stat", stats, stat, nonExtra)
++	defer c.endSourceHostStatRead(read)
++	for _, v := range c.mods {
++		m, ok := v.(*StatMod)
++		if !ok {
++			continue
++		}
++		step := c.beginSourceHostStatStep(read, m, stats)
+ 		// ignore this mod if stat type doesnt match
+ 		if m.AffectedStat != attributes.NoStat && !slices.Contains(stat, m.AffectedStat) {
++			c.finishSourceHostStatStep(step, "stat-filtered", nil, stats, m.Expiry())
+ 			continue
+ 		}
+ 		// skip if extra stat
+ 		if nonExtra && m.Extra {
++			c.finishSourceHostStatStep(step, "extra-excluded", nil, stats, m.Expiry())
+ 			continue
+ 		}
+ 		// check expiry
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			if amt := m.Amount(); amt != nil {
+-				for _, k := range stat {
+-					stats[k] += amt[k]
+-				}
++			amt := m.Amount()
++			returned := sourcehost.CopyStats(amt)
++			outcome := "returned-nil"
++			if amt != nil {
++				for _, k := range stat { stats[k] += amt[k] }
++				outcome = "applied"
+ 			}
+-		}
+-	}
+-
++			c.finishSourceHostStatStep(step, outcome, returned, stats, m.Expiry())
++		} else {
++			c.finishSourceHostStatStep(step, "expired", nil, stats, m.Expiry())
++		}
++	}
++
++	if read != nil { read.Result = stats }
+ 	return stats
+ }
+ 
+--- a/pkg/enemy/attack.go
++++ b/pkg/enemy/attack.go
+@@ -62,7 +62,9 @@
+ 	// delay damage event to end of the frame
+ 	e.Core.Combat.Tasks.Add(func() {
+ 		// apply the damage
++		hpBefore := e.hp
+ 		actualDmg := e.applyDamage(atk, dmg)
++		if e.Core.SourceHost != nil { e.Core.SourceHost.Applied(atk, e.Key(), dmg, actualDmg, hpBefore, e.hp, crit, e.Core.Flags.DamageMode) }
+ 		e.Core.Combat.TotalDamage += actualDmg
+ 		e.Core.Combat.Events.Emit(event.OnEnemyDamage, e, atk, actualDmg, crit)
+ 		// callbacks
+--- a/pkg/enemy/damage.go
++++ b/pkg/enemy/damage.go
+@@ -9,6 +9,7 @@
+ )
+ 
+ func (e *Enemy) calc(atk *info.AttackEvent, evt glog.Event, grpMult float64) (float64, bool) {
++	if e.Core.SourceHost != nil { return e.calcSourceHost(atk, evt, grpMult) }
+ 	var isCrit bool
+ 
+ 	if atk.Info.AttackTag.IsDirect() {
+--- a/pkg/enemy/mods.go
++++ b/pkg/enemy/mods.go
+@@ -6,6 +6,7 @@
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+ 
+@@ -90,6 +91,10 @@
+ 
+ // TODO: this needs to purge if done?
+ func (e *Enemy) resist(ai *info.AttackInfo, evt glog.Event) float64 {
++	value, _ := e.resistWithProvenance(ai, evt)
++	return value
++}
++func (e *Enemy) resistWithProvenance(ai *info.AttackInfo, evt glog.Event) (float64, *info.SourceHostScalarRead) {
+ 	var logDetails []any
+ 	var sb strings.Builder
+ 
+@@ -98,11 +103,17 @@
+ 	}
+ 
+ 	r := e.resists[ai.Element]
++	var read *info.SourceHostScalarRead
++	if e.Core.SourceHost != nil {
++		actor, target := ai.ActorIndex, int(e.Key())
++		read = e.Core.SourceHost.NewScalarRead("resistance", r, &actor, &target, ai.Element.String())
++	}
+ 	for _, v := range e.mods {
+ 		m, ok := v.(*info.ResistMod)
+ 		if !ok {
+ 			continue
+ 		}
++		step := sourcehost.NewScalarStep(read, m.Key(), m.Expiry(), m.AffectedByHitlag(), r, m.Ele.String(), false)
+ 		if m.Expiry() > e.Core.F && m.Ele == ai.Element {
+ 			if e.Core.Flags.LogDebug {
+ 				sb.WriteString(m.Key())
+@@ -115,6 +126,11 @@
+ 				sb.Reset()
+ 			}
+ 			r += m.Value
++			sourcehost.FinishScalarStep(step, "applied", &m.Value, r, m.Expiry())
++		} else {
++			outcome := "element-mismatch"
++			if m.Expiry() <= e.Core.F { outcome = "expired" }
++			sourcehost.FinishScalarStep(step, outcome, nil, r, m.Expiry())
+ 		}
+ 	}
+ 
+@@ -123,10 +139,15 @@
+ 		evt.Write("resist_mods", logDetails)
+ 	}
+ 
+-	return r
++	if read != nil { read.Sum = r; read.Output = r }
++	return r, read
+ }
+ 
+ func (e *Enemy) defAdj(evt glog.Event) float64 {
++	value, _ := e.defAdjWithProvenance(evt)
++	return value
++}
++func (e *Enemy) defAdjWithProvenance(evt glog.Event) (float64, *info.SourceHostScalarRead) {
+ 	var logDetails []any
+ 	var sb strings.Builder
+ 
+@@ -135,11 +156,17 @@
+ 	}
+ 
+ 	var r float64
++	var read *info.SourceHostScalarRead
++	if e.Core.SourceHost != nil {
++		target := int(e.Key())
++		read = e.Core.SourceHost.NewScalarRead("defense-adjustment", 0, nil, &target, "")
++	}
+ 	for _, v := range e.mods {
+ 		m, ok := v.(*info.DefMod)
+ 		if !ok {
+ 			continue
+ 		}
++		step := sourcehost.NewScalarStep(read, m.Key(), m.Expiry(), m.AffectedByHitlag(), r, "", false)
+ 		if m.Expiry() > e.Core.F {
+ 			if e.Core.Flags.LogDebug {
+ 				sb.WriteString(m.Key())
+@@ -151,6 +178,9 @@
+ 				sb.Reset()
+ 			}
+ 			r += m.Value
++			sourcehost.FinishScalarStep(step, "applied", &m.Value, r, m.Expiry())
++		} else {
++			sourcehost.FinishScalarStep(step, "expired", nil, r, m.Expiry())
+ 		}
+ 	}
+ 
+@@ -159,5 +189,6 @@
+ 		evt.Write("def_mods", logDetails)
+ 	}
+ 
+-	return r
++	if read != nil { read.Sum = r; read.Output = r }
++	return r, read
+ }
+--- a/pkg/reactable/burning.go
++++ b/pkg/reactable/burning.go
+@@ -88,8 +88,8 @@
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-	atk.FlatDmg = 0.25 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 0.25)
++	atk.FlatDmg = flatdmg
+ 	r.burningAtk = atk
+ 	r.burningSnapshot = snap
+ }
+--- a/pkg/reactable/catalyze.go
++++ b/pkg/reactable/catalyze.go
+@@ -21,7 +21,7 @@
+ 	em := r.core.Player.ByIndex(a.Info.ActorIndex).Stat(attributes.EM)
+ 	a.Info.Catalyzed = true
+ 	a.Info.CatalyzedType = info.ReactionTypeAggravate
+-	a.Info.FlatDmg += 1.15 * r.calcCatalyzeDmg(a.Info, em)
++	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.15)
+ 	return true
+ }
+ 
+@@ -40,7 +40,7 @@
+ 	em := r.core.Player.ByIndex(a.Info.ActorIndex).Stat(attributes.EM)
+ 	a.Info.Catalyzed = true
+ 	a.Info.CatalyzedType = info.ReactionTypeSpread
+-	a.Info.FlatDmg += 1.25 * r.calcCatalyzeDmg(a.Info, em)
++	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.25)
+ 	return true
+ }
+ 
+--- a/pkg/reactable/electrocharged.go
++++ b/pkg/reactable/electrocharged.go
+@@ -70,8 +70,8 @@
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-	atk.FlatDmg = 2.0 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.0)
++	atk.FlatDmg = flatdmg
+ 	r.ecAtk = atk
+ 	r.ecSnapshot = snap
+ 
+--- a/pkg/reactable/freeze.go
++++ b/pkg/reactable/freeze.go
+@@ -85,8 +85,8 @@
+ 		}
+ 		char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 		em := char.Stat(attributes.EM)
+-		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-		ai.FlatDmg = 3.0 * flatdmg
++		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 3.0)
++		ai.FlatDmg = flatdmg
+ 		// shatter is a self attack
+ 		r.core.QueueAttackWithSnap(
+ 			ai,
+--- a/pkg/reactable/lunarcharged.go
++++ b/pkg/reactable/lunarcharged.go
+@@ -105,6 +105,9 @@
+ 
+ func (r *Reactable) doSingleLCAttack(contribMap [info.MaxChars]bool, consumeAura bool) {
+ 	contributions := []lcContribution{}
++	sourceHostOriginalIDs := []int{}
++	sourceHostIDsByActor := map[int]int{}
++	sourceHostRanked := []info.SourceHostComponent{}
+ 
+ 	ap := combat.NewSingleTargetHit(r.self.Key())
+ 
+@@ -140,13 +143,23 @@
+ 		em := ae.Snapshot.Stats[attributes.EM]
+ 		cr := ae.Snapshot.Stats[attributes.CR]
+ 		cd := ae.Snapshot.Stats[attributes.CD]
+-		react := char.ReactBonus(ae.Info)
+-		totalDmg := combat.CalcSpecialReactionDmg(char.Base.Level, react, ae.Info, em)
++		react, sourceHostReactionRead := char.ReactBonusWithProvenance(ae.Info)
++		totalDmg := 0.0
+ 		isCrit := false
+ 
+-		if r.core.Rand.Float64() <= cr {
+-			totalDmg *= (1 + cd)
+-			isCrit = true
++		if r.core.SourceHost != nil {
++			roll := r.core.Rand.Float64()
++			isCrit = roll <= cr
++			var calculationID int
++			totalDmg, calculationID = r.core.SourceHost.LunarContributor(&ae, r.self.Key(), char.Base.Level, combat.CalcReactionBaseDmg(char.Base.Level), react, roll, isCrit, sourceHostReactionRead)
++			sourceHostOriginalIDs = append(sourceHostOriginalIDs, calculationID)
++			sourceHostIDsByActor[charInd] = calculationID
++		} else {
++			totalDmg = combat.CalcSpecialReactionDmg(char.Base.Level, react, ae.Info, em)
++			if r.core.Rand.Float64() <= cr {
++				totalDmg *= (1 + cd)
++				isCrit = true
++			}
+ 		}
+ 
+ 		contributions = append(contributions, lcContribution{totalDmg, isCrit, charInd, cr, cd, em, react, ae.Info.Elevation, ae.Info.BaseDmgBonus})
+@@ -181,11 +194,21 @@
+ 			Write("elevation", &contr.elev).
+ 			Write("base damage bonus", &contr.baseDmgBonus)
+ 
+-		ai.FlatDmg += contr.dmg * lcContributorMult[i]
++		if r.core.SourceHost != nil {
++			// Receipt only: the weighted amount actually used below comes from TS.
++			sourceHostRanked = append(sourceHostRanked, info.SourceHostComponent{ID: sourceHostIDsByActor[contr.charInd], Multiplier: lcContributorMult[i], Amount: contr.dmg * lcContributorMult[i]})
++		} else {
++			ai.FlatDmg += contr.dmg * lcContributorMult[i]
++		}
+ 	}
+ 
+ 	// LC is owned by the character that last triggered Lunar Charged
+ 	ai.ActorIndex = r.lcAtkOwner
++	if r.core.SourceHost != nil {
++		var calculationID int
++		ai.FlatDmg, calculationID = r.core.SourceHost.LunarRanked(ai, r.self.Key(), sourceHostOriginalIDs, sourceHostRanked, lcContributorMult, contributions[0].isCrit)
++		ai.SourceHostComponents = []info.SourceHostComponent{{ID: calculationID, Multiplier: 1, Amount: ai.FlatDmg}}
++	}
+ 	snap := info.Snapshot{}
+ 	if contributions[0].isCrit {
+ 		snap.Stats[attributes.CR] = 1.0
+--- a/pkg/reactable/lunarcrystallize.go
++++ b/pkg/reactable/lunarcrystallize.go
+@@ -148,6 +148,9 @@
+ 
+ func doSingleLCrAttack(contribMap [info.MaxChars]bool, target info.Target, core *core.Core, owner int) {
+ 	contributions := []lcrContribution{}
++	sourceHostOriginalIDs := []int{}
++	sourceHostIDsByActor := map[int]int{}
++	sourceHostRanked := []info.SourceHostComponent{}
+ 
+ 	ap := combat.NewSingleTargetHit(target.Key())
+ 
+@@ -184,12 +187,23 @@
+ 		cr := ae.Snapshot.Stats[attributes.CR]
+ 		cd := ae.Snapshot.Stats[attributes.CD]
+ 
+-		flatdmg := combat.CalcSpecialReactionDmg(char.Base.Level, char.ReactBonus(ae.Info), ae.Info, em)
++		sourceHostReactionBonus, sourceHostReactionRead := char.ReactBonusWithProvenance(ae.Info)
++		flatdmg := 0.0
+ 		isCrit := false
+ 
+-		if core.Rand.Float64() <= cr {
+-			flatdmg *= (1 + cd)
+-			isCrit = true
++		if core.SourceHost != nil {
++			roll := core.Rand.Float64()
++			isCrit = roll <= cr
++			var calculationID int
++			flatdmg, calculationID = core.SourceHost.LunarContributor(&ae, target.Key(), char.Base.Level, combat.CalcReactionBaseDmg(char.Base.Level), sourceHostReactionBonus, roll, isCrit, sourceHostReactionRead)
++			sourceHostOriginalIDs = append(sourceHostOriginalIDs, calculationID)
++			sourceHostIDsByActor[charInd] = calculationID
++		} else {
++			flatdmg = combat.CalcSpecialReactionDmg(char.Base.Level, sourceHostReactionBonus, ae.Info, em)
++			if core.Rand.Float64() <= cr {
++				flatdmg *= (1 + cd)
++				isCrit = true
++			}
+ 		}
+ 
+ 		contributions = append(contributions, lcrContribution{flatdmg, isCrit, charInd, ae})
+@@ -227,7 +241,12 @@
+ 			Write("flat_dmg", &contr.ae.Info.FlatDmg).
+ 			Write("elevation", &contr.ae.Info.Elevation)
+ 
+-		ai.FlatDmg += contr.dmg * lcrContributorMult[i]
++		if core.SourceHost != nil {
++			// Receipt only: the weighted amount actually used below comes from TS.
++			sourceHostRanked = append(sourceHostRanked, info.SourceHostComponent{ID: sourceHostIDsByActor[contr.charInd], Multiplier: lcrContributorMult[i], Amount: contr.dmg * lcrContributorMult[i]})
++		} else {
++			ai.FlatDmg += contr.dmg * lcrContributorMult[i]
++		}
+ 	}
+ 
+ 	snap := info.Snapshot{}
+@@ -236,6 +255,11 @@
+ 	}
+ 	// LCr is owned by the character that last triggered Lunar Crystallize for this instance of Lunar Crystallize
+ 	ai.ActorIndex = owner
++	if core.SourceHost != nil {
++		var calculationID int
++		ai.FlatDmg, calculationID = core.SourceHost.LunarRanked(ai, target.Key(), sourceHostOriginalIDs, sourceHostRanked, lcrContributorMult, contributions[0].isCrit)
++		ai.SourceHostComponents = []info.SourceHostComponent{{ID: calculationID, Multiplier: 1, Amount: ai.FlatDmg}}
++	}
+ 	core.QueueAttackWithSnap(
+ 		ai,
+ 		snap,
+--- a/pkg/reactable/overload.go
++++ b/pkg/reactable/overload.go
+@@ -57,8 +57,8 @@
+ 		}
+ 		char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 		em := char.Stat(attributes.EM)
+-		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-		atk.FlatDmg = 2.75 * flatdmg
++		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.75)
++		atk.FlatDmg = flatdmg
+ 		r.core.QueueAttackWithSnap(atk, snap, combat.NewCircleHitOnTarget(r.self, nil, 3), 1)
+ 	}
+ 
+--- a/pkg/reactable/reactable.go
++++ b/pkg/reactable/reactable.go
+@@ -400,7 +400,7 @@
+ 	}
+ }
+ 
+-func (r *Reactable) calcCatalyzeDmg(atk info.AttackInfo, em float64) float64 {
++func (r *Reactable) calcCatalyzeDmg(atk *info.AttackInfo, em float64, baseMultiplier float64) float64 {
+ 	char := r.core.Player.ByIndex(atk.ActorIndex)
+-	return combat.CalcCatalyzeDmg(char.Base.Level, char, atk, em)
+-}
++	return combat.CalcCatalyzeDmg(char.Base.Level, char, atk, em, baseMultiplier)
++}
+--- a/pkg/reactable/stellarswirl.go
++++ b/pkg/reactable/stellarswirl.go
+@@ -104,6 +104,16 @@
+ 
+ func (r *Reactable) calcStellarSwirlDmg(target info.Target, ai info.AttackInfo, ap info.AttackPattern, contribMap [info.MaxChars]bool, mult float64) (info.AttackInfo, info.Snapshot) {
+ 	contributions := []sswContribution{}
++	sourceHostOriginalIDs := []int{}
++	sourceHostIDsByActor := map[int]int{}
++	sourceHostRanked := []info.SourceHostComponent{}
++	branch := ""
++	switch mult {
++	case 0.75: branch = "stellar-swirl-anemo-reaction"
++	case 2: branch = "stellar-swirl-vortex-1"
++	case 3: branch = "stellar-swirl-vortex-2"
++	default: panic("source-host: unsupported Stellar Swirl coefficient")
++	}
+ 	for charInd, char := range r.core.Player.Chars() {
+ 		if !contribMap[charInd] {
+ 			continue
+@@ -126,12 +136,22 @@
+ 		cr := ae.Snapshot.Stats[attributes.CR]
+ 		cd := ae.Snapshot.Stats[attributes.CD]
+ 
+-		flatdmg := mult * combat.CalcSpecialReactionDmg(char.Base.Level, char.ReactBonus(ae.Info), ae.Info, em)
++		reactionBonus, reactionRead := char.ReactBonusWithProvenance(ae.Info)
++		flatdmg := 0.0
+ 		isCrit := false
+-
+-		if r.core.Rand.Float64() <= cr {
+-			flatdmg *= (1 + cd)
+-			isCrit = true
++		if r.core.SourceHost != nil {
++			roll := r.core.Rand.Float64()
++			isCrit = roll <= cr
++			var calculationID int
++			flatdmg, calculationID = r.core.SourceHost.StellarContributor(&ae, target.Key(), branch, char.Base.Level, combat.CalcReactionBaseDmg(char.Base.Level), mult, reactionBonus, roll, isCrit, reactionRead)
++			sourceHostOriginalIDs = append(sourceHostOriginalIDs, calculationID)
++			sourceHostIDsByActor[charInd] = calculationID
++		} else {
++			flatdmg = mult * combat.CalcSpecialReactionDmg(char.Base.Level, reactionBonus, ae.Info, em)
++			if r.core.Rand.Float64() <= cr {
++				flatdmg *= (1 + cd)
++				isCrit = true
++			}
+ 		}
+ 
+ 		contributions = append(contributions, sswContribution{flatdmg, isCrit, charInd, ae})
+@@ -169,7 +189,16 @@
+ 			Write("flat_dmg", &contr.ae.Info.FlatDmg).
+ 			Write("elevation", &contr.ae.Info.Elevation)
+ 
+-		ai.FlatDmg += contr.dmg * sswContributorMult[i]
++		if r.core.SourceHost != nil {
++			sourceHostRanked = append(sourceHostRanked, info.SourceHostComponent{ID: sourceHostIDsByActor[contr.charInd], Multiplier: sswContributorMult[i], Amount: contr.dmg * sswContributorMult[i]})
++		} else {
++			ai.FlatDmg += contr.dmg * sswContributorMult[i]
++		}
++	}
++	if r.core.SourceHost != nil {
++		var calculationID int
++		ai.FlatDmg, calculationID = r.core.SourceHost.StellarRanked(ai, target.Key(), branch, sourceHostOriginalIDs, sourceHostRanked, sswContributorMult, contributions[0].isCrit)
++		ai.SourceHostComponents = []info.SourceHostComponent{{ID: calculationID, Multiplier: 1, Amount: ai.FlatDmg}}
+ 	}
+ 
+ 	snap := info.Snapshot{}
+--- a/pkg/reactable/superconduct.go
++++ b/pkg/reactable/superconduct.go
+@@ -102,7 +102,7 @@
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em)
+-	atk.FlatDmg = 1.5 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 1.5)
++	atk.FlatDmg = flatdmg
+ 	r.core.QueueAttackWithSnap(atk, snap, combat.NewCircleHitOnTarget(r.self, nil, 3), 1)
+ }
+--- a/pkg/reactable/swirl.go
++++ b/pkg/reactable/swirl.go
+@@ -33,8 +33,8 @@
+ 	}
+ 	char := r.core.Player.ByIndex(charIndex)
+ 	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em)
+-	ai.FlatDmg = 0.6 * flatdmg
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 0.6)
++	ai.FlatDmg = flatdmg
+ 	// first attack is self no hitbox
+ 	r.core.QueueAttackWithSnap(
+ 		ai,

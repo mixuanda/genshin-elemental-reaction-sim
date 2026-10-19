@@ -1,0 +1,264 @@
+{
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "originalArchiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+  "localArchivePath": "packages/game-data/sources/conditioned-basic-actions/source.json.gz",
+  "localArchiveSha256": "97c4bc86246b974ab8de373bf743b55dbddebff3aa94090d1cf56e42cd4c99ff",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/alhaitham/alhaitham.go": "1f236fa9f79043bea436483c83cd42c46e5a51359b0cac4f8a07e660d9c937c7",
+    "internal/characters/alhaitham/asc.go": "c6f12e7168a055727300620a16403ea76a01bdb9455083a3884fb3c104214c52",
+    "internal/characters/alhaitham/charge.go": "3a8d4439535ff124d68bd4c52b06440d4734a7b69c562f863c4b8ff5586b836a",
+    "internal/characters/alhaitham/plunge.go": "a3ba844ed5e0964015f776b666cbacf92449b75dfbb87845d5f2bf504ba7c2dc",
+    "internal/characters/alhaitham/skill.go": "5ae471fa15743760b2e03e0524ee067c845a42bbdcf335fe2f94542b0b82f64a",
+    "internal/characters/alhaitham/zz_alhaitham.dm.go": "f8af00daa2b5b886d602abf9f7a79b9de2e36e3e53318ca4225468e5bccd7197",
+    "internal/characters/ayaka/asc.go": "2a88edfe93ba1093b1d7f3541bf09f8ee6d5f8918216ddeaa90989c2e51fca06",
+    "internal/characters/ayaka/ayaka.go": "cb28ed7582809f4a3168ded38fb5a29965b5e0078ae5c3c8d1140f9bb01f5ef7",
+    "internal/characters/ayaka/cons.go": "b23ae7d5eedf641be3b69a0d605cc1b7872dfe0750cf920c739579ec85765b30",
+    "internal/characters/ayaka/dash.go": "daec3c1589e4e35746e4f8cd6db2820387720a6c7877e27c35952e320f0aaae4",
+    "internal/characters/ayaka/plunge.go": "7c10d308c1e7a66dd5599d4d8a60cf35643c3f39aac361ab824c4719be997010",
+    "internal/characters/ayaka/zz_kamisatoayaka.dm.go": "d95486ca5b54d0787d8d6e7ab28ab554ec3f352e961328ada87c4c09e5341e73",
+    "internal/characters/ayato/asc.go": "55e9af3f30366353a5c42b2c081a0fb0c60421db0fe2df47f71700532578593b",
+    "internal/characters/ayato/ayato.go": "d7a67032eff911ee0dd30141c227bbcf8a1c4d850b3495c15b4c1356c0554c73",
+    "internal/characters/ayato/burst.go": "48f28e77ec4fb318f8c2c3716550b07b5f9714f46401a5d6c0585ac99efd55b1",
+    "internal/characters/ayato/plunge.go": "612aa9290bf1bf9ff8dbf36b5942e4c6513a7761f4d7d7213e01da52ac073d08",
+    "internal/characters/ayato/skill.go": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+    "internal/characters/ayato/zz_kamisatoayato.dm.go": "527c1dd1bf7f9b8fef494ee48e73583eea52e3c0be550f99d1494fccc8ee4546",
+    "internal/characters/furina/asc.go": "58d38394a97e39fd3e2edb2f2961894f83990aae1ba535594a87e8c90f27993e",
+    "internal/characters/furina/attack.go": "cb19459fe4b8cf7b8c9a6c0e1f321fdfe890b8720e7be0db0a38571fa13d19d7",
+    "internal/characters/furina/cons.go": "3be5c82c2eff7bdf0b32357c0dc1ef2d065a9f2c81e6eed6a292ced3bf8e5359",
+    "internal/characters/furina/furina.go": "1e962217215f76c8319961257504a2e2b9ff53ca03ffbd386025ecf8dbfcf0ee",
+    "internal/characters/furina/plunge.go": "ffb72dd4d9b5edc37d02ea8522cfdbccf447812bb4d401773587d50394e5ef85",
+    "internal/characters/furina/skill.go": "4755c63dacfb31f5dcf282af3beb308d4f297c404ed35b1f9b17ce30e50d230c",
+    "internal/characters/furina/zz_furina.dm.go": "3461bb5935b5fca53bb3eca6939398d14f3bdd79f9b542689e1b197cf760c55d",
+    "internal/characters/gaming/asc.go": "8d98092a597d228ba3c696b5064ba71ae69eb3b99b49efd0bc92196084eb48f1",
+    "internal/characters/gaming/burst.go": "cf105bf4fa2e7e577f73c86b0b3a9e2fd7699955a6c6ce7e79d1bdc9bcb3b9b3",
+    "internal/characters/gaming/cons.go": "7d36f68865e58937266b27705318af95ec2a19d106718286fa40bcbc4d1a9359",
+    "internal/characters/gaming/gaming.go": "21cc8cefa5e10ae52d4065f0e923681bd0a4556b1cd1f97bfcb83e0c5d8bc817",
+    "internal/characters/gaming/plunge.go": "c303795226734e40f18185201c52f8acabfeb949a2bf00df636155960a3f5b9c",
+    "internal/characters/gaming/zz_gaming.dm.go": "dc335fff4c640d686c10d737956963e16406102f5465966b0c2bdbcb9c237d22",
+    "internal/characters/itto/asc.go": "a7d4ad795772ff8f6de4baa543356a1d7875597514452e7324f035dc530f28fc",
+    "internal/characters/itto/burst.go": "926c3d2c7c1e75286adcaa54c9db2b5c5cca36648423b79789a0e693d5adfd06",
+    "internal/characters/itto/charge.go": "46b3842bb547418395fc85b829caa76fc64ae347cb106a19ed427e9c9f6e9729",
+    "internal/characters/itto/itto.go": "b5656eb99f33df08b73b569a00a75dd11bc90efe7d9fc147097f11357170233b",
+    "internal/characters/itto/plunge.go": "aab46107347ec695d529cb3cece134d1dc7b90d49e786def9261253deaa33ab7",
+    "internal/characters/itto/zz_aratakiitto.dm.go": "6266a2cd1702b8074ee3eefd8c2c41ac8cf32e04f5ebcb1759fd2a0f7cbf500c",
+    "internal/characters/xiao/asc.go": "7db9cf294d62753d1aec92c4a7dd0cce922418936fbdeca17eec89d2d8cfea48",
+    "internal/characters/xiao/burst.go": "121fdd4d4c61b6146ac7e4f13cd6dbe08f8b19ec8373bf9e27391dcc81fb0b22",
+    "internal/characters/xiao/cons.go": "74411291c02df40cb4d91919bef7d8ee438496a647a511f7da73b5ea125bb458",
+    "internal/characters/xiao/jump.go": "5b89533815309ab0035b22d3c09f3dd19a42cb511545ae1ef72318ffeabfd9fd",
+    "internal/characters/xiao/plunge.go": "24fd413c3775cbde581aefba511a7d64aa4adedfa741df2030627ef130463ea0",
+    "internal/characters/xiao/xiao.go": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+    "internal/characters/xiao/zz_xiao.dm.go": "2abd9756f7b24a58af959b6b2434775b1d3f058dd0788f84072d8fd794924fd9",
+    "internal/characters/yanfei/asc.go": "27980c6800dd64a81f8471240c8ca38d932f91ec8dbca0f0f7bbc2f8f23f3341",
+    "internal/characters/yanfei/charge.go": "d57de88f0bba0cb12ad18dcd9b8c194a8ddd8c900385aa9d2d114120438c51fe",
+    "internal/characters/yanfei/cons.go": "34b6c89634484ce751f3905749ea26dc08aa4c9b3a1bd42d404f555af6dd948c",
+    "internal/characters/yanfei/plunge.go": "9faf69269a7606fe38a7465f3f272ec4fce58cca790b5d758cf071f5f8fb4209",
+    "internal/characters/yanfei/yanfei.go": "54ed0b1c0c8cb4bd5df3e6633faea85ce40fa8c625baa37f6a9a7485523bb369",
+    "internal/characters/yanfei/zz_yanfei.dm.go": "f54f160bec148553d3f813872496c4cb4ce490bce54797550a986a9c5c45479f",
+    "pkg/enemy/damage.go": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8"
+  },
+  "classification": "C0 specified-state complete input damage; innate follow-up retained when ready; not verified mechanics",
+  "references": [
+    {
+      "id": "kamisatoayato-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "ayato",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "kamisatoayato-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "ayato",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "kamisatoayaka-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "ayaka",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "kamisatoayaka-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "ayaka",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "yanfei-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "yanfei",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "yanfei-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "yanfei",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "gaming-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "gaming",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "gaming-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "gaming",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "furina-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "furina-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "xiao-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "xiao",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "xiao-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "xiao",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "aratakiitto-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "itto",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "aratakiitto-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "itto",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "alhaitham-low-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "alhaitham",
+      "sourceTable": "lowPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "alhaitham-high-plunge-no-collision-conditioned-c0-hit-1",
+      "sourceCharacter": "alhaitham",
+      "sourceTable": "highPlunge",
+      "sourceIndex": []
+    },
+    {
+      "id": "furina-normal-1-arkhe-cooldown-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0
+      ]
+    },
+    {
+      "id": "furina-normal-1-arkhe-ready-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        0
+      ]
+    },
+    {
+      "id": "furina-normal-1-arkhe-ready-conditioned-c0-hit-2",
+      "sourceCharacter": "furina",
+      "sourceTable": "arkhe",
+      "sourceIndex": []
+    },
+    {
+      "id": "furina-normal-2-arkhe-cooldown-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1
+      ]
+    },
+    {
+      "id": "furina-normal-2-arkhe-ready-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        1
+      ]
+    },
+    {
+      "id": "furina-normal-2-arkhe-ready-conditioned-c0-hit-2",
+      "sourceCharacter": "furina",
+      "sourceTable": "arkhe",
+      "sourceIndex": []
+    },
+    {
+      "id": "furina-normal-3-arkhe-cooldown-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2
+      ]
+    },
+    {
+      "id": "furina-normal-3-arkhe-ready-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        2
+      ]
+    },
+    {
+      "id": "furina-normal-3-arkhe-ready-conditioned-c0-hit-2",
+      "sourceCharacter": "furina",
+      "sourceTable": "arkhe",
+      "sourceIndex": []
+    },
+    {
+      "id": "furina-normal-4-arkhe-cooldown-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3
+      ]
+    },
+    {
+      "id": "furina-normal-4-arkhe-ready-conditioned-c0-hit-1",
+      "sourceCharacter": "furina",
+      "sourceTable": "attack",
+      "sourceIndex": [
+        3
+      ]
+    },
+    {
+      "id": "furina-normal-4-arkhe-ready-conditioned-c0-hit-2",
+      "sourceCharacter": "furina",
+      "sourceTable": "arkhe",
+      "sourceIndex": []
+    },
+    {
+      "id": "alhaitham-charged-zero-mirrors-a1-cooldown-conditioned-c0-hit-1",
+      "sourceCharacter": "alhaitham",
+      "sourceTable": "charge",
+      "sourceIndex": [
+        0
+      ]
+    },
+    {
+      "id": "alhaitham-charged-zero-mirrors-a1-cooldown-conditioned-c0-hit-2",
+      "sourceCharacter": "alhaitham",
+      "sourceTable": "charge",
+      "sourceIndex": [
+        1
+      ]
+    }
+  ]
+}

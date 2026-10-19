@@ -1,0 +1,2720 @@
+{
+  "schemaVersion": "calculator-event-v1",
+  "eventId": 1,
+  "sourceResult": {
+    "schemaVersion": "1.53.0",
+    "engineVersion": "1.53.0-callback-bus",
+    "dataVersion": "external-gcsim-v2.44.1-resolved-context",
+    "randomSeed": "controlled-two-character-no-crit",
+    "runManifest": {
+      "version": "1.9.0",
+      "identityAlgorithm": "fnv1a32-v2",
+      "schemaVersion": "1.53.0",
+      "engineVersion": "1.53.0-callback-bus",
+      "dataVersion": "external-gcsim-v2.44.1-resolved-context",
+      "configHash": "fnv1a32:035819a1",
+      "resolvedRuntimeOptions": {
+        "energyMode": "configured",
+        "critMode": "noCrit",
+        "compatibilityMode": "legal-frame-v1",
+        "randomSeed": "controlled-two-character-no-crit"
+      },
+      "plugins": [],
+      "pluginCapabilities": [],
+      "pluginCallbackSubscriptions": [],
+      "reactionFormulaRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1",
+        "contentHash": "sha256:7ae4ee955e0c7986c47931cff596694c8cd4754b48df90e0ad1cf092738ccafd",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false
+      },
+      "directDamageGroupRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "damage-group-reset-and-damage-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+      },
+      "elementalApplicationIcdRoot": {
+        "version": "1.0.0",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+        "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "elemental-application-reset-and-numeric-sequences-only",
+        "tailPolicy": "clamp-last",
+        "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one",
+        "stateScope": "per-target-source-character-and-icd-tag;group-selects-sequence-first-group-owns-reset-window",
+        "provisional": true
+      },
+      "reactionOwnedElementalApplicationRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2",
+        "contentHash": "sha256:9b3b07731d49ebf8abb445708c3edb99b3ce8c3c7465ce5ca02b0a7c8092a660",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "elementalApplicationRootRef": {
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "contentHash": "sha256:df461cf8aefee33ec57b8a8f83e2ec26497f17be8bc3ee1e6d667bf91d4015c1"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-tick-and-swirl-aoe-propagation-only",
+        "resetTimerDataSource": "referenced-elemental-application-root",
+        "resetSchedulePolicy": "channel-specific-core-reset-boundary-at-window-start-plus-reset-frames-minus-one",
+        "sameFrameOrdering": "provisional-channel-specific-reset-boundary",
+        "provisional": true
+      },
+      "reactionDamageGroupRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2",
+        "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+        "contentHash": "sha256:026b9728156ddd124a2d85793b80d71a1d3f3baacec8376c8ac120bf68c17346",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "damageGroupRootRef": {
+          "version": "1.0.0",
+          "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+          "contentHash": "sha256:7e6d16a2a90ac7d9bb84daa80c43f09d28fb65e45319c62f67d14c50bb5e9c70",
+          "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+          "tailPolicy": "clamp-last",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        },
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "reaction-a-and-reaction-b-transformative-damage-reset-boundary-only",
+        "scopeKeyFields": [
+          "receivingTargetId",
+          "sourceActorId",
+          "icdTag"
+        ],
+        "damageSourceInScopeKey": false,
+        "resetBoundary": "scheduled-reset-task",
+        "resetSchedulePolicy": "scheduled-reset-task-at-window-start-plus-reset-frames-minus-one",
+        "resetFrameOffsetAdjustment": -1,
+        "sameFrameOrdering": "provisional-insertion-and-event-sequence-dependent",
+        "schedulerProvenance": "provisional-not-complete",
+        "provisional": true
+      },
+      "basicReactionSchedulerRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2",
+        "mode": "fixed-gcsim-normalized-provisional-scheduler-v2",
+        "contentHash": "sha256:59b8f34401ceaf16ea65482c80e7f481629fceb5857900ed594c950db6954534",
+        "mechanicsDataStatus": "fixed-gcsim-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "burning-target-tick-cascade-and-swirl-follow-up-scheduling-only",
+        "sameFrameOrdering": "same-priority-frame-and-global-insertion-event-sequence-fifo",
+        "attackResolutionPhase": "immediate-core-task",
+        "nonReactedAttachmentPhase": "deferred-zero-delay-core-task",
+        "includedReactions": [
+          "burning",
+          "swirl"
+        ],
+        "intentionalDeviations": [
+          "burning-monotonic-generation-guard"
+        ],
+        "provisional": true
+      },
+      "freezeBrokenAttackRoot": {
+        "version": "3.0.0",
+        "policyId": "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3",
+        "mode": "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+        "contentHash": "sha256:7c6b09c56e2e70fcdee5907045cdd29e1c81474c700c0685c6b3684a34eb298b",
+        "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "mechanicsStatus": "partial",
+        "callbackSurface": "versioned-callback-bus-dispatch-audit",
+        "callbackDisposition": "callback-bus-dispatched-normalized",
+        "requiredCallbackBusPolicyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2",
+        "triggerSources": [
+          "natural-decay",
+          "poise",
+          "shatter",
+          "swirl-frozen",
+          "crystallize-frozen"
+        ],
+        "excludedReactionSources": [
+          "melt",
+          "superconduct"
+        ],
+        "executionStatus": "callback-bus-dispatched-normalized",
+        "auditDisposition": "structured-callback-bus-dispatch-log",
+        "callbackCardinality": "exactly-once-per-positive-to-depleted-transition",
+        "dispatchSequence": [
+          "on-aura-durability-depleted-frozen",
+          "on-apply-attack-freeze-broken",
+          "on-enemy-hit-freeze-broken",
+          "on-enemy-damage-freeze-broken-zero",
+          "attack-callback-freeze-broken"
+        ],
+        "dispatchPhases": {
+          "auraDurabilityDepleted": "same-call-stack-synchronous",
+          "applyAttack": "same-call-stack-synchronous-after-aura-durability-depleted",
+          "enemyHit": "same-call-stack-synchronous-after-apply-attack",
+          "enemyDamage": "zero-delay-end-of-frame",
+          "attackCallback": "zero-delay-end-of-frame-after-enemy-damage"
+        },
+        "normalizedDepletionThreshold": 1e-10,
+        "normalizedDepletionComparator": "positive-to-less-than-or-equal",
+        "rngDisposition": "consume-none",
+        "damageEventDisposition": "emit-none",
+        "hitResolutionDisposition": "emit-none",
+        "physicsDisposition": "not-modeled",
+        "intentionalDeviations": [
+          "collapse-zero-durability-duplicate-to-exactly-once",
+          "consume-no-crit-rng",
+          "emit-no-synthetic-damage-event",
+          "emit-no-synthetic-hit-resolution",
+          "normalize-depletion-threshold-from-1e-11-to-1e-10",
+          "model-no-general-enemy-physics-or-impulse",
+          "callback-subscriber-side-effects-unimplemented",
+          "mona-bubble-and-impulse-side-effects-unimplemented"
+        ],
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "freeze-depletion-callback-bus-dispatch-and-local-normalization-only",
+        "provisional": true
+      },
+      "callbackBusRoot": {
+        "version": "2.0.0",
+        "policyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2",
+        "mode": "fixed-gcsim-versioned-callback-bus-v2",
+        "contentHash": "sha256:e9a07c467716a1b5bf63859945262a3abc3c54ae7407f124d0a68cc7ec380696",
+        "mechanicsDataStatus": "fixed-gcsim-normalized-provisional",
+        "sourceProject": "genshinsim/gcsim",
+        "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "pinnedGcsimReference": true,
+        "mechanicsStatus": "partial",
+        "implementationStatus": "typed-deterministic-normalized-provisional",
+        "dispatchSurface": "freeze-broken-attack-only",
+        "eventKinds": [
+          "on-aura-durability-depleted",
+          "on-apply-attack",
+          "on-enemy-hit",
+          "on-enemy-damage",
+          "attack-callback"
+        ],
+        "phaseOrder": [
+          {
+            "ordinal": 0,
+            "eventKind": "on-aura-durability-depleted",
+            "deliveryPhase": "same-call-stack-synchronous",
+            "relativeOrder": "before-on-apply-attack"
+          },
+          {
+            "ordinal": 1,
+            "eventKind": "on-apply-attack",
+            "deliveryPhase": "same-call-stack-synchronous",
+            "relativeOrder": "after-aura-depleted-before-on-enemy-hit"
+          },
+          {
+            "ordinal": 2,
+            "eventKind": "on-enemy-hit",
+            "deliveryPhase": "same-call-stack-synchronous",
+            "relativeOrder": "after-on-apply-attack-before-zero-delay-task"
+          },
+          {
+            "ordinal": 3,
+            "eventKind": "on-enemy-damage",
+            "deliveryPhase": "zero-delay-end-of-frame-task",
+            "relativeOrder": "before-attack-callback"
+          },
+          {
+            "ordinal": 4,
+            "eventKind": "attack-callback",
+            "deliveryPhase": "same-zero-delay-end-of-frame-task",
+            "relativeOrder": "after-on-enemy-damage"
+          }
+        ],
+        "deliveryOrdering": "active-slot-insertion-order",
+        "duplicateKeyDisposition": "replace-handler-in-original-slot-without-reordering",
+        "unsubscribeDisposition": "set-handler-null-and-retain-slot-tombstone",
+        "mutationDuringDispatchDisposition": "reject",
+        "reentrantDispatchDisposition": "reject",
+        "rngDisposition": "consume-none",
+        "damageEventDisposition": "emit-none",
+        "intentionalDeviations": [
+          "reject-subscription-mutation-during-dispatch",
+          "reject-reentrant-dispatch",
+          "consume-no-freeze-broken-crit-rng",
+          "emit-no-freeze-broken-damage-event",
+          "audit-empty-attack-callback-phase",
+          "expose-readonly-context-and-structured-outcomes-only"
+        ],
+        "officialServerTruth": false,
+        "completeGcsimParity": false,
+        "coverage": "freeze-broken-five-phase-callback-dispatch-and-subscriber-lifecycle-only",
+        "provisional": true
+      },
+      "reproducibilityKey": "gdl-v2-fnv1a32-92be5a42"
+    },
+    "resolvedRuntimeOptions": {
+      "energyMode": "configured",
+      "critMode": "noCrit",
+      "compatibilityMode": "legal-frame-v1",
+      "randomSeed": "controlled-two-character-no-crit"
+    },
+    "pluginManifest": [],
+    "reproducibilityKey": "gdl-v2-fnv1a32-92be5a42",
+    "compatibilityMode": "legal-frame-v1",
+    "mechanicsStatus": "complete",
+    "config": {
+      "schemaVersion": "1.53.0",
+      "engineVersion": "1.53.0-callback-bus",
+      "dataVersion": "external-gcsim-v2.44.1-resolved-context",
+      "randomSeed": "controlled-two-character-no-crit",
+      "meta": {
+        "name": "固定 gcsim 双角色反向蒸发对照",
+        "version": "gcsim-v2.44.1-barbara-amber-reverse-vaporize",
+        "note": "Controlled resolved stats and action mapping against a pinned external executable; not a complete character or current patch claim.",
+        "verificationStatus": "provisional"
+      },
+      "duration": 8,
+      "cycleLength": 8,
+      "enemy": {
+        "level": 90,
+        "resistance": 0.1,
+        "defReduction": 0
+      },
+      "characters": [
+        {
+          "id": "barbara",
+          "name": "Barbara",
+          "element": "hydro",
+          "color": "#0000ff",
+          "level": 1,
+          "energyMax": 80,
+          "initialEnergy": 0,
+          "stats": {
+            "baseAtk": 36.601,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 820.6119,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 56.0805,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 0,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          }
+        },
+        {
+          "id": "amber",
+          "name": "Amber",
+          "element": "pyro",
+          "color": "#ff0000",
+          "level": 1,
+          "energyMax": 40,
+          "initialEnergy": 0,
+          "stats": {
+            "baseAtk": 41.9434,
+            "atkPct": 0,
+            "flatAtk": 0,
+            "baseHp": 793.2582,
+            "hpPct": 0,
+            "flatHp": 0,
+            "baseDef": 50.358,
+            "defPct": 0,
+            "flatDef": 0,
+            "em": 100,
+            "critRate": 0,
+            "critDmg": 0.5,
+            "dmgBonus": 0,
+            "defIgnore": 0,
+            "reactionBonus": 0,
+            "energyRecharge": 1
+          }
+        }
+      ],
+      "rotation": [],
+      "timeline": {
+        "mode": "legal-frame-v1",
+        "fps": 60,
+        "legalityMode": "strict",
+        "initialActiveCharacterId": "barbara",
+        "swapFrames": 1,
+        "abilities": [
+          {
+            "id": "barbara-n1",
+            "actorId": "barbara",
+            "name": "Normal 0",
+            "kind": "normal",
+            "cancelFrame": 6,
+            "animationEndFrame": 23,
+            "cooldownFrames": 0,
+            "hits": [
+              {
+                "id": "barbara-n1-hit",
+                "label": "Normal 0",
+                "scaling": 0.3784,
+                "scalingStat": "atk",
+                "element": "hydro",
+                "application": {
+                  "gaugeUnits": 1,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "normal",
+                    "groupId": "default"
+                  }
+                },
+                "snapshot": "hit",
+                "frame": 6
+              }
+            ]
+          },
+          {
+            "id": "amber-aim",
+            "actorId": "amber",
+            "name": "Fully-Charged Aimed Shot",
+            "kind": "charge",
+            "cancelFrame": 86,
+            "cancelFrames": {
+              "charge": 96
+            },
+            "animationEndFrame": 96,
+            "cooldownFrames": 0,
+            "hits": [
+              {
+                "id": "amber-aim-hit",
+                "label": "Fully-Charged Aimed Shot",
+                "scaling": 1.24,
+                "scalingStat": "atk",
+                "element": "pyro",
+                "application": {
+                  "gaugeUnits": 2,
+                  "icd": {
+                    "mode": "fixed-gcsim-application-v1",
+                    "icdTag": "extra",
+                    "groupId": "amber"
+                  }
+                },
+                "snapshot": "hit",
+                "frame": 96
+              }
+            ]
+          }
+        ],
+        "commands": [
+          {
+            "type": "wait",
+            "frames": 1
+          },
+          {
+            "type": "normal",
+            "actorId": "barbara",
+            "abilityId": "barbara-n1"
+          },
+          {
+            "type": "wait",
+            "frames": 60
+          },
+          {
+            "type": "swap",
+            "characterId": "amber"
+          },
+          {
+            "type": "charge",
+            "actorId": "amber",
+            "abilityId": "amber-aim"
+          },
+          {
+            "type": "charge",
+            "actorId": "amber",
+            "abilityId": "amber-aim"
+          },
+          {
+            "type": "wait",
+            "frames": 480
+          }
+        ]
+      },
+      "reactionEngine": {
+        "mode": "aura-v3",
+        "initialAura": []
+      },
+      "playerDamageModel": {
+        "mode": "disabled"
+      },
+      "targetClockModel": {
+        "mode": "disabled"
+      },
+      "targetTaskModel": {
+        "mode": "legacy-event-heap-v1"
+      },
+      "reactionDeliveryModel": {
+        "mode": "deferred-event-heap-v1"
+      },
+      "electroChargedPropagationModel": {
+        "mode": "single-target-v1"
+      },
+      "reactionFormulaModel": {
+        "mode": "classic-formula-profile-v1",
+        "profileId": "gcsim-b4ae769-classic-provisional-v1"
+      },
+      "directDamageGroupModel": {
+        "mode": "fixed-gcsim-direct-damage-group-v1",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+      },
+      "elementalApplicationIcdModel": {
+        "mode": "fixed-gcsim-elemental-application-v1",
+        "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+      },
+      "reactionOwnedElementalApplicationModel": {
+        "mode": "fixed-gcsim-reaction-owned-application-v2",
+        "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+      },
+      "reactionDamageGroupModel": {
+        "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+        "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+      },
+      "basicReactionSchedulerModel": {
+        "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+        "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+      },
+      "freezeBrokenAttackModel": {
+        "mode": "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+        "policyId": "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3"
+      },
+      "callbackBusModel": {
+        "mode": "fixed-gcsim-versioned-callback-bus-v2",
+        "policyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2"
+      }
+    },
+    "actorPoses": [],
+    "enemyTargets": [
+      {
+        "id": "enemy-0",
+        "name": "敌人 0",
+        "level": 90,
+        "resistance": 0.1,
+        "defReduction": 0,
+        "freezeResistance": 0,
+        "initialAura": [],
+        "position": null,
+        "hitboxRadius": 0
+      }
+    ],
+    "damageEvents": [
+      {
+        "id": 0,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "parentDamageEventId": null,
+        "sourceActorId": "barbara",
+        "scalingOwnerId": "barbara",
+        "creditOwnerId": "barbara",
+        "actionId": "barbara-n1#1",
+        "hitId": "barbara-n1-hit",
+        "hitGroupId": "barbara-n1#1:0:0:7",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 0,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 4.326283479587628,
+        "frame": 7,
+        "timeSeconds": 0.11666666666666667,
+        "activeCharacterId": "barbara",
+        "statsBeforeDamage": {
+          "baseAtk": 36.601,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 820.6119,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 56.0805,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "normal",
+          "icdGroup": "default",
+          "applicationGaugeUnits": 1,
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1,
+              "sourceActorId": "barbara"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 577,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+        },
+        "damageFactors": {
+          "scaling": 0.3784,
+          "scalingStat": "atk",
+          "scalingValue": 36.601,
+          "flatDamage": 0,
+          "baseDamage": 13.8498184,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.3470790378006873,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 4.326283479587628,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 4.326283479587628,
+        "displayDamage": 4,
+        "sourceActorName": "Barbara",
+        "scalingOwnerName": "Barbara",
+        "creditOwnerName": "Barbara",
+        "actionName": "Normal 0",
+        "hitLabel": "Normal 0",
+        "element": "hydro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 1,
+        "sourceAbilityId": "barbara-n1",
+        "actionStartFrame": 1,
+        "actionCancelFrame": 7,
+        "actionAnimationEndFrame": 24,
+        "time": 0.11666666666666667,
+        "second": 0,
+        "actorId": "barbara",
+        "creditId": "barbara",
+        "actorName": "Barbara",
+        "activeId": "barbara",
+        "scaling": 0.3784,
+        "scalingStat": "atk",
+        "scalingValue": 36.601,
+        "flat": 0,
+        "baseDamage": 13.8498184,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.3470790378006873,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": [],
+        "elementalApplicationIcdLogId": 0
+      },
+      {
+        "id": 1,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "parentDamageEventId": null,
+        "sourceActorId": "amber",
+        "scalingOwnerId": "amber",
+        "creditOwnerId": "amber",
+        "actionId": "amber-aim#4",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#4:0:0:164",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 1,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 28.886037332931956,
+        "frame": 164,
+        "timeSeconds": 2.7333333333333334,
+        "activeCharacterId": "amber",
+        "statsBeforeDamage": {
+          "baseAtk": 41.9434,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 793.2582,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 50.358,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "extra",
+          "icdGroup": "amber",
+          "applicationGaugeUnits": 2,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.579649122807,
+              "expiresAtFrame": 577,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnits": 0.579649122807
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2,
+              "sourceActorId": "amber"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.579649122807,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnitsBefore": 0.579649122807,
+                  "consumedGaugeUnits": 0.579649122807,
+                  "gaugeUnitsAfter": 0
+                }
+              ]
+            }
+          ],
+          "auraAfter": [],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+        },
+        "damageFactors": {
+          "scaling": 1.24,
+          "scalingStat": "atk",
+          "scalingValue": 41.9434,
+          "flatDamage": 0,
+          "baseDamage": 52.009815999999994,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.3470790378006873,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1.5,
+          "elementalMasteryBonus": 0.18533333333333332,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1.778,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 28.886037332931956,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 28.886037332931956,
+        "displayDamage": 29,
+        "sourceActorName": "Amber",
+        "scalingOwnerName": "Amber",
+        "creditOwnerName": "Amber",
+        "actionName": "Fully-Charged Aimed Shot",
+        "hitLabel": "Fully-Charged Aimed Shot",
+        "element": "pyro",
+        "reaction": "reverseVaporize",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 4,
+        "sourceAbilityId": "amber-aim",
+        "actionStartFrame": 68,
+        "actionCancelFrame": 164,
+        "actionAnimationEndFrame": 164,
+        "time": 2.7333333333333334,
+        "second": 2,
+        "actorId": "amber",
+        "creditId": "amber",
+        "actorName": "Amber",
+        "activeId": "amber",
+        "scaling": 1.24,
+        "scalingStat": "atk",
+        "scalingValue": 41.9434,
+        "flat": 0,
+        "baseDamage": 52.009815999999994,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.3470790378006873,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 100,
+        "reactionBase": 1.5,
+        "emBonus": 0.18533333333333332,
+        "reactionBonus": 0,
+        "reactionFactor": 1.778,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": [],
+        "elementalApplicationIcdLogId": 1
+      },
+      {
+        "id": 2,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 6,
+        "parentDamageEventId": null,
+        "sourceActorId": "amber",
+        "scalingOwnerId": "amber",
+        "creditOwnerId": "amber",
+        "actionId": "amber-aim#5",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#5:0:0:260",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 2,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 16.24636520412371,
+        "frame": 260,
+        "timeSeconds": 4.333333333333333,
+        "activeCharacterId": "amber",
+        "statsBeforeDamage": {
+          "baseAtk": 41.9434,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 793.2582,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 50.358,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "extra",
+          "icdGroup": "amber",
+          "applicationGaugeUnits": 2,
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2,
+              "sourceActorId": "amber"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 980,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "amber",
+                  "gaugeUnits": 1.6
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+        },
+        "damageFactors": {
+          "scaling": 1.24,
+          "scalingStat": "atk",
+          "scalingValue": 41.9434,
+          "flatDamage": 0,
+          "baseDamage": 52.009815999999994,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.3470790378006873,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 16.24636520412371,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 16.24636520412371,
+        "displayDamage": 16,
+        "sourceActorName": "Amber",
+        "scalingOwnerName": "Amber",
+        "creditOwnerName": "Amber",
+        "actionName": "Fully-Charged Aimed Shot",
+        "hitLabel": "Fully-Charged Aimed Shot",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 5,
+        "sourceAbilityId": "amber-aim",
+        "actionStartFrame": 164,
+        "actionCancelFrame": 250,
+        "actionAnimationEndFrame": 260,
+        "time": 4.333333333333333,
+        "second": 4,
+        "actorId": "amber",
+        "creditId": "amber",
+        "actorName": "Amber",
+        "activeId": "amber",
+        "scaling": 1.24,
+        "scalingStat": "atk",
+        "scalingValue": 41.9434,
+        "flat": 0,
+        "baseDamage": 52.009815999999994,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.3470790378006873,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 100,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": [],
+        "elementalApplicationIcdLogId": 2
+      }
+    ],
+    "hitEvents": [
+      {
+        "id": 0,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "parentDamageEventId": null,
+        "sourceActorId": "barbara",
+        "scalingOwnerId": "barbara",
+        "creditOwnerId": "barbara",
+        "actionId": "barbara-n1#1",
+        "hitId": "barbara-n1-hit",
+        "hitGroupId": "barbara-n1#1:0:0:7",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 0,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 4.326283479587628,
+        "frame": 7,
+        "timeSeconds": 0.11666666666666667,
+        "activeCharacterId": "barbara",
+        "statsBeforeDamage": {
+          "baseAtk": 36.601,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 820.6119,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 56.0805,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 0,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "normal",
+          "icdGroup": "default",
+          "applicationGaugeUnits": 1,
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1,
+              "sourceActorId": "barbara"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 577,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+        },
+        "damageFactors": {
+          "scaling": 0.3784,
+          "scalingStat": "atk",
+          "scalingValue": 36.601,
+          "flatDamage": 0,
+          "baseDamage": 13.8498184,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.3470790378006873,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 4.326283479587628,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 4.326283479587628,
+        "displayDamage": 4,
+        "sourceActorName": "Barbara",
+        "scalingOwnerName": "Barbara",
+        "creditOwnerName": "Barbara",
+        "actionName": "Normal 0",
+        "hitLabel": "Normal 0",
+        "element": "hydro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 1,
+        "sourceAbilityId": "barbara-n1",
+        "actionStartFrame": 1,
+        "actionCancelFrame": 7,
+        "actionAnimationEndFrame": 24,
+        "time": 0.11666666666666667,
+        "second": 0,
+        "actorId": "barbara",
+        "creditId": "barbara",
+        "actorName": "Barbara",
+        "activeId": "barbara",
+        "scaling": 0.3784,
+        "scalingStat": "atk",
+        "scalingValue": 36.601,
+        "flat": 0,
+        "baseDamage": 13.8498184,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.3470790378006873,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 0,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": [],
+        "elementalApplicationIcdLogId": 0
+      },
+      {
+        "id": 1,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "parentDamageEventId": null,
+        "sourceActorId": "amber",
+        "scalingOwnerId": "amber",
+        "creditOwnerId": "amber",
+        "actionId": "amber-aim#4",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#4:0:0:164",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 1,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 28.886037332931956,
+        "frame": 164,
+        "timeSeconds": 2.7333333333333334,
+        "activeCharacterId": "amber",
+        "statsBeforeDamage": {
+          "baseAtk": 41.9434,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 793.2582,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 50.358,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": true,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "extra",
+          "icdGroup": "amber",
+          "applicationGaugeUnits": 2,
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.579649122807,
+              "expiresAtFrame": 577,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnits": 0.579649122807
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2,
+              "sourceActorId": "amber"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.579649122807,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnitsBefore": 0.579649122807,
+                  "consumedGaugeUnits": 0.579649122807,
+                  "gaugeUnitsAfter": 0
+                }
+              ]
+            }
+          ],
+          "auraAfter": [],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "反应由命中元素、敌方 Aura、元素量与 ICD 自动判定。"
+        },
+        "damageFactors": {
+          "scaling": 1.24,
+          "scalingStat": "atk",
+          "scalingValue": 41.9434,
+          "flatDamage": 0,
+          "baseDamage": 52.009815999999994,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.3470790378006873,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1.5,
+          "elementalMasteryBonus": 0.18533333333333332,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1.778,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 28.886037332931956,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 28.886037332931956,
+        "displayDamage": 29,
+        "sourceActorName": "Amber",
+        "scalingOwnerName": "Amber",
+        "creditOwnerName": "Amber",
+        "actionName": "Fully-Charged Aimed Shot",
+        "hitLabel": "Fully-Charged Aimed Shot",
+        "element": "pyro",
+        "reaction": "reverseVaporize",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 4,
+        "sourceAbilityId": "amber-aim",
+        "actionStartFrame": 68,
+        "actionCancelFrame": 164,
+        "actionAnimationEndFrame": 164,
+        "time": 2.7333333333333334,
+        "second": 2,
+        "actorId": "amber",
+        "creditId": "amber",
+        "actorName": "Amber",
+        "activeId": "amber",
+        "scaling": 1.24,
+        "scalingStat": "atk",
+        "scalingValue": 41.9434,
+        "flat": 0,
+        "baseDamage": 52.009815999999994,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.3470790378006873,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 100,
+        "reactionBase": 1.5,
+        "emBonus": 0.18533333333333332,
+        "reactionBonus": 0,
+        "reactionFactor": 1.778,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": [],
+        "elementalApplicationIcdLogId": 1
+      },
+      {
+        "id": 2,
+        "kind": "direct",
+        "eventPriority": 3,
+        "eventSequence": 6,
+        "parentDamageEventId": null,
+        "sourceActorId": "amber",
+        "scalingOwnerId": "amber",
+        "creditOwnerId": "amber",
+        "actionId": "amber-aim#5",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#5:0:0:260",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "targetResolutionId": 2,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetDamagePolicy": "normal",
+        "targetDamageMultiplier": 1,
+        "mechanicsStatus": "authoritative",
+        "potentialDamage": 16.24636520412371,
+        "frame": 260,
+        "timeSeconds": 4.333333333333333,
+        "activeCharacterId": "amber",
+        "statsBeforeDamage": {
+          "baseAtk": 41.9434,
+          "atkPct": 0,
+          "flatAtk": 0,
+          "baseHp": 793.2582,
+          "hpPct": 0,
+          "flatHp": 0,
+          "baseDef": 50.358,
+          "defPct": 0,
+          "flatDef": 0,
+          "em": 100,
+          "critRate": 0,
+          "critDmg": 0.5,
+          "dmgBonus": 0,
+          "defIgnore": 0,
+          "reactionBonus": 0,
+          "energyRecharge": 1
+        },
+        "activeStatuses": [],
+        "enemyStateBeforeHit": {
+          "level": 90,
+          "baseResistance": 0.1,
+          "resistanceShred": 0,
+          "effectiveResistance": 0.1,
+          "baseDefenseReduction": 0,
+          "effectiveDefenseReduction": 0
+        },
+        "reactionAudit": {
+          "model": "aura-engine",
+          "triggered": false,
+          "reaction": "none",
+          "reactions": [],
+          "unsupportedReactions": [],
+          "mechanicsTruncation": null,
+          "icdAllowed": true,
+          "icdTag": "extra",
+          "icdGroup": "amber",
+          "applicationGaugeUnits": 2,
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2,
+              "sourceActorId": "amber"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 980,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "amber",
+                  "gaugeUnits": 1.6
+                }
+              ]
+            }
+          ],
+          "transformativeReaction": null,
+          "periodicReaction": null,
+          "frozenReaction": null,
+          "shatterReaction": null,
+          "swirlReactions": [],
+          "swirlDamageGroup": null,
+          "crystallizeReaction": null,
+          "catalyzeReaction": null,
+          "burningReaction": null,
+          "bloomReactions": [],
+          "note": "附着通过 ICD；未找到当前 Aura 版本支持的反应。"
+        },
+        "damageFactors": {
+          "scaling": 1.24,
+          "scalingStat": "atk",
+          "scalingValue": 41.9434,
+          "flatDamage": 0,
+          "baseDamage": 52.009815999999994,
+          "damageBonus": 0,
+          "damageBonusMultiplier": 1,
+          "defenseIgnore": 0,
+          "defenseReduction": 0,
+          "defenseMultiplier": 0.3470790378006873,
+          "effectiveResistance": 0.1,
+          "resistanceMultiplier": 0.9,
+          "critRate": 0,
+          "critDamage": 0.5,
+          "critMultiplier": 1,
+          "reactionBase": 1,
+          "elementalMasteryBonus": 0,
+          "reactionBonus": 0,
+          "amplifyingReactionMultiplier": 1,
+          "groupMultiplier": 1
+        },
+        "transformativeReactionFactors": null,
+        "additiveReactionFactors": null,
+        "damageComposition": {
+          "direct": 16.24636520412371,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "finalDamage": 16.24636520412371,
+        "displayDamage": 16,
+        "sourceActorName": "Amber",
+        "scalingOwnerName": "Amber",
+        "creditOwnerName": "Amber",
+        "actionName": "Fully-Charged Aimed Shot",
+        "hitLabel": "Fully-Charged Aimed Shot",
+        "element": "pyro",
+        "reaction": "none",
+        "snapshot": "hit",
+        "cycle": 0,
+        "flatDetails": [],
+        "timelineCommandIndex": 5,
+        "sourceAbilityId": "amber-aim",
+        "actionStartFrame": 164,
+        "actionCancelFrame": 250,
+        "actionAnimationEndFrame": 260,
+        "time": 4.333333333333333,
+        "second": 4,
+        "actorId": "amber",
+        "creditId": "amber",
+        "actorName": "Amber",
+        "activeId": "amber",
+        "scaling": 1.24,
+        "scalingStat": "atk",
+        "scalingValue": 41.9434,
+        "flat": 0,
+        "baseDamage": 52.009815999999994,
+        "dmgBonus": 0,
+        "bonusFactor": 1,
+        "defIgnore": 0,
+        "defReduction": 0,
+        "defenseFactor": 0.3470790378006873,
+        "effectiveRes": 0.1,
+        "resFactor": 0.9,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "critFactor": 1,
+        "em": 100,
+        "reactionBase": 1,
+        "emBonus": 0,
+        "reactionBonus": 0,
+        "reactionFactor": 1,
+        "groupMultiplier": 1,
+        "buffs": [],
+        "debuffs": [],
+        "elementalApplicationIcdLogId": 2
+      }
+    ],
+    "hitResolutionLog": [
+      {
+        "id": 0,
+        "frame": 7,
+        "timeSeconds": 0.11666666666666667,
+        "cycle": 0,
+        "sourceActorId": "barbara",
+        "sourceActionId": "barbara-n1#1",
+        "actionName": "Normal 0",
+        "hitId": "barbara-n1-hit",
+        "hitGroupId": "barbara-n1#1:0:0:7",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "Normal 0",
+        "element": "hydro",
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetingSource": "default",
+        "resolutionKind": "direct",
+        "targetPosition": null,
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": null,
+        "geometryCoordinateSpace": null,
+        "geometryOrigin": null,
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": null,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": null,
+        "geometryThreshold": null,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 0,
+        "potentialDamage": 4.326283479587628,
+        "finalDamage": 4.326283479587628,
+        "displayDamage": 4,
+        "timelineCommandIndex": 1,
+        "sourceAbilityId": "barbara-n1",
+        "reactionDamageLogId": null,
+        "elementalApplicationIcdLogId": 0
+      },
+      {
+        "id": 1,
+        "frame": 164,
+        "timeSeconds": 2.7333333333333334,
+        "cycle": 0,
+        "sourceActorId": "amber",
+        "sourceActionId": "amber-aim#4",
+        "actionName": "Fully-Charged Aimed Shot",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#4:0:0:164",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "Fully-Charged Aimed Shot",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetingSource": "default",
+        "resolutionKind": "direct",
+        "targetPosition": null,
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": null,
+        "geometryCoordinateSpace": null,
+        "geometryOrigin": null,
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": null,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": null,
+        "geometryThreshold": null,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 1,
+        "potentialDamage": 28.886037332931956,
+        "finalDamage": 28.886037332931956,
+        "displayDamage": 29,
+        "timelineCommandIndex": 4,
+        "sourceAbilityId": "amber-aim",
+        "reactionDamageLogId": null,
+        "elementalApplicationIcdLogId": 1
+      },
+      {
+        "id": 2,
+        "frame": 260,
+        "timeSeconds": 4.333333333333333,
+        "cycle": 0,
+        "sourceActorId": "amber",
+        "sourceActionId": "amber-aim#5",
+        "actionName": "Fully-Charged Aimed Shot",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#5:0:0:260",
+        "targetIndex": 0,
+        "targetCount": 1,
+        "hitLabel": "Fully-Charged Aimed Shot",
+        "element": "pyro",
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "targetingSource": "default",
+        "resolutionKind": "direct",
+        "targetPosition": null,
+        "sourceActorPosition": null,
+        "sourceActorFacingDegrees": null,
+        "geometryKind": null,
+        "geometryCoordinateSpace": null,
+        "geometryOrigin": null,
+        "geometryStart": null,
+        "geometryEnd": null,
+        "geometryRadius": null,
+        "geometryHalfWidth": null,
+        "geometryHalfHeight": null,
+        "geometryRotationDegrees": null,
+        "geometryDirectionDegrees": null,
+        "geometryAngleDegrees": null,
+        "geometryDistance": null,
+        "geometryThreshold": null,
+        "outcome": "landed",
+        "landed": true,
+        "reason": null,
+        "targetEffectSource": "normal",
+        "targetPhaseId": null,
+        "damageAllowed": true,
+        "auraAllowed": true,
+        "hitConfirmAllowed": true,
+        "mechanicsStatus": "authoritative",
+        "damageEventId": 2,
+        "potentialDamage": 16.24636520412371,
+        "finalDamage": 16.24636520412371,
+        "displayDamage": 16,
+        "timelineCommandIndex": 5,
+        "sourceAbilityId": "amber-aim",
+        "reactionDamageLogId": null,
+        "elementalApplicationIcdLogId": 2
+      }
+    ],
+    "targetClockAudit": {
+      "version": "1.0.0",
+      "mode": "disabled",
+      "hitlagStatus": "unsupported-enemy-hitlag",
+      "targets": []
+    },
+    "targetClockLog": [],
+    "targetHitlagLog": [],
+    "targetTaskPhaseLog": [],
+    "targetPhaseLog": [],
+    "targetMechanicsTruncationLog": [],
+    "reactionDamageLog": [],
+    "reactionTaskLog": [],
+    "reactionStatusLog": [],
+    "periodicReactionLog": [],
+    "frozenStateLog": [],
+    "quickenStateLog": [],
+    "burningStateLog": [],
+    "dendroCoreLog": [],
+    "dendroCoreContactLog": [],
+    "dendroCoreTimeline": {
+      "version": "1.0.0",
+      "points": []
+    },
+    "crystallizeShardLog": [],
+    "crystallizeShieldLog": [],
+    "crystallizeShieldTimeline": [],
+    "playerHitResolutionLog": [],
+    "playerDamageEvents": [],
+    "playerHpTimeline": {
+      "version": "1.0.0",
+      "points": []
+    },
+    "playerHpSummaries": [],
+    "playerSelfDamageStatus": "unsupported-player-damage-model",
+    "totalPlayerDamageTaken": 0,
+    "totalReactionSelfDamageTaken": 0,
+    "targetPhaseTimeline": [],
+    "targetMotionTimeline": [],
+    "skippedActions": [],
+    "actionLog": [
+      {
+        "time": 0.016666666666666666,
+        "frame": 1,
+        "actorId": "barbara",
+        "actionId": "barbara-n1#1",
+        "action": "Normal 0",
+        "cycle": 0,
+        "energyBefore": 0,
+        "energyAfter": 0,
+        "timelineCommandIndex": 1,
+        "sourceAbilityId": "barbara-n1",
+        "cancelFrame": 7,
+        "animationEndFrame": 24
+      },
+      {
+        "time": 1.1333333333333333,
+        "frame": 68,
+        "actorId": "amber",
+        "actionId": "__swap#3",
+        "action": "切换至 amber",
+        "cycle": 0,
+        "energyBefore": 0,
+        "energyAfter": 0,
+        "timelineCommandIndex": 3,
+        "cancelFrame": 68,
+        "animationEndFrame": 68
+      },
+      {
+        "time": 1.1333333333333333,
+        "frame": 68,
+        "actorId": "amber",
+        "actionId": "amber-aim#4",
+        "action": "Fully-Charged Aimed Shot",
+        "cycle": 0,
+        "energyBefore": 0,
+        "energyAfter": 0,
+        "timelineCommandIndex": 4,
+        "sourceAbilityId": "amber-aim",
+        "cancelFrame": 164,
+        "animationEndFrame": 164
+      },
+      {
+        "time": 2.7333333333333334,
+        "frame": 164,
+        "actorId": "amber",
+        "actionId": "amber-aim#5",
+        "action": "Fully-Charged Aimed Shot",
+        "cycle": 0,
+        "energyBefore": 0,
+        "energyAfter": 0,
+        "timelineCommandIndex": 5,
+        "sourceAbilityId": "amber-aim",
+        "cancelFrame": 250,
+        "animationEndFrame": 260
+      }
+    ],
+    "energyStats": {
+      "barbara": {
+        "initial": 0,
+        "gained": 0,
+        "fixedGained": 0,
+        "particleGained": 0,
+        "wasted": 0,
+        "spent": 0,
+        "skipped": 0,
+        "final": 0
+      },
+      "amber": {
+        "initial": 0,
+        "gained": 0,
+        "fixedGained": 0,
+        "particleGained": 0,
+        "wasted": 0,
+        "spent": 0,
+        "skipped": 0,
+        "final": 0
+      }
+    },
+    "energyLog": [],
+    "particleEvents": [],
+    "particleTriggerLog": [],
+    "energyCurve": [
+      {
+        "id": 0,
+        "frame": 0,
+        "timeSeconds": 0,
+        "kind": "initial",
+        "receiverId": null,
+        "source": "initial-energy",
+        "energyByCharacter": {
+          "barbara": 0,
+          "amber": 0
+        }
+      }
+    ],
+    "totalDamage": 49.4586860166433,
+    "dps": 6.182335752080412,
+    "reactedHits": 1,
+    "byCharacter": {
+      "barbara": 4.326283479587628,
+      "amber": 45.13240253705567
+    },
+    "characterSummaries": [
+      {
+        "characterId": "amber",
+        "damage": 45.13240253705567,
+        "hits": 2,
+        "dps": 5.6415503171319585,
+        "share": 0.9125273267847877
+      },
+      {
+        "characterId": "barbara",
+        "damage": 4.326283479587628,
+        "hits": 1,
+        "dps": 0.5407854349484535,
+        "share": 0.08747267321521228
+      }
+    ],
+    "targetSummaries": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "damage": 49.4586860166433,
+        "potentialDamage": 49.4586860166433,
+        "damageEvents": 3,
+        "landedChecks": 3,
+        "missedChecks": 0,
+        "immuneDamageEvents": 0,
+        "dps": 6.182335752080412,
+        "share": 1
+      }
+    ],
+    "bySkill": [
+      {
+        "creditId": "amber",
+        "actionName": "Fully-Charged Aimed Shot",
+        "damage": 45.13240253705567,
+        "hits": 2,
+        "dps": 5.6415503171319585,
+        "share": 0.9125273267847877
+      },
+      {
+        "creditId": "barbara",
+        "actionName": "Normal 0",
+        "damage": 4.326283479587628,
+        "hits": 1,
+        "dps": 0.5407854349484535,
+        "share": 0.08747267321521228
+      }
+    ],
+    "perSecond": [
+      {
+        "barbara": 4.326283479587628
+      },
+      {},
+      {
+        "amber": 28.886037332931956
+      },
+      {},
+      {
+        "amber": 16.24636520412371
+      },
+      {},
+      {},
+      {}
+    ],
+    "damageCurve": [
+      {
+        "damageEventId": 0,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 7,
+        "timeSeconds": 0.11666666666666667,
+        "sourceActorId": "barbara",
+        "creditOwnerId": "barbara",
+        "finalDamage": 4.326283479587628,
+        "cumulativeDamage": 4.326283479587628,
+        "cumulativeByCharacter": {
+          "barbara": 4.326283479587628
+        },
+        "cumulativeByComponent": {
+          "direct": 4.326283479587628,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 1,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 164,
+        "timeSeconds": 2.7333333333333334,
+        "sourceActorId": "amber",
+        "creditOwnerId": "amber",
+        "finalDamage": 28.886037332931956,
+        "cumulativeDamage": 33.212320812519586,
+        "cumulativeByCharacter": {
+          "barbara": 4.326283479587628,
+          "amber": 28.886037332931956
+        },
+        "cumulativeByComponent": {
+          "direct": 33.212320812519586,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      },
+      {
+        "damageEventId": 2,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 260,
+        "timeSeconds": 4.333333333333333,
+        "sourceActorId": "amber",
+        "creditOwnerId": "amber",
+        "finalDamage": 16.24636520412371,
+        "cumulativeDamage": 49.4586860166433,
+        "cumulativeByCharacter": {
+          "barbara": 4.326283479587628,
+          "amber": 45.13240253705567
+        },
+        "cumulativeByComponent": {
+          "direct": 49.4586860166433,
+          "additiveReaction": 0,
+          "transformativeReaction": 0
+        },
+        "cumulativeByReaction": {}
+      }
+    ],
+    "auraTimeline": [
+      {
+        "damageEventId": 0,
+        "eventPriority": 3,
+        "eventSequence": 4,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 7,
+        "timeSeconds": 0.11666666666666667,
+        "sourceActorId": "barbara",
+        "actionId": "barbara-n1#1",
+        "hitId": "barbara-n1-hit",
+        "incomingElement": "hydro",
+        "icdAllowed": true,
+        "reaction": "none",
+        "reactions": [],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [],
+        "auraApplied": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 1,
+            "sourceActorId": "barbara"
+          }
+        ],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.8,
+            "expiresAtFrame": 577,
+            "sourceSlots": [
+              {
+                "sourceActorId": "barbara",
+                "gaugeUnits": 0.8
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "damageEventId": 1,
+        "eventPriority": 3,
+        "eventSequence": 5,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 164,
+        "timeSeconds": 2.7333333333333334,
+        "sourceActorId": "amber",
+        "actionId": "amber-aim#4",
+        "hitId": "amber-aim-hit",
+        "incomingElement": "pyro",
+        "icdAllowed": true,
+        "reaction": "reverseVaporize",
+        "reactions": [
+          "reverseVaporize"
+        ],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.579649122807,
+            "expiresAtFrame": 577,
+            "sourceSlots": [
+              {
+                "sourceActorId": "barbara",
+                "gaugeUnits": 0.579649122807
+              }
+            ]
+          }
+        ],
+        "auraApplied": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 2,
+            "sourceActorId": "amber"
+          }
+        ],
+        "auraConsumed": [
+          {
+            "element": "hydro",
+            "gaugeUnits": 0.579649122807,
+            "sourceMutations": [
+              {
+                "sourceActorId": "barbara",
+                "gaugeUnitsBefore": 0.579649122807,
+                "consumedGaugeUnits": 0.579649122807,
+                "gaugeUnitsAfter": 0
+              }
+            ]
+          }
+        ],
+        "auraAfter": []
+      },
+      {
+        "damageEventId": 2,
+        "eventPriority": 3,
+        "eventSequence": 6,
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 260,
+        "timeSeconds": 4.333333333333333,
+        "sourceActorId": "amber",
+        "actionId": "amber-aim#5",
+        "hitId": "amber-aim-hit",
+        "incomingElement": "pyro",
+        "icdAllowed": true,
+        "reaction": "none",
+        "reactions": [],
+        "unsupportedReactions": [],
+        "mechanicsTruncation": null,
+        "auraBefore": [],
+        "auraApplied": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 2,
+            "sourceActorId": "amber"
+          }
+        ],
+        "auraConsumed": [],
+        "auraAfter": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 1.6,
+            "expiresAtFrame": 980,
+            "sourceSlots": [
+              {
+                "sourceActorId": "amber",
+                "gaugeUnits": 1.6
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "targetStateTimeline": {
+      "version": "1.0.0",
+      "points": [
+        {
+          "id": 0,
+          "frame": 0,
+          "timeSeconds": 0,
+          "targetId": "enemy-0",
+          "targetName": "敌人 0",
+          "pointKind": "boundary",
+          "cause": "simulation-start",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": []
+        },
+        {
+          "id": 1,
+          "frame": 7,
+          "timeSeconds": 0.11666666666666667,
+          "targetId": "enemy-0",
+          "targetName": "敌人 0",
+          "pointKind": "mutation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 4,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 0,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 0
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 1,
+              "sourceActorId": "barbara"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.8,
+              "expiresAtFrame": 577,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnits": 0.8
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "frame": 164,
+          "timeSeconds": 2.7333333333333334,
+          "targetId": "enemy-0",
+          "targetName": "敌人 0",
+          "pointKind": "mutation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 5,
+          "intraEventSequence": 0,
+          "reaction": "reverseVaporize",
+          "reactions": [
+            "reverseVaporize"
+          ],
+          "primaryDamageEventId": 1,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 1
+            }
+          ],
+          "auraBefore": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.579649122807,
+              "expiresAtFrame": 577,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnits": 0.579649122807
+                }
+              ]
+            }
+          ],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2,
+              "sourceActorId": "amber"
+            }
+          ],
+          "auraConsumed": [
+            {
+              "element": "hydro",
+              "gaugeUnits": 0.579649122807,
+              "sourceMutations": [
+                {
+                  "sourceActorId": "barbara",
+                  "gaugeUnitsBefore": 0.579649122807,
+                  "consumedGaugeUnits": 0.579649122807,
+                  "gaugeUnitsAfter": 0
+                }
+              ]
+            }
+          ],
+          "auraAfter": []
+        },
+        {
+          "id": 3,
+          "frame": 260,
+          "timeSeconds": 4.333333333333333,
+          "targetId": "enemy-0",
+          "targetName": "敌人 0",
+          "pointKind": "mutation",
+          "cause": "direct-hit-application",
+          "eventType": "hit",
+          "eventPriority": 3,
+          "eventSequence": 6,
+          "intraEventSequence": 0,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": 2,
+          "links": [
+            {
+              "kind": "damage-event",
+              "id": 2
+            }
+          ],
+          "auraBefore": [],
+          "auraApplied": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 2,
+              "sourceActorId": "amber"
+            }
+          ],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.6,
+              "expiresAtFrame": 980,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "amber",
+                  "gaugeUnits": 1.6
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "frame": 480,
+          "timeSeconds": 8,
+          "targetId": "enemy-0",
+          "targetName": "敌人 0",
+          "pointKind": "boundary",
+          "cause": "simulation-end",
+          "eventType": null,
+          "eventPriority": null,
+          "eventSequence": null,
+          "intraEventSequence": null,
+          "reaction": "none",
+          "reactions": [],
+          "primaryDamageEventId": null,
+          "links": [],
+          "auraBefore": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.111111111111,
+              "expiresAtFrame": 980,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "amber",
+                  "gaugeUnits": 1.111111111111
+                }
+              ]
+            }
+          ],
+          "auraApplied": [],
+          "auraConsumed": [],
+          "auraAfter": [
+            {
+              "element": "pyro",
+              "gaugeUnits": 1.111111111111,
+              "expiresAtFrame": 980,
+              "sourceSlots": [
+                {
+                  "sourceActorId": "amber",
+                  "gaugeUnits": 1.111111111111
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "auraInitialStates": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 0,
+        "timeSeconds": 0,
+        "aura": []
+      }
+    ],
+    "auraEndStates": [
+      {
+        "targetId": "enemy-0",
+        "targetName": "敌人 0",
+        "frame": 480,
+        "timeSeconds": 8,
+        "aura": [
+          {
+            "element": "pyro",
+            "gaugeUnits": 1.111111111111,
+            "expiresAtFrame": 980,
+            "sourceSlots": [
+              {
+                "sourceActorId": "amber",
+                "gaugeUnits": 1.111111111111
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "timelineExecution": {
+      "mode": "legal-frame-v1",
+      "fps": 60,
+      "legalityMode": "strict",
+      "initialActiveCharacterId": "barbara",
+      "finalActiveCharacterId": "amber",
+      "totalFrames": 730,
+      "commandResults": [
+        {
+          "commandIndex": 0,
+          "commandType": "wait",
+          "actorId": null,
+          "abilityId": null,
+          "requestedFrame": 0,
+          "startFrame": 0,
+          "cancelFrame": null,
+          "animationEndFrame": null,
+          "endFrame": 1,
+          "status": "executed",
+          "waitedFrames": 0
+        },
+        {
+          "commandIndex": 1,
+          "commandType": "normal",
+          "actorId": "barbara",
+          "abilityId": "barbara-n1",
+          "requestedFrame": 1,
+          "startFrame": 1,
+          "cancelFrame": 7,
+          "animationEndFrame": 24,
+          "endFrame": 7,
+          "status": "executed",
+          "waitedFrames": 0
+        },
+        {
+          "commandIndex": 2,
+          "commandType": "wait",
+          "actorId": null,
+          "abilityId": null,
+          "requestedFrame": 7,
+          "startFrame": 7,
+          "cancelFrame": null,
+          "animationEndFrame": null,
+          "endFrame": 67,
+          "status": "executed",
+          "waitedFrames": 0
+        },
+        {
+          "commandIndex": 3,
+          "commandType": "swap",
+          "actorId": "amber",
+          "abilityId": null,
+          "requestedFrame": 67,
+          "startFrame": 67,
+          "cancelFrame": 68,
+          "animationEndFrame": 68,
+          "endFrame": 68,
+          "status": "executed",
+          "waitedFrames": 0
+        },
+        {
+          "commandIndex": 4,
+          "commandType": "charge",
+          "actorId": "amber",
+          "abilityId": "amber-aim",
+          "requestedFrame": 68,
+          "startFrame": 68,
+          "cancelFrame": 164,
+          "animationEndFrame": 164,
+          "endFrame": 164,
+          "status": "executed",
+          "waitedFrames": 0
+        },
+        {
+          "commandIndex": 5,
+          "commandType": "charge",
+          "actorId": "amber",
+          "abilityId": "amber-aim",
+          "requestedFrame": 164,
+          "startFrame": 164,
+          "cancelFrame": 250,
+          "animationEndFrame": 260,
+          "endFrame": 250,
+          "status": "executed",
+          "waitedFrames": 0
+        },
+        {
+          "commandIndex": 6,
+          "commandType": "wait",
+          "actorId": null,
+          "abilityId": null,
+          "requestedFrame": 250,
+          "startFrame": 250,
+          "cancelFrame": null,
+          "animationEndFrame": null,
+          "endFrame": 730,
+          "status": "executed",
+          "waitedFrames": 0
+        }
+      ],
+      "adjustments": [],
+      "failures": [],
+      "stateLog": []
+    },
+    "directDamageGroupLog": [
+      {
+        "id": 0,
+        "damageEventId": 0,
+        "hitResolutionLogId": 0,
+        "frame": 7,
+        "sourceActorId": "barbara",
+        "targetId": "enemy-0",
+        "hitId": "barbara-n1-hit",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      },
+      {
+        "id": 1,
+        "damageEventId": 1,
+        "hitResolutionLogId": 1,
+        "frame": 164,
+        "sourceActorId": "amber",
+        "targetId": "enemy-0",
+        "hitId": "amber-aim-hit",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      },
+      {
+        "id": 2,
+        "damageEventId": 2,
+        "hitResolutionLogId": 2,
+        "frame": 260,
+        "sourceActorId": "amber",
+        "targetId": "enemy-0",
+        "hitId": "amber-aim-hit",
+        "profileId": "gcsim-b4ae769-damage-groups-provisional-v1",
+        "configuredMultiplier": 1,
+        "prePluginMultiplier": 1,
+        "postPluginMultiplier": 1,
+        "pluginMultiplierTrace": [],
+        "pluginTraceVerification": "structural-only-unverified-runtime-output-v1",
+        "effectiveMultiplier": 1,
+        "damageGroupOnEnemyHitAllowed": true,
+        "evaluation": "bypassed",
+        "icdTag": null,
+        "icdGroup": null,
+        "windowStartGroup": null,
+        "resetFrames": null,
+        "windowStartFrame": null,
+        "resetAtFrame": null,
+        "hitIndex": null,
+        "sequenceIndex": null,
+        "sequenceMultiplier": 1
+      }
+    ],
+    "elementalApplicationIcdLog": [
+      {
+        "id": 0,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 0,
+        "damageEventId": 0,
+        "frame": 7,
+        "sourceActorId": "barbara",
+        "targetId": "enemy-0",
+        "hitId": "barbara-n1-hit",
+        "hitGroupId": "barbara-n1#1:0:0:7",
+        "element": "hydro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "normal",
+          "groupId": "default"
+        },
+        "nominalGaugeUnits": 1,
+        "effectiveGaugeUnits": 1,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": true,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "normal",
+          "groupId": "default",
+          "windowStartGroupId": "default",
+          "resetFrames": 150,
+          "windowStartFrame": 7,
+          "resetAtFrame": 156,
+          "hitIndex": 0,
+          "sequenceIndex": 0,
+          "applicationMultiplier": 1,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      },
+      {
+        "id": 1,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 1,
+        "damageEventId": 1,
+        "frame": 164,
+        "sourceActorId": "amber",
+        "targetId": "enemy-0",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#4:0:0:164",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "extra",
+          "groupId": "amber"
+        },
+        "nominalGaugeUnits": 2,
+        "effectiveGaugeUnits": 2,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": true,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "extra",
+          "groupId": "amber",
+          "windowStartGroupId": "amber",
+          "resetFrames": 60,
+          "windowStartFrame": 164,
+          "resetAtFrame": 223,
+          "hitIndex": 0,
+          "sequenceIndex": 0,
+          "applicationMultiplier": 1,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      },
+      {
+        "id": 2,
+        "sourceKind": "configured-direct-hit",
+        "hitResolutionLogId": 2,
+        "damageEventId": 2,
+        "frame": 260,
+        "sourceActorId": "amber",
+        "targetId": "enemy-0",
+        "hitId": "amber-aim-hit",
+        "hitGroupId": "amber-aim#5:0:0:260",
+        "element": "pyro",
+        "selector": {
+          "mode": "fixed-gcsim-application-v1",
+          "icdTag": "extra",
+          "groupId": "amber"
+        },
+        "nominalGaugeUnits": 2,
+        "effectiveGaugeUnits": 2,
+        "decision": {
+          "kind": "fixed-gcsim",
+          "evaluated": true,
+          "consumed": true,
+          "allowed": true,
+          "scope": "actor-tag",
+          "profileId": "gcsim-b4ae769-elemental-application-provisional-v1",
+          "icdTag": "extra",
+          "groupId": "amber",
+          "windowStartGroupId": "amber",
+          "resetFrames": 60,
+          "windowStartFrame": 260,
+          "resetAtFrame": 319,
+          "hitIndex": 0,
+          "sequenceIndex": 0,
+          "applicationMultiplier": 1,
+          "tailPolicy": "clamp",
+          "resetSchedulePolicy": "window-start-plus-reset-frames-minus-one"
+        }
+      }
+    ],
+    "reactionDamageGroupResetLog": [],
+    "basicReactionSchedulerLog": [],
+    "freezeBrokenAttackLog": [],
+    "callbackRegistrationLog": [],
+    "callbackDeliveryLog": []
+  }
+}

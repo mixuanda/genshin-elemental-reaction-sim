@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 7.684,
+  "log": "docs/validation/source-character-additive-web-first-20260928.log"
+}

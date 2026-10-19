@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "source-phase-attacks-audit-v1",
+  "date": "2026-09-30",
+  "scope": "Read-only pending attack snapshot and application task state; no callback execution or combat mutation.",
+  "lanes": [
+    {
+      "lane": "classic",
+      "files": [
+        "pkg/core/attack.go",
+        "pkg/core/phase/descriptor.go",
+        "pkg/core/task/sourcehost_phase.go"
+      ],
+      "patch": "/Users/evan/Library/Caches/gidps-source-host/119-phase-attacks/119-phase-attacks-classic.patch",
+      "sha256": "e455d119b086cf86335f9b0dd20e1d6bded6851244f0f08dd60f897a0a608576",
+      "applyCheck": "passed"
+    },
+    {
+      "lane": "stellar",
+      "files": [
+        "pkg/core/attack.go",
+        "pkg/core/phase/descriptor.go",
+        "pkg/core/task/sourcehost_phase.go"
+      ],
+      "patch": "/Users/evan/Library/Caches/gidps-source-host/119-phase-attacks/119-phase-attacks-stellar.patch",
+      "sha256": "e455d119b086cf86335f9b0dd20e1d6bded6851244f0f08dd60f897a0a608576",
+      "applyCheck": "passed"
+    }
+  ],
+  "readEvidence": [
+    "Snapshot.SourceFrame affects Amos and Slingshot travel calculations.",
+    "AttackEvent.SourceFrame identifies Sethos skill event generation.",
+    "All native AttackInfo fields retained; AdditionalTags copied.",
+    "Stats is a fixed array; snapshots and collision geometry are immutable copies in historical observations.",
+    "Attack callbacks with unknown captures retain a concrete gap; custom shapes retain a gap.",
+    "Shared pending AttackEvent pointers receive task-order alias groups, never raw addresses.",
+    "Pre-snapshot Snapshot is omitted because generateSnapshot overwrites it before consumption.",
+    "Gameplay task remaining deadlines and FIFO remain in original task exporter."
+  ],
+  "checks": "gofmt and git apply --check only; root runs one final build and focused runtime check.",
+  "helperFiles": {
+    "packages/source-host/go/pkg/core/info/sourcehost_phase_attack.go": {
+      "sha256": "0790e445cd612b9d93b0779233370544602796cbf43e62aeb721c9cd369fb218",
+      "bytes": 2187
+    },
+    "packages/source-host/stellar-overlay/go/pkg/core/info/sourcehost_phase_attack.go": {
+      "sha256": "0790e445cd612b9d93b0779233370544602796cbf43e62aeb721c9cd369fb218",
+      "bytes": 2187
+    }
+  },
+  "sourceReceipts": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch119/classic/receipt.json",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch119/stellar/receipt.json"
+  },
+  "referenceScope": "CaptureReference groups aliases only among pending attack tasks in the same native core queue. Unknown callbacks and retained private attack graphs continue reporting coverage gaps; no generic Go closure serialization is claimed."
+}

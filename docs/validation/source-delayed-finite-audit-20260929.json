@@ -1,0 +1,588 @@
+{
+  "schemaVersion": 1,
+  "scope": "source-audited intrinsic ability-root AttackEvent opportunities only; independent weapon/artifact/team procs, reaction-owned attack deliveries, later player actions, healing and buff lifetimes excluded",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "coordinateSystem": "patched fixed-source lane files; site line numbers refer to classic unless lane-specific stated, not upstream originals",
+  "minimumNewEvidence": "At useAbility f(param) return, capture exact source-site-tagged root task IDs in addition to existing queued attacks. Each future task ledger entry needs source schedule site and parentTaskId; each resulting queued AttackEvent needs source emission site and currently executing task ID. Static source contract must recognize the task sites and bound their child sites; parentTask chain or ability name by itself is not proof. Use existing dispatch completion, target observations, applications and pending attack stages to settle emitted events.",
+  "sourceFiles": {
+    "internal/characters/rosaria/skill.go": {
+      "classicSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43",
+      "stellarSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43"
+    },
+    "internal/characters/rosaria/cons.go": {
+      "classicSha256": "bd62963555397e833aeca9c96f1c1faa19af4f617a0ab7c8f5aa33fc1ee2c930",
+      "stellarSha256": "bd62963555397e833aeca9c96f1c1faa19af4f617a0ab7c8f5aa33fc1ee2c930"
+    },
+    "internal/characters/rosaria/burst.go": {
+      "classicSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0",
+      "stellarSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0"
+    },
+    "internal/characters/rosaria/asc.go": {
+      "classicSha256": "9484d5282be783215477ba59f138a9050e8b87dbfa434b119cdce1ed6e5bca0d",
+      "stellarSha256": "9484d5282be783215477ba59f138a9050e8b87dbfa434b119cdce1ed6e5bca0d"
+    },
+    "internal/characters/albedo/burst.go": {
+      "classicSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd",
+      "stellarSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd"
+    },
+    "internal/characters/albedo/skill.go": {
+      "classicSha256": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+      "stellarSha256": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825"
+    },
+    "internal/characters/albedo/construct.go": {
+      "classicSha256": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355",
+      "stellarSha256": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355"
+    },
+    "internal/characters/albedo/asc.go": {
+      "classicSha256": "4e77cef51013378ba089c8f72bab330976d61ffe89c0399161fdbb2226e73b25",
+      "stellarSha256": "4e77cef51013378ba089c8f72bab330976d61ffe89c0399161fdbb2226e73b25"
+    },
+    "internal/characters/albedo/cons.go": {
+      "classicSha256": "fc3fe09cbe1dc31f4a273c4cec69eba13e23d66b1b2cafcd03bf677a58638f91",
+      "stellarSha256": "fc3fe09cbe1dc31f4a273c4cec69eba13e23d66b1b2cafcd03bf677a58638f91"
+    },
+    "internal/characters/raiden/burst.go": {
+      "classicSha256": "687ee6b6163161445ad6d97f5ada1d9b4d0a90e0582c80d3fa71cb625babcbc9",
+      "stellarSha256": "2a4291b81d07850b5b4c811e0a6f84405bf0e66cec63e2bc5a8d3a89122bfaf0"
+    },
+    "internal/characters/raiden/attack.go": {
+      "classicSha256": "549cb551931c65d449c2b8179ea2db91ea671b234b4afcd4c36a89c9454abdac",
+      "stellarSha256": "5e29126e6d32527d3369079769a356d28b2a6fc31a23248da4319a52b0a1fc9d"
+    },
+    "internal/characters/lisa/burst.go": {
+      "classicSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c",
+      "stellarSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c"
+    },
+    "internal/characters/lisa/asc.go": {
+      "classicSha256": "1fc576afc2dfe3eba4d90509133c3c6591a5dae151f958bdeb6d6f9741ad6d4b",
+      "stellarSha256": "1fc576afc2dfe3eba4d90509133c3c6591a5dae151f958bdeb6d6f9741ad6d4b"
+    },
+    "internal/characters/diona/burst.go": {
+      "classicSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77",
+      "stellarSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77"
+    },
+    "internal/characters/diona/cons.go": {
+      "classicSha256": "fd042e267dd26b04ce1842479c90e5857e1a72adb9ae938c7d3908ae337f19cf",
+      "stellarSha256": "fd042e267dd26b04ce1842479c90e5857e1a72adb9ae938c7d3908ae337f19cf"
+    },
+    "internal/characters/navia/burst.go": {
+      "classicSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413",
+      "stellarSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413"
+    },
+    "internal/characters/navia/cons.go": {
+      "classicSha256": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994",
+      "stellarSha256": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994"
+    },
+    "internal/characters/kaeya/burst.go": {
+      "classicSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce",
+      "stellarSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce"
+    },
+    "internal/characters/kaeya/cons.go": {
+      "classicSha256": "e630198bdc811843463c4a1b5d9ee6fda1e24a7f768ad71e1cdd15c7dbd6996d",
+      "stellarSha256": "e630198bdc811843463c4a1b5d9ee6fda1e24a7f768ad71e1cdd15c7dbd6996d"
+    },
+    "internal/characters/bennett/skill.go": {
+      "classicSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65",
+      "stellarSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65"
+    },
+    "internal/characters/bennett/zz_bennett.dm.go": {
+      "classicSha256": "382a6d6d1e3ebe0ce9752d6e05cf31e9880037a9968ad71d62f0177a4bde4c32",
+      "stellarSha256": "382a6d6d1e3ebe0ce9752d6e05cf31e9880037a9968ad71d62f0177a4bde4c32"
+    },
+    "internal/characters/venti/burst.go": {
+      "classicSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895",
+      "stellarSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895"
+    },
+    "internal/characters/venti/cons.go": {
+      "classicSha256": "32e80314bdaab747776b318c1c095e4149aedc45edd0b388f457664f9c8b0186",
+      "stellarSha256": "32e80314bdaab747776b318c1c095e4149aedc45edd0b388f457664f9c8b0186"
+    },
+    "internal/characters/ganyu/burst.go": {
+      "classicSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0",
+      "stellarSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0"
+    },
+    "internal/characters/sucrose/burst.go": {
+      "classicSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841",
+      "stellarSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841"
+    },
+    "internal/characters/sucrose/asc.go": {
+      "classicSha256": "b4311028b1464bdc2b0850f770c3d227a7a33235988a2980d4496c40d9d56ecf",
+      "stellarSha256": "823d2098fdbbad0e9ee00672b2963cbb47c51b691cfe45ee41c1d5253fff3ba8"
+    },
+    "internal/characters/sucrose/cons.go": {
+      "classicSha256": "55d4c34d0a19ec775b1f6e64a0295bb0120027bf30fb5dbc5ae474f0098b5ea3",
+      "stellarSha256": "0e7e68aa49963f15d193c9daf4f4a352a7c39bb159e2a291718e403ac8467628"
+    }
+  },
+  "rows": [
+    {
+      "characterKey": "rosaria",
+      "action": "skill",
+      "method": "Skill",
+      "rootTaskSites": [
+        {
+          "site": "skill.go:84",
+          "queue": "character",
+          "count": 1,
+          "delayLocal": 38
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "skill.go:58",
+          "phase": "method",
+          "count": 1
+        },
+        {
+          "site": "skill.go:86",
+          "phase": "character-task",
+          "count": 1
+        }
+      ],
+      "countRule": "fixed 2 for any accepted nobehind parameter/constellation",
+      "termination": "one character-local task executes after local clock +38, queues second root attack unconditionally, then returns; actual global frame may be extended by hitlag",
+      "callbacks": "A1/C1/C4/particle callbacks change buff, energy, or particles; no extra intrinsic Skill attack",
+      "boundary": "Must link the exact character task at line84 and its emitted attack at line86; task parent/ability name alone is insufficient.",
+      "proofFiles": [
+        "internal/characters/rosaria/skill.go",
+        "internal/characters/rosaria/cons.go"
+      ]
+    },
+    {
+      "characterKey": "rosaria",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:78",
+          "queue": "character",
+          "count": 1,
+          "delayLocal": 56
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:50",
+          "phase": "method",
+          "count": 1
+        },
+        {
+          "site": "burst.go:80",
+          "phase": "character-task",
+          "count": 1
+        },
+        {
+          "site": "burst.go:99",
+          "phase": "character-task",
+          "count": "4 if constellation<2, else 6"
+        }
+      ],
+      "countRule": "fixed 6 if constellation<2; fixed 8 if constellation>=2",
+      "termination": "one local task fires at clock +56, queues initial hit2 and 4/6 DoT attacks with core application delays 120*i; no later task generates a burst root attack",
+      "callbacks": "C1/C6 callbacks add buffs or RES modifier; A4 buff; no added burst attacks",
+      "boundary": "Core.Status rosariaburst is written but does not gate the already queued DoT root attacks; do not infer count from status expiry.",
+      "proofFiles": [
+        "internal/characters/rosaria/burst.go",
+        "internal/characters/rosaria/cons.go",
+        "internal/characters/rosaria/asc.go"
+      ]
+    },
+    {
+      "characterKey": "albedo",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:72",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": 75
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:61",
+          "phase": "method",
+          "count": 1
+        },
+        {
+          "site": "burst.go:115",
+          "phase": "core-task",
+          "count": "0 or 7"
+        }
+      ],
+      "countRule": "actual 1 if skillActive false at task run; otherwise 8",
+      "termination": "root core task checks actual c.skillActive at frame of execution, returns or queues exactly 7 blossoms at relative delays 70+5*i; all queued attacks must dispatch and apply/miss",
+      "callbacks": "A4 adds EM modifier; C2 changes damage; construct OnDestruct can clear skillActive",
+      "boundary": "Cannot decide 1 versus 8 from cast-time skillActive, target count, or task queue length; read actual task path/queued attack site.",
+      "proofFiles": [
+        "internal/characters/albedo/burst.go",
+        "internal/characters/albedo/skill.go",
+        "internal/characters/albedo/construct.go",
+        "internal/characters/albedo/asc.go",
+        "internal/characters/albedo/cons.go"
+      ]
+    },
+    {
+      "characterKey": "raiden",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:68 classic / :67 stellar",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": 98
+        },
+        {
+          "site": "burst.go:48 classic / :47 stellar",
+          "queue": "character",
+          "count": "1 if constellation>=4, nonattack"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:85 classic / :84 stellar",
+          "phase": "core-task",
+          "count": 1
+        }
+      ],
+      "countRule": "fixed 1 initial Musou Shinsetsu root attack",
+      "termination": "core task at +98 computes consumed resolve stacks and queues exactly one attack; C4 local task is buff/cooldown-only",
+      "callbacks": "BurstKey stance persists; later transformed Normal/Charged attacks arise from later separate player actions and are excluded",
+      "boundary": "Closure is initial burst strike only, never entire Raiden burst stance or later action attacks.",
+      "proofFiles": [
+        "internal/characters/raiden/burst.go",
+        "internal/characters/raiden/attack.go"
+      ]
+    },
+    {
+      "characterKey": "lisa",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:56",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": "burstHitmark-1=55",
+          "purpose": "snapshot only"
+        },
+        {
+          "site": "burst.go:64",
+          "queue": "core",
+          "count": 30,
+          "delayGlobal": "119+30*i",
+          "purpose": "conditional discharge"
+        },
+        {
+          "site": "burst.go:191",
+          "queue": "core",
+          "count": 1,
+          "purpose": "status only"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:39",
+          "phase": "method",
+          "count": 1
+        },
+        {
+          "site": "burst.go:71",
+          "phase": "core-task",
+          "count": "0..1 each tick if constellation<4"
+        },
+        {
+          "site": "burst.go:86",
+          "phase": "core-task",
+          "count": "0..3 each tick if constellation>=4"
+        }
+      ],
+      "countRule": "initial 1 plus observed emissions from exactly 30 discharge tasks; no fixed total (max31 below C4, max91 C4+)",
+      "termination": "all 30 actual tick tasks return, then all their queued attacks dispatch/apply/miss; C4 target count and RNG decide 0..3 emissions",
+      "callbacks": "A4 attack callback adds DEF modifier only",
+      "boundary": "C4 branch with >=3 entities on first tick returns before discharge emission; do not infer count from 30 tasks or maximum alone.",
+      "proofFiles": [
+        "internal/characters/lisa/burst.go",
+        "internal/characters/lisa/asc.go"
+      ]
+    },
+    {
+      "characterKey": "diona",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:69",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": 58,
+          "purpose": "schedules six child tick tasks"
+        },
+        {
+          "site": "burst.go:72",
+          "queue": "core",
+          "count": 6,
+          "delayGlobal": "120+120*i from parent"
+        },
+        {
+          "site": "burst.go:99",
+          "queue": "core",
+          "count": "1 if constellation>=1, nonattack"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:36",
+          "phase": "method",
+          "count": 1
+        },
+        {
+          "site": "burst.go:74",
+          "phase": "child-core-task",
+          "count": 6
+        }
+      ],
+      "countRule": "fixed 7 all constellations",
+      "termination": "root task +58 schedules exactly six child tasks; each child queues one attack before optional heal branch; finish all child tasks and attack stages",
+      "callbacks": "C6 buff and C1 energy task are nonattack; heal check cannot skip attack",
+      "boundary": "Root task completion alone is insufficient because it creates six future tasks.",
+      "proofFiles": [
+        "internal/characters/diona/burst.go",
+        "internal/characters/diona/cons.go"
+      ]
+    },
+    {
+      "characterKey": "navia",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:58",
+          "queue": "character",
+          "count": 1,
+          "delayLocal": 154,
+          "purpose": "schedules cannon tasks"
+        },
+        {
+          "site": "burst.go:72",
+          "queue": "core",
+          "count": 17,
+          "delayGlobal": "offsets 0..702 alternating 42/48"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:49",
+          "phase": "method",
+          "count": 1
+        },
+        {
+          "site": "burst.go:74",
+          "phase": "child-core-task",
+          "count": 17
+        }
+      ],
+      "countRule": "fixed 18 all constellations",
+      "termination": "character task at local +154 queues exactly 17 core tasks; each core task unconditionally queues a cannon attack with damage delay 9",
+      "callbacks": "burstCB gives shrapnel; C4 callback applies Geo RES modifier; no extra root attack",
+      "boundary": "Global due frame of character task depends on hitlag. Source loop is finite even if targets absent; random target position changes geometry, not count.",
+      "proofFiles": [
+        "internal/characters/navia/burst.go",
+        "internal/characters/navia/cons.go"
+      ]
+    },
+    {
+      "characterKey": "kaeya",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:67",
+          "queue": "core",
+          "count": "3 unless constellation==6 then 4",
+          "delayGlobal": "53+offset*i"
+        },
+        {
+          "site": "burst.go:109",
+          "queue": "core",
+          "count": "one successor per successful tick",
+          "delayGlobal": 120
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:102",
+          "phase": "recursive-core-task",
+          "count": "one per successful ticker"
+        }
+      ],
+      "countRule": "runtime variable; initial 3/4 ticker branches, each active branch produces 1 and schedules one successor",
+      "termination": "each ticker returns without successor if Core.Status.Duration(kaeya-q)==0 or burstTickSrc differs; C2 target-death hook can extend duration at most three times; close only after all actual ticker chains stop and queued attacks settle",
+      "callbacks": "C2 Init OnTargetDied hook extends status only, C6 root energy task nonattack; no independent future ticker creation",
+      "boundary": "Core.Status is not character StatusInstance receipt; cannot use guessed expiry frame or an empty instant queue in place of actual chain exhaustion.",
+      "proofFiles": [
+        "internal/characters/kaeya/burst.go",
+        "internal/characters/kaeya/cons.go"
+      ]
+    },
+    {
+      "characterKey": "bennett",
+      "action": "skill",
+      "method": "Skill",
+      "rootTaskSites": [
+        {
+          "site": "skill.go:177",
+          "queue": "character",
+          "count": 2,
+          "delayLocal": "level1 45/57; level2 112/121"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "skill.go:178",
+          "phase": "character-task",
+          "count": 2
+        },
+        {
+          "site": "skill.go:185",
+          "phase": "method",
+          "count": "1 if effective hold level2"
+        },
+        {
+          "site": "skill.go:204",
+          "phase": "method",
+          "count": "1 if effective hold level1 and c4Active"
+        }
+      ],
+      "countRule": "for effective hold level1: 2, or 3 with hold_c4=1 and constellation>=4; level2: 3; press path excluded",
+      "termination": "generated skillHold[level-1] has exactly two rows, hence two local tasks; each unconditionally queues one attack; explosion/C4 optional attacks are eagerly queued",
+      "callbacks": "holdParticleCB queues particles only; a1/a4 affect cooldown, no additional Skill attack",
+      "boundary": "Effective level is resolved by Skill: hold outside 0..2 becomes press; hold_c4=1 at C4+ forces level1 even if requested hold2.",
+      "proofFiles": [
+        "internal/characters/bennett/skill.go",
+        "internal/characters/bennett/zz_bennett.dm.go"
+      ]
+    },
+    {
+      "characterKey": "venti",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:53",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": 104,
+          "purpose": "snapshot"
+        },
+        {
+          "site": "burst.go:66",
+          "queue": "core",
+          "count": 20,
+          "delayGlobal": "106+24*i"
+        },
+        {
+          "site": "burst.go:71",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": 178,
+          "purpose": "absorb check recursion"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:67",
+          "phase": "core-task",
+          "count": 20
+        },
+        {
+          "site": "burst.go:97",
+          "phase": "absorb-success",
+          "count": "15 if first successful absorb, otherwise 0"
+        }
+      ],
+      "countRule": "20 if no successful absorption; 35 if absorption succeeds",
+      "termination": "20 ordinary tasks each emit once; absorbCheckQ count advances by 1 with +18 core task and stops at maxcount21 or first success, which eagerly queues 15 delayed absorbed attacks",
+      "callbacks": "C6 callbacks add RES modifiers; A4 delayed task adds energy",
+      "boundary": "Shared qAbsorb/aiAbsorb/snapAbsorb are mutable; certify per action only if no overlapping Venti Q before its absorb/attack chain closes, verified from accepted actions. src argument is not checked in absorbCheckQ.",
+      "proofFiles": [
+        "internal/characters/venti/burst.go",
+        "internal/characters/venti/cons.go"
+      ]
+    },
+    {
+      "characterKey": "ganyu",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:57",
+          "queue": "core",
+          "count": 50,
+          "delayGlobal": "burstStart+18*i for i=0..49"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:73",
+          "phase": "core-task",
+          "count": 50,
+          "damageDelay": 8
+        }
+      ],
+      "countRule": "fixed 50 all constellations",
+      "termination": "method queues all 50 core tasks; each chooses target or random point and queues one attack with 8-frame travel; all tasks and attack stages must settle",
+      "callbacks": "A4 adds Cryo modifier and C4 adds enemy tags/debuffs, neither changes root attack count",
+      "boundary": "Chosen point/geometry and resulting hits vary, but emission count is fixed; do not require 50 applications.",
+      "proofFiles": [
+        "internal/characters/ganyu/burst.go"
+      ]
+    },
+    {
+      "characterKey": "sucrose",
+      "action": "burst",
+      "method": "Burst",
+      "rootTaskSites": [
+        {
+          "site": "burst.go:87",
+          "queue": "core",
+          "count": "3 if constellation<2, else 4",
+          "delayGlobal": "same i as eager anemo queue"
+        },
+        {
+          "site": "burst.go:96",
+          "queue": "core",
+          "count": 1,
+          "delayGlobal": 136,
+          "purpose": "absorb check recursion"
+        }
+      ],
+      "emissionSites": [
+        {
+          "site": "burst.go:85",
+          "phase": "method",
+          "count": "3 if constellation<2, else 4"
+        },
+        {
+          "site": "burst.go:90",
+          "phase": "paired-core-task",
+          "count": "0 or 1 per ordinary tick"
+        }
+      ],
+      "countRule": "3..6 if constellation<2; 4..8 if constellation>=2, depending on actual qAbsorb at each companion task",
+      "termination": "all direct anemo attacks plus 3/4 paired tasks settle; absorbCheck advances count by +1/+18 until maxcount20/26 or first successful absorb; no attack emitted by check itself",
+      "callbacks": "A4 attack callback adds EM buff, C6 absorb effect adds damage bonus buff, no new root attack",
+      "boundary": "Shared qAbsorb may be overwritten by a subsequent Q; require no overlapping Sucrose Q before companion tasks finish. absorbCheck src parameter is not checked.",
+      "proofFiles": [
+        "internal/characters/sucrose/burst.go",
+        "internal/characters/sucrose/asc.go",
+        "internal/characters/sucrose/cons.go"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "build",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.226,
+    "log": "docs/validation/source-actions-build-20260928.log"
+  },
+  {
+    "name": "browser",
+    "command": [
+      "GIDPS_PREBUILT=1",
+      "npx",
+      "playwright",
+      "test",
+      "apps/web/e2e/source-action-capabilities.spec.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 2.435,
+    "log": "docs/validation/source-actions-browser-20260928.log"
+  },
+  {
+    "name": "browser-retry1",
+    "command": [
+      "GIDPS_PREBUILT=1",
+      "npx",
+      "playwright",
+      "test",
+      "apps/web/e2e/source-action-capabilities.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.655,
+    "log": "docs/validation/source-actions-browser-20260928.retry1.log"
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 0.057,
+    "log": "docs/validation/source-actions-diff-check-20260928.log"
+  }
+]

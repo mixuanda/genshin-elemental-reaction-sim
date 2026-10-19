@@ -1,0 +1,11 @@
+[WebServer] (node:37017) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:37018) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"runs":[{"variant":"classic","sourceCommit":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","wasmSha256":"33322624a69d87e0082e6fb555a0ec8057e49d1ad8e567d59067dde94f16bec1","calculations":59,"energyApplications":26,"operations":{"flat-change":13,"consume":1,"particle-amount":12,"particle-apply":12},"artifactRuleCounts":{"exile":9,"scholar":2,"scroll":1,"reminiscence":1},"particleBranches":{"sameElement":2,"differentElement":6,"active":3,"offField":9},"erSupportCount":6,"selected":{"applicationId":10,"amountId":20,"energyBefore":4,"energyMax":80,"originalRecharge":1.2,"editedRecharge":2.2,"originalAmount":14.399999999999999,"editedAmount":26.400000000000002,"originalAfter":18.4,"editedAfter":30.400000000000002,"restoredResult":"30.4"}},{"variant":"stellar","sourceCommit":"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd","wasmSha256":"0565b6ad8f4485e80aa1dd3c4821273c7253ce0a2a49f944a92e2816681f7b21","calculations":59,"energyApplications":26,"operations":{"flat-change":13,"consume":1,"particle-amount":12,"particle-apply":12},"artifactRuleCounts":{"exile":9,"scholar":2,"scroll":1,"reminiscence":1},"particleBranches":{"sameElement":2,"differentElement":10,"active":3,"offField":9},"erSupportCount":6,"selected":{"applicationId":10,"amountId":20,"energyBefore":4,"energyMax":80,"originalRecharge":1.2,"editedRecharge":2.2,"originalAmount":14.399999999999999,"editedAmount":26.400000000000002,"originalAfter":18.4,"editedAfter":30.400000000000002,"restoredResult":""}}],"errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-energy-formulas.spec.ts:68:1 › native energy callbacks share particle arithmetic, artifact amounts, and editable receipts in both lanes (3.8s)
+
+  1 passed (4.7s)

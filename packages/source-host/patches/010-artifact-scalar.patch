@@ -1,0 +1,283 @@
+--- a/internal/artifacts/crimson/crimson.go
++++ b/internal/artifacts/crimson/crimson.go
+@@ -36,6 +36,9 @@
+ 			Base:         modifier.NewBase("crimson-2pc", -1),
+ 			AffectedStat: attributes.PyroP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.PyroP] = c.SourceHost.ArtifactScalar(char.Index(), "cw-2pc", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -65,6 +68,9 @@
+ 				Base:         modifier.NewBaseWithHitlag(cw4pc, 10*60),
+ 				AffectedStat: attributes.PyroP,
+ 				Amount: func() []float64 {
++					if c.SourceHost != nil {
++						mStacks[attributes.PyroP] = c.SourceHost.ArtifactScalar(char.Index(), "cw-4pc-pyro", map[string]any{"stacks": s.stacks}, nil, 0)
++					}
+ 					return mStacks
+ 				},
+ 			})
+@@ -73,13 +79,23 @@
+ 		char.AddReactBonusMod(character.ReactBonusMod{
+ 			Base: modifier.NewBase("crimson-4pc", -1),
+ 			Amount: func(ai info.AttackInfo) float64 {
++				branch := "none"
+ 				switch ai.AttackTag {
+ 				case attacks.AttackTagOverloadDamage,
+ 					attacks.AttackTagBurningDamage,
+ 					attacks.AttackTagBurgeon:
++					branch = "transformative"
++				}
++				if branch == "none" && ai.Amped {
++					branch = "amplifying"
++				}
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "cw-4pc-reaction", map[string]any{"branch": branch}, &ai, 0)
++				}
++				if branch == "transformative" {
+ 					return 0.4
+ 				}
+-				if ai.Amped {
++				if branch == "amplifying" {
+ 					return 0.15
+ 				}
+ 				return 0
+--- a/internal/artifacts/goldentroupe/goldentroupe.go
++++ b/internal/artifacts/goldentroupe/goldentroupe.go
+@@ -15,6 +15,7 @@
+ 
+ type Set struct {
+ 	lastSwap int
++	tier     int
+ 	core     *core.Core
+ 	char     *character.CharWrapper
+ 	buff     []float64
+@@ -39,6 +40,7 @@
+ 		core:     c,
+ 		char:     char,
+ 		lastSwap: -1,
++		tier:     1,
+ 		Count:    count,
+ 	}
+ 
+@@ -51,6 +53,9 @@
+ 			Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 				if atk.Info.AttackTag != attacks.AttackTagElementalArt && atk.Info.AttackTag != attacks.AttackTagElementalArtHold {
+ 					return nil
++				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "gt-2pc", nil, &atk.Info, atk.SourceHostAttackID)
+ 				}
+ 				return m
+ 			},
+@@ -81,6 +86,9 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagElementalArt && atk.Info.AttackTag != attacks.AttackTagElementalArtHold {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					s.buff[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "gt-4pc", map[string]any{"tier": s.tier}, &atk.Info, atk.SourceHostAttackID)
++				}
+ 				return s.buff
+ 			},
+ 		})
+@@ -90,6 +98,7 @@
+ }
+ 
+ func (s *Set) gainBuff() {
++	s.tier = 2
+ 	s.buff[attributes.DmgP] = 0.5
+ 	s.core.Log.NewEvent("golden troupe 4pc proc'd", glog.LogArtifactEvent, s.char.Index())
+ }
+@@ -103,6 +112,7 @@
+ 			return
+ 		}
+ 
++		s.tier = 1
+ 		s.buff[attributes.DmgP] = 0.25
+ 		s.core.Log.NewEvent("golden troupe 4pc lost", glog.LogArtifactEvent, s.char.Index())
+ 	}
+--- a/internal/artifacts/heartofdepth/heartofdepth.go
++++ b/internal/artifacts/heartofdepth/heartofdepth.go
+@@ -34,6 +34,9 @@
+ 			Base:         modifier.NewBase("hod-2pc", -1),
+ 			AffectedStat: attributes.HydroP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.HydroP] = c.SourceHost.ArtifactScalar(char.Index(), "hod-2pc", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -55,6 +58,9 @@
+ 					if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+ 						return nil
+ 					}
++					if c.SourceHost != nil {
++						m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "hod-4pc", nil, &atk.Info, atk.SourceHostAttackID)
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/artifacts/marechausseehunter/marechausseehunter.go
++++ b/internal/artifacts/marechausseehunter/marechausseehunter.go
+@@ -40,7 +40,11 @@
+ 		Base:         modifier.NewBaseWithHitlag(buffKey, 5*60),
+ 		AffectedStat: attributes.CR,
+ 		Amount: func() []float64 {
+-			s.buff[attributes.CR] = 0.12 * float64(s.stacks)
++			if s.core.SourceHost != nil {
++				s.buff[attributes.CR] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "mh-4pc", map[string]any{"stacks": s.stacks}, nil, 0)
++			} else {
++				s.buff[attributes.CR] = 0.12 * float64(s.stacks)
++			}
+ 			return s.buff
+ 		},
+ 	})
+@@ -62,6 +66,9 @@
+ 			Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 				if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+ 					return nil
++				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "mh-2pc", nil, &atk.Info, atk.SourceHostAttackID)
+ 				}
+ 				return m
+ 			},
+--- a/internal/artifacts/nymphsdream/nymphsdream.go
++++ b/internal/artifacts/nymphsdream/nymphsdream.go
+@@ -32,6 +32,9 @@
+ 			Base:         modifier.NewBase("nd-2pc", -1),
+ 			AffectedStat: attributes.HydroP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.HydroP] = c.SourceHost.ArtifactScalar(char.Index(), "nd-2pc", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -78,6 +81,10 @@
+ 				m[attributes.HydroP] = 0
+ 			}
+ 
++			if c.SourceHost != nil {
++				m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "nd-4pc-atk", map[string]any{"stacks": stacks}, nil, 0)
++				m[attributes.HydroP] = c.SourceHost.ArtifactScalar(char.Index(), "nd-4pc-hydro", map[string]any{"stacks": stacks}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/artifacts/paleflame/paleflame.go
++++ b/internal/artifacts/paleflame/paleflame.go
+@@ -44,6 +44,9 @@
+ 			Base:         modifier.NewBase("pf-2pc", -1),
+ 			AffectedStat: attributes.PhyP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.PhyP] = c.SourceHost.ArtifactScalar(char.Index(), "pf-2pc", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -89,6 +92,10 @@
+ 			Base:         modifier.NewBaseWithHitlag(pf4key, 420),
+ 			AffectedStat: attributes.NoStat,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					s.buff[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "pf-4pc-atk", map[string]any{"stacks": s.stacks}, nil, 0)
++					s.buff[attributes.PhyP] = c.SourceHost.ArtifactScalar(char.Index(), "pf-4pc-physical", map[string]any{"stacks": s.stacks}, nil, 0)
++				}
+ 				return s.buff
+ 			},
+ 		})
+--- a/internal/artifacts/vourukashasglow/vourukashasglow.go
++++ b/internal/artifacts/vourukashasglow/vourukashasglow.go
+@@ -35,6 +35,9 @@
+ 			Base:         modifier.NewBase("vg-2pc", -1),
+ 			AffectedStat: attributes.HPP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.HPP] = c.SourceHost.ArtifactScalar(char.Index(), "vg-2pc", nil, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -52,6 +55,9 @@
+ 					case attacks.AttackTagElementalArt,
+ 						attacks.AttackTagElementalArtHold,
+ 						attacks.AttackTagElementalBurst:
++						if c.SourceHost != nil {
++							mStack[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "vg-4pc-stack", nil, &atk.Info, atk.SourceHostAttackID)
++						}
+ 						return mStack
+ 					default:
+ 						return nil
+@@ -83,6 +89,9 @@
+ 				case attacks.AttackTagElementalArt,
+ 					attacks.AttackTagElementalArtHold,
+ 					attacks.AttackTagElementalBurst:
++					if c.SourceHost != nil {
++						mBase[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "vg-4pc-base", nil, &atk.Info, atk.SourceHostAttackID)
++					}
+ 					return mBase
+ 				default:
+ 					return nil
+--- a/pkg/core/info/sourcehost_scalar_provenance.go
++++ b/pkg/core/info/sourcehost_scalar_provenance.go
+@@ -27,6 +27,7 @@
+ 	Delta *float64 `json:"delta"`
+ 	After float64 `json:"after"`
+ 	Dependencies []*SourceHostStatRead `json:"dependencies"`
++	FormulaCalculationIDs []int `json:"formulaCalculationIds,omitempty"`
+ }
+ type SourceHostScalarTransform struct {
+ 	Kind string `json:"kind"`
+--- a/pkg/core/info/sourcehost_stat_provenance.go
++++ b/pkg/core/info/sourcehost_stat_provenance.go
+@@ -31,6 +31,7 @@
+ 	After attributes.Stats `json:"after"`
+ 	AttackChanges []SourceHostNumericChange `json:"attackChanges"`
+ 	Dependencies []*SourceHostStatRead `json:"dependencies"`
++	FormulaCalculationIDs []int `json:"formulaCalculationIds,omitempty"`
+ }
+ 
+ type SourceHostNumericChange struct {
+--- a/pkg/core/player/character/sourcehost_stat_provenance.go
++++ b/pkg/core/player/character/sourcehost_stat_provenance.go
+@@ -42,6 +42,7 @@
+ 		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
+ 	}
+ 	read.Steps = append(read.Steps, step)
++	c.SourceHost.BeginStatFormulaStep(step)
+ 	return step
+ }
+ 
+@@ -54,22 +55,26 @@
+ 		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
+ 	}
+ 	read.Steps = append(read.Steps, step)
++	c.SourceHost.BeginStatFormulaStep(step)
+ 	return step
+ }
+ 
+ func (c *CharWrapper) finishSourceHostStatStep(step *info.SourceHostStatStep, outcome string, returned []float64, after attributes.Stats, expiry int) {
+ 	if step == nil { return }
++	c.SourceHost.EndStatFormulaStep(step)
+ 	step.Outcome, step.Returned, step.After, step.ExpiryAfter = outcome, returned, after, expiry
+ }
+ 
+ // Capture only real stat reads nested inside this particular ReactBonus Amount.
+ func (c *CharWrapper) beginSourceHostScalarStep(step *info.SourceHostScalarStep) {
+ 	if step == nil { return }
++	c.SourceHost.BeginScalarFormulaStep(step)
+ 	c.sourceHostScalarSteps = append(c.sourceHostScalarSteps, step)
+ 	c.sourceHostScalarStatDepths = append(c.sourceHostScalarStatDepths, len(c.sourceHostStatStack))
+ }
+ func (c *CharWrapper) endSourceHostScalarStep(step *info.SourceHostScalarStep) {
+ 	if step == nil { return }
++	c.SourceHost.EndScalarFormulaStep(step)
+ 	c.sourceHostScalarSteps = c.sourceHostScalarSteps[:len(c.sourceHostScalarSteps)-1]
+ 	c.sourceHostScalarStatDepths = c.sourceHostScalarStatDepths[:len(c.sourceHostScalarStatDepths)-1]
+ }

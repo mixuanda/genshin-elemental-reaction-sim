@@ -1,0 +1,11 @@
+--- /dev/null
++++ b/pkg/core/player/character/sourcehost_bridge.go
+@@ -0,0 +1,8 @@
++package character
++
++import "github.com/genshinsim/gcsim/pkg/core/sourcehost"
++
++// SourceHostBridge exposes the installed host to shared reaction precomputation.
++// CalcReactionDmg keeps its original live reads and stores the returned
++// transformative-base component on the snapshot queued for later damage.
++func (c *CharWrapper) SourceHostBridge() *sourcehost.Bridge { return c.SourceHost }

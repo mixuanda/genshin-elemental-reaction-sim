@@ -1,0 +1,9 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-artifact-constants.spec.ts(136,97): error TS2345: Argument of type 'string' is not assignable to parameter of type '"" | "const-berserker-2pc-cr" | "const-berserker-4pc-cr" | "const-blizzard-2pc-cryo-p" | "const-blizzard-4pc-cryo-cr" | "const-blizzard-4pc-frozen-cr" | "const-bloodstained-2pc-phy-p" | ... 50 more ... | "vg-4pc-stack"'.

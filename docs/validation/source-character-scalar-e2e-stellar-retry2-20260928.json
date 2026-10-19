@@ -1,0 +1,13 @@
+{
+  "command": [
+    "GIDPS_PREBUILT=1",
+    "GIDPS_SCALAR_LANE=stellar",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-scalar.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 5.254,
+  "log": "docs/validation/source-character-scalar-e2e-stellar-retry2-20260928.log"
+}

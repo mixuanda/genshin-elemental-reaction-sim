@@ -1,0 +1,35 @@
+{
+  "pages": [
+    {
+      "route": "/calculator",
+      "title": "单技能伤害计算器",
+      "checkedInPreviousAttempt": true
+    },
+    {
+      "route": "/examples",
+      "title": "可编辑例题"
+    },
+    {
+      "route": "/team",
+      "title": "队伍配置"
+    },
+    {
+      "route": "/rotation",
+      "title": "行动编辑"
+    },
+    {
+      "route": "/compare",
+      "title": "结果比较"
+    },
+    {
+      "route": "/data",
+      "title": "数据浏览"
+    },
+    {
+      "route": "/updates",
+      "title": "更新状态"
+    }
+  ],
+  "errors": [],
+  "initialHarnessFailure": "Selected hidden calculator h2 on examples route; changed selector to visible h2; no application change"
+}

@@ -1,0 +1,140 @@
+{
+  "batch": 114,
+  "componentId": "chiori-c4-kinu",
+  "observedAt": "2026-09-30T06:18:33.691237+00:00",
+  "scope": "One source-observed C4 listener invocation and its Kinu task tree; not a complete skill or all constellation damage",
+  "lanes": {
+    "classic": {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "pre114SourceDirectory": "/Users/evan/Library/Caches/gidps-source-host/build-2OdtDV/source",
+      "stage": "post113 patches and bridge; before talent instrumentation",
+      "sourceFiles": {
+        "internal/characters/chiori/cons.go": {
+          "sha256": "5184e50555dcfa0338039c9d926fbd4d85f93721ee3a1857f90dc192cd39122f"
+        },
+        "internal/characters/chiori/kinu.go": {
+          "sha256": "39d063cb2aa2de13d1a60a5a717b1b3c8b170849931308bd478fdd2348a6f663"
+        },
+        "internal/characters/chiori/ticker.go": {
+          "sha256": "9e19e4be70b7adaf7d76b58c02e68dfc62b501752e243c3e5bae9b8b4e8929ea"
+        }
+      },
+      "patch": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-task-tree/classic.patch",
+        "sha256": "8eabe937abb7ae2891d7450203225d290f5282a1a4e76b8792c2e551c079fc33",
+        "bytes": 4837
+      },
+      "privateApplyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/114-event-task-tree/classic.patch"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      }
+    },
+    "stellar": {
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "pre114SourceDirectory": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-4ao2p7/source",
+      "stage": "post113 patches and bridge; before talent instrumentation",
+      "sourceFiles": {
+        "internal/characters/chiori/cons.go": {
+          "sha256": "5184e50555dcfa0338039c9d926fbd4d85f93721ee3a1857f90dc192cd39122f"
+        },
+        "internal/characters/chiori/kinu.go": {
+          "sha256": "39d063cb2aa2de13d1a60a5a717b1b3c8b170849931308bd478fdd2348a6f663"
+        },
+        "internal/characters/chiori/ticker.go": {
+          "sha256": "9e19e4be70b7adaf7d76b58c02e68dfc62b501752e243c3e5bae9b8b4e8929ea"
+        }
+      },
+      "patch": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-task-tree/stellar.patch",
+        "sha256": "8eabe937abb7ae2891d7450203225d290f5282a1a4e76b8792c2e551c079fc33",
+        "bytes": 4837
+      },
+      "privateApplyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/114-event-task-tree/stellar.patch"
+        ],
+        "exitCode": 0,
+        "stderr": ""
+      }
+    }
+  },
+  "listener": {
+    "siteId": "chiori.c4.enemy-damage",
+    "key": "chiori-c4",
+    "producerCountFact": "chiori.c4.enemy-damage.producer-count",
+    "allowedProducerCounts": [
+      0,
+      2
+    ]
+  },
+  "tasks": {
+    "chiori.c4.kinu.expiry-task": {
+      "parent": "listener",
+      "delayFrames": 180,
+      "childCounts": [
+        0
+      ],
+      "attackCounts": [
+        0
+      ]
+    },
+    "chiori.c4.kinu.tick-task": {
+      "rootDelayFrames": 36,
+      "childDelayFrames": 30,
+      "parent": "listener or tick-task",
+      "childCounts": [
+        0,
+        2
+      ],
+      "liveChildren": [
+        "chiori.c4.kinu.attack-task",
+        "chiori.c4.kinu.tick-task"
+      ],
+      "attackCounts": [
+        0
+      ]
+    },
+    "chiori.c4.kinu.attack-task": {
+      "parent": "tick-task",
+      "delayFrames": 5,
+      "childCounts": [
+        0
+      ],
+      "attackCounts": [
+        0,
+        1
+      ]
+    }
+  },
+  "attack": {
+    "emitSiteId": "chiori.c4.kinu.attack",
+    "ability": "Fluttering Hasode (Kinu)",
+    "attackTag": "AttackTagElementalArt",
+    "queueKind": "QueueAttackWithSnap",
+    "damageDelayFrames": 0
+  },
+  "preservation": [
+    "C2 explicitly passes false and uses original core queues",
+    "ticker.go unchanged",
+    "RNG position sampling unchanged",
+    "target selection and range check unchanged",
+    "snapshot and scaling evaluation order unchanged",
+    "expiry, tick and attack callback scheduling order unchanged",
+    "attack kill and cleanup unchanged"
+  ],
+  "verification": "Private git apply --check only; root performs coordinated builds and representative validation",
+  "notes": [
+    "A successful attack leaves the next tick and expiry task pending; both must settle before deliveryClosed.",
+    "No-target attempts end with expiry at +180 and already queued dead tick at +186.",
+    "Actual hit applications and common damage core remain outside this task-tree analyzer."
+  ]
+}

@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/artifact-special-composition.test.ts (1 test | 1 failed) 264ms
+   × composes ordinary artifact callbacks with a live Lunar contributor snapshot 264ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-special-composition.test.ts > composes ordinary artifact callbacks with a live Lunar contributor snapshot
+Error: Trusted SimulationResult 1.53 integrity validation failed: crystallizeShardLog.0.sourceElementalMastery: Crystallize shard spawn-frame elemental mastery must equal 400; received 550
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22931:11
+    22929|     const remainder =
+    22930|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22931|     throw new Error(
+       |           ^
+    22932|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22933|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:19269:10
+ ❯ simulate packages/sim-core/src/simulator.ts:19312:12
+ ❯ simulateLunarMixedV2Profile packages/sim-core/src/simulator.ts:19407:22
+ ❯ packages/sim-core/src/__tests__/artifact-special-composition.test.ts:48:23
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  01:54:27
+   Duration  1.49s (transform 894ms, setup 0ms, import 1.15s, tests 264ms, environment 0ms)
+
+
+exit_code=1
+elapsed_seconds=1.886

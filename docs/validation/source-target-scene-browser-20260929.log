@@ -1,0 +1,10 @@
+[WebServer] (node:63794) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:63797) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-target-scene.spec.ts:51:1 › three native targets keep total damage separate from the selected statistics target (12.9s)
+
+  1 passed (14.3s)

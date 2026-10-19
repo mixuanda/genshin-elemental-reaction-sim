@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "external-gcsim-b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541-charlotte-frostbearer-context",
+  "randomSeed": "local-frostbearer-r5-independent-stream",
+  "meta": {
+    "name": "夏洛蒂 N1 上冰后的忍冬之果双目标条件对照",
+    "version": "1",
+    "verificationStatus": "provisional",
+    "note": "固定 C0/A0/Lv1/T1 无卡肉 N1 来源时序和几何，仅一次实际追击；不认证完整角色或源 RNG 同序列。"
+  },
+  "duration": 3,
+  "cycleLength": 3,
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defReduction": 0,
+    "targets": [
+      {
+        "id": "enemy-0",
+        "name": "外部固定目标 1",
+        "position": {
+          "x": 0,
+          "y": 2
+        },
+        "hitboxRadius": 0.25
+      },
+      {
+        "id": "enemy-1",
+        "name": "外部固定目标 2",
+        "position": {
+          "x": 2.5,
+          "y": 2
+        },
+        "hitboxRadius": 0.25
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "charlotte",
+      "name": "夏洛蒂 C0/A0/Lv1/T1",
+      "element": "cryo",
+      "color": "#8eb6d8",
+      "level": 1,
+      "energyMax": 80,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 56.91452,
+        "atkPct": 0.09,
+        "flatAtk": 0,
+        "baseHp": 902.6731,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 45.78,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    }
+  ],
+  "rotation": [],
+  "weaponProcModel": {
+    "mode": "fixed-source-no-character-hitlag-v1",
+    "actors": [
+      {
+        "actorId": "charlotte",
+        "weaponId": "frostbearer",
+        "refinement": 5,
+        "physicalDamageBonus": 0
+      }
+    ]
+  },
+  "timeline": {
+    "mode": "legal-frame-v1",
+    "fps": 60,
+    "legalityMode": "strict",
+    "initialActiveCharacterId": "charlotte",
+    "swapFrames": 1,
+    "abilities": [
+      {
+        "id": "charlotte-source-n1",
+        "actorId": "charlotte",
+        "name": "Normal 0",
+        "kind": "normal",
+        "cancelFrame": 5,
+        "cancelFrames": {
+          "normal": 23,
+          "charge": 25,
+          "skill": 5,
+          "burst": 5,
+          "dash": 5,
+          "jump": 6,
+          "swap": 12
+        },
+        "animationEndFrame": 32,
+        "cooldownFrames": 0,
+        "actionPhase": "after-frame-tasks-v1",
+        "hits": [
+          {
+            "id": "charlotte-source-n1-hit",
+            "frame": 13,
+            "scaling": 0.498456,
+            "scalingStat": "atk",
+            "element": "cryo",
+            "attackTag": "normal",
+            "snapshot": "hit",
+            "geometry": {
+              "kind": "circle",
+              "coordinateSpace": "world",
+              "origin": {
+                "x": 0,
+                "y": 2
+              },
+              "radius": 1
+            },
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "normal-attack",
+                "groupId": "default"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "type": "normal",
+        "actorId": "charlotte",
+        "abilityId": "charlotte-source-n1",
+        "atFrame": 1
+      }
+    ]
+  },
+  "reactionEngine": {
+    "mode": "aura-v3",
+    "initialAura": [],
+    "icdProfiles": {}
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "disabled"
+  },
+  "targetTaskModel": {
+    "mode": "legacy-event-heap-v1"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+    "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+  },
+  "callbackBusModel": {
+    "mode": "legacy-no-versioned-callback-bus-v1",
+    "policyId": "legacy-no-versioned-callback-bus-v1"
+  }
+}

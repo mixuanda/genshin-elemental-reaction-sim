@@ -1,0 +1,53 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 1 failed | 1 skipped) 381ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 380ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      42,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 42 (electro-charged-expiry) requires exactly one Reactable.Tick transition"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "targetStateTimeline",
+      "points",
+      44,
+      "id"
+    ],
+    "message": "target lifecycle timeline point 44 (electro-charged-expiry) requires exactly one Reactable.Tick transition"
+  }
+]
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:18732:41
+    18730|     targetPhaseV3ResultReferencesSchema.parse(frozenTargetPhaseV3Facet…
+    18731|   } else if (targetPhaseV2Enabled) {
+    18732|     targetPhaseV2ResultReferencesSchema.parse(frozenReactionDamageGrou…
+       |                                         ^
+    18733|   } else {
+    18734|     // The public v2 result-reference schema deliberately performs a d…
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:19062:18
+ ❯ simulate packages/sim-core/src/simulator.ts:19120:12
+ ❯ assertHorizontalPeriodicMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:345:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:390:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  12:26:32
+   Duration  2.82s (transform 1.86s, setup 0ms, import 2.37s, tests 381ms, environment 0ms)
+
+
+WALL_SECONDS=3.299

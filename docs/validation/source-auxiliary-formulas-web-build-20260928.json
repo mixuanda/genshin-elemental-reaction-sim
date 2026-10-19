@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.687,
+  "log": "docs/validation/source-auxiliary-formulas-web-build-20260928.log"
+}

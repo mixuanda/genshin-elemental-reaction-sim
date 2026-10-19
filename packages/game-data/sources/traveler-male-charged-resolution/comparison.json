@@ -1,0 +1,1524 @@
+{
+  "schemaVersion": 1,
+  "status": "coefficient-conflict-resolved-by-male-specific-source; runtime-unchanged",
+  "method": "Exact decimal comparisons at all talent levels; gcsim rounding is identified explicitly, not used to relax catalog tolerance. No female coefficient is used as male authority.",
+  "numericAuthority": {
+    "repository": "frzyc/genshin-optimizer",
+    "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+    "gender": "M",
+    "selectors": [
+      "auto[5]",
+      "auto[6]"
+    ]
+  },
+  "catalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "counts": {
+    "elements": 7,
+    "talentLevelsPerElement": 15,
+    "maleCoefficientPositionsCompared": 210,
+    "maleSecondHitCatalogMismatches": 105,
+    "optimizerDataToRuntimeExactPositions": 210
+  },
+  "maximumAbsoluteGcsimRoundingDifference": 4e-05,
+  "elements": [
+    {
+      "element": "anemo",
+      "maleSheetKey": "TravelerAnemoM",
+      "variantId": "aether-anemo",
+      "previousPartialSkillId": "aether-anemo-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/anemo/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:traveleranemo",
+      "catalogAbilityId": "talent:traveleranemo:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    },
+    {
+      "element": "geo",
+      "maleSheetKey": "TravelerGeoM",
+      "variantId": "aether-geo",
+      "previousPartialSkillId": "aether-geo-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerGeoM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/geo/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:travelergeo",
+      "catalogAbilityId": "talent:travelergeo:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    },
+    {
+      "element": "electro",
+      "maleSheetKey": "TravelerElectroM",
+      "variantId": "aether-electro",
+      "previousPartialSkillId": "aether-electro-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerElectroM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/electro/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:travelerelectro",
+      "catalogAbilityId": "talent:travelerelectro:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    },
+    {
+      "element": "dendro",
+      "maleSheetKey": "TravelerDendroM",
+      "variantId": "aether-dendro",
+      "previousPartialSkillId": "aether-dendro-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerDendroM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/dendro/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:travelerdendro",
+      "catalogAbilityId": "talent:travelerdendro:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    },
+    {
+      "element": "hydro",
+      "maleSheetKey": "TravelerHydroM",
+      "variantId": "aether-hydro",
+      "previousPartialSkillId": "aether-hydro-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerHydroM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/hydro/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:travelerhydro",
+      "catalogAbilityId": "talent:travelerhydro:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    },
+    {
+      "element": "pyro",
+      "maleSheetKey": "TravelerPyroM",
+      "variantId": "aether-pyro",
+      "previousPartialSkillId": "aether-pyro-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerPyroM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/pyro/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:travelerpyro",
+      "catalogAbilityId": "talent:travelerpyro:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    },
+    {
+      "element": "cryo",
+      "maleSheetKey": "TravelerCryoM",
+      "variantId": "aether-cryo",
+      "previousPartialSkillId": "aether-cryo-charged-base",
+      "maleParameterSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/optimizer/libs/gi/stats/Data/Characters/TravelerCryoM/skillParam.json",
+      "maleParameterSelectors": [
+        "auto[5]",
+        "auto[6]"
+      ],
+      "maleVectorSha256": {
+        "hit1": "1723bf19ab956cea5d46909cc1c1514a76e560725f2ebe63f331ebc13a3d923d",
+        "hit2": "37466b5e9eb22d9b81c30fcab4eb51b285d574621b498c48da74108a7ce1625d"
+      },
+      "gcsimSource": "packages/game-data/sources/traveler-male-charged-resolution/raw/gcsim/internal/characters/traveler/common/cryo/stats.go",
+      "gcsimSelectors": [
+        "charge[0][0]",
+        "charge[0][1]"
+      ],
+      "catalogTalentSetId": "talent-set:travelercryo",
+      "catalogAbilityId": "talent:travelercryo:combat1",
+      "rows": [
+        {
+          "talentLevel": 1,
+          "optimizerMaleHit1": 0.559,
+          "gcsimMaleHit1": 0.559,
+          "catalogHit1": 0.559,
+          "optimizerMaleHit2": 0.60716,
+          "gcsimMaleHit2": 0.6072,
+          "catalogSharedHit2": 0.7224,
+          "gcsimFemaleHit2": 0.7224,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.11524
+        },
+        {
+          "talentLevel": 2,
+          "optimizerMaleHit1": 0.6045,
+          "gcsimMaleHit1": 0.6045,
+          "catalogHit1": 0.6045,
+          "optimizerMaleHit2": 0.65658,
+          "gcsimMaleHit2": 0.6566,
+          "catalogSharedHit2": 0.7812,
+          "gcsimFemaleHit2": 0.7812,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.12462
+        },
+        {
+          "talentLevel": 3,
+          "optimizerMaleHit1": 0.65,
+          "gcsimMaleHit1": 0.65,
+          "catalogHit1": 0.65,
+          "optimizerMaleHit2": 0.706,
+          "gcsimMaleHit2": 0.706,
+          "catalogSharedHit2": 0.84,
+          "gcsimFemaleHit2": 0.84,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.134
+        },
+        {
+          "talentLevel": 4,
+          "optimizerMaleHit1": 0.715,
+          "gcsimMaleHit1": 0.715,
+          "catalogHit1": 0.715,
+          "optimizerMaleHit2": 0.7766,
+          "gcsimMaleHit2": 0.7766,
+          "catalogSharedHit2": 0.924,
+          "gcsimFemaleHit2": 0.924,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1474
+        },
+        {
+          "talentLevel": 5,
+          "optimizerMaleHit1": 0.7605,
+          "gcsimMaleHit1": 0.7605,
+          "catalogHit1": 0.7605,
+          "optimizerMaleHit2": 0.82602,
+          "gcsimMaleHit2": 0.826,
+          "catalogSharedHit2": 0.9828,
+          "gcsimFemaleHit2": 0.9828,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.15678
+        },
+        {
+          "talentLevel": 6,
+          "optimizerMaleHit1": 0.8125,
+          "gcsimMaleHit1": 0.8125,
+          "catalogHit1": 0.8125,
+          "optimizerMaleHit2": 0.8825,
+          "gcsimMaleHit2": 0.8825,
+          "catalogSharedHit2": 1.05,
+          "gcsimFemaleHit2": 1.05,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.1675
+        },
+        {
+          "talentLevel": 7,
+          "optimizerMaleHit1": 0.884,
+          "gcsimMaleHit1": 0.884,
+          "catalogHit1": 0.884,
+          "optimizerMaleHit2": 0.96016,
+          "gcsimMaleHit2": 0.9602,
+          "catalogSharedHit2": 1.1424,
+          "gcsimFemaleHit2": 1.1424,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.18224
+        },
+        {
+          "talentLevel": 8,
+          "optimizerMaleHit1": 0.9555,
+          "gcsimMaleHit1": 0.9555,
+          "catalogHit1": 0.9555,
+          "optimizerMaleHit2": 1.03782,
+          "gcsimMaleHit2": 1.0378,
+          "catalogSharedHit2": 1.2348,
+          "gcsimFemaleHit2": 1.2348,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.19698
+        },
+        {
+          "talentLevel": 9,
+          "optimizerMaleHit1": 1.027,
+          "gcsimMaleHit1": 1.027,
+          "catalogHit1": 1.027,
+          "optimizerMaleHit2": 1.11548,
+          "gcsimMaleHit2": 1.1155,
+          "catalogSharedHit2": 1.3272,
+          "gcsimFemaleHit2": 1.3272,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.21172
+        },
+        {
+          "talentLevel": 10,
+          "optimizerMaleHit1": 1.105,
+          "gcsimMaleHit1": 1.105,
+          "catalogHit1": 1.105,
+          "optimizerMaleHit2": 1.2002,
+          "gcsimMaleHit2": 1.2002,
+          "catalogSharedHit2": 1.428,
+          "gcsimFemaleHit2": 1.428,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.2278
+        },
+        {
+          "talentLevel": 11,
+          "optimizerMaleHit1": 1.183,
+          "gcsimMaleHit1": 1.183,
+          "catalogHit1": 1.183,
+          "optimizerMaleHit2": 1.28492,
+          "gcsimMaleHit2": 1.2849,
+          "catalogSharedHit2": 1.5288,
+          "gcsimFemaleHit2": 1.5288,
+          "gcsimMinusOptimizerHit2": -2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.24388
+        },
+        {
+          "talentLevel": 12,
+          "optimizerMaleHit1": 1.261,
+          "gcsimMaleHit1": 1.261,
+          "catalogHit1": 1.261,
+          "optimizerMaleHit2": 1.36964,
+          "gcsimMaleHit2": 1.3696,
+          "catalogSharedHit2": 1.6296,
+          "gcsimFemaleHit2": 1.6296,
+          "gcsimMinusOptimizerHit2": -4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.25996
+        },
+        {
+          "talentLevel": 13,
+          "optimizerMaleHit1": 1.339,
+          "gcsimMaleHit1": 1.339,
+          "catalogHit1": 1.339,
+          "optimizerMaleHit2": 1.45436,
+          "gcsimMaleHit2": 1.4544,
+          "catalogSharedHit2": 1.7304,
+          "gcsimFemaleHit2": 1.7304,
+          "gcsimMinusOptimizerHit2": 4e-05,
+          "catalogMinusOptimizerMaleHit2": 0.27604
+        },
+        {
+          "talentLevel": 14,
+          "optimizerMaleHit1": 1.417,
+          "gcsimMaleHit1": 1.417,
+          "catalogHit1": 1.417,
+          "optimizerMaleHit2": 1.53908,
+          "gcsimMaleHit2": 1.5391,
+          "catalogSharedHit2": 1.8312,
+          "gcsimFemaleHit2": 1.8312,
+          "gcsimMinusOptimizerHit2": 2e-05,
+          "catalogMinusOptimizerMaleHit2": 0.29212
+        },
+        {
+          "talentLevel": 15,
+          "optimizerMaleHit1": 1.495,
+          "gcsimMaleHit1": 1.495,
+          "catalogHit1": 1.495,
+          "optimizerMaleHit2": 1.6238,
+          "gcsimMaleHit2": 1.6238,
+          "catalogSharedHit2": 1.932,
+          "gcsimFemaleHit2": 1.932,
+          "gcsimMinusOptimizerHit2": 0.0,
+          "catalogMinusOptimizerMaleHit2": 0.3082
+        }
+      ],
+      "outcomes": {
+        "maleHit1EqualsGcsimAndCatalog": true,
+        "maleHit2GcsimIsOptimizerRoundedToFourDecimalPlaces": true,
+        "maleHit2MaximumAbsoluteGcsimDifference": 4e-05,
+        "allCatalogHit2PositionsDifferFromMale": true,
+        "catalogHit2EqualsGcsimFemale": true,
+        "catalogCombat1EqualsPinnedGenshinDb": true,
+        "optimizerMaleDataEqualsOptimizerRuntime": true,
+        "staminaAllLevels20": true
+      }
+    }
+  ]
+}

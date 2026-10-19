@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/game-data/src/weapon-conditioned-expansion.test.ts (3 tests | 1 failed) 58ms
+   × keeps unknown hit-only states local, independent windows separate, and unsupported stellar clauses explicit 23ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/game-data/src/weapon-conditioned-expansion.test.ts > keeps unknown hit-only states local, independent windows separate, and unsupported stellar clauses explicit
+AssertionError: expected 'calculated' to be 'blocked' // Object.is equality
+
+Expected: "blocked"
+Received: "calculated"
+
+ ❯ packages/game-data/src/weapon-conditioned-expansion.test.ts:63:81
+     61|   expect(calculateDocument(restored).status).toBe("calculated");
+     62|   const restoredHit = restored.hits[0]!; if (restoredHit.kind !== "ord…
+     63|   restoredHit.attackTag = "charged"; expect(calculateDocument(restored…
+       |                                                                                 ^
+     64|   const talking = result("weapon:12424", { weaponEffectActive: false, …
+     65|   expect(stat(talking, "atkPercent")).toBe(0); expect(damage(talking, …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  05:30:04
+   Duration  1.14s (transform 766ms, setup 0ms, import 1.02s, tests 58ms, environment 0ms)
+

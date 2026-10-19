@@ -1,0 +1,1019 @@
+{
+  "measurements": {
+    "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nraiden char lvl=90/90 cons=0 talent=1,1,1;\nraiden add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"whitetassel\" refine=1 lvl=1/20;\nyanfei char lvl=90/90 cons=0 talent=1,1,1;\nyanfei add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nmika char lvl=90/90 cons=0 talent=1,1,1;\nmika add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive raiden;\nphase(\"rotation\");\nraiden skill;\nhutao skill;\nhutao attack;\nhutao charge;\nphase(\"hutao charge\");\nyanfei burst;\nphase(\"yanfei burst\");\nmika burst;\nphase(\"mika burst\");\nmika attack;\nwait(1900);\nphase(\"end\");",
+    "seed": "20261003130",
+    "baselinePath": "docs/validation/source-animation-eye-frontier-20261003.baseline.json",
+    "capturePath": "docs/validation/source-animation-eye-frontier-20261003.capture.json",
+    "runs": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "e5fccf99fdf90f95689dab13f25b28597113073641f84a2d0f4ae4130be38c07",
+          "wasmBytes": 47065221
+        },
+        "applicationCount": 17,
+        "applications": [
+          {
+            "frame": 52,
+            "targetKey": 1,
+            "rawDamage": 268.0700282031492,
+            "appliedDamage": 268.0700282031492,
+            "hpBefore": 10000000,
+            "hpAfter": 9999731.929971797,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 1,
+              "triggerActionSequence": 1,
+              "via": "action"
+            }
+          },
+          {
+            "frame": 52,
+            "targetKey": 1,
+            "rawDamage": 0,
+            "appliedDamage": 0,
+            "hpBefore": 9999731.929971797,
+            "hpAfter": 9999731.929971797,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 3,
+              "triggerActionSequence": 3,
+              "via": "action"
+            }
+          },
+          {
+            "frame": 79,
+            "targetKey": 1,
+            "rawDamage": 199.40418089297356,
+            "appliedDamage": 199.40418089297356,
+            "hpBefore": 9999731.929971797,
+            "hpAfter": 9999532.525790904,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 4,
+              "triggerActionSequence": 4,
+              "via": "task"
+            }
+          },
+          {
+            "frame": 80,
+            "targetKey": 1,
+            "rawDamage": 3580.9624125,
+            "appliedDamage": 3580.9624125,
+            "hpBefore": 9999532.525790904,
+            "hpAfter": 9995951.563378403,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 4,
+              "triggerActionSequence": 4,
+              "parentAttackId": 3,
+              "via": "task"
+            }
+          },
+          {
+            "frame": 84,
+            "targetKey": 1,
+            "rawDamage": 96.06605106256202,
+            "appliedDamage": 96.06605106256202,
+            "hpBefore": 9995951.563378403,
+            "hpAfter": 9995855.49732734,
+            "isCrit": false,
+            "origin": {
+              "triggerActionSequence": 4,
+              "parentAttackId": 3,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          },
+          {
+            "frame": 95,
+            "targetKey": 1,
+            "rawDamage": 878.5323150665527,
+            "appliedDamage": 878.5323150665527,
+            "hpBefore": 9995855.49732734,
+            "hpAfter": 9994976.965012275,
+            "isCrit": true,
+            "origin": {
+              "creationActionSequence": 5,
+              "triggerActionSequence": 5,
+              "via": "action"
+            }
+          },
+          {
+            "frame": 96,
+            "targetKey": 1,
+            "rawDamage": 0,
+            "appliedDamage": 0,
+            "hpBefore": 9994976.965012275,
+            "hpAfter": 9994976.965012275,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 5,
+              "triggerActionSequence": 5,
+              "parentAttackId": 6,
+              "via": "action"
+            }
+          },
+          {
+            "frame": 159,
+            "targetKey": 1,
+            "rawDamage": 382.4593689630873,
+            "appliedDamage": 382.4593689630873,
+            "hpBefore": 9994976.965012275,
+            "hpAfter": 9994594.505643312,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 7,
+              "triggerActionSequence": 7,
+              "via": "action"
+            }
+          },
+          {
+            "frame": 164,
+            "targetKey": 1,
+            "rawDamage": 144.09907659384305,
+            "appliedDamage": 144.09907659384305,
+            "hpBefore": 9994594.505643312,
+            "hpAfter": 9994450.406566719,
+            "isCrit": true,
+            "origin": {
+              "triggerActionSequence": 7,
+              "parentAttackId": 8,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          },
+          {
+            "frame": 277,
+            "targetKey": 1,
+            "rawDamage": 59.9292246981438,
+            "appliedDamage": 59.9292246981438,
+            "hpBefore": 9994450.406566719,
+            "hpAfter": 9994390.47734202,
+            "isCrit": false,
+            "origin": {
+              "creationActionSequence": 10,
+              "triggerActionSequence": 10,
+              "via": "task"
+            }
+          },
+          {
+            "frame": 282,
+            "targetKey": 1,
+            "rawDamage": 96.06605106256202,
+            "appliedDamage": 96.06605106256202,
+            "hpBefore": 9994390.47734202,
+            "hpAfter": 9994294.411290959,
+            "isCrit": false,
+            "origin": {
+              "triggerActionSequence": 10,
+              "parentAttackId": 10,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          },
+          {
+            "frame": 283,
+            "targetKey": 1,
+            "rawDamage": 3580.9624125,
+            "appliedDamage": 3580.9624125,
+            "hpBefore": 9994294.411290959,
+            "hpAfter": 9990713.448878458,
+            "isCrit": false,
+            "origin": {
+              "triggerActionSequence": 10,
+              "parentAttackId": 11,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          },
+          {
+            "frame": 345,
+            "targetKey": 1,
+            "rawDamage": 52.263244836,
+            "appliedDamage": 52.263244836,
+            "hpBefore": 9990713.448878458,
+            "hpAfter": 9990661.185633622,
+            "isCrit": false,
+            "origin": {
+              "via": "unassigned"
+            }
+          },
+          {
+            "frame": 350,
+            "targetKey": 1,
+            "rawDamage": 96.06605106256202,
+            "appliedDamage": 96.06605106256202,
+            "hpBefore": 9990661.185633622,
+            "hpAfter": 9990565.11958256,
+            "isCrit": false,
+            "origin": {
+              "parentAttackId": 13,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          },
+          {
+            "frame": 585,
+            "targetKey": 1,
+            "rawDamage": 52.263244836,
+            "appliedDamage": 52.263244836,
+            "hpBefore": 9990565.11958256,
+            "hpAfter": 9990512.856337724,
+            "isCrit": false,
+            "origin": {
+              "via": "unassigned"
+            }
+          },
+          {
+            "frame": 590,
+            "targetKey": 1,
+            "rawDamage": 96.06605106256202,
+            "appliedDamage": 96.06605106256202,
+            "hpBefore": 9990512.856337724,
+            "hpAfter": 9990416.790286662,
+            "isCrit": false,
+            "origin": {
+              "parentAttackId": 15,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          },
+          {
+            "frame": 591,
+            "targetKey": 1,
+            "rawDamage": 3580.9624125,
+            "appliedDamage": 3580.9624125,
+            "hpBefore": 9990416.790286662,
+            "hpAfter": 9986835.827874161,
+            "isCrit": false,
+            "origin": {
+              "parentAttackId": 16,
+              "via": "event-callback",
+              "eventKey": "raiden-eye",
+              "eventType": 3
+            }
+          }
+        ],
+        "statusOwnerGeneratorLinks": [
+          {
+            "applicationId": 24,
+            "owner": {
+              "actorIndex": 1,
+              "statusKey": "raiden-e",
+              "instanceId": 2,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 2,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 1
+          },
+          {
+            "applicationId": 42,
+            "owner": {
+              "actorIndex": 2,
+              "statusKey": "raiden-e",
+              "instanceId": 3,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 3,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 2
+          },
+          {
+            "applicationId": 93,
+            "owner": {
+              "actorIndex": 3,
+              "statusKey": "raiden-e",
+              "instanceId": 4,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 4,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 3
+          },
+          {
+            "applicationId": 95,
+            "owner": {
+              "actorIndex": 3,
+              "statusKey": "raiden-e",
+              "instanceId": 4,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 4,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 3
+          },
+          {
+            "applicationId": 102,
+            "owner": {
+              "actorIndex": 1,
+              "statusKey": "raiden-e",
+              "instanceId": 2,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 2,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 1
+          },
+          {
+            "applicationId": 132,
+            "owner": {
+              "actorIndex": 1,
+              "statusKey": "raiden-e",
+              "instanceId": 2,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 2,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 1
+          },
+          {
+            "applicationId": 134,
+            "owner": {
+              "actorIndex": 1,
+              "statusKey": "raiden-e",
+              "instanceId": 2,
+              "createdFrame": 67,
+              "creationActionSequence": 1
+            },
+            "generatorStatusInstanceId": 2,
+            "generatorActorIndex": 0,
+            "generatorHolderActorIndex": 1
+          }
+        ],
+        "actionLogCount": 61,
+        "phaseFrames": [
+          1,
+          93,
+          171,
+          255,
+          2177
+        ],
+        "playerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 0,
+              "parameters": {},
+              "type": "invalid"
+            },
+            "lastStaminaUseAgo": 1,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 0,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 93,
+            "activeCharacter": 1,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -55,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 1,
+              "parameters": {},
+              "type": "charge"
+            },
+            "lastStaminaUseAgo": 1,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 215,
+            "staminaModifiers": [],
+            "swapCooldown": 5,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 171,
+            "activeCharacter": 2,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -36,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 2,
+              "parameters": {},
+              "type": "burst"
+            },
+            "lastStaminaUseAgo": 79,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 215,
+            "staminaModifiers": [],
+            "swapCooldown": 24,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 255,
+            "activeCharacter": 3,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -59,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 3,
+              "parameters": {},
+              "type": "burst"
+            },
+            "lastStaminaUseAgo": 91,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 1,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 2177,
+            "activeCharacter": 3,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -1981,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 3,
+              "parameters": {},
+              "type": "attack"
+            },
+            "lastStaminaUseAgo": 91,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 0,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          }
+        ],
+        "phaseObservations": 5,
+        "phaseDescriptors": {
+          "hutaoRemovedCallback": [
+            {
+              "captured": {
+                "actor": {
+                  "characterIndex": 1,
+                  "sharedStateOwner": "characterWrapper"
+                },
+                "implementation": {
+                  "type": "*hutao.char",
+                  "value": {
+                    "fields": {
+                      "Character": {
+                        "characterIndex": 1,
+                        "sharedStateOwner": "sharedCharacterTemplate"
+                      },
+                      "a1buff": {
+                        "capacity": 26,
+                        "items": [
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0.12
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          }
+                        ],
+                        "type": "[]float64"
+                      },
+                      "a4buff": {
+                        "capacity": 26,
+                        "items": [
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0.33
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          }
+                        ],
+                        "type": "[]float64"
+                      },
+                      "applyA1": true,
+                      "burstHealAmount": {
+                        "fields": {
+                          "Bonus": {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          "Caller": {
+                            "type": "int",
+                            "value": 0
+                          },
+                          "Message": "",
+                          "SourceHostBonusID": {
+                            "type": "int",
+                            "value": 0
+                          },
+                          "SourceHostSrcID": {
+                            "type": "int",
+                            "value": 0
+                          },
+                          "Src": {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          "Target": {
+                            "type": "int",
+                            "value": 0
+                          },
+                          "Type": {
+                            "type": "info.HealType",
+                            "value": 0
+                          }
+                        },
+                        "type": "info.HealInfo"
+                      },
+                      "burstHealCount": {
+                        "type": "int",
+                        "value": 0
+                      },
+                      "c4buff": {
+                        "nil": true,
+                        "type": "[]float64"
+                      },
+                      "c6buff": {
+                        "nil": true,
+                        "type": "[]float64"
+                      },
+                      "ppCreationID": {
+                        "type": "int",
+                        "value": 7
+                      },
+                      "ppbuff": {
+                        "capacity": 26,
+                        "items": [
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 580.7027204
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          },
+                          {
+                            "type": "float64",
+                            "value": 0
+                          }
+                        ],
+                        "type": "[]float64"
+                      }
+                    },
+                    "type": "hutao.char"
+                  }
+                }
+              },
+              "source": "internal/characters/hutao/charge.go:ppChargeAttack:OnRemoved"
+            }
+          ],
+          "normalizedForNextAction": []
+        },
+        "unknownGaps": [
+          "events: event 3 key \"mika-a4\" has an undescribed callback",
+          "events: event 3 key \"mika-eagleplume\" has an undescribed callback",
+          "events: event 3 key \"raiden-eye\" has an undescribed callback",
+          "events: event 40 key \"hutao-exit\" has an undescribed callback",
+          "events: event 40 key \"raiden-burst-clear\" has an undescribed callback",
+          "events: event 40 key \"yanfei-exit\" has an undescribed callback",
+          "events: event 41 key \"raiden-particle-stacks\" has an undescribed callback",
+          "events: event 43 key \"raiden-stacks\" has an undescribed callback",
+          "player: character[0].concrete.*.a4CreationID: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.burstAnimSrc: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.burstCastF: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.stacks: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.stacksConsumed: private numeric clock semantics have not been reviewed",
+          "player: character[0].modifier[1]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].concrete.*.burstHealAmount.Bonus: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.burstHealAmount.Caller: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.burstHealAmount.SourceHostBonusID: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.burstHealAmount.SourceHostSrcID: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.burstHealAmount.Src: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.burstHealAmount.Target: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.burstHealAmount.Type: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.ppCreationID: private numeric clock semantics have not been reviewed",
+          "player: character[1].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].modifier[2]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstBuffCreationID: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.maxTags: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.sealStamReduction: private numeric clock semantics have not been reviewed",
+          "player: character[3].concrete.*.healIcd: private numeric clock semantics have not been reviewed",
+          "player: character[3].concrete.*.vectorCreationIDs[{\"type\":\"string\",\"value\":\"char-vector-mika-skill-atkspd\"}]: private numeric clock semantics have not been reviewed",
+          "player: queued task \"\" has an undescribed closure",
+          "player: animation.Frames callback",
+          "player: character[0].modifier[2]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].capturedImplementation.*.burstHealAmount.Bonus: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.burstHealAmount.Caller: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.burstHealAmount.SourceHostBonusID: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.burstHealAmount.SourceHostSrcID: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.burstHealAmount.Src: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.burstHealAmount.Target: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.burstHealAmount.Type: private numeric clock semantics have not been reviewed",
+          "player: character[1].capturedImplementation.*.ppCreationID: private numeric clock semantics have not been reviewed",
+          "player: character[1].modifier[3]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].modifier[4]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[2].modifier[1]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[3].modifier[1]: Amount callback has no source-reviewed live capture descriptor",
+          "tasks: queued task \"attack-application\": attack callback[0] has undescribed captured state",
+          "tasks: queued task \"attack-application\": attack callback[1] has undescribed captured state",
+          "player: character[0].modifier[4]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[2].modifier[2]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[2].modifier[3]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[3].modifier[2]: Amount callback has no source-reviewed live capture descriptor",
+          "targets: enemies[0].enemy.taskQueue.queued task \"\" has an undescribed closure",
+          "targets: enemies[0].target.tag-value-temporal-semantics",
+          "tasks: queued task \"\" has an undescribed closure"
+        ],
+        "fullPhaseCoverage": false,
+        "finiteCasts": {
+          "yanfeiQ": {
+            "contractId": "yanfei-burst",
+            "expectedRootAttackCount": 1,
+            "observedRootAttackCount": 1,
+            "hits": 1,
+            "replayDeltas": [
+              0
+            ],
+            "completeCast": true
+          },
+          "mikaQ": {
+            "contractId": "mika-burst",
+            "expectedRootAttackCount": 0,
+            "observedRootAttackCount": 0,
+            "hits": 0,
+            "replayDeltas": [],
+            "completeCast": true
+          }
+        },
+        "raidenSkillFiniteContract": "raiden-skill",
+        "raidenSkillFinite": {
+          "completeCast": true,
+          "closed": true,
+          "includedHits": 6,
+          "replayDeltas": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "baselineComparison": {
+          "applicationsEqual": true,
+          "actionLogsNonempty": true,
+          "phaseFramesEqual": true,
+          "playerStateEqual": true
+        }
+      }
+    ],
+    "scope": "One combined C0 Raiden E / Hu Tao E and attack/charge / Yanfei Q / Mika Q and normal / wait scene in each source lane. Native receipts are archived before assertions; unknown actor gaps remain measured and do not imply complete phase state.",
+    "nativeRunsPerformed": true
+  },
+  "pageErrors": []
+}

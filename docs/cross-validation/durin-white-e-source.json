@@ -1,0 +1,18 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/durin/skill.go",
+    "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "path": "internal/characters/durin/skill.go",
+    "retrievedAt": "2026-09-22T14:40:32.783661+00:00",
+    "bytes": 4729,
+    "sha256": "14bded4b59a93b25f2ee7a49b7fa2bef2598054eddd411790ae7fd87120c256c"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/icd_groups.dm.go",
+    "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "path": "pkg/core/attacks/icd_groups.dm.go",
+    "retrievedAt": "2026-09-22T14:40:33.460915+00:00",
+    "bytes": 15409,
+    "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4"
+  }
+]

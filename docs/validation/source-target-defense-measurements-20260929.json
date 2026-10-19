@@ -1,0 +1,268 @@
+{
+  "schemaVersion": "source-target-defense-measurements-v1",
+  "batch": "105",
+  "date": "2026-09-29",
+  "baselineHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "commands": {
+    "focused-unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "apps/web/src/source-target-defense-adjustment.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.889
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.255
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.919
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.211
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.36
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-defense.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 7.906
+    },
+    "browser-ready": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-defense.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.243
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-target-defense-browser-v1",
+    "measurements": {
+      "rawPath": "/tmp/gidps-target-defense.json",
+      "damageByTarget": [
+        {
+          "targetKey": 1,
+          "defenseAdjustment": 0,
+          "rawDamage": 1161.8921525418264,
+          "critMultiplier": 1,
+          "normalizedRawDamage": 1161.8921525418264,
+          "replayDifference": 0,
+          "defenseMultiplier": 0.5
+        },
+        {
+          "targetKey": 2,
+          "defenseAdjustment": -0.3,
+          "rawDamage": 1366.9319441668545,
+          "critMultiplier": 1,
+          "normalizedRawDamage": 1366.9319441668545,
+          "replayDifference": 0,
+          "defenseMultiplier": 0.5882352941176471
+        },
+        {
+          "targetKey": 3,
+          "defenseAdjustment": 0.2,
+          "rawDamage": 1056.2655932198422,
+          "critMultiplier": 1,
+          "normalizedRawDamage": 1056.2655932198422,
+          "replayDifference": 0,
+          "defenseMultiplier": 0.45454545454545453
+        }
+      ],
+      "normalizedRatios": {
+        "defenseMinusThirtyPercent": 1.1764705882352942,
+        "defensePlusTwentyPercent": 0.9090909090909092
+      },
+      "totalRawDamage": 3585.089689928523,
+      "teamDraftPreserved": true,
+      "formulaScreenshot": "docs/validation/source-target-defense-formula-20260929.png"
+    },
+    "pageErrors": [],
+    "scope": "One classic native Kaeya E with three colocated targets; DEF differences are compared after each real critical outcome is normalized. The team draft is compiled without a second native run."
+  },
+  "archives": [
+    {
+      "path": "docs/validation/source-target-defense-20260929.capture.json",
+      "sha256": "2d550565a6317e95983a7c3ea9478854aac42ec23193e660acd2e242b5395962",
+      "bytes": 123100
+    }
+  ],
+  "implementationFiles": [
+    {
+      "path": "apps/web/src/source-target-profile.ts",
+      "sha256": "96f22954e89933b62b4686b0384087ee5fb2a36af2af2243b8bcdc6bf0e08dce",
+      "bytes": 4822
+    },
+    {
+      "path": "apps/web/src/source-target-profile-controls.ts",
+      "sha256": "768d8002812b8f9a6a0b48dc9d0f3bf939ba836fb5d2c642450770270dbff50f",
+      "bytes": 8424
+    },
+    {
+      "path": "apps/web/src/source-target-defense-adjustment.test.ts",
+      "sha256": "24803d3eeb5a531fe7c6d517b970e2c57e2eb65979dfa82000a5e6a52b0f3661",
+      "bytes": 887
+    },
+    {
+      "path": "packages/sim-core/src/source-host-scalar-provenance.ts",
+      "sha256": "292a3f46ccb97859147db3318c4de653642027bc955aaccdab46dd5b178b202e",
+      "bytes": 11225
+    },
+    {
+      "path": "packages/source-host/patches/105-static-target-defense-adjustment.patch",
+      "sha256": "8bf072c75cee50d7cbb8a6a10cf2ac6af8b9bfd74aa56292ea95c2e25200bcd0",
+      "bytes": 3564
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/build.mjs",
+      "sha256": "6c2e49bcfaba318f26955f02e31d35086154b0066da74dae38b9ed614e96534b",
+      "bytes": 37203
+    },
+    {
+      "path": "apps/web/e2e/source-target-defense.spec.ts",
+      "sha256": "9233ee5359bf3628fd2b7b2ecf29c9c5d5dc17fed9c3b55bbd1ac00bc5dc19f4",
+      "bytes": 11564
+    }
+  ],
+  "executionArtifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "sha256": "1af1ca606f5f18ec5f7b07f5d9068e48db04423e5737bd18ee0cc4d34ecfb017",
+      "bytes": 44775370
+    },
+    {
+      "path": "apps/web/public/source-host/manifest.json",
+      "sha256": "3201be332daa1a5b9329fa4b37d525c8e12427ee3b804ce7d7997c17315d5f76",
+      "bytes": 147085
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "sha256": "79222f88d7b8166e52552bb356744dd220e1e54187e39fce7dd165affffca0d5",
+      "bytes": 68412968
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/manifest.json",
+      "sha256": "9fe084cef53dae260dd2f5517e8197a6166045c8705cbf7b240fc4999d3223b3",
+      "bytes": 149433
+    },
+    {
+      "path": "apps/web/dist/source-host/source-host.wasm",
+      "sha256": "1af1ca606f5f18ec5f7b07f5d9068e48db04423e5737bd18ee0cc4d34ecfb017",
+      "bytes": 44775370
+    },
+    {
+      "path": "apps/web/dist/source-host-stellar/source-host.wasm",
+      "sha256": "79222f88d7b8166e52552bb356744dd220e1e54187e39fce7dd165affffca0d5",
+      "bytes": 68412968
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "c5dcac6ff25bb50570fc00f906f52b547000a7471ee9fe10a3743b7ce58bc6f7",
+      "bytes": 817351
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "bytes": 955
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "bytes": 6035
+    }
+  ],
+  "sourceEvidence": {
+    "inspectedClassicRoot": "/tmp/gidps-source-host-cache/build-mgIpjN/source",
+    "builtClassicRoot": "/tmp/gidps-source-host-cache/build-M9IOrA/source",
+    "patch": "packages/source-host/patches/105-static-target-defense-adjustment.patch",
+    "files": [
+      "pkg/core/info/enemy.go",
+      "pkg/gcs/parser/parseTarget.go",
+      "pkg/enemy/mods.go",
+      "pkg/enemy/damage.go",
+      "pkg/enemy/sourcehost.go",
+      "pkg/enemy/sourcehost_phase.go"
+    ]
+  },
+  "repairs": [
+    {
+      "check": "browser",
+      "initial": "Input import occurred before the asynchronous inventory was ready; no native run executed.",
+      "repair": "Wait for the existing import control to become enabled; the same single case passed without production changes."
+    }
+  ],
+  "manualInspection": {
+    "formulaScreenshot": "docs/validation/source-target-defense-formula-20260929.png",
+    "substitution": "190 / (190 + 190 * (1 - 0.3) * (1 - 0))",
+    "defenseMultiplier": 0.5882352941176471,
+    "nativeProfileFields": [
+      {
+        "declarationIndex": 0,
+        "defense_adjustment": "omitted native zero default"
+      },
+      {
+        "declarationIndex": 1,
+        "defense_adjustment": -0.3
+      },
+      {
+        "declarationIndex": 2,
+        "defense_adjustment": 0.2
+      }
+    ]
+  },
+  "limits": [
+    "One actual classic native run; stellar compiled only.",
+    "Runtime sample observes ordinary damage and no dynamic DEF modifiers; dynamic stacking and special-family interactions are not newly runtime-verified.",
+    "Target phase receipt includes the static base in code; no new phase convergence run was performed.",
+    "Native parser range checks and type= ordering preservation were code-reviewed and built but not separately exercised by this browser sample.",
+    "The target field is a persistent user-declared scenario, not a newly verified enemy identity, shield, phase or invulnerability mechanism.",
+    "No data promotion or complete-cast/full-coverage claim."
+  ],
+  "executionNotes": [
+    "Classic and Stellar native build commands ran concurrently against separate pinned source/output directories. Timings are command wall times, not gameplay performance benchmarks.",
+    "The final browser case ran against the production build with GIDPS_PREBUILT=1; no production source changed after that build. Only test readiness/expectation wiring changed."
+  ]
+}

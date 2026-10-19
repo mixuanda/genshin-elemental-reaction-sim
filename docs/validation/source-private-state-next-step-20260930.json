@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 1,
+  "task": "Batch124 shared phase-state implementation audit; source read-only, no tests/builds.",
+  "capture": "/Users/evan/Documents/gidps/docs/validation/source-shared-movement-state-20260930.capture.json",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-CHWLQf/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-9hFTdx/source"
+  },
+  "observed": {
+    "classic": {
+      "phaseObservationCount": 6,
+      "gapOccurrences": 198,
+      "uniqueGapMessages": 33,
+      "privateNumericClockGapOccurrences": 186,
+      "uniquePrivateNumericGapMessages": 31,
+      "undescribedEventCallbackOccurrences": 12,
+      "uniqueUndescribedEventCallbacks": 2,
+      "actors": [
+        [
+          0,
+          "barbara"
+        ],
+        [
+          1,
+          "lisa"
+        ]
+      ],
+      "eventCallbackGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 41 key \"barbara-a4\" has an undescribed callback"
+      ]
+    },
+    "stellar": {
+      "phaseObservationCount": 6,
+      "gapOccurrences": 198,
+      "uniqueGapMessages": 33,
+      "privateNumericClockGapOccurrences": 186,
+      "uniquePrivateNumericGapMessages": 31,
+      "undescribedEventCallbackOccurrences": 12,
+      "uniqueUndescribedEventCallbacks": 2,
+      "actors": [
+        [
+          0,
+          "barbara"
+        ],
+        [
+          1,
+          "lisa"
+        ]
+      ],
+      "eventCallbackGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 44 key \"barbara-a4\" has an undescribed callback"
+      ]
+    }
+  },
+  "gapClasses": [
+    {
+      "id": "privateNumericClockSemantics",
+      "observedPerLane": {
+        "uniqueMessages": 31,
+        "occurrences": 186
+      },
+      "underlyingAuditedFields": [
+        {
+          "actor": "barbara",
+          "field": "a4extendCount",
+          "count": 1,
+          "source": "internal/characters/barbara/asc.go:22",
+          "observedSemantic": "bounded trigger counter; reset by Skill and incremented to a cap while the skill status is active"
+        },
+        {
+          "actor": "barbara",
+          "field": "c2buff",
+          "count": 26,
+          "source": "internal/characters/barbara/barbara.go:16",
+          "observedSemantic": "26-element stat modifier vector; initialized with the C2 Hydro bonus and read by the C2 modifier"
+        },
+        {
+          "actor": "barbara",
+          "field": "c6icd",
+          "count": 1,
+          "source": "internal/characters/barbara/cons.go:50",
+          "observedSemantic": "absolute frame deadline; checked against Core.F and set to Core.F + 54000"
+        },
+        {
+          "actor": "barbara",
+          "field": "skillInitF",
+          "count": 1,
+          "source": "internal/characters/barbara/skill.go:63",
+          "observedSemantic": "skill-start frame token used by recurring tick callbacks to reject work from a previous skill instance"
+        },
+        {
+          "actor": "lisa",
+          "field": "c6icd",
+          "count": 1,
+          "source": "internal/characters/lisa/cons.go:8",
+          "observedSemantic": "absolute frame deadline; checked against Core.F and set to Core.F + 300"
+        },
+        {
+          "actor": "lisa",
+          "field": "previousDischargeCount",
+          "count": 1,
+          "source": "internal/characters/lisa/burst.go:135",
+          "observedSemantic": "bounded prior discharge count used to select the next random outcome"
+        }
+      ],
+      "provider": "pkg/core/player/character/sourcehost_private_phase.go:sourceHostPrivatePhaseState, privatePhaseReader.read, sourceHostUnreviewedNumericField",
+      "callSite": "pkg/core/player/character/sourcehost_phase_state.go:153",
+      "implementation": "Add an explicit type-qualified semantic policy for reviewed private numeric fields and preserve the parent field identity while reading slices. Normalize only audited absolute frame stamps relative to the current frame; keep counters and stat-vector values as values. The current helper receives no frame, so its call path needs a frame argument. Avoid globally treating numeric fields as non-clock state."
+    },
+    {
+      "id": "undescribedEventCallbacks",
+      "observedPerLane": {
+        "uniqueHooks": 2,
+        "occurrences": 12
+      },
+      "hooks": [
+        {
+          "actor": "lisa",
+          "key": "lisa-skill-hold-mul",
+          "event": "OnEnemyHit",
+          "source": "internal/characters/lisa/skill.go:197 in both PRE124 roots",
+          "callbackReads": "AttackEvent ability/multiplier context and target conductive tag; consumes target tag and replaces the multiplier"
+        },
+        {
+          "actor": "barbara",
+          "key": "barbara-a4",
+          "event": "OnParticleReceived",
+          "source": "internal/characters/barbara/asc.go:26",
+          "callbackReads": "active skill status and a4extendCount; increments the counter and extends status up to five times"
+        }
+      ],
+      "provider": "pkg/core/event/sourcehost_phase.go:Handler.SourceHostPhaseState",
+      "implementation": "Add source-reviewed SubscribeWithPhase descriptors at these two existing subscriptions. The shared API and descriptor lifecycle already exist; this closes only the two callback slots present in this capture."
+    }
+  ],
+  "rankedImplementationPaths": [
+    {
+      "rank": 1,
+      "path": "pkg/core/player/character/sourcehost_private_phase.go and pkg/core/player/character/sourcehost_phase_state.go",
+      "scope": "31 unique private numeric paths and 186 repeated gaps per lane in this capture",
+      "reason": "One shared reader change can model explicit scalar/vector/counter/deadline semantics across concrete actor state while preserving phase-safe relative clocks; source review supports all captured fields."
+    },
+    {
+      "rank": 2,
+      "path": "pkg/core/event/sourcehost_phase.go plus internal/characters/lisa/skill.go and internal/characters/barbara/asc.go",
+      "scope": "2 unique hooks and 12 repeated gaps per lane",
+      "reason": "Existing SubscribeWithPhase path supports precise, non-invoking closure observers; both actual callbacks and their state dependencies are identifiable in source."
+    }
+  ],
+  "limits": "The capture uses Barbara and Lisa and repeats the same gap set at six phase observations per lane. The audit does not infer semantics for unobserved actors or generic private numeric fields. No source changes, builds, or tests were performed.",
+  "sourceFileSHA256": {
+    "classic": {
+      "pkg/core/player/character/sourcehost_private_phase.go": "2a43ea1dcaac0c39117ded4a3aa4d1a3ec9383beaaa8df3f4f1089caa00deef5",
+      "pkg/core/player/character/sourcehost_phase_state.go": "dad2fbace35c693fb71673cd580dc216ddd682bebf6baca27c491809a6f07b59",
+      "pkg/core/event/sourcehost_phase.go": "dc2b4cac26660c25abb754cdce670f9c69ae650f303670664fdc5a38800b3874",
+      "internal/characters/barbara/asc.go": "f6260e77591a00aa40e1bda3a59109e47bf36dbc073c08930b8a63253f4a91d8",
+      "internal/characters/barbara/barbara.go": "bd11f93a887ef29b57b70c3390c3ed41fcccdc51ab44276755c55b183a311851",
+      "internal/characters/barbara/cons.go": "5914faf3cc5583fe629ba970cda4d57ab0ce2a41d43524ff0b32344853d9f61b",
+      "internal/characters/barbara/skill.go": "dc00e2a64e466fc60e8c6be7d3c53fe86547e114913e3f218559a0b9eea9aa1e",
+      "internal/characters/lisa/cons.go": "57e45501220b6b814635222e2d654ddb34a1005be239e8006439e5e6ed6d8656",
+      "internal/characters/lisa/burst.go": "4b74791fa34861b3fafd816c1afe2b5576b9b5ce746dc72e98e10982459bfb3e",
+      "internal/characters/lisa/skill.go": "a0883d8331b4a8f81f425e87239a97e7a4d6589b4a319d503145185f84d62fc0"
+    },
+    "stellar": {
+      "pkg/core/player/character/sourcehost_private_phase.go": "2a43ea1dcaac0c39117ded4a3aa4d1a3ec9383beaaa8df3f4f1089caa00deef5",
+      "pkg/core/player/character/sourcehost_phase_state.go": "dad2fbace35c693fb71673cd580dc216ddd682bebf6baca27c491809a6f07b59",
+      "pkg/core/event/sourcehost_phase.go": "dc2b4cac26660c25abb754cdce670f9c69ae650f303670664fdc5a38800b3874",
+      "internal/characters/barbara/asc.go": "f6260e77591a00aa40e1bda3a59109e47bf36dbc073c08930b8a63253f4a91d8",
+      "internal/characters/barbara/barbara.go": "1f92a28ba5705b984fe1f9d2d5021bf0dde6c523aa6b125fad9c0b88da34a9c9",
+      "internal/characters/barbara/cons.go": "5914faf3cc5583fe629ba970cda4d57ab0ce2a41d43524ff0b32344853d9f61b",
+      "internal/characters/barbara/skill.go": "dc00e2a64e466fc60e8c6be7d3c53fe86547e114913e3f218559a0b9eea9aa1e",
+      "internal/characters/lisa/cons.go": "57e45501220b6b814635222e2d654ddb34a1005be239e8006439e5e6ed6d8656",
+      "internal/characters/lisa/burst.go": "4b74791fa34861b3fafd816c1afe2b5576b9b5ce746dc72e98e10982459bfb3e",
+      "internal/characters/lisa/skill.go": "a0883d8331b4a8f81f425e87239a97e7a4d6589b4a319d503145185f84d62fc0"
+    }
+  },
+  "status": "audited-next-step; not implemented in batch124",
+  "generationTokenConstraint": "skillInitF is a task-generation equality token. It cannot be treated as an ordinary remaining cooldown or normalized independently of the captured task token; a generation association is required."
+}

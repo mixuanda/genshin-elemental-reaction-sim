@@ -1,0 +1,23 @@
+{
+  "provenance": "Explicit teaching observations, not in-game measurements",
+  "events": {
+    "rowCount": 14,
+    "contactBlocked": true,
+    "originalExpected": 3453.2289791999997,
+    "restoredExpected": 3453.2289791999997,
+    "difference": 0
+  },
+  "plunge": {
+    "hitIds": [
+      "lohen-plunge-low-observed-base:collision-1",
+      "lohen-plunge-low-observed-base:landing"
+    ],
+    "originalExpected": 2843.0235000000002,
+    "editedExpected": 2899.8936000000003,
+    "restoredExpected": 2899.8936000000003,
+    "difference": 0,
+    "missingSnapshotBlocked": true,
+    "emptyDraftHidesOldResult": true
+  },
+  "pageErrors": []
+}

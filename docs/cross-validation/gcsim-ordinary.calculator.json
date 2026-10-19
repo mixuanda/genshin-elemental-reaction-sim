@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "external-gcsim-amber-normal",
+  "label": "gcsim 安柏一级普攻对照",
+  "scope": "single-hit",
+  "characterLevel": 1,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 41.9434,
+      "hp": 793.2582,
+      "def": 50.358,
+      "em": 0,
+      "critRate": 0,
+      "critDamage": 0.5
+    },
+    "source": "gcsim v2.44.1 runtime calc record; final resolved context"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "n1",
+      "label": "Normal 0",
+      "kind": "ordinary",
+      "element": "physical",
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 0.3612
+        }
+      ],
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1,
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:sample-calc"
+      ],
+      "dependencies": []
+    }
+  ],
+  "selectedHitIds": [
+    "n1"
+  ],
+  "assumptions": [
+    "One ordinary physical hit; no reactions, crit rolls, passives, artifacts, buffs or Hitlag."
+  ],
+  "dependencies": [],
+  "dataIdentity": {
+    "datasetId": "external-gcsim-v2.44.1-resolved-context",
+    "gameVersion": "unspecified-controlled-reference",
+    "releaseStatus": "unknown",
+    "evidenceStatus": "provisional"
+  }
+}

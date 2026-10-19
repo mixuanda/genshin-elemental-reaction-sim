@@ -11,19 +11,37 @@
   <div class="app-shell">
     <header class="topbar">
       <div>
-        <div class="eyebrow">GENSHIN EVENT SIMULATOR</div>
+        <div class="eyebrow">GENSHIN DAMAGE LABORATORY</div>
         <h1>提瓦特伤害实验室</h1>
-        <p>事件驱动的队伍 DPS、角色占比与逐段伤害模拟器</p>
+        <p>独立技能计算 · 逐步公式解释 · 可审计的团队模拟</p>
       </div>
-      <div class="top-actions">
+      <div class="top-actions" id="simulationActions">
         <label class="select-label">预设
           <select id="presetSelect"></select>
         </label>
         <button id="runButton" class="primary">运行模拟</button>
+        <button id="cancelRunButton" hidden>取消运行</button>
+        <span id="simulationProgress" role="status" aria-live="polite"></span>
         <button id="exportButton">导出 JSON</button>
+        <button id="exportRunButton" disabled>导出完整模拟记录</button>
         <label class="file-button">导入 JSON<input id="importInput" type="file" accept="application/json" /></label>
       </div>
     </header>
+
+    <nav class="product-nav" aria-label="主导航">
+      <a href="/calculator">技能计算器</a>
+      <a href="/examples">演算示例</a>
+      <a href="/builds">配装预设</a>
+      <a href="/team">队伍配置</a>
+      <a href="/rotation">行动编辑</a>
+      <a href="/results">模拟结果</a>
+      <a href="/source-simulation">来源队伍模拟</a>
+      <a href="/compare">结果比较</a>
+      <a href="/data">数据浏览</a>
+      <a href="/updates">更新状态</a>
+    </nav>
+    <div id="independentWorkspace" hidden></div>
+    <div id="simulationWorkspace">
 
     <section class="notice" id="notice">
       <strong>兼容模式：</strong>支持循环、能量门槛、Buff/减抗窗口、平均暴击、手工增幅反应、动态/行动快照和逐击追踪。内置杜林队数据为未验证结构示例，不是正式游戏数据库。
@@ -31,6 +49,8 @@
 
     <main>
       <section class="control-grid card">
+        <label>基准条件<select id="benchmarkSelect"><option value="">保留当前自定义情景</option><option value="legacy-110-zero-120s">旧基准 · 110级 / 零能量 / 120秒</option><option value="kqms-inspired-custom">KQMS 启发 / 自定义</option></select></label>
+        <label>时长预设<select id="durationPreset"><option value="">自定义</option><option>15</option><option>18</option><option>20</option><option>60</option><option>90</option><option>120</option></select></label>
         <label>模拟时长（秒）<input id="durationInput" type="number" min="1" max="600" step="1" /></label>
         <label>循环长度（秒）<input id="cycleInput" type="number" min="1" max="120" step="0.1" /></label>
         <label>敌人等级<input id="enemyLevelInput" type="number" min="1" max="200" step="1" /></label>
@@ -50,9 +70,16 @@
             <option value="average">期望值</option>
             <option value="allCrit">全部暴击</option>
             <option value="noCrit">全部不暴击</option>
+            <option value="seeded-random-v1">按种子逐击随机暴击</option>
           </select>
         </label>
+        <label>种子<input id="randomSeedInput" /></label>
+        <label>种子迭代次数<input id="iterationInput" type="number" min="1" max="10000" step="1" value="1" /></label>
+        <label><input id="checkpointInput" type="checkbox" />记录周期稳态检查点</label>
+        <label><input id="detailedTraceInput" type="checkbox" />随结果保存所有逐击公式轨迹</label>
       </section>
+      <div id="benchmarkAssumptions" class="notice" hidden></div>
+      <div id="batchSummary" class="notice" role="status" hidden></div>
 
       <section class="metric-grid" id="metricGrid"></section>
 
@@ -79,6 +106,8 @@
           <div class="section-title"><h2>能量与执行状态</h2><span>用于识别 0 能量启动导致的断轴</span></div>
           <div id="energyStatus" class="energy-grid"></div>
         </article>
+        <div id="simulationAnalysis"></div>
+        <div id="lunarSimulationHost"></div>
         <article class="card legal-timeline-card" id="legalTimelineCard" hidden>
           <div class="section-title">
             <h2>合法帧行动队列</h2>
@@ -342,8 +371,9 @@
           <div class="pager"><button id="prevPage">上一页</button><span id="pageInfo"></span><button id="nextPage">下一页</button></div>
         </article>
         <article class="card detail-card" id="hitDetailCard">
-          <div class="section-title"><h2>单段伤害公式</h2><span>选择任意一行查看</span></div>
-          <div id="hitDetail" class="formula-detail empty">尚未选择伤害事件。</div>
+            <div class="section-title"><h2>单段伤害公式</h2><button id="openHitCalculator" disabled>在技能计算器中打开此击</button></div>
+            <div id="hitDetail" class="formula-detail empty">尚未选择伤害事件。</div>
+            <div id="sharedHitTrace"></div>
         </article>
       </section>
 
@@ -358,7 +388,7 @@
           </div>
           <div class="showcase-import">
             <label>原神 UID
-              <input id="showcaseUidInput" inputmode="numeric" pattern="[0-9]*" value="283733593" />
+              <input id="showcaseUidInput" inputmode="numeric" pattern="[0-9]*" placeholder="输入公开展示柜 UID" />
             </label>
             <button id="showcaseImportButton" class="primary">导入展示柜</button>
             <div id="showcaseStatus" class="muted">尚未导入。开发/预览服务器会按上游 TTL 缓存结果。</div>
@@ -410,6 +440,7 @@
         </div>
       </section>
     </main>
+    </div>
   </div>
 
   <script type="module" src="/src/app.ts"></script>

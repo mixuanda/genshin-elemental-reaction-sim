@@ -1,0 +1,17 @@
+diff --git a/pkg/core/player/character/sourcehost_private_phase.go b/pkg/core/player/character/sourcehost_private_phase.go
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -137,6 +137,13 @@
+ 		fields := make(map[string]any, v.NumField())
+ 		for i := 0; i < v.NumField(); i++ {
+ 			field := v.Type().Field(i)
++			// Native origin bookkeeping is observational, so it cannot define
++			// private gameplay state or create a numeric-clock gap.
++			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/info" &&
++				v.Type().Name() == "AttackEvent" &&
++				(field.Name == "SourceHostOrigin" || field.Name == "SourceHostQueuedObservationIndex") {
++				continue
++			}
+ 			qualifiedName := v.Type().PkgPath() + "." + v.Type().Name() + "." + field.Name
+ 			fields[field.Name] = r.read(v.Field(i), path+"."+field.Name, qualifiedName, depth+1)
+ 		}

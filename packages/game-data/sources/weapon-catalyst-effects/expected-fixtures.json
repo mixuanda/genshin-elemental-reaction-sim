@@ -1,0 +1,1428 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "Independent literal, hand-calculated R1/R5 expectations; not produced by the resolver and not executed as tests. R2–R4 were separately reviewed against raw Chinese descriptions and source coefficient formulas.",
+  "statsMeaning": "Sum of this weapon passive contributions only; excludes base stats.",
+  "hitMeaning": "Sum matching dynamicHitBonuses for element and attackTag; zero for no matching modifier.",
+  "reactionMeaning": "expectedR1/R5.reactions are additive reaction-specific coefficients, never ordinary DMG Bonus.",
+  "cases": [
+    {
+      "weaponId": "weapon:14305",
+      "slug": "twinnephrite",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14402",
+      "slug": "thewidsith",
+      "context": {
+        "catalystSong": 1
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.6
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 1.2
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14402",
+      "slug": "thewidsith",
+      "context": {
+        "catalystSong": 2
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.48
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.96
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14402",
+      "slug": "thewidsith",
+      "context": {
+        "catalystSong": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 480
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14402",
+      "slug": "thewidsith",
+      "context": {
+        "catalystSong": 0
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14410",
+      "slug": "wineandsong",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14413",
+      "slug": "dodocotales",
+      "context": {
+        "normalHitEffectActive": true,
+        "catalystChargedWindowActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.08
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.16
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "charged",
+            "bonus": 0.32
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14414",
+      "slug": "hakushinring",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "normal",
+            "bonus": 0.1
+          },
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "normal",
+            "bonus": 0.2
+          },
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "characterId": "character:10000006"
+    },
+    {
+      "weaponId": "weapon:14416",
+      "slug": "wanderingevenstar",
+      "context": {
+        "timedEffectActive": true,
+        "timedSnapshotEm": 500
+      },
+      "expectedR1": {
+        "stats": {
+          "flatAtk": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "flatAtk": 240
+        },
+        "hits": []
+      },
+      "bindings": {
+        "em": 999
+      }
+    },
+    {
+      "weaponId": "weapon:14425",
+      "slug": "flowingpurity",
+      "context": {
+        "catalystSkillWindowActive": true,
+        "catalystSecondaryWindowActive": true,
+        "catalystClearedBondHp": 3000
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.14
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.28
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14425",
+      "slug": "flowingpurity",
+      "context": {
+        "catalystSkillWindowActive": true,
+        "catalystSecondaryWindowActive": true,
+        "catalystClearedBondHp": 10000
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.2
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.4
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14430",
+      "slug": "waveridingwhirl",
+      "context": {
+        "weaponEffectActive": true,
+        "catalystHydroCount": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.44
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.88
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14431",
+      "slug": "ringofyaxche",
+      "context": {
+        "weaponEffectActive": true,
+        "catalystSnapshotHp": 20000
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.12
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.2
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "bindings": {
+        "hp": 99999
+      }
+    },
+    {
+      "weaponId": "weapon:14431",
+      "slug": "ringofyaxche",
+      "context": {
+        "weaponEffectActive": true,
+        "catalystSnapshotHp": 60000
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.16
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.32
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14432",
+      "slug": "etherlightspindlelute",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 100
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 200
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14433",
+      "slug": "blackmarrowlantern",
+      "context": {},
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ],
+        "reactions": [
+          {
+            "reaction": "bloom",
+            "bonus": 0.48
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ],
+        "reactions": [
+          {
+            "reaction": "bloom",
+            "bonus": 0.96
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14434",
+      "slug": "dawningfrost",
+      "context": {
+        "catalystChargedWindowActive": true,
+        "catalystSkillWindowActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14505",
+      "slug": "jadefallssplendor",
+      "context": {
+        "weaponEffectActive": true,
+        "catalystSnapshotHp": 30000
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.09
+          },
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.33
+          },
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "characterId": "character:10000082"
+    },
+    {
+      "weaponId": "weapon:14505",
+      "slug": "jadefallssplendor",
+      "context": {
+        "weaponEffectActive": true,
+        "catalystSnapshotHp": 40000
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.12
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.44
+          }
+        ]
+      },
+      "characterId": "character:10000082"
+    },
+    {
+      "weaponId": "weapon:14509",
+      "slug": "kagurasverity",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.48
+          },
+          {
+            "element": "electro",
+            "attackTag": "normal",
+            "bonus": 0.12
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.96
+          },
+          {
+            "element": "electro",
+            "attackTag": "normal",
+            "bonus": 0.24
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14511",
+      "slug": "athousandfloatingdreams",
+      "context": {
+        "catalystSameElementCount": 1,
+        "catalystDifferentElementCount": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 32
+        },
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.2
+          },
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 64
+        },
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.52
+          },
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "characterId": "character:10000073"
+    },
+    {
+      "weaponId": "weapon:14512",
+      "slug": "tulaytullahsremembrance",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": false,
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0.144
+          },
+          {
+            "element": "anemo",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0.288
+          },
+          {
+            "element": "anemo",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14512",
+      "slug": "tulaytullahsremembrance",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": false,
+        "weaponStacks": 10
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0.48
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0.96
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14512",
+      "slug": "tulaytullahsremembrance",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": true,
+        "weaponStacks": 10
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14513",
+      "slug": "cashflowsupervision",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "normal",
+            "bonus": 0.48
+          },
+          {
+            "element": "cryo",
+            "attackTag": "charged",
+            "bonus": 0.42
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.32
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "normal",
+            "bonus": 0.96
+          },
+          {
+            "element": "cryo",
+            "attackTag": "charged",
+            "bonus": 0.84
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14514",
+      "slug": "tomeoftheeternalflow",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0.42
+          },
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.32
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0.9
+          },
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14515",
+      "slug": "cranesechoingcall",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "bonus": 0.28
+          },
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "bonus": 0.8
+          },
+          {
+            "element": "anemo",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14516",
+      "slug": "surfsup",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.2
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.48
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.4
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "normal",
+            "bonus": 0.96
+          },
+          {
+            "element": "hydro",
+            "attackTag": "charged",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14517",
+      "slug": "starcallerswatch",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": false
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 100
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.28
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 200
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.56
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14517",
+      "slug": "starcallerswatch",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 100
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 200
+        },
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14518",
+      "slug": "sunnymorningsleepin",
+      "context": {
+        "catalystReactionWindowActive": true,
+        "catalystSkillWindowActive": true,
+        "catalystBurstWindowActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 248
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 496
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14519",
+      "slug": "vividnotions",
+      "context": {},
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.28
+        },
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.56
+        },
+        "hits": [
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14520",
+      "slug": "nightweaverslookingglass",
+      "context": {
+        "catalystSkillWindowActive": true,
+        "catalystLunarWindowActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ],
+        "reactions": [
+          {
+            "reaction": "bloom",
+            "bonus": 1.2
+          },
+          {
+            "reaction": "hyperbloom",
+            "bonus": 0.8
+          },
+          {
+            "reaction": "burgeon",
+            "bonus": 0.8
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ],
+        "reactions": [
+          {
+            "reaction": "bloom",
+            "bonus": 2.4
+          },
+          {
+            "reaction": "hyperbloom",
+            "bonus": 1.6
+          },
+          {
+            "reaction": "burgeon",
+            "bonus": 1.6
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14520",
+      "slug": "nightweaverslookingglass",
+      "context": {
+        "catalystSkillWindowActive": true,
+        "catalystLunarWindowActive": false
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 60
+        },
+        "hits": [],
+        "reactions": [
+          {
+            "reaction": "bloom",
+            "bonus": 0
+          },
+          {
+            "reaction": "hyperbloom",
+            "bonus": 0
+          },
+          {
+            "reaction": "burgeon",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 120
+        },
+        "hits": [],
+        "reactions": [
+          {
+            "reaction": "bloom",
+            "bonus": 0
+          },
+          {
+            "reaction": "hyperbloom",
+            "bonus": 0
+          },
+          {
+            "reaction": "burgeon",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14521",
+      "slug": "reliquaryoftruth",
+      "context": {
+        "catalystSkillWindowActive": true,
+        "catalystLunarWindowActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "critRate": 0.08,
+          "em": 120,
+          "critDamage": 0.36
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "critRate": 0.16,
+          "em": 240,
+          "critDamage": 0.72
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14521",
+      "slug": "reliquaryoftruth",
+      "context": {
+        "catalystSkillWindowActive": true,
+        "catalystLunarWindowActive": false
+      },
+      "expectedR1": {
+        "stats": {
+          "critRate": 0.08,
+          "em": 80,
+          "critDamage": 0
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "critRate": 0.16,
+          "em": 160,
+          "critDamage": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14522",
+      "slug": "nocturnescurtaincall",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14522",
+      "slug": "nocturnescurtaincall",
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.1
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.18
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:14523",
+      "slug": "angelosheptades",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": false,
+        "catalystSnapshotAtk": 2000
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.2
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.44
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14523",
+      "slug": "angelosheptades",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": true,
+        "catalystHexerei": true,
+        "catalystSnapshotAtk": 2000
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.1
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.22
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14523",
+      "slug": "angelosheptades",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": false,
+        "catalystSnapshotAtk": 3000
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.26
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.58
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:14523",
+      "slug": "angelosheptades",
+      "context": {
+        "weaponEffectActive": true,
+        "offField": true,
+        "catalystHexerei": false
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    }
+  ],
+  "manualBoundaryReview": [
+    "Missing boolean/count/snapshot stays blocked; absent is not false/zero.",
+    "Widsith accepts one known song0–3 only; no random average.",
+    "No new hit proc feeds its triggering hit.",
+    "Kagura onlysevenelement fullstackbonus; source16s/current24s conflict remains explicit.",
+    "Owner element comes from characterId for Hakushin/Jadefall/Dreams.",
+    "Counts:hydro0–4 includingeligibleowner;same/different0–3 excludingowner,sum<=3.",
+    "Snapshot HP/ATK and cleared bond are nonnegativefinite; not silently reconstructed from current panel.",
+    "Snapshot/receivingoffField differs from triggeroffField; existing Cashflow/Tome/Sunny windows persist.",
+    "Source-absent14435/14436/14437/14524 remain excluded.",
+    "Moonglow normal FlatDmg and proc-only weapons do not becomeflatAtk or DMG Bonus."
+  ],
+  "excluded": [
+    {
+      "weaponId": "weapon:14101",
+      "slug": "apprenticesnotes",
+      "reason": "没有武器被动；不是已实现条件机制。"
+    },
+    {
+      "weaponId": "weapon:14201",
+      "slug": "pocketgrimoire",
+      "reason": "没有武器被动；不是已实现条件机制。"
+    },
+    {
+      "weaponId": "weapon:14302",
+      "slug": "thrillingtalesofdragonslayers",
+      "reason": "讨龙只授予切换后的另一位角色，不能将装备者自己的讨龙作为自身攻击加成；跨角色来源与接收者配置尚未实现。"
+    },
+    {
+      "weaponId": "weapon:14303",
+      "slug": "otherworldlystory",
+      "reason": "只提供拾取微粒/晶球后的治疗事件；当前面板和单击伤害没有治疗事件槽位。"
+    },
+    {
+      "weaponId": "weapon:14401",
+      "slug": "favoniuscodex",
+      "reason": "暴击概率产球及冷却属于资源事件，不是永久充能效率；未自动生成微粒。"
+    },
+    {
+      "weaponId": "weapon:14403",
+      "slug": "sacrificialfragments",
+      "reason": "战技命中概率重置冷却事件，不能当作伤害或面板属性。"
+    },
+    {
+      "weaponId": "weapon:14406",
+      "slug": "prototypeamber",
+      "reason": "爆发后定时恢复能量与队伍治疗事件未实现。"
+    },
+    {
+      "weaponId": "weapon:14409",
+      "slug": "eyeofperception",
+      "reason": "独立物理额外攻击/弹跳/概率/冷却未实现；固定源码倍率2.1*r*0.3与目录2.1+0.3*r冲突，且没有50%概率门。"
+    },
+    {
+      "weaponId": "weapon:14412",
+      "slug": "frostbearer",
+      "reason": "独立物理恒冰晶核与概率/附着/冷却事件未实现，不能写成攻击力或普通增伤。"
+    },
+    {
+      "weaponId": "weapon:14427",
+      "slug": "ashgravendrinkinghorn",
+      "reason": "独立基于生命上限的物理范围攻击未实现，不能写成flatAtk或普通增伤。"
+    },
+    {
+      "weaponId": "weapon:14435",
+      "slug": "clashofkings",
+      "reason": "固定gcsim缺少此武器实现，只有目录单源，不启用数值规则。"
+    },
+    {
+      "weaponId": "weapon:14436",
+      "slug": "echoesoftheheart",
+      "reason": "固定gcsim缺少此武器实现且星烁机制未支持，只有目录单源，不启用数值规则。"
+    },
+    {
+      "weaponId": "weapon:14437",
+      "slug": "wintersheavyheart",
+      "reason": "固定gcsim缺少此武器实现且辉映星烁分支未支持，只有目录单源，不启用数值规则。"
+    },
+    {
+      "weaponId": "weapon:14506",
+      "slug": "everlastingmoonglow",
+      "reason": "治疗加成、普攻基础伤害追加(生命系数)及回能均超出当前公式槽位；不是全局flatAtk。"
+    },
+    {
+      "weaponId": "weapon:14524",
+      "slug": "hymnofthemaelstrom",
+      "reason": "固定gcsim缺少此武器实现，生命层数/治疗/对场上角色攻击转换只有目录单源，不启用数值规则。"
+    }
+  ]
+}

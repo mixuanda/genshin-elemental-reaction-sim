@@ -1,0 +1,16 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-character-flat-group-d.ts(49,54): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-d.ts(55,33): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-d.ts(97,33): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-d.ts(103,33): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-d.ts(109,33): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-d.ts(115,33): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-d.ts(121,54): error TS2552: Cannot find name 'maxHP'. Did you mean 'maxHp'?
+packages/sim-core/src/source-host-character-flat-group-e.ts(23,43): error TS2552: Cannot find name 'SourceHostCharacterModifierDynamicStatLeaf'. Did you mean 'SourceHostCharacterModifierDynamicParameter'?

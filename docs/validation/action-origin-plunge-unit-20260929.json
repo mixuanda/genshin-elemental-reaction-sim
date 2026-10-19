@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/game-data/src/character-mappings/optimizer-observed-plunge.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 5.649
+}

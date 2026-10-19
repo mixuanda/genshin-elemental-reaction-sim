@@ -1,0 +1,37 @@
+
+Running 1 test using 1 worker
+
+(node:94773) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/independent-weapon-proc.spec.ts:42:1 › Team weapon proc declarations create independent single-target and HP-area hits with complete replay and record restore
+  1) [chromium] › apps/web/e2e/independent-weapon-proc.spec.ts:42:1 › Team weapon proc declarations create independent single-target and HP-area hits with complete replay and record restore 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 4
+    Received: 4.5
+
+      108 |     expect(parent.weaponProcLogId).toBeUndefined();
+      109 |     expect(parent.critRate).toBe(1);
+    > 110 |     expect(parent.critDmg).toBe(4);
+          |                            ^
+      111 |     expect(result.executionAudit!.hits.find(hit => hit.eventId === parent.id)!.critical.outcome).toBe("critical");
+      112 |     const expectedTargets = decision.weaponId === "halberd" ? ["enemy-0"] : ["enemy-0", "edge"];
+      113 |     expect(decision.radius).toBe(decision.weaponId === "halberd" ? null : 3);
+        at /Users/evan/Documents/gidps/apps/web/e2e/independent-weapon-proc.spec.ts:110:28
+
+    Error Context: test-results/independent-weapon-proc-retry/independent-weapon-proc-Te-24dd2-e-replay-and-record-restore-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/independent-weapon-proc-retry/independent-weapon-proc-Te-24dd2-e-replay-and-record-restore-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/independent-weapon-proc-retry/independent-weapon-proc-Te-24dd2-e-replay-and-record-restore-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/independent-weapon-proc.spec.ts:42:1 › Team weapon proc declarations create independent single-target and HP-area hits with complete replay and record restore 

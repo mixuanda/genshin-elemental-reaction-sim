@@ -1,0 +1,33 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-finite-cast.spec.ts(84,103): error TS2339: Property 'includedApplicationIds' does not exist on type 'SourceHostFiniteCastAnalysis'.
+apps/web/e2e/source-finite-cast.spec.ts(149,40): error TS2339: Property 'pending' does not exist on type 'SourceHostFiniteCastAnalysis'.
+apps/web/e2e/source-finite-cast.spec.ts(150,40): error TS2339: Property 'rootEvidence' does not exist on type 'SourceHostFiniteCastAnalysis'.
+apps/web/e2e/source-finite-cast.spec.ts(150,58): error TS7006: Parameter 'root' implicitly has an 'any' type.
+apps/web/src/source-host-action-calculator.ts(77,79): error TS2379: Argument of type '{ schemaVersion: "source-host-action-collection-v1"; scope: "finite-skill-cast" | "observed-action-hits"; association: "creation" | "status-owner" | "trigger"; finiteCastEvidence?: { ...; } | undefined; ... 9 more ...; exclusions: { ...; }; }' is not assignable to parameter of type 'FiniteDocument' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  The types of 'action.noOp' are incompatible between these types.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/source-host-action-collection.ts(192,102): error TS2379: Argument of type '{ schemaVersion: "source-host-action-collection-v1"; scope: "finite-skill-cast" | "observed-action-hits"; association: "creation" | "status-owner" | "trigger"; finiteCastEvidence?: { ...; } | undefined; ... 9 more ...; exclusions: { ...; }; }' is not assignable to parameter of type 'FiniteDocument' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  The types of 'action.noOp' are incompatible between these types.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/source-host-finite-cast.ts(69,9): error TS2375: Type '{ contract: SourceHostFiniteCastContract | undefined; expectedRootAttackCount: number; completedRootAttackCount: number; closed: false; reasons: string[]; includedComponents: string[]; excludedComponents: string[]; }' is not assignable to type 'SourceHostFiniteCastAnalysis' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'contract' are incompatible.
+    Type 'SourceHostFiniteCastContract | undefined' is not assignable to type 'SourceHostFiniteCastContract'.
+      Type 'undefined' is not assignable to type 'SourceHostFiniteCastContract'.
+packages/sim-core/src/source-host-finite-cast.ts(101,61): error TS2345: Argument of type '{ creationActionSequence?: number | undefined; triggerActionSequence?: number | undefined; parentAttackId?: number | undefined; via: "action" | "attack-callback" | "event-callback" | "task" | "unassigned"; eventKey?: string | undefined; eventType?: number | undefined; statusOwner?: { ...; } | undefined; } | undefined' is not assignable to parameter of type '{ creationActionSequence?: number; parentAttackId?: number; via: string; } | undefined'.
+  Type '{ creationActionSequence?: number | undefined; triggerActionSequence?: number | undefined; parentAttackId?: number | undefined; via: "action" | "attack-callback" | "event-callback" | "task" | "unassigned"; eventKey?: string | undefined; eventType?: number | undefined; statusOwner?: { ...; } | undefined; }' is not assignable to type '{ creationActionSequence?: number; parentAttackId?: number; via: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'creationActionSequence' are incompatible.
+      Type 'number | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-finite-cast.ts(112,26): error TS2379: Argument of type '{ creationActionSequence?: number | undefined; triggerActionSequence?: number | undefined; parentAttackId?: number | undefined; via: "action" | "attack-callback" | "event-callback" | "task" | "unassigned"; eventKey?: string | undefined; eventType?: number | undefined; statusOwner?: { ...; } | undefined; }' is not assignable to parameter of type '{ creationActionSequence?: number; parentAttackId?: number; via: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'creationActionSequence' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.

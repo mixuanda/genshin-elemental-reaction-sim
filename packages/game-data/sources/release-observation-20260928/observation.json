@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "source-release-observation-v1",
+  "observedAt": "2026-09-28T02:35:53Z",
+  "previousObservation": {
+    "version": "7.1",
+    "observedAt": "2026-09-24T14:48:17Z",
+    "sourceUrls": [
+      "https://store.epicgames.com/p/genshin-impact",
+      "https://www.reddit.com/r/Genshin_Impact/comments/1wnsx0u/a_rekviem_for_the_underworld_version_71_update/"
+    ],
+    "evidenceNote": "2026-09-24再次从发行商Epic索引正文及官方账号更新详情观察7.1已推出；直接正文获取限制仍在，不将索引正文伪称本地原文字节。新观察记录见sources/lunaris-preview-7.1.50-20260924/candidate-evidence.json。"
+  },
+  "currentObservation": {
+    "version": "7.1",
+    "observedAt": "2026-09-28T02:35:53Z",
+    "sourceUrls": [
+      "https://genshin.hoyoverse.com/de/news/detail/166383",
+      "https://genshin.hoyoverse.com/m/es/news/detail/166383"
+    ],
+    "evidenceNote": "2026-09-28重新检索发行商官网7.1更新详情：德语/西班牙语索引正文列出2026-09-23 06:00 UTC+8更新安排。英文详情直接获取失败，官方新闻索引直开无可读正文；此记录是官方页面的搜索索引观察，不声称已归档官网完整原文字节。提供方7.1.50.2仍未被证明等同7.2 V1。"
+  },
+  "method": "Official publisher page search-index text; direct English body unavailable. No article body copied.",
+  "searchQueries": [
+    "site:genshin.hoyoverse.com \"Version 7.1\" \"2026/09/23\" update details",
+    "site:genshin.hoyoverse.com \"7.2\" \"V1\""
+  ],
+  "releaseOrVerificationPointersChanged": false
+}

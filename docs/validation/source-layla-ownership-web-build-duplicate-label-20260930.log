@@ -1,0 +1,9 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-action-calculator.ts(116,137): error TS1117: An object literal cannot have multiple properties with the same name.

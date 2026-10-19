@@ -1,0 +1,114 @@
+{
+  "weapon": {
+    "id": "weapon:11412",
+    "slug": "swordofdescension",
+    "name": "降临之剑",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "仅在以下平台生效：\n\"PlayStation™Network\"\n普通攻击与重击命中敌人后有50%概率在小范围内造成200%攻击力的伤害。该效果每10秒只能触发一次；此外，旅行者装备降临之剑时，攻击力提升66点。",
+        "values": [
+          "50%",
+          "200%",
+          "66"
+        ]
+      }
+    ]
+  },
+  "verification": "provisional",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "sourceEvidence": [
+    {
+      "upstreamPath": "internal/weapons/sword/swordofdescension/swordofdescension.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/swordofdescension/swordofdescension.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/swordofdescension/swordofdescension.go",
+      "sha256": "17b56e48451776a4d3b4a08ec61d6531201bf66727741c37379eb62d5cabee7a",
+      "bytes": 2928
+    },
+    {
+      "upstreamPath": "pkg/core/attributes/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "bytes": 1677
+    }
+  ],
+  "activeCatalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+  "travelerIdentity": {
+    "fixedGcsimCondition": "catalog.CharacterMap[char.Base.Key].Region == model.AssocType_ASSOC_TYPE_MAINACTOR",
+    "activeProjectCharacters": [
+      {
+        "id": "character:10000005",
+        "avatarId": 10000005,
+        "slug": "aether",
+        "name": "空",
+        "weaponType": "sword",
+        "talentSetIds": [
+          "talent-set:traveleranemo",
+          "talent-set:travelercryo",
+          "talent-set:travelerdendro",
+          "talent-set:travelerelectro",
+          "talent-set:travelergeo",
+          "talent-set:travelerhydro",
+          "talent-set:travelerpyro"
+        ]
+      },
+      {
+        "id": "character:10000007",
+        "avatarId": 10000007,
+        "slug": "lumine",
+        "name": "荧",
+        "weaponType": "sword",
+        "talentSetIds": [
+          "talent-set:traveleranemo",
+          "talent-set:travelercryo",
+          "talent-set:travelerdendro",
+          "talent-set:travelerelectro",
+          "talent-set:travelergeo",
+          "talent-set:travelerhydro",
+          "talent-set:travelerpyro"
+        ]
+      }
+    ],
+    "projectCheck": "Use selected character identity against exact active catalog id allowlist [character:10000005, character:10000007]; there is no Region property in current active catalog. Do not accept an arbitrary isTraveler checkbox override."
+  },
+  "platformCondition": {
+    "catalog": "仅在以下平台生效：PlayStation Network",
+    "fixedGcsim": "source comment is explicit, actual implementation gate is Params[passive]==1 with default1. It does not detect a platform.",
+    "requiredContext": "Explicit platformPassiveActive boolean affirming PlayStation platform eligibility. Never default true from absent state."
+  },
+  "formula": {
+    "target": "flatAtk",
+    "phase": "pre-panel",
+    "expression": "platformPassiveActive && selectedCharacterIsTraveler ? 66 : 0",
+    "meaning": "True additive ATK stat, outside baseATK*(1+ATK%), not bonus base ATK or separate base-damage addend.",
+    "coreArithmeticEvidence": "pkg/core/attributes/stats.go: TotalATK() = s[BaseATK]*(1+s[ATKP]) + s[ATK]"
+  },
+  "refinement": "Only R1 exists in active catalog; reject2..5 rather than synthesize rows. Fixed source says refinement has no effect.",
+  "unsupportedProc": {
+    "description": "50% chance, owned on-field normal or charged hit with nonzero damage, 600f ICD, physical weapon-skill event Mult=2.0, radius1.5, delay1f.",
+    "blockingReason": "Separate random physical attack event; must not become flatAtk or universal bonus damage. Trigger RNG, target area, cooldown and execution remain unsupported."
+  },
+  "examples": [
+    {
+      "platformPassiveActive": true,
+      "characterId": "character:10000005",
+      "flatAtk": 66
+    },
+    {
+      "platformPassiveActive": true,
+      "characterId": "character:10000007",
+      "flatAtk": 66
+    },
+    {
+      "platformPassiveActive": true,
+      "characterId": "character:10000002",
+      "flatAtk": 0
+    },
+    {
+      "platformPassiveActive": false,
+      "characterId": "character:10000005",
+      "flatAtk": 0
+    }
+  ]
+}

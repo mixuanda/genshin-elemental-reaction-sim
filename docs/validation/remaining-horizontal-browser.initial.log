@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:67404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Horizontal source browser measurements {"normalIndices":[1,2,3,4,5,1,2,3,1],"startFrames":[0,26,48,97,131,191,229,251,280],"damageFrames":[24,46,85,133,167,215,249,288,304],"initialEnergyPreserved":[7,11],"normalDamage":1900.6000000000004,"refusedBurstFrame":229,"independentHydro":{"nonCritical":1865.5200000000002,"critical":3731.0400000000004,"expected":2798.28},"editedHydro":{"nonCritical":2027.5200000000002,"critical":4055.0400000000004,"expected":3041.28},"completeHydro":{"nonCritical":2218.32,"critical":4436.64,"expected":3327.4800000000005},"completeCalculatorRestored":true}
+  ✓  1 [chromium] › apps/web/e2e/remaining-horizontal-source.spec.ts:56:1 › ordinary team controls preserve source normal-chain state and energy while Hydro observed hits remain independently editable and restorable (2.6s)
+
+  1 passed (3.9s)
+
+WALL_SECONDS=4.483

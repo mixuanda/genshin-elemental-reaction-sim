@@ -1,0 +1,492 @@
+--- a/internal/characters/chiori/asc.go
++++ b/internal/characters/chiori/asc.go
+@@ -103,8 +103,27 @@
+ 			Mult:       thrustAtkScaling[c.TalentLvlSkill()],
+ 		}
+ 		snap := c.Snapshot(&ai)
+-		ai.FlatDmg = snap.Stats.TotalDEF()
+-		ai.FlatDmg *= thrustDefScaling[c.TalentLvlSkill()]
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			priorFlat := ai.FlatDmg
++			ai.FlatDmg = snap.Stats.TotalDEF()
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-a1-def-set", priorFlat, map[string]any{"snapshotDEF": ai.FlatDmg}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		} else {
++			ai.FlatDmg = snap.Stats.TotalDEF()
++		}
++		talentLevel := c.TalentLvlSkill()
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			priorFlat := ai.FlatDmg
++			ai.FlatDmg *= thrustDefScaling[talentLevel]
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-a1-scale", priorFlat, map[string]any{"talentLevel": talentLevel}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		} else {
++			ai.FlatDmg *= thrustDefScaling[talentLevel]
++		}
+ 		c.Core.QueueAttackWithSnap(ai, snap, combat.NewCircleHitOnTarget(t, nil, 2.5), 1)
+ 
+ 		// increment attack count and delete seize the moment if reached limit
+--- a/internal/characters/chiori/burst.go
++++ b/internal/characters/chiori/burst.go
+@@ -44,8 +44,27 @@
+ 		snap := c.Snapshot(&ai)
+ 
+ 		// flat dmg for def scaling portion
+-		ai.FlatDmg = snap.Stats.TotalDEF()
+-		ai.FlatDmg *= burstDefScaling[c.TalentLvlBurst()]
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			priorFlat := ai.FlatDmg
++			ai.FlatDmg = snap.Stats.TotalDEF()
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-burst-def-set", priorFlat, map[string]any{"snapshotDEF": ai.FlatDmg}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		} else {
++			ai.FlatDmg = snap.Stats.TotalDEF()
++		}
++		talentLevel := c.TalentLvlBurst()
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			priorFlat := ai.FlatDmg
++			ai.FlatDmg *= burstDefScaling[talentLevel]
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-burst-scale", priorFlat, map[string]any{"talentLevel": talentLevel}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		} else {
++			ai.FlatDmg *= burstDefScaling[talentLevel]
++		}
+ 
+ 		// c2 should be called slightly before the actual dmg happens
+ 		c.c2()
+--- a/internal/characters/chiori/cons.go
++++ b/internal/characters/chiori/cons.go
+@@ -178,6 +178,24 @@
+ 	if c.Base.Cons < 6 {
+ 		return
+ 	}
+-	ai.FlatDmg = snap.Stats.TotalDEF()
+-	ai.FlatDmg *= 2.35
+-}
++	if c.Core.SourceHost != nil {
++		prior := c.Core.SourceHost.CharacterFlatPrior(ai, snap)
++		priorFlat := ai.FlatDmg
++		ai.FlatDmg = snap.Stats.TotalDEF()
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-c6-def-set", priorFlat, map[string]any{"snapshotDEF": ai.FlatDmg}, nil, snap, prior)
++		ai.FlatDmg = value
++		c.Core.SourceHost.CharacterFlatAttach(ai, snap, id, value)
++	} else {
++		ai.FlatDmg = snap.Stats.TotalDEF()
++	}
++	if c.Core.SourceHost != nil {
++		prior := c.Core.SourceHost.CharacterFlatPrior(ai, snap)
++		priorFlat := ai.FlatDmg
++		ai.FlatDmg *= 2.35
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-c6-scale", priorFlat, map[string]any{}, nil, snap, prior)
++		ai.FlatDmg = value
++		c.Core.SourceHost.CharacterFlatAttach(ai, snap, id, value)
++	} else {
++		ai.FlatDmg *= 2.35
++	}
++}
+--- a/internal/characters/chiori/kinu.go
++++ b/internal/characters/chiori/kinu.go
+@@ -59,8 +59,27 @@
+ 			}
+ 
+ 			snap := c.Snapshot(&ai)
+-			ai.FlatDmg = snap.Stats.TotalDEF()
+-			ai.FlatDmg *= turretDefScaling[c.TalentLvlSkill()] * kinuDmgRatio
++			if c.Core.SourceHost != nil {
++				prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++				priorFlat := ai.FlatDmg
++				ai.FlatDmg = snap.Stats.TotalDEF()
++				value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-kinu-def-set", priorFlat, map[string]any{"snapshotDEF": ai.FlatDmg}, nil, &snap, prior)
++				ai.FlatDmg = value
++				c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++			} else {
++				ai.FlatDmg = snap.Stats.TotalDEF()
++			}
++			talentLevel := c.TalentLvlSkill()
++			if c.Core.SourceHost != nil {
++				prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++				priorFlat := ai.FlatDmg
++				ai.FlatDmg *= turretDefScaling[talentLevel] * kinuDmgRatio
++				value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-kinu-scale", priorFlat, map[string]any{"talentLevel": talentLevel}, nil, &snap, prior)
++				ai.FlatDmg = value
++				c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++			} else {
++				ai.FlatDmg *= turretDefScaling[talentLevel] * kinuDmgRatio
++			}
+ 
+ 			// if the player has an attack target it will always choose this enemy
+ 			// so just need to make sure that it is within the search AoE
+--- a/internal/characters/chiori/skill.go
++++ b/internal/characters/chiori/skill.go
+@@ -126,8 +126,27 @@
+ 		}
+ 
+ 		snap := c.Snapshot(&ai)
+-		ai.FlatDmg = snap.Stats.TotalDEF()
+-		ai.FlatDmg *= thrustDefScaling[c.TalentLvlSkill()]
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			priorFlat := ai.FlatDmg
++			ai.FlatDmg = snap.Stats.TotalDEF()
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-skill-upward-def-set", priorFlat, map[string]any{"snapshotDEF": ai.FlatDmg}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		} else {
++			ai.FlatDmg = snap.Stats.TotalDEF()
++		}
++		talentLevel := c.TalentLvlSkill()
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			priorFlat := ai.FlatDmg
++			ai.FlatDmg *= thrustDefScaling[talentLevel]
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-skill-upward-scale", priorFlat, map[string]any{"talentLevel": talentLevel}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		} else {
++			ai.FlatDmg *= thrustDefScaling[talentLevel]
++		}
+ 
+ 		c.Core.QueueAttackWithSnap(ai, snap, combat.NewBoxHitOnTarget(c.Core.Combat.Player(), nil, 5.5, 3.5), 0)
+ 	}, skillHitmarks[hold])
+@@ -205,8 +224,27 @@
+ 			}
+ 
+ 			snap := c.Snapshot(&ai)
+-			ai.FlatDmg = snap.Stats.TotalDEF()
+-			ai.FlatDmg *= turretDefScaling[c.TalentLvlSkill()]
++			if c.Core.SourceHost != nil {
++				prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++				priorFlat := ai.FlatDmg
++				ai.FlatDmg = snap.Stats.TotalDEF()
++				value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-skill-doll-def-set", priorFlat, map[string]any{"snapshotDEF": ai.FlatDmg}, nil, &snap, prior)
++				ai.FlatDmg = value
++				c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++			} else {
++				ai.FlatDmg = snap.Stats.TotalDEF()
++			}
++			talentLevel := c.TalentLvlSkill()
++			if c.Core.SourceHost != nil {
++				prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++				priorFlat := ai.FlatDmg
++				ai.FlatDmg *= turretDefScaling[talentLevel]
++				value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-chiori-skill-doll-scale", priorFlat, map[string]any{"talentLevel": talentLevel}, nil, &snap, prior)
++				ai.FlatDmg = value
++				c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++			} else {
++				ai.FlatDmg *= turretDefScaling[talentLevel]
++			}
+ 
+ 			// if the player has an attack target it will always choose this enemy
+ 			// so just need to make sure that it is within the search AoE
+--- a/internal/characters/itto/asc.go
++++ b/internal/characters/itto/asc.go
+@@ -68,6 +68,14 @@
+ 	if c.Base.Ascension < 4 {
+ 		return
+ 	}
+-	ai.FlatDmg = c.TotalDef(false) * 0.35
++	totalDEF, statRead := c.TotalDefWithProvenance(false)
++	priorFlat := ai.FlatDmg
++	ai.FlatDmg = totalDEF * 0.35
++	if c.Core.SourceHost != nil {
++		prior := c.Core.SourceHost.CharacterFlatPrior(ai, nil)
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-itto-a4", priorFlat, map[string]any{"totalDEF": totalDEF}, []*info.SourceHostStatRead{statRead}, nil, prior)
++		ai.FlatDmg = value
++		c.Core.SourceHost.CharacterFlatAttach(ai, nil, id, value)
++	}
+ 	c.Core.Log.NewEvent("itto-a4 applied", glog.LogCharacterEvent, c.Index())
+ }
+--- a/internal/characters/baizhu/burst.go
++++ b/internal/characters/baizhu/burst.go
+@@ -95,7 +95,13 @@
+ 		Mult:       burstAtk[c.TalentLvlBurst()],
+ 	}
+ 	if c.Base.Cons >= 6 {
+-		ai.FlatDmg = c.MaxHP() * 0.08
++		maxHP, statRead := c.MaxHPWithProvenance()
++		ai.FlatDmg = maxHP * 0.08
++		if c.Core.SourceHost != nil {
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-baizhu-c6-spiritvein", 0, map[string]any{"maxHP": maxHP}, []*info.SourceHostStatRead{statRead}, nil, nil)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
++		}
+ 	}
+ 
+ 	c.Core.QueueAttack(
+--- a/internal/characters/lanyan/attack.go
++++ b/internal/characters/lanyan/attack.go
+@@ -139,7 +139,13 @@
+ 		CanBeDefenseHalted: true,
+ 	}
+ 	if c.Base.Ascension >= 4 {
+-		ai.FlatDmg = c.Stat(attributes.EM) * 3.09
++		em, statRead := c.StatWithProvenance(attributes.EM)
++		ai.FlatDmg = em * 3.09
++		if c.Core.SourceHost != nil {
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-lanyan-ring", 0, map[string]any{"em": em}, []*info.SourceHostStatRead{statRead}, nil, nil)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
++		}
+ 	}
+ 
+ 	target := c.Core.Combat.PrimaryTarget()
+--- a/internal/characters/lanyan/burst.go
++++ b/internal/characters/lanyan/burst.go
+@@ -36,7 +36,13 @@
+ 		Mult:       burst[c.TalentLvlBurst()],
+ 	}
+ 	if c.Base.Ascension >= 4 {
+-		ai.FlatDmg = c.Stat(attributes.EM) * 7.74
++		em, statRead := c.StatWithProvenance(attributes.EM)
++		ai.FlatDmg = em * 7.74
++		if c.Core.SourceHost != nil {
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-lanyan-burst", 0, map[string]any{"em": em}, []*info.SourceHostStatRead{statRead}, nil, nil)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
++		}
+ 	}
+ 
+ 	ap := combat.NewCircleHitOnTarget(
+--- a/internal/characters/nahida/skill.go
++++ b/internal/characters/nahida/skill.go
+@@ -217,7 +217,15 @@
+ 		}
+ 		snap := c.Snapshot(&ai)
+ 		em := snap.Stats[attributes.EM]
+-		ai.FlatDmg = em * triKarmaEM[c.TalentLvlSkill()]
++		talentLevel := c.TalentLvlSkill()
++		priorFlat := ai.FlatDmg
++		ai.FlatDmg = em * triKarmaEM[talentLevel]
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-nahida-trikarma", priorFlat, map[string]any{"snapshotEM": em, "talentLevel": talentLevel}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		}
+ 
+ 		c.Core.QueueAttackWithSnap(
+ 			ai,
+--- a/internal/characters/nahida/cons.go
++++ b/internal/characters/nahida/cons.go
+@@ -172,7 +172,15 @@
+ 			Mult:       2,
+ 		}
+ 		snap := c.Snapshot(&ai)
+-		ai.FlatDmg = snap.Stats[attributes.EM] * 4
++		snapshotEM := snap.Stats[attributes.EM]
++		priorFlat := ai.FlatDmg
++		ai.FlatDmg = snapshotEM * 4
++		if c.Core.SourceHost != nil {
++			prior := c.Core.SourceHost.CharacterFlatPrior(&ai, &snap)
++			value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-nahida-c6", priorFlat, map[string]any{"snapshotEM": snapshotEM}, nil, &snap, prior)
++			ai.FlatDmg = value
++			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++		}
+ 		for _, v := range c.Core.Combat.Enemies() {
+ 			e, ok := v.(*enemy.Enemy)
+ 			if !ok {
+--- a/internal/characters/kokomi/kokomi.go
++++ b/internal/characters/kokomi/kokomi.go
+@@ -9,9 +9,11 @@
+ 
+ type char struct {
+ 	*tmpl.Character
+-	skillFlatDmg  float64
+-	skillLastUsed int
+-	swapEarlyF    int
++	skillFlatDmg           float64
++	skillFlatDmgCreationID int
++	skillFlatDmgRuleID     string
++	skillLastUsed          int
++	swapEarlyF             int
+ }
+ 
+ func NewChar(s *core.Core, w *character.CharWrapper, _ info.CharacterProfile) error {
+--- a/internal/characters/kokomi/burst.go
++++ b/internal/characters/kokomi/burst.go
+@@ -50,14 +50,24 @@
+ 		Durability: 50,
+ 		Mult:       0,
+ 	}
+-	ai.FlatDmg = burstDmg[c.TalentLvlBurst()] * c.MaxHP()
++	talentLevel := c.TalentLvlBurst()
++	maxHP, statRead := c.MaxHPWithProvenance()
++	ai.FlatDmg = burstDmg[talentLevel] * maxHP
++	if c.Core.SourceHost != nil {
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-kokomi-burst", 0, map[string]any{"talentLevel": talentLevel, "maxHP": maxHP}, []*info.SourceHostStatRead{statRead}, nil, nil)
++		ai.FlatDmg = value
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
++	}
+ 
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 5), burstHitmark, burstHitmark)
+ 
+ 	c.Core.Status.Add(burstKey, 10*60)
+ 
+ 	// update jellyfish flat damage
+-	c.skillFlatDmg = c.burstDmgBonus(attacks.AttackTagElementalArt)
++	bonus, creationID, creationRuleID := c.burstDmgBonus(attacks.AttackTagElementalArt)
++	c.skillFlatDmg = bonus
++	c.skillFlatDmgCreationID = creationID
++	c.skillFlatDmgRuleID = creationRuleID
+ 
+ 	if c.Base.Ascension >= 1 {
+ 		c.Core.Tasks.Add(c.a1, 46)
+@@ -93,20 +103,40 @@
+ }
+ 
+ // Helper function for determining whether burst damage bonus should apply
+-func (c *char) burstDmgBonus(a attacks.AttackTag) float64 {
++func (c *char) burstDmgBonus(a attacks.AttackTag) (float64, int, string) {
+ 	if c.Core.Status.Duration("kokomiburst") == 0 {
+-		return 0
+-	}
++		return c.zeroBurstDmgBonus()
++	}
++	var scaling []float64
++	var ruleID string
+ 	switch a {
+ 	case attacks.AttackTagNormal:
+-		return burstBonusNormal[c.TalentLvlBurst()] * c.MaxHP()
++		scaling, ruleID = burstBonusNormal, "char-flat-kokomi-bonus-normal"
+ 	case attacks.AttackTagExtra:
+-		return burstBonusCharge[c.TalentLvlBurst()] * c.MaxHP()
++		scaling, ruleID = burstBonusCharge, "char-flat-kokomi-bonus-charge"
+ 	case attacks.AttackTagElementalArt:
+-		return burstBonusSkill[c.TalentLvlBurst()] * c.MaxHP()
++		scaling, ruleID = burstBonusSkill, "char-flat-kokomi-bonus-skill"
+ 	default:
+-		return 0
+-	}
++		return c.zeroBurstDmgBonus()
++	}
++	talentLevel := c.TalentLvlBurst()
++	maxHP, statRead := c.MaxHPWithProvenance()
++	bonus := scaling[talentLevel] * maxHP
++	if c.Core.SourceHost == nil {
++		return bonus, 0, ruleID
++	}
++	bonus, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), ruleID, 0,
++		map[string]any{"talentLevel": talentLevel, "maxHP": maxHP}, []*info.SourceHostStatRead{statRead}, nil, nil)
++	return bonus, id, ruleID
++}
++
++func (c *char) zeroBurstDmgBonus() (float64, int, string) {
++	const ruleID = "char-flat-kokomi-bonus-zero"
++	if c.Core.SourceHost == nil {
++		return 0, 0, ruleID
++	}
++	value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), ruleID, 0, map[string]any{}, nil, nil, nil)
++	return value, id, ruleID
+ }
+ 
+ // - implements burst healing, C2 and C6 handling
+@@ -163,7 +193,10 @@
+ 		// update jellyfish flat damage. regardless if burst is active or not
+ 		if prev == c.Index() {
+ 			c.swapEarlyF = c.Core.F
+-			c.skillFlatDmg = c.burstDmgBonus(attacks.AttackTagElementalArt)
++			bonus, creationID, creationRuleID := c.burstDmgBonus(attacks.AttackTagElementalArt)
++			c.skillFlatDmg = bonus
++			c.skillFlatDmgCreationID = creationID
++			c.skillFlatDmgRuleID = creationRuleID
+ 		}
+ 		c.Core.Status.Delete("kokomiburst")
+ 	}, "kokomi-exit")
+--- a/internal/characters/kokomi/attack.go
++++ b/internal/characters/kokomi/attack.go
+@@ -52,7 +52,11 @@
+ 		Durability: 25,
+ 		Mult:       attack[c.NormalCounter][c.TalentLvlAttack()],
+ 	}
+-	ai.FlatDmg = c.burstDmgBonus(ai.AttackTag)
++	bonus, creationID, _ := c.burstDmgBonus(ai.AttackTag)
++	ai.FlatDmg = bonus
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, creationID, bonus)
++	}
+ 
+ 	radius := 0.7
+ 	if c.Core.Status.Duration(burstKey) > 0 {
+--- a/internal/characters/kokomi/charge.go
++++ b/internal/characters/kokomi/charge.go
+@@ -39,7 +39,11 @@
+ 		Durability: 25,
+ 		Mult:       charge[c.TalentLvlAttack()],
+ 	}
+-	ai.FlatDmg = c.burstDmgBonus(ai.AttackTag)
++	bonus, creationID, _ := c.burstDmgBonus(ai.AttackTag)
++	ai.FlatDmg = bonus
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, creationID, bonus)
++	}
+ 
+ 	// skip CA windup if we're in NA animation
+ 	windup := 0
+--- a/internal/characters/kokomi/cons.go
++++ b/internal/characters/kokomi/cons.go
+@@ -29,7 +29,13 @@
+ 		Durability: 25,
+ 		Mult:       0,
+ 	}
+-	ai.FlatDmg = 0.3 * c.MaxHP()
++	maxHP, statRead := c.MaxHPWithProvenance()
++	ai.FlatDmg = 0.3 * maxHP
++	if c.Core.SourceHost != nil {
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), "char-flat-kokomi-c1", 0, map[string]any{"maxHP": maxHP}, []*info.SourceHostStatRead{statRead}, nil, nil)
++		ai.FlatDmg = value
++		c.Core.SourceHost.CharacterFlatAttach(&ai, nil, id, value)
++	}
+ 
+ 	// TODO: Is this snapshotted/dynamic?
+ 	c.Core.QueueAttack(
+--- a/internal/characters/kokomi/skill.go
++++ b/internal/characters/kokomi/skill.go
+@@ -35,7 +35,10 @@
+ 	// You get 1 tick immediately, then 1 tick every 2 seconds for a total of 7 ticks
+ 	c.swapEarlyF = -1
+ 	c.skillLastUsed = c.Core.F
+-	c.skillFlatDmg = c.burstDmgBonus(d.Info.AttackTag)
++	bonus, creationID, creationRuleID := c.burstDmgBonus(d.Info.AttackTag)
++	c.skillFlatDmg = bonus
++	c.skillFlatDmgCreationID = creationID
++	c.skillFlatDmgRuleID = creationRuleID
+ 
+ 	c.Core.Tasks.Add(func() { c.skillTick(d) }, skillHitmark)
+ 	c.Core.Tasks.Add(c.skillTickTask(d, c.Core.F), skillHitmark+126)
+@@ -91,10 +94,26 @@
+ func (c *char) skillTick(d *info.AttackEvent) {
+ 	// check if skill has burst bonus snapshot
+ 	// snapshot is between 1st and 2nd tick
++	priorFlat := d.Info.FlatDmg
++	var bonus float64
++	var creationID int
++	var creationRuleID string
+ 	if c.swapEarlyF > c.skillLastUsed && c.swapEarlyF < c.skillLastUsed+100 {
+-		d.Info.FlatDmg = c.skillFlatDmg
++		bonus, creationID, creationRuleID = c.skillFlatDmg, c.skillFlatDmgCreationID, c.skillFlatDmgRuleID
+ 	} else {
+-		d.Info.FlatDmg = c.burstDmgBonus(d.Info.AttackTag)
++		bonus, creationID, creationRuleID = c.burstDmgBonus(d.Info.AttackTag)
++	}
++	d.Info.FlatDmg = bonus
++	if c.Core.SourceHost != nil {
++		prior := c.Core.SourceHost.CharacterFlatPrior(&d.Info, &d.Snapshot)
++		ruleID := "char-flat-kokomi-skill-tick-zero"
++		if creationRuleID == "char-flat-kokomi-bonus-skill" {
++			ruleID = "char-flat-kokomi-skill-tick-active"
++		}
++		value, id := c.Core.SourceHost.CharacterFlatCompute(c.Index(), ruleID, priorFlat,
++			map[string]any{"savedSkillFlatDmg": bonus}, nil, &d.Snapshot, prior, map[string]int{"savedSkillFlatDmg": creationID})
++		d.Info.FlatDmg = value
++		c.Core.SourceHost.CharacterFlatAttach(&d.Info, &d.Snapshot, id, value)
+ 	}
+ 
+ 	// handle damage

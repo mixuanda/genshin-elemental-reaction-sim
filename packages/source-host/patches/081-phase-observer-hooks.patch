@@ -1,0 +1,223 @@
+--- a/pkg/stats/action/action.go
++++ b/pkg/stats/action/action.go
+@@ -1,6 +1,7 @@
+ package action
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/action"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+@@ -50,7 +51,7 @@
+ 		out.activeFailures[i] = make(map[action.Action]activeFailure)
+ 	}
+ 
+-	core.Events.Subscribe(event.OnActionExec, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnActionExec, func(args ...any) {
+ 		char := args[0].(int)
+ 		e := args[1].(action.Action)
+ 
+@@ -69,9 +70,9 @@
+ 			out.addFailure(core, char, active)
+ 			delete(out.activeFailures[char], e)
+ 		}
+-	}, "stats-action-exec-log")
++	}, "stats-action-exec-log", phase.Descriptor{Source: "pkg/stats/action/action.go:NewStat/OnActionExec", Observational: true})
+ 
+-	core.Events.Subscribe(event.OnActionFailed, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnActionFailed, func(args ...any) {
+ 		char := args[0].(int)
+ 		e := args[1].(action.Action)
+ 		reason := args[3].(action.Failure)
+@@ -90,7 +91,7 @@
+ 				reason: reason,
+ 			}
+ 		}
+-	}, "stats-action-failed-log")
++	}, "stats-action-failed-log", phase.Descriptor{Source: "pkg/stats/action/action.go:NewStat/OnActionFailed", Observational: true})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/damage/damage.go
++++ b/pkg/stats/damage/damage.go
+@@ -1,6 +1,7 @@
+ package damage
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -34,7 +35,7 @@
+ 	out.cumuChar = append(out.cumuChar, make([]float64, len(core.Player.Chars())))
+ 	out.cumuTarget = append(out.cumuTarget, make([]float64, len(core.Combat.Enemies())))
+ 
+-	core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnEnemyDamage, func(args ...any) {
+ 		target := args[0].(info.Target)
+ 		targetKey := target.Key()
+ 		attack := args[1].(*info.AttackEvent)
+@@ -102,7 +103,7 @@
+ 		}
+ 
+ 		out.events[attack.Info.ActorIndex] = append(out.events[attack.Info.ActorIndex], event)
+-	}, "stats-dmg-log")
++	}, "stats-dmg-log", phase.Descriptor{Source: "pkg/stats/damage/damage.go:NewStat/OnEnemyDamage", Observational: true})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/heal/heal.go
++++ b/pkg/stats/heal/heal.go
+@@ -1,6 +1,7 @@
+ package heal
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -23,7 +24,7 @@
+ 		events: make([][]stats.HealEvent, len(core.Player.Chars())),
+ 	}
+ 
+-	core.Events.Subscribe(event.OnHeal, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnHeal, func(args ...any) {
+ 		info := args[0].(*info.HealInfo)
+ 		target := args[1].(int)
+ 		amount := args[2].(float64)
+@@ -35,7 +36,7 @@
+ 			Heal:   amount,
+ 		}
+ 		out.events[info.Caller] = append(out.events[info.Caller], event)
+-	}, "stats-heal-log")
++	}, "stats-heal-log", phase.Descriptor{Source: "pkg/stats/heal/heal.go:NewStat/OnHeal", Observational: true})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/energy/energy.go
++++ b/pkg/stats/energy/energy.go
+@@ -1,6 +1,7 @@
+ package energy
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+@@ -23,7 +24,7 @@
+ 		events: make([][]stats.EnergyEvent, len(core.Player.Chars())),
+ 	}
+ 
+-	core.Events.Subscribe(event.OnEnergyChange, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnEnergyChange, func(args ...any) {
+ 		character := args[0].(*character.CharWrapper)
+ 		preEnergy := args[1].(float64)
+ 		amount := args[2].(float64)
+@@ -44,7 +45,7 @@
+ 		}
+ 
+ 		out.events[character.Index()] = append(out.events[character.Index()], event)
+-	}, "stats-energy-log")
++	}, "stats-energy-log", phase.Descriptor{Source: "pkg/stats/energy/energy.go:NewStat/OnEnergyChange", Observational: true})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/position/position.go
++++ b/pkg/stats/position/position.go
+@@ -1,6 +1,7 @@
+ package position
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -23,7 +24,7 @@
+ 		targetOverlap: overlaps(core.Combat.Enemies()),
+ 	}
+ 
+-	core.Events.Subscribe(event.OnTargetMoved, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnTargetMoved, func(args ...any) {
+ 		target := args[0].(info.Target)
+ 
+ 		for _, enemy := range core.Combat.Enemies() {
+@@ -34,7 +35,7 @@
+ 				out.targetOverlap = true
+ 			}
+ 		}
+-	}, "stats-target-overlap")
++	}, "stats-target-overlap", phase.Descriptor{Source: "pkg/stats/position/position.go:NewStat/OnTargetMoved", Observational: true})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/reaction/reaction.go
++++ b/pkg/stats/reaction/reaction.go
+@@ -1,6 +1,7 @@
+ package reaction
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+@@ -67,7 +68,7 @@
+ 	}
+ 
+ 	for k, v := range eventToReaction {
+-		core.Events.Subscribe(k, eventSubFunc(v), "stats-reaction-log")
++		core.Events.SubscribeWithPhase(k, eventSubFunc(v), "stats-reaction-log", phase.Descriptor{Source: "pkg/stats/reaction/reaction.go:NewStat/eventSubFunc", Observational: true})
+ 	}
+ 
+ 	return &out, nil
+--- a/pkg/stats/swap/swap.go
++++ b/pkg/stats/swap/swap.go
+@@ -1,6 +1,7 @@
+ package swap
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/stats"
+@@ -25,7 +26,7 @@
+ 		activeCharStart: 0,
+ 	}
+ 
+-	core.Events.Subscribe(event.OnCharacterSwap, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnCharacterSwap, func(args ...any) {
+ 		active := args[1].(int)
+ 
+ 		interval := stats.ActiveCharacterInterval{
+@@ -36,7 +37,7 @@
+ 		out.activeIntervals = append(out.activeIntervals, interval)
+ 		out.activeChar = active
+ 		out.activeCharStart = core.F
+-	}, "stats-swap-log")
++	}, "stats-swap-log", phase.Descriptor{Source: "pkg/stats/swap/swap.go:NewStat/OnCharacterSwap", Observational: true})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/endstats/endstats.go
++++ b/pkg/stats/endstats/endstats.go
+@@ -3,6 +3,7 @@
+ package endstats
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/stats"
+@@ -24,11 +25,11 @@
+ 		endingEnergy: make([]float64, len(core.Player.Chars())),
+ 	}
+ 
+-	core.Events.Subscribe(event.OnSimEndedSuccessfully, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnSimEndedSuccessfully, func(args ...any) {
+ 		for i, c := range core.Player.Chars() {
+ 			out.endingEnergy[i] = c.Energy
+ 		}
+-	}, "stats-ending-energy")
++	}, "stats-ending-energy", phase.Descriptor{Source: "pkg/stats/endstats/endstats.go:NewStat/OnSimEndedSuccessfully", Observational: true})
+ 
+ 	return &out, nil
+ }

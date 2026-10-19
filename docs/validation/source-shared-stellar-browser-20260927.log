@@ -1,0 +1,145 @@
+[WebServer] (node:68030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 2 workers
+
+(node:68032) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:68031) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"incoming":{"id":6,"calculationId":5,"attackId":3,"frame":61,"targetKey":0,"activeActorIndex":0,"rawDamage":1000,"damageAfterShield":1000,"shieldAbsorbed":0,"drainAttempted":1000,"isCrit":false},"calculations":6,"hits":5,"scalarReads":10,"edited":"编辑后护盾前公式伤害：1100","errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-host-player-incoming.spec.ts:5:1 › captures a real player hit and scalar receipts, then restores and edits its independent formula (1.7s)
+  ✘  2 [chromium] › apps/web/e2e/source-host-stellar.spec.ts:6:1 › runs Stellar source receipts and restores an edited standalone contributor (1.0m)
+
+
+  1) [chromium] › apps/web/e2e/source-host-stellar.spec.ts:6:1 › runs Stellar source receipts and restores an edited standalone contributor 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#source-host-status')
+    Timeout: 60000ms
+    - Expected substring  -  1
+    + Received string     + 43
+
+    - 本次运行完成
+    + 运行停止：simulation panic occured: source-host formula rejected: Unknown or unexecuted trace child: stellar.5.sampled.total 
+    + goroutine 8 [running]:
+    + runtime/debug.Stack()
+    + 	runtime/debug/stack.go:26 +0xa
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run.func1()
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:325 +0xb
+    + panic({0x19a4780, 0x1fe37a0})
+    + 	runtime/panic.go:859 +0x1c
+    + github.com/genshinsim/gcsim/pkg/core/sourcehost.(*Bridge).Resolve(0x1f8a080, {{0xc2723, 0x14}, {0xd7b5c, 0x28}, 0x8, {0xbdf77, 0x10}, 0x57, 0x1, ...})
+    + 	github.com/genshinsim/gcsim/pkg/core/sourcehost/bridge.go:124 +0x43
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calcSourceHost(0x1f6f0e0, 0x2013348, {0x1a913f0, 0x1fb8d70}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/sourcehost.go:84 +0x190
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calc(0x1f6f0e0, 0x2013348, {0x1a913f0, 0x1fb8d70}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/damage.go:12 +0x13
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).attack(0x1f6f0e0, 0x2013348, {0x1a913f0, 0x1fb8d70}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/attack.go:145 +0x5b
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).HandleAttack(0x1f6f0e0, 0x2013348)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/attack.go:60 +0x66
+    + github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).attack(0x1e9a240, {0x1a932f8, 0x1f6f0e0}, 0x2012dc8)
+    + 	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:30 +0x33
+    + github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).ApplyAttack(0x1e9a240, 0x2012dc8)
+    + 	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:54 +0x27
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).queueDmg.func1()
+    + 	github.com/genshinsim/gcsim/pkg/core/attack.go:96 +0x4
+    + github.com/genshinsim/gcsim/pkg/core/task.(*Handler).Run(0x1c0d9b0)
+    + 	github.com/genshinsim/gcsim/pkg/core/task/task.go:40 +0x5
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).Tick(0x1f17b20)
+    + 	github.com/genshinsim/gcsim/pkg/core/core.go:155 +0x7
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).nextFrame(0x1f60480)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:288 +0x6
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).advanceFrames(0x1f60480, 0x1, 0x1a9f0d0)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:275 +0x5
+    + github.com/genshinsim/gcsim/pkg/simulation.actionReadyCheckPhase(0x1f60480)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:189 +0x36
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).run(0x1f60480)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:54 +0x5
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run(0x1f60480)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:328 +0x2
+    + main.run({{}, 0x7ff8000100000005, 0x1c0e4c0}, {0x1ec8be0, 0x2, 0x2})
+    + 	github.com/genshinsim/gcsim/cmd/sourcehost/main.go:85 +0x85
+    + syscall/js.handleEvent()
+    + 	syscall/js/func.go:117 +0x28
+    +
+
+    Call log:
+      - Expect "toContainText" with timeout 60000ms
+      - waiting for locator('#source-host-status')
+        - locator resolved to <p role="status" aria-live="polite" id="source-host-status">准备执行…</p>
+        - unexpected value "准备执行…"
+        3 × locator resolved to <p role="status" aria-live="polite" id="source-host-status">正在加载固定来源执行器…</p>
+          - unexpected value "正在加载固定来源执行器…"
+        - locator resolved to <p role="status" aria-live="polite" id="source-host-status">正在运行角色、装备与反应事件；伤害由共享公式结算…</p>
+        - unexpected value "正在运行角色、装备与反应事件；伤害由共享公式结算…"
+        118 × locator resolved to <p role="status" aria-live="polite" id="source-host-status">运行停止：simulation panic occured: source-host formul…</p>
+            - unexpected value "运行停止：simulation panic occured: source-host formula rejected: Unknown or unexecuted trace child: stellar.5.sampled.total 
+    goroutine 8 [running]:
+    runtime/debug.Stack()
+    	runtime/debug/stack.go:26 +0xa
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run.func1()
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:325 +0xb
+    panic({0x19a4780, 0x1fe37a0})
+    	runtime/panic.go:859 +0x1c
+    github.com/genshinsim/gcsim/pkg/core/sourcehost.(*Bridge).Resolve(0x1f8a080, {{0xc2723, 0x14}, {0xd7b5c, 0x28}, 0x8, {0xbdf77, 0x10}, 0x57, 0x1, ...})
+    	github.com/genshinsim/gcsim/pkg/core/sourcehost/bridge.go:124 +0x43
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calcSourceHost(0x1f6f0e0, 0x2013348, {0x1a913f0, 0x1fb8d70}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/sourcehost.go:84 +0x190
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calc(0x1f6f0e0, 0x2013348, {0x1a913f0, 0x1fb8d70}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/damage.go:12 +0x13
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).attack(0x1f6f0e0, 0x2013348, {0x1a913f0, 0x1fb8d70}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/attack.go:145 +0x5b
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).HandleAttack(0x1f6f0e0, 0x2013348)
+    	github.com/genshinsim/gcsim/pkg/enemy/attack.go:60 +0x66
+    github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).attack(0x1e9a240, {0x1a932f8, 0x1f6f0e0}, 0x2012dc8)
+    	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:30 +0x33
+    github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).ApplyAttack(0x1e9a240, 0x2012dc8)
+    	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:54 +0x27
+    github.com/genshinsim/gcsim/pkg/core.(*Core).queueDmg.func1()
+    	github.com/genshinsim/gcsim/pkg/core/attack.go:96 +0x4
+    github.com/genshinsim/gcsim/pkg/core/task.(*Handler).Run(0x1c0d9b0)
+    	github.com/genshinsim/gcsim/pkg/core/task/task.go:40 +0x5
+    github.com/genshinsim/gcsim/pkg/core.(*Core).Tick(0x1f17b20)
+    	github.com/genshinsim/gcsim/pkg/core/core.go:155 +0x7
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).nextFrame(0x1f60480)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:288 +0x6
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).advanceFrames(0x1f60480, 0x1, 0x1a9f0d0)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:275 +0x5
+    github.com/genshinsim/gcsim/pkg/simulation.actionReadyCheckPhase(0x1f60480)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:189 +0x36
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).run(0x1f60480)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:54 +0x5
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run(0x1f60480)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:328 +0x2
+    main.run({{}, 0x7ff8000100000005, 0x1c0e4c0}, {0x1ec8be0, 0x2, 0x2})
+    	github.com/genshinsim/gcsim/cmd/sourcehost/main.go:85 +0x85
+    syscall/js.handleEvent()
+    	syscall/js/func.go:117 +0x28
+    "
+
+
+      14 |   await expect(page.locator("[data-source-inventory-count]")).toContainText("420");
+      15 |   await page.locator("#source-host-run").click();
+    > 16 |   await expect(page.locator("#source-host-status")).toContainText("本次运行完成", { timeout: 60000 });
+         |                                                     ^
+      17 |
+      18 |   const download = page.waitForEvent("download");
+      19 |   await page.locator("#source-host-export").click();
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-host-stellar.spec.ts:16:53
+
+    Error Context: test-results/source-host-stellar-runs-S-ef23b-ited-standalone-contributor-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-host-stellar-runs-S-ef23b-ited-standalone-contributor-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-host-stellar-runs-S-ef23b-ited-standalone-contributor-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-host-stellar.spec.ts:6:1 › runs Stellar source receipts and restores an edited standalone contributor 
+  1 passed (1.0m)

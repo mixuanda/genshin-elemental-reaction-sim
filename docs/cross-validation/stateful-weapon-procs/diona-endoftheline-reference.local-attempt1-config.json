@@ -1,0 +1,293 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "external-gcsim-b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541-diona-endoftheline-context",
+  "randomSeed": "local-endoftheline-controlled-context",
+  "meta": {
+    "name": "竭泽两轮三次追击：固定来源实测面板与显式帧",
+    "version": "1",
+    "verificationStatus": "provisional",
+    "note": "真实 legal skill 事件自行激活追击；宿主动作/命中帧为外部观测输入。静态面板；不认证完整迪奥娜、箭矢快照时钟、随机产球或同源 RNG。"
+  },
+  "duration": 20,
+  "cycleLength": 20,
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defReduction": 0,
+    "targets": [
+      {
+        "id": "enemy-0",
+        "name": "外部固定目标 1",
+        "position": {
+          "x": 0,
+          "y": 2
+        },
+        "hitboxRadius": 0.25
+      }
+    ]
+  },
+  "characters": [
+    {
+      "id": "diona",
+      "name": "迪奥娜 C0/A0/Lv1/T1",
+      "element": "cryo",
+      "color": "#8eb6d8",
+      "level": 1,
+      "energyMax": 80,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 60.209,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 802.3761,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 50.358,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1.1
+      }
+    }
+  ],
+  "rotation": [],
+  "weaponProcModel": {
+    "mode": "fixed-source-no-character-hitlag-v1",
+    "actors": [
+      {
+        "actorId": "diona",
+        "weaponId": "endoftheline",
+        "refinement": 5,
+        "physicalDamageBonus": 0
+      }
+    ]
+  },
+  "timeline": {
+    "mode": "legal-frame-v1",
+    "fps": 60,
+    "legalityMode": "strict",
+    "initialActiveCharacterId": "diona",
+    "swapFrames": 1,
+    "abilities": [
+      {
+        "id": "source-diona-tap-e",
+        "actorId": "diona",
+        "name": "Icy Paws (Press)",
+        "kind": "skill",
+        "cancelFrame": 11,
+        "cancelFrames": {
+          "normal": 33,
+          "skill": 34,
+          "burst": 33,
+          "dash": 11,
+          "jump": 11,
+          "swap": 16
+        },
+        "animationEndFrame": 34,
+        "cooldownFrames": 360,
+        "cooldownStartFrame": 5,
+        "maxCharges": 1,
+        "chargeRecoveryFrames": 360,
+        "actionPhase": "after-frame-tasks-v1",
+        "hits": [
+          {
+            "id": "diona-paw-0",
+            "frame": 10,
+            "scaling": 0.4192,
+            "scalingStat": "atk",
+            "element": "cryo",
+            "attackTag": "skill",
+            "snapshot": "action",
+            "geometry": {
+              "kind": "circle",
+              "coordinateSpace": "world",
+              "origin": {
+                "x": 0,
+                "y": 2
+              },
+              "radius": 0.5
+            },
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "elemental-art",
+                "groupId": "default"
+              }
+            }
+          },
+          {
+            "id": "diona-paw-1",
+            "frame": 11,
+            "scaling": 0.4192,
+            "scalingStat": "atk",
+            "element": "cryo",
+            "attackTag": "skill",
+            "snapshot": "action",
+            "geometry": {
+              "kind": "circle",
+              "coordinateSpace": "world",
+              "origin": {
+                "x": 0,
+                "y": 2
+              },
+              "radius": 0.5
+            },
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "elemental-art",
+                "groupId": "default"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "source-diona-n1",
+        "actorId": "diona",
+        "name": "Normal 0",
+        "kind": "normal",
+        "cancelFrame": 19,
+        "animationEndFrame": 30,
+        "cooldownFrames": 0,
+        "actionPhase": "after-frame-tasks-v1",
+        "hits": [
+          {
+            "id": "diona-normal-0",
+            "frame": 29,
+            "scaling": 0.3612,
+            "scalingStat": "atk",
+            "element": "physical",
+            "attackTag": "normal",
+            "snapshot": "hit"
+          }
+        ]
+      },
+      {
+        "id": "source-diona-n2",
+        "actorId": "diona",
+        "name": "Normal 1",
+        "kind": "normal",
+        "cancelFrame": 11,
+        "animationEndFrame": 21,
+        "cooldownFrames": 0,
+        "actionPhase": "after-frame-tasks-v1",
+        "hits": [
+          {
+            "id": "diona-normal-1",
+            "frame": 21,
+            "scaling": 0.3354,
+            "scalingStat": "atk",
+            "element": "physical",
+            "attackTag": "normal",
+            "snapshot": "hit"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "type": "skill",
+        "actorId": "diona",
+        "atFrame": 1,
+        "abilityId": "source-diona-tap-e"
+      },
+      {
+        "type": "normal",
+        "actorId": "diona",
+        "atFrame": 160,
+        "abilityId": "source-diona-n1"
+      },
+      {
+        "type": "normal",
+        "actorId": "diona",
+        "atFrame": 320,
+        "abilityId": "source-diona-n2"
+      },
+      {
+        "type": "skill",
+        "actorId": "diona",
+        "atFrame": 400,
+        "abilityId": "source-diona-tap-e"
+      },
+      {
+        "type": "skill",
+        "actorId": "diona",
+        "atFrame": 800,
+        "abilityId": "source-diona-tap-e"
+      },
+      {
+        "type": "normal",
+        "actorId": "diona",
+        "atFrame": 960,
+        "abilityId": "source-diona-n1"
+      },
+      {
+        "type": "normal",
+        "actorId": "diona",
+        "atFrame": 1120,
+        "abilityId": "source-diona-n2"
+      }
+    ]
+  },
+  "reactionEngine": {
+    "mode": "aura-v3",
+    "initialAura": [],
+    "icdProfiles": {}
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "disabled"
+  },
+  "targetTaskModel": {
+    "mode": "legacy-event-heap-v1"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-attack-normalized-v2",
+    "policyId": "gcsim-b4ae769-freeze-broken-attack-normalized-provisional-v2"
+  },
+  "callbackBusModel": {
+    "mode": "legacy-no-versioned-callback-bus-v1",
+    "policyId": "legacy-no-versioned-callback-bus-v1"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "typecheck",
+  "command": [
+    "npm",
+    "run",
+    "typecheck"
+  ],
+  "elapsedSeconds": 2.815,
+  "exitCode": 0,
+  "log": "docs/validation/logs/er-independent-120-typecheck.txt"
+}

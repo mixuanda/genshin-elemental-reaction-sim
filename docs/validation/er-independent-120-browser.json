@@ -1,0 +1,17 @@
+{
+  "name": "browser",
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/er-independent-failure.spec.ts",
+    "--workers=1",
+    "--retries=0"
+  ],
+  "environment": {
+    "GIDPS_PREBUILT": "1"
+  },
+  "elapsedSeconds": 3.874,
+  "exitCode": 0,
+  "log": "docs/validation/logs/er-independent-120-browser.txt"
+}

@@ -39,12 +39,21 @@ export interface DirectDamageGroupDecision {
   sequenceMultiplier: 0 | 1;
 }
 
-interface DirectDamageGroupWindowState {
+export interface DirectDamageGroupWindowState {
   windowStartGroup: GcsimDamageGroupId;
   resetFrames: number;
   windowStartFrame: number;
   resetAtFrame: number;
   nextHitIndex: number;
+}
+
+export interface DirectDamageGroupCapturedState {
+  profileId: typeof GCSIM_DAMAGE_GROUP_PROFILE_ID;
+  windows: Array<DirectDamageGroupWindowState & {
+    sourceActorId: string;
+    icdTag: string;
+  }>;
+  lastConsumedFrame: number | null;
 }
 
 function assertNonEmptyString(
@@ -101,6 +110,21 @@ export class DirectDamageGroupEngine {
   >();
 
   private lastConsumedFrame: number | null = null;
+
+  /** Detached raw state; observing a window never advances or resets it. */
+  captureState(): DirectDamageGroupCapturedState {
+    return {
+      profileId: GCSIM_DAMAGE_GROUP_PROFILE_ID,
+      windows: [...this.statesByActor].flatMap(([sourceActorId, states]) =>
+        [...states].map(([icdTag, window]) => ({
+          sourceActorId,
+          icdTag,
+          ...window
+        }))
+      ),
+      lastConsumedFrame: this.lastConsumedFrame
+    };
+  }
 
   consumeLandedHit(
     input: DirectDamageGroupHitInput

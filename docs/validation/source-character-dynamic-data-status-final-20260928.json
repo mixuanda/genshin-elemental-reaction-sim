@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "packages/game-data/scripts/update-data.mjs",
+    "status",
+    "--write",
+    "--output",
+    "packages/game-data/src/generated/update-status.json"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.724,
+  "log": "docs/validation/source-character-dynamic-data-status-final-20260928.log",
+  "purpose": "Reflect new official-page index observation after source observation metadata changed."
+}

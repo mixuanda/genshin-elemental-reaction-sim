@@ -1,0 +1,252 @@
+diff --git a/internal/characters/albedo/albedo.go b/internal/characters/albedo/albedo.go
+--- a/internal/characters/albedo/albedo.go
++++ b/internal/characters/albedo/albedo.go
+@@ -9,8 +9,9 @@
+ 
+ type char struct {
+ 	*tmpl.Character
+-	lastConstruct int
+-	bloomSnapshot info.Snapshot
++	sourceHostConstruct *skillConstruct // observational object identity only
++	lastConstruct       int
++	bloomSnapshot       info.Snapshot
+ 	// tracking skill information
+ 	skillActive     bool
+ 	skillArea       info.AttackPattern
+diff --git a/internal/characters/albedo/skill.go b/internal/characters/albedo/skill.go
+--- a/internal/characters/albedo/skill.go
++++ b/internal/characters/albedo/skill.go
+@@ -64,8 +64,10 @@
+ 
+ 	// create a construct
+ 	// Construct is not fully formed until after the hit lands (exact timing unknown)
+-	c.Core.Tasks.Add(func() {
+-		c.Core.Constructs.New(c.newConstruct(1800, skillDir, skillPos), true)
++	c.Core.SourceHostQueueTask("albedo.skill.spawn-isotoma", c.Index(), func() {
++		con := c.newConstruct(1800, skillDir, skillPos)
++		c.Core.SourceHostNewConstruct("albedo.skill.isotoma", c.Index(), con, true)
++		c.sourceHostConstruct = con
+ 		c.lastConstruct = c.Core.F
+ 		c.skillActive = true
+ 		// Reset ICD after construct is created
+@@ -104,6 +106,8 @@
+ 
+ func (c *char) skillHook() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		endConstruct := c.Core.SourceHostBeginConstructTrigger(c.sourceHostConstruct, "enemy-damage")
++		defer endConstruct()
+ 		c.Core.SourceHostLabelEventListener("albedo.skill.enemy-damage", args...)
+ 		c.Core.SourceHostEventListenerFact("albedo.skill.enemy-damage.attack-count", 0)
+ 		trg := args[0].(info.Target)
+@@ -131,7 +135,8 @@
+ 		c.AddStatus(skillICDKey, 120, false) // proc every 2s
+ 
+ 		c.Core.SourceHostEventListenerFact("albedo.skill.enemy-damage.attack-count", 1)
+-		c.Core.SourceHostQueueEventAttackWithSnap(
++		c.Core.SourceHostQueueConstructEventAttackWithSnap(
++			"albedo.skill.isotoma.bloom",
+ 			"albedo.skill.proc-attack",
+ 			c.skillAttackInfo,
+ 			c.skillSnapshot,
+diff --git a/internal/characters/zhongli/skill.go b/internal/characters/zhongli/skill.go
+--- a/internal/characters/zhongli/skill.go
++++ b/internal/characters/zhongli/skill.go
+@@ -44,7 +44,10 @@
+ }
+ 
+ func (c *char) skillPress() action.Info {
+-	c.Core.Tasks.Add(func() {
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact("zhongli.skill.spawn-count", 1)
++	}
++	c.Core.SourceHostQueueTask("zhongli.skill.spawn-stele", c.Index(), func() {
+ 		c.newStele(1860)
+ 	}, skillPressHimark)
+ 
+@@ -81,8 +84,12 @@
+ 	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 10), 0, skillHoldHitmark)
+ 
+ 	// create a stele if less than zhongli's max stele count and desired by player
+-	if (c.steleCount < c.maxStele) && createStele {
+-		c.Core.Tasks.Add(func() {
++	spawnStele := (c.steleCount < c.maxStele) && createStele
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("zhongli.skill.spawn-count", spawnStele)
++	}
++	if spawnStele {
++		c.Core.SourceHostQueueTask("zhongli.skill.spawn-stele", c.Index(), func() {
+ 			c.newStele(1860) // 31 seconds
+ 		}, skillHoldHitmark)
+ 	}
+diff --git a/internal/characters/zhongli/stele.go b/internal/characters/zhongli/stele.go
+--- a/internal/characters/zhongli/stele.go
++++ b/internal/characters/zhongli/stele.go
+@@ -45,7 +45,7 @@
+ 
+ 	num := c.Core.Constructs.CountByType(construct.GeoConstructZhongliSkill)
+ 
+-	c.Core.Constructs.New(con, num == c.maxStele)
++	c.Core.SourceHostNewConstruct("zhongli.skill.stele", c.Index(), con, num == c.maxStele)
+ 
+ 	c.steleCount = c.Core.Constructs.CountByType(construct.GeoConstructZhongliSkill)
+ 
+@@ -82,7 +82,8 @@
+ 		SourceFrame: c.Core.F,
+ 	}
+ 
+-	c.Core.Tasks.Add(c.resonance(c.Core.F), 120)
++	c.sourceHostSnapshotConstruct = con
++	c.Core.SourceHostQueueConstructTask("zhongli.skill.resonance", con, c.resonance(c.Core.F), 120)
+ }
+ 
+ func (c *char) resonance(src int) func() {
+@@ -90,7 +91,11 @@
+ 		c.Core.Log.NewEvent("Stele checking for tick", glog.LogCharacterEvent, c.Index()).
+ 			Write("src", src).
+ 			Write("char", c.Index())
+-		if !c.Core.Constructs.Has(src) {
++		present := c.Core.Constructs.Has(src)
++		if c.Core.SourceHost != nil {
++			c.Core.SourceHost.RecordConstructProducerCheck(present, c.sourceHostSnapshotConstruct)
++		}
++		if !present {
+ 			return
+ 		}
+ 		c.Core.Log.NewEvent("Stele ticked", glog.LogCharacterEvent, c.Index()).
+@@ -128,17 +133,19 @@
+ 				resonanceConstructs = append(resonanceConstructs, con)
+ 			}
+ 
++			c.Core.SourceHostConstructResonanceSelection(s, resonanceConstructs)
++
+ 			// queue stele attack
+ 			steleAttackPos := info.CalcOffsetPoint(stelePos, boxOffset, steleDir)
+-			c.Core.QueueAttackWithSnap(ai, snap, combat.NewBoxHitOnTarget(steleAttackPos, nil, boxSize, boxSize), 0, particleCB)
++			c.Core.SourceHostQueueConstructAttackWithSnap("zhongli.skill.stele.tick", s, ai, snap, combat.NewBoxHitOnTarget(steleAttackPos, nil, boxSize, boxSize), 0, particleCB)
+ 
+ 			// queue resonance attacks
+ 			for _, con := range resonanceConstructs {
+ 				resonanceAttackPos := info.CalcOffsetPoint(con.Pos(), boxOffset, con.Direction())
+-				c.Core.QueueAttackWithSnap(ai, snap, combat.NewBoxHitOnTarget(resonanceAttackPos, nil, boxSize, boxSize), 0, particleCB)
++				c.Core.SourceHostQueueConstructAttackWithSnap("zhongli.skill.stele.resonance", con, ai, snap, combat.NewBoxHitOnTarget(resonanceAttackPos, nil, boxSize, boxSize), 0, particleCB)
+ 			}
+ 		}
+-		c.Core.Tasks.Add(c.resonance(src), 120)
++		c.Core.SourceHostQueueOwnedEntityTask("zhongli.skill.resonance", c.resonance(src), 120)
+ 	}
+ }
+ 
+diff --git a/internal/characters/zhongli/zhongli.go b/internal/characters/zhongli/zhongli.go
+--- a/internal/characters/zhongli/zhongli.go
++++ b/internal/characters/zhongli/zhongli.go
+@@ -9,9 +9,10 @@
+ 
+ type char struct {
+ 	*tmpl.Character
+-	steleSnapshot info.AttackEvent
+-	maxStele      int
+-	steleCount    int
++	sourceHostSnapshotConstruct *stoneStele // provenance only; native shared snapshot remains unchanged
++	steleSnapshot               info.AttackEvent
++	maxStele                    int
++	steleCount                  int
+ }
+ 
+ // TODO: need to clean up zhongli code still
+diff --git a/pkg/core/construct/handler.go b/pkg/core/construct/handler.go
+--- a/pkg/core/construct/handler.go
++++ b/pkg/core/construct/handler.go
+@@ -7,12 +7,18 @@
+ 
+ const destroyedMsg = "construct destroyed: "
+ 
++type SourceHostConstructObserver interface {
++	ConstructCreated(object any, key int, kind string, expiry int, limited bool)
++	ConstructEnded(object any, reason string)
++}
++
+ type Handler struct {
+-	constructs  []Construct
+-	consNoLimit []Construct
+-	log         glog.Logger
+-	f           *int
+-	evt         event.Eventter
++	SourceHostObserver SourceHostConstructObserver
++	constructs         []Construct
++	consNoLimit        []Construct
++	log                glog.Logger
++	f                  *int
++	evt                event.Eventter
+ }
+ 
+ func New(f *int, log glog.Logger, evt event.Eventter) *Handler {
+@@ -49,6 +55,9 @@
+ 			Write("prev type", (*constructs)[ind].Type()).
+ 			Write("next type", c.Type())
+ 		// remove construct from list, reset order by removing nils and add construct to end
++		if h.SourceHostObserver != nil {
++			h.SourceHostObserver.ConstructEnded((*constructs)[ind], "replaced")
++		}
+ 		(*constructs)[ind].OnDestruct()
+ 		(*constructs)[ind] = nil
+ 		h.cleanOutNils(constructs)
+@@ -64,6 +73,9 @@
+ 	if hasLimit {
+ 		// if length > 3, then destruct the beginning ones
+ 		for i := 0; i < len((*constructs))-3; i++ {
++			if h.SourceHostObserver != nil {
++				h.SourceHostObserver.ConstructEnded((*constructs)[i], "limit")
++			}
+ 			(*constructs)[i].OnDestruct()
+ 			h.log.NewEventBuildMsg(glog.LogConstructEvent, -1, destroyedMsg+(*constructs)[i].Type().String()).
+ 				Write("key", (*constructs)[i].Key()).
+@@ -72,6 +84,9 @@
+ 		}
+ 	}
+ 
++	if h.SourceHostObserver != nil {
++		h.SourceHostObserver.ConstructCreated(c, c.Key(), c.Type().String(), c.Expiry(), hasLimit)
++	}
+ 	h.evt.Emit(event.OnConstructSpawned, &c)
+ 
+ 	h.cleanOutNils(constructs)
+@@ -94,6 +109,9 @@
+ 	n := 0
+ 	for _, v := range h.constructs {
+ 		if v.Expiry() == *h.f {
++			if h.SourceHostObserver != nil {
++				h.SourceHostObserver.ConstructEnded(v, "expired")
++			}
+ 			v.OnDestruct()
+ 			h.log.NewEventBuildMsg(glog.LogConstructEvent, -1, destroyedMsg+v.Type().String()).
+ 				Write("key", v.Key()).
+@@ -107,6 +125,9 @@
+ 	n = 0
+ 	for i, v := range h.consNoLimit {
+ 		if v.Expiry() == *h.f {
++			if h.SourceHostObserver != nil {
++				h.SourceHostObserver.ConstructEnded(v, "expired")
++			}
+ 			h.consNoLimit[i].OnDestruct()
+ 			h.log.NewEventBuildMsg(glog.LogConstructEvent, -1, destroyedMsg+v.Type().String()).
+ 				Write("key", v.Key()).
+@@ -217,6 +238,9 @@
+ 	n := 0
+ 	for _, v := range h.constructs {
+ 		if v.Key() == key {
++			if h.SourceHostObserver != nil {
++				h.SourceHostObserver.ConstructEnded(v, "destroyed")
++			}
+ 			v.OnDestruct()
+ 			ok = true
+ 			h.log.NewEventBuildMsg(glog.LogConstructEvent, -1, destroyedMsg+v.Type().String()).
+@@ -234,6 +258,9 @@
+ 	n = 0
+ 	for i, v := range h.consNoLimit {
+ 		if v.Key() == key {
++			if h.SourceHostObserver != nil {
++				h.SourceHostObserver.ConstructEnded(v, "destroyed")
++			}
+ 			h.consNoLimit[i].OnDestruct()
+ 			ok = true
+ 			h.log.NewEventBuildMsg(glog.LogConstructEvent, -1, destroyedMsg+v.Type().String()).

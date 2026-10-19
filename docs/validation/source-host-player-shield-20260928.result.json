@@ -1,0 +1,20 @@
+{
+  "scope": "Pinned source-host player shield and Drain shared formula",
+  "sourceCommits": [
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  ],
+  "checks": [
+    {
+      "command": "git apply --whitespace=nowarn 005-player-incoming.patch; git apply --whitespace=nowarn 006-player-shield-health.patch",
+      "context": "Targeted copies of pkg/avatar/avatar.go, pkg/core/player/shield/template.go, pkg/core/player/shield/handler.go, and internal/template/character/heal.go from each pinned source tree",
+      "result": "b4: 005 exit 0, 006 exit 0; a7: 005 exit 0, 006 exit 0"
+    },
+    {
+      "command": "npx vitest run packages/sim-core/src/__tests__/source-host-shield-formula.test.ts --reporter=dot",
+      "result": "exit 0; 1 file passed; 4 tests passed",
+      "observedAtLocal": "2026-09-28 00:27:15 Asia/Hong_Kong"
+    }
+  ],
+  "buildStatus": "Not run in this focused check; integrated b4/a7 WASM builds are owned by the root task after patches are combined."
+}

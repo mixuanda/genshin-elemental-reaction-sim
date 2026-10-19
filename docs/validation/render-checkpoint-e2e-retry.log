@@ -1,0 +1,13 @@
+Cannot use({ trace }) in a describe group, because it forces a new worker.
+Make it top-level in the test file or put in the configuration file.
+
+   at snapshot-stamina.spec.ts:35
+
+  33 | // their multi-second serialization is separate from the measured ~80 ms production update.
+  34 | // Keep operation/error tracing, all UI assertions and the default 30-second test budget.
+> 35 | test.use({ trace: { mode: "retain-on-failure", snapshots: false } });
+     |      ^
+  36 | test("Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits", async ({ page }) => {
+  37 |   await page.goto("/calculator");
+  38 |   await page.locator("#calc-character").selectOption("character:10000027");
+

@@ -1,0 +1,166 @@
+--- a/internal/template/character/heal.go
++++ b/internal/template/character/heal.go
+@@ -7,19 +7,54 @@
+ )
+ 
+ func (c *Character) CalcHealAmount(hi *info.HealInfo) (float64, float64) {
+-	var hp, bonus float64
+-	switch hi.Type {
+-	case info.HealTypeAbsolute:
+-		hp = hi.Src
+-	case info.HealTypePercent:
+-		hp = c.MaxHP() * hi.Src
+-	}
+-	bonus = 1 + c.HealBonus() + hi.Bonus
++	hp, bonus, _, _ := c.calcHealAmountWithReceipts(hi)
+ 	return hp, bonus
+ }
+ 
++func (c *Character) calcHealAmountWithReceipts(hi *info.HealInfo) (float64, float64, int, int) {
++	var hp, bonus float64
++	var maxHPRead *info.SourceHostStatRead
++	healType := "unsupported"
++	baseInput := map[string]any{"operation": "base", "sourceAmount": hi.Src}
++	switch hi.Type {
++	case info.HealTypeAbsolute:
++		healType = "absolute"
++		hp = hi.Src
++	case info.HealTypePercent:
++		healType = "percent"
++		maxHP := 0.0
++		if c.Core.SourceHost != nil {
++			maxHP, maxHPRead = c.MaxHPWithProvenance()
++		} else {
++			maxHP = c.MaxHP()
++		}
++		baseInput["maxHpForBase"] = maxHP
++		hp = maxHP * hi.Src
++	default:
++		baseInput["originalHealType"] = int(hi.Type)
++	}
++	baseInput["healType"] = healType
++	baseID, bonusID := 0, 0
++	if c.Core.SourceHost != nil {
++		hp, baseID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message, baseInput, maxHPRead, nil, nil)
++	}
++	healBonus := 0.0
++	var bonusRead *info.SourceHostScalarRead
++	if c.Core.SourceHost != nil {
++		healBonus, bonusRead = c.HealBonusWithProvenance()
++	} else {
++		healBonus = c.HealBonus()
++	}
++	bonus = 1 + healBonus + hi.Bonus
++	if c.Core.SourceHost != nil {
++		bonus, bonusID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "bonus", "healBonus": healBonus, "infoBonus": hi.Bonus}, nil, bonusRead, nil)
++	}
++	return hp, bonus, baseID, bonusID
++}
++
+ func (c *Character) Heal(hi *info.HealInfo) (float64, float64) {
+-	hp, bonus := c.CalcHealAmount(hi)
++	hp, bonus, baseID, bonusID := c.calcHealAmountWithReceipts(hi)
+ 
+ 	// save previous hp related values for logging
+ 	prevHPRatio := c.CurrentHPRatio()
+@@ -28,17 +63,42 @@
+ 
+ 	// calc original heal amount
+ 	healAmt := hp * bonus
++	amountID := 0
++	if c.Core.SourceHost != nil {
++		healAmt, amountID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "amount", "baseAmount": hp, "bonusMultiplier": bonus}, nil, nil, []int{baseID, bonusID})
++		c.Core.SourceHost.BeginHealing(amountID)
++	}
+ 
+ 	// change hp and hp debt
+ 	heal := c.CharWrapper.ReceiveHeal(hi, healAmt)
++	receiveID := 0
++	if c.Core.SourceHost != nil {
++		receiveID = c.Core.SourceHost.EndHealing()
++	}
+ 
+ 	// calc overheal
+-	overheal := prevHP + heal - c.MaxHP()
++	maxHpForOverheal := 0.0
++	var maxHPRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHpForOverheal, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHpForOverheal = c.MaxHP()
++	}
++	overheal := prevHP + heal - maxHpForOverheal
+ 	if overheal < 0 {
+ 		overheal = 0
+ 	}
++	overhealID := 0
++	if c.Core.SourceHost != nil {
++		components := []int{amountID}
++		if receiveID > 0 { components = append(components, receiveID) }
++		overheal, overhealID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "overheal", "previousHp": prevHP, "receivedAmount": heal,
++				"maxHpForOverheal": maxHpForOverheal}, maxHPRead, nil, components)
++	}
+ 
+-	c.Core.Log.NewEvent(hi.Message, glog.LogHealEvent, c.Index()).
++	evt := c.Core.Log.NewEvent(hi.Message, glog.LogHealEvent, c.Index()).
+ 		Write("previous_hp_ratio", prevHPRatio).
+ 		Write("previous_hp", prevHP).
+ 		Write("previous_hp_debt", prevHPDebt).
+@@ -46,11 +106,19 @@
+ 		Write("bonus", bonus).
+ 		Write("final amount", healAmt).
+ 		Write("received amount", heal).
+-		Write("overheal", overheal).
+-		Write("current_hp_ratio", c.CurrentHPRatio()).
+-		Write("current_hp", c.CurrentHP()).
+-		Write("current_hp_debt", c.CurrentHPDebt()).
++		Write("overheal", overheal)
++	currentHPRatio := c.CurrentHPRatio()
++	evt.Write("current_hp_ratio", currentHPRatio)
++	currentHP := c.CurrentHP()
++	evt.Write("current_hp", currentHP)
++	currentHPDebt := c.CurrentHPDebt()
++	evt.Write("current_hp_debt", currentHPDebt).
+ 		Write("max_hp", c.MaxHP())
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordHealingApplication(c.Index(), hi.Caller, hi.Message,
++			baseID, bonusID, amountID, receiveID, overhealID,
++			prevHP, prevHPDebt, currentHP, currentHPDebt, healAmt, heal, overheal)
++	}
+ 
+ 	c.Core.Events.Emit(event.OnHeal, hi, c.Index(), heal, overheal, healAmt)
+ 
+@@ -77,9 +145,17 @@
+ 	// calc actual heal amount considering hp debt
+ 	// TODO: assumes that healing can occur in the same heal as debt being cleared, could also be that it can only occur starting from next heal
+ 	// example: hp debt is 10, heal is 11, so char will get healed by 11 - 10 = 1 instead of receiving no healing at all
+-	heal := healAmt - c.CurrentHPDebt()
++	debtAtReceive := c.CurrentHPDebt()
++	heal := healAmt - debtAtReceive
+ 	if heal < 0 {
+ 		heal = 0
++	}
++	if c.Core.SourceHost != nil {
++		healValue, receiveID := c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "receive", "finalAmount": healAmt, "debtAtReceive": debtAtReceive},
++			nil, nil, []int{c.Core.SourceHost.CurrentHealingAmountID()})
++		heal = healValue
++		c.Core.SourceHost.RecordHealingReceive(receiveID)
+ 	}
+ 
+ 	// update hp debt based on original heal amount
+--- a/internal/artifacts/maiden/maiden.go
++++ b/internal/artifacts/maiden/maiden.go
+@@ -48,6 +48,9 @@
+ 				this.AddHealBonusMod(character.HealBonusMod{
+ 					Base: modifier.NewBaseWithHitlag("maiden-4pc", 600),
+ 					Amount: func() float64 {
++						if c.SourceHost != nil {
++							return c.SourceHost.ArtifactScalar(this.Index(), "maiden-4pc-heal", nil, nil, 0)
++						}
+ 						return 0.2
+ 					},
+ 				})

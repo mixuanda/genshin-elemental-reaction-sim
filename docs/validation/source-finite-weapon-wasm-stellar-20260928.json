@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 6.003,
+  "log": "docs/validation/source-finite-weapon-wasm-stellar-20260928.log"
+}

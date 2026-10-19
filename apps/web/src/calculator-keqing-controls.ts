@@ -1,0 +1,15 @@
+import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
+
+const esc = (value: string): string => value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]!);
+const stateSelect = (path: string, label: string, value: boolean | undefined): string => `<label>${label}<select data-keqing-state-field="${esc(path)}"><option value="unknown"${value === undefined ? " selected" : ""}>未知；需明确</option><option value="0"${value === false ? " selected" : ""}>否</option><option value="1"${value === true ? " selected" : ""}>是</option></select></label>`;
+const numeric = (path: string, label: string, value: number | undefined, maximum?: number, readonly = false): string => `<label>${label}<input type="number" data-field="${esc(path)}" data-keqing-number-field data-optional-number min="0" ${maximum === undefined ? 'step="any"' : `max="${maximum}" step="1"`} ${readonly ? 'readonly aria-readonly="true"' : ""} value="${value ?? ""}" placeholder="未知则留空"></label>`;
+
+/** Per-hit states are deliberately not filled from the selected reaction or another hit. */
+export function renderKeqingConstellationControls(document: CalculatorDocument): string {
+  const game = document.gameContext, context = game?.keqingBurst;
+  if (!game || !context || game.constellation < 4) return "";
+  return `<fieldset><legend>C4 / C6：逐击状态与共享面板记账</legend><p class="calculator-hint">各行描述该击快照时实际有效的状态。“已含”只指共享输入面板内已有的份额，和本击状态分别填写；失效的旧份额可按基础攻击或层数扣除。选择了哪种反应，不证明其伤害快照前已经触发 C4。</p>${document.hits.filter((hit) => hit.kind === "ordinary").map((hit) => {
+    const state = context.hitStates[hit.id] ?? {}, path = `gameContext.keqingBurst.hitStates.${hit.id}`, selected = document.selectedHitIds.includes(hit.id);
+    return `<details data-keqing-hit-context="${esc(hit.id)}"${selected && document.scope === "single-hit" ? " open" : ""}><summary>${esc(hit.label)}${selected ? " · 已选" : " · 未选"}</summary><div class="calculator-fields">${stateSelect(`${path}.c4Active`, "本击快照时 C4 有效", state.c4Active)}${stateSelect(`${path}.c4IncludedInPanel`, "共享 ATK 输入已包含 C4 的25%基础攻击", state.c4IncludedInPanel)}${numeric(`${path}.baseAttack`, document.build.mode === "equipment-derived" ? "当前角色 + 武器基础攻击（来源配装）" : "该面板基础攻击（不是最终 ATK）", state.baseAttack, undefined, document.build.mode === "equipment-derived")}${game.constellation >= 6 ? stateSelect(`${path}.c6NormalActive`, "本击 C6 普攻类别有效", state.c6NormalActive) + stateSelect(`${path}.c6ChargedActive`, "本击 C6 重击类别有效", state.c6ChargedActive) + stateSelect(`${path}.c6SkillActive`, "本击 C6 初次 E 类别有效", state.c6SkillActive) + numeric(`${path}.c6IncludedStacks`, "本击已填增伤中含有的 C6 类别数（0–4）", state.c6IncludedStacks, 4) : ""}</div><p class="calculator-hint">C4 差值 = 基础攻击 ×25%×（本击有效 − 共享面板已含），直接加到本击 ATK，不能再乘攻击百分比。两份状态相同则差值为零，不要求未知基础攻击。${game.constellation >= 6 ? " 本次 Q 的 C6 类别已由起手同步刷新，十击中固定计一类；其他三类各自填写，旧 Q 不多算一层。" : ""}</p></details>`;
+  }).join("")}<p class="calculator-hint">只缺某一击的状态时，该击被阻塞；独立单击可选已填完整的一行。导入展示柜不会证明 C4/C6 临时增益是否已计入，相关记账保持未知；新来源配装明确不含角色状态，按未含重建。此处不推演触发历史、八秒/十秒时钟或卡肉。</p></fieldset>`;
+}

@@ -1,0 +1,583 @@
+{
+  "schemaVersion": 1,
+  "status": "passed-one-controlled-same-frame-source-scenario",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "scope": "Independent arithmetic and log-order comparison of one archived external gcsim sample; not a local-simulator result.",
+  "parameters": {
+    "source": "docs/cross-validation/action-library/kuki-source-parameters.json",
+    "sha256": "121ee826718d683314c0d0a48eaed526008517374dddf13b9a90bc67338fea51",
+    "override": {
+      "kukishinobu.initialEnergy": 60
+    },
+    "durationFrames": 960
+  },
+  "randomness": {
+    "aggregateSeed": "8657629235194519853",
+    "sampleSeed": "4622440989320708706",
+    "aggregateIterations": 1,
+    "sampleTrajectories": 1,
+    "crossEngineSameSeedClaim": false
+  },
+  "sameFrame564": {
+    "healLogIndex": 82,
+    "burstSnapshotLogIndex": 83,
+    "burstActionLogIndex": 86,
+    "hpBeforeHeal": 7394.142141417917,
+    "hpAfterHeal": 8424.575198408174,
+    "hpRatioBeforeHeal": 0.4852457919264609,
+    "hpRatioAfterHeal": 0.5528686878896913,
+    "sourceBranchCondition": "CurrentHPRatio() <= 0.5 at Burst() execution",
+    "selectedHitCount": 7,
+    "events": [
+      {
+        "sampleLogIndex": 81,
+        "char_index": 0,
+        "ended": 564,
+        "event": "character",
+        "frame": 564,
+        "logs": {},
+        "msg": "Bell ticking",
+        "ordering": {}
+      },
+      {
+        "sampleLogIndex": 82,
+        "char_index": 0,
+        "ended": 564,
+        "event": "heal",
+        "frame": 564,
+        "logs": {
+          "base amount": 896.02874520892,
+          "bonus": 1.15,
+          "current_hp": 8424.575198408174,
+          "current_hp_debt": 0,
+          "current_hp_ratio": 0.5528686878896913,
+          "final amount": 1030.433056990258,
+          "max_hp": 15237.931506964002,
+          "overheal": 0,
+          "previous_hp": 7394.142141417917,
+          "previous_hp_debt": 0,
+          "previous_hp_ratio": 0.4852457919264609,
+          "received amount": 1030.433056990258
+        },
+        "msg": "Grass Ring of Sanctification Healing",
+        "ordering": {
+          "base amount": 3,
+          "bonus": 4,
+          "current_hp": 9,
+          "current_hp_debt": 10,
+          "current_hp_ratio": 8,
+          "final amount": 5,
+          "max_hp": 11,
+          "overheal": 7,
+          "previous_hp": 1,
+          "previous_hp_debt": 2,
+          "previous_hp_ratio": 0,
+          "received amount": 6
+        }
+      },
+      {
+        "sampleLogIndex": 83,
+        "char_index": 0,
+        "ended": 564,
+        "event": "snapshot",
+        "frame": 564,
+        "logs": {
+          "abil": "Gyoei Narukami Kariyama Rite",
+          "durability": 25,
+          "ele": "electro",
+          "final_stats": [
+            "hp%: 0.24",
+            "er: 1.00",
+            "em: 200.00",
+            "cd: 0.50",
+            "base_hp: 12288.65",
+            "base_atk: 235.64",
+            "base_def: 750.77"
+          ],
+          "icd_group": 0,
+          "icd_tag": 31,
+          "kuki-a1": [
+            "status: rejected",
+            "reason: conditions not met"
+          ],
+          "mult": 0
+        },
+        "msg": "Gyoei Narukami Kariyama Rite",
+        "ordering": {
+          "abil": 0,
+          "durability": 3,
+          "ele": 2,
+          "final_stats": 7,
+          "icd_group": 5,
+          "icd_tag": 4,
+          "kuki-a1": 6,
+          "mult": 1
+        }
+      },
+      {
+        "sampleLogIndex": 84,
+        "char_index": 0,
+        "ended": 564,
+        "event": "cooldown",
+        "frame": 564,
+        "logs": {
+          "charges_remain": 0,
+          "cooldown_queue": "900",
+          "expiry": 900,
+          "modified_cd_by_cdr": 900,
+          "original_cd": 900,
+          "type": "burst"
+        },
+        "msg": "burst cooldown triggered",
+        "ordering": {
+          "charges_remain": 4,
+          "cooldown_queue": 5,
+          "expiry": 1,
+          "modified_cd_by_cdr": 3,
+          "original_cd": 2,
+          "type": 0
+        }
+      },
+      {
+        "sampleLogIndex": 85,
+        "char_index": 0,
+        "ended": 628,
+        "event": "hitlag",
+        "frame": 564,
+        "logs": {
+          "AnimationLength": 63,
+          "CanQueueAfter": 62,
+          "State": "burst",
+          "aim": 63,
+          "attack": 62,
+          "burst": 63,
+          "charge": 63,
+          "dash": 63,
+          "delay": 63,
+          "high_plunge": 63,
+          "invalid": 63,
+          "jump": 63,
+          "low_plunge": 63,
+          "skill": 62,
+          "swap": 62,
+          "wait": 63,
+          "walk": 63
+        },
+        "msg": "burst started",
+        "ordering": {
+          "AnimationLength": 0,
+          "CanQueueAfter": 1,
+          "State": 2,
+          "aim": 10,
+          "attack": 6,
+          "burst": 5,
+          "charge": 7,
+          "dash": 11,
+          "delay": 16,
+          "high_plunge": 8,
+          "invalid": 3,
+          "jump": 12,
+          "low_plunge": 9,
+          "skill": 4,
+          "swap": 13,
+          "wait": 15,
+          "walk": 14
+        }
+      },
+      {
+        "sampleLogIndex": 86,
+        "char_index": 0,
+        "ended": 564,
+        "event": "action",
+        "frame": 564,
+        "logs": {
+          "action": "burst",
+          "stam_post": 240,
+          "swap_cd_post": 0
+        },
+        "msg": "executed burst",
+        "ordering": {
+          "action": 0,
+          "stam_post": 1,
+          "swap_cd_post": 2
+        }
+      }
+    ]
+  },
+  "burstEnergyDebit": {
+    "frame": 568,
+    "max_energy": 60,
+    "post_drain": 0,
+    "pre_drain": 60,
+    "source": "kukishinobu-burst-energy-drain"
+  },
+  "hits": [
+    {
+      "frame": 12,
+      "ability": "Sanctifying Ring",
+      "kind": "skill",
+      "sourceFrame": 1,
+      "damage": 102.784237383168,
+      "expectedDamage": 102.784237383168,
+      "residual": 0.0
+    },
+    {
+      "frame": 116,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 114,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 206,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 204,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 296,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 294,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 386,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 384,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 476,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 474,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 566,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 564,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 614,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 631,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 648,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 656,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 654,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    },
+    {
+      "frame": 665,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 682,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 699,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 716,
+      "ability": "Gyoei Narukami Kariyama Rite",
+      "kind": "burst",
+      "sourceFrame": 564,
+      "damage": 247.18362973336724,
+      "expectedDamage": 247.18362973336724,
+      "residual": 0.0
+    },
+    {
+      "frame": 746,
+      "ability": "Grass Ring of Sanctification",
+      "kind": "skill",
+      "sourceFrame": 744,
+      "damage": 49.26424016736,
+      "expectedDamage": 49.26424016736,
+      "residual": 0.0
+    }
+  ],
+  "heals": [
+    {
+      "frame": 114,
+      "targetId": "amber",
+      "targetIndex": 1,
+      "hpBefore": 396.6291,
+      "hpAfter": 793.2582,
+      "base": 896.02874520892,
+      "bonus": 1.15,
+      "raw": 1030.433056990258,
+      "effective": 396.6291,
+      "overheal": 633.8039569902578,
+      "expectedHPAfter": 793.2582,
+      "hpAfterResidual": 0.0,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 204,
+      "targetId": "amber",
+      "targetIndex": 1,
+      "hpBefore": 793.2582,
+      "hpAfter": 793.2582,
+      "base": 896.02874520892,
+      "bonus": 1.15,
+      "raw": 1030.433056990258,
+      "effective": 0.0,
+      "overheal": 1030.433056990258,
+      "expectedHPAfter": 793.2582,
+      "hpAfterResidual": 0.0,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 294,
+      "targetId": "amber",
+      "targetIndex": 1,
+      "hpBefore": 793.2582,
+      "hpAfter": 793.2582,
+      "base": 896.02874520892,
+      "bonus": 1.15,
+      "raw": 1030.433056990258,
+      "effective": 0.0,
+      "overheal": 1030.433056990258,
+      "expectedHPAfter": 793.2582,
+      "hpAfterResidual": 0.0,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 384,
+      "targetId": "kukishinobu",
+      "targetIndex": 0,
+      "hpBefore": 5333.2760274374,
+      "hpAfter": 6363.709084427658,
+      "base": 896.02874520892,
+      "bonus": 1.15,
+      "raw": 1030.433056990258,
+      "effective": 1030.4330569902577,
+      "overheal": 0,
+      "expectedHPAfter": 6363.709084427659,
+      "hpAfterResidual": -9.094947017729282e-13,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 474,
+      "targetId": "kukishinobu",
+      "targetIndex": 0,
+      "hpBefore": 6363.709084427658,
+      "hpAfter": 7394.142141417917,
+      "base": 896.02874520892,
+      "bonus": 1.15,
+      "raw": 1030.433056990258,
+      "effective": 1030.4330569902586,
+      "overheal": 0,
+      "expectedHPAfter": 7394.142141417917,
+      "hpAfterResidual": 0.0,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 564,
+      "targetId": "kukishinobu",
+      "targetIndex": 0,
+      "hpBefore": 7394.142141417917,
+      "hpAfter": 8424.575198408174,
+      "base": 896.02874520892,
+      "bonus": 1.15,
+      "raw": 1030.433056990258,
+      "effective": 1030.4330569902577,
+      "overheal": 0,
+      "expectedHPAfter": 8424.575198408174,
+      "hpAfterResidual": 0.0,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 654,
+      "targetId": "kukishinobu",
+      "targetIndex": 0,
+      "hpBefore": 8424.575198408174,
+      "hpAfter": 9320.603943617094,
+      "base": 896.02874520892,
+      "bonus": 1,
+      "raw": 896.02874520892,
+      "effective": 896.0287452089196,
+      "overheal": 0,
+      "expectedHPAfter": 9320.603943617094,
+      "hpAfterResidual": 0.0,
+      "matchesPriorEOnlyTrajectory": true
+    },
+    {
+      "frame": 744,
+      "targetId": "kukishinobu",
+      "targetIndex": 0,
+      "hpBefore": 9320.603943617094,
+      "hpAfter": 10216.632688826016,
+      "base": 896.02874520892,
+      "bonus": 1,
+      "raw": 896.02874520892,
+      "effective": 896.0287452089215,
+      "overheal": 0,
+      "expectedHPAfter": 10216.632688826014,
+      "hpAfterResidual": 1.8189894035458565e-12,
+      "matchesPriorEOnlyTrajectory": true
+    }
+  ],
+  "totals": {
+    "skillDamage": 496.89815872204804,
+    "burstDamage": 1730.2854081335706,
+    "totalDamage": 2227.1835668556187,
+    "aggregateMeanDPS": 139.1989729284762,
+    "skillHitCount": 9,
+    "burstHitCount": 7,
+    "healCount": 8,
+    "maxAbsoluteHitDamageResidual": 0.0,
+    "maxAbsoluteHPAfterResidual": 1.8189894035458565e-12
+  },
+  "formulas": {
+    "burstNonCritical": "15237.931506964002 * 0.036048 * (190 / 380) * 0.9",
+    "burstExpectedPerHit": 247.18362973336724,
+    "burstIntervalFrames": "integer division 2 * 60 / 7 = 17",
+    "expectedBurstFrames": [
+      614,
+      631,
+      648,
+      665,
+      682,
+      699,
+      716
+    ]
+  },
+  "sampleParticles": [
+    {
+      "sampleParticleId": "gcsim-sample-4622440989320708706-arrival-666",
+      "arrivalFrame": 666,
+      "inferredSourceHitFrame": 566,
+      "originEvidence": "Arrival minus explicit 100-frame delay; sample does not log source particle IDs.",
+      "recoveries": [
+        {
+          "targetId": "kukishinobu",
+          "ER": 1,
+          "amt": 3,
+          "count": 1,
+          "ele": "electro",
+          "is_active": true,
+          "max_energy": 60,
+          "party_count": 2,
+          "post_recovery": 3,
+          "pre_recovery": 0,
+          "source": "kukishinobu"
+        },
+        {
+          "targetId": "amber",
+          "ER": 1,
+          "amt": 0.8,
+          "count": 1,
+          "ele": "electro",
+          "is_active": false,
+          "max_energy": 40,
+          "party_count": 2,
+          "post_recovery": 0.8,
+          "pre_recovery": 0,
+          "source": "kukishinobu"
+        }
+      ]
+    },
+    {
+      "sampleParticleId": "gcsim-sample-4622440989320708706-arrival-756",
+      "arrivalFrame": 756,
+      "inferredSourceHitFrame": 656,
+      "originEvidence": "Arrival minus explicit 100-frame delay; sample does not log source particle IDs.",
+      "recoveries": [
+        {
+          "targetId": "kukishinobu",
+          "ER": 1,
+          "amt": 3,
+          "count": 1,
+          "ele": "electro",
+          "is_active": true,
+          "max_energy": 60,
+          "party_count": 2,
+          "post_recovery": 6,
+          "pre_recovery": 3,
+          "source": "kukishinobu"
+        },
+        {
+          "targetId": "amber",
+          "ER": 1,
+          "amt": 0.8,
+          "count": 1,
+          "ele": "electro",
+          "is_active": false,
+          "max_energy": 40,
+          "party_count": 2,
+          "post_recovery": 1.6,
+          "pre_recovery": 0.8,
+          "source": "kukishinobu"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "C0 A6 static build, no enemy aura/reactions/hitlag; low-HP 12-hit branch not externally run in this task.",
+    "Gcsim source comment mentions 11 low-HP hits, but executable count is 12; this scenario selects the 7-hit branch.",
+    "Aggregate and sample have separate random trajectories; only sample particles are reported here.",
+    "Preexisting source task queues are executed before resumed input in this fixed simulation loop; this is not a general claim that every event in every engine shares one priority."
+  ]
+}

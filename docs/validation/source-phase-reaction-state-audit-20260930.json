@@ -1,0 +1,248 @@
+{
+  "schemaVersion": 1,
+  "round": 119,
+  "scope": "ordinary electrocharged and burning source-state phase descriptors",
+  "status": "private patches ready; gofmt/default git apply --check passed on both fresh bases; no build/test",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-ZDxiiA/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-2MTRcn/source"
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch119/classic/receipt.json",
+      "sha256": "6052ba0f51c0948b31e460f97c89789f6f061d2e61b67b20910f32920cabe677",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "72f388fc1e722a81ceabbb7aee7d7c54767f302a61f3f04ee78bf88470220b96"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch119/stellar/receipt.json",
+      "sha256": "b5b58cde6725a2124173e5279ac72fcbd8ae89434c5717ba71593943045b9d7d",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "c50967f7e50e6584c1a18ab3c8f8113d93ca8ecb2a25a35e6a5c101d42c741a9"
+    }
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "pkg/reactable/burning.go": "da8dd565a0e5361dd646900be6add09d6f1216234e7cf9ccac3a0de907273b36",
+      "pkg/reactable/electrocharged.go": "cd667ac75d08cf0e80670d5f5aafb5675668a4f1a80ccd88a9a29b14c5da63c0",
+      "pkg/reactable/sourcehost_phase.go": "b4f82913b020151d324999d82a86b6725dbceca573a8bfc3352fdbb6650709e1",
+      "pkg/reactable/reactable.go": "d6112d3151611fe909f1d499a6e3b0c3dca4153aa61b8b64dbd5e4d40efaa0fc",
+      "pkg/enemy/hitlag.go": "0b4d393ae662e45598ed0c496088e0d7d62611f75eba22f8083a9fbfb0f27799",
+      "pkg/enemy/sourcehost_phase.go": "bbf6957e19d8468b2af63a1e9b5f08e829be2877238350afa9a9135bb2faa5f4",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/task/sourcehost_phase.go": "c834ac4146c7222562edfdcc3488a11d6966476bcab04d7848c4e06fbc3459a0",
+      "pkg/core/event/event.go": "d416a671ddfd32a946e7bdd57108831e68e135e30adab94f4cf4006ff503e56c",
+      "pkg/core/event/sourcehost_phase.go": "dc2b4cac26660c25abb754cdce670f9c69ae650f303670664fdc5a38800b3874",
+      "pkg/core/phase/descriptor.go": "8f4e7bfc0630ca973ec7e0295a784283951c1eeb0dddd8e5526d1f3d1f47963f"
+    },
+    "stellar": {
+      "pkg/reactable/burning.go": "da8dd565a0e5361dd646900be6add09d6f1216234e7cf9ccac3a0de907273b36",
+      "pkg/reactable/electrocharged.go": "cd667ac75d08cf0e80670d5f5aafb5675668a4f1a80ccd88a9a29b14c5da63c0",
+      "pkg/reactable/sourcehost_phase.go": "b4f82913b020151d324999d82a86b6725dbceca573a8bfc3352fdbb6650709e1",
+      "pkg/reactable/reactable.go": "7c472b397d30f1b719a019328faff7a55c451b5dfe4c792c121fe6a0d6fa4450",
+      "pkg/enemy/hitlag.go": "0b4d393ae662e45598ed0c496088e0d7d62611f75eba22f8083a9fbfb0f27799",
+      "pkg/enemy/sourcehost_phase.go": "bbf6957e19d8468b2af63a1e9b5f08e829be2877238350afa9a9135bb2faa5f4",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/task/sourcehost_phase.go": "c834ac4146c7222562edfdcc3488a11d6966476bcab04d7848c4e06fbc3459a0",
+      "pkg/core/event/event.go": "444b41adaa2519085012e352dc3f6dd231e82aff20748e1e8cb2040d84cd6362",
+      "pkg/core/event/sourcehost_phase.go": "dc2b4cac26660c25abb754cdce670f9c69ae650f303670664fdc5a38800b3874",
+      "pkg/core/phase/descriptor.go": "8f4e7bfc0630ca973ec7e0295a784283951c1eeb0dddd8e5526d1f3d1f47963f"
+    }
+  },
+  "patchedSourceHashesSha256": {
+    "classic": {
+      "pkg/reactable/burning.go": "38b50af936ebf8087eb0318ce94243314ffbd27485f48bcdd506a92c35aa7d83",
+      "pkg/reactable/electrocharged.go": "86bc3aefd5f75d8bc93749141f7fe26aaaca108b83d619fa36afc3f46416201a",
+      "pkg/reactable/sourcehost_phase.go": "c44bf9a3c3ae5478be38ab07ea3cd395ac3b3ebe2c058280bebc132c9b732cbc",
+      "pkg/enemy/sourcehost_phase_tasks.go": "9a2aa4f4623391def64a123f62458f086794f31e73994d649cda636523fc73ad"
+    },
+    "stellar": {
+      "pkg/reactable/burning.go": "38b50af936ebf8087eb0318ce94243314ffbd27485f48bcdd506a92c35aa7d83",
+      "pkg/reactable/electrocharged.go": "86bc3aefd5f75d8bc93749141f7fe26aaaca108b83d619fa36afc3f46416201a",
+      "pkg/reactable/sourcehost_phase.go": "c44bf9a3c3ae5478be38ab07ea3cd395ac3b3ebe2c058280bebc132c9b732cbc",
+      "pkg/enemy/sourcehost_phase_tasks.go": "9a2aa4f4623391def64a123f62458f086794f31e73994d649cda636523fc73ad"
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/119-reaction-phase/119-reaction-phase-classic.patch",
+      "sha256": "56d638599822680f1a0373c3c6b7fe8a1940b1e1c03bc0d4b91243345398db6c",
+      "bytes": 7372
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/119-reaction-phase/119-reaction-phase-stellar.patch",
+      "sha256": "56d638599822680f1a0373c3c6b7fe8a1940b1e1c03bc0d4b91243345398db6c",
+      "bytes": 7372
+    }
+  },
+  "validation": {
+    "classic": {
+      "gofmt": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "sourceFiles": [
+          "pkg/reactable/burning.go",
+          "pkg/reactable/electrocharged.go",
+          "pkg/reactable/sourcehost_phase.go",
+          "pkg/enemy/sourcehost_phase_tasks.go"
+        ],
+        "result": "passed"
+      },
+      "gitApplyCheck": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/build-ZDxiiA/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/119-reaction-phase/119-reaction-phase-classic.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "receiptHashMatch": true,
+      "frozenTargetsUnchanged": true
+    },
+    "stellar": {
+      "gofmt": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "sourceFiles": [
+          "pkg/reactable/burning.go",
+          "pkg/reactable/electrocharged.go",
+          "pkg/reactable/sourcehost_phase.go",
+          "pkg/enemy/sourcehost_phase_tasks.go"
+        ],
+        "result": "passed"
+      },
+      "gitApplyCheck": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/stellar-build-2MTRcn/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/119-reaction-phase/119-reaction-phase-stellar.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "receiptHashMatch": true,
+      "frozenTargetsUnchanged": true
+    }
+  },
+  "sourcePathsModified": [
+    "pkg/reactable/burning.go",
+    "pkg/reactable/electrocharged.go",
+    "pkg/reactable/sourcehost_phase.go",
+    "pkg/enemy/sourcehost_phase_tasks.go"
+  ],
+  "apiDependencies": {
+    "rootOwnedCanonicalInfoHelpers": [
+      "info.SourceHostPhaseAttackInfo(AttackInfo) AttackInfo",
+      "info.SourceHostPhaseSnapshot(Snapshot, frame int) map[string]any"
+    ],
+    "reason": "Reaction live attack/snapshot state delegates to canonical copy-and-normalize implementation. Snapshot SourceFrame is gameplay state and must remain as sourceAgeFrames; all SourceHost receipt metadata is normalized only by the root helper.",
+    "enemyHelper": "Enemy.QueueEnemyTaskWithPhase(func(),delay,key,phase.Descriptor), new optional concrete method; original reactable.Enemy and info.Enemy interfaces/type assertions are unchanged."
+  },
+  "descriptors": [
+    {
+      "source": "pkg/reactable/electrocharged.go:nextECTick",
+      "registration": "TryAddEC first tick and nextECTick recursive tick",
+      "queueKey": "reaction-electrocharged-tick",
+      "clock": "core",
+      "nativeDelays": [
+        70,
+        60
+      ],
+      "capturedState": [
+        "r reference via targetKey/targetType",
+        "src expressed as current core frame minus captured src",
+        "current ecTickSrc equality with captured src"
+      ],
+      "liveReferencedState": [
+        "Reactable SourceHostPhaseState durability/decay/ec active generation/attack/snapshot",
+        "normal core/player/target state providers"
+      ],
+      "deadline": "Existing task handler executeBy-current native core clock and native FIFO rank; no manual deadline forecast.",
+      "preservedGuards": "ecTickSrc!=src returns, missing Electro or Hydro returns; exact original QueueAttackWithSnap0 then queue next+60."
+    },
+    {
+      "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-event",
+      "registration": "exact original OnEnemyDamage subscription key ec-{targetKey}",
+      "capturedState": [
+        "r target reference",
+        "evtRemovalTyp",
+        "evtRemovalKey"
+      ],
+      "liveReferencedState": [
+        "current target key and elemental durabilities via existing reaction provider"
+      ],
+      "notCaptured": "n, attack and dmg are runtime event arguments, not persistent closure captures; no generation is invented.",
+      "preservedGuards": "target equality, ECDamage tag, nonzero dmg, electro/hydro presence and original unsubscribe behavior; successful branch registers unchanged+6 task.",
+      "eventOrdering": "SubscribeWithPhase delegates same native subscribe implementation and retains key replacement/slot order; descriptor is not Observational."
+    },
+    {
+      "source": "pkg/reactable/electrocharged.go:TryAddEC:wane-task",
+      "queueKey": "reaction-electrocharged-wane",
+      "clock": "core",
+      "nativeDelay": 6,
+      "capturedState": [
+        "r target reference only"
+      ],
+      "liveReferencedState": [
+        "current Durability/DecayRate, ecTickSrc and event handler state"
+      ],
+      "preservation": "Still invokes original waneEC only when task executes; observer does not reduce auras, call checkEC, unsubscribe, log or emit. Pending wane applies to live state even after generation changes, exactly as native source."
+    },
+    {
+      "source": "pkg/reactable/burning.go:nextBurningTick",
+      "queueKey": "reaction-burning-tick",
+      "clock": "enemy",
+      "nativeDelay": 15,
+      "capturedState": [
+        "r target reference",
+        "src expressed relative to current core frame",
+        "native counter without capping or inferring damage count",
+        "captured t queue target reference Key/Type when info.Target is implemented",
+        "current burningTickSrc equality with captured src"
+      ],
+      "deadline": "Native enemy queue executeBy-enemy timePassed and FIFO rank, not global frames. Existing enemy phase state includes frozenFrames and queue provider.",
+      "counterAudit": "Queued task is removed from heap before execution. The pending descriptor records exactly the src/counter/t queue arguments; original task increments its captured counter before creating the next task, whose descriptor receives that incremented value. Counter9 remains the source skip branch; no modulo or saturated counter is invented.",
+      "preservedGuards": "original generation check and both BurningFuel/Burning presence checks unchanged; enemy damage and player self-damage QueueAttackWithSnap order unchanged; original next+15 preserved.",
+      "compatibilityFallback": "Targets implementing original Enemy only still use original QueueEnemyTask. Active burning keeps burning-enemy-task-phase-descriptor-unavailable, and generic queued closure gaps remain. No target is silently removed from the original type assertion domain."
+    }
+  ],
+  "reactionStateChanges": {
+    "removedUnconditionalGaps": [
+      "electrocharged-task-and-event-captured-state",
+      "burning-task-captured-counter-and-generation"
+    ],
+    "whyRemovalIsBounded": "All native ordinary EC task/event registrations and both burning task registrations are now described; reaction live values remain in existing provider. Unknown enemy task implementations retain a specific gap, generic missing task/event providers stay conservative.",
+    "retainedGeneration": "Existing generationAgeFrames remains for active EC/burning; pending callbacks additionally retain their own capturedGenerationAgeFrames and equality to live generation, including stale tasks. No raw age, counter or deadline is dropped for the sake of phase equality.",
+    "snapshot": "Root canonical helper copies full gameplay snapshot stats/level plus relative SourceFrame; previous reaction export omission of SourceFrame is corrected.",
+    "reactableReference": "Descriptor stores exact native target Key/Type rather than serializing or executing r; target and reaction state are already observed by corresponding providers."
+  },
+  "laneAudit": "The three modified existing source files are byte-identical between verified classic and Stellar bases. Ordinary EC still delegates unchanged to TryAddLC when LunarChargeEnableKey is present; LC and other reaction-specific omissions are not marked complete by this patch.",
+  "observerReadAudit": [
+    "All Observe closures only allocate maps, read captured integers/strings/event enum, read native target identity and compare generation fields.",
+    "No Observe closure invokes original nextECTick/nextBurningTick/EC event callback/waneEC or any game callback.",
+    "No observer applies attacks, chooses targets, advances a clock, queues tasks, consumes RNG, mutates status/auras or emits events.",
+    "Canonical attack/snapshot helpers are root-owned and must not invoke gameplay callbacks; required signatures documented above."
+  ],
+  "preservedBehavior": [
+    "Original callback construction occurs once per native registration.",
+    "Queue helper does not retarget or convert enemy timers to core timers; delay-zero path exactly mirrors existing QueueEnemyTask.",
+    "Source task/event keys and descriptors add observation metadata only; heap insertion order, clock pointer, task count, delays, and gameplay callback body remain unchanged.",
+    "No character, finite-cast, producer ownership or registry files changed."
+  ],
+  "remainingUnknownScope": [
+    "Undescribed queues/listeners elsewhere still produce their existing gaps.",
+    "No claim of Lunar-Charged or unrelated reaction lifecycle coverage.",
+    "Target implementations without phase queue support remain explicitly unknown.",
+    "Full build/runtime phase-equality validation belongs to root; only gofmt and patch applicability were checked here."
+  ],
+  "repositoryFilesChanged": false
+}

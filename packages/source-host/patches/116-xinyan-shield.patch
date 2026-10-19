@@ -1,0 +1,135 @@
+--- a/internal/characters/xinyan/skill.go
++++ b/internal/characters/xinyan/skill.go
+@@ -48,20 +48,38 @@
+ 	defFactor := snap.Stats.TotalDEF()
+ 
+ 	hitOpponents := 0
+-	cb := func(_ info.AttackCB) {
++	cb := func(callback info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("xinyan.skill.shield-hit-callback", callback)
+ 		hitOpponents++
+-		c.QueueCharTask(func() {
+-			if hitOpponents >= c.shieldLevel3Requirement && c.shieldLevel < 3 {
+-				c.updateShield(3, defFactor, &snap, 0)
+-			} else if hitOpponents >= c.shieldLevel2Requirement && c.shieldLevel < 2 {
+-				c.updateShield(2, defFactor, &snap, 0)
++		c.Core.SourceHostHitCallbackFact("xinyan.skill.hit-count", float64(hitOpponents))
++		c.SourceHostQueueHitCallbackCharTask("xinyan.skill.hit-shield-upgrade-task", func() {
++			hitCount := hitOpponents
++			shieldLevel := c.shieldLevel
++			level2Threshold := c.shieldLevel2Requirement
++			level3Threshold := c.shieldLevel3Requirement
++			c.Core.SourceHostAbilityProducerFact("xinyan.skill.hit-count", float64(hitCount))
++			c.Core.SourceHostAbilityProducerFact("xinyan.skill.shield-level", float64(shieldLevel))
++			c.Core.SourceHostAbilityProducerFact("xinyan.skill.level2-threshold", float64(level2Threshold))
++			c.Core.SourceHostAbilityProducerFact("xinyan.skill.level3-threshold", float64(level3Threshold))
++			c.Core.SourceHostAbilityProducerFact("xinyan.skill.birth-level", 0)
++			if hitCount >= level3Threshold && shieldLevel < 3 {
++				c.Core.SourceHostAbilityProducerFact("xinyan.skill.birth-level", 3)
++				c.updateShield(3, defFactor, &snap, 0, "xinyan.skill.hit-shield-upgrade-birth")
++			} else if hitCount >= level2Threshold && shieldLevel < 2 {
++				c.Core.SourceHostAbilityProducerFact("xinyan.skill.birth-level", 2)
++				c.updateShield(2, defFactor, &snap, 0, "xinyan.skill.hit-shield-upgrade-birth")
+ 			}
+ 		}, skillShieldStart-skillHitmark)
+ 	}
+ 
+-	if c.Core.Player.Shields.Get(shield.XinyanSkill) == nil {
+-		c.QueueCharTask(func() {
+-			c.updateShield(1, defFactor, &snap, 0)
++	existingShield := c.Core.Player.Shields.Get(shield.XinyanSkill)
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityBoolFact("xinyan.skill.initial-shield-present", existingShield != nil)
++	}
++	if existingShield == nil {
++		c.SourceHostQueueCharTask("xinyan.skill.initial-shield-task", func() {
++			c.updateShield(1, defFactor, &snap, 0, "xinyan.skill.initial-shield-birth")
++			c.Core.SourceHostAbilityProducerFact("xinyan.skill.initial-shield-birth-count", 1)
+ 		}, skillShieldStart)
+ 	}
+ 	c.Core.QueueAttack(
+@@ -98,26 +116,36 @@
+ 
+ func (c *char) shieldDot(src int) func() {
+ 	return func() {
+-		if c.Core.Player.Shields.Get(shield.XinyanSkill) == nil {
++		c.Core.SourceHostShieldTaskFact("xinyan.shield.dot.source-frame", float64(src))
++		c.Core.SourceHostShieldTaskFact("xinyan.shield.dot.attack-count", 0)
++		gateShield := c.Core.Player.Shields.Get(shield.XinyanSkill)
++		c.Core.SourceHostShieldTaskGate(gateShield)
++		if gateShield == nil {
+ 			return
+ 		}
+-		if c.shieldLevel != 3 {
++		level := c.shieldLevel
++		c.Core.SourceHostShieldTaskFact("xinyan.shield.dot.level", float64(level))
++		if level != 3 {
+ 			return
+ 		}
+-		if c.shieldTickSrc != src {
++		tickSource := c.shieldTickSrc
++		c.Core.SourceHostShieldTaskFact("xinyan.shield.dot.tick-source", float64(tickSource))
++		if tickSource != src {
+ 			return
+ 		}
+ 
+ 		ai := c.getAttackInfoShieldDoT()
+-		c.Core.QueueAttack(
++		c.Core.SourceHostQueueShieldAttack(
++			"xinyan.shield.dot.attack",
+ 			ai,
+ 			combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 3),
+ 			1,
+ 			1,
+ 			c.makeC1CB(),
+ 		)
+-
+-		c.Core.Tasks.Add(c.shieldDot(src), 2*60)
++		c.Core.SourceHostShieldTaskFact("xinyan.shield.dot.attack-count", 1)
++
++		c.Core.SourceHostQueueShieldTask("xinyan.shield.dot-next-task", c.shieldDot(src), 2*60)
+ 	}
+ }
+ 
+@@ -135,7 +163,7 @@
+ 	}
+ }
+ 
+-func (c *char) updateShield(level int, defFactor float64, snapshot *info.Snapshot, defFactorID int) {
++func (c *char) updateShield(level int, defFactor float64, snapshot *info.Snapshot, defFactorID int, birthSiteID string) {
+ 	previousLevel := c.shieldLevel
+ 	c.shieldLevel = level
+ 	shieldhp := 0.0
+@@ -169,12 +197,16 @@
+ 			shieldhp, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), ruleID, map[string]any{"flat": flat, "ratio": ratio, "totalDef": defFactor}, nil, snapshot)
+ 		}
+ 	}
++	shieldTaskID := 0
+ 	if c.shieldLevel == 3 {
+ 		c.shieldTickSrc = c.Core.F
+-		c.Core.Tasks.Add(c.shieldDot(c.Core.F), 2*60)
++		shieldTaskID = c.Core.SourceHostQueueShieldTask("xinyan.shield.dot-first-task", c.shieldDot(c.Core.F), 2*60)
+ 	}
+ 	shd := c.newShield(shieldhp, shield.XinyanSkill, 12*60, shieldHPID)
+-	c.Core.Player.Shields.Add(shd)
++	c.Core.SourceHostWithShieldBirth(birthSiteID, func() {
++		c.Core.Player.Shields.Add(shd)
++	})
++	c.Core.SourceHostBindShieldTask(shieldTaskID, shd)
+ 	c.Core.Log.NewEvent("update shield level", glog.LogCharacterEvent, c.Index()).
+ 		Write("previousLevel", previousLevel).
+ 		Write("level", c.shieldLevel).
+--- a/internal/characters/xinyan/burst.go
++++ b/internal/characters/xinyan/burst.go
+@@ -92,8 +92,9 @@
+ 		if c.Core.SourceHost != nil {
+ 			defFactor, defFactorID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-xinyan-burst-def", map[string]any{"defFactor": defFactor}, []*info.SourceHostStatRead{defRead}, nil)
+ 		}
+-		c.QueueCharTask(func() {
+-			c.updateShield(3, defFactor, nil, defFactorID)
++		c.SourceHostQueueCharTask("xinyan.burst.c2-shield-task", func() {
++			c.updateShield(3, defFactor, nil, defFactorID, "xinyan.burst.c2-shield-birth")
++			c.Core.SourceHostAbilityProducerFact("xinyan.burst.c2-shield-birth-count", 1)
+ 		}, burstShieldStart)
+ 
+ 		// C2 causes extra pulses of level 3 shield DoT

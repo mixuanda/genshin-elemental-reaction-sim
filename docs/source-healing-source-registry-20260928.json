@@ -1,0 +1,6059 @@
+{
+  "schema": "source-healing-source-registry/v1",
+  "date": "2026-09-28",
+  "sourceTrees": {
+    "classic": "/tmp/gidps-source-host-cache/build-EMjXGd/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-PG1g5Z/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceRegistryFiles": [
+    "packages/sim-core/src/source-host-healing-source-formula.ts",
+    "packages/sim-core/src/source-host-healing-source-group-a.ts",
+    "packages/sim-core/src/source-host-healing-source-group-b.ts",
+    "packages/sim-core/src/source-host-healing-source-group-c.ts",
+    "packages/sim-core/src/source-host-healing-source-group-d.ts",
+    "packages/sim-core/src/source-host-healing-source-group-e.ts",
+    "packages/sim-core/src/source-host-healing-source-group-f.ts",
+    "packages/sim-core/src/source-host-healing-source-group-g.ts"
+  ],
+  "method": "Static scan of generated Go source for HealSourceCompute, actual source rule-key references, HealInfo composite fields, post-construction Src/Bonus plus ID writes, and cached HealInfo reuse. No patch-string-only inference; no build/tests/production edits.",
+  "status": "implemented-not-game-verified",
+  "summary": {
+    "classic": {
+      "healInfoCompositeLiterals": 82,
+      "srcFields": 70,
+      "srcIDFields": 70,
+      "srcWithoutID": 0,
+      "bonusFields": 65,
+      "bonusIDFields": 65,
+      "bonusWithoutID": 0,
+      "postConstructionSrcBonusIDWrites": 2,
+      "literalRuleIDs": 88,
+      "directComputeSites": 152,
+      "dynamicComputeSites": 2,
+      "cachedHealCalls": [
+        {
+          "path": "internal/characters/hutao/burst.go",
+          "line": 112,
+          "argument": "c.burstHealAmount"
+        },
+        {
+          "path": "internal/characters/lyney/skill.go",
+          "line": 118,
+          "argument": "skillHeal"
+        }
+      ],
+      "bridgeCallExpressions": 154,
+      "dynamicComputeCallSites": [
+        {
+          "path": "internal/characters/qiqi/qiqi.go",
+          "line": 69,
+          "ruleKeyInputs": [
+            "heal-source-qiqi-skill-attack",
+            "heal-source-qiqi-skill-initial",
+            "heal-source-qiqi-skill-tick"
+          ],
+          "mechanism": "healSnapshot helper receives exact rule ID string from callsite and passes it to HealSourceCompute"
+        },
+        {
+          "path": "internal/characters/sayu/burst.go",
+          "line": 104,
+          "ruleKeyInputs": [
+            "heal-source-sayu-burst-tick",
+            "heal-source-sayu-burst-tick-c6"
+          ],
+          "mechanism": "dotRuleID selected by original C6 branch and passed to HealSourceCompute"
+        }
+      ]
+    },
+    "stellar": {
+      "healInfoCompositeLiterals": 87,
+      "srcFields": 75,
+      "srcIDFields": 75,
+      "srcWithoutID": 0,
+      "bonusFields": 70,
+      "bonusIDFields": 70,
+      "bonusWithoutID": 0,
+      "postConstructionSrcBonusIDWrites": 2,
+      "literalRuleIDs": 93,
+      "directComputeSites": 162,
+      "dynamicComputeSites": 2,
+      "cachedHealCalls": [
+        {
+          "path": "internal/characters/hutao/burst.go",
+          "line": 112,
+          "argument": "c.burstHealAmount"
+        },
+        {
+          "path": "internal/characters/jahoda/burst.go",
+          "line": 146,
+          "argument": "robotHi"
+        },
+        {
+          "path": "internal/characters/lyney/skill.go",
+          "line": 118,
+          "argument": "skillHeal"
+        }
+      ],
+      "bridgeCallExpressions": 164,
+      "dynamicComputeCallSites": [
+        {
+          "path": "internal/characters/qiqi/qiqi.go",
+          "line": 69,
+          "ruleKeyInputs": [
+            "heal-source-qiqi-skill-attack",
+            "heal-source-qiqi-skill-initial",
+            "heal-source-qiqi-skill-tick"
+          ],
+          "mechanism": "healSnapshot helper receives exact rule ID string from callsite and passes it to HealSourceCompute"
+        },
+        {
+          "path": "internal/characters/sayu/burst.go",
+          "line": 104,
+          "ruleKeyInputs": [
+            "heal-source-sayu-burst-tick",
+            "heal-source-sayu-burst-tick-c6"
+          ],
+          "mechanism": "dotRuleID selected by original C6 branch and passed to HealSourceCompute"
+        }
+      ]
+    },
+    "registry": {
+      "uniqueRuleIDs": 93,
+      "groupCounts": {
+        "A": 15,
+        "B": 14,
+        "C": 19,
+        "D": 20,
+        "E": 12,
+        "F": 7,
+        "G": 4,
+        "generic": 2
+      },
+      "classicCalledIDs": 88,
+      "stellarCalledIDs": 93,
+      "classicUnreferenced": [
+        "heal-source-iansan-a4",
+        "heal-source-ifa-skill",
+        "heal-source-jahoda-burst-additional",
+        "heal-source-jahoda-burst-robot"
+      ],
+      "stellarUnreferenced": [],
+      "undeclaredClassic": [],
+      "undeclaredStellar": [],
+      "sourceCommitMatching": {
+        "classic": {
+          "expectedDescriptorRules": 88,
+          "actualReferencedRules": 88,
+          "missing": [],
+          "unexpected": []
+        },
+        "stellar": {
+          "expectedDescriptorRules": 93,
+          "actualReferencedRules": 93,
+          "missing": [],
+          "unexpected": []
+        }
+      }
+    }
+  },
+  "idCoverageAudit": {
+    "missingSourceHostSrcID": [],
+    "missingSourceHostBonusID": [],
+    "result": "No explicit HealInfo Src or Bonus field lacked its matching SourceHost ID field in either generated source tree (0 missing of all explicit values). Xilonen post-construction tuple writes assign Src/SourceHostSrcID and Bonus/SourceHostBonusID together. All supported registry keys expected by each sourceCommit have generated Go source references; no IDs were fabricated for source-unsupported inputs."
+  },
+  "reuseAndContainerEvidence": [
+    {
+      "lane": "classic",
+      "path": "internal/characters/hutao/burst.go",
+      "lines": [
+        35,
+        112
+      ],
+      "evidence": "precomputed HealInfo value stores source and bonus formula IDs at burst setup; reused later by Heal(c.burstHealAmount)"
+    },
+    {
+      "lane": "classic",
+      "path": "internal/characters/lyney/skill.go",
+      "lines": [
+        78,
+        118
+      ],
+      "evidence": "one computed HealInfo value is reused by later queued healing callback"
+    },
+    {
+      "lane": "classic",
+      "path": "internal/characters/xilonen/burst.go",
+      "lines": [
+        91
+      ],
+      "evidence": "shared HealInfo container is populated per queued hitmark; each execution writes Src with matching ID and Bonus with matching ID before Heal(hi)"
+    },
+    {
+      "lane": "classic",
+      "path": "internal/characters/sayu/burst.go",
+      "lines": [
+        80,
+        96,
+        101,
+        104
+      ],
+      "evidence": "one HealInfo source write selects normal/C6 descriptor by branch; same literal/amount producer not one unique source rule per heal struct"
+    },
+    {
+      "lane": "classic",
+      "path": "internal/characters/qiqi/skill.go",
+      "lines": [
+        53,
+        163
+      ],
+      "evidence": "helper receives rule ID and performs actual formula/ID computation for several HealInfo producers"
+    },
+    {
+      "lane": "stellar",
+      "path": "internal/characters/hutao/burst.go",
+      "lines": [
+        35,
+        112
+      ],
+      "evidence": "precomputed HealInfo value stores source and bonus formula IDs at burst setup; reused later by Heal(c.burstHealAmount)"
+    },
+    {
+      "lane": "stellar",
+      "path": "internal/characters/lyney/skill.go",
+      "lines": [
+        78,
+        118
+      ],
+      "evidence": "one computed HealInfo value is reused by later queued healing callback"
+    },
+    {
+      "lane": "stellar",
+      "path": "internal/characters/xilonen/burst.go",
+      "lines": [
+        91
+      ],
+      "evidence": "shared HealInfo container is populated per queued hitmark; each execution writes Src with matching ID and Bonus with matching ID before Heal(hi)"
+    },
+    {
+      "lane": "stellar",
+      "path": "internal/characters/sayu/burst.go",
+      "lines": [
+        80,
+        96,
+        101,
+        104
+      ],
+      "evidence": "one HealInfo source write selects normal/C6 descriptor by branch; same literal/amount producer not one unique source rule per heal struct"
+    },
+    {
+      "lane": "stellar",
+      "path": "internal/characters/qiqi/skill.go",
+      "lines": [
+        68,
+        167,
+        256
+      ],
+      "evidence": "helper receives rule ID and performs actual formula/ID computation for several HealInfo producers"
+    },
+    {
+      "lane": "stellar",
+      "path": "internal/characters/jahoda/burst.go",
+      "lines": [
+        114,
+        146
+      ],
+      "evidence": "robotHi is constructed with source IDs and later passed to Heal(robotHi); one cached HealInfo container is reused across robot ticks."
+    }
+  ],
+  "rules": {
+    "heal-source-info-bonus-stats": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "*",
+      "descriptorSourcePath": "pkg/core/player/character/stats.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 69,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 25,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 132,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 69,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 25,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 132,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 3
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 69,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 25,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 132,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 69,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 25,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 132,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 3
+        }
+      }
+    },
+    "heal-source-baizhu-burst": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "baizhu",
+      "descriptorSourcePath": "internal/characters/baizhu/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 101,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 101,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 101,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 101,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-baizhu-c2": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "baizhu",
+      "descriptorSourcePath": "internal/characters/baizhu/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 74,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 74,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 74,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 74,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-baizhu-skill": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "baizhu",
+      "descriptorSourcePath": "internal/characters/baizhu/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 135,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 135,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 135,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 135,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-barbara-normal": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "barbara",
+      "descriptorSourcePath": "internal/characters/barbara/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 83,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 83,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 82,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 82,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-barbara-burst": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "barbara",
+      "descriptorSourcePath": "internal/characters/barbara/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 39,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 39,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 39,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/burst.go",
+              "line": 39,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-barbara-charge": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "barbara",
+      "descriptorSourcePath": "internal/characters/barbara/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 61,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 61,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 61,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 61,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-barbara-skill-tick": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "barbara",
+      "descriptorSourcePath": "internal/characters/barbara/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 81,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 81,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 81,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/barbara/skill.go",
+              "line": 81,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-bennett-burst": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "bennett",
+      "descriptorSourcePath": "internal/characters/bennett/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 96,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 96,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 96,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/bennett/burst.go",
+              "line": 96,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-chevreuse-c6": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "chevreuse",
+      "descriptorSourcePath": "internal/characters/chevreuse/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 146,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 146,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 146,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 146,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-chevreuse-skill": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "chevreuse",
+      "descriptorSourcePath": "internal/characters/chevreuse/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 231,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 231,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 231,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 231,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-dehya-a4-initial": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "dehya",
+      "descriptorSourcePath": "internal/characters/dehya/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 74,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 74,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 74,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 74,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-dehya-a4-dot": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "dehya",
+      "descriptorSourcePath": "internal/characters/dehya/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 113,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 113,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 113,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 113,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-dehya-c4": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "dehya",
+      "descriptorSourcePath": "internal/characters/dehya/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 117,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 117,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 117,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 117,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-fischl-c4": {
+      "registryGroup": "A",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-a.ts",
+      "unit": "fischl",
+      "descriptorSourcePath": "internal/characters/fischl/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 78,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 78,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 78,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 78,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-charlotte-burst-initial": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "charlotte",
+      "descriptorSourcePath": "internal/characters/charlotte/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 74,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 74,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 74,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 74,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-charlotte-burst-dot": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "charlotte",
+      "descriptorSourcePath": "internal/characters/charlotte/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 76,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 76,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 76,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 76,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-charlotte-c1": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "charlotte",
+      "descriptorSourcePath": "internal/characters/charlotte/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 39,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 39,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 39,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 39,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-charlotte-c6": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "charlotte",
+      "descriptorSourcePath": "internal/characters/charlotte/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 182,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 182,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 182,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 182,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-diona-burst": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "diona",
+      "descriptorSourcePath": "internal/characters/diona/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 60,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 60,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 60,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 60,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-dori-burst": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "dori",
+      "descriptorSourcePath": "internal/characters/dori/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 116,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 116,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 116,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 116,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-dori-c6": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "dori",
+      "descriptorSourcePath": "internal/characters/dori/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 116,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 116,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 116,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 116,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-escoffier-a1": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "escoffier",
+      "descriptorSourcePath": "internal/characters/escoffier/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 49,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 49,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 49,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 49,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-escoffier-burst": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "escoffier",
+      "descriptorSourcePath": "internal/characters/escoffier/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-xianyun-burst-initial": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "xianyun",
+      "descriptorSourcePath": "internal/characters/xianyun/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 87,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 87,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 87,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 87,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-xianyun-burst-dot": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "xianyun",
+      "descriptorSourcePath": "internal/characters/xianyun/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 200,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 200,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 200,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 200,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-xianyun-c4": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "xianyun",
+      "descriptorSourcePath": "internal/characters/xianyun/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 93,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 93,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 93,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 93,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-mika-burst-initial": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "mika",
+      "descriptorSourcePath": "internal/characters/mika/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 41,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 41,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 41,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 41,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-mika-eagleplume": {
+      "registryGroup": "B",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-b.ts",
+      "unit": "mika",
+      "descriptorSourcePath": "internal/characters/mika/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 97,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 97,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 97,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 97,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-jean-a1": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "jean",
+      "descriptorSourcePath": "internal/characters/jean/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 29,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 29,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 29,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 29,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-jean-burst-initial": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "jean",
+      "descriptorSourcePath": "internal/characters/jean/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 75,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 75,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 75,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 75,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-jean-burst-dot": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "jean",
+      "descriptorSourcePath": "internal/characters/jean/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 76,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 76,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 76,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 76,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kaeya-a1": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "kaeya",
+      "descriptorSourcePath": "internal/characters/kaeya/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kokomi-burst-base": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "kokomi",
+      "descriptorSourcePath": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 167,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 167,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 167,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 167,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kokomi-burst-c2": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "kokomi",
+      "descriptorSourcePath": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 181,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 181,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 181,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 181,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kokomi-skill-tick": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "kokomi",
+      "descriptorSourcePath": "internal/characters/kokomi/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 146,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 146,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 146,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 146,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-noelle-skill-attack": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "noelle",
+      "descriptorSourcePath": "internal/characters/noelle/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 122,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 122,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 122,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 122,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-qiqi-talisman": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "qiqi",
+      "descriptorSourcePath": "internal/characters/qiqi/qiqi.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/qiqi.go",
+              "line": 57,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/qiqi/qiqi.go",
+              "line": 57,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/qiqi.go",
+              "line": 66,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/qiqi/qiqi.go",
+              "line": 66,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-qiqi-skill-attack": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "qiqi",
+      "descriptorSourcePath": "internal/characters/qiqi/qiqi.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 153,
+              "kind": "helper-rule-argument"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 256,
+              "kind": "helper-rule-argument"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-qiqi-skill-initial": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "qiqi",
+      "descriptorSourcePath": "internal/characters/qiqi/qiqi.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 53,
+              "kind": "helper-rule-argument"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 68,
+              "kind": "helper-rule-argument"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-qiqi-skill-tick": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "qiqi",
+      "descriptorSourcePath": "internal/characters/qiqi/qiqi.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 163,
+              "kind": "helper-rule-argument"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 167,
+              "kind": "helper-rule-argument"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-qiqi-c4-stellar": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "qiqi",
+      "descriptorSourcePath": "internal/characters/qiqi/cons.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": false,
+          "goRuleIdReferences": [],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 0
+        },
+        "stellar": {
+          "sourceCommitPresent": false,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/qiqi/cons.go",
+              "line": 158,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/qiqi/cons.go",
+              "line": 158,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sayu-a1": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "sayu",
+      "descriptorSourcePath": "internal/characters/sayu/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 45,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 45,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 45,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 45,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sayu-burst-initial": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "sayu",
+      "descriptorSourcePath": "internal/characters/sayu/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 56,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 56,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 56,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 56,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sayu-burst-tick": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "sayu",
+      "descriptorSourcePath": "internal/characters/sayu/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 80,
+              "kind": "rule-id-reference"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 80,
+              "kind": "rule-id-reference"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sayu-burst-tick-c6": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "sayu",
+      "descriptorSourcePath": "internal/characters/sayu/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 96,
+              "kind": "dynamic-branch-selector"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 101,
+              "kind": "dynamic-branch-selector"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 2
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 96,
+              "kind": "dynamic-branch-selector"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 101,
+              "kind": "dynamic-branch-selector"
+            }
+          ],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 2
+        }
+      }
+    },
+    "heal-source-gorou-field-def": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "gorou",
+      "descriptorSourcePath": "internal/characters/gorou/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 85,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 85,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 85,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 85,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-gorou-field-tick": {
+      "registryGroup": "C",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-c.ts",
+      "unit": "gorou",
+      "descriptorSourcePath": "internal/characters/gorou/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 193,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 193,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 193,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 193,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-furina-a1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "furina",
+      "descriptorSourcePath": "internal/characters/furina/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 67,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 67,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 67,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 67,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-furina-c6-ousia": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "furina",
+      "descriptorSourcePath": "internal/characters/furina/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 133,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 133,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 133,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 133,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-furina-singer": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "furina",
+      "descriptorSourcePath": "internal/characters/furina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 350,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 350,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 350,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 350,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-gaming-a1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "gaming",
+      "descriptorSourcePath": "internal/characters/gaming/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 45,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 45,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 45,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 45,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-gaming-burst": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "gaming",
+      "descriptorSourcePath": "internal/characters/gaming/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-gaming-c1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "gaming",
+      "descriptorSourcePath": "internal/characters/gaming/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 34,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 34,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 34,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 34,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-hutao-burst": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "hutao",
+      "descriptorSourcePath": "internal/characters/hutao/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 44,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 44,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 44,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 44,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kaveh-a1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "kaveh",
+      "descriptorSourcePath": "internal/characters/kaveh/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 48,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 48,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 48,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 48,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kuki-ring-a4": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "kuki",
+      "descriptorSourcePath": "internal/characters/kuki/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 167,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 167,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 167,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 167,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-kuki-ring-no-a4": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "kuki",
+      "descriptorSourcePath": "internal/characters/kuki/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 171,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 171,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 171,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 171,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-lauma-c1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "lauma",
+      "descriptorSourcePath": "internal/characters/lauma/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 50,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 50,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 50,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 50,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-lynette-skill": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "lynette",
+      "descriptorSourcePath": "internal/characters/lynette/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 214,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 214,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 214,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 214,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-lyney-skill": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "lyney",
+      "descriptorSourcePath": "internal/characters/lyney/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 88,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 88,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 88,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 88,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-mizuki-snack": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "mizuki",
+      "descriptorSourcePath": "internal/characters/mizuki/snack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 136,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 136,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 136,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 136,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-neuvillette-droplet": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "neuvillette",
+      "descriptorSourcePath": "internal/characters/neuvillette/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 334,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 334,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 334,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 334,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sigewinne-bubble": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "sigewinne",
+      "descriptorSourcePath": "internal/characters/sigewinne/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 234,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 234,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 234,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 234,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sigewinne-final": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "sigewinne",
+      "descriptorSourcePath": "internal/characters/sigewinne/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 271,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 271,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 271,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 271,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-sigewinne-tier-bonus": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "sigewinne",
+      "descriptorSourcePath": "internal/characters/sigewinne/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 244,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 281,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 244,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 281,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 2
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 244,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 281,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 244,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sigewinne/skill.go",
+              "line": 281,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 2
+        }
+      }
+    },
+    "heal-source-wriothesley-a1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "wriothesley",
+      "descriptorSourcePath": "internal/characters/wriothesley/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 71,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 71,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 71,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 71,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-wriothesley-c1": {
+      "registryGroup": "D",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-d.ts",
+      "unit": "wriothesley",
+      "descriptorSourcePath": "internal/characters/wriothesley/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 86,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 86,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 86,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 86,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-traveler-anemo-a4": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "anemo-traveler",
+      "descriptorSourcePath": "internal/characters/traveler/common/anemo/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/traveler/common/anemo/asc.go",
+              "line": 73,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/traveler/common/anemo/asc.go",
+              "line": 73,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/traveler/common/anemo/asc.go",
+              "line": 73,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/traveler/common/anemo/asc.go",
+              "line": 73,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-traveler-hydro-a1": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "hydro-traveler",
+      "descriptorSourcePath": "internal/characters/traveler/common/hydro/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-traveler-hydro-c6": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "hydro-traveler",
+      "descriptorSourcePath": "internal/characters/traveler/common/hydro/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 99,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 99,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 99,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 99,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-xilonen-burst": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "xilonen",
+      "descriptorSourcePath": "internal/characters/xilonen/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 89,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 89,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 89,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 89,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-xilonen-c6": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "xilonen",
+      "descriptorSourcePath": "internal/characters/xilonen/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 220,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 220,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 220,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 220,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-yaoyao-skill": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "yaoyao",
+      "descriptorSourcePath": "internal/characters/yaoyao/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-yaoyao-burst": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "yaoyao",
+      "descriptorSourcePath": "internal/characters/yaoyao/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 79,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 79,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 79,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 79,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-yaoyao-a4": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "yaoyao",
+      "descriptorSourcePath": "internal/characters/yaoyao/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 79,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 79,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 79,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 79,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-yaoyao-c6": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "yaoyao",
+      "descriptorSourcePath": "internal/characters/yaoyao/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 105,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 105,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 105,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 105,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-zhongli-c6": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "zhongli",
+      "descriptorSourcePath": "internal/characters/zhongli/shield.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 96,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 96,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 96,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 96,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-arlecchino-burst": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "arlecchino",
+      "descriptorSourcePath": "internal/characters/arlecchino/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 97,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 97,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 97,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 97,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-clorinde-skill": {
+      "registryGroup": "E",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-e.ts",
+      "unit": "clorinde",
+      "descriptorSourcePath": "internal/characters/clorinde/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 186,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 186,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 186,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 186,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-recurve": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/bow/recurve/recurve.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/bow/recurve/recurve.go",
+              "line": 44,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/bow/recurve/recurve.go",
+              "line": 44,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/bow/recurve/recurve.go",
+              "line": 44,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/bow/recurve/recurve.go",
+              "line": 44,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-otherworldly": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+              "line": 31,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+              "line": 31,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+              "line": 31,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/catalyst/otherworldly/otherworldly.go",
+              "line": 31,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-prototype": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/catalyst/prototype/prototype.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 45,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 45,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 45,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 45,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-whiteiron": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/claymore/whiteiron/whiteiron.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/claymore/whiteiron/whiteiron.go",
+              "line": 43,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/claymore/whiteiron/whiteiron.go",
+              "line": 43,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/claymore/whiteiron/whiteiron.go",
+              "line": 43,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/claymore/whiteiron/whiteiron.go",
+              "line": 43,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-aquila": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/sword/aquila/aquila.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 79,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 79,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 79,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 79,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-blacksword": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/sword/blacksword/blacksword.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 62,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 62,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 62,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 62,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-weapon-travelershandysword": {
+      "registryGroup": "F",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-f.ts",
+      "unit": "*",
+      "descriptorSourcePath": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+              "line": 31,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+              "line": 31,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+              "line": 31,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/weapons/sword/travelershandysword/travelershandysword.go",
+              "line": 31,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-iansan-a4": {
+      "registryGroup": "G",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-g.ts",
+      "unit": "iansan",
+      "descriptorSourcePath": "internal/characters/iansan/asc.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": false,
+          "goRuleIdReferences": [],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 0
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/iansan/asc.go",
+              "line": 120,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/iansan/asc.go",
+              "line": 120,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-ifa-skill": {
+      "registryGroup": "G",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-g.ts",
+      "unit": "ifa",
+      "descriptorSourcePath": "internal/characters/ifa/skill.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": false,
+          "goRuleIdReferences": [],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 0
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/ifa/skill.go",
+              "line": 201,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/ifa/skill.go",
+              "line": 201,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-jahoda-burst-additional": {
+      "registryGroup": "G",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-g.ts",
+      "unit": "jahoda",
+      "descriptorSourcePath": "internal/characters/jahoda/burst.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": false,
+          "goRuleIdReferences": [],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 0
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 101,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 101,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-jahoda-burst-robot": {
+      "registryGroup": "G",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-group-g.ts",
+      "unit": "jahoda",
+      "descriptorSourcePath": "internal/characters/jahoda/burst.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": false,
+          "goRuleIdReferences": [],
+          "directHealSourceComputeSites": [],
+          "literalReferenceCount": 0
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 129,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 129,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 1
+        }
+      }
+    },
+    "heal-source-info-bonus-stat": {
+      "registryGroup": "generic",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-formula.ts",
+      "unit": "*",
+      "descriptorSourcePath": "pkg/core/player/character/stats.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 237,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 152,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 93,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 206,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 99,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 64,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 44,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 55,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 60,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 55,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 84,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 96,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 81,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 67,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 89,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 146,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 122,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 181,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 344,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 123,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 80,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 119,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 94,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 58,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 110,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 84,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 46,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 189,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 191,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 47,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 103,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 189,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 102,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 101,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 224,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 50,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 198,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 360,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 143,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 77,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 141,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 107,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 80,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 59,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 34,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 95,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 214,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 98,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 70,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 104,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 59,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 52,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 86,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 69,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 237,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 152,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 93,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 206,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 99,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 64,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 44,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 55,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 60,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 55,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 84,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 96,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 81,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 67,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 89,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 146,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 122,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 181,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 344,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 123,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 80,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 119,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 94,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 58,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 110,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 84,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 46,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 189,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 191,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 47,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 103,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 189,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 102,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 101,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 224,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 50,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 198,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 360,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 143,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 77,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 141,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 107,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 80,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 59,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 34,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 95,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 214,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 98,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 70,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 104,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 59,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 52,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 86,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 69,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 55
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/iansan/asc.go",
+              "line": 125,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 237,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 152,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 93,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 206,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 99,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 64,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 44,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 55,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 54,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 60,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 55,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 84,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 96,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 81,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 67,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 88,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 146,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 122,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 181,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 344,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/ifa/skill.go",
+              "line": 206,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 123,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 80,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 119,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 107,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/cons.go",
+              "line": 163,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 58,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 110,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 84,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 46,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 189,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 106,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 134,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 191,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 47,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 103,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 189,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 102,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 101,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 224,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 50,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 198,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 360,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 143,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 77,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 141,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 107,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 80,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 59,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 34,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 95,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 214,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 98,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 70,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 104,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 59,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 52,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 86,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 69,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/iansan/asc.go",
+              "line": 125,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/chevreuse/skill.go",
+              "line": 237,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/chevreuse/cons.go",
+              "line": 152,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 93,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xianyun/burst.go",
+              "line": 206,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xianyun/cons.go",
+              "line": 99,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gaming/burst.go",
+              "line": 64,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gaming/cons.go",
+              "line": 44,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gaming/asc.go",
+              "line": 55,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/hutao/burst.go",
+              "line": 54,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/escoffier/burst.go",
+              "line": 60,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/escoffier/asc.go",
+              "line": 55,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/fischl/burst.go",
+              "line": 84,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/wriothesley/cons.go",
+              "line": 96,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/wriothesley/asc.go",
+              "line": 81,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/barbara/charge.go",
+              "line": 67,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/barbara/attack.go",
+              "line": 88,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/mizuki/snack.go",
+              "line": 146,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dori/cons.go",
+              "line": 122,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kuki/skill.go",
+              "line": 181,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/neuvillette/charge.go",
+              "line": 344,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/ifa/skill.go",
+              "line": 206,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dehya/cons.go",
+              "line": 123,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 80,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dehya/asc.go",
+              "line": 119,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 107,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/cons.go",
+              "line": 163,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kaveh/asc.go",
+              "line": 58,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/cons.go",
+              "line": 110,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/asc.go",
+              "line": 84,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 46,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/charlotte/cons.go",
+              "line": 189,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 106,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/jahoda/burst.go",
+              "line": 134,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/clorinde/skill.go",
+              "line": 191,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 47,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/mika/burst.go",
+              "line": 103,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kokomi/burst.go",
+              "line": 189,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/arlecchino/burst.go",
+              "line": 102,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/zhongli/shield.go",
+              "line": 101,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/lynette/skill.go",
+              "line": 224,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sayu/asc.go",
+              "line": 50,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/gorou/burst.go",
+              "line": 198,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/furina/skill.go",
+              "line": 360,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/furina/cons.go",
+              "line": 143,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/furina/asc.go",
+              "line": 77,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/baizhu/skill.go",
+              "line": 141,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/baizhu/burst.go",
+              "line": 107,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/baizhu/cons.go",
+              "line": 80,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kaeya/skill.go",
+              "line": 59,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/jean/asc.go",
+              "line": 34,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xilonen/burst.go",
+              "line": 95,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/xilonen/cons.go",
+              "line": 214,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/lyney/skill.go",
+              "line": 98,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/lauma/cons.go",
+              "line": 70,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/cons.go",
+              "line": 104,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/traveler/common/hydro/asc.go",
+              "line": 59,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/weapons/catalyst/prototype/prototype.go",
+              "line": 52,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/weapons/sword/aquila/aquila.go",
+              "line": 86,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/weapons/sword/blacksword/blacksword.go",
+              "line": 69,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 60
+        }
+      }
+    },
+    "heal-source-info-bonus-snapshot": {
+      "registryGroup": "generic",
+      "registryFile": "packages/sim-core/src/source-host-healing-source-formula.ts",
+      "unit": "*",
+      "descriptorSourcePath": "pkg/core/player/character/stats.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "laneEvidence": {
+        "classic": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 47,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 121,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 57,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 167,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 157,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 127,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 59,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 84,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 62,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 151,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 61,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 134,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 77,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 47,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 121,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 57,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 167,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/burst.go",
+              "line": 157,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 127,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 59,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 84,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 62,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 151,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 61,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 134,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 77,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 13
+        },
+        "stellar": {
+          "sourceCommitPresent": true,
+          "goRuleIdReferences": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 47,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 121,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 72,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 171,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 260,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 127,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 59,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 84,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 62,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 151,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 61,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 134,
+              "kind": "direct-bridge-call"
+            },
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 77,
+              "kind": "direct-bridge-call"
+            }
+          ],
+          "directHealSourceComputeSites": [
+            {
+              "path": "internal/characters/diona/burst.go",
+              "line": 47,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/dori/burst.go",
+              "line": 121,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 72,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 171,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/qiqi/skill.go",
+              "line": 260,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/noelle/skill.go",
+              "line": 127,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/skill.go",
+              "line": 59,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/yaoyao/burst.go",
+              "line": 84,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/charlotte/burst.go",
+              "line": 62,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/kokomi/skill.go",
+              "line": 151,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 61,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/sayu/burst.go",
+              "line": 134,
+              "kind": "direct-literal-rule"
+            },
+            {
+              "path": "internal/characters/jean/burst.go",
+              "line": 77,
+              "kind": "direct-literal-rule"
+            }
+          ],
+          "literalReferenceCount": 13
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Source commits in each descriptor are matched to the supplied fixed build identities; presence is source wiring evidence only.",
+    "Literal rule-key references passed to helper functions and dynamic branch selectors are listed separately from direct HealSourceCompute calls.",
+    "One HealInfo literal can contain one formula but be reused across frames/branches, and generic Bonus rules can serve many heal sources; neither literal count nor call count equals unique source rule count.",
+    "No source wiring implies independent game verification."
+  ]
+}

@@ -1,0 +1,50 @@
+[WebServer] (node:90287) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 1 test using 1 worker
+
+(node:90288) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/source-delayed-finite-cast.spec.ts:71:1 › audited delayed Diona and recursive Kaeya bursts close only when their native producers finish
+  1) [chromium] › apps/web/e2e/source-delayed-finite-cast.spec.ts:71:1 › audited delayed Diona and recursive Kaeya bursts close only when their native producers finish 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#calc-source-single-skill [data-source-single-skill]').locator('[data-single-status]')
+    Expected substring: "已导入单动作输入 JSON"
+    Received string:    "导入失败：武器上限须为 1–70 的整数。"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#calc-source-single-skill [data-source-single-skill]').locator('[data-single-status]')
+        14 × locator resolved to <p role="status" aria-live="polite" data-single-status="">导入失败：武器上限须为 1–70 的整数。</p>
+           - unexpected value "导入失败：武器上限须为 1–70 的整数。"
+
+
+      40 |     name: `${character}-q-${durationSeconds}s.json`, mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(input)),
+      41 |   });
+    > 42 |   await expect(panel.locator('[data-single-status]')).toContainText('已导入单动作输入 JSON');
+         |                                                       ^
+      43 |   await panel.locator('[data-single-run]').click();
+      44 |   await expect(panel.locator('[data-single-status]')).toContainText('运行完成', { timeout: 90_000 });
+      45 |   const raw = await download(page, '#calc-source-single-skill [data-single-result-export]') as RunExport;
+        at runBurst (/Users/evan/Documents/gidps/apps/web/e2e/source-delayed-finite-cast.spec.ts:42:55)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-delayed-finite-cast.spec.ts:111:23
+
+    Error Context: test-results/source-delayed-finite-cast-006ee-eir-native-producers-finish-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-delayed-finite-cast-006ee-eir-native-producers-finish-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-delayed-finite-cast-006ee-eir-native-producers-finish-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/source-delayed-finite-cast.spec.ts:71:1 › audited delayed Diona and recursive Kaeya bursts close only when their native producers finish 

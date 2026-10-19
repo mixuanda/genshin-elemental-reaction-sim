@@ -1,0 +1,2137 @@
+{
+    "info": {
+        "name": "Valeriy",
+        "description": "",
+        "rarity": "QUALITY_PURPLE",
+        "weapon": "WEAPON_SWORD_ONE_HAND",
+        "birthday": "1/1",
+        "element": "Electro",
+        "title": "???",
+        "constellation": "???",
+        "affiliation": "???",
+        "cv": {
+            "EN": "???",
+            "CHS": "???",
+            "JP": "???",
+            "KR": "???"
+        },
+        "attributes": [
+            {
+                "level": 1,
+                "ascension": 0,
+                "hp": 839,
+                "atk": 21,
+                "def": 59,
+                "ATK%": "0"
+            },
+            {
+                "level": 2,
+                "ascension": 0,
+                "hp": 908,
+                "atk": 23,
+                "def": 64,
+                "ATK%": "0"
+            },
+            {
+                "level": 3,
+                "ascension": 0,
+                "hp": 977,
+                "atk": 25,
+                "def": 69,
+                "ATK%": "0"
+            },
+            {
+                "level": 4,
+                "ascension": 0,
+                "hp": 1047,
+                "atk": 27,
+                "def": 74,
+                "ATK%": "0"
+            },
+            {
+                "level": 5,
+                "ascension": 0,
+                "hp": 1116,
+                "atk": 28,
+                "def": 78,
+                "ATK%": "0"
+            },
+            {
+                "level": 6,
+                "ascension": 0,
+                "hp": 1185,
+                "atk": 30,
+                "def": 83,
+                "ATK%": "0"
+            },
+            {
+                "level": 7,
+                "ascension": 0,
+                "hp": 1254,
+                "atk": 32,
+                "def": 88,
+                "ATK%": "0"
+            },
+            {
+                "level": 8,
+                "ascension": 0,
+                "hp": 1324,
+                "atk": 34,
+                "def": 93,
+                "ATK%": "0"
+            },
+            {
+                "level": 9,
+                "ascension": 0,
+                "hp": 1393,
+                "atk": 35,
+                "def": 98,
+                "ATK%": "0"
+            },
+            {
+                "level": 10,
+                "ascension": 0,
+                "hp": 1462,
+                "atk": 37,
+                "def": 103,
+                "ATK%": "0"
+            },
+            {
+                "level": 11,
+                "ascension": 0,
+                "hp": 1532,
+                "atk": 39,
+                "def": 108,
+                "ATK%": "0"
+            },
+            {
+                "level": 12,
+                "ascension": 0,
+                "hp": 1601,
+                "atk": 41,
+                "def": 112,
+                "ATK%": "0"
+            },
+            {
+                "level": 13,
+                "ascension": 0,
+                "hp": 1670,
+                "atk": 43,
+                "def": 117,
+                "ATK%": "0"
+            },
+            {
+                "level": 14,
+                "ascension": 0,
+                "hp": 1739,
+                "atk": 44,
+                "def": 122,
+                "ATK%": "0"
+            },
+            {
+                "level": 15,
+                "ascension": 0,
+                "hp": 1809,
+                "atk": 46,
+                "def": 127,
+                "ATK%": "0"
+            },
+            {
+                "level": 16,
+                "ascension": 0,
+                "hp": 1878,
+                "atk": 48,
+                "def": 132,
+                "ATK%": "0"
+            },
+            {
+                "level": 17,
+                "ascension": 0,
+                "hp": 1947,
+                "atk": 50,
+                "def": 137,
+                "ATK%": "0"
+            },
+            {
+                "level": 18,
+                "ascension": 0,
+                "hp": 2017,
+                "atk": 51,
+                "def": 142,
+                "ATK%": "0"
+            },
+            {
+                "level": 19,
+                "ascension": 0,
+                "hp": 2085,
+                "atk": 53,
+                "def": 147,
+                "ATK%": "0"
+            },
+            {
+                "level": 20,
+                "ascension": 0,
+                "hp": 2155,
+                "atk": 55,
+                "def": 151,
+                "ATK%": "0"
+            },
+            {
+                "level": 21,
+                "ascension": 1,
+                "hp": 2850,
+                "atk": 73,
+                "def": 200,
+                "ATK%": "0"
+            },
+            {
+                "level": 22,
+                "ascension": 1,
+                "hp": 2920,
+                "atk": 74,
+                "def": 205,
+                "ATK%": "0"
+            },
+            {
+                "level": 23,
+                "ascension": 1,
+                "hp": 2990,
+                "atk": 76,
+                "def": 210,
+                "ATK%": "0"
+            },
+            {
+                "level": 24,
+                "ascension": 1,
+                "hp": 3058,
+                "atk": 78,
+                "def": 215,
+                "ATK%": "0"
+            },
+            {
+                "level": 25,
+                "ascension": 1,
+                "hp": 3128,
+                "atk": 80,
+                "def": 220,
+                "ATK%": "0"
+            },
+            {
+                "level": 26,
+                "ascension": 1,
+                "hp": 3197,
+                "atk": 81,
+                "def": 225,
+                "ATK%": "0"
+            },
+            {
+                "level": 27,
+                "ascension": 1,
+                "hp": 3267,
+                "atk": 83,
+                "def": 230,
+                "ATK%": "0"
+            },
+            {
+                "level": 28,
+                "ascension": 1,
+                "hp": 3335,
+                "atk": 85,
+                "def": 234,
+                "ATK%": "0"
+            },
+            {
+                "level": 29,
+                "ascension": 1,
+                "hp": 3405,
+                "atk": 87,
+                "def": 239,
+                "ATK%": "0"
+            },
+            {
+                "level": 30,
+                "ascension": 1,
+                "hp": 3474,
+                "atk": 88,
+                "def": 244,
+                "ATK%": "0"
+            },
+            {
+                "level": 31,
+                "ascension": 1,
+                "hp": 3543,
+                "atk": 90,
+                "def": 249,
+                "ATK%": "0"
+            },
+            {
+                "level": 32,
+                "ascension": 1,
+                "hp": 3613,
+                "atk": 92,
+                "def": 254,
+                "ATK%": "0"
+            },
+            {
+                "level": 33,
+                "ascension": 1,
+                "hp": 3682,
+                "atk": 94,
+                "def": 259,
+                "ATK%": "0"
+            },
+            {
+                "level": 34,
+                "ascension": 1,
+                "hp": 3751,
+                "atk": 96,
+                "def": 264,
+                "ATK%": "0"
+            },
+            {
+                "level": 35,
+                "ascension": 1,
+                "hp": 3820,
+                "atk": 97,
+                "def": 268,
+                "ATK%": "0"
+            },
+            {
+                "level": 36,
+                "ascension": 1,
+                "hp": 3890,
+                "atk": 99,
+                "def": 273,
+                "ATK%": "0"
+            },
+            {
+                "level": 37,
+                "ascension": 1,
+                "hp": 3959,
+                "atk": 101,
+                "def": 278,
+                "ATK%": "0"
+            },
+            {
+                "level": 38,
+                "ascension": 1,
+                "hp": 4028,
+                "atk": 103,
+                "def": 283,
+                "ATK%": "0"
+            },
+            {
+                "level": 39,
+                "ascension": 1,
+                "hp": 4098,
+                "atk": 104,
+                "def": 288,
+                "ATK%": "0"
+            },
+            {
+                "level": 40,
+                "ascension": 1,
+                "hp": 4167,
+                "atk": 106,
+                "def": 293,
+                "ATK%": "0"
+            },
+            {
+                "level": 41,
+                "ascension": 2,
+                "hp": 4681,
+                "atk": 119,
+                "def": 329,
+                "ATK%": "6"
+            },
+            {
+                "level": 42,
+                "ascension": 2,
+                "hp": 4750,
+                "atk": 121,
+                "def": 334,
+                "ATK%": "6"
+            },
+            {
+                "level": 43,
+                "ascension": 2,
+                "hp": 4820,
+                "atk": 123,
+                "def": 339,
+                "ATK%": "6"
+            },
+            {
+                "level": 44,
+                "ascension": 2,
+                "hp": 4889,
+                "atk": 125,
+                "def": 344,
+                "ATK%": "6"
+            },
+            {
+                "level": 45,
+                "ascension": 2,
+                "hp": 4958,
+                "atk": 126,
+                "def": 348,
+                "ATK%": "6"
+            },
+            {
+                "level": 46,
+                "ascension": 2,
+                "hp": 5028,
+                "atk": 128,
+                "def": 353,
+                "ATK%": "6"
+            },
+            {
+                "level": 47,
+                "ascension": 2,
+                "hp": 5097,
+                "atk": 130,
+                "def": 358,
+                "ATK%": "6"
+            },
+            {
+                "level": 48,
+                "ascension": 2,
+                "hp": 5166,
+                "atk": 132,
+                "def": 363,
+                "ATK%": "6"
+            },
+            {
+                "level": 49,
+                "ascension": 2,
+                "hp": 5235,
+                "atk": 133,
+                "def": 368,
+                "ATK%": "6"
+            },
+            {
+                "level": 50,
+                "ascension": 2,
+                "hp": 5305,
+                "atk": 135,
+                "def": 373,
+                "ATK%": "6"
+            },
+            {
+                "level": 51,
+                "ascension": 3,
+                "hp": 5967,
+                "atk": 152,
+                "def": 419,
+                "ATK%": "12"
+            },
+            {
+                "level": 52,
+                "ascension": 3,
+                "hp": 6037,
+                "atk": 154,
+                "def": 424,
+                "ATK%": "12"
+            },
+            {
+                "level": 53,
+                "ascension": 3,
+                "hp": 6106,
+                "atk": 156,
+                "def": 429,
+                "ATK%": "12"
+            },
+            {
+                "level": 54,
+                "ascension": 3,
+                "hp": 6175,
+                "atk": 157,
+                "def": 434,
+                "ATK%": "12"
+            },
+            {
+                "level": 55,
+                "ascension": 3,
+                "hp": 6245,
+                "atk": 159,
+                "def": 439,
+                "ATK%": "12"
+            },
+            {
+                "level": 56,
+                "ascension": 3,
+                "hp": 6314,
+                "atk": 161,
+                "def": 444,
+                "ATK%": "12"
+            },
+            {
+                "level": 57,
+                "ascension": 3,
+                "hp": 6383,
+                "atk": 163,
+                "def": 449,
+                "ATK%": "12"
+            },
+            {
+                "level": 58,
+                "ascension": 3,
+                "hp": 6452,
+                "atk": 164,
+                "def": 453,
+                "ATK%": "12"
+            },
+            {
+                "level": 59,
+                "ascension": 3,
+                "hp": 6522,
+                "atk": 166,
+                "def": 458,
+                "ATK%": "12"
+            },
+            {
+                "level": 60,
+                "ascension": 3,
+                "hp": 6591,
+                "atk": 168,
+                "def": 463,
+                "ATK%": "12"
+            },
+            {
+                "level": 61,
+                "ascension": 4,
+                "hp": 7105,
+                "atk": 181,
+                "def": 499,
+                "ATK%": "12"
+            },
+            {
+                "level": 62,
+                "ascension": 4,
+                "hp": 7175,
+                "atk": 183,
+                "def": 504,
+                "ATK%": "12"
+            },
+            {
+                "level": 63,
+                "ascension": 4,
+                "hp": 7244,
+                "atk": 185,
+                "def": 509,
+                "ATK%": "12"
+            },
+            {
+                "level": 64,
+                "ascension": 4,
+                "hp": 7313,
+                "atk": 186,
+                "def": 514,
+                "ATK%": "12"
+            },
+            {
+                "level": 65,
+                "ascension": 4,
+                "hp": 7382,
+                "atk": 188,
+                "def": 519,
+                "ATK%": "12"
+            },
+            {
+                "level": 66,
+                "ascension": 4,
+                "hp": 7452,
+                "atk": 190,
+                "def": 524,
+                "ATK%": "12"
+            },
+            {
+                "level": 67,
+                "ascension": 4,
+                "hp": 7521,
+                "atk": 192,
+                "def": 528,
+                "ATK%": "12"
+            },
+            {
+                "level": 68,
+                "ascension": 4,
+                "hp": 7590,
+                "atk": 193,
+                "def": 533,
+                "ATK%": "12"
+            },
+            {
+                "level": 69,
+                "ascension": 4,
+                "hp": 7660,
+                "atk": 195,
+                "def": 538,
+                "ATK%": "12"
+            },
+            {
+                "level": 70,
+                "ascension": 4,
+                "hp": 7729,
+                "atk": 197,
+                "def": 543,
+                "ATK%": "12"
+            },
+            {
+                "level": 71,
+                "ascension": 5,
+                "hp": 8244,
+                "atk": 210,
+                "def": 579,
+                "ATK%": "18"
+            },
+            {
+                "level": 72,
+                "ascension": 5,
+                "hp": 8312,
+                "atk": 212,
+                "def": 584,
+                "ATK%": "18"
+            },
+            {
+                "level": 73,
+                "ascension": 5,
+                "hp": 8382,
+                "atk": 214,
+                "def": 589,
+                "ATK%": "18"
+            },
+            {
+                "level": 74,
+                "ascension": 5,
+                "hp": 8452,
+                "atk": 215,
+                "def": 594,
+                "ATK%": "18"
+            },
+            {
+                "level": 75,
+                "ascension": 5,
+                "hp": 8520,
+                "atk": 217,
+                "def": 599,
+                "ATK%": "18"
+            },
+            {
+                "level": 76,
+                "ascension": 5,
+                "hp": 8590,
+                "atk": 219,
+                "def": 604,
+                "ATK%": "18"
+            },
+            {
+                "level": 77,
+                "ascension": 5,
+                "hp": 8659,
+                "atk": 221,
+                "def": 608,
+                "ATK%": "18"
+            },
+            {
+                "level": 78,
+                "ascension": 5,
+                "hp": 8728,
+                "atk": 222,
+                "def": 613,
+                "ATK%": "18"
+            },
+            {
+                "level": 79,
+                "ascension": 5,
+                "hp": 8797,
+                "atk": 224,
+                "def": 618,
+                "ATK%": "18"
+            },
+            {
+                "level": 80,
+                "ascension": 5,
+                "hp": 8867,
+                "atk": 226,
+                "def": 623,
+                "ATK%": "18"
+            },
+            {
+                "level": 81,
+                "ascension": 6,
+                "hp": 9382,
+                "atk": 239,
+                "def": 659,
+                "ATK%": "24"
+            },
+            {
+                "level": 82,
+                "ascension": 6,
+                "hp": 9450,
+                "atk": 241,
+                "def": 664,
+                "ATK%": "24"
+            },
+            {
+                "level": 83,
+                "ascension": 6,
+                "hp": 9520,
+                "atk": 243,
+                "def": 669,
+                "ATK%": "24"
+            },
+            {
+                "level": 84,
+                "ascension": 6,
+                "hp": 9589,
+                "atk": 244,
+                "def": 674,
+                "ATK%": "24"
+            },
+            {
+                "level": 85,
+                "ascension": 6,
+                "hp": 9658,
+                "atk": 246,
+                "def": 679,
+                "ATK%": "24"
+            },
+            {
+                "level": 86,
+                "ascension": 6,
+                "hp": 9727,
+                "atk": 248,
+                "def": 683,
+                "ATK%": "24"
+            },
+            {
+                "level": 87,
+                "ascension": 6,
+                "hp": 9797,
+                "atk": 250,
+                "def": 688,
+                "ATK%": "24"
+            },
+            {
+                "level": 88,
+                "ascension": 6,
+                "hp": 9866,
+                "atk": 251,
+                "def": 693,
+                "ATK%": "24"
+            },
+            {
+                "level": 89,
+                "ascension": 6,
+                "hp": 9935,
+                "atk": 253,
+                "def": 698,
+                "ATK%": "24"
+            },
+            {
+                "level": 90,
+                "ascension": 6,
+                "hp": 10005,
+                "atk": 255,
+                "def": 703,
+                "ATK%": "24"
+            },
+            {
+                "level": 95,
+                "ascension": 6,
+                "hp": 10351,
+                "atk": 287,
+                "def": 727,
+                "ATK%": "24"
+            },
+            {
+                "level": 100,
+                "ascension": 6,
+                "hp": 10697,
+                "atk": 320,
+                "def": 752,
+                "ATK%": "24"
+            }
+        ]
+    },
+    "icons": {
+        "forward": "UI_AvatarIcon_Valeriy",
+        "coop_img": "UI_CoopImg_Valeriy"
+    },
+    "ascension": {
+        "202": 7049900,
+        "exp": {
+            "104001": 2,
+            "104003": 418
+        },
+        "speciality": {
+            "101273": 168
+        },
+        "elemental": {
+            "104141": 1,
+            "104142": 9,
+            "104143": 9,
+            "104144": 6
+        },
+        "worldmonster": {
+            "112146": 18,
+            "112147": 30,
+            "112148": 36
+        },
+        "elitemonster": {
+            "113091": 46
+        }
+    },
+    "costumes": [
+        {
+            "id": 213700,
+            "name": "",
+            "description": "",
+            "icon": "UI_AvatarIcon_Valeriy",
+            "sideIcon": "UI_AvatarIcon_Side_Valeriy",
+            "gachaImg": "UI_Gacha_AvatarImg_Valeriy",
+            "quality": 0,
+            "itemId": 0,
+            "isDefault": true,
+            "isDefaultUnlock": false
+        }
+    ],
+    "envisagedEcho": {},
+    "skills": {
+        "normalattack": {
+            "name": "Guard Tactics: Sword and Shield",
+            "icon": "Skill_A_01",
+            "multipliers": {
+                "1-Hit DMG": [
+                    "32.48%",
+                    "35.13%",
+                    "37.77%",
+                    "41.55%",
+                    "44.19%",
+                    "47.21%",
+                    "51.37%",
+                    "55.52%",
+                    "59.68%",
+                    "64.21%",
+                    "68.74%",
+                    "73.28%",
+                    "77.81%",
+                    "82.34%",
+                    "86.88%"
+                ],
+                "2-Hit DMG": [
+                    "29.33%",
+                    "31.71%",
+                    "34.1%",
+                    "37.51%",
+                    "39.9%",
+                    "42.63%",
+                    "46.38%",
+                    "50.13%",
+                    "53.88%",
+                    "57.97%",
+                    "62.06%",
+                    "66.15%",
+                    "70.25%",
+                    "74.34%",
+                    "78.43%"
+                ],
+                "3-Hit DMG": [
+                    "45.42%",
+                    "49.11%",
+                    "52.81%",
+                    "58.09%",
+                    "61.79%",
+                    "66.01%",
+                    "71.82%",
+                    "77.63%",
+                    "83.44%",
+                    "89.78%",
+                    "96.12%",
+                    "102.45%",
+                    "108.79%",
+                    "115.13%",
+                    "121.47%"
+                ],
+                "Charged Attack DMG": [
+                    "100.28%",
+                    "108.44%",
+                    "116.6%",
+                    "128.26%",
+                    "136.42%",
+                    "145.75%",
+                    "158.58%",
+                    "171.4%",
+                    "184.23%",
+                    "198.22%",
+                    "212.21%",
+                    "226.2%",
+                    "240.2%",
+                    "254.19%",
+                    "268.18%"
+                ],
+                "Direct-Fire Mortar: Point-Blank Bombardment DMG": [
+                    "229.2%",
+                    "246.39%",
+                    "263.58%",
+                    "286.5%",
+                    "303.69%",
+                    "320.88%",
+                    "343.8%",
+                    "366.72%",
+                    "389.64%",
+                    "412.56%",
+                    "435.48%",
+                    "458.4%",
+                    "487.05%",
+                    "515.7%",
+                    "544.35%"
+                ],
+                "Charged Attack Stamina Cost": [
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20",
+                    "20"
+                ],
+                "Electro DMG Bonus": [
+                    "20.96% ATK",
+                    "22.53% ATK",
+                    "24.1% ATK",
+                    "26.2% ATK",
+                    "27.77% ATK",
+                    "29.34% ATK",
+                    "31.44% ATK",
+                    "33.54% ATK",
+                    "35.63% ATK",
+                    "37.73% ATK",
+                    "39.82% ATK",
+                    "41.92% ATK",
+                    "44.54% ATK",
+                    "47.16% ATK",
+                    "49.78% ATK"
+                ],
+                "Stellar-Conduct DMG Bonus": [
+                    "62.88% ATK",
+                    "67.6% ATK",
+                    "72.31% ATK",
+                    "78.6% ATK",
+                    "83.32% ATK",
+                    "88.03% ATK",
+                    "94.32% ATK",
+                    "100.61% ATK",
+                    "106.9% ATK",
+                    "113.18% ATK",
+                    "119.47% ATK",
+                    "125.76% ATK",
+                    "133.62% ATK",
+                    "141.48% ATK",
+                    "149.34% ATK"
+                ],
+                "Offensive Directive Stacks": [
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15",
+                    "15"
+                ],
+                "Offensive Directive Duration": [
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s"
+                ],
+                "Plunge DMG": [
+                    "63.93%",
+                    "69.14%",
+                    "74.34%",
+                    "81.77%",
+                    "86.98%",
+                    "92.93%",
+                    "101.1%",
+                    "109.28%",
+                    "117.46%",
+                    "126.38%",
+                    "135.3%",
+                    "144.22%",
+                    "153.14%",
+                    "162.06%",
+                    "170.98%"
+                ],
+                "Low/High Plunge DMG": [
+                    "127.84%/159.68%",
+                    "138.24%/172.67%",
+                    "148.65%/185.67%",
+                    "163.51%/204.24%",
+                    "173.92%/217.23%",
+                    "185.81%/232.09%",
+                    "202.16%/252.51%",
+                    "218.51%/272.93%",
+                    "234.86%/293.36%",
+                    "252.7%/315.64%",
+                    "270.54%/337.92%",
+                    "288.38%/360.2%",
+                    "306.22%/382.48%",
+                    "324.05%/404.76%",
+                    "341.89%/427.04%"
+                ]
+            },
+            "description": "<color=#FFD780FF>Normal Attack</color>\\nPerforms up to 3 consecutive sword strikes.\\n\\n<color=#FFD780FF>Charged Attack</color>\\nConsumes a certain amount of Stamina to leap forward and slam the ground, dealing Physical DMG to nearby opponents.\\nWhen Valeriy has at least 40 <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color>, he will consume all <color=#FFD780FF>Impact Momentum</color> to instead perform the special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color>.\\n\\n<color=#FFD780FF>Plunging Attack</color>\\nPlunges from mid-air to strike the ground below, damaging opponents along the path and dealing AoE DMG upon impact.{LINK#N11370002}{/LINK}",
+            "params": [
+                0.3248389959335327,
+                0.29326000809669495,
+                0.4541749954223633,
+                1.0027600526809692,
+                2.2920000553131104,
+                20.0,
+                0.20960000157356262,
+                0.6287999749183655,
+                15.0,
+                18.0,
+                0.6393240094184875,
+                1.2783770561218262,
+                1.59676194190979,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "elementalskill": {
+            "name": "Active Defense: Bastion Charge",
+            "icon": "Skill_S_Valeriy_01",
+            "multipliers": {
+                "Skill DMG": [
+                    "166%",
+                    "178.45%",
+                    "190.9%",
+                    "207.5%",
+                    "219.95%",
+                    "232.4%",
+                    "249%",
+                    "265.6%",
+                    "282.2%",
+                    "298.8%",
+                    "315.4%",
+                    "332%",
+                    "352.75%",
+                    "373.5%",
+                    "394.25%"
+                ],
+                "Shield DMG Absorption": [
+                    "208.9% ATK+1310",
+                    "224.56% ATK+1441",
+                    "240.23% ATK+1583",
+                    "261.12% ATK+1735",
+                    "276.79% ATK+1899",
+                    "292.45% ATK+2074",
+                    "313.34% ATK+2259",
+                    "334.23% ATK+2456",
+                    "355.12% ATK+2663",
+                    "376.01% ATK+2881",
+                    "396.9% ATK+3111",
+                    "417.79% ATK+3351",
+                    "443.9% ATK+3602",
+                    "470.02% ATK+3864",
+                    "496.13% ATK+4137"
+                ],
+                "Shield Duration": [
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s",
+                    "18s"
+                ],
+                "CD": [
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s",
+                    "10s"
+                ]
+            },
+            "description": "Valeriy raises his shield cannon and charges forward, dealing <color=#FFACFFFF>AoE Electro DMG</color>, gaining 40 <color=#FFD780FF>Impact Momentum</color>, and deploying a Supercharged Shield.\\nThe Supercharged Shield's DMG Absorption scales with Valeriy's ATK, and has 250% absorption efficiency against <color=#FFACFFFF></color>Electro DMG<color=#FFACFFFF></color>.\n\\n\\n<i>\"Victory takes time, sound judgment, and decisive action when the moment is right.\"</i>",
+            "params": [
+                1.659999966621399,
+                2.0889599323272705,
+                1309.638427734375,
+                18.0,
+                10.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "elementalburst": {
+            "name": "Focused Fire: Lightning Salvo",
+            "icon": "Skill_E_Valeriy_01",
+            "multipliers": {
+                "Skill DMG": [
+                    "135.12%",
+                    "145.25%",
+                    "155.39%",
+                    "168.9%",
+                    "179.03%",
+                    "189.17%",
+                    "202.68%",
+                    "216.19%",
+                    "229.7%",
+                    "243.22%",
+                    "256.73%",
+                    "270.24%",
+                    "287.13%",
+                    "304.02%",
+                    "320.91%"
+                ],
+                "Thunderburst Shell DMG": [
+                    "31.52%",
+                    "33.88%",
+                    "36.25%",
+                    "39.4%",
+                    "41.76%",
+                    "44.13%",
+                    "47.28%",
+                    "50.43%",
+                    "53.58%",
+                    "56.74%",
+                    "59.89%",
+                    "63.04%",
+                    "66.98%",
+                    "70.92%",
+                    "74.86%"
+                ],
+                "Duration": [
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s",
+                    "12s"
+                ],
+                "CD": [
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s"
+                ],
+                "Energy Cost": [
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60"
+                ]
+            },
+            "description": "Deals <color=#FFACFFFF>AoE Electro DMG</color> to nearby opponents and fires a <color=#FFD780FF>Thunderburst Shell</color> high into the air. The <color=#FFD780FF>Thunderburst Shell</color> disperses into a barrage of projectiles that rain down, dealing <color=#FFACFFFF>AoE Electro DMG</color> to nearby opponents.\n\\n\\n<i>\"Steel your resolve, take the field in heavy armor, and bring death thundering down upon the enemy.\"</i>",
+            "params": [
+                1.351199984550476,
+                0.31520000100135803,
+                12.0,
+                15.0,
+                60.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "leveling": {
+            "crown": {
+                "104319": 3
+            },
+            "books": {
+                "104371": 9,
+                "104372": 63,
+                "104373": 114
+            },
+            "worldmonster": {
+                "112146": 18,
+                "112147": 66,
+                "112148": 93
+            },
+            "weekly": {
+                "113087": 18
+            }
+        }
+    },
+    "passives": {
+        "p1": {
+            "name": "Advance With the Creeping Barrage",
+            "description": "Valeriy gains 5 <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> whenever a nearby active character in the party hits an opponent with an attack whose Elemental Type is <color=#FFACFFFF>Electro</color> while the <color=#FFD780FF>Thunderburst Shells</color> from his Elemental Burst <color=#FFD780FF>{LINK#S30605}Focused Fire: Lightning Salvo{/LINK}</color> are falling. He can gain up to 80 <color=#FFD780FF>Impact Momentum</color> in this way after each use of his Elemental Burst.",
+            "params": [
+                5.0,
+                80.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_05"
+        },
+        "p2": {
+            "name": "Into the Breach",
+            "description": "<color=#FFD780FF>{LINK#N11370002}Offensive Directive{/LINK}</color> is enhanced based on the amount of <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> consumed when performing his special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color>. Each point consumed further increases the DMG granted by <color=#FFD780FF>Offensive Directive</color>. If Valeriy is:\\n·In the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: Each point of <color=#FFD780FF>Impact Momentum</color> consumed increases this DMG by an amount equal to 0.9% of Valeriy's ATK;\\n·Not in the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: Each point of <color=#FFD780FF>Impact Momentum</color> consumed increases this DMG by an amount equal to 0.3% of Valeriy's ATK.",
+            "params": [
+                0.003000000026077032,
+                0.008999999612569809,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_06"
+        },
+        "p3": {
+            "name": "Tundra Operational Intelligence",
+            "description": "Gains 25% more rewards when dispatched on a Snezhnaya (not including Nod-Krai) Expedition for 20 hours.",
+            "params": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_07"
+        },
+        "p4": ""
+    },
+    "constellations": {
+        "const1": {
+            "name": "The Cadence of Suppressive Fire",
+            "description": "Valeriy regenerates 6 Elemental Energy after performing the special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color>. For every 10 <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> consumed beyond 40 when performing this special Charged Attack, he regenerates an additional 1.5 Elemental Energy. Each time he performs <color=#FFD780FF>Direct-Fire Mortar: Point-Blank Bombardment</color>, he can regenerate up to 15 Elemental Energy in this way. This effect can trigger once every 15s.\\nAdditionally, each time Valeriy enters combat, the first time he uses his Elemental Skill <color=#FFD780FF>{LINK#S30602}Active Defense: Bastion Charge{/LINK}</color>, he gains an additional amount of <color=#FFD780FF>Impact Momentum</color> equal to 150% of the amount normally gained.",
+            "params": [
+                6.0,
+                15.0,
+                1.5,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_01"
+        },
+        "const2": {
+            "name": "Ranks That Charge as One",
+            "description": "All nearby party members gain 100 Elemental Mastery for 18s after Valeriy uses his Elemental Skill <color=#FFD780FF>{LINK#S30602}Active Defense: Bastion Charge{/LINK}</color>.\\nAdditionally, while protected by a Supercharged Shield, if Valeriy is already at maximum <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color>, any further <color=#FFD780FF>Impact Momentum</color> he would gain is instead converted into increased DMG Absorption for the shield. Each point of excess <color=#FFD780FF>Impact Momentum</color> increases the Supercharged Shield's DMG Absorption by an amount equal to 8% of Valeriy's ATK. Up to 20 excess <color=#FFD780FF>Impact Momentum</color> can be converted in this way.",
+            "params": [
+                0.07999999821186066,
+                100.0,
+                20.0,
+                18.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_02"
+        },
+        "const3": {
+            "name": "Vigilance at Close Quarters",
+            "description": "Increases the Level of Normal Attack <color=#FFD780FF>{LINK#S30601}Guard Tactics: Sword and Shield{/LINK}</color> by 3.\\nMaximum upgrade level is 15.",
+            "params": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_U_Valeriy_01"
+        },
+        "const4": {
+            "name": "Fortitude Unshaken by Attrition",
+            "description": "Maximum <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> is increased by 30, and the amount gained is increased by 30%.",
+            "params": [
+                0.30000001192092896,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_03"
+        },
+        "const5": {
+            "name": "Resolve to Divide and Destroy",
+            "description": "Increases the Level of the Elemental Skill <color=#FFD780FF>{LINK#S30602}Active Defense: Bastion Charge{/LINK}</color> by 3.\\nMaximum upgrade level is 15.",
+            "params": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_U_Valeriy_02"
+        },
+        "const6": {
+            "name": "The Strength to Breach Enemy Lines",
+            "description": "The special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color> and <color=#FFD780FF>Thunderburst Shells</color> from Elemental Burst <color=#FFD780FF>{LINK#S30605}Focused Fire: Lightning Salvo{/LINK}</color> are enhanced: Their DMG is increased by 100%, and opponents they hit have the CRIT Rate of <color=#FFACFFFF>Electro DMG</color> they take increased by 10% for 7s. If the <color=#FFACFFFF>Electro DMG</color> taken is Stellar-Conduct reaction DMG, its CRIT DMG is also increased by 40%.",
+            "params": [
+                1.0,
+                7.0,
+                0.10000000149011612,
+                0.4000000059604645,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Valeriy_04"
+        }
+    },
+    "hyperlinks": [
+        {
+            "id": 11370001,
+            "name": "Direct-Fire Mortar: Point-Blank Bombardment",
+            "description": "Valeriy's special Charged Attack. Using a Charged Attack while he has at least 40 Impact Momentum consumes all Impact Momentum to unleash this special Charged Attack instead, dealing AoE Electro DMG in front of him and granting 15 stacks of Offensive Directive.",
+            "params": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]
+        },
+        {
+            "id": 11370002,
+            "name": "Offensive Directive",
+            "description": "A special effect Valeriy gains after performing the special Charged Attack Direct-Fire Mortar: Point-Blank Bombardment. It increases different types of Electro DMG depending on whether Valeriy is in the Radiance: Stellar-Conduct state. If Valeriy is:\\n·In the Radiance: Stellar-Conduct state: When a nearby active character in the party deals Electro DMG considered Stellar-Conduct reaction DMG to an opponent with a Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst, 1 stack of Offensive Directive is consumed to increase that DMG, with the increase based on Valeriy's ATK;\\n·Not in the Radiance: Stellar-Conduct state: When a nearby active character in the party deals Electro DMG to an opponent with a Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst, 1 stack of Offensive Directive is consumed to increase that DMG, with the increase based on Valeriy's ATK.\\nWhen a single instance of Electro DMG hits multiple opponents simultaneously, Offensive Directive stacks are consumed based on the number of opponents hit.",
+            "params": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]
+        },
+        {
+            "id": 11370003,
+            "name": "Impact Momentum",
+            "description": "A special energy Valeriy uses to enhance his combat capabilities. Its initial maximum is 100. When he has at least 40 Impact Momentum, he can perform the special Charged Attack Direct-Fire Mortar: Point-Blank Bombardment.\\nValeriy can gain Impact Momentum in the following ways:\\n·By using his Elemental Skill Active Defense: Bastion Charge;\\n·After unlocking the Passive Talent \"Advance With the Creeping Barrage,\" while his Elemental Burst Focused Fire: Lightning Salvo is active, when a nearby active character in the party hits an opponent with an attack whose Elemental Type is Electro.",
+            "params": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]
+        }
+    ],
+    "stories": {
+        "137200": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "137201": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "137202": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "137203": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "137204": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "137205": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "137207": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        }
+    },
+    "quotes": {
+        "137000": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137001": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137002": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137003": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137004": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137005": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137006": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137007": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137008": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137009": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137010": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137011": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137012": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137013": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137014": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137015": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137016": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137017": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137018": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137019": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137020": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137021": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137022": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137023": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137024": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137025": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137026": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137027": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137028": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137029": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137030": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137031": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137032": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137033": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137034": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137035": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137036": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137037": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137038": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137039": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137040": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137041": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137042": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137043": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137044": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137045": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137046": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137047": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137048": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137049": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137050": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137051": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137052": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137053": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137054": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137055": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137056": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137057": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137058": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137059": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137060": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137061": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137062": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137063": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137064": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137065": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137066": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137067": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137068": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137069": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137070": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137071": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137072": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137073": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "137074": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        }
+    },
+    "energy": [
+        {
+            "source": "ElementalArt_DropBall",
+            "particles": "3",
+            "chance": "100%",
+            "cd": "0.3s"
+        }
+    ],
+    "attacks": [
+        {
+            "name": "NormalAttack",
+            "icd_source": "Tag: NormalAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV3/33",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "Slash",
+            "damageParam": "NormalAttack_01"
+        },
+        {
+            "name": "NormalAttack",
+            "icd_source": "Tag: NormalAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV3/30",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "Slash",
+            "damageParam": "NormalAttack_02"
+        },
+        {
+            "name": "NormalAttack",
+            "icd_source": "Tag: NormalAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV4/47",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "Slash",
+            "damageParam": "NormalAttack_03"
+        },
+        {
+            "name": "ExtraAttack",
+            "icd_source": "Tag: ExtraAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV3/140",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "Pierce",
+            "damageParam": "ExtraAttack_Cannon"
+        },
+        {
+            "name": "ExtraAttack",
+            "icd_source": "Tag: ExtraAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV5/120",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "ExtraAttack_Shield"
+        },
+        {
+            "name": "FallingAnthem",
+            "icd_source": "Tag: FallingAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV2/25",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "Slash",
+            "damageParam": "FallingAnthem_Normal_Loop_Damage"
+        },
+        {
+            "name": "FallingAnthem",
+            "icd_source": "Tag: FallingAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV4/100",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "Blunt",
+            "damageParam": "FallingAnthem_Normal_Rank_1_Damage"
+        },
+        {
+            "name": "FallingAnthem",
+            "icd_source": "Tag: FallingAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV7/150",
+            "element": "-",
+            "attackType": "Melee",
+            "strikeType": "Blunt",
+            "damageParam": "FallingAnthem_Normal_Rank_2_Damage"
+        },
+        {
+            "name": "ElementalArt",
+            "icd_source": "Tag: Elemental_Art (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV3/60",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "ElementalArt_RushDamageRatio"
+        },
+        {
+            "name": "ElementalBurst",
+            "icd_source": "Tag: Elemental_Burst (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV4/40",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "Burst_DamageRatio"
+        },
+        {
+            "name": "SkillObj_Funnel",
+            "icd_source": "Tag: Avatar_Valeriy_Burst",
+            "icd_rule": "2 hits / 2s",
+            "gauge": "1U",
+            "poise": "LV1/15",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "Pierce",
+            "damageParam": "Damage_Ratio"
+        },
+        {
+            "name": "SkillObj_Funnel",
+            "icd_source": "Tag: Avatar_Valeriy_Burst",
+            "icd_rule": "2 hits / 2s",
+            "gauge": "1U",
+            "poise": "LV1/15",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "Pierce",
+            "damageParam": "Damage_Ratio"
+        },
+        {
+            "name": "SkillObj_Funnel",
+            "icd_source": "Tag: Avatar_Valeriy_Burst",
+            "icd_rule": "2 hits / 2s",
+            "gauge": "1U",
+            "poise": "LV1/15",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "Pierce",
+            "damageParam": "Damage_Ratio"
+        },
+        {
+            "name": "SkillObj_Funnel",
+            "icd_source": "Tag: Avatar_Valeriy_Burst",
+            "icd_rule": "2 hits / 2s",
+            "gauge": "1U",
+            "poise": "LV1/15",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "Pierce",
+            "damageParam": "Damage_Ratio"
+        },
+        {
+            "name": "SkillObj_Funnel",
+            "icd_source": "Tag: Avatar_Valeriy_Burst",
+            "icd_rule": "2 hits / 2s",
+            "gauge": "1U",
+            "poise": "LV1/15",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "Pierce",
+            "damageParam": "Damage_Ratio"
+        },
+        {
+            "name": "SkillObj_Funnel",
+            "icd_source": "Tag: Avatar_Valeriy_Burst",
+            "icd_rule": "2 hits / 2s",
+            "gauge": "1U",
+            "poise": "LV1/15",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "Pierce",
+            "damageParam": "Damage_Ratio"
+        }
+    ],
+    "endure": [
+        {
+            "ability": "ElementalArt",
+            "handler": "UNIQUE_ElementalArt_Shield_Child",
+            "Actor_EndureDelta": 0.0
+        },
+        {
+            "ability": "ElementalArt",
+            "handler": "ElementalArt_Endure",
+            "Actor_EndureDelta": 0.30000001192092896
+        },
+        {
+            "ability": "ExtraAttack",
+            "handler": "Endure_Add",
+            "Actor_EndureDelta": 0.30000001192092896
+        }
+    ]
+}

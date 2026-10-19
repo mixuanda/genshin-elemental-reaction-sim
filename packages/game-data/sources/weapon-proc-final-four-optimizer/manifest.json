@@ -1,0 +1,549 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "pinnedTreeSha": "180a0a1015cb725c7570cd828eb086749960df98",
+  "pinnedTreeTruncated": false,
+  "files": [
+    {
+      "source": "optimizer",
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "archivedAt": "2026-09-24T04:08:35.217559+00:00",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/LICENSE"
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedAt": "2026-09-24T04:08:35.219690+00:00",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "gitBlobSha": "736a1229592f4afead151920884dbccd5c5e22cb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx"
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/wr/src/formula.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "archivedAt": "2026-09-24T04:08:35.219368+00:00",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "gitBlobSha": "7a066de7a030ed2dd05b5184703bb955f6331961",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/wr/src/formula.ts"
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/dm/src/mapping/weapon.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "archivedAt": "2026-09-24T04:08:35.219742+00:00",
+      "sha256": "a24041ebb6383632d69dfbe2322775dea4ba45dd9273a93de2fee2de2d1b0982",
+      "gitBlobSha": "33edfa77556a7bb7dc1ef771f1194a57df306df5",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts"
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedAt": "2026-09-24T04:08:35.220193+00:00",
+      "sha256": "b0b4c34dacbf97b1a5e58e523361e86d629b146f43a2110b9094bf69ad2cb551",
+      "gitBlobSha": "e11e04044b2b4e50ca7a798c6384dccf47bd373c",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json"
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/sheets/src/Weapons/Bow/Messenger/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Bow/Messenger/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/Messenger/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/Messenger/index.tsx",
+      "archivedAt": "2026-09-24T04:08:39.416806+00:00",
+      "sha256": "7ead97753cea4387244e048eccdd8dd7553401526a2432de64c2070b864b6ef3",
+      "gitBlobSha": "8e63e7522911e5791cfa9cfb33217d2351354e10",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_Messenger_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_Messenger_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_Messenger_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_Messenger_gen.json",
+      "archivedAt": "2026-09-24T04:08:39.418914+00:00",
+      "sha256": "cd467303f3fe825f092a6f9d4670d20df820fedae74b7733291fe345b119f0b3",
+      "gitBlobSha": "daa624758e2791e5f300d6006eb65169a01695fb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/sheets/src/Weapons/Sword/SwordOfNarzissenkreuz/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Sword/SwordOfNarzissenkreuz/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/SwordOfNarzissenkreuz/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/SwordOfNarzissenkreuz/index.tsx",
+      "archivedAt": "2026-09-24T04:08:37.008379+00:00",
+      "sha256": "07a32de009b1eef00b7065b295d69ff4302066895344945a29d39069cd1cf126",
+      "gitBlobSha": "f248ac534b6b284c36c7b12c45b298146e14ffdb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_SwordOfNarzissenkreuz_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_SwordOfNarzissenkreuz_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_SwordOfNarzissenkreuz_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_SwordOfNarzissenkreuz_gen.json",
+      "archivedAt": "2026-09-24T04:08:39.427375+00:00",
+      "sha256": "9344734c2cbedc00ce1e5a193a8308e7667e436d8f39216cd6803d99926ed59d",
+      "gitBlobSha": "efe5f7f3611844de798ee9339b205d1c451a92bb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/sheets/src/Weapons/Catalyst/EyeOfPerception/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Catalyst/EyeOfPerception/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/EyeOfPerception/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/EyeOfPerception/index.tsx",
+      "archivedAt": "2026-09-24T04:08:40.366564+00:00",
+      "sha256": "085d0366e581d6b2e4dd3d29da965d5116dd42a1a7e91c53d4dd605c5e62dac4",
+      "gitBlobSha": "7841af9818b64044e1f19da5c250dec9636fae4b",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_EyeOfPerception_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_EyeOfPerception_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_EyeOfPerception_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_EyeOfPerception_gen.json",
+      "archivedAt": "2026-09-24T04:08:43.456828+00:00",
+      "sha256": "756b7d6516678862c176487639d90e8c96d84a07db37948dd4e11801fb431c5e",
+      "gitBlobSha": "b78a6abda8fa1ec0be57c5a0510093573f0e16be",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/sheets/src/Weapons/Bow/TheViridescentHunt/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Bow/TheViridescentHunt/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/TheViridescentHunt/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/TheViridescentHunt/index.tsx",
+      "archivedAt": "2026-09-24T04:08:43.430640+00:00",
+      "sha256": "2f5121374ee7280a027c2ec99f8d6c8630927aec75a7f64aafc3c2215913df1b",
+      "gitBlobSha": "7940dd3774aee6bd17ace83c19866199ea9871a8",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "optimizer",
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_TheViridescentHunt_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_TheViridescentHunt_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_TheViridescentHunt_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_TheViridescentHunt_gen.json",
+      "archivedAt": "2026-09-24T04:08:40.828700+00:00",
+      "sha256": "d739d265f45bc44532d4de8803e615243624e4f6e8e2a49900cd753af251775d",
+      "gitBlobSha": "130082dd46ad536b6b3b73690b29378b03543a09",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "source": "genshin-db",
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/genshin-db/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "gitBlobSha": "5335086ba177d823d802d64e7a255e0256258099",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-genshin-db-71-source/LICENSE"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/messenger.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/genshin-db/src/data/ChineseSimplified/weapons/messenger.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/messenger.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/messenger.json",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "93c733471ac22f608864340600773f7820678115d4a293d9f4bb339032528403",
+      "gitBlobSha": "3ad391eee195ee405283925a213072d74e32899f",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-genshin-db-71-source/src/data/ChineseSimplified/weapons/messenger.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/genshin-db/src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "7fb365b6103959e84d4cab39985865de6b62da3541d57f38c8dd84b1d4c078e3",
+      "gitBlobSha": "bee0807126ceedd0ce8683dcb17e5df9f6e13b1a",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-genshin-db-71-source/src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/genshin-db/src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "d199f323362f3609adc673e00e237f4040bae845f5494eb064f1c5d9befd82ca",
+      "gitBlobSha": "84042d757bf9d4a8df7dd169f6ce3271f8cb54f3",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-genshin-db-71-source/src/data/ChineseSimplified/weapons/eyeofperception.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/genshin-db/src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "fc1666150448c9f3725490fdeb60dd578b8dd9fdc22c3ea6ef70f1fe971c9f6a",
+      "gitBlobSha": "0316a1d8cb331a0845620e3262975a898ff46e0f",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-genshin-db-71-source/src/data/ChineseSimplified/weapons/theviridescenthunt.json"
+    },
+    {
+      "source": "gcsim",
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/gcsim/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-gcsim-b4ae769/LICENSE"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/catalyst/perception/perception.go",
+      "archivedPath": "packages/game-data/sources/weapon-proc-final-four-optimizer/raw/gcsim/internal/weapons/catalyst/perception/perception.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/perception/perception.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/perception/perception.go",
+      "archivedAt": "2026-09-24T04:10:29.273698+00:00",
+      "sha256": "23fff81296ae0fafe98b21cc247c0d446b7431eac8fb0e8accbd648a31048b0f",
+      "gitBlobSha": "026a2144b4b4fe1774f757ddfcf8794df8399bd3",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "copiedFrom": "/tmp/gidps-gcsim-b4ae769/internal/weapons/catalyst/perception/perception.go"
+    }
+  ],
+  "additionalPinnedSources": [
+    {
+      "id": "genshin-db",
+      "repository": "theBowja/genshin-db",
+      "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "pinnedTreeSha": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "pinnedTreeTruncated": true
+    },
+    {
+      "id": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "pinnedTreeSha": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "pinnedTreeTruncated": false
+    }
+  ],
+  "sourceReview": {
+    "reviewedAt": "2026-09-24T04:12:48.399617+00:00",
+    "method": "Static source and exact pinned file/blob verification only. No upstream app, simulator, calculator, build or test suite executed.",
+    "weaponFindings": [
+      {
+        "weaponId": 15305,
+        "optimizerKey": "Messenger",
+        "nameZh": "信使",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Bow/Messenger/index.tsx",
+        "optimizerDescriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_Messenger_gen.json",
+        "genshinDbPath": "src/data/ChineseSimplified/weapons/messenger.json",
+        "coefficientByRefinement": [
+          1,
+          1.25,
+          1.5,
+          1.75,
+          2
+        ],
+        "coefficientAgreement": "optimizer-production-sheet = optimizer-localized-description = pinned-genshin-db-values",
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "cooldownSecondsByRefinementFromDescriptions": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "probabilityByRefinementFromDescriptions": null,
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            18
+          ],
+          "attackStatInput": [
+            23
+          ],
+          "physical": [
+            25
+          ],
+          "todo": []
+        },
+        "triggerConditionFromDescriptions": "charged attack hits weak point",
+        "forcedCritFromDescriptions": true,
+        "forcedCritImplementedInSheet": false,
+        "forcedCritCaveat": "Sheet has no hitMode or crit-rate override; it uses generic hit/critHit/avgHit. Coefficients agree but automatic forced-crit behavior is not implemented here."
+      },
+      {
+        "weaponId": 11428,
+        "optimizerKey": "SwordOfNarzissenkreuz",
+        "nameZh": "水仙十字之剑",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Sword/SwordOfNarzissenkreuz/index.tsx",
+        "optimizerDescriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_SwordOfNarzissenkreuz_gen.json",
+        "genshinDbPath": "src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+        "coefficientByRefinement": [
+          1.6,
+          2,
+          2.4,
+          2.8,
+          3.2
+        ],
+        "coefficientAgreement": "optimizer-production-sheet = optimizer-localized-description = pinned-genshin-db-values",
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "cooldownSecondsByRefinementFromDescriptions": [
+          12,
+          12,
+          12,
+          12,
+          12
+        ],
+        "probabilityByRefinementFromDescriptions": null,
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            18
+          ],
+          "attackStatInput": [
+            26
+          ],
+          "physical": [
+            30
+          ],
+          "todo": [
+            19
+          ]
+        },
+        "triggerConditionFromDescriptions": "wielder has no innate Arkhe; normal, charged or plunging attack hit",
+        "arkhePolarityFromDescriptions": "Pneuma or Ousia chosen by current weapon alignment",
+        "arkheEligibilityImplementedInSheet": false,
+        "arkheStateImplementedInSheet": false,
+        "arkheEligibilityTodo": "Don't show dmg value when wielder has an Arkhe"
+      },
+      {
+        "weaponId": 14409,
+        "optimizerKey": "EyeOfPerception",
+        "nameZh": "昭心",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Catalyst/EyeOfPerception/index.tsx",
+        "optimizerDescriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_EyeOfPerception_gen.json",
+        "genshinDbPath": "src/data/ChineseSimplified/weapons/eyeofperception.json",
+        "coefficientByRefinement": [
+          2.4,
+          2.7,
+          3,
+          3.3,
+          3.6
+        ],
+        "coefficientAgreement": "optimizer-production-sheet = optimizer-localized-description = pinned-genshin-db-values",
+        "attackStatInput": "input.premod.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "cooldownSecondsByRefinementFromDescriptions": [
+          12,
+          11,
+          10,
+          9,
+          8
+        ],
+        "probabilityByRefinementFromDescriptions": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            18
+          ],
+          "attackStatInput": [
+            25
+          ],
+          "physical": [
+            29
+          ],
+          "todo": []
+        },
+        "triggerConditionFromDescriptions": "normal or charged attack hit; 50 percent proc chance",
+        "bouncesFromDescription": 4,
+        "automaticBounceCountImplementedInSheet": false,
+        "damageNodeScope": "one bolt hit, not all bounces"
+      },
+      {
+        "weaponId": 15409,
+        "optimizerKey": "TheViridescentHunt",
+        "nameZh": "苍翠猎弓",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Bow/TheViridescentHunt/index.tsx",
+        "optimizerDescriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_TheViridescentHunt_gen.json",
+        "genshinDbPath": "src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+        "coefficientByRefinement": [
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8
+        ],
+        "coefficientAgreement": "optimizer-production-sheet = optimizer-localized-description = pinned-genshin-db-values",
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "cooldownSecondsByRefinementFromDescriptions": [
+          14,
+          13,
+          12,
+          11,
+          10
+        ],
+        "probabilityByRefinementFromDescriptions": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "timelineImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "coefficient": [
+            18
+          ],
+          "attackStatInput": [
+            23
+          ],
+          "physical": [
+            25
+          ],
+          "todo": []
+        },
+        "triggerConditionFromDescriptions": "normal or charged attack hit; 50 percent proc chance",
+        "durationSecondsFromDescriptions": 4,
+        "tickIntervalSecondsFromDescriptions": 0.5,
+        "exactTickCountProvenBySheet": null,
+        "damageNodeScope": "one tick; no loop, initial-tick timing or terminal-boundary definition"
+      }
+    ],
+    "optimizerVsGenshinDbCoefficientPositionsCompared": 20,
+    "optimizerVsGenshinDbCoefficientPositionsMatched": 20,
+    "optimizerVsGenshinDbMaxCoefficientDifference": 0,
+    "optimizerLocalizedDescriptionsVsGenshinDbDescriptionsMatched": 20,
+    "gcsimEyeOfPerceptionConflict": {
+      "source": "gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/weapons/catalyst/perception/perception.go",
+      "expression": "2.1 * float64(r) * 0.3",
+      "coefficientByRefinement": [
+        0.63,
+        1.26,
+        1.89,
+        2.52,
+        3.15
+      ],
+      "optimizerAndGenshinDbCoefficientByRefinement": [
+        2.4,
+        2.7,
+        3,
+        3.3,
+        3.6
+      ],
+      "gcsimMinusReferenceByRefinement": [
+        -1.77,
+        -1.44,
+        -1.11,
+        -0.78,
+        -0.45
+      ],
+      "conflictingPositions": 5,
+      "maxAbsoluteCoefficientDifference": 1.77,
+      "cooldownExpression": "(13 - r) * 60 frames",
+      "cooldownSecondsByRefinement": [
+        12,
+        11,
+        10,
+        9,
+        8
+      ],
+      "cooldownMatchesDescriptions": true,
+      "sourceLineEvidence": {
+        "damageExpression": [
+          63
+        ],
+        "cooldownExpression": [
+          62
+        ]
+      },
+      "probabilityCaveat": "The reviewed OnEnemyDamage handler has no explicit 50 percent RNG gate. Do not use this function as a probability oracle.",
+      "bounceCaveat": "Local chain code is not treated as proof of all legal in-game target routes or total hits."
+    },
+    "archivedFileCount": 20,
+    "allArchivedGitBlobsMatchTheirPinnedTree": true,
+    "testsExecuted": 0,
+    "buildsExecuted": 0,
+    "externalApplicationExecutions": 0,
+    "limitations": [
+      "Messenger descriptions force critical damage after a charged weak-point hit; this production sheet does not enforce the condition or crit mode.",
+      "SwordOfNarzissenkreuz has a documented TODO for wielder Arkhe eligibility; its sheet has numerical damage but does not implement the eligibility gate or Arkhe interaction.",
+      "TheViridescentHunt sheet models one tick only. Duration and interval in descriptions alone do not prove exact tick count or boundary timing.",
+      "EyeOfPerception pinned gcsim multiplier disagrees with both production Optimizer sheet and pinned genshin-db at all refinements; conflict remains explicit.",
+      "EyeOfPerception reads premod.atk while the other three read total.atk; arbitrary post-modifier equivalence is not established.",
+      "No empty refinementBonus or TODO stub is used to claim feature completeness. No independent in-game validation."
+    ],
+    "treeCoverageNote": "The genshin-db recursive tree is truncated; every archived target path is nevertheless explicitly present and its blob SHA matches. No claim is made about omitted paths."
+  }
+}

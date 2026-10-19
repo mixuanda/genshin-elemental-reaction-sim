@@ -1,0 +1,18 @@
+/Users/evan/Documents/gidps/packages/schemas/src/schema.ts:19574
+		throw new ConfigMigrationError(`配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`, issues);
+		      ^
+
+ConfigMigrationError: 配置校验失败：
+- enemy.targets.0.name: Invalid input: expected string, received undefined
+    at parseSimConfig (/Users/evan/Documents/gidps/packages/schemas/src/schema.ts:19574:9)
+    at migrateConfig (/Users/evan/Documents/gidps/packages/schemas/src/schema.ts:20368:10)
+    at simulate (/Users/evan/Documents/gidps/packages/sim-core/src/simulator.ts:13055:57)
+    at file:///private/tmp/gidps-enemy-shield-smoke.mjs:15:14 {
+  issues: [
+    'enemy.targets.0.name: Invalid input: expected string, received undefined'
+  ]
+}
+
+Node.js v24.15.0
+
+WALL_SECONDS=1.097

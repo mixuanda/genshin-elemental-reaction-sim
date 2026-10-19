@@ -1,0 +1,119 @@
+commit 84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 22:35:59 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 22:35:59 2026 +0800
+
+    Add versioned callback bus mechanics foundation
+
+commit e01c8ef0bc751ea7fef2e2a6ea67e6201125eb53
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 19:37:16 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 19:37:16 2026 +0800
+
+    Add audited Freeze Broken reaction foundation
+
+commit 4a13a7858028ddd86a42a404be4927087a897351
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 17:50:22 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 17:50:22 2026 +0800
+
+    Add versioned basic reaction scheduler
+
+commit 7e6ac75656b529c9913ee70e262ec58d5443b21a
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 14:04:30 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 14:04:30 2026 +0800
+
+    Add task-ordered reaction damage groups
+
+commit 89cf0c7c5f62baa650077108e5c8a8b5b6c0e86f
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 11:48:32 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 11:48:32 2026 +0800
+
+    Add auditable reaction reset boundaries
+
+commit 299adc08dba08faf6fd1964a5730937d5575ec9c
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 10:34:41 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 10:34:41 2026 +0800
+
+    Add audited reaction-owned application root
+
+commit 4288f64840329bb6066cc987f68fec7556427088
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sun Aug 2 08:51:49 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sun Aug 2 08:51:49 2026 +0800
+
+    Add auditable elemental application ICD
+
+commit cd47614728da73028924241f24b7a13b4575513c
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sat Aug 1 21:25:25 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sat Aug 1 21:25:25 2026 +0800
+
+    Add auditable ordinary damage groups
+
+commit ea921cde64c25cc2d965ceb77e4acb60a638c84f
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sat Aug 1 15:59:24 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sat Aug 1 15:59:24 2026 +0800
+
+    Freeze Aura source overlap behavior
+
+commit f8fe8ebb08a614c5a3db1f9469a9ed73b0f82d5f
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sat Aug 1 15:51:34 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sat Aug 1 15:51:34 2026 +0800
+
+    Bind reactions to a versioned formula trust root
+
+commit c36160f2699ba3662c05820c5b9cce405d3d2d3b
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sat Aug 1 14:58:27 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sat Aug 1 14:58:27 2026 +0800
+
+    Enforce Quicken conservation and bound EC validation
+
+commit 7471cb959b688f3de1f958de144c876fe5a9e529
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Sat Aug 1 11:23:56 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Sat Aug 1 11:23:56 2026 +0800
+
+    Replay Electro-Charged lifecycle integrity
+
+commit 49092b58c89a31abe271410eee06ba190a650f20
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Fri Jul 31 21:43:49 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Fri Jul 31 21:43:49 2026 +0800
+
+    Harden elemental reaction fail-closed boundaries
+
+commit b68285665a4eff2e52ea5efa4dc8b1d492a8edf0
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Fri Jul 31 20:53:07 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Fri Jul 31 20:53:07 2026 +0800
+
+    Harden Burning and Quicken reaction integrity
+
+commit fd706b96e45cc07a77f430d4a157129ff89a560b
+Author:     Evan Mi <mixuanda@outlook.com>
+AuthorDate: Fri Jul 31 19:13:37 2026 +0800
+Commit:     Evan Mi <mixuanda@outlook.com>
+CommitDate: Fri Jul 31 19:13:37 2026 +0800
+
+    Harden elemental reaction lifecycle integrity

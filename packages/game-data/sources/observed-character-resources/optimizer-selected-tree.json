@@ -1,0 +1,47 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "selectionOnly": true,
+  "tree": [
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "size": 1071,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/ccc6a6c559f48acd605c121885cd8c37a01aaf42"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Lohen/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "c17766f748288510cdc1394fee1fca3db292eafa",
+      "size": 16157,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/c17766f748288510cdc1394fee1fca3db292eafa"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Lohen/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "03fa80ac19790805d497b7a52965f59f92879eea",
+      "size": 8035,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/03fa80ac19790805d497b7a52965f59f92879eea"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Lohen_gen.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5ed41dcec48b86a4a0ee0fe6f8555e93ceef27b0",
+      "size": 12390,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/5ed41dcec48b86a4a0ee0fe6f8555e93ceef27b0"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "188d09480020761be49244617e3025b4cc845282",
+      "size": 38604,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/188d09480020761be49244617e3025b4cc845282"
+    }
+  ]
+}

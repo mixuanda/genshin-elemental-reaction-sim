@@ -1,0 +1,7 @@
+Command: ./node_modules/.bin/vitest run apps/web/src/source-host-energy-analysis.test.ts
+Result before the single-line GCSL guard edit: exit 0
+Test Files: 1 passed (1)
+Tests: 3 passed (3)
+Duration: 7.03s
+
+The added guard assertion was not rerun here; the integrated batch-page validation will cover the final state.

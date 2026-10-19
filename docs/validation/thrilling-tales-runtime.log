@@ -1,0 +1,114 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/thrilling-tales-runtime.test.ts (3 tests | 2 failed) 145ms
+     × applies only on completed owner swaps, consumes a second owner's ICD without refresh, and preserves actual action snapshots 18ms
+     × establishes a real cycle with captured owner and recipient state, while expired numeric buffs cannot erase an equality gate 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/thrilling-tales-runtime.test.ts > actual Thrilling Tales swap, stat sampling and complete private state > applies only on completed owner swaps, consumes a second owner's ICD without refresh, and preserves actual action snapshots
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.0.kind: Invalid option: expected one of "skill"|"burst"|"normal"|"charge"
+- timeline.commands.0.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.3.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.6.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.8.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.11.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.12.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33663:11
+    33661|   if (!parsed.success) {
+    33662|     const issues = formatZodError(parsed.error);
+    33663|     throw new ConfigMigrationError(
+       |           ^
+    33664|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33665|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35098:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18268:18
+ ❯ packages/sim-core/src/__tests__/thrilling-tales-runtime.test.ts:37:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/thrilling-tales-runtime.test.ts > actual Thrilling Tales swap, stat sampling and complete private state > establishes a real cycle with captured owner and recipient state, while expired numeric buffs cannot erase an equality gate
+AssertionError: 配置校验失败：
+- timeline.abilities.0.kind: Invalid option: expected one of "skill"|"burst"|"normal"|"charge"
+- timeline.commands.0.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.3.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.6.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.7.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.10.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.11.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.13.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.16.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.19.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.20.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.23.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.24.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.26.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.29.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.32.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.33.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.36.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.37.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.39.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.42.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.45.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.46.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.49.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.50.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.52.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.55.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.58.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.59.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.62.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.63.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.65.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.68.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.71.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.72.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.75.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.76.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.78.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.81.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.84.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.85.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.88.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.89.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.91.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.94.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.97.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.98.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.101.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.102.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.104.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.107.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.110.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.111.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.114.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.115.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.117.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.120.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.123.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.124.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.127.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge'
+- timeline.commands.128.type: Invalid discriminator value. Expected 'wait' | 'swap' | 'pickUpCrystallize' | 'dash' | 'jump' | 'skill' | 'burst' | 'normal' | 'charge': expected 'blocked' to be 'steady-state-established' // Object.is equality
+
+Expected: "steady-state-established"
+Received: "blocked"
+
+ ❯ packages/sim-core/src/__tests__/thrilling-tales-runtime.test.ts:81:54
+     79|     const config = fixture();
+     80|     const result = simulateWithStartup(config, { mode: "steady-state",…
+     81|     expect(result.status, result.reasons.join("; ")).toBe("steady-stat…
+       |                                                      ^
+     82|     expect(result.measurement!.totalDamage).toBe(4080);
+     83|     expect(result.steadyState!.steadyStateDps).toBe(102);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  08:33:11
+   Duration  1.03s (transform 638ms, setup 0ms, import 819ms, tests 145ms, environment 0ms)
+

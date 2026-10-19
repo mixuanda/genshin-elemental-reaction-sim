@@ -1,0 +1,168 @@
+--- a/internal/characters/aino/skill.go
++++ b/internal/characters/aino/skill.go
+@@ -69,7 +69,7 @@
+ 				skillHitboxes[i],
+ 			)
+ 		}
+-		c.QueueCharTask(func() {
++		c.SourceHostQueueCharTask("aino.skill.musecatcher", func() {
+ 			c.Core.QueueAttack(ax, ap, 0, 0, c.particleCB, c.c4CB)
+ 		}, skillHitmarks[i])
+ 	}
+--- a/internal/characters/charlotte/burst.go
++++ b/internal/characters/charlotte/burst.go
+@@ -85,7 +85,7 @@
+ 	ai.ICDGroup = attacks.ICDGroupCharlotteKamera
+ 	ai.Durability = 25
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("charlotte.burst.field-start", c.Index(), func() {
+ 		c.Core.Player.Heal(info.HealInfo{
+ 			Caller:            c.Index(),
+ 			Target:            -1,
+@@ -97,7 +97,7 @@
+ 		})
+ 
+ 		for _, value := range burstTickFrames {
+-			c.Core.Tasks.Add(func() {
++			c.Core.SourceHostQueueTask("charlotte.burst.kamera-tick", c.Index(), func() {
+ 				c.Core.QueueAttackWithSnap(ai, snap, attackAP, 0)
+ 				if !c.Core.Combat.Player().IsWithinArea(healAP) {
+ 					return
+--- a/internal/characters/xinyan/burst.go
++++ b/internal/characters/xinyan/burst.go
+@@ -66,7 +66,7 @@
+ 		CanBeDefenseHalted: true,
+ 	}
+ 	// 1st DoT
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("xinyan.burst.first-dot", func() {
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: 2}, 4),
+@@ -76,7 +76,7 @@
+ 		)
+ 		ai.CanBeDefenseHalted = false // only the first DoT has hitlag
+ 		// 2nd DoT onwards
+-		c.QueueCharTask(func() {
++		c.SourceHostQueueCharTask("xinyan.burst.remaining-dots", func() {
+ 			for i := range 6 {
+ 				c.Core.QueueAttack(
+ 					ai,
+--- a/internal/characters/xiangling/burst.go
++++ b/internal/characters/xiangling/burst.go
+@@ -39,7 +39,7 @@
+ 			Mult:               pyronadoInitial[i][c.TalentLvlBurst()],
+ 		}
+ 		radius := burstRadius[i]
+-		c.QueueCharTask(func() {
++		c.SourceHostQueueCharTask("xiangling.burst.initial-hit", func() {
+ 			c.Core.QueueAttack(initialHit, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, radius), 0, 0)
+ 		}, burstHitmarks[i])
+ 	}
+@@ -62,7 +62,7 @@
+ 	}
+ 
+ 	// delay the spinny for a; should be affected by hitlag
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("xiangling.burst.pyronado-start", func() {
+ 		maxDuration := 10 * 60
+ 		if c.Base.Cons >= 4 {
+ 			maxDuration = 14 * 60
+--- a/internal/characters/collei/burst.go
++++ b/internal/characters/collei/burst.go
+@@ -50,10 +50,10 @@
+ 		explosionHitmark,
+ 	)
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("collei.burst.field-start", c.Index(), func() {
+ 		c.AddStatus(burstKey, 378, false)
+ 		snap := c.Snapshot(&ai)
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("collei.burst.leap", c.Index(), func() {
+ 			c.burstTicks(snap)
+ 		}, leapHitmark-explosionHitmark)
+ 		c.burstA4Ticks()
+@@ -98,7 +98,7 @@
+ 		combat.NewCircleHitOnTarget(c.burstPos, nil, 4),
+ 		0,
+ 	)
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("collei.burst.leap", c.Index(), func() {
+ 		c.burstTicks(snap)
+ 	}, leapTickPeriod)
+ }
+--- a/internal/characters/kazuha/burst.go
++++ b/internal/characters/kazuha/burst.go
+@@ -66,7 +66,7 @@
+ 
+ 	// handle C2
+ 	// first tick is right before initial hit, ticks every 0.5s while burst is up
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("kazuha.burst.initialize", func() {
+ 		// snapshot ticks right before slash
+ 		c.qTickSnap = c.Snapshot(&ai)
+ 		c.qTickAbsorbSnap = c.Snapshot(&aiAbsorb)
+@@ -81,12 +81,12 @@
+ 	// make sure that this task gets executed:
+ 	// - inside Q hitlag
+ 	// - before kazuha can get affected by any more hitlag
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("kazuha.burst.tick-start", func() {
+ 		// queue up ticks
+ 		// from kisa's count: ticks starts at 147, + 117 gap each roughly; 5 ticks total
+ 		// updated to 140 based on koli's count: https://docs.google.com/spreadsheets/d/1uEbP13O548-w_nGxFPGsf5jqj1qGD3pqFZ_AiV4w3ww/edit#gid=775340159
+ 		for i := range 5 {
+-			c.Core.Tasks.Add(func() {
++			c.Core.SourceHostQueueTask("kazuha.burst.tick", c.Index(), func() {
+ 				if c.qAbsorb != attributes.NoElement {
+ 					aiAbsorb.Element = c.qAbsorb
+ 					c.Core.QueueAttackWithSnap(aiAbsorb, c.qTickAbsorbSnap, ap, 0)
+--- a/internal/characters/sayu/burst.go
++++ b/internal/characters/sayu/burst.go
+@@ -110,10 +110,10 @@
+ 	// make sure that this task gets executed:
+ 	// - after q initial hit hitlag happened
+ 	// - before sayu can get affected by any more hitlag
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("sayu.burst.schedule-daruma-ticks", func() {
+ 		// first tick is at 145
+ 		for i := 145 - tickTaskDelay; i < 145+540-tickTaskDelay; i += 90 {
+-			c.Core.Tasks.Add(func() {
++			c.Core.SourceHostQueueTask("sayu.burst.daruma-tick", c.Index(), func() {
+ 				// check for player
+ 				// only check HP of active character
+ 				char := c.Core.Player.ActiveChar()
+--- a/internal/characters/kokomi/skill.go
++++ b/internal/characters/kokomi/skill.go
+@@ -41,8 +41,8 @@
+ 	c.skillFlatDmgCreationID = creationID
+ 	c.skillFlatDmgRuleID = creationRuleID
+ 
+-	c.Core.Tasks.Add(func() { c.skillTick(d) }, skillHitmark)
+-	c.Core.Tasks.Add(c.skillTickTask(d, c.Core.F), skillHitmark+126)
++	c.Core.SourceHostQueueTask("kokomi.skill.first-tick", c.Index(), func() { c.skillTick(d) }, skillHitmark)
++	c.Core.SourceHostQueueTask("kokomi.skill.initial-recurring-tick", c.Index(), c.skillTickTask(d, c.Core.F), skillHitmark+126)
+ 
+ 	c.SetCDWithDelay(action.ActionSkill, 20*60, 20)
+ 
+@@ -185,6 +185,6 @@
+ 
+ 		c.skillTick(originalSnapshot)
+ 
+-		c.Core.Tasks.Add(c.skillTickTask(originalSnapshot, src), 120)
++		c.Core.SourceHostQueueTask("kokomi.skill.next-recurring-tick", c.Index(), c.skillTickTask(originalSnapshot, src), 120)
+ 	}
+ }
+--- a/internal/characters/kirara/burst.go
++++ b/internal/characters/kirara/burst.go
+@@ -73,7 +73,7 @@
+ 		IsDeployable:       true,
+ 	}
+ 
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("kirara.burst.mine-snapshot", func() {
+ 		c.mineSnap = c.Snapshot(&mineAi)
+ 	}, mineSnapshot)
+ 

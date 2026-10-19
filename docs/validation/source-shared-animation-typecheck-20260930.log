@@ -1,0 +1,7 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/er-independent-failure.spec.ts(48,39): error TS2345: Argument of type 'SimConfigV153' is not assignable to parameter of type 'unknown[] | Record<string, unknown>'.
+  Type 'SimConfigV153' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SimConfigV153'.

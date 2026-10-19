@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 1.855,
+  "log": "docs/validation/source-character-multiplier-stellar-first-20260928.log"
+}

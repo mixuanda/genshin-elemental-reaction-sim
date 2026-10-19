@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:94563) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/weapon-proc-calculator.spec.ts:21:1 › Independent weapon procs need no team and retain edited final context across refinement, ATK or HP scaling and JSON
+[chromium] › apps/web/e2e/weapon-proc-calculator.spec.ts:21:1 › Independent weapon procs need no team and retain edited final context across refinement, ATK or HP scaling and JSON
+Independent weapon proc browser measurements {"halberdR1Teaching":{"nonCritical":720,"critical":1440,"expected":1080},"halberdR1Edited":{"nonCritical":1227.7894736842106,"critical":3069.4736842105267,"expected":1596.126315789474},"halberdR5Edited":{"nonCritical":2455.5789473684213,"critical":6138.947368421053,"expected":3192.252631578948},"hornR5":{"nonCritical":8185.263157894737,"critical":20463.15789473684,"expected":10640.842105263158},"hornR5ChangedHp":{"nonCritical":10231.57894736842,"critical":25578.94736842105,"expected":13301.052631578947},"hornR1":{"nonCritical":5115.78947368421,"critical":12789.473684210525,"expected":6650.526315789473},"bowR1":{"nonCritical":5115.78947368421,"critical":12789.473684210525,"expected":6650.526315789473},"json":{"nonCritical":5115.78947368421,"critical":12789.473684210525,"expected":6650.526315789473}}
+
+  1 passed (976ms)

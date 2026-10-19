@@ -1,0 +1,2033 @@
+{
+  "schemaVersion": "1.0.0",
+  "fromProviderVersion": "7.1.50",
+  "toProviderVersion": "7.1.50.2",
+  "fromArchiveSha256": "4b586f1bee225378ffe46b72a344e1fb1e35baff412045a1978d20c0de38e086",
+  "toArchiveSha256": "d3d87b807628a51fbb65cd55ee61d399b2849ed1b0838d9ba6e70010de8aef08",
+  "sourceFileHashes": [
+    {
+      "file": "charlist.json",
+      "before": "c086253bd2d09698d1ab7b98bdb85690ba52b0e212a5f747f43e127b2f3330aa",
+      "after": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc"
+    },
+    {
+      "file": "lunaris-app.js",
+      "before": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b",
+      "after": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b"
+    },
+    {
+      "file": "mitya.chs.json",
+      "before": "d3d5bc6445f57ebd969cd67a43ba67a4dd7e4e7da673be1947fa31ecac0ef81e",
+      "after": "9c4b0e202c5eaacafcbd41c17bbe7f436cce8c29bc21e3042b1a241104b32efb"
+    },
+    {
+      "file": "mitya.en.json",
+      "before": "357b9f0b0967d96491ac875d53ba0408d3ed1d2d86e948cba1f327880d9ef678",
+      "after": "494aff4797b8867443c92bb363832b4026030542be4df14bb910d8a138552e60"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "before": "0714b7f9db97e3256c906dbf850c45aa99211cf566e5f4dc0e67f48461c21d50",
+      "after": "2095a051f1d49568eea54f29b0a7a53ba748ffe2274881b0fbff22e8e2761b19"
+    },
+    {
+      "file": "valeriy.en.json",
+      "before": "ab0f155c8ee3d6b33842cee41e16f526fd459c6f4f4e310c974654ae330e1d2c",
+      "after": "a5e9cd98815e6b0675030f9ef9b0d043a17b11b1f15643375c0c507b1e2e3655"
+    },
+    {
+      "file": "version.json",
+      "before": "eaeff9d580d0631f142f8494072e5d4888aa7003c4109ed1ba6a96f71ef06f16",
+      "after": "7ecef4c5ae8e09646cca87fffc0f301c00d825fd5b221b52a1b182ee4c2ae313"
+    }
+  ],
+  "countsByKind": {
+    "numeric-value": 2,
+    "source-array-change": 40,
+    "numeric-representation": 86,
+    "text": 3,
+    "display-numeric-text": 14,
+    "added-version": 1
+  },
+  "changes": [
+    {
+      "file": "charlist.json",
+      "path": "/10000003/ascensionStats/Healing Bonus%",
+      "kind": "numeric-value",
+      "before": 22.2,
+      "after": 22.1
+    },
+    {
+      "file": "charlist.json",
+      "path": "/10000035/ascensionStats/Healing Bonus%",
+      "kind": "numeric-value",
+      "before": 22.2,
+      "after": 22.1
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/attacks",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "name": "ElementalArt",
+          "icd_source": "Tag: Elemental_Art (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV2/100",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_ArtHold_Dmg"
+        },
+        {
+          "name": "ElementalArt",
+          "icd_source": "Tag: Elemental_Art (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV2/75",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_ArtTrigger_Dmg"
+        },
+        {
+          "name": "Partner_EnhanceAttackManager",
+          "icd_source": "Tag: IceCraftedPickaxe_Dig (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV1/0",
+          "element": "-",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "Partner_EnhanceAttackManager",
+          "icd_source": "Tag: default",
+          "icd_rule": "Standard (3h/2.5s)",
+          "gauge": "1U",
+          "poise": "LV2/20",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_Partner_Enhance_Damage"
+        },
+        {
+          "name": "Partner_Enhance_DestroyShard_Gadget",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/35",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "OverShardDamage",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/35",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "ExtraAttack_Normal",
+          "icd_source": "Tag: ExtraAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV2/80",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "AS_ExtraAttack_Damage"
+        },
+        {
+          "name": "ExtraAttack_Enhance",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV3/40",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "ExtraAttack_Enhance",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV3/40",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "ExtraAttack_Enhance_PartnerControl",
+          "icd_source": "Tag: default",
+          "icd_rule": "Standard (3h/2.5s)",
+          "gauge": "1U",
+          "poise": "LV2/30",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "-",
+          "damageParam": "AS_ExtraAttackEnhancePre_Damage"
+        },
+        {
+          "name": "ElementalBurstGadget",
+          "icd_source": "Tag: Elemental_Burst (!)",
+          "icd_rule": "Independent",
+          "gauge": "2U",
+          "poise": "LV5/150",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_ElementalBurst_AttackDamageRatio"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/5",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "FallingAnthem_Normal_Loop_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/50",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "FallingAnthem_Normal_Rank_1_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/100",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "FallingAnthem_Normal_Rank_2_Damage"
+        },
+        {
+          "name": "Constellation_4",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/35",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        }
+      ]
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const6/params/0",
+      "kind": "numeric-representation",
+      "before": 0.3,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const6/params/1",
+      "kind": "numeric-representation",
+      "before": 0.2,
+      "after": 0.20000000298023224
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/energy",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "source": "DropElemBall",
+          "particles": "5",
+          "chance": "100%",
+          "cd": "0.5s"
+        }
+      ]
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/passives/p2/params/0",
+      "kind": "numeric-representation",
+      "before": 0.05,
+      "after": 0.05000000074505806
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/passives/p3/params/0",
+      "kind": "numeric-representation",
+      "before": 0.00028,
+      "after": 0.0002800000074785203
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/passives/p3/params/1",
+      "kind": "numeric-representation",
+      "before": 0.14,
+      "after": 0.14000000059604645
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/passives/p4/params/0",
+      "kind": "numeric-representation",
+      "before": 0.2,
+      "after": 0.20000000298023224
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalburst/params/0",
+      "kind": "numeric-representation",
+      "before": 3.336,
+      "after": 3.3359999656677246
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalburst/params/1",
+      "kind": "numeric-representation",
+      "before": 6.672,
+      "after": 6.671999931335449
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/0",
+      "kind": "numeric-representation",
+      "before": 0.9072,
+      "after": 0.9071999788284302
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/1",
+      "kind": "numeric-representation",
+      "before": 1.296,
+      "after": 1.2960000038146973
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/2",
+      "kind": "numeric-representation",
+      "before": 0.72,
+      "after": 0.7200000286102295
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/3",
+      "kind": "numeric-representation",
+      "before": 0.96,
+      "after": 0.9599999785423279
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/4",
+      "kind": "numeric-representation",
+      "before": 1.152,
+      "after": 1.1519999504089355
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/multipliers/低空~1高空坠地冲击伤害/5",
+      "kind": "text",
+      "before": "165.17%/206.3%",
+      "after": "165.16%/206.3%"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/multipliers/递变聚爆伤害/4",
+      "kind": "display-numeric-text",
+      "before": "202.72%",
+      "after": "202.73%"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/multipliers/递变聚爆伤害/12",
+      "kind": "display-numeric-text",
+      "before": "325.12%",
+      "after": "325.13%"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/multipliers/递变聚爆伤害/14",
+      "kind": "display-numeric-text",
+      "before": "363.38%",
+      "after": "363.37%"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/0",
+      "kind": "numeric-representation",
+      "before": 0.587984,
+      "after": 0.587984025478363
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/1",
+      "kind": "numeric-representation",
+      "before": 0.483008,
+      "after": 0.4830079972743988
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/2",
+      "kind": "numeric-representation",
+      "before": 0.690224,
+      "after": 0.6902239918708801
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/3",
+      "kind": "numeric-representation",
+      "before": 1.3688,
+      "after": 1.3688000440597534
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/5",
+      "kind": "numeric-representation",
+      "before": 0.568288,
+      "after": 0.5682880282402039
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/6",
+      "kind": "numeric-representation",
+      "before": 1.136335,
+      "after": 1.136335015296936
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/7",
+      "kind": "numeric-representation",
+      "before": 1.419344,
+      "after": 1.4193439483642578
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/8",
+      "kind": "numeric-representation",
+      "before": 1.53,
+      "after": 1.5299999713897705
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/normalattack/params/9",
+      "kind": "numeric-representation",
+      "before": 2.04,
+      "after": 2.0399999618530273
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136200/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136201/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136202/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136203/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136204/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136205/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136206/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/stories/136207/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/attacks",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "name": "ElementalArt",
+          "icd_source": "Tag: Elemental_Art (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV2/100",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_ArtHold_Dmg"
+        },
+        {
+          "name": "ElementalArt",
+          "icd_source": "Tag: Elemental_Art (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV2/75",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_ArtTrigger_Dmg"
+        },
+        {
+          "name": "Partner_EnhanceAttackManager",
+          "icd_source": "Tag: IceCraftedPickaxe_Dig (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV1/0",
+          "element": "-",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "Partner_EnhanceAttackManager",
+          "icd_source": "Tag: default",
+          "icd_rule": "Standard (3h/2.5s)",
+          "gauge": "1U",
+          "poise": "LV2/20",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_Partner_Enhance_Damage"
+        },
+        {
+          "name": "Partner_Enhance_DestroyShard_Gadget",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/35",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "OverShardDamage",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/35",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "ExtraAttack_Normal",
+          "icd_source": "Tag: ExtraAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV2/80",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "AS_ExtraAttack_Damage"
+        },
+        {
+          "name": "ExtraAttack_Enhance",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV3/40",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "ExtraAttack_Enhance",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV3/40",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        },
+        {
+          "name": "ExtraAttack_Enhance_PartnerControl",
+          "icd_source": "Tag: default",
+          "icd_rule": "Standard (3h/2.5s)",
+          "gauge": "1U",
+          "poise": "LV2/30",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "-",
+          "damageParam": "AS_ExtraAttackEnhancePre_Damage"
+        },
+        {
+          "name": "ElementalBurstGadget",
+          "icd_source": "Tag: Elemental_Burst (!)",
+          "icd_rule": "Independent",
+          "gauge": "2U",
+          "poise": "LV5/150",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "AS_ElementalBurst_AttackDamageRatio"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/5",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "FallingAnthem_Normal_Loop_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/50",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "FallingAnthem_Normal_Rank_1_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/100",
+          "element": "Electric",
+          "attackType": "Default",
+          "strikeType": "-",
+          "damageParam": "FallingAnthem_Normal_Rank_2_Damage"
+        },
+        {
+          "name": "Constellation_4",
+          "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/35",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "-"
+        }
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/params/0",
+      "kind": "numeric-representation",
+      "before": 0.3,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/params/1",
+      "kind": "numeric-representation",
+      "before": 0.2,
+      "after": 0.20000000298023224
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/energy",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "source": "DropElemBall",
+          "particles": "5",
+          "chance": "100%",
+          "cd": "0.5s"
+        }
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p2/params/0",
+      "kind": "numeric-representation",
+      "before": 0.05,
+      "after": 0.05000000074505806
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p3/params/0",
+      "kind": "numeric-representation",
+      "before": 0.00028,
+      "after": 0.0002800000074785203
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p3/params/1",
+      "kind": "numeric-representation",
+      "before": 0.14,
+      "after": 0.14000000059604645
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p4/params/0",
+      "kind": "numeric-representation",
+      "before": 0.2,
+      "after": 0.20000000298023224
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalburst/params/0",
+      "kind": "numeric-representation",
+      "before": 3.336,
+      "after": 3.3359999656677246
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalburst/params/1",
+      "kind": "numeric-representation",
+      "before": 6.672,
+      "after": 6.671999931335449
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/0",
+      "kind": "numeric-representation",
+      "before": 0.9072,
+      "after": 0.9071999788284302
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/1",
+      "kind": "numeric-representation",
+      "before": 1.296,
+      "after": 1.2960000038146973
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/2",
+      "kind": "numeric-representation",
+      "before": 0.72,
+      "after": 0.7200000286102295
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/3",
+      "kind": "numeric-representation",
+      "before": 0.96,
+      "after": 0.9599999785423279
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/4",
+      "kind": "numeric-representation",
+      "before": 1.152,
+      "after": 1.1519999504089355
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Low~1High Plunge DMG/5",
+      "kind": "text",
+      "before": "165.17%/206.3%",
+      "after": "165.16%/206.3%"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Special Charged Attack DMG/4",
+      "kind": "display-numeric-text",
+      "before": "202.72%",
+      "after": "202.73%"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Special Charged Attack DMG/12",
+      "kind": "display-numeric-text",
+      "before": "325.12%",
+      "after": "325.13%"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Special Charged Attack DMG/14",
+      "kind": "display-numeric-text",
+      "before": "363.38%",
+      "after": "363.37%"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/0",
+      "kind": "numeric-representation",
+      "before": 0.587984,
+      "after": 0.587984025478363
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/1",
+      "kind": "numeric-representation",
+      "before": 0.483008,
+      "after": 0.4830079972743988
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/2",
+      "kind": "numeric-representation",
+      "before": 0.690224,
+      "after": 0.6902239918708801
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/3",
+      "kind": "numeric-representation",
+      "before": 1.3688,
+      "after": 1.3688000440597534
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/5",
+      "kind": "numeric-representation",
+      "before": 0.568288,
+      "after": 0.5682880282402039
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/6",
+      "kind": "numeric-representation",
+      "before": 1.136335,
+      "after": 1.136335015296936
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/7",
+      "kind": "numeric-representation",
+      "before": 1.419344,
+      "after": 1.4193439483642578
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/8",
+      "kind": "numeric-representation",
+      "before": 1.53,
+      "after": 1.5299999713897705
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/params/9",
+      "kind": "numeric-representation",
+      "before": 2.04,
+      "after": 2.0399999618530273
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136200/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136201/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136202/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136203/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136204/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136205/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/stories/136207/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "name": "NormalAttack",
+          "icd_source": "Tag: NormalAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/33",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "NormalAttack_01"
+        },
+        {
+          "name": "NormalAttack",
+          "icd_source": "Tag: NormalAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/30",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "NormalAttack_02"
+        },
+        {
+          "name": "NormalAttack",
+          "icd_source": "Tag: NormalAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/47",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "NormalAttack_03"
+        },
+        {
+          "name": "ExtraAttack",
+          "icd_source": "Tag: ExtraAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/140",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "ExtraAttack_Cannon"
+        },
+        {
+          "name": "ExtraAttack",
+          "icd_source": "Tag: ExtraAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV5/120",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "ExtraAttack_Shield"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/25",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "FallingAnthem_Normal_Loop_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/100",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "FallingAnthem_Normal_Rank_1_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV7/150",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "FallingAnthem_Normal_Rank_2_Damage"
+        },
+        {
+          "name": "ElementalArt",
+          "icd_source": "Tag: Elemental_Art (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/60",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "ElementalArt_RushDamageRatio"
+        },
+        {
+          "name": "ElementalBurst",
+          "icd_source": "Tag: Elemental_Burst (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/40",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "Burst_DamageRatio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        }
+      ]
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const2/params/0",
+      "kind": "numeric-representation",
+      "before": 0.08,
+      "after": 0.07999999821186066
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const4/params/0",
+      "kind": "numeric-representation",
+      "before": 0.3,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const6/params/2",
+      "kind": "numeric-representation",
+      "before": 0.1,
+      "after": 0.10000000149011612
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const6/params/3",
+      "kind": "numeric-representation",
+      "before": 0.4,
+      "after": 0.4000000059604645
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/endure",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "ability": "ElementalArt",
+          "handler": "UNIQUE_ElementalArt_Shield_Child",
+          "Actor_EndureDelta": 0.0
+        },
+        {
+          "ability": "ElementalArt",
+          "handler": "ElementalArt_Endure",
+          "Actor_EndureDelta": 0.5
+        },
+        {
+          "ability": "ExtraAttack",
+          "handler": "Endure_Add",
+          "Actor_EndureDelta": 0.5
+        }
+      ]
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/energy",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "source": "ElementalArt_DropBall",
+          "particles": "3",
+          "chance": "100%",
+          "cd": "0.3s"
+        }
+      ]
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/passives/p2/params/0",
+      "kind": "numeric-representation",
+      "before": 0.003,
+      "after": 0.003000000026077032
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/passives/p2/params/1",
+      "kind": "numeric-representation",
+      "before": 0.009,
+      "after": 0.008999999612569809
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/elementalburst/params/0",
+      "kind": "numeric-representation",
+      "before": 1.3512,
+      "after": 1.351199984550476
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/elementalburst/params/1",
+      "kind": "numeric-representation",
+      "before": 0.3152,
+      "after": 0.31520000100135803
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/elementalskill/params/0",
+      "kind": "numeric-representation",
+      "before": 1.66,
+      "after": 1.659999966621399
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/elementalskill/params/1",
+      "kind": "numeric-representation",
+      "before": 2.08896,
+      "after": 2.0889599323272705
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/elementalskill/params/2",
+      "kind": "numeric-representation",
+      "before": 1309.6384,
+      "after": 1309.638427734375
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/multipliers/一段伤害/5",
+      "kind": "display-numeric-text",
+      "before": "47.22%",
+      "after": "47.21%"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/multipliers/一段伤害/10",
+      "kind": "display-numeric-text",
+      "before": "68.75%",
+      "after": "68.74%"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/multipliers/下坠期间伤害/5",
+      "kind": "display-numeric-text",
+      "before": "92.92%",
+      "after": "92.93%"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/multipliers/二段伤害/5",
+      "kind": "display-numeric-text",
+      "before": "42.62%",
+      "after": "42.63%"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/0",
+      "kind": "numeric-representation",
+      "before": 0.324839,
+      "after": 0.3248389959335327
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/1",
+      "kind": "numeric-representation",
+      "before": 0.29326,
+      "after": 0.29326000809669495
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/2",
+      "kind": "numeric-representation",
+      "before": 0.454175,
+      "after": 0.4541749954223633
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/3",
+      "kind": "numeric-representation",
+      "before": 1.00276,
+      "after": 1.0027600526809692
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/4",
+      "kind": "numeric-representation",
+      "before": 2.292,
+      "after": 2.2920000553131104
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/6",
+      "kind": "numeric-representation",
+      "before": 0.2096,
+      "after": 0.20960000157356262
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/7",
+      "kind": "numeric-representation",
+      "before": 0.6288,
+      "after": 0.6287999749183655
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/10",
+      "kind": "numeric-representation",
+      "before": 0.639324,
+      "after": 0.6393240094184875
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/11",
+      "kind": "numeric-representation",
+      "before": 1.278377,
+      "after": 1.2783770561218262
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/skills/normalattack/params/12",
+      "kind": "numeric-representation",
+      "before": 1.596762,
+      "after": 1.59676194190979
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137200/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137201/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137202/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137203/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137204/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137205/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137206/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/stories/137207/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "name": "NormalAttack",
+          "icd_source": "Tag: NormalAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/33",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "NormalAttack_01"
+        },
+        {
+          "name": "NormalAttack",
+          "icd_source": "Tag: NormalAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/30",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "NormalAttack_02"
+        },
+        {
+          "name": "NormalAttack",
+          "icd_source": "Tag: NormalAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/47",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "NormalAttack_03"
+        },
+        {
+          "name": "ExtraAttack",
+          "icd_source": "Tag: ExtraAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/140",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "ExtraAttack_Cannon"
+        },
+        {
+          "name": "ExtraAttack",
+          "icd_source": "Tag: ExtraAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV5/120",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "ExtraAttack_Shield"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "0U",
+          "poise": "LV2/25",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Slash",
+          "damageParam": "FallingAnthem_Normal_Loop_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/100",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "FallingAnthem_Normal_Rank_1_Damage"
+        },
+        {
+          "name": "FallingAnthem",
+          "icd_source": "Tag: FallingAttack (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV7/150",
+          "element": "-",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "FallingAnthem_Normal_Rank_2_Damage"
+        },
+        {
+          "name": "ElementalArt",
+          "icd_source": "Tag: Elemental_Art (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV3/60",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "Blunt",
+          "damageParam": "ElementalArt_RushDamageRatio"
+        },
+        {
+          "name": "ElementalBurst",
+          "icd_source": "Tag: Elemental_Burst (!)",
+          "icd_rule": "Independent",
+          "gauge": "1U",
+          "poise": "LV4/40",
+          "element": "Electric",
+          "attackType": "Melee",
+          "strikeType": "-",
+          "damageParam": "Burst_DamageRatio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        },
+        {
+          "name": "SkillObj_Funnel",
+          "icd_source": "Tag: Avatar_Valeriy_Burst",
+          "icd_rule": "2 hits / 2s",
+          "gauge": "1U",
+          "poise": "LV1/15",
+          "element": "Electric",
+          "attackType": "Range",
+          "strikeType": "Blunt",
+          "damageParam": "Damage_Ratio"
+        }
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const2/params/0",
+      "kind": "numeric-representation",
+      "before": 0.08,
+      "after": 0.07999999821186066
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const4/params/0",
+      "kind": "numeric-representation",
+      "before": 0.3,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const6/params/2",
+      "kind": "numeric-representation",
+      "before": 0.1,
+      "after": 0.10000000149011612
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const6/params/3",
+      "kind": "numeric-representation",
+      "before": 0.4,
+      "after": 0.4000000059604645
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/endure",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "ability": "ElementalArt",
+          "handler": "UNIQUE_ElementalArt_Shield_Child",
+          "Actor_EndureDelta": 0.0
+        },
+        {
+          "ability": "ElementalArt",
+          "handler": "ElementalArt_Endure",
+          "Actor_EndureDelta": 0.5
+        },
+        {
+          "ability": "ExtraAttack",
+          "handler": "Endure_Add",
+          "Actor_EndureDelta": 0.5
+        }
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/energy",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "source": "ElementalArt_DropBall",
+          "particles": "3",
+          "chance": "100%",
+          "cd": "0.3s"
+        }
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p2/params/0",
+      "kind": "numeric-representation",
+      "before": 0.003,
+      "after": 0.003000000026077032
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p2/params/1",
+      "kind": "numeric-representation",
+      "before": 0.009,
+      "after": 0.008999999612569809
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalburst/params/0",
+      "kind": "numeric-representation",
+      "before": 1.3512,
+      "after": 1.351199984550476
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalburst/params/1",
+      "kind": "numeric-representation",
+      "before": 0.3152,
+      "after": 0.31520000100135803
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalskill/params/0",
+      "kind": "numeric-representation",
+      "before": 1.66,
+      "after": 1.659999966621399
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalskill/params/1",
+      "kind": "numeric-representation",
+      "before": 2.08896,
+      "after": 2.0889599323272705
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalskill/params/2",
+      "kind": "numeric-representation",
+      "before": 1309.6384,
+      "after": 1309.638427734375
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/1-Hit DMG/5",
+      "kind": "display-numeric-text",
+      "before": "47.22%",
+      "after": "47.21%"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/1-Hit DMG/10",
+      "kind": "display-numeric-text",
+      "before": "68.75%",
+      "after": "68.74%"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/2-Hit DMG/5",
+      "kind": "display-numeric-text",
+      "before": "42.62%",
+      "after": "42.63%"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Plunge DMG/5",
+      "kind": "display-numeric-text",
+      "before": "92.92%",
+      "after": "92.93%"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/0",
+      "kind": "numeric-representation",
+      "before": 0.324839,
+      "after": 0.3248389959335327
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/1",
+      "kind": "numeric-representation",
+      "before": 0.29326,
+      "after": 0.29326000809669495
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/2",
+      "kind": "numeric-representation",
+      "before": 0.454175,
+      "after": 0.4541749954223633
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/3",
+      "kind": "numeric-representation",
+      "before": 1.00276,
+      "after": 1.0027600526809692
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/4",
+      "kind": "numeric-representation",
+      "before": 2.292,
+      "after": 2.2920000553131104
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/6",
+      "kind": "numeric-representation",
+      "before": 0.2096,
+      "after": 0.20960000157356262
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/7",
+      "kind": "numeric-representation",
+      "before": 0.6288,
+      "after": 0.6287999749183655
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/10",
+      "kind": "numeric-representation",
+      "before": 0.639324,
+      "after": 0.6393240094184875
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/11",
+      "kind": "numeric-representation",
+      "before": 1.278377,
+      "after": 1.2783770561218262
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/params/12",
+      "kind": "numeric-representation",
+      "before": 1.596762,
+      "after": 1.59676194190979
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137200/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137201/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137202/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137203/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137204/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137205/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/stories/137207/unlockConds",
+      "kind": "source-array-change",
+      "before": [
+        {
+          "type": "FETTER_COND_NONE"
+        },
+        {
+          "type": "FETTER_COND_NONE"
+        }
+      ],
+      "after": []
+    },
+    {
+      "file": "version.json",
+      "path": "/version",
+      "kind": "text",
+      "before": "7.1.50",
+      "after": "7.1.50.2"
+    },
+    {
+      "file": "version.json",
+      "path": "/versions",
+      "kind": "added-version",
+      "before": null,
+      "after": "7.1.50.2"
+    }
+  ],
+  "interpretation": "Raw JSON structural/value diff. Near-equal floating values are flagged as representation shifts, not proven balance changes. New attack/energy/endure arrays are source metadata only."
+}

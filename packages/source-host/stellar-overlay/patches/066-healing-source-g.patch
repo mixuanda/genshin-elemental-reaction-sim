@@ -1,0 +1,148 @@
+diff --git a/internal/characters/iansan/asc.go b/internal/characters/iansan/asc.go
+--- a/internal/characters/iansan/asc.go
++++ b/internal/characters/iansan/asc.go
+@@ -113,12 +113,25 @@
+ 		return
+ 	}
+ 
++	totalAtk, atkRead := c.TotalAtkWithProvenance()
++	healSrc := totalAtk * 0.6
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-iansan-a4", map[string]any{"totalAtk": totalAtk}, []*info.SourceHostStatRead{atkRead}, nil)
++	}
++	healBonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++	}
+ 	c.Core.Player.Heal(info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  c.Core.Player.Active(),
+-		Message: "Warming Up",
+-		Src:     c.TotalAtk() * 0.6,
+-		Bonus:   c.Stat(attributes.Heal),
++		Caller:            c.Index(),
++		Target:            c.Core.Player.Active(),
++		Message:           "Warming Up",
++		Src:               healSrc,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	})
+ 
+ 	c.AddStatus(a4ICDKey, 2.8*60, true)
+diff --git a/internal/characters/ifa/skill.go b/internal/characters/ifa/skill.go
+--- a/internal/characters/ifa/skill.go
++++ b/internal/characters/ifa/skill.go
+@@ -191,16 +191,29 @@
+ }
+ 
+ func (c *char) healSkill() {
+-	em := c.Stat(attributes.EM)
+-	healAmt := skillHeal[c.TalentLvlSkill()]*em + skillHealFlat[c.TalentLvlSkill()]
+-	healBonus := c.Stat(attributes.Heal)
++	em, emRead := c.StatWithProvenance(attributes.EM)
++	ratio := skillHeal[c.TalentLvlSkill()]
++	healTerm := ratio * em
++	flat := skillHealFlat[c.TalentLvlSkill()]
++	healAmt := healTerm + flat
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healAmt, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-ifa-skill", map[string]any{"em": em, "ratio": ratio, "flat": flat}, []*info.SourceHostStatRead{emRead}, nil)
++	}
++	healBonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++	}
+ 
+ 	hi := info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  -1,
+-		Message: "Tonicshot Healing",
+-		Src:     healAmt,
+-		Bonus:   healBonus,
++		Caller:            c.Index(),
++		Target:            -1,
++		Message:           "Tonicshot Healing",
++		Src:               healAmt,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	}
+ 
+ 	c.Core.Player.Heal(hi)
+diff --git a/internal/characters/jahoda/burst.go b/internal/characters/jahoda/burst.go
+--- a/internal/characters/jahoda/burst.go
++++ b/internal/characters/jahoda/burst.go
+@@ -90,25 +90,57 @@
+ 
+ 					low := c.lowestHPChar()
+ 					if low >= 0 {
+-						healOffField := (burstAdditionalHealFlat[c.TalentLvlBurst()] + burstAdditionalHealPP[c.TalentLvlBurst()]*c.TotalAtk()) * c.a1HealMult
++						flat := burstAdditionalHealFlat[c.TalentLvlBurst()]
++						ratio := burstAdditionalHealPP[c.TalentLvlBurst()]
++						totalAtk, atkRead := c.TotalAtkWithProvenance()
++						healBase := flat + ratio*totalAtk
++						a1HealMult := c.a1HealMult
++						healOffField := healBase * a1HealMult
++						healSrcID := 0
++						if c.Core.SourceHost != nil {
++							healOffField, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-jahoda-burst-additional", map[string]any{"flat": flat, "ratio": ratio, "totalAtk": totalAtk, "a1HealMult": a1HealMult}, []*info.SourceHostStatRead{atkRead}, nil)
++						}
++						healBonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++						healBonusID := 0
++						if c.Core.SourceHost != nil {
++							healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++						}
+ 
+ 						c.Core.Player.Heal(info.HealInfo{
+-							Caller:  c.Index(),
+-							Target:  low,
+-							Message: "Additional Healing",
+-							Src:     healOffField,
+-							Bonus:   c.Stat(attributes.Heal),
++							Caller:            c.Index(),
++							Target:            low,
++							Message:           "Additional Healing",
++							Src:               healOffField,
++							Bonus:             healBonus,
++							SourceHostSrcID:   healSrcID,
++							SourceHostBonusID: healBonusID,
+ 						})
+ 					}
+ 				}
+ 
+-				heal := (burstHealFlat[c.TalentLvlBurst()] + burstHealPP[c.TalentLvlBurst()]*c.TotalAtk()) * c.a1HealMult
++				flat := burstHealFlat[c.TalentLvlBurst()]
++				ratio := burstHealPP[c.TalentLvlBurst()]
++				totalAtk, atkRead := c.TotalAtkWithProvenance()
++				healBase := flat + ratio*totalAtk
++				a1HealMult := c.a1HealMult
++				heal := healBase * a1HealMult
++				healSrcID := 0
++				if c.Core.SourceHost != nil {
++					heal, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-jahoda-burst-robot", map[string]any{"flat": flat, "ratio": ratio, "totalAtk": totalAtk, "a1HealMult": a1HealMult}, []*info.SourceHostStatRead{atkRead}, nil)
++				}
++				healBonus, bonusRead := c.StatWithProvenance(attributes.Heal)
++				healBonusID := 0
++				if c.Core.SourceHost != nil {
++					healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++				}
+ 				robotHi := info.HealInfo{
+-					Caller:  c.Index(),
+-					Target:  c.Core.Player.Active(),
+-					Message: "Purrsonal Coordinated Assistance Robot Healing",
+-					Src:     heal,
+-					Bonus:   c.Stat(attributes.Heal),
++					Caller:            c.Index(),
++					Target:            c.Core.Player.Active(),
++					Message:           "Purrsonal Coordinated Assistance Robot Healing",
++					Src:               heal,
++					Bonus:             healBonus,
++					SourceHostSrcID:   healSrcID,
++					SourceHostBonusID: healBonusID,
+ 				}
+ 
+ 				c.Core.Player.Heal(robotHi)

@@ -1,0 +1,33 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs
+
+Downloading pinned source https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541
+Exporting verified source into /tmp/gidps-source-host-cache/build-yciTdp/source
+Downloading https://go.dev/dl/go1.25.0.darwin-arm64.tar.gz
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:7:2: package encoding/json is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/encoding/json)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:8:2: package flag is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/flag)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:9:2: package fmt is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/fmt)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:10:2: package go/ast is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/go/ast)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:11:2: package go/constant is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/go/constant)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:12:2: package go/format is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/go/format)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:13:2: package go/parser is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/go/parser)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:14:2: package go/token is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/go/token)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:15:2: package math is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/math)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:16:2: package os is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/os)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:17:2: package path/filepath is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/path/filepath)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:18:2: package sort is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/sort)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:19:2: package strconv is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/strconv)
+/Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go:20:2: package strings is not in std (/tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/src/strings)
+package command-line-arguments: cannot find package
+file:///Users/evan/Documents/gidps/packages/source-host/scripts/common.mjs:19
+  if (result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed (${result.status})\n${result.stdout ?? ''}${result.stderr ?? ''}`);
+                                 ^
+
+Error: /tmp/gidps-source-host-cache/go1.25.0/darwin-arm64/go/bin/go run /Users/evan/Documents/gidps/packages/source-host/scripts/instrument-talent-reads.go --source-root /tmp/gidps-source-host-cache/build-yciTdp/source --registry-out /tmp/gidps-source-host-cache/build-yciTdp/dist/talent-table-registry.json --report-out /tmp/gidps-source-host-cache/build-yciTdp/dist/talent-read-instrumentation.json failed (1)
+
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/scripts/common.mjs:19:34)
+    at file:///Users/evan/Documents/gidps/packages/source-host/scripts/build-source-host.mjs:117:1
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+
+Node.js v24.15.0

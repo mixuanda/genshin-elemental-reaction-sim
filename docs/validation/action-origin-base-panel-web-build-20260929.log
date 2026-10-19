@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-base-panel.spec.ts(85,36): error TS2339: Property 'snapshotRead' does not exist on type '{}'.
+apps/web/src/source-host-panel.ts(192,269): error TS2339: Property 'calculation' does not exist on type 'SourceHostHitReplay'.

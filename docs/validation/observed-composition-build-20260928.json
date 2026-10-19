@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "startedAt": "2026-09-28T13:10:58.784219+00:00",
+  "finishedAt": "2026-09-28T13:11:01.809137+00:00",
+  "wallSeconds": 3.025,
+  "exitCode": 1,
+  "log": "docs/validation/observed-composition-build-20260928.log"
+}

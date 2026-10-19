@@ -1,0 +1,177 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "source-backed-provisional",
+  "recordedAt": "2026-09-23T16:47:34.274613+00:00",
+  "localArchivePath": "packages/game-data/sources/conditional-skills/source.json.gz",
+  "localArchiveSha256": "ebba1915274ea16d3e1e492b47a8651dec2bf3359d05e0bf90a282c551d857ac",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/keqing/asc.go": "8880bc2870628064fea9f1170edcf9396cd465064d3c1e91816ae465823527c0",
+    "internal/characters/keqing/burst.go": "8002f360da1a93ceed52b83a0cd077b1895222316b306d045f57f4ce031eee4a",
+    "internal/characters/keqing/cons.go": "baa5a966a047dca79d1ff377246d5e467676a11765bcc2a562c09fe38a7c4dbb",
+    "internal/characters/keqing/keqing.go": "a776804f66eab0e0d0e15875dd9169d92f39742403c4f1d786e035ed09ddaf27",
+    "internal/characters/keqing/skill.go": "6b6c01f435b3ba3b40b32698f820ed19f9fcaaa0b589ce2fc4e877c8346d07fe",
+    "internal/characters/keqing/zz_keqing.dm.go": "470d8b173d275771dea38c91c41263bfd38a33e765f0e2a1bc43ffab462040ed",
+    "internal/characters/xingqiu/asc.go": "ea1217f61c236b3ed6eefdf974a2a23aeb781519d26bec520aacf765a1481265",
+    "internal/characters/xingqiu/burst.go": "2ab6c2b1c3cfc6e99ef7ad770570b95e6e478c8dd4568a54cd5da0dbf59690b7",
+    "internal/characters/xingqiu/skill.go": "86f7996a15fc3790b6c1329714ca83966699c468a077c0e062c2a2db62350a43",
+    "internal/characters/xingqiu/xingqiu.go": "9a893da712c6cbd299fd6b4b47e50fe7244150b33071f76bd3f40747ab045e75",
+    "internal/characters/xingqiu/zz_xingqiu.dm.go": "3cc4dae9ad0cbd6900ba1b714784cc45a630619c2b0cc7f6da3c81c647f3a6d4"
+  },
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "comparedCoefficientPositions": 75,
+  "maximumAbsoluteDifference": 0,
+  "coefficients": [
+    {
+      "id": "keqing-combat3-initial",
+      "characterSlug": "keqing",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "sourceTable": "burstInitial",
+      "sourceIndex": [],
+      "instanceCount": 1,
+      "values": [
+        0.88,
+        0.946,
+        1.012,
+        1.1,
+        1.166,
+        1.232,
+        1.32,
+        1.408,
+        1.496,
+        1.584,
+        1.672,
+        1.76,
+        1.87,
+        1.98,
+        2.09
+      ]
+    },
+    {
+      "id": "keqing-combat3-slash",
+      "characterSlug": "keqing",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "sourceTable": "burstDot",
+      "sourceIndex": [],
+      "instanceCount": 8,
+      "values": [
+        0.24,
+        0.258,
+        0.276,
+        0.3,
+        0.318,
+        0.336,
+        0.36,
+        0.384,
+        0.408,
+        0.432,
+        0.456,
+        0.48,
+        0.51,
+        0.54,
+        0.57
+      ]
+    },
+    {
+      "id": "keqing-combat3-final",
+      "characterSlug": "keqing",
+      "abilityKey": "combat3",
+      "parameterKey": "param3",
+      "sourceTable": "burstFinal",
+      "sourceIndex": [],
+      "instanceCount": 1,
+      "values": [
+        1.888,
+        2.0296,
+        2.1712,
+        2.36,
+        2.5016,
+        2.6432,
+        2.832,
+        3.0208,
+        3.2096,
+        3.3984,
+        3.5872,
+        3.776,
+        4.012,
+        4.248,
+        4.484
+      ]
+    },
+    {
+      "id": "xingqiu-combat2-first",
+      "characterSlug": "xingqiu",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "sourceTable": "rainscreen",
+      "sourceIndex": [
+        0
+      ],
+      "instanceCount": 1,
+      "values": [
+        1.68,
+        1.806,
+        1.932,
+        2.1,
+        2.226,
+        2.352,
+        2.52,
+        2.688,
+        2.856,
+        3.024,
+        3.192,
+        3.36,
+        3.57,
+        3.78,
+        3.99
+      ]
+    },
+    {
+      "id": "xingqiu-combat2-second",
+      "characterSlug": "xingqiu",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "sourceTable": "rainscreen",
+      "sourceIndex": [
+        1
+      ],
+      "instanceCount": 1,
+      "values": [
+        1.912,
+        2.0554,
+        2.1988,
+        2.39,
+        2.5334,
+        2.6768,
+        2.868,
+        3.0592,
+        3.2504,
+        3.4416,
+        3.6328,
+        3.824,
+        4.063,
+        4.302,
+        4.541
+      ]
+    }
+  ],
+  "scope": [
+    "Keqing Q: initial + eight slashes + final, C0-C6 with independent per-hit C4/C6 state and panel accounting; unknown dependencies block only the affected selected hit. A4 and stable non-constellation baseline remain explicit.",
+    "Xingqiu E: two hits, C0-C6 with independent final talent level, A4 accounting, C4 cast-time Q and explicit pre-existing C2 target debuff."
+  ],
+  "unverified": [
+    "Pinned source/catalog agreement is not live-game verification.",
+    "Keqing C4/C6 reaction history, category lifetime and hitlag are not simulated here. Per-hit actual state is required; only this Q own C6 category is established from the fixed cast and snapshot ordering.",
+    "Xingqiu skill hits take independent snapshots at their scheduled frames. Stable stats, equipment and target state are explicit conditions, and C2 is not triggered by this E."
+  ],
+  "initialScope": [
+    "Keqing Q: initial + eight slashes + final, C0-C3, A4 accounting and explicitly stable per-hit snapshots. C4+ requires additional state and remains blocked.",
+    "Xingqiu E: two hits, C0-C6 with independent final talent level, A4 accounting, C4 cast-time Q and explicit pre-existing C2 target debuff."
+  ],
+  "constellationContextSource": "packages/game-data/sources/keqing-constellation/manifest.json"
+}

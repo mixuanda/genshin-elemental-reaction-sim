@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 1.827,
+  "log": "docs/validation/source-artifact-dynamic-classic-build-20260928.log"
+}

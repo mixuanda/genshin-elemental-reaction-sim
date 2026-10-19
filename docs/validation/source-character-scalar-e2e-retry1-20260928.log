@@ -1,0 +1,39 @@
+[WebServer] (node:60890) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:60891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-scalar.spec.ts:72:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay (6.4s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-scalar.spec.ts:72:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay 
+
+    Error: stellar requires a post-Omen electro-charged hit
+
+    expect(received).toBeDefined()
+
+    Received: undefined
+
+      174 |
+      175 |       const mona = findConsumer("char-scalar-mona-c1", "transformative-base");
+    > 176 |       expect(mona, `${scenario.lane} requires a post-Omen electro-charged hit`).toBeDefined();
+          |                                                                                 ^
+      177 |       expect([0.15, 0.24]).toContain(mona!.scalar.value);
+      178 |       expect(mona!.scalar.request.input.sourceHolderIndex).toBe(2);
+      179 |       const hit = appliedHitFor(mona!.consumer.request.id);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-scalar.spec.ts:176:81
+
+    Error Context: test-results/source-character-scalar-na-1d215-t-through-standalone-replay-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-scalar-na-1d215-t-through-standalone-replay-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-scalar-na-1d215-t-through-standalone-replay-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-scalar.spec.ts:72:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay 

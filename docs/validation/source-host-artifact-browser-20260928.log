@@ -1,0 +1,38 @@
+[WebServer] (node:7116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:7117) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-host-artifact-formulas.spec.ts:51:1 › source artifact callbacks feed selected hits, their independent AST, and a zero-delta imported capture (6.4s)
+
+
+  1) [chromium] › apps/web/e2e/source-host-artifact-formulas.spec.ts:51:1 › source artifact callbacks feed selected hits, their independent AST, and a zero-delta imported capture 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    Expected: ArrayContaining ["AttackTagNormal", "AttackTagElementalArt"]
+    Received: ["AttackTag(4)", "AttackTag(1)", "AttackTag(0)", "AttackTag(26)", "AttackTag(25)", "AttackTag(16)", "AttackTag(14)"]
+
+      94 |     const appliedAttackTags = [...new Set(applied.map(row => row.attackTagName))];
+      95 |     const appliedElements = [...new Set(applied.map(row => row.element))];
+    > 96 |     expect(appliedAttackTags).toEqual(expect.arrayContaining(["AttackTagNormal", "AttackTagElementalArt"]));
+         |                               ^
+      97 |     expect(appliedElements).toEqual(expect.arrayContaining(["physical", "hydro", "pyro"]));
+      98 |     const artifactCalls = result.calculations.filter(
+      99 |       (row): row is ArtifactRecord => row.request.kind === "artifact-scalar",
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-host-artifact-formulas.spec.ts:96:31
+
+    Error Context: test-results/source-host-artifact-formu-bde95-zero-delta-imported-capture-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-host-artifact-formu-bde95-zero-delta-imported-capture-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-host-artifact-formu-bde95-zero-delta-imported-capture-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-host-artifact-formulas.spec.ts:51:1 › source artifact callbacks feed selected hits, their independent AST, and a zero-delta imported capture 

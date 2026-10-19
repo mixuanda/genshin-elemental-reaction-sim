@@ -1,0 +1,44 @@
+{
+  "method": "Independent hand-entered constants from fixed catch.go and current R1–R5 catalog, not resolver output.",
+  "cases": [
+    {
+      "weaponId": "weapon:13415",
+      "slug": "thecatch",
+      "context": {},
+      "expectedR1": {
+        "additiveBase": [],
+        "critical": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "critRate": 0.06,
+            "critDamage": 0
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "additiveBase": [],
+        "critical": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "critRate": 0.12,
+            "critDamage": 0
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "critRate": 0,
+            "critDamage": 0
+          }
+        ]
+      }
+    }
+  ]
+}

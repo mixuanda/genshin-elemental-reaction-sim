@@ -1,0 +1,709 @@
+--- a/internal/characters/ineffa/asc.go
++++ b/internal/characters/ineffa/asc.go
+@@ -63,8 +63,12 @@
+ 					return nil
+ 				}
+ 
+-				stats := c.SelectStat(true, attributes.BaseATK, attributes.ATKP, attributes.ATK)
+-				m[attributes.EM] = stats.TotalATK() * 0.06
++				stats, statRead := c.SelectStatWithProvenance(true, attributes.BaseATK, attributes.ATKP, attributes.ATK)
++				nonExtraAtk := stats.TotalATK()
++				m[attributes.EM] = nonExtraAtk * 0.06
++				if c.Core.SourceHost != nil {
++					m[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-ineffa-a4-em", map[string]any{"nonExtraAtk": nonExtraAtk}, statRead)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/itto/asc.go
++++ b/internal/characters/itto/asc.go
+@@ -28,7 +28,11 @@
+ 			if c.a1Stacks == 0 || c.Core.Player.CurrentState() != action.ChargeAttackState {
+ 				return nil
+ 			}
+-			mAtkSpd[attributes.AtkSpd] = 0.10 * float64(c.a1Stacks)
++			stacks := c.a1Stacks
++			mAtkSpd[attributes.AtkSpd] = 0.10 * float64(stacks)
++			if c.Core.SourceHost != nil {
++				mAtkSpd[attributes.AtkSpd] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-itto-a1-atkspd", map[string]any{"stacks": stacks}, nil)
++			}
+ 			return mAtkSpd
+ 		},
+ 	})
+--- a/internal/characters/kaveh/asc.go
++++ b/internal/characters/kaveh/asc.go
+@@ -51,7 +51,11 @@
+ 		Base:         modifier.NewBaseWithHitlag(a4Key, burstDuration),
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
+-			m[attributes.EM] = float64(25 * c.a4Stacks)
++			stacks := c.a4Stacks
++			m[attributes.EM] = float64(25 * stacks)
++			if c.Core.SourceHost != nil {
++				m[attributes.EM] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-kaveh-a4-em", map[string]any{"stacks": stacks}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/kazuha/cons.go
++++ b/internal/characters/kazuha/cons.go
+@@ -90,7 +90,11 @@
+ 				return nil
+ 			}
+ 			// apply buff
+-			m[attributes.DmgP] = 0.002 * c.Stat(attributes.EM)
++			em, statRead := c.StatWithProvenance(attributes.EM)
++			m[attributes.DmgP] = 0.002 * em
++			if c.Core.SourceHost != nil {
++				m[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-kazuha-c6-dmgp", map[string]any{"elementalMastery": em}, statRead)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/kirara/asc.go
++++ b/internal/characters/kirara/asc.go
+@@ -45,7 +45,11 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalArt && atk.Info.AttackTag != attacks.AttackTagElementalArtHold {
+ 				return nil
+ 			}
+-			mSkill[attributes.DmgP] = c.MaxHP() * 0.001 * 0.004
++			maxHP, statRead := c.MaxHPWithProvenance()
++			mSkill[attributes.DmgP] = maxHP * 0.001 * 0.004
++			if c.Core.SourceHost != nil {
++				mSkill[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-kirara-a4-skill-dmgp", map[string]any{"maxHp": maxHP}, statRead)
++			}
+ 			return mSkill
+ 		},
+ 	})
+@@ -57,7 +61,11 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+ 				return nil
+ 			}
+-			mBurst[attributes.DmgP] = c.MaxHP() * 0.001 * 0.003
++			maxHP, statRead := c.MaxHPWithProvenance()
++			mBurst[attributes.DmgP] = maxHP * 0.001 * 0.003
++			if c.Core.SourceHost != nil {
++				mBurst[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-kirara-a4-burst-dmgp", map[string]any{"maxHp": maxHP}, statRead)
++			}
+ 			return mBurst
+ 		},
+ 	})
+--- a/internal/characters/lyney/cons.go
++++ b/internal/characters/lyney/cons.go
+@@ -82,7 +82,11 @@
+ 		Base:         modifier.NewBase("lyney-c2", -1),
+ 		AffectedStat: attributes.CD,
+ 		Amount: func() []float64 {
+-			m[attributes.CD] = float64(c.c2Stacks) * 0.2
++			stacks := c.c2Stacks
++			m[attributes.CD] = float64(stacks) * 0.2
++			if c.Core.SourceHost != nil {
++				m[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-lyney-c2-cd", map[string]any{"stacks": stacks}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/mika/asc.go
++++ b/internal/characters/mika/asc.go
+@@ -39,8 +39,12 @@
+ 		Base:         modifier.NewBaseWithHitlag(a1Buff, skillBuffDuration),
+ 		AffectedStat: attributes.PhyP,
+ 		Amount: func() []float64 {
+-			m[attributes.PhyP] = 0.1 * float64(c.Tag(a1Stacks))
++			stacks := c.Tag(a1Stacks)
++			m[attributes.PhyP] = 0.1 * float64(stacks)
+ 			if c.Core.Player.Active() == char.Index() {
++				if c.Core.SourceHost != nil {
++					m[attributes.PhyP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-mika-a1-phyp", map[string]any{"stacks": stacks}, nil)
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/neuvillette/cons.go
++++ b/internal/characters/neuvillette/cons.go
+@@ -35,7 +35,11 @@
+ 		Base: modifier.NewBase("neuvillette-c2", -1),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if strings.Contains(atk.Info.Abil, chargeJudgementName) {
+-				c2Buff[attributes.CD] = 0.14 * float64(c.countA1())
++				stacks := c.countA1()
++				c2Buff[attributes.CD] = 0.14 * float64(stacks)
++				if c.Core.SourceHost != nil {
++					c2Buff[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-neuvillette-c2-cd", map[string]any{"stacks": stacks}, nil)
++				}
+ 				return c2Buff
+ 			}
+ 			return nil
+--- a/internal/characters/nilou/cons.go
++++ b/internal/characters/nilou/cons.go
+@@ -121,9 +121,13 @@
+ 		AffectedStat: attributes.CR,
+ 		Extra:        true,
+ 		Amount: func() []float64 {
+-			cr := c.MaxHP() * 0.001 * 0.006
++			maxHP, statRead := c.MaxHPWithProvenance()
++			cr := maxHP * 0.001 * 0.006
+ 			if cr > 0.3 {
+ 				cr = 0.3
++			}
++			if c.Core.SourceHost != nil {
++				cr = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-nilou-c6-cr", map[string]any{"maxHp": maxHP}, statRead)
+ 			}
+ 			mCR[attributes.CR] = cr
+ 			return mCR
+@@ -136,9 +140,13 @@
+ 		AffectedStat: attributes.CD,
+ 		Extra:        true,
+ 		Amount: func() []float64 {
+-			cd := c.MaxHP() * 0.001 * 0.012
++			maxHP, statRead := c.MaxHPWithProvenance()
++			cd := maxHP * 0.001 * 0.012
+ 			if cd > 0.6 {
+ 				cd = 0.6
++			}
++			if c.Core.SourceHost != nil {
++				cd = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-nilou-c6-cd", map[string]any{"maxHp": maxHP}, statRead)
+ 			}
+ 			mCD[attributes.CD] = cd
+ 			return mCD
+--- a/internal/characters/ororon/cons.go
++++ b/internal/characters/ororon/cons.go
+@@ -84,7 +84,11 @@
+ 		Base:         modifier.NewBaseWithHitlag(c2Key, 9*60),
+ 		AffectedStat: attributes.ElectroP,
+ 		Amount: func() []float64 {
+-			c.c2Bonus[attributes.ElectroP] = min(0.08*float64(c.Tag(c2Key)), 0.32)
++			stacks := c.Tag(c2Key)
++			c.c2Bonus[attributes.ElectroP] = min(0.08*float64(stacks), 0.32)
++			if c.Core.SourceHost != nil {
++				c.c2Bonus[attributes.ElectroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-ororon-c2-electrop", map[string]any{"stacks": stacks}, nil)
++			}
+ 			return c.c2Bonus
+ 		},
+ 	})
+@@ -152,7 +156,11 @@
+ 				if c.Core.Player.Active() != char.Index() {
+ 					return nil
+ 				}
+-				c.c6bonus[attributes.ATKP] = float64(c.c6stacks.Count()) * 0.1
++				stacks := c.c6stacks.Count()
++				c.c6bonus[attributes.ATKP] = float64(stacks) * 0.1
++				if c.Core.SourceHost != nil {
++					c.c6bonus[attributes.ATKP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-ororon-c6-atkp", map[string]any{"stacks": stacks}, nil)
++				}
+ 				return c.c6bonus
+ 			},
+ 		})
+--- a/internal/characters/raiden/skill.go
++++ b/internal/characters/raiden/skill.go
+@@ -65,7 +65,11 @@
+ 						return nil
+ 					}
+ 
+-					m[attributes.DmgP] = mult * this.EnergyMax
++					energyMax := this.EnergyMax
++					m[attributes.DmgP] = mult * energyMax
++					if c.Core.SourceHost != nil {
++						m[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-raiden-skill-dmgp", map[string]any{"talentMultiplier": mult, "energyMax": energyMax}, nil)
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/sethos/cons.go
++++ b/internal/characters/sethos/cons.go
+@@ -65,6 +65,9 @@
+ 				return nil
+ 			}
+ 			mElectro[attributes.ElectroP] = 0.15 * float64(stackCount)
++			if c.Core.SourceHost != nil {
++				mElectro[attributes.ElectroP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-sethos-c2-electrop", map[string]any{"stacks": stackCount}, nil)
++			}
+ 			return mElectro
+ 		},
+ 	})
+--- a/internal/characters/sigewinne/cons.go
++++ b/internal/characters/sigewinne/cons.go
+@@ -50,8 +50,16 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+ 				return nil
+ 			}
+-			m[attributes.CD] = min(c6CDmgCap, c.MaxHP()*c6CDmgHpRatio)
+-			m[attributes.CR] = min(c6CRateCap, c.MaxHP()*c6CRateHpRatio)
++			maxHPCD, statReadCD := c.MaxHPWithProvenance()
++			m[attributes.CD] = min(c6CDmgCap, maxHPCD*c6CDmgHpRatio)
++			if c.Core.SourceHost != nil {
++				m[attributes.CD] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-sigewinne-c6-cd", map[string]any{"maxHp": maxHPCD}, statReadCD)
++			}
++			maxHPCR, statReadCR := c.MaxHPWithProvenance()
++			m[attributes.CR] = min(c6CRateCap, maxHPCR*c6CRateHpRatio)
++			if c.Core.SourceHost != nil {
++				m[attributes.CR] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-sigewinne-c6-cr", map[string]any{"maxHp": maxHPCR}, statReadCR)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/mona/cons.go
++++ b/internal/characters/mona/cons.go
+@@ -250,7 +250,11 @@
+ 				return nil
+ 			}
+ 
+-			m[attributes.DmgP] = 0.60 * float64(c.c6Stacks)
++			stacks := c.c6Stacks
++			m[attributes.DmgP] = 0.60 * float64(stacks)
++			if c.Core.SourceHost != nil {
++				m[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-mona-c6-dmgp", map[string]any{"stacks": stacks}, nil)
++			}
+ 
+ 			return m
+ 		},
+--- a/internal/characters/skirk/cons.go
++++ b/internal/characters/skirk/cons.go
+@@ -98,7 +98,11 @@
+ 		Base:         modifier.NewBase("skirk-c4", -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
+-			m[attributes.ATKP] = c4Atkp[c.getA4Stacks()]
++			stacks := c.getA4Stacks()
++			m[attributes.ATKP] = c4Atkp[stacks]
++			if c.Core.SourceHost != nil {
++				m[attributes.ATKP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-skirk-c4-atkp", map[string]any{"stacks": stacks}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/mavuika/asc.go
++++ b/internal/characters/mavuika/asc.go
+@@ -47,9 +47,15 @@
+ 				if !c.StatusIsActive(a4Key) {
+ 					return nil
+ 				}
+-				dmg := c.burstStacks*0.002 + c.c4BonusVal()
+-				dmg *= float64(c.a4stacks) / 20.0
++				burstStacks := c.burstStacks
++				c4Bonus := c.c4BonusVal()
++				stacks := c.a4stacks
++				dmg := burstStacks*0.002 + c4Bonus
++				dmg *= float64(stacks) / 20.0
+ 				c.a4buff[attributes.DmgP] = dmg
++				if c.Core.SourceHost != nil {
++					c.a4buff[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-mavuika-a4-dmgp", map[string]any{"burstStacks": burstStacks, "c4Bonus": c4Bonus, "remainingStacks": stacks}, nil)
++				}
+ 				return c.a4buff
+ 			},
+ 		})
+--- a/internal/characters/sigewinne/skill.go
++++ b/internal/characters/sigewinne/skill.go
+@@ -250,7 +250,11 @@
+ 			if atk.Info.Abil != c.skillAttackInfo.Abil {
+ 				return nil
+ 			}
+-			m[attributes.DmgP] = float64(c.currentBubbleTier) * bubbleTierBuff
++			tier := c.currentBubbleTier
++			m[attributes.DmgP] = float64(tier) * bubbleTierBuff
++			if c.Core.SourceHost != nil {
++				m[attributes.DmgP] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-sigewinne-bubble-dmgp", map[string]any{"tier": tier}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/sigewinne/asc.go
++++ b/internal/characters/sigewinne/asc.go
+@@ -90,6 +90,9 @@
+ 			}
+ 			heal := min(a4HealingBonusCap, totalHpDebt*a4HpDebtHealingBonusRatio)
+ 			m[attributes.Heal] = heal
++			if c.Core.SourceHost != nil {
++				m[attributes.Heal] = c.Core.SourceHost.CharacterModifierDynamicRead(c.Index(), "char-dyn-sigewinne-a4-heal", map[string]any{"totalHpDebt": totalHpDebt}, nil)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/itto/burst.go
++++ b/internal/characters/itto/burst.go
+@@ -48,18 +48,25 @@
+ 		Abil:       "Royal Descent: Behold, Itto the Evil! (Stat Snapshot)",
+ 	}
+ 	c.Snapshot(&aiSnapshot)
+-	burstDefSnapshot := c.TotalDef(true)
++	burstDefSnapshot, defRead := c.TotalDefWithProvenance(true)
+ 	mult := defconv[c.TalentLvlBurst()]
+ 
+ 	// TODO: Confirm exact timing of buff
+ 	// Q def to atk conversion
+ 	mATK := make([]float64, attributes.EndStatType)
+ 	mATK[attributes.ATK] = mult * burstDefSnapshot
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		mATK[attributes.ATK], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), burstBuffKey, "char-dyn-itto-burst-atk", map[string]any{"multiplier": mult, "nonExtraDefense": burstDefSnapshot}, defRead)
++	}
+ 	c.AddStatMod(character.StatMod{
+ 		Base:         modifier.NewBaseWithHitlag(burstBuffKey, burstDuration),
+ 		AffectedStat: attributes.ATK,
+ 		Extra:        true,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(mATK, creationID)
++			}
+ 			return mATK
+ 		},
+ 	})
+--- a/internal/characters/lauma/asc.go
++++ b/internal/characters/lauma/asc.go
+@@ -88,13 +88,20 @@
+ 
+ 	// increase skill dmg of self by EM * 0.4% up to 32%
+ 	m := make([]float64, attributes.EndStatType)
+-	em := c.Stat(attributes.EM)
++	em, statRead := c.StatWithProvenance(attributes.EM)
+ 	m[attributes.DmgP] = min(0.004*em, 0.32)
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		m[attributes.DmgP], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "lauma-a4", "char-dyn-lauma-a4-dmgp", map[string]any{"elementalMastery": em}, statRead)
++	}
+ 	c.AddAttackMod(character.AttackMod{
+ 		Base: modifier.NewBase("lauma-a4", -1),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalArt && atk.Info.AttackTag != attacks.AttackTagElementalArtHold {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
+ 			}
+ 			return m
+ 		},
+--- a/internal/characters/lyney/asc.go
++++ b/internal/characters/lyney/asc.go
+@@ -60,6 +60,10 @@
+ 
+ 	m := make([]float64, attributes.EndStatType)
+ 	m[attributes.DmgP] = a4Dmg
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		m[attributes.DmgP], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "lyney-a4", "char-dyn-lyney-a4-dmgp", map[string]any{"pyroCount": pyroCount}, nil)
++	}
+ 	c.AddAttackMod(character.AttackMod{
+ 		Base: modifier.NewBase("lyney-a4", -1),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+@@ -70,6 +74,9 @@
+ 			if !r.AuraContains(attributes.Pyro) {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/navia/asc.go
++++ b/internal/characters/navia/asc.go
+@@ -55,16 +55,24 @@
+ 			ele++
+ 		}
+ 	}
++	eligibleElements := ele
+ 	if ele > 2 {
+ 		ele = 2
+ 	}
+ 
+ 	m := make([]float64, attributes.EndStatType)
+ 	m[attributes.ATKP] = 0.2 * float64(ele)
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		m[attributes.ATKP], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "navia-a4", "char-dyn-navia-a4-atkp", map[string]any{"eligibleElements": eligibleElements}, nil)
++	}
+ 	c.AddStatMod(character.StatMod{
+ 		Base:         modifier.NewBase("navia-a4", -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/noelle/burst.go
++++ b/internal/characters/noelle/burst.go
+@@ -38,13 +38,17 @@
+ 		Abil:       "Sweeping Time (Stat Snapshot)",
+ 	}
+ 	c.Snapshot(&aiSnapshot)
+-	burstDefSnapshot := c.TotalDef(true)
++	burstDefSnapshot, defRead := c.TotalDefWithProvenance(true)
+ 	mult := defconv[c.TalentLvlBurst()]
+ 	if c.Base.Cons >= 6 {
+ 		mult += 0.5
+ 	}
+ 	// Add mod for def to attack burst conversion
+ 	c.burstBuff[attributes.ATK] = mult * burstDefSnapshot
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		c.burstBuff[attributes.ATK], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "noelle-burst", "char-dyn-noelle-burst-atk", map[string]any{"multiplier": mult, "nonExtraDefense": burstDefSnapshot}, defRead)
++	}
+ 
+ 	dur := 900 + burstStart // default duration
+ 	if c.Base.Cons >= 6 {
+@@ -76,6 +80,9 @@
+ 		AffectedStat: attributes.ATK,
+ 		Extra:        true,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(c.burstBuff, creationID)
++			}
+ 			return c.burstBuff
+ 		},
+ 	})
+--- a/internal/characters/rosaria/asc.go
++++ b/internal/characters/rosaria/asc.go
+@@ -50,13 +50,18 @@
+ 		return
+ 	}
+ 
+-	critShare := 0.15 * c.NonExtraStat(attributes.CR)
++	critRate, statRead := c.NonExtraStatWithProvenance(attributes.CR)
++	critShare := 0.15 * critRate
+ 	if critShare > 0.15 {
+ 		critShare = 0.15
+ 	}
+ 
+ 	m := make([]float64, attributes.EndStatType)
+ 	m[attributes.CR] = critShare
++	creationID := 0
++	if c.Core.SourceHost != nil {
++		m[attributes.CR], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "rosaria-a4", "char-dyn-rosaria-a4-cr", map[string]any{"nonExtraCritRate": critRate}, statRead)
++	}
+ 	for i, char := range c.Core.Player.Chars() {
+ 		// skip Rosaria
+ 		if i == c.Index() {
+@@ -67,6 +72,9 @@
+ 			AffectedStat: attributes.CR,
+ 			Extra:        true,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/razor/skill.go
++++ b/internal/characters/razor/skill.go
+@@ -219,11 +219,19 @@
+ 
+ 		// add sigil er buff
+ 		m := make([]float64, attributes.EndStatType)
+-		m[attributes.ER] = float64(c.sigils) * 0.2
++		sigils := c.sigils
++		m[attributes.ER] = float64(sigils) * 0.2
++		creationID := 0
++		if c.Core.SourceHost != nil {
++			m[attributes.ER], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), skillSigilKey, "char-dyn-razor-sigil-er", map[string]any{"sigils": sigils}, nil)
++		}
+ 		c.AddStatMod(character.StatMod{
+ 			Base:         modifier.NewBase(skillSigilKey, 18*60),
+ 			AffectedStat: attributes.ER,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/sara/skill.go
++++ b/internal/characters/sara/skill.go
+@@ -87,7 +87,9 @@
+ 		}
+ 
+ 		active := c.Core.Player.ActiveChar()
+-		buff := atkBuff[c.TalentLvlSkill()] * c.Stat(attributes.BaseATK)
++		multiplier := atkBuff[c.TalentLvlSkill()]
++		baseAtk, statRead := c.StatWithProvenance(attributes.BaseATK)
++		buff := multiplier * baseAtk
+ 
+ 		c.Core.Log.NewEvent("sara attack buff applied", glog.LogCharacterEvent, c.Index()).
+ 			Write("char", active.Index()).
+@@ -96,11 +98,18 @@
+ 
+ 		m := make([]float64, attributes.EndStatType)
+ 		m[attributes.ATK] = buff
++		creationID := 0
++		if c.Core.SourceHost != nil {
++			m[attributes.ATK], creationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "sara-attack-buff", "char-dyn-sara-skill-atk", map[string]any{"multiplier": multiplier, "baseAtk": baseAtk}, statRead)
++		}
+ 		active.AddStatMod(character.StatMod{
+ 			Base:         modifier.NewBaseWithHitlag("sara-attack-buff", 360),
+ 			AffectedStat: attributes.ATK,
+ 			Extra:        true,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierSnapshot(m, creationID)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/mona/mona.go
++++ b/internal/characters/mona/mona.go
+@@ -18,6 +18,7 @@
+ type char struct {
+ 	*tmpl.Character
+ 	a4Stats          []float64
++	a4CreationID     int
+ 	c6Src            int
+ 	c6Stacks         int
+ 	c6AtkMod         character.AttackMod
+--- a/internal/characters/raiden/raiden.go
++++ b/internal/characters/raiden/raiden.go
+@@ -11,6 +11,7 @@
+ type char struct {
+ 	*tmpl.Character
+ 	a4Stats        []float64
++	a4CreationID    int
+ 	burstCastF     int
+ 	eyeICD         int
+ 	stacksConsumed float64
+--- a/internal/characters/mona/asc.go
++++ b/internal/characters/mona/asc.go
+@@ -75,11 +75,18 @@
+ 			AffectedStat: attributes.HydroP,
+ 			Extra:        true,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierSnapshot(c.a4Stats, c.a4CreationID)
++				}
+ 				return c.a4Stats
+ 			},
+ 		})
+ 	}
+-	c.a4Stats[attributes.HydroP] = 0.2 * c.NonExtraStat(attributes.ER)
++	er, statRead := c.NonExtraStatWithProvenance(attributes.ER)
++	c.a4Stats[attributes.HydroP] = 0.2 * er
++	if c.Core.SourceHost != nil {
++		c.a4Stats[attributes.HydroP], c.a4CreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "mona-a4", "char-dyn-mona-a4-hydrop", map[string]any{"nonExtraER": er}, statRead)
++	}
+ 	c.QueueCharTask(c.a4, 60)
+ }
+ 
+--- a/internal/characters/raiden/asc.go
++++ b/internal/characters/raiden/asc.go
+@@ -62,10 +62,17 @@
+ 			AffectedStat: attributes.ElectroP,
+ 			Extra:        true,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierSnapshot(c.a4Stats, c.a4CreationID)
++				}
+ 				return c.a4Stats
+ 			},
+ 		})
+ 	}
+-	c.a4Stats[attributes.ElectroP] = (max(c.NonExtraStat(attributes.ER)-1, 0)) * 0.4 // 100 * 0.004
++	er, statRead := c.NonExtraStatWithProvenance(attributes.ER)
++	c.a4Stats[attributes.ElectroP] = max(er-1, 0) * 0.4 // 100 * 0.004
++	if c.Core.SourceHost != nil {
++		c.a4Stats[attributes.ElectroP], c.a4CreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "raiden-a4", "char-dyn-raiden-a4-electrop", map[string]any{"nonExtraER": er}, statRead)
++	}
+ 	c.QueueCharTask(c.a4, 30)
+ }
+--- a/internal/characters/neuvillette/neuvillette.go
++++ b/internal/characters/neuvillette/neuvillette.go
+@@ -23,6 +23,7 @@
+ 	a1BaseStackCount       int
+ 	a1Statuses             []NeuvA1Keys
+ 	a4Buff                 []float64
++	a4CreationID           int
+ 	chargeAi               info.AttackInfo
+ }
+ 
+--- a/internal/characters/neuvillette/asc.go
++++ b/internal/characters/neuvillette/asc.go
+@@ -67,6 +67,9 @@
+ 		AffectedStat: attributes.HydroP,
+ 		Extra:        true,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(c.a4Buff, c.a4CreationID)
++			}
+ 			return c.a4Buff
+ 		},
+ 	})
+@@ -119,4 +122,7 @@
+ 	}
+ 
+ 	c.a4Buff[attributes.HydroP] = hydroDmgBuff
++	if c.Core.SourceHost != nil {
++		c.a4Buff[attributes.HydroP], c.a4CreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), "neuvillette-a4", "char-dyn-neuvillette-a4-hydrop", map[string]any{"hpRatio": hpRatio}, nil)
++	}
+ }
+--- a/internal/characters/nahida/nahida.go
++++ b/internal/characters/nahida/nahida.go
+@@ -20,7 +20,10 @@
+ 	hydroCount       int
+ 	pyroBurstBuff    []float64
+ 	a1Buff           []float64
++	a1CreationID    int
+ 	a4Buff           []float64
++	a4DmgCreationID int
++	a4CRCreationID  int
+ 	c4Buff           []float64
+ 	c6Count          int
+ 	markCount        int
+--- a/internal/characters/nahida/asc.go
++++ b/internal/characters/nahida/asc.go
+@@ -30,6 +30,7 @@
+ 			maxEM = em
+ 		}
+ 	}
++	maxTeamEM := maxEM
+ 	maxEM = 0.25 * maxEM
+ 
+ 	if maxEM > 250 {
+@@ -37,6 +38,9 @@
+ 	}
+ 
+ 	c.a1Buff[attributes.EM] = maxEM
++	if c.Core.SourceHost != nil {
++		c.a1Buff[attributes.EM], c.a1CreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), a1BuffKey, "char-dyn-nahida-a1-em", map[string]any{"maxTeamEM": maxTeamEM}, nil)
++	}
+ }
+ 
+ func (c *char) applyA1(dur int) {
+@@ -51,6 +55,9 @@
+ 			Extra:        true,
+ 			Amount: func() []float64 {
+ 				if c.Core.Player.Active() == idx {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierSnapshot(c.a1Buff, c.a1CreationID)
++					}
+ 					return c.a1Buff
+ 				}
+ 				return nil
+@@ -74,6 +81,9 @@
+ 			if !strings.HasPrefix(atk.Info.Abil, "Tri-Karma") {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierSnapshot(c.a4Buff, c.a4DmgCreationID, c.a4CRCreationID)
++			}
+ 			return c.a4Buff
+ 		},
+ 	})
+@@ -83,7 +93,8 @@
+ 	if c.Base.Ascension < 4 {
+ 		return
+ 	}
+-	em := c.Stat(attributes.EM)
++	em, statRead := c.StatWithProvenance(attributes.EM)
++	elementalMastery := em
+ 	var dmgBuff, crBuff float64
+ 	if em > 200 {
+ 		em -= 200
+@@ -98,6 +109,10 @@
+ 	}
+ 	c.a4Buff[attributes.DmgP] = dmgBuff
+ 	c.a4Buff[attributes.CR] = crBuff
++	if c.Core.SourceHost != nil {
++		c.a4Buff[attributes.DmgP], c.a4DmgCreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), a4BuffKey, "char-dyn-nahida-a4-dmgp", map[string]any{"elementalMastery": elementalMastery}, statRead)
++		c.a4Buff[attributes.CR], c.a4CRCreationID = c.Core.SourceHost.CharacterModifierDynamicCreate(c.Index(), a4BuffKey, "char-dyn-nahida-a4-cr", map[string]any{"elementalMastery": elementalMastery}, statRead)
++	}
+ 
+ 	c.Core.Tasks.Add(c.a4Tick, 30)
+ }

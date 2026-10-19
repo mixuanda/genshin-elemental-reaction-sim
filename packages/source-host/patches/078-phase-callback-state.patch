@@ -1,0 +1,245 @@
+--- /dev/null
++++ b/pkg/core/phase/descriptor.go
+@@ -0,0 +1,15 @@
++// Package phase describes callbacks for read-only source-host phase observation.
++// The descriptor is metadata only; it never changes callback execution.
++package phase
++
++type Descriptor struct {
++	// Source identifies the audited registration or queue site, not a key prefix.
++	Source string
++	// Observe reads the callback's live captured values without invoking it.
++	// An empty map explicitly means that the audited callback is stateless.
++	Observe func() (map[string]any, []string)
++	// Observational is reserved for source-audited callbacks that cannot change
++	// gameplay state, scheduling, or random draws, and whose key slot cannot
++	// later be reused by a gameplay callback. These do not enter phase equality.
++	Observational bool
++}
+--- a/pkg/core/event/event.go
++++ b/pkg/core/event/event.go
+@@ -1,4 +1,6 @@
+ package event
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ type Event int
+ 
+@@ -94,13 +96,15 @@
+ 
+ type Eventter interface {
+ 	Subscribe(e Event, f Hook, key string)
++	SubscribeWithPhase(e Event, f Hook, key string, descriptor phase.Descriptor)
+ 	Unsubscribe(e Event, key string)
+ 	Emit(e Event, args ...any)
+ }
+ 
+ type ehook struct {
+-	f   Hook
+-	key string
++	f     Hook
++	key   string
++	phase phase.Descriptor
+ }
+ 
+ func New() *Handler {
+@@ -132,11 +136,20 @@
+ //		doSomething(e)
+ //	}, "subscription")
+ func (h *Handler) Subscribe(e Event, f Hook, key string) {
++	h.subscribe(e, f, key, phase.Descriptor{})
++}
++
++func (h *Handler) SubscribeWithPhase(e Event, f Hook, key string, descriptor phase.Descriptor) {
++	h.subscribe(e, f, key, descriptor)
++}
++
++func (h *Handler) subscribe(e Event, f Hook, key string, descriptor phase.Descriptor) {
+ 	a := h.events[e]
+ 
+ 	evt := ehook{
+-		f:   f,
+-		key: key,
++		f:     f,
++		key:   key,
++		phase: descriptor,
+ 	}
+ 
+ 	// check if override first
+--- a/pkg/core/event/sourcehost_phase.go
++++ b/pkg/core/event/sourcehost_phase.go
+@@ -2,16 +2,41 @@
+ 
+ import "fmt"
+ 
+-// Subscription order is gameplay state. Callback code addresses cannot prove
+-// equivalence of captured values, so those remain explicit coverage gaps.
++// SourceHostPhaseState observes ordered, enabled gameplay subscriptions without
++// invoking hooks. Only source-audited non-gameplay observers are omitted.
+ func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
+- rows:=make([]map[string]any,0); gaps:=[]string{}
+- for kind,hooks:=range h.events {
+-  if len(hooks)==0 { continue }
+-  keys:=make([]string,0,len(hooks))
+-  for _,hook:=range hooks { keys=append(keys,hook.key) }
+-  rows=append(rows,map[string]any{"eventType":kind,"orderedKeys":keys})
+-  gaps=append(gaps,fmt.Sprintf("event %d callback captures have not been exported (%d subscriptions)",kind,len(hooks)))
+- }
+- return map[string]any{"subscriptions":rows},gaps
++	rows := make([]map[string]any, 0)
++	gaps := []string{}
++	for kind, hooks := range h.events {
++		ordered := make([]map[string]any, 0, len(hooks))
++		for _, hook := range hooks {
++			if hook.phase.Observational && hook.phase.Source != "" {
++				continue
++			}
++			enabled := hook.f != nil
++			entry := map[string]any{"key": hook.key, "enabled": enabled, "source": hook.phase.Source}
++			if enabled {
++				switch {
++				case hook.phase.Source == "":
++					gaps = append(gaps, fmt.Sprintf("event %d key %q has an undescribed callback", kind, hook.key))
++				case hook.phase.Observe == nil:
++					gaps = append(gaps, fmt.Sprintf("event %d key %q has no live closure-state observer", kind, hook.key))
++				default:
++					state, callbackGaps := hook.phase.Observe()
++					if state == nil {
++						state = map[string]any{}
++					}
++					entry["capture"] = state
++					for _, gap := range callbackGaps {
++						gaps = append(gaps, fmt.Sprintf("event %d key %q: %s", kind, hook.key, gap))
++					}
++				}
++			}
++			ordered = append(ordered, entry)
++		}
++		if len(ordered) > 0 {
++			rows = append(rows, map[string]any{"eventType": kind, "orderedHooks": ordered})
++		}
++	}
++	return map[string]any{"subscriptions": rows}, gaps
+ }
+--- a/pkg/core/task/task.go
++++ b/pkg/core/task/task.go
+@@ -8,7 +8,11 @@
+ // always happen before all entries in the core task queue. If any implementations depend on this order,
+ // this will cause additional problems.
+ 
+-import "container/heap"
++import (
++	"container/heap"
++
++	"github.com/genshinsim/gcsim/pkg/core/phase"
++)
+ 
+ type minHeap []task
+ 
+@@ -16,6 +20,8 @@
+ 	executeBy int
+ 	f         func()
+ 	id        int
++	key       string
++	phase     phase.Descriptor
+ }
+ 
+ type Handler struct {
+@@ -26,6 +32,7 @@
+ 
+ type Tasker interface {
+ 	Add(f func(), delay int)
++	AddWithPhase(f func(), delay int, key string, descriptor phase.Descriptor)
+ }
+ 
+ func New(f *int) *Handler {
+@@ -42,10 +49,20 @@
+ }
+ 
+ func (s *Handler) Add(f func(), delay int) {
++	s.add(f, delay, "", phase.Descriptor{})
++}
++
++func (s *Handler) AddWithPhase(f func(), delay int, key string, descriptor phase.Descriptor) {
++	s.add(f, delay, key, descriptor)
++}
++
++func (s *Handler) add(f func(), delay int, key string, descriptor phase.Descriptor) {
+ 	heap.Push(s.tasks, task{
+ 		executeBy: *s.f + delay,
+ 		f:         f,
+ 		id:        s.counter,
++		key:       key,
++		phase:     descriptor,
+ 	})
+ 	s.counter += 1
+ }
+--- a/pkg/core/task/sourcehost_phase.go
++++ b/pkg/core/task/sourcehost_phase.go
+@@ -1,16 +1,55 @@
+ package task
+ 
+-import "sort"
++import (
++	"fmt"
++	"sort"
++)
+ 
+-// Observe remaining deadlines and FIFO ordering without running a task.
++// SourceHostPhaseState observes the actual pending queue without running tasks.
++// Deadlines are relative to this handler's clock; FIFO is relative to other
++// gameplay tasks, so audited non-gameplay observers do not affect equivalence.
+ func (s *Handler) SourceHostPhaseState() (map[string]any, []string) {
+- tasks := append([]task(nil), (*s.tasks)...)
+- sort.Slice(tasks, func(i,j int) bool { return tasks[i].id < tasks[j].id })
+- ranks := make(map[int]int, len(tasks))
+- for i,t := range tasks { ranks[t.id]=i }
+- sort.Slice(tasks, func(i,j int) bool { if tasks[i].executeBy==tasks[j].executeBy { return tasks[i].id<tasks[j].id }; return tasks[i].executeBy<tasks[j].executeBy })
+- rows := make([]map[string]any,0,len(tasks)); gaps:=[]string{}
+- for _,t:=range tasks { rows=append(rows,map[string]any{"remainingFrames":t.executeBy-*s.f,"fifoRank":ranks[t.id]}) }
+- if len(tasks)>0 { gaps=append(gaps,"queued task closures and their captured gameplay values are not yet described") }
+- return map[string]any{"orderedTasks":rows},gaps
++	tasks := make([]task, 0, len(*s.tasks))
++	for _, pending := range *s.tasks {
++		if pending.phase.Observational && pending.phase.Source != "" {
++			continue
++		}
++		tasks = append(tasks, pending)
++	}
++	sort.Slice(tasks, func(i, j int) bool { return tasks[i].id < tasks[j].id })
++	ranks := make(map[int]int, len(tasks))
++	for i, pending := range tasks {
++		ranks[pending.id] = i
++	}
++	sort.Slice(tasks, func(i, j int) bool {
++		if tasks[i].executeBy == tasks[j].executeBy {
++			return tasks[i].id < tasks[j].id
++		}
++		return tasks[i].executeBy < tasks[j].executeBy
++	})
++	rows := make([]map[string]any, 0, len(tasks))
++	gaps := []string{}
++	for _, pending := range tasks {
++		entry := map[string]any{
++			"key": pending.key, "source": pending.phase.Source,
++			"remainingFrames": pending.executeBy - *s.f, "fifoRank": ranks[pending.id],
++		}
++		switch {
++		case pending.phase.Source == "":
++			gaps = append(gaps, fmt.Sprintf("queued task %q has an undescribed closure", pending.key))
++		case pending.phase.Observe == nil:
++			gaps = append(gaps, fmt.Sprintf("queued task %q has no live closure-state observer", pending.key))
++		default:
++			state, taskGaps := pending.phase.Observe()
++			if state == nil {
++				state = map[string]any{}
++			}
++			entry["capture"] = state
++			for _, gap := range taskGaps {
++				gaps = append(gaps, fmt.Sprintf("queued task %q: %s", pending.key, gap))
++			}
++		}
++		rows = append(rows, entry)
++	}
++	return map[string]any{"orderedTasks": rows}, gaps
+ }

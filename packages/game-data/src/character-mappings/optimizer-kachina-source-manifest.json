@@ -1,0 +1,55 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "commitDate": "2026-08-27T03:19:12Z",
+  "recordedAt": "2026-09-23T08:17:03.328650+00:00",
+  "sourceFiles": [
+    {
+      "path": "libs/gi/sheets/src/Characters/Kachina/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Kachina/index.tsx",
+      "bytes": 7763,
+      "sha256": "a7cf1f3538e0c315b4a917c637c7571d6cc2ff5e4bec09e23383c7d9f6eb35eb"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Kachina/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Kachina/skillParam.json",
+      "bytes": 4325,
+      "sha256": "d9b920bf92207eef1d08f7b9a5af3ee9946c4388189af2a451097e69818bcf68"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Kachina/data.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Kachina/data.json",
+      "bytes": 980,
+      "sha256": "3cdefadf514ee7d7475e77ade75437bc81bdcc8388827f59a207934e627fc9bc"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "bytes": 15409,
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "bytes": 15340,
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd"
+    },
+    {
+      "path": "LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c"
+    }
+  ],
+  "rejectedSourcePaths": [
+    {
+      "path": "libs/gi/formula/src/data/char/Kachina.ts",
+      "reason": "TODO skeleton with placeholder unconditional +1 buffs; not the production character sheet and not executable evidence for these mappings."
+    }
+  ],
+  "license": {
+    "id": "MIT",
+    "text": "MIT License\n\nCopyright (c) 2020-present, frzyc\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n"
+  },
+  "numericPolicy": "All 15 literal source values must equal the active catalogue vector exactly; no localized-label parsing or downloaded source execution."
+}

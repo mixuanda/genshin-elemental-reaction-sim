@@ -1,0 +1,54 @@
+[WebServer] (node:95165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:95166) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/stellar-artifact-runtime.spec.ts:32:1 › the normal page executes both fixed-a7 Stellar 4pc callbacks and replays their complete captures (30.1s)
+
+
+  1) [chromium] › apps/web/e2e/stellar-artifact-runtime.spec.ts:32:1 › the normal page executes both fixed-a7 Stellar 4pc callbacks and replays their complete captures 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-stellar-artifact-index="e"]')
+        - locator resolved to <select data-stellar-artifact-index="e">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        59 × waiting for element to be visible and enabled
+           - element is not visible
+         - retrying select option action
+           - waiting 500ms
+
+
+      49 |   await page.locator('[data-lunar-party-index="0"]').selectOption("sandrone");
+      50 |   await page.locator('[data-lunar-party-index="1"]').selectOption("lisa");
+    > 51 |   await page.locator('[data-stellar-artifact-index="e"]').selectOption("artifact-set:15048");
+         |                                                           ^
+      52 |   await page.locator("[data-stellar-artifact-baseline]").check();
+      53 |   await page.locator('[data-lunar-action="run"]').click();
+      54 |   await expect(page.locator('[data-lunar-action="export"]')).toBeEnabled();
+        at /Users/evan/Documents/gidps/apps/web/e2e/stellar-artifact-runtime.spec.ts:51:59
+
+    Error Context: test-results/stellar-artifact-runtime-t-db9ac-ays-their-complete-captures-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stellar-artifact-runtime-t-db9ac-ays-their-complete-captures-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stellar-artifact-runtime-t-db9ac-ays-their-complete-captures-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/stellar-artifact-runtime.spec.ts:32:1 › the normal page executes both fixed-a7 Stellar 4pc callbacks and replays their complete captures 

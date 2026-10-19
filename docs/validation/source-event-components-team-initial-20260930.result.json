@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "source-event-components-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": true,
+    "nativeResultArchived": true,
+    "rawPath": "docs/validation/source-event-components-team-20260930.capture.json"
+  },
+  "pageErrors": [],
+  "scope": "One classic two-target run covers only observed Baizhu C2 and Riptide target-death event components; it does not establish ability ownership, full-cast closure, or game verification."
+}

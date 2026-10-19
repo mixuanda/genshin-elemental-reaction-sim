@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "118-owned-entity-and-event-native-audit-v1",
+  "status": "implemented; gofmt and private combat patch apply checks only; no build or runtime test by this agent",
+  "lanes": {
+    "classic": {
+      "frozenSource": "/Users/evan/Library/Caches/gidps-source-host/build-PwOq3n/source",
+      "files": {
+        "pkg/core/sourcehost/owned_entity.go": {
+          "beforeSha256": "d081cfdb739573e414a9dc6e6090a22455b31a0f03e0d44549ebb9ec07fa0343",
+          "afterSha256": "1e26b99eea09a71b4b8635d00d83cf5d9ec6fbb955279c781db607c4cb30ac2b"
+        },
+        "pkg/core/player/character/sourcehost_owned_entity.go": {
+          "beforeSha256": "0455e5b126acfb13f7db931333ebfca59b950ef81407215e77f5a862e1f6c8be",
+          "afterSha256": "f52ca2a074155fa1c20538f3f33809bf48b7ea831cde4f34abb064ce360a6db6"
+        },
+        "pkg/core/sourcehost_owned_attack.go": {
+          "beforeSha256": "fb8633431c08452f2808b3c17ffbeb43f0b0787122ed53a1fbcad63aa9c2f60a",
+          "afterSha256": "e0e75323294d5334d5791f6bd7ccaff7bda0a797552586204dac46e5c6c1b9c0"
+        },
+        "pkg/core/sourcehost_owned_entity.go": {
+          "beforeSha256": "335f4a1ab964baeb4104be8a85f2699d242f47ed3ee71b5f0835a9014913f765",
+          "afterSha256": "c95f8c15b5885153def4e7f10955328ebdde8906475ce892e3d10f2c3fada676"
+        },
+        "pkg/core/combat/combat.go": {
+          "beforeSha256": "d2c32edb9bbbf08238b11ca3a91257035f0d940eaa5f480b687eeea5f5852272",
+          "afterSha256": "5e6928cf0bf9931b7166accaae885d0ea1cb4864cf2027a10a34ca4b9c6e28e0"
+        },
+        "pkg/core/sourcehost/owned_generator.go": {
+          "beforeSha256": "40c33784843bf1364ae556232b04c62b33c3274f031ac1a051eaaf6d4d511ee7",
+          "afterSha256": "cd6ca82e258df317d15dd9c2924fcdd373fc24a60ac23155145e96f08604cf27"
+        },
+        "pkg/core/player/character/sourcehost_owned_generator.go": {
+          "beforeSha256": "59f8ce3db79fc645c0d03a9482d9aa136c46ea168dc968f5d20beaf5db0fc895",
+          "afterSha256": "e2df8ff5e7fd7884c0f6f69f199fd49a7df7cc663f5e609dcffb5f11a44d3fcf"
+        }
+      },
+      "patchApplyExitCode": 0
+    },
+    "stellar": {
+      "frozenSource": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-OHxtfN/source",
+      "files": {
+        "pkg/core/sourcehost/owned_entity.go": {
+          "beforeSha256": "d081cfdb739573e414a9dc6e6090a22455b31a0f03e0d44549ebb9ec07fa0343",
+          "afterSha256": "1e26b99eea09a71b4b8635d00d83cf5d9ec6fbb955279c781db607c4cb30ac2b"
+        },
+        "pkg/core/player/character/sourcehost_owned_entity.go": {
+          "beforeSha256": "0455e5b126acfb13f7db931333ebfca59b950ef81407215e77f5a862e1f6c8be",
+          "afterSha256": "f52ca2a074155fa1c20538f3f33809bf48b7ea831cde4f34abb064ce360a6db6"
+        },
+        "pkg/core/sourcehost_owned_attack.go": {
+          "beforeSha256": "fb8633431c08452f2808b3c17ffbeb43f0b0787122ed53a1fbcad63aa9c2f60a",
+          "afterSha256": "e0e75323294d5334d5791f6bd7ccaff7bda0a797552586204dac46e5c6c1b9c0"
+        },
+        "pkg/core/sourcehost_owned_entity.go": {
+          "beforeSha256": "335f4a1ab964baeb4104be8a85f2699d242f47ed3ee71b5f0835a9014913f765",
+          "afterSha256": "c95f8c15b5885153def4e7f10955328ebdde8906475ce892e3d10f2c3fada676"
+        },
+        "pkg/core/combat/combat.go": {
+          "beforeSha256": "d2c32edb9bbbf08238b11ca3a91257035f0d940eaa5f480b687eeea5f5852272",
+          "afterSha256": "5e6928cf0bf9931b7166accaae885d0ea1cb4864cf2027a10a34ca4b9c6e28e0"
+        },
+        "pkg/core/sourcehost/owned_generator.go": {
+          "beforeSha256": "40c33784843bf1364ae556232b04c62b33c3274f031ac1a051eaaf6d4d511ee7",
+          "afterSha256": "cd6ca82e258df317d15dd9c2924fcdd373fc24a60ac23155145e96f08604cf27"
+        },
+        "pkg/core/player/character/sourcehost_owned_generator.go": {
+          "beforeSha256": "59f8ce3db79fc645c0d03a9482d9aa136c46ea168dc968f5d20beaf5db0fc895",
+          "afterSha256": "e2df8ff5e7fd7884c0f6f69f199fd49a7df7cc663f5e609dcffb5f11a44d3fcf"
+        }
+      },
+      "patchApplyExitCode": 0
+    }
+  },
+  "wire": {
+    "ownedEntities": "tickCount: int serialized including zero; counts actual combat gadget Tick entry while instance is registered",
+    "ownedEntityProducers": "taskId?: positive int, exact native character task; absent for immediate delay-zero callbacks"
+  },
+  "apis": [
+    "Core.SourceHostQueueOwnedEventAttackEvent(ownedSiteID,eventSiteID string,ae *info.AttackEvent,dmgDelay int)",
+    "Core.SourceHostTriggerOwnedEntity(targetKey int,kind string,f func())"
+  ],
+  "facts": [
+    "Beidou combined queue labels one original QueueAttackEvent call for both status-owned trigger and event listener; no new wire IDs or allocation paths.",
+    "Custom Guoba source trigger wraps only the existing breath callback after embedded Gadget.Tick; original native callback/order unchanged.",
+    "Entity tick count is incremented immediately before the actual combat loop gadget Tick call, independently of damage queue observation or thinker execution.",
+    "Owned entity producer char-task helpers retain original character clock and delay-zero execution, binding the exact tracked scheduled task when present.",
+    "No reused event pointer occurs in these new entity queues; 117 ordinary-ability-only finalizer change was not broadened.",
+    "Native damage formulas, targeting, RNG, lifecycle order, source lane differences and phase snapshots remain unchanged.",
+    "Stellar Qiqi E synchronous status registration binds only the exact active ability invocation with matching actor and creation action sequence; existing delayed-Q matching remains unchanged. The helper signature is unchanged."
+  ],
+  "checks": {
+    "gofmtListOutput": "",
+    "buildsRun": 0,
+    "testsRun": 0,
+    "formattedFiles": 14
+  },
+  "patch": {
+    "path": "/Users/evan/Library/Caches/gidps-source-host/118-owned-entity-native/classic.patch",
+    "sha256": "ce1825496a472db2dc411b35802b80672784a15d4694481a25281084700cd1d0",
+    "bytes": 370,
+    "identicalBothLanes": true
+  }
+}

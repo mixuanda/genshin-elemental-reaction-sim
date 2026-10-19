@@ -1,0 +1,616 @@
+{
+  "status": "private implementation; syntax formatting and patch applicability only; no compilation, runtime, or tests",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-CHWLQf/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-9hFTdx/source"
+  },
+  "patch": {
+    "path": "/Users/evan/Library/Caches/gidps-source-host/127-constructs/127-constructs.patch",
+    "sha256": "af9803d5429f35bc4d51b5b0537f0afc0e8a5f51d37652b19fb44483fd723dcd",
+    "size": 88030
+  },
+  "records": [
+    {
+      "group": "repo",
+      "path": "packages/sim-core/src/source-host-action-collection.ts",
+      "beforeSha256": "b92ffcd6015f63678fecab1f888f9c6a7541e0c00780305c703d352e7a5d9aae",
+      "afterSha256": "a5d73ae8cf88d34bd3d6cfac276ff07bf5ab1c7de6c1f3856089a32803c54694",
+      "size": 36077
+    },
+    {
+      "group": "repo",
+      "path": "packages/sim-core/src/source-host-construct-contracts.ts",
+      "beforeSha256": null,
+      "afterSha256": "89777f08564d96b3345fa5fe48ca4f44b299f35dc0944b48194678fc1e56eacd",
+      "size": 3396
+    },
+    {
+      "group": "repo",
+      "path": "packages/sim-core/src/source-host-finite-cast.ts",
+      "beforeSha256": "d338ed1fd8f70576a9ecd96981ab3f4b97acb5cb30f31928d3d0f6a16cb951b5",
+      "afterSha256": "e9f2a6b7227fe558c9747bf454d189a86721c308ef766201c8c73384dc89781e",
+      "size": 25550
+    },
+    {
+      "group": "repo",
+      "path": "packages/sim-core/src/source-host-owned-construct-analysis.ts",
+      "beforeSha256": null,
+      "afterSha256": "e03eabac75713b5b5a06fd624c4fefab75ae44242635296fe0405526d82c0ed3",
+      "size": 17459
+    },
+    {
+      "group": "repo",
+      "path": "packages/sim-core/src/source-host-owned-entity-analysis.ts",
+      "beforeSha256": "24a2bb491da13c3c5e74b19268c6a7afa47db0d84e722eee32a8d9802633c9a5",
+      "afterSha256": "e73d3d02b43868f3e2747b117eff4cfe093c61e360563fe6df7c6424a486cc1a",
+      "size": 13133
+    },
+    {
+      "group": "repo",
+      "path": "packages/sim-core/src/source-host-owned-entity-types.ts",
+      "beforeSha256": "85c5ab13bbdca5a468af533ba5b54c35f70bc8e314c4b3d963c4a0543493cdcc",
+      "afterSha256": "b772dd0a55784a6627117ba51a27d7469e87626193e90c06b73708850ac1d851",
+      "size": 2713
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/cmd/sourcehost/main.go",
+      "beforeSha256": "671f53ec928f3141366d944bd35cdc293ce9f096743c26bf891a50719e4aabdf",
+      "afterSha256": "8dabf1e22056b8945ae7486101b23f7a2f6f8099c33def6be9da1053b6a50e1c",
+      "size": 10664
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/pkg/core/sourcehost/ability_receipt.go",
+      "beforeSha256": "915f552b59dbac2f9a05b7c7eb76fcf4a08f1474ad622301cce4d53023ff0922",
+      "afterSha256": "b94c05af0c615286fb4a07fe447884baddd59ec7e642d98de927928a7f2157f1",
+      "size": 6588
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/pkg/core/sourcehost/attack.go",
+      "beforeSha256": "1879e4b20541babae4f6df7e6ff22321c9f9b678b3c1ecb3ae5707d9febd2453",
+      "afterSha256": "bb836309aec4389af5df10aa786ea43f2132adcfdf258d574d15f9d38d31b4ee",
+      "size": 6911
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/pkg/core/sourcehost/bridge.go",
+      "beforeSha256": "5b5c1a458cd183caa94ab813266900e08ad62cd9c77ed2217cff1a68ae505de5",
+      "afterSha256": "7de2f7b282d0681d0dfa56bc61d041197fef876506efdc51940cbcf2d2d8d9b1",
+      "size": 27775
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/pkg/core/sourcehost/owned_construct.go",
+      "beforeSha256": null,
+      "afterSha256": "62918f571469d5fb05ace2c8ab624b68a8d2dd7076d2fb681424ed11a1e5a221",
+      "size": 4092
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/pkg/core/sourcehost/owned_entity.go",
+      "beforeSha256": "1e26b99eea09a71b4b8635d00d83cf5d9ec6fbb955279c781db607c4cb30ac2b",
+      "afterSha256": "f8ede178f1ce34ffdfbef76b438cfc444e1b0da99e380c0f81b43821fefda3f0",
+      "size": 11486
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/go/pkg/core/sourcehost_construct.go",
+      "beforeSha256": null,
+      "afterSha256": "d245992c5ce6884462faa01c0a6e2f4a226500e7998eafe00f3d81b0f30dc805",
+      "size": 2322
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/patches/127-owned-constructs.patch",
+      "beforeSha256": null,
+      "afterSha256": "0ff2bd9ff96540b4e8a1910e969333314ebdececfea44d218459b8b5c5a26893",
+      "size": 9370
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/cmd/sourcehost/main.go",
+      "beforeSha256": "c15e81843d1e302f0a94beb58f6f3d2af9029e74003f46104c1f552fb146adaa",
+      "afterSha256": "03748dfa1630c73b24ff2fc077e351da91bb890f865c1940d26610a94f9d5453",
+      "size": 11102
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/ability_receipt.go",
+      "beforeSha256": "915f552b59dbac2f9a05b7c7eb76fcf4a08f1474ad622301cce4d53023ff0922",
+      "afterSha256": "b94c05af0c615286fb4a07fe447884baddd59ec7e642d98de927928a7f2157f1",
+      "size": 6588
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/attack.go",
+      "beforeSha256": "d710e2468040a6a45aa3c02dc0226411235fae0f005e49426afac84bfe0fdf62",
+      "afterSha256": "b307f9a0866485356a06862ac73e35db33a7a4593aa610f7a4a608840251f404",
+      "size": 4882
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/bridge.go",
+      "beforeSha256": "c1f7c9d45fb08be41819d5a1c6496cb0c67a9b0b173ab228e34c41e38e7a9179",
+      "afterSha256": "af0c05b048ad2da8b1235f53986306beba5d8c826e7deb6addf50b4c605b0078",
+      "size": 27892
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/owned_construct.go",
+      "beforeSha256": null,
+      "afterSha256": "62918f571469d5fb05ace2c8ab624b68a8d2dd7076d2fb681424ed11a1e5a221",
+      "size": 4092
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/owned_entity.go",
+      "beforeSha256": "1e26b99eea09a71b4b8635d00d83cf5d9ec6fbb955279c781db607c4cb30ac2b",
+      "afterSha256": "f8ede178f1ce34ffdfbef76b438cfc444e1b0da99e380c0f81b43821fefda3f0",
+      "size": 11486
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost_construct.go",
+      "beforeSha256": null,
+      "afterSha256": "d245992c5ce6884462faa01c0a6e2f4a226500e7998eafe00f3d81b0f30dc805",
+      "size": 2322
+    },
+    {
+      "group": "repo",
+      "path": "packages/source-host/stellar-overlay/patches/127-owned-constructs.patch",
+      "beforeSha256": null,
+      "afterSha256": "0ff2bd9ff96540b4e8a1910e969333314ebdececfea44d218459b8b5c5a26893",
+      "size": 9370
+    },
+    {
+      "group": "classic",
+      "path": "internal/characters/albedo/albedo.go",
+      "beforeSha256": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+      "afterSha256": "2179b7f43895aa80becf85da2ac44a75838cb83cfe9e60e66f9cb520d119f48b",
+      "size": 1308
+    },
+    {
+      "group": "classic",
+      "path": "internal/characters/albedo/skill.go",
+      "beforeSha256": "062688aff486126b50eb1510d164f17024114b591476b638f80607b22ac4c59d",
+      "afterSha256": "deba2888161f178d4558522ff06b123be3d725751805844be05c0ead807ee22e",
+      "size": 5041
+    },
+    {
+      "group": "classic",
+      "path": "internal/characters/zhongli/skill.go",
+      "beforeSha256": "70fc0c75de61ddee99f687c335a0cbcac0cf165e5f9e1cb4f4494b857a635af5",
+      "afterSha256": "a7116f173aa2e93dd783777400f8c6714a06a887f08edf90cbbac6c7fe434470",
+      "size": 3235
+    },
+    {
+      "group": "classic",
+      "path": "internal/characters/zhongli/stele.go",
+      "beforeSha256": "f45f56489f313bef74b0c5d4cdbd354b71cf09b5e033435e6d903d3313a380cb",
+      "afterSha256": "cea43659dd1b9cfc1648d0ad6225f362531ac380e4b3916928914c5d378c2d1f",
+      "size": 5053
+    },
+    {
+      "group": "classic",
+      "path": "internal/characters/zhongli/zhongli.go",
+      "beforeSha256": "c3a9e64ac013d1c3e0d8977fd29d858807035c4ecfebfb6de72feb8a2975942c",
+      "afterSha256": "1203cbecd0f1b7f69df1023a0e70d4c0b03f0e1903dfaa0d17938e1c7b8398d4",
+      "size": 1257
+    },
+    {
+      "group": "classic",
+      "path": "pkg/core/construct/handler.go",
+      "beforeSha256": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+      "afterSha256": "132488bc1a5c615fa185b07c3fa6761ce35239dcf9db0d9ba7dcddebc816f927",
+      "size": 6416
+    },
+    {
+      "group": "stellar",
+      "path": "internal/characters/albedo/albedo.go",
+      "beforeSha256": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+      "afterSha256": "2179b7f43895aa80becf85da2ac44a75838cb83cfe9e60e66f9cb520d119f48b",
+      "size": 1308
+    },
+    {
+      "group": "stellar",
+      "path": "internal/characters/albedo/skill.go",
+      "beforeSha256": "062688aff486126b50eb1510d164f17024114b591476b638f80607b22ac4c59d",
+      "afterSha256": "deba2888161f178d4558522ff06b123be3d725751805844be05c0ead807ee22e",
+      "size": 5041
+    },
+    {
+      "group": "stellar",
+      "path": "internal/characters/zhongli/skill.go",
+      "beforeSha256": "70fc0c75de61ddee99f687c335a0cbcac0cf165e5f9e1cb4f4494b857a635af5",
+      "afterSha256": "a7116f173aa2e93dd783777400f8c6714a06a887f08edf90cbbac6c7fe434470",
+      "size": 3235
+    },
+    {
+      "group": "stellar",
+      "path": "internal/characters/zhongli/stele.go",
+      "beforeSha256": "f45f56489f313bef74b0c5d4cdbd354b71cf09b5e033435e6d903d3313a380cb",
+      "afterSha256": "cea43659dd1b9cfc1648d0ad6225f362531ac380e4b3916928914c5d378c2d1f",
+      "size": 5053
+    },
+    {
+      "group": "stellar",
+      "path": "internal/characters/zhongli/zhongli.go",
+      "beforeSha256": "c3a9e64ac013d1c3e0d8977fd29d858807035c4ecfebfb6de72feb8a2975942c",
+      "afterSha256": "1203cbecd0f1b7f69df1023a0e70d4c0b03f0e1903dfaa0d17938e1c7b8398d4",
+      "size": 1257
+    },
+    {
+      "group": "stellar",
+      "path": "pkg/core/construct/handler.go",
+      "beforeSha256": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+      "afterSha256": "132488bc1a5c615fa185b07c3fa6761ce35239dcf9db0d9ba7dcddebc816f927",
+      "size": 6416
+    }
+  ],
+  "sourceRefs": [
+    {
+      "path": "internal/characters/albedo/albedo.go",
+      "workingSourceSha256": {
+        "classic": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+        "stellar": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/albedo/albedo.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/albedo/albedo.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/albedo/albedo.go",
+        "gitBlobSha1": "390a15da2b139a4f1605509e5a404cbee41aeb82",
+        "sha256": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+        "size": 1221
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/albedo/albedo.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "390a15da2b139a4f1605509e5a404cbee41aeb82",
+        "size": 1221,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/390a15da2b139a4f1605509e5a404cbee41aeb82"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/albedo/skill.go",
+      "workingSourceSha256": {
+        "classic": "062688aff486126b50eb1510d164f17024114b591476b638f80607b22ac4c59d",
+        "stellar": "062688aff486126b50eb1510d164f17024114b591476b638f80607b22ac4c59d"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/albedo/skill.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/albedo/skill.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/albedo/skill.go",
+        "gitBlobSha1": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e",
+        "sha256": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+        "size": 4457
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/albedo/skill.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e",
+        "size": 4457,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/a24870d9c01490051ad0632b38fc7f7b17ab8e8e"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/albedo/construct.go",
+      "workingSourceSha256": {
+        "classic": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355",
+        "stellar": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/albedo/construct.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/albedo/construct.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/albedo/construct.go",
+        "gitBlobSha1": "84b83fdd1003730e8b3e014669dd3fa094a45227",
+        "sha256": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355",
+        "size": 1075
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/albedo/construct.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "84b83fdd1003730e8b3e014669dd3fa094a45227",
+        "size": 1075,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/84b83fdd1003730e8b3e014669dd3fa094a45227"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/albedo/asc.go",
+      "workingSourceSha256": {
+        "classic": "4e77cef51013378ba089c8f72bab330976d61ffe89c0399161fdbb2226e73b25",
+        "stellar": "4e77cef51013378ba089c8f72bab330976d61ffe89c0399161fdbb2226e73b25"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/albedo/asc.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/albedo/asc.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/albedo/asc.go",
+        "gitBlobSha1": "7a5c6890d6e16bfb880afa1cd255e7eac64e0205",
+        "sha256": "11a0fa216c2fb8802a2b900ca37213b0f17da392fec4e320f6a0e0ceedc75ec1",
+        "size": 1543
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/albedo/asc.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "7a5c6890d6e16bfb880afa1cd255e7eac64e0205",
+        "size": 1543,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/7a5c6890d6e16bfb880afa1cd255e7eac64e0205"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/albedo/cons.go",
+      "workingSourceSha256": {
+        "classic": "fc3fe09cbe1dc31f4a273c4cec69eba13e23d66b1b2cafcd03bf677a58638f91",
+        "stellar": "fc3fe09cbe1dc31f4a273c4cec69eba13e23d66b1b2cafcd03bf677a58638f91"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/albedo/cons.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/albedo/cons.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/albedo/cons.go",
+        "gitBlobSha1": "affa8491d91b784194f805a838ebc3845e5084ad",
+        "sha256": "d5ad532eb4eb57e73e51bcd0de37ee739851941f9ab772f963762de47dcb598d",
+        "size": 2839
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/albedo/cons.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "affa8491d91b784194f805a838ebc3845e5084ad",
+        "size": 2839,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/affa8491d91b784194f805a838ebc3845e5084ad"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/zhongli/zhongli.go",
+      "workingSourceSha256": {
+        "classic": "c3a9e64ac013d1c3e0d8977fd29d858807035c4ecfebfb6de72feb8a2975942c",
+        "stellar": "c3a9e64ac013d1c3e0d8977fd29d858807035c4ecfebfb6de72feb8a2975942c"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/zhongli.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/zhongli/zhongli.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/zhongli/zhongli.go",
+        "gitBlobSha1": "3e69f609b2c98caa04bf7ca05003715eef98d472",
+        "sha256": "c3a9e64ac013d1c3e0d8977fd29d858807035c4ecfebfb6de72feb8a2975942c",
+        "size": 1113
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/zhongli/zhongli.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "3e69f609b2c98caa04bf7ca05003715eef98d472",
+        "size": 1113,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/3e69f609b2c98caa04bf7ca05003715eef98d472"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/zhongli/skill.go",
+      "workingSourceSha256": {
+        "classic": "70fc0c75de61ddee99f687c335a0cbcac0cf165e5f9e1cb4f4494b857a635af5",
+        "stellar": "70fc0c75de61ddee99f687c335a0cbcac0cf165e5f9e1cb4f4494b857a635af5"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/skill.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/zhongli/skill.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/zhongli/skill.go",
+        "gitBlobSha1": "8c2740ba95eee73344b3136922edff001c377de2",
+        "sha256": "92308216e3bbac396d85029744cf7ee0f34a09a1b1472c419906d2e22e4c5f34",
+        "size": 2759
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/zhongli/skill.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "8c2740ba95eee73344b3136922edff001c377de2",
+        "size": 2759,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/8c2740ba95eee73344b3136922edff001c377de2"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/zhongli/stele.go",
+      "workingSourceSha256": {
+        "classic": "f45f56489f313bef74b0c5d4cdbd354b71cf09b5e033435e6d903d3313a380cb",
+        "stellar": "f45f56489f313bef74b0c5d4cdbd354b71cf09b5e033435e6d903d3313a380cb"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/stele.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/zhongli/stele.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/zhongli/stele.go",
+        "gitBlobSha1": "a82a8c3c54e4b24fb0b22f84a363cc151fa1f2e3",
+        "sha256": "59c47acee3a2682ea829c5574146b561b972fbeda9ee9a94ebaf9b77794746d9",
+        "size": 4366
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/zhongli/stele.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "a82a8c3c54e4b24fb0b22f84a363cc151fa1f2e3",
+        "size": 4366,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/a82a8c3c54e4b24fb0b22f84a363cc151fa1f2e3"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/zhongli/construct.go",
+      "workingSourceSha256": {
+        "classic": "171b364ed6046ffc5309385867b1364cb1c34afcd12f884b77dfc7e546a1416a",
+        "stellar": "171b364ed6046ffc5309385867b1364cb1c34afcd12f884b77dfc7e546a1416a"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/construct.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/zhongli/construct.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/zhongli/construct.go",
+        "gitBlobSha1": "b9734f0609616ee3fd9b8e432b609384a3614c8c",
+        "sha256": "171b364ed6046ffc5309385867b1364cb1c34afcd12f884b77dfc7e546a1416a",
+        "size": 845
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/zhongli/construct.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b9734f0609616ee3fd9b8e432b609384a3614c8c",
+        "size": 845,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/b9734f0609616ee3fd9b8e432b609384a3614c8c"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/zhongli/asc.go",
+      "workingSourceSha256": {
+        "classic": "e00fa56d05801c45bcb63b723ddde6eb921109b894bc2024c6939b5f07c79bd2",
+        "stellar": "e00fa56d05801c45bcb63b723ddde6eb921109b894bc2024c6939b5f07c79bd2"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/asc.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/zhongli/asc.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/zhongli/asc.go",
+        "gitBlobSha1": "4bdc70f6dc45e19c52169582caedeac645af7870",
+        "sha256": "1bc6ef2c7264cbb7e41a5545a950d72246db40cce28e42d0c2c8467856ad622f",
+        "size": 1169
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/zhongli/asc.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "4bdc70f6dc45e19c52169582caedeac645af7870",
+        "size": 1169,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4bdc70f6dc45e19c52169582caedeac645af7870"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "internal/characters/zhongli/shield.go",
+      "workingSourceSha256": {
+        "classic": "dcb48161e1ed8bdf40e07e11cb266520daf705d03b6d8d6a32a005685e0f0817",
+        "stellar": "dcb48161e1ed8bdf40e07e11cb266520daf705d03b6d8d6a32a005685e0f0817"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/shield.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/zhongli/shield.go"
+      },
+      "classicOriginalBlob": {
+        "path": "internal/characters/zhongli/shield.go",
+        "gitBlobSha1": "cdfaf9124b331fc99220748bcaed78a4c403bcc1",
+        "sha256": "ad4ce0f3797320c9d38374488628b46325e8367e9af124ec1ff57635654e2b60",
+        "size": 2575
+      },
+      "stellarOriginalBlob": {
+        "path": "internal/characters/zhongli/shield.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "cdfaf9124b331fc99220748bcaed78a4c403bcc1",
+        "size": 2575,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/cdfaf9124b331fc99220748bcaed78a4c403bcc1"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "pkg/core/construct/construct.go",
+      "workingSourceSha256": {
+        "classic": "63491d0e253be27f01ab29fd6549d085516245d33555f590f3895b54229ebdc4",
+        "stellar": "63491d0e253be27f01ab29fd6549d085516245d33555f590f3895b54229ebdc4"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/construct/construct.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/construct/construct.go"
+      },
+      "classicOriginalBlob": {
+        "path": "pkg/core/construct/construct.go",
+        "gitBlobSha1": "b0bee52bac1e420100dd8e6bfd11ecd374912da4",
+        "sha256": "63491d0e253be27f01ab29fd6549d085516245d33555f590f3895b54229ebdc4",
+        "size": 1162
+      },
+      "stellarOriginalBlob": {
+        "path": "pkg/core/construct/construct.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "b0bee52bac1e420100dd8e6bfd11ecd374912da4",
+        "size": 1162,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/b0bee52bac1e420100dd8e6bfd11ecd374912da4"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "pkg/core/construct/handler.go",
+      "workingSourceSha256": {
+        "classic": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+        "stellar": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/construct/handler.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/construct/handler.go"
+      },
+      "classicOriginalBlob": {
+        "path": "pkg/core/construct/handler.go",
+        "gitBlobSha1": "42bbbd11620db6dabc598e5e0dbfddab4c0ef490",
+        "sha256": "eb29ffb74b0dee10fb92d4acf439c64ce476c083db180b189c3c1dc00b81fc68",
+        "size": 5432
+      },
+      "stellarOriginalBlob": {
+        "path": "pkg/core/construct/handler.go",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "42bbbd11620db6dabc598e5e0dbfddab4c0ef490",
+        "size": 5432,
+        "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/42bbbd11620db6dabc598e5e0dbfddab4c0ef490"
+      },
+      "originalBlobIdentical": true
+    },
+    {
+      "path": "pkg/core/construct/sourcehost_phase.go",
+      "workingSourceSha256": {
+        "classic": "38501db9d4518b04ec39a586d86ee54301da5df0d9a2960ce773f8ab5fe4d931",
+        "stellar": "38501db9d4518b04ec39a586d86ee54301da5df0d9a2960ce773f8ab5fe4d931"
+      },
+      "refs": {
+        "classic": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/construct/sourcehost_phase.go",
+        "stellar": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/construct/sourcehost_phase.go"
+      }
+    }
+  ],
+  "staticChecks": {
+    "classicSourcePatchApplyCheck": "passed",
+    "stellarSourcePatchApplyCheck": "passed",
+    "repositoryPatchApplyCheckOnCapturedBeforeTree": "passed",
+    "gofmt": "26 private Go files; no compile or execution"
+  },
+  "integrationStatus": "Integrated; both source builds, registry, Web/typecheck and focused aggregate browser check passed within recorded scope.",
+  "independentReview": "Focused read-only source review found no concrete blockers before integration; no runtime claim.",
+  "measurements": "docs/validation/source-construct-ownership-measurements-20260930.json"
+}

@@ -1,0 +1,41 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 227 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                     28.64 kB │ gzip:   9.08 kB
+dist/assets/analysis-worker-BrL_3ACF.js          1,657.29 kB
+dist/assets/simulation-worker-C4Pcpjve.js        1,657.85 kB
+dist/assets/lunar-simulation-worker-dPNZdu8B.js  1,663.31 kB
+dist/assets/calculator-ui-jeQkqw6-.css               5.81 kB │ gzip:   1.52 kB
+dist/assets/index-BGY1UedR.css                      11.85 kB │ gzip:   3.32 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js             0.15 kB │ gzip:   0.15 kB
+dist/assets/update-panel--jnJZKtC.js                 5.37 kB │ gzip:   2.69 kB
+dist/assets/lunar-simulation-panel-zXx8U8Lz.js      34.02 kB │ gzip:  11.89 kB
+dist/assets/calculator-ui-BYtk7XF8.js               51.31 kB │ gzip:  17.88 kB
+dist/assets/equipment-controls-Cn4G3zA3.js         115.16 kB │ gzip:  36.00 kB
+dist/assets/supplemental-DQ283TAg.js               341.66 kB │ gzip:  69.02 kB
+dist/assets/character-calculations-BU2xTmTx.js     595.85 kB │ gzip:  82.69 kB
+dist/assets/index-CGCJ1YsR.js                    1,042.36 kB │ gzip: 263.50 kB
+dist/assets/src-BPziOIWG.js                      1,127.60 kB │ gzip: 243.59 kB
+dist/assets/catalog-CwrkCGJ2.js                  1,971.38 kB │ gzip: 319.06 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0m../../packages/sim-core/src/calculator-bridge.ts is dynamically imported by src/app.ts but also statically imported by ../../packages/sim-core/src/index.ts, dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 307ms

@@ -1,0 +1,467 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "source-backed-provisional",
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "scope": "Source audit of generic player shields and actual avatar incoming-hit path. Character shield definitions and talent tables are source candidates only, not implemented or game verified.",
+  "archivePath": "packages/game-data/sources/player-shield-runtime/source.json.gz",
+  "archiveSha256": "5ed8fb56a249b95a9b64b81333adbae4d6d01097e02fb6b62369535e1f940ebe",
+  "archiveBytes": 35578,
+  "archivedFileCount": 40,
+  "pinnedGitTree": {
+    "sha": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "url": "https://api.github.com/repos/genshinsim/gcsim/git/trees/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "truncated": false,
+    "savedTreeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "verificationMethod": "Every exact source byte sequence was recomputed as a Git blob and matched against its fixed tree path before archival."
+  },
+  "sourceConflicts": [
+    {
+      "id": "geo-absorption-selector",
+      "path": "pkg/core/player/shield/template.go",
+      "lines": [
+        48,
+        53,
+        59,
+        64
+      ],
+      "finding": "ShieldStrength selects 1.5 by shield Geo element; actual OnDamage selects 1.5 by incoming Geo element. These are not equivalent."
+    },
+    {
+      "id": "noelle-source-elements",
+      "paths": [
+        "internal/characters/noelle/shield.go",
+        "internal/characters/noelle/asc.go",
+        "pkg/core/attributes/element.go"
+      ],
+      "finding": "Noelle skill shield never sets Ele, leaving zero-valued Electro; Noelle A1 explicitly sets Cryo. Neither can silently certify a game-correct Geo shield."
+    },
+    {
+      "id": "bonus-callback-done",
+      "path": "pkg/core/player/shield/bonus.go",
+      "lines": [
+        16,
+        21,
+        23
+      ],
+      "finding": "A bonus callback returning done=true contributes to this read but is removed immediately; Zhongli/Thoma A1 and Geo resonance contain true-returning callbacks."
+    },
+    {
+      "id": "expiry-equality-and-hitlag",
+      "path": "pkg/core/player/shield/handler.go",
+      "lines": [
+        54,
+        146,
+        150
+      ],
+      "finding": "Only expiry==currentFrame is removed by Tick; damage has no independent expiry check. Hitlag handling is an explicit TODO."
+    }
+  ],
+  "files": [
+    {
+      "path": "pkg/core/player/shield/handler.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 3879,
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "gitBlobSha1": "221aca329c9195f99fe715958666a7c56485551e",
+      "pinnedTreeBlobSha1": "221aca329c9195f99fe715958666a7c56485551e",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go"
+    },
+    {
+      "path": "pkg/core/player/shield/template.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 1312,
+      "sha256": "fe8f488d85ea876e463ab735f14a9837751ea24f9681fa076a74242686d2051a",
+      "gitBlobSha1": "1846dda0b9afbcbd92f0d8a9a4a79885e1eea88c",
+      "pinnedTreeBlobSha1": "1846dda0b9afbcbd92f0d8a9a4a79885e1eea88c",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/template.go"
+    },
+    {
+      "path": "pkg/core/player/shield/bonus.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 2284,
+      "sha256": "b1dd22330c876b9fea5fed6911986379975ac2e60603c345ff08594865105e13",
+      "gitBlobSha1": "4bf733819d252e21024d2686adc4f0fc7ce52259",
+      "pinnedTreeBlobSha1": "4bf733819d252e21024d2686adc4f0fc7ce52259",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/bonus.go"
+    },
+    {
+      "path": "pkg/core/player/shield/shield.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 995,
+      "sha256": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "gitBlobSha1": "da348fbe9ea93b8cd2307df419e27eb2168b00f9",
+      "pinnedTreeBlobSha1": "da348fbe9ea93b8cd2307df419e27eb2168b00f9",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/shield.go"
+    },
+    {
+      "path": "pkg/core/player/hurt.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 15,
+      "sha256": "22c2e64f2f0e7e53813715742f64916875fdfc899f4b269017373d7318c7dad3",
+      "gitBlobSha1": "5d9ce2c78a110babf6d295cee27183b772c2a896",
+      "pinnedTreeBlobSha1": "5d9ce2c78a110babf6d295cee27183b772c2a896",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/hurt.go"
+    },
+    {
+      "path": "pkg/avatar/avatar.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 9142,
+      "sha256": "f51bd8b2ceeca69ce02e4197eea117a309be6fb891d91bd26caedf595e47d31a",
+      "gitBlobSha1": "1dba308928e854d119711d74bc3d4f6c82ced23d",
+      "pinnedTreeBlobSha1": "1dba308928e854d119711d74bc3d4f6c82ced23d",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/avatar/avatar.go"
+    },
+    {
+      "path": "pkg/simulation/setup.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 18223,
+      "sha256": "14d39712021e9e149ff7c3a5d0e042b7150087e825dac2bb8fd9268e1eeeba67",
+      "gitBlobSha1": "755daf1278b5bd697f9ae8533fca9b0f15525d5f",
+      "pinnedTreeBlobSha1": "755daf1278b5bd697f9ae8533fca9b0f15525d5f",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/setup.go"
+    },
+    {
+      "path": "pkg/core/player/heal.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 447,
+      "sha256": "39231033df792ba3165ed9e569e9d7747a83209879b53f1e799bef9ce896eadd",
+      "gitBlobSha1": "47a3027f612b3cde7112db86ffd09792fd9589df",
+      "pinnedTreeBlobSha1": "47a3027f612b3cde7112db86ffd09792fd9589df",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/heal.go"
+    },
+    {
+      "path": "internal/template/character/heal.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 2632,
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "gitBlobSha1": "f8b39ba0edc7532e3f955520c42914baafba472a",
+      "pinnedTreeBlobSha1": "f8b39ba0edc7532e3f955520c42914baafba472a",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+      "pinnedTreeBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "pinnedTreeBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "path": "pkg/core/event/event.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "gitBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88",
+      "pinnedTreeBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go"
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+      "pinnedTreeBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go"
+    },
+    {
+      "path": "pkg/core/attributes/element.go",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 1623,
+      "sha256": "f8bb0945fd69486d8718f9863be489d57818d7732b15210c8ec68c69efcb2065",
+      "gitBlobSha1": "98a0c1515d5fa5febd71521476c856456646e876",
+      "pinnedTreeBlobSha1": "98a0c1515d5fa5febd71521476c856456646e876",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/element.go"
+    },
+    {
+      "path": "LICENSE",
+      "evidenceRole": "generic-handler-and-entry",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "pinnedTreeBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "path": "internal/characters/noelle/shield.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 884,
+      "sha256": "ad21509e87cda3e0a10add0e22c2fa6a82d64fce40a6ec13029826b2b23a78fa",
+      "gitBlobSha1": "9d38c58cebe93456fb503509f36ba5fdc5c85572",
+      "pinnedTreeBlobSha1": "9d38c58cebe93456fb503509f36ba5fdc5c85572",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/shield.go"
+    },
+    {
+      "path": "internal/characters/noelle/skill.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 4082,
+      "sha256": "cec083f6050a1a2eba01fd2750138d0fd44b4c0183647c4391df29a68ebece94",
+      "gitBlobSha1": "8479f76df853921a34a1a6ec671cb8b759ec7dd8",
+      "pinnedTreeBlobSha1": "8479f76df853921a34a1a6ec671cb8b759ec7dd8",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/skill.go"
+    },
+    {
+      "path": "internal/characters/noelle/asc.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2185,
+      "sha256": "f06a358e6610eec48279f7bf87247935f90142c425dac47dcb09a698f9750809",
+      "gitBlobSha1": "1f996e569e9c91a6a4108c290943895c9a955552",
+      "pinnedTreeBlobSha1": "1f996e569e9c91a6a4108c290943895c9a955552",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/asc.go"
+    },
+    {
+      "path": "internal/characters/noelle/config.yml",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 5163,
+      "sha256": "fa7936b527e52cc88b869d3075415e93c3e0bf922e0b6907c4dcaa9388c42ff3",
+      "gitBlobSha1": "fc2584ff204e91480283b8323da795bfcc75a785",
+      "pinnedTreeBlobSha1": "fc2584ff204e91480283b8323da795bfcc75a785",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/config.yml"
+    },
+    {
+      "path": "internal/characters/noelle/zz_noelle.dm.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 5059,
+      "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe",
+      "gitBlobSha1": "b98c2ce27278494a2aeefddaf571119a47d59240",
+      "pinnedTreeBlobSha1": "b98c2ce27278494a2aeefddaf571119a47d59240",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/zz_noelle.dm.go"
+    },
+    {
+      "path": "internal/characters/zhongli/shield.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2575,
+      "sha256": "ad4ce0f3797320c9d38374488628b46325e8367e9af124ec1ff57635654e2b60",
+      "gitBlobSha1": "cdfaf9124b331fc99220748bcaed78a4c403bcc1",
+      "pinnedTreeBlobSha1": "cdfaf9124b331fc99220748bcaed78a4c403bcc1",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/shield.go"
+    },
+    {
+      "path": "internal/characters/zhongli/skill.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2759,
+      "sha256": "92308216e3bbac396d85029744cf7ee0f34a09a1b1472c419906d2e22e4c5f34",
+      "gitBlobSha1": "8c2740ba95eee73344b3136922edff001c377de2",
+      "pinnedTreeBlobSha1": "8c2740ba95eee73344b3136922edff001c377de2",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/skill.go"
+    },
+    {
+      "path": "internal/characters/zhongli/asc.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 1169,
+      "sha256": "1bc6ef2c7264cbb7e41a5545a950d72246db40cce28e42d0c2c8467856ad622f",
+      "gitBlobSha1": "4bdc70f6dc45e19c52169582caedeac645af7870",
+      "pinnedTreeBlobSha1": "4bdc70f6dc45e19c52169582caedeac645af7870",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/asc.go"
+    },
+    {
+      "path": "internal/characters/zhongli/config.yml",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 3735,
+      "sha256": "26f116ef4fda71d21921cd6542214f40a4ca09d5fd6c3b233691dee03d1799e6",
+      "gitBlobSha1": "81fcf4a9ec4ebdb5c04b455f9c4dcf541facd4b4",
+      "pinnedTreeBlobSha1": "81fcf4a9ec4ebdb5c04b455f9c4dcf541facd4b4",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/config.yml"
+    },
+    {
+      "path": "internal/characters/zhongli/zz_zhongli.dm.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 3780,
+      "sha256": "2d63c513c62c94b099d46d28502b5a9bd4c0b6f945f9d2e3442f8e121a526b2b",
+      "gitBlobSha1": "27bd31d67006f509a33a02a5006231af23f66870",
+      "pinnedTreeBlobSha1": "27bd31d67006f509a33a02a5006231af23f66870",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/zz_zhongli.dm.go"
+    },
+    {
+      "path": "internal/characters/diona/skill.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 4916,
+      "sha256": "ee1b2a33b6795a9ab2a661ef51b5c97e552db0dcdd299be58bff6f4560e3451e",
+      "gitBlobSha1": "48b91cf77b142b287c76e33bff8ed8d4f5d6e320",
+      "pinnedTreeBlobSha1": "48b91cf77b142b287c76e33bff8ed8d4f5d6e320",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/skill.go"
+    },
+    {
+      "path": "internal/characters/diona/config.yml",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 3684,
+      "sha256": "3cb71636ad41c94c56815b0c08d9766bc6f430fead0cc9e802ad9d82d043ab34",
+      "gitBlobSha1": "5c141eae3615f45ffff52f864a63bd37f4b77d3d",
+      "pinnedTreeBlobSha1": "5c141eae3615f45ffff52f864a63bd37f4b77d3d",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/config.yml"
+    },
+    {
+      "path": "internal/characters/diona/zz_diona.dm.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 4261,
+      "sha256": "2601720c0cc0d1b6efdf9e59f3659dc4261ec229a7c8a55a561e267f4a740683",
+      "gitBlobSha1": "ffb390897c629506758cc70a98d28050f6a4fd82",
+      "pinnedTreeBlobSha1": "ffb390897c629506758cc70a98d28050f6a4fd82",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/zz_diona.dm.go"
+    },
+    {
+      "path": "internal/characters/thoma/shield.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 1592,
+      "sha256": "05bf22fc076ad5a140817996da0ecb573b389acd4fe5e05703026fccaca85586",
+      "gitBlobSha1": "96e36e5105721388f8aa3b2215db1f98ee0de4df",
+      "pinnedTreeBlobSha1": "96e36e5105721388f8aa3b2215db1f98ee0de4df",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/shield.go"
+    },
+    {
+      "path": "internal/characters/thoma/skill.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2637,
+      "sha256": "495df1599b6646a8d1754fe99896de195203f1988cb6a0d1f7a19402bfed3e64",
+      "gitBlobSha1": "e73636f7a4d656fa7b221641d1c550b957fe5686",
+      "pinnedTreeBlobSha1": "e73636f7a4d656fa7b221641d1c550b957fe5686",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/skill.go"
+    },
+    {
+      "path": "internal/characters/thoma/burst.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2746,
+      "sha256": "dcc7ef53541bb38ab88e3b01842bd00ea48674055eca9938ced651c2575d4a80",
+      "gitBlobSha1": "9b10eba6b33c200e986301c161eb178c1ff233d2",
+      "pinnedTreeBlobSha1": "9b10eba6b33c200e986301c161eb178c1ff233d2",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/burst.go"
+    },
+    {
+      "path": "internal/characters/thoma/thoma.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 1612,
+      "sha256": "8155c44b224c00b20294239558cfb948a30396bf6f11cbb01544a3d6292037ca",
+      "gitBlobSha1": "5f586acb38f0c8852d3870c2fc8bab0830acc003",
+      "pinnedTreeBlobSha1": "5f586acb38f0c8852d3870c2fc8bab0830acc003",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/thoma.go"
+    },
+    {
+      "path": "internal/characters/thoma/asc.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 882,
+      "sha256": "fd4203fe6f09b38a36100afaaffa202285ed20cbfa2997b247accf1d39a9f49e",
+      "gitBlobSha1": "8179b9d393699cdf5c49401fd8762c4ef7914c2d",
+      "pinnedTreeBlobSha1": "8179b9d393699cdf5c49401fd8762c4ef7914c2d",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/asc.go"
+    },
+    {
+      "path": "internal/characters/thoma/config.yml",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2363,
+      "sha256": "141682f609d5c43b6589f3d38ea9ca51f6a919addd1217aa01364bd23a7a8bcf",
+      "gitBlobSha1": "a2ae33d1cb8d0a46b26e8cefd895450c8645e535",
+      "pinnedTreeBlobSha1": "a2ae33d1cb8d0a46b26e8cefd895450c8645e535",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/config.yml"
+    },
+    {
+      "path": "internal/characters/thoma/zz_thoma.dm.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 4451,
+      "sha256": "2af90aa8b53ccae183a0f7c2bc55621e97c5f063ea1519bc581eb6bac1e150be",
+      "gitBlobSha1": "b526cb94a7018dc00634aa3e9958b9b6dcebfa48",
+      "pinnedTreeBlobSha1": "b526cb94a7018dc00634aa3e9958b9b6dcebfa48",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/thoma/zz_thoma.dm.go"
+    },
+    {
+      "path": "internal/characters/layla/shield.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 4930,
+      "sha256": "d6d893527006002a0d6cea461b8c84061167cc2fcbedfa09e8fa52ac582461a4",
+      "gitBlobSha1": "c7e5e1dd03855b1a100e3a309c5212467b8c861b",
+      "pinnedTreeBlobSha1": "c7e5e1dd03855b1a100e3a309c5212467b8c861b",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/shield.go"
+    },
+    {
+      "path": "internal/characters/layla/skill.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2601,
+      "sha256": "6a68351d2c7e8e88f460ca32e6b24a032113063c46f3e716d70e5d41b3de5f0b",
+      "gitBlobSha1": "2985f8c157bdaaf94b887bbeccad3657e2111e2b",
+      "pinnedTreeBlobSha1": "2985f8c157bdaaf94b887bbeccad3657e2111e2b",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/skill.go"
+    },
+    {
+      "path": "internal/characters/layla/asc.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 910,
+      "sha256": "432b2f142d83aca3737cf9a3a65dbdaf1f36a7b27eb882af9a363fb78bd05439",
+      "gitBlobSha1": "191c4b775981d7b0f6724ac59439e0bd522ff1cb",
+      "pinnedTreeBlobSha1": "191c4b775981d7b0f6724ac59439e0bd522ff1cb",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/asc.go"
+    },
+    {
+      "path": "internal/characters/layla/config.yml",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 2419,
+      "sha256": "7232778355d9f34b9a4e0480c6d5bd07619c25e522f4cb333183c808881a9983",
+      "gitBlobSha1": "9bdb51cfe563af82679bd35ed10f362d89d2a5b6",
+      "pinnedTreeBlobSha1": "9bdb51cfe563af82679bd35ed10f362d89d2a5b6",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/config.yml"
+    },
+    {
+      "path": "internal/characters/layla/zz_layla.dm.go",
+      "evidenceRole": "character-shield-source-only-not-implemented",
+      "bytes": 3288,
+      "sha256": "7f773f7980f4faab7372f456c4be022d24e1abcf7012f8ed19de774da251760d",
+      "gitBlobSha1": "cfa261011a88d3be328fb796e00d1b59c16d97ba",
+      "pinnedTreeBlobSha1": "cfa261011a88d3be328fb796e00d1b59c16d97ba",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/zz_layla.dm.go"
+    }
+  ],
+  "validation": {
+    "sourceIdentityVerificationOnly": true,
+    "testsExecuted": 0,
+    "buildsExecuted": 0,
+    "externalSimulationsExecuted": 0
+  }
+}

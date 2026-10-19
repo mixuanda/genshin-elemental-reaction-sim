@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 1,
+  "round": 114,
+  "batch": "c",
+  "status": "private delayed source-site patch proposal; default git apply --check passed on both verified pre-talent/pre114 roots; no basis mutation or build/tests",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-2OdtDV/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-4ao2p7/source"
+  },
+  "sourceReceipts": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch114/classic/receipt.json",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch114/stellar/receipt.json"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/charlotte/cons.go": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a",
+      "internal/characters/charlotte/charlotte.go": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8",
+      "internal/characters/faruzan/cons.go": "9bc6e92b476328268deffda19ac068256746a3b710588390cb75697dac24a2fd",
+      "internal/characters/faruzan/skill.go": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+      "internal/characters/faruzan/aimed.go": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+      "internal/characters/faruzan/faruzan.go": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+      "internal/characters/faruzan/burst.go": "5bda43946648145e7cbe84aa7a68ba6f92af736f952dfffc52e991aefdf038e6"
+    },
+    "stellar": {
+      "internal/characters/charlotte/cons.go": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a",
+      "internal/characters/charlotte/charlotte.go": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8",
+      "internal/characters/faruzan/cons.go": "9bc6e92b476328268deffda19ac068256746a3b710588390cb75697dac24a2fd",
+      "internal/characters/faruzan/skill.go": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+      "internal/characters/faruzan/aimed.go": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+      "internal/characters/faruzan/faruzan.go": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+      "internal/characters/faruzan/burst.go": "f580032eb42325ec74a8083fae30133cead70d79c497fc9fededb0567c68236f"
+    }
+  },
+  "patchStage": "After patches through 113; before SourceHostTalentRead auto-instrumentation and batch114 patches",
+  "nativeHelpers": {
+    "label": "Core.SourceHostLabelEventListener(siteID string, args ...any)",
+    "fact": "Core.SourceHostEventListenerFact(key string, value float64)",
+    "task": "Core.SourceHostQueueEventTask(siteID string, f func(), delay int)",
+    "attack": "Core.SourceHostQueueEventAttack(siteID string, original QueueAttack args...)",
+    "attackWithSnap": "Core.SourceHostQueueEventAttackWithSnap(siteID string, original QueueAttackWithSnap args...)"
+  },
+  "components": [
+    {
+      "id": "charlotte-c6",
+      "family": "charlotte-c6",
+      "character": "charlotte",
+      "kind": "delayed",
+      "eventType": "OnEnemyDamage",
+      "siteId": "charlotte.c6.enemy-damage",
+      "key": "charlotte-c6",
+      "producerSite": "charlotte.c6.followup-task",
+      "producerEmitSite": "charlotte.c6.followup-attack",
+      "ability": "A Summation of Interest (C6)",
+      "fullAttackTagName": "AttackTagElementalBurst",
+      "producerCountFact": "charlotte.c6.enemy-damage.producer-count",
+      "allowedProducerCounts": [
+        0,
+        1
+      ],
+      "producerDelayFrames": 14,
+      "producerAttackCount": 1,
+      "task": {
+        "nativeQueue": "Core.Tasks.Add",
+        "helper": "Core.SourceHostQueueEventTask",
+        "delay": 14,
+        "nestedDamageTasks": false,
+        "runTimeAttackGate": false,
+        "callBinding": "Original core task is scheduled synchronously by the selected listener call; task body unconditionally queues the one attack before its optional heal branch."
+      },
+      "queue": {
+        "original": "Core.QueueAttack",
+        "helper": "Core.SourceHostQueueEventAttack",
+        "snapshotDelay": 0,
+        "damageDelay": 0,
+        "hitPattern": "combat.NewCircleHitOnTarget(pos, nil, c6AttackRadius)",
+        "radius": 3.5,
+        "callbacks": [],
+        "positionTiming": "original target Pos() captured once during listener before task schedule"
+      },
+      "registration": "Init installs c6 only at constellation >= 6; no skill/burst cast creates this listener.",
+      "zeroProducerWhen": [
+        "trigger target is not enemy",
+        "Charlotte C6 ICD active",
+        "target lacks hold-skill mark",
+        "trigger actor is not current active actor",
+        "trigger tag is neither AttackTagNormal nor AttackTagExtra"
+      ],
+      "sameListenerEffects": [
+        "set original 360-frame C6 ICD before creating AttackInfo and scheduling task"
+      ],
+      "sameTaskEffects": [
+        "after queue, original player-in-radius-5 check can heal the current active character for 0.42 TotalAtk and original heal bonus"
+      ],
+      "sourceRefs": [
+        "internal/characters/charlotte/charlotte.go:31-45",
+        "internal/characters/charlotte/cons.go:15-21",
+        "internal/characters/charlotte/cons.go:135-196",
+        "internal/characters/charlotte/cons.go:23-69"
+      ],
+      "scopeNotes": [
+        "Component covers exactly the selected listener call, zero or one native core task at +14, and the task's one direct queued attack.",
+        "Attack count per executed producer is the audited constant 1, not a count inferred from observed queues; no producer facts or nested producer support is required.",
+        "Listener producer-count fact is written only during the listener, before task scheduling; no listener fact is attempted from task execution.",
+        "The attack emit label is closed by SourceHostQueueEventAttack before optional healing executes.",
+        "C6 healing, OnHeal listener effects, Charlotte C1 recurring healing tasks/status lifetime, hold-skill mark ownership/lifetime, and complete skill/burst/constellation lifecycle remain excluded.",
+        "No queued attack hit callback exists at this site; subsequent damage reactions/events remain separate components."
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "laneCoverage": [
+        "classic",
+        "stellar"
+      ],
+      "sourceHashesSha256": {
+        "classic": {
+          "internal/characters/charlotte/cons.go": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a",
+          "internal/characters/charlotte/charlotte.go": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8"
+        },
+        "stellar": {
+          "internal/characters/charlotte/cons.go": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a",
+          "internal/characters/charlotte/charlotte.go": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8"
+        }
+      }
+    },
+    {
+      "id": "faruzan-c6-collapse",
+      "family": "faruzan-c6-collapse",
+      "character": "faruzan",
+      "kind": "delayed",
+      "eventType": "OnEnemyDamage",
+      "siteId": "faruzan.c6.enemy-damage",
+      "key": "faruzan-c6-hook",
+      "producerSite": "faruzan.c6.collapse-task",
+      "producerEmitSite": "faruzan.c6.collapse-attack",
+      "ability": "Pressurized Collapse",
+      "fullAttackTagName": "AttackTagElementalArt",
+      "producerCountFact": "faruzan.c6.enemy-damage.producer-count",
+      "allowedProducerCounts": [
+        0,
+        1
+      ],
+      "producerDelayFrames": 33,
+      "producerAttackCount": 1,
+      "task": {
+        "nativeQueue": "Core.Tasks.Add",
+        "helper": "Core.SourceHostQueueEventTask",
+        "delay": 33,
+        "delayExpression": "vortexHitmark",
+        "nestedDamageTasks": false,
+        "runTimeAttackGate": false,
+        "callBinding": "Listener immediately invokes pressurizedCollapse with sourceHostEvent=true. Shared helper schedules the original core task synchronously while selected event call remains active."
+      },
+      "queue": {
+        "original": "Core.QueueAttackWithSnap",
+        "helper": "Core.SourceHostQueueEventAttackWithSnap",
+        "snapshot": "original c.Snapshot(&ai) executes immediately at shared helper entry before delayed task",
+        "damageDelay": 0,
+        "hitPattern": "combat.NewCircleHitOnTarget(pos, nil, 6)",
+        "radius": 6,
+        "callbacks": [
+          "c.makeC4Callback()",
+          "shredCb (applyBurstShredCb iff original ascension guard passes)",
+          "c.particleCB"
+        ],
+        "callbackEvaluationTiming": "makeC4Callback remains evaluated once at task execution; shredCb choice remains at helper entry"
+      },
+      "registration": "Init installs c6Collapse only at constellation >= 6; no burst or skill cast creates this listener.",
+      "zeroProducerWhen": [
+        "trigger damage equals zero",
+        "trigger actor is not current active character",
+        "active character lacks burstBuffKey status",
+        "Faruzan C6 ICD active"
+      ],
+      "sameListenerEffects": [
+        "set original 180-frame C6 ICD with hitlag=false before target position/helper call; source comment says 2.5s but code uses 180 frames and is preserved"
+      ],
+      "sharedHelperCallers": [
+        {
+          "sourceRef": "internal/characters/faruzan/cons.go:78",
+          "caller": "c6Collapse listener",
+          "sourceHostEvent": true,
+          "eventComponent": "faruzan-c6-collapse"
+        },
+        {
+          "sourceRef": "internal/characters/faruzan/aimed.go:94-101",
+          "caller": "Hurricane Arrow hit callback",
+          "sourceHostEvent": false,
+          "eventComponent": null
+        }
+      ],
+      "sourceRefs": [
+        "internal/characters/faruzan/faruzan.go:30-35",
+        "internal/characters/faruzan/cons.go:58-80",
+        "internal/characters/faruzan/skill.go:14-20",
+        "internal/characters/faruzan/skill.go:95-128",
+        "internal/characters/faruzan/aimed.go:94-101",
+        "internal/characters/faruzan/cons.go:17-33",
+        "internal/characters/faruzan/skill.go:84-93",
+        "internal/characters/faruzan/burst.go:152-165"
+      ],
+      "scopeNotes": [
+        "Component covers exactly selected C6 event call, zero or one native core task at +33, and one direct queued Pressurized Collapse attack.",
+        "Shared helper has exactly two native callers. An explicit sourceHostEvent boolean selects event sidecars only for C6; the aimed-shot caller passes false and retains the original Tasks.Add/QueueAttackWithSnap branch.",
+        "Both exclusive branches evaluate the identical original queue arguments once; no getter, snapshot, geometry, RNG, callback evaluation or target selection is duplicated at runtime.",
+        "Fixed producerAttackCount=1 comes from the unconditional task body; no runtime attack gate, nested damage producer, or task-time listener fact is invented.",
+        "C4 callback grants energy, A1 callback applies resistance shred, and particle callback can schedule particle behavior; those callbacks are passed unchanged and their downstream lifetimes/effects are excluded.",
+        "Prior burst-buff ownership/lifetime, C6 critical-damage buff, aimed-shot Collapse, particle lifecycle, shred lifetime and full skill/burst/cast closure remain excluded."
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "laneCoverage": [
+        "classic",
+        "stellar"
+      ],
+      "sourceHashesSha256": {
+        "classic": {
+          "internal/characters/faruzan/cons.go": "9bc6e92b476328268deffda19ac068256746a3b710588390cb75697dac24a2fd",
+          "internal/characters/faruzan/skill.go": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+          "internal/characters/faruzan/aimed.go": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+          "internal/characters/faruzan/faruzan.go": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+          "internal/characters/faruzan/burst.go": "5bda43946648145e7cbe84aa7a68ba6f92af736f952dfffc52e991aefdf038e6"
+        },
+        "stellar": {
+          "internal/characters/faruzan/cons.go": "9bc6e92b476328268deffda19ac068256746a3b710588390cb75697dac24a2fd",
+          "internal/characters/faruzan/skill.go": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+          "internal/characters/faruzan/aimed.go": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+          "internal/characters/faruzan/faruzan.go": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+          "internal/characters/faruzan/burst.go": "f580032eb42325ec74a8083fae30133cead70d79c497fc9fededb0567c68236f"
+        }
+      }
+    }
+  ],
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-c/classic.patch",
+      "sha256": "b9569c5c8b09d5f0245ce7a9b9c8be1241cf69d769088b106d37445ac53b59ca",
+      "bytes": 3313,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-c/classic.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/build-2OdtDV/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "contextOverride": false
+      }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-c/stellar.patch",
+      "sha256": "b9569c5c8b09d5f0245ce7a9b9c8be1241cf69d769088b106d37445ac53b59ca",
+      "bytes": 3313,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-c/stellar.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-4ao2p7/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "contextOverride": false
+      }
+    }
+  },
+  "notes": [
+    "The four patched character files and generated patches are byte-identical across classic/stellar. Read-only Faruzan burst.go context differs at AffectedStat (classic CR versus stellar AnemoP); the callback refs used here have the same line numbers and no burst.go change is proposed.",
+    "Normal unified diffs use three context lines and pass default git apply --check without -C0.",
+    "No direct listener attacks exist at these sites; expected producer count is observed at the actual scheduling branch, while one attack per executed producer is a source-audited constant.",
+    "Existing producer API is sufficient because each selected delayed producer is scheduled while its parent listener is active; neither selected attack depends on a nested producer.",
+    "No guards, gameplay constants, target reads, RNG, snapshot timing, callback timing or damage arguments are changed.",
+    "No build or tests executed; source roots were read only and patch checks did not apply mutations.",
+    "Static source audit and patch applicability do not establish runtime occurrence, full-cast correctness or full lifecycle completion."
+  ]
+}

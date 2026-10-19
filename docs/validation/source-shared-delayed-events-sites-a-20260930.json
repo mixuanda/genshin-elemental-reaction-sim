@@ -1,0 +1,349 @@
+{
+  "schemaVersion": 1,
+  "round": 114,
+  "batch": "A",
+  "status": "private source patches and audit; default git apply --check passed both lanes; no build or tests",
+  "sourceStage": "verified PRE-talent pre114 source exports with 113 patches applied; frozen source roots unchanged",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-2OdtDV/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-4ao2p7/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch114/classic/receipt.json",
+      "sha256": "ee804617987962de4d63c71b26337f77af33eda1834e073037a5b7929933d7cf",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "b0ff397440561e36ea929c6b4c16a3537ff782f41d3a4855e02d124be0df5200"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch114/stellar/receipt.json",
+      "sha256": "9870173ed0652b17d9c510fbc3afc80a06138aecd4bfefbd42b359c47d622eac",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "efcafb18d9dbb8343f054af0ce490ba93856b5aa9bdbeedcd2b6689922237a14"
+    }
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/traveler/common/electro/burst.go": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56",
+      "internal/characters/traveler/common/electro/travelerelectro.go": "b627e2e6ce0b3423f3923842abca2f87f42d1b0946b23ccf04aff38d76435ec6",
+      "internal/characters/traveler/common/electro/cons.go": "312c51e549af66a269459769d357973bdec44090b9c131e327ae21afc043c662",
+      "internal/characters/traveler/common/pyro/skill.go": "d7613291c372fa97fc93a67d2642ef88c65317f4331b01dd9d531ef4612b8416",
+      "internal/characters/traveler/common/pyro/travelerpyro.go": "09c462e8e6a513705d29de5962f867e486b30812e5b62131cd32d0ad873e53cd"
+    },
+    "stellar": {
+      "internal/characters/traveler/common/electro/burst.go": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56",
+      "internal/characters/traveler/common/electro/travelerelectro.go": "b627e2e6ce0b3423f3923842abca2f87f42d1b0946b23ccf04aff38d76435ec6",
+      "internal/characters/traveler/common/electro/cons.go": "312c51e549af66a269459769d357973bdec44090b9c131e327ae21afc043c662",
+      "internal/characters/traveler/common/pyro/skill.go": "e60e46b54d91ba9ef3661c1d46267e00bd4f0dea87a07880df99fa214a52948c",
+      "internal/characters/traveler/common/pyro/travelerpyro.go": "09c462e8e6a513705d29de5962f867e486b30812e5b62131cd32d0ad873e53cd",
+      "internal/characters/odette/cons.go": "736ee8fc6822b1ac484321075d54b13989f4d858c1094f1dc6a4333845850bab",
+      "internal/characters/odette/odette.go": "eb27086f880841a471681fc9bebba35be9d579c8f1080f541a3a71f92af3767b",
+      "internal/characters/odette/stellar.go": "063da35c708feaa39877bfc4c8195106a71443a3916a4688959df2b13e032256",
+      "pkg/core/sourcehost/attack.go": "edbec1c4ddea7179cf2190806731eca6b8b9c825c401137ac3acb6f997cd9f1a"
+    }
+  },
+  "components": [
+    {
+      "id": "traveler-electro-bellowing-thunder",
+      "kind": "direct",
+      "siteId": "traveler.electro.bellowing-thunder.enemy-damage",
+      "key": "travelerelectro-bellowingthunder",
+      "directEmitSite": "traveler.electro.bellowing-thunder.attack",
+      "ability": "Falling Thunder",
+      "attackTag": "AttackTagElementalBurst",
+      "sourcePath": "internal/characters/traveler/common/electro/burst.go",
+      "lanes": [
+        "classic",
+        "stellar"
+      ],
+      "queueOperation": "QueueAttackEvent",
+      "nativeHelper": "SourceHostQueueEventAttackEvent",
+      "queueArguments": [
+        "&atk",
+        "1"
+      ],
+      "damageDelay": 1,
+      "snapshotMode": "shallow copy of existing c.burstAtk preserving its burst snapshot, callback append order and native attack origin",
+      "registrationCreated": "Init invokes burstProc; the subscription is independent of a Burst cast",
+      "registrationSourceRefs": [
+        "internal/characters/traveler/common/electro/travelerelectro.go:39-41",
+        "internal/characters/traveler/common/electro/burst.go:88-95"
+      ],
+      "sourceRefs": [
+        "internal/characters/traveler/common/electro/burst.go:61-77",
+        "internal/characters/traveler/common/electro/burst.go:88-155",
+        "internal/characters/traveler/common/electro/cons.go:12-27",
+        "internal/characters/traveler/common/electro/cons.go:46-69"
+      ],
+      "auditPaths": [
+        "internal/characters/traveler/common/electro/travelerelectro.go",
+        "internal/characters/traveler/common/electro/cons.go"
+      ],
+      "gateEvidence": [
+        "trigger AttackTagNormal or AttackTagExtra",
+        "trigger actor is current active actor",
+        "global travelerelectroburst status duration nonzero",
+        "local listener icd <= current frame"
+      ],
+      "callbackAudit": [
+        "fallingThunderEnergy returns an energy-only callback; active character is read when the callback executes.",
+        "c2 returns nil below C2 or a callback that applies enemy Electro resistance reduction; no damage queue.",
+        "c6Damage runs synchronously before queueing and only mutates multiplier/counters/energy flag.",
+        "c6Energy returns a callback that conditionally grants active-character energy and clears the shared flag; no damage queue."
+      ],
+      "scopeNotes": [
+        "One completed burstProc listener invocation and its single directly queued Falling Thunder AttackEvent only.",
+        "No zero-damage guard exists in this native listener; do not invent one.",
+        "Radius selection reads burstC6WillGiveEnergy before c6Damage mutates it; that order is preserved.",
+        "Initial Burst damage, prior burst snapshot ownership, full global status duration, later procs, energy/resistance modifier lifetimes, downstream reactions and other listeners are excluded."
+      ],
+      "eventType": "OnEnemyDamage",
+      "attackCountFact": "traveler.electro.bellowing-thunder.enemy-damage.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceSha256": {
+        "classic": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56",
+        "stellar": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56"
+      },
+      "patchedSourceSha256": {
+        "classic": "64b5ab901e51023d3c327991d3191e15d2e1bedccbde57bc3188ce10cd75b037",
+        "stellar": "64b5ab901e51023d3c327991d3191e15d2e1bedccbde57bc3188ce10cd75b037"
+      },
+      "countFactSemantics": "Initialize 0 at listener entry; set 1 only at the original direct queue branch. The final fact of a completed listener is the exact source-known direct queue count, independent of AoE target multiplicity.",
+      "fullAttackTagName": "AttackTagElementalBurst"
+    },
+    {
+      "id": "traveler-pyro-scorching-threshold",
+      "kind": "direct",
+      "siteId": "traveler.pyro.scorching-threshold.enemy-damage",
+      "key": "travelerpyro-scorching-threshold",
+      "directEmitSite": "traveler.pyro.scorching-threshold.attack",
+      "ability": "Scorching Threshold",
+      "attackTag": "AttackTagElementalArt",
+      "sourcePath": "internal/characters/traveler/common/pyro/skill.go",
+      "lanes": [
+        "classic",
+        "stellar"
+      ],
+      "queueOperation": "QueueAttack",
+      "nativeHelper": "SourceHostQueueEventAttack",
+      "queueArguments": [
+        "ai",
+        "combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, radius)",
+        "scorchingThresholdHitmarkDelay",
+        "scorchingThresholdHitmarkDelay",
+        "c.particleCB"
+      ],
+      "snapshotDelay": 12,
+      "damageDelay": 12,
+      "registrationCreated": "Init invokes scorchingThresholdOnDamage; the subscription is independent of a Skill cast",
+      "registrationSourceRefs": [
+        "internal/characters/traveler/common/pyro/travelerpyro.go:42-44",
+        "internal/characters/traveler/common/pyro/skill.go:193-194"
+      ],
+      "sourceRefs": [
+        "internal/characters/traveler/common/pyro/skill.go:20-33",
+        "internal/characters/traveler/common/pyro/skill.go:193-251"
+      ],
+      "auditPaths": [
+        "internal/characters/traveler/common/pyro/travelerpyro.go"
+      ],
+      "gateEvidence": [
+        "trigger target asserts as enemy",
+        "scorchingThresholdICDKey inactive",
+        "scoringThresholdKey active",
+        "not BurningDamage or SwirlHydro",
+        "damage nonzero"
+      ],
+      "callbackAudit": [
+        "particleCB returns for a non-enemy or active particle ICD; otherwise sets particle ICD and queues one Pyro particle. No damage queue.",
+        "The same particle callback is also used by the separate tap periodic attack; that separate producer is not part of this listener."
+      ],
+      "scopeNotes": [
+        "One completed scorchingThresholdOnDamage listener invocation and its single directly queued attack only.",
+        "Player-centered area, original ascension/point radius read, and the queue-before-ICD-add ordering are preserved.",
+        "Initial hold attack, tap Blazing Threshold recurrence, Nightsoul consumption/expiry, particles, future procs, downstream reactions and full Skill lifecycle are excluded.",
+        "Classic and Stellar preserve their existing distinct Nightsoul AdditionalTags representation without any formula or tag conversion."
+      ],
+      "eventType": "OnEnemyDamage",
+      "attackCountFact": "traveler.pyro.scorching-threshold.enemy-damage.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceSha256": {
+        "classic": "d7613291c372fa97fc93a67d2642ef88c65317f4331b01dd9d531ef4612b8416",
+        "stellar": "e60e46b54d91ba9ef3661c1d46267e00bd4f0dea87a07880df99fa214a52948c"
+      },
+      "patchedSourceSha256": {
+        "classic": "eb2849b8a11be2d084096511a516a76e6fcdce0c0f3215f5a21b8edc5bae5f85",
+        "stellar": "71f600a101040d0e4dfae3b06360bdad67ece6b0d527cc090b8fe425afd55334"
+      },
+      "countFactSemantics": "Initialize 0 at listener entry; set 1 only at the original direct queue branch. The final fact of a completed listener is the exact source-known direct queue count, independent of AoE target multiplicity.",
+      "fullAttackTagName": "AttackTagElementalArt"
+    },
+    {
+      "id": "odette-c4",
+      "kind": "direct",
+      "siteId": "odette.c4.enemy-damage",
+      "key": "odette-c4",
+      "directEmitSite": "odette.c4.attack",
+      "attackVariants": [
+        {
+          "value": 0,
+          "ability": "Odette C4 (Stellar-Conduct)",
+          "attackTag": "AttackTagDirectStellarConduct",
+          "sourceBranch": "radianceStellarConduct or radianceNone",
+          "fullAttackTagName": "AttackTagDirectStellarConduct"
+        },
+        {
+          "value": 1,
+          "ability": "Odette C4 (Stellar Swirl)",
+          "attackTag": "AttackTagDirectStellarSwirl",
+          "sourceBranch": "radianceStellarSwirl",
+          "fullAttackTagName": "AttackTagDirectStellarSwirl"
+        }
+      ],
+      "attackVariantFact": "odette.c4.enemy-damage.attack-variant",
+      "attackVariantSemantics": "Initialize -1 at listener entry; set 0 in original conduct/none switch branch or 1 in original swirl branch, without repeating getRadiance. Positive attack count requires the exact selected ability/tag pair.",
+      "sourcePath": "internal/characters/odette/cons.go",
+      "lanes": [
+        "stellar"
+      ],
+      "queueOperation": "QueueAttack",
+      "nativeHelper": "SourceHostQueueEventAttack",
+      "queueArguments": [
+        "ai",
+        "ap",
+        "5",
+        "5"
+      ],
+      "snapshotDelay": 5,
+      "damageDelay": 5,
+      "registrationCreated": "Init calls c4Init; callback is registered only when constellation >=4",
+      "registrationSourceRefs": [
+        "internal/characters/odette/odette.go:35-41",
+        "internal/characters/odette/cons.go:230-235"
+      ],
+      "sourceRefs": [
+        "internal/characters/odette/cons.go:14-18",
+        "internal/characters/odette/cons.go:230-290",
+        "internal/characters/odette/stellar.go:12-39"
+      ],
+      "auditPaths": [
+        "internal/characters/odette/odette.go",
+        "internal/characters/odette/stellar.go",
+        "pkg/core/sourcehost/attack.go"
+      ],
+      "gateEvidence": [
+        "enemy target assertion",
+        "AttackEvent assertion",
+        "trigger tag DirectStellarConduct, DirectStellarSwirl or ReactionStellarSwirl",
+        "C4 ICD inactive",
+        "original radiance switch reaches conduct/none or swirl branch"
+      ],
+      "callbackAudit": [
+        "The direct C4 attack has no callbacks and the listener creates no task.",
+        "getRadiance reads existing Polestar-field status then existing Radiance-Swirl status and returns a fixed enum; instrumentation does not repeat it."
+      ],
+      "scopeNotes": [
+        "Stellar-only component, allowed upstream source revision a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd; absent from the Classic source.",
+        "One completed c4Init listener invocation and its one direct coordinated attack only; exact ability/tag pairs depend on the existing radiance switch.",
+        "Native C4 ICD is added before the radiance switch and remains unchanged even on its default return; attack-count remains zero on every return before the queue.",
+        "No zero-damage or different-actor guard exists in this native listener; do not invent either.",
+        "Radiance status ownership/duration, C4 Burst party buff, Dance Double lifecycle, C1/C2/C6 effects, reactions and future coordinated attacks are excluded."
+      ],
+      "eventType": "OnEnemyDamage",
+      "attackCountFact": "odette.c4.enemy-damage.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "sourceCommits": {
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceSha256": {
+        "stellar": "736ee8fc6822b1ac484321075d54b13989f4d858c1094f1dc6a4333845850bab"
+      },
+      "patchedSourceSha256": {
+        "stellar": "00173080f71bd82c1c61e2b19990ceff77fd4807c7f65357f7b7bc369360f2ba"
+      },
+      "countFactSemantics": "Initialize 0 at listener entry; set 1 only at the original direct queue branch. The final fact of a completed listener is the exact source-known direct queue count, independent of AoE target multiplicity.",
+      "attackVariant": {
+        "fact": "odette.c4.enemy-damage.attack-variant",
+        "variants": [
+          {
+            "value": 0,
+            "ability": "Odette C4 (Stellar-Conduct)",
+            "attackTag": "AttackTagDirectStellarConduct"
+          },
+          {
+            "value": 1,
+            "ability": "Odette C4 (Stellar Swirl)",
+            "attackTag": "AttackTagDirectStellarSwirl"
+          }
+        ]
+      }
+    }
+  ],
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-a/114-event-sites-a-classic.patch",
+      "sha256": "6d71f992b5105fa4b3b4ca232302c1bfe76be96a1e557fc79a99053fd0be52ce",
+      "bytes": 2427,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-a/114-event-sites-a-classic.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/build-2OdtDV/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-a/114-event-sites-a-stellar.patch",
+      "sha256": "d1021c8b388d709fa51eab82b0f4096a9493e936e808ff63a7503c7c18f02a7a",
+      "bytes": 3773,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-a/114-event-sites-a-stellar.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-4ao2p7/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    }
+  },
+  "verificationBoundary": [
+    "Only direct queues from one selected completed listener call are in scope; persistent status and complete E/Q lifecycles are excluded.",
+    "Queue count is distinct from AoE target count, hit callbacks, energy/particle delivery and other listeners.",
+    "Original argument expressions, status/RNG/selector reads, callback order, formula operations, target geometry, timing and attack origin are preserved.",
+    "Only listener label/facts and exact native queue helper substitutions are added; no additional getter, selector, RNG read, gameplay branch or formula is introduced.",
+    "Odette output variants are fixed source-proven ability/tag pairs; arbitrary cross-pair combinations are not allowed.",
+    "No runtime execution, native build, replay or game-correctness conclusion is claimed."
+  ]
+}

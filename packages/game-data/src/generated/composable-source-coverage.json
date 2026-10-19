@@ -1,0 +1,673 @@
+{
+  "schemaVersion": "1.0.0",
+  "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "sourceCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "sourceCatalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "registryVersion": "gcsim-b4ae769-composable-abilities-v1",
+  "scope": "composable-source-ability-definitions",
+  "countUnit": "可组合来源能力定义及其命中模板；独立于条件完整动作、完整角色与正式 verified 定义。",
+  "sourceIdentity": {
+    "manifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+    "archiveSha256": "83b7eeec927b4933c660205ba20f29e0af1098f70067553ab49f55700033f7cc",
+    "definitionsSha256": "98c5133929c58b8768487feee7ca4e4c15d408dd219753f033c02ec6cce02001",
+    "repositories": [
+      {
+        "repository": "genshinsim/gcsim",
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      },
+      {
+        "repository": "theBowja/genshin-db",
+        "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf"
+      }
+    ]
+  },
+  "supplementalSourceIdentities": [
+    {
+      "manifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "archiveSha256": "c664fc3b8b4410ccc0a8752a5b5c682c047d159ff1b012a111b93c1ee5d19194",
+      "coefficientsSha256": "44c98556bef7ef369f5c9ecc6abdb741ced2f3942da062b61714fadd115b0f7d",
+      "repositories": [
+        {
+          "repository": "genshinsim/gcsim",
+          "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+        }
+      ]
+    }
+  ],
+  "registeredActions": 57,
+  "executableCharacters": 15,
+  "executableActions": 57,
+  "executableHitDefinitions": 89,
+  "sourceOnlyActions": 0,
+  "sourceOnlyHitDefinitions": 0,
+  "formallyVerifiedActions": 0,
+  "actions": [
+    {
+      "id": "amber-q",
+      "label": "安柏 · 箭雨",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "amber",
+      "kind": "burst",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 18,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "chongyun-q",
+      "label": "重云 · 灵刃·云开星落",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "chongyun",
+      "kind": "burst",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 3,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "keqing-q",
+      "label": "刻晴 · 天街巡游",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "keqing",
+      "kind": "burst",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 10,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "aloy-q",
+      "label": "埃洛伊 · 曙光预言",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "aloy",
+      "kind": "burst",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "zhongli-q",
+      "label": "钟离 · 天星",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "zhongli",
+      "kind": "burst",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "amber-n1",
+      "label": "安柏 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "amber",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "amber-n2",
+      "label": "安柏 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "amber",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "amber-n3",
+      "label": "安柏 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "amber",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "amber-n4",
+      "label": "安柏 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "amber",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "amber-n5",
+      "label": "安柏 · 普攻 N5",
+      "sourceManifestPath": "packages/game-data/sources/composable-source-abilities/manifest.json",
+      "characterSlug": "amber",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源 C0、有效天赋 1–15、实际突破 0–6；面板、等级、配装和队友可编辑。单个静止目标位于本动作所有伤害范围内，无攻速修正或卡肉。"
+    },
+    {
+      "id": "gorou-n1",
+      "label": "五郎 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "gorou",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "gorou-n2",
+      "label": "五郎 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "gorou",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "gorou-n3",
+      "label": "五郎 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "gorou",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "gorou-n4",
+      "label": "五郎 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "gorou",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "kujousara-n1",
+      "label": "九条裟罗 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "kujousara",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "kujousara-n2",
+      "label": "九条裟罗 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "kujousara",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "kujousara-n3",
+      "label": "九条裟罗 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "kujousara",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "kujousara-n4",
+      "label": "九条裟罗 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "kujousara",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "kujousara-n5",
+      "label": "九条裟罗 · 普攻 N5",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "kujousara",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "diona-n1",
+      "label": "迪奥娜 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "diona",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "diona-n2",
+      "label": "迪奥娜 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "diona",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "diona-n3",
+      "label": "迪奥娜 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "diona",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "diona-n4",
+      "label": "迪奥娜 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "diona",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "diona-n5",
+      "label": "迪奥娜 · 普攻 N5",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "diona",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "collei-n1",
+      "label": "柯莱 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "collei",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "collei-n2",
+      "label": "柯莱 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "collei",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "collei-n3",
+      "label": "柯莱 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "collei",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "collei-n4",
+      "label": "柯莱 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "collei",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "faruzan-n1",
+      "label": "珐露珊 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "faruzan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "faruzan-n2",
+      "label": "珐露珊 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "faruzan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "faruzan-n3",
+      "label": "珐露珊 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "faruzan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "faruzan-n4",
+      "label": "珐露珊 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "faruzan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "ganyu-n1",
+      "label": "甘雨 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "ganyu",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "ganyu-n2",
+      "label": "甘雨 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "ganyu",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "ganyu-n3",
+      "label": "甘雨 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "ganyu",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "ganyu-n4",
+      "label": "甘雨 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "ganyu",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "ganyu-n5",
+      "label": "甘雨 · 普攻 N5",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "ganyu",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "ganyu-n6",
+      "label": "甘雨 · 普攻 N6",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "ganyu",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "tighnari-n1",
+      "label": "提纳里 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "tighnari",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "tighnari-n2",
+      "label": "提纳里 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "tighnari",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "tighnari-n3",
+      "label": "提纳里 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "tighnari",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 2,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "tighnari-n4",
+      "label": "提纳里 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "tighnari",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "venti-n1",
+      "label": "温迪 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "venti",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 2,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "venti-n2",
+      "label": "温迪 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "venti",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "venti-n3",
+      "label": "温迪 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "venti",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "venti-n4",
+      "label": "温迪 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "venti",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 2,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "venti-n5",
+      "label": "温迪 · 普攻 N5",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "venti",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "venti-n6",
+      "label": "温迪 · 普攻 N6",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "venti",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "fischl-n1",
+      "label": "菲谢尔 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "fischl",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "fischl-n2",
+      "label": "菲谢尔 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "fischl",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "fischl-n3",
+      "label": "菲谢尔 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "fischl",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "fischl-n4",
+      "label": "菲谢尔 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "fischl",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "fischl-n5",
+      "label": "菲谢尔 · 普攻 N5",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "fischl",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "yelan-n1",
+      "label": "夜兰 · 普攻 N1",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "yelan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "yelan-n2",
+      "label": "夜兰 · 普攻 N2",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "yelan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "yelan-n3",
+      "label": "夜兰 · 普攻 N3",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "yelan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 1,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    },
+    {
+      "id": "yelan-n4",
+      "label": "夜兰 · 普攻 N4",
+      "sourceManifestPath": "packages/game-data/sources/default-bow-normal-family/manifest.json",
+      "characterSlug": "yelan",
+      "kind": "normal",
+      "availability": "executable",
+      "evidenceStatus": "source-provisional",
+      "hitDefinitions": 2,
+      "scope": "固定来源C0、有效普攻天赋1–15、实际突破0–6；单静止且范围内目标，无攻速修正或卡肉。只支持普通物理箭与实际连段，不代表完整角色自动机制。"
+    }
+  ]
+}

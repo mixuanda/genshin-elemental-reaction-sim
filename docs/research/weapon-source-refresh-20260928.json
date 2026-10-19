@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "title": "Upstream formula source refresh for six released weapons",
+  "checkedAt": "2026-09-28",
+  "method": {
+    "identity": "The six exact released item IDs and dataset slugs from equipment-execution-gaps-20260928.json were matched against current upstream source trees. Names alone were not treated as identities.",
+    "formulaEvidence": "Only typed simulation or optimizer formulas count as formula sources. Localized passive descriptions and database fields are metadata, not formulas; no formula semantics are inferred from them.",
+    "retrieval": "Fetched GitHub recursive tree metadata for upstream HEAD and inspected matching paths; no whole repositories, archives, or unrelated file bodies were downloaded. Since no new formula files were found, the refresh source folder contains no copied upstream implementation."
+  },
+  "priorGapFile": "docs/research/equipment-execution-gaps-20260928.json",
+  "weapons": [
+    {
+      "id": 11437,
+      "slug": "newbough",
+      "name": "New Bough"
+    },
+    {
+      "id": 11438,
+      "slug": "silverlight",
+      "name": "Silver Light"
+    },
+    {
+      "id": 11522,
+      "slug": "beyondthechrysalis",
+      "name": "Beyond the Chrysalis"
+    },
+    {
+      "id": 14437,
+      "slug": "wintersheavyheart",
+      "name": "Winter's Heavy Heart"
+    },
+    {
+      "id": 14524,
+      "slug": "hymnofthemaelstrom",
+      "name": "Hymn of the Maelstrom"
+    },
+    {
+      "id": 15437,
+      "slug": "breezebornerefrain",
+      "name": "Breezeborne Refrain"
+    }
+  ],
+  "upstreamChecks": [
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "treeTruncated": false,
+      "treeEntries": 29284,
+      "treeUrl": "https://api.github.com/repos/frzyc/genshin-optimizer/git/trees/HEAD?recursive=1",
+      "result": "Current upstream HEAD equals the previously fixed source revision; no sheet paths matching any of the six exact slugs exist. No new typed optimizer formula source was located.",
+      "license": "MIT (repository license; no files copied)"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "286685309697cc8904122ec582ea0c3b78f53c7e",
+      "treeTruncated": false,
+      "treeEntries": 5110,
+      "treeUrl": "https://api.github.com/repos/genshinsim/gcsim/git/trees/HEAD?recursive=1",
+      "result": "No implementation paths matching any of the six exact slugs exist in the current recursive source tree. No matching independent typed simulation formula source was located.",
+      "license": "AGPL-3.0-or-later (pinned LICENSE says effective 2026-09-19; no files copied)",
+      "licenseFileUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/286685309697cc8904122ec582ea0c3b78f53c7e/LICENSE",
+      "licenseFileSha256": "bdef457104e8696158ed0f1bf4c165602b8f5db72d6c2f9bf564f21ee90a1906",
+      "licenseNote": "The pinned LICENSE states versions through v2.47.2 were MIT-licensed and points to LICENSE-MIT; the inspected current commit is AGPLv3-or-later."
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "treeTruncated": true,
+      "treeEntriesReturned": 63583,
+      "treeUrl": "https://api.github.com/repos/theBowja/genshin-db/git/trees/HEAD?recursive=1",
+      "result": "Localized weapon metadata files for all six slugs are present, including Chinese Simplified, Chinese Traditional, English and other locales. These are descriptive data, not typed formula implementations; they cannot resolve the source gap by themselves.",
+      "license": "MIT (repository license; no files copied)"
+    }
+  ],
+  "perWeaponFindings": [
+    {
+      "id": 11437,
+      "slug": "newbough",
+      "optimizerFormula": "absent",
+      "gcsimFormula": "absent",
+      "genshinDbMetadata": "present, descriptive only",
+      "formulaArchive": null
+    },
+    {
+      "id": 11438,
+      "slug": "silverlight",
+      "optimizerFormula": "absent",
+      "gcsimFormula": "absent",
+      "genshinDbMetadata": "present, descriptive only",
+      "formulaArchive": null
+    },
+    {
+      "id": 11522,
+      "slug": "beyondthechrysalis",
+      "optimizerFormula": "absent",
+      "gcsimFormula": "absent",
+      "genshinDbMetadata": "present, descriptive only",
+      "formulaArchive": null
+    },
+    {
+      "id": 14437,
+      "slug": "wintersheavyheart",
+      "optimizerFormula": "absent",
+      "gcsimFormula": "absent",
+      "genshinDbMetadata": "present, descriptive only",
+      "formulaArchive": null
+    },
+    {
+      "id": 14524,
+      "slug": "hymnofthemaelstrom",
+      "optimizerFormula": "absent",
+      "gcsimFormula": "absent",
+      "genshinDbMetadata": "present, descriptive only",
+      "formulaArchive": null
+    },
+    {
+      "id": 15437,
+      "slug": "breezebornerefrain",
+      "optimizerFormula": "absent",
+      "gcsimFormula": "absent",
+      "genshinDbMetadata": "present, descriptive only",
+      "formulaArchive": null
+    }
+  ],
+  "archive": {
+    "path": "packages/game-data/sources/weapon-refresh-20260928/",
+    "status": "No newly available matching typed formula source was found, so no upstream implementation file was archived."
+  },
+  "conclusion": "As of the checked upstream HEAD revisions, no new typed formula source closes any of these six equipment gaps. The existing released catalog remains useful for item identity and passive descriptions, but semantic formulas and trigger behavior still require an independently supported implementation source."
+}

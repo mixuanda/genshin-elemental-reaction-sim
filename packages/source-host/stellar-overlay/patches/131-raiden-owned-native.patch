@@ -1,0 +1,201 @@
+--- a/internal/characters/raiden/skill.go
++++ b/internal/characters/raiden/skill.go
+@@ -54,11 +54,16 @@
+ 	// Add pre-damage mod
+ 	mult := skillBurstBonus[c.TalentLvlSkill()]
+ 	m := make([]float64, attributes.EndStatType)
+-	for _, char := range c.Core.Player.Chars() {
++	party := c.Core.Player.Chars()
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact("raiden.skill.party-count", float64(len(party)))
++	}
++	for _, char := range party {
+ 		this := char
+ 		// starts 1s after cd delay
+-		c.Core.Tasks.Add(func() {
+-			this.AddAttackMod(character.AttackMod{
++		c.Core.SourceHostQueueTask("raiden.skill.eye-activate", c.Index(), func() {
++			c.Core.SourceHostAbilityProducerFact("raiden.skill.holder-index", float64(this.Index()))
++			this.SourceHostAddOwnedGeneratorAttackMod("raiden.skill.eye-modifier", c.Index(), character.AttackMod{
+ 				Base: modifier.NewBaseWithHitlag(skillKey, 1500),
+ 				Amount: func(atk *info.AttackEvent, _ info.Target) []float64 {
+ 					if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+@@ -117,8 +122,15 @@
+ 			return
+ 		}
+ 		// ignore if eye status not active on char that's doing dmg
+-		if !c.Core.Player.ByIndex(ae.Info.ActorIndex).StatusIsActive(skillKey) {
++		holder := c.Core.Player.ByIndex(ae.Info.ActorIndex)
++		if !holder.StatusIsActive(skillKey) {
+ 			return
++		}
++		if c.Core.SourceHost != nil {
++			if owner := holder.SourceHostStatusOwner(skillKey); owner != nil {
++				c.Core.SourceHostEventListenerFact("raiden.eye.enemy-damage.status-instance", float64(owner.InstanceID))
++				c.Core.SourceHostEventListenerFact("raiden.eye.enemy-damage.holder-index", float64(owner.ActorIndex))
++			}
+ 		}
+ 		// ignore EC, hydro swirl, and burning damage
+ 		// this clause is here since these damage types are sourced to the target rather than character
+@@ -152,7 +164,9 @@
+ 		}
+ 
+ 		c.Core.SourceHostEventListenerFact("raiden.eye.enemy-damage.attack-count", 1)
+-		c.Core.SourceHostQueueEventAttack("raiden.eye.followup-attack", ai, combat.NewCircleHitOnTarget(trg, nil, 4), 5, 5, c.particleCB)
++		holder.SourceHostTriggerOwnedGenerator("raiden.skill.eye.enemy-damage", skillKey, "enemy-damage", func() {
++			c.Core.SourceHostQueueOwnedEventAttack("raiden.skill.eye-strike", "raiden.eye.followup-attack", ai, combat.NewCircleHitOnTarget(trg, nil, 4), 5, 5, c.particleCB)
++		})
+ 
+ 		c.eyeICD = c.Core.F + 54 // 0.9 sec icd
+ 	}, "raiden-eye")
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -20,7 +20,8 @@
+ 	}
+ 	AttackMod struct {
+ 		modifier.Base
+-		Amount func(atk *info.AttackEvent, t info.Target) []float64
++		SourceHostStatusOwner *info.SourceHostStatusOwner `json:"-"`
++		Amount                func(atk *info.AttackEvent, t info.Target) []float64
+ 	}
+ 	CooldownMod struct {
+ 		modifier.Base
+@@ -48,30 +49,42 @@
+ 
+ // Add.
+ 
++// sourceHostOwnedModifier is observation metadata on the native object. Only
++// Status and explicitly audited AttackMod activations carry an owner.
++type sourceHostOwnedModifier interface {
++	modifier.Mod
++	sourceHostStatusOwner() *info.SourceHostStatusOwner
++}
++
++func (m *Status) sourceHostStatusOwner() *info.SourceHostStatusOwner { return m.SourceHostStatusOwner }
++func (m *AttackMod) sourceHostStatusOwner() *info.SourceHostStatusOwner {
++	return m.SourceHostStatusOwner
++}
++
+ // sourceHostStatusForKey identifies the exact object modifier.Add will replace.
+-func (c *CharWrapper) sourceHostStatusForKey(key string) *Status {
++func (c *CharWrapper) sourceHostStatusForKey(key string) sourceHostOwnedModifier {
+ 	i := modifier.Find(&c.mods, key)
+ 	if i < 0 {
+ 		return nil
+ 	}
+-	status, _ := c.mods[i].(*Status)
++	status, _ := c.mods[i].(sourceHostOwnedModifier)
+ 	return status
+ }
+ 
+-func (c *CharWrapper) sourceHostRecordReplacement(previous *Status) {
++func (c *CharWrapper) sourceHostRecordReplacement(previous sourceHostOwnedModifier) {
+ 	if c.SourceHost != nil && previous != nil {
+-		c.SourceHost.RecordStatusReplaced(previous.SourceHostStatusOwner, previous.Expiry())
+-	}
+-}
+-
+-// SourceHostObserveStatusesAtEnd reads only actual retained Status objects.
++		c.SourceHost.RecordStatusReplaced(previous.sourceHostStatusOwner(), previous.Expiry())
++	}
++}
++
++// SourceHostObserveStatusesAtEnd reads actual retained native modifier objects.
+ func (c *CharWrapper) SourceHostObserveStatusesAtEnd() {
+ 	if c.SourceHost == nil {
+ 		return
+ 	}
+ 	for _, mod := range c.mods {
+-		if status, ok := mod.(*Status); ok {
+-			c.SourceHost.ObserveLiveStatus(status.SourceHostStatusOwner, status.Expiry())
++		if status, ok := mod.(sourceHostOwnedModifier); ok {
++			c.SourceHost.ObserveLiveStatus(status.sourceHostStatusOwner(), status.Expiry())
+ 		}
+ 	}
+ }
+@@ -103,7 +116,7 @@
+ 		var previousOwner *info.SourceHostStatusOwner
+ 		var previousExpiry int
+ 		if previous != nil {
+-			previousOwner, previousExpiry = previous.SourceHostStatusOwner, previous.Expiry()
++			previousOwner, previousExpiry = previous.sourceHostStatusOwner(), previous.Expiry()
+ 		}
+ 		c.SourceHost.RecordStatusAdded(mod.SourceHostStatusOwner, mod.Expiry(), overwrote, previousOwner, previousExpiry)
+ 	}
+@@ -130,7 +143,16 @@
+ 	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
+-	c.sourceHostRecordReplacement(previous)
++	if c.SourceHost != nil && mod.SourceHostStatusOwner != nil {
++		var previousOwner *info.SourceHostStatusOwner
++		var previousExpiry int
++		if previous != nil {
++			previousOwner, previousExpiry = previous.sourceHostStatusOwner(), previous.Expiry()
++		}
++		c.SourceHost.RecordStatusAdded(mod.SourceHostStatusOwner, mod.Expiry(), overwrote, previousOwner, previousExpiry)
++	} else {
++		c.sourceHostRecordReplacement(previous)
++	}
+ 	modifier.LogAdd("attack", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -224,8 +246,8 @@
+ func (c *CharWrapper) deleteMod(key string) {
+ 	m := modifier.Delete(&c.mods, key)
+ 	if c.SourceHost != nil {
+-		if status, ok := m.(*Status); ok {
+-			c.SourceHost.RecordStatusRemoved(status.SourceHostStatusOwner, status.Expiry())
++		if status, ok := m.(sourceHostOwnedModifier); ok {
++			c.SourceHost.RecordStatusRemoved(status.sourceHostStatusOwner(), status.Expiry())
+ 		}
+ 	}
+ 	if m != nil && (m.Expiry() > *c.f || m.Expiry() == -1) {
+@@ -247,18 +269,18 @@
+ 	return ok
+ }
+ 
+-// SourceHostStatusOwner returns the exact active Status object's captured
+-// owner. A missing, expired, deleted, or differently typed modifier has no owner.
++// SourceHostStatusOwner returns the exact active native modifier object's
++// captured owner. Unannotated AttackMods and other modifier types have no owner.
+ func (c *CharWrapper) SourceHostStatusOwner(key string) *info.SourceHostStatusOwner {
+ 	index, active := modifier.FindCheckExpiry(&c.mods, key, *c.f)
+ 	if !active {
+ 		return nil
+ 	}
+-	status, ok := c.mods[index].(*Status)
++	status, ok := c.mods[index].(sourceHostOwnedModifier)
+ 	if !ok {
+ 		return nil
+ 	}
+-	return status.SourceHostStatusOwner
++	return status.sourceHostStatusOwner()
+ }
+ 
+ func (c *CharWrapper) StatusIsActive(key string) bool             { return c.modIsActive(key) }
+@@ -345,6 +367,9 @@
+ 		}
+ 		step := c.beginSourceHostAttackStatStep(read, m, a.Snapshot.Stats)
+ 		if m.Expiry() <= *c.f && m.Expiry() != -1 {
++			if c.SourceHost != nil {
++				c.SourceHost.RecordStatusRemoved(m.SourceHostStatusOwner, m.Expiry())
++			}
+ 			c.finishSourceHostStatStep(step, "expired", nil, a.Snapshot.Stats, m.Expiry())
+ 			continue
+ 		}
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -245,10 +245,10 @@
+ 				(field.Name == "SourceHostTalentTableRead" || field.Name == "SourceHostTalentExpressionRead") {
+ 				continue
+ 			}
+-			// Captured Status ownership is trace-only; duration and active
++			// Captured modifier ownership is trace-only; duration and active
+ 			// gameplay state remain in CharWrapper.SourceHostPhaseState.
+ 			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/player/character" &&
+-				v.Type().Name() == "Status" && field.Name == "SourceHostStatusOwner" {
++				(v.Type().Name() == "Status" || v.Type().Name() == "AttackMod") && field.Name == "SourceHostStatusOwner" {
+ 				continue
+ 			}
+ 			// Base-panel receipts are observational initialization metadata;

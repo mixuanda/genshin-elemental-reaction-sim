@@ -1,0 +1,32 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 1 failed | 1 skipped) 406ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 406ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+Error: Trusted SimulationResult 1.53 integrity validation failed: executionAudit.phaseCheckpoints.0.state.icdAndTriggerHistory.randomExecution.streams: Unrecognized keys: "crystallizePosition", "dendroCorePosition"; executionAudit.phaseCheckpoints.1.state.icdAndTriggerHistory.randomExecution.streams: Unrecognized keys: "crystallizePosition", "dendroCorePosition"
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22905:11
+    22903|     const remainder =
+    22904|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22905|     throw new Error(
+       |           ^
+    22906|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22907|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:19092:10
+ ❯ simulate packages/sim-core/src/simulator.ts:19132:12
+ ❯ assertHorizontalPeriodicMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:345:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:390:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  12:50:34
+   Duration  2.92s (transform 1.90s, setup 0ms, import 2.45s, tests 406ms, environment 0ms)
+
+
+WALL_SECONDS=3.394

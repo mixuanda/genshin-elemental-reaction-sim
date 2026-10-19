@@ -1,0 +1,763 @@
+{
+  "schemaVersion": "source-conditional-enemy-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=20 ignore_burst_energy=true;\nchasca char lvl=90/90 cons=0 talent=1,1,1;\nchasca add weapon=\"huntersbow\" refine=1 lvl=90/90;\nxilonen char lvl=90/90 cons=0 talent=1,1,1;\nxilonen add weapon=\"dullblade\" refine=1 lvl=1/20;\nqiqi char lvl=90/90 cons=0 talent=1,1,1;\nqiqi add weapon=\"dullblade\" refine=1 lvl=1/20;\nnilou char lvl=90/90 cons=0 talent=1,1,1;\nnilou add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.4,1;\nactive chasca;\nchasca skill;\nwait(65);\nchasca skill;\nxilonen skill;\nwait(65);\nxilonen skill;\nqiqi burst;\nnilou burst;\nwait(240);",
+    "seed": "1",
+    "baselinePath": "docs/validation/source-conditional-enemy-20260930.baseline.json",
+    "capturePath": "docs/validation/source-conditional-enemy-20260930.capture.json",
+    "runs": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "6f586d138a67674d860fccf3f52f797b2bdc1866cf2a6dc1b13ef72595d7b7fb",
+          "wasmBytes": 46819092
+        },
+        "applications": 15,
+        "abilityInvocations": [
+          {
+            "key": "chascaE1",
+            "id": 1,
+            "actionSequence": 1,
+            "accepted": true,
+            "entryFacts": {
+              "chasca.skill.blessing-at-entry": 0,
+              "chasca.skill.pending-aim-release": 0
+            },
+            "expectedRootAttackCount": 1,
+            "contractId": "chasca-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "chasca",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/chasca/skill.go",
+                "label": "恰斯卡 E",
+                "sourceSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+                "sourceHashes": {
+                  "classicSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+                  "stellarSha256": "65a1694f59e5507fb6ef92f78b5f1e25c85c1e2d16ecb8b12b6c781a09549d3a"
+                },
+                "sourceEvidence": "skill.go:120-155; one direct QueueAttack at 148 on the false HasBlessing branch; true branch exits Nightsoul and returns before queueing. Hit frame 3.",
+                "nonDamageCallbacksAndInitAudit": "Skill calls HasBlessing once at entry; false queues one hit then enters Nightsoul, true exits and queues none. particleCB only sets its per-use flag and grants particles (158-167); point-reduction tasks alter Nightsoul state only (109-117). Init installs A1/A4 state/hooks (chasca.go:46-64); A4 independently reacts to OnNightsoulBurst and queues shell damage (asc.go:58-92), and C2/C4 callbacks attach to later Shadowhunt shell attacks (cons.go:40-94), not E. If recast occurs in AimState, exitNightsoul schedules fireBullets for previously charged aimed shots (skill.go:83-107; aimed.go:190-244); contract counts only E method roots and recommends idle-state recast to avoid unrelated pending shot dispatches. PRE124 Stellar skill differs in animation-frame table and tag type; branch/root behavior is same.",
+                "scopeNotes": [
+                  "Plan resolves only when `chasca.skill.pending-aim-release` is 0. When original exitNightsoul selects AimState, earlier charged-shot ownership is unbound and this cast remains partial. Capture blessing-at-entry from the original query once; no re-query. Hit root at3; await terminal dispatch."
+                ],
+                "id": "chasca-skill",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/chasca/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 1,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（13 次应用）"
+              ],
+              "scopeNotes": [
+                "Plan is available only when `chasca.skill.pending-aim-release` is 0. If the original AimState branch is taken, pending charged-shot ownership is unbound and this cast remains partial. Capture blessing-at-entry from the single original query; false=>1 root at3, true=>0."
+              ]
+            }
+          },
+          {
+            "key": "chascaE2",
+            "id": 2,
+            "actionSequence": 2,
+            "accepted": true,
+            "entryFacts": {
+              "chasca.skill.blessing-at-entry": 1,
+              "chasca.skill.pending-aim-release": 0
+            },
+            "expectedRootAttackCount": 0,
+            "contractId": "chasca-skill",
+            "completeCast": true,
+            "hitCount": 0,
+            "replayDifferences": [],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "chasca",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/chasca/skill.go",
+                "label": "恰斯卡 E",
+                "sourceSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+                "sourceHashes": {
+                  "classicSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+                  "stellarSha256": "65a1694f59e5507fb6ef92f78b5f1e25c85c1e2d16ecb8b12b6c781a09549d3a"
+                },
+                "sourceEvidence": "skill.go:120-155; one direct QueueAttack at 148 on the false HasBlessing branch; true branch exits Nightsoul and returns before queueing. Hit frame 3.",
+                "nonDamageCallbacksAndInitAudit": "Skill calls HasBlessing once at entry; false queues one hit then enters Nightsoul, true exits and queues none. particleCB only sets its per-use flag and grants particles (158-167); point-reduction tasks alter Nightsoul state only (109-117). Init installs A1/A4 state/hooks (chasca.go:46-64); A4 independently reacts to OnNightsoulBurst and queues shell damage (asc.go:58-92), and C2/C4 callbacks attach to later Shadowhunt shell attacks (cons.go:40-94), not E. If recast occurs in AimState, exitNightsoul schedules fireBullets for previously charged aimed shots (skill.go:83-107; aimed.go:190-244); contract counts only E method roots and recommends idle-state recast to avoid unrelated pending shot dispatches. PRE124 Stellar skill differs in animation-frame table and tag type; branch/root behavior is same.",
+                "scopeNotes": [
+                  "Plan resolves only when `chasca.skill.pending-aim-release` is 0. When original exitNightsoul selects AimState, earlier charged-shot ownership is unbound and this cast remains partial. Capture blessing-at-entry from the original query once; no re-query. Hit root at3; await terminal dispatch."
+                ],
+                "id": "chasca-skill",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/chasca/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 0,
+              "completedRootAttackCount": 0,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 0,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（15 次应用）"
+              ],
+              "scopeNotes": [
+                "Plan is available only when `chasca.skill.pending-aim-release` is 0. If the original AimState branch is taken, pending charged-shot ownership is unbound and this cast remains partial. Capture blessing-at-entry from the single original query; false=>1 root at3, true=>0."
+              ]
+            }
+          },
+          {
+            "key": "xilonenE1",
+            "id": 3,
+            "actionSequence": 4,
+            "accepted": true,
+            "entryFacts": {
+              "xilonen.skill.blessing-at-entry": 0
+            },
+            "expectedRootAttackCount": 1,
+            "contractId": "xilonen-skill",
+            "completeCast": true,
+            "hitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "xilonen",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/xilonen/skill.go",
+                "label": "希诺宁 E",
+                "sourceSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+                "sourceHashes": {
+                  "classicSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+                  "stellarSha256": "f8d15f674c93727b595e843c39d7a2929937e0db8abde5eff35ce438adac073d"
+                },
+                "sourceEvidence": "skill.go:160-210; one direct QueueAttack at 192 on false HasBlessing branch; true branch exits and returns before queueing. Hit frame 6.",
+                "nonDamageCallbacksAndInitAudit": "Skill calls HasBlessing once before the branch; true exits and returns zero direct roots, false queues one root then initializes Nightsoul and constellation status. particleCB is particle-only (213-221), sampler activation tasks add resistance modifiers without attacks (102-158), and stamina restoration is non-damage. Init installs passive/constellation hooks (xilonen.go:49-75); A1 modifies later Normal/Plunge damage and points, C4 modifies later Normal/Extra/Plunge hits, and C6 applies later attack modifiers/heals (asc.go:22-89; cons.go:131-260). Stellar changes AdditionalTags Go type only; method branch/root count unchanged.",
+                "scopeNotes": [
+                  "Capture `xilonen.skill.blessing-at-entry` from the one original HasBlessing() result; false=>1 root, true=>0. Observe through frame 6 for hit branch, then native terminal dispatch; zero branch closes with no attack dispatch."
+                ],
+                "id": "xilonen-skill",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/xilonen/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 1,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（13 次应用）"
+              ],
+              "scopeNotes": [
+                "Capture `xilonen.skill.blessing-at-entry` from the one original HasBlessing() result; false=>1 root, true=>0. Observe through frame 6 for hit branch, then native terminal dispatch; zero branch closes with no attack dispatch."
+              ]
+            }
+          },
+          {
+            "key": "xilonenE2",
+            "id": 4,
+            "actionSequence": 5,
+            "accepted": true,
+            "entryFacts": {
+              "xilonen.skill.blessing-at-entry": 1
+            },
+            "expectedRootAttackCount": 0,
+            "contractId": "xilonen-skill",
+            "completeCast": true,
+            "hitCount": 0,
+            "replayDifferences": [],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "xilonen",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/xilonen/skill.go",
+                "label": "希诺宁 E",
+                "sourceSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+                "sourceHashes": {
+                  "classicSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+                  "stellarSha256": "f8d15f674c93727b595e843c39d7a2929937e0db8abde5eff35ce438adac073d"
+                },
+                "sourceEvidence": "skill.go:160-210; one direct QueueAttack at 192 on false HasBlessing branch; true branch exits and returns before queueing. Hit frame 6.",
+                "nonDamageCallbacksAndInitAudit": "Skill calls HasBlessing once before the branch; true exits and returns zero direct roots, false queues one root then initializes Nightsoul and constellation status. particleCB is particle-only (213-221), sampler activation tasks add resistance modifiers without attacks (102-158), and stamina restoration is non-damage. Init installs passive/constellation hooks (xilonen.go:49-75); A1 modifies later Normal/Plunge damage and points, C4 modifies later Normal/Extra/Plunge hits, and C6 applies later attack modifiers/heals (asc.go:22-89; cons.go:131-260). Stellar changes AdditionalTags Go type only; method branch/root count unchanged.",
+                "scopeNotes": [
+                  "Capture `xilonen.skill.blessing-at-entry` from the one original HasBlessing() result; false=>1 root, true=>0. Observe through frame 6 for hit branch, then native terminal dispatch; zero branch closes with no attack dispatch."
+                ],
+                "id": "xilonen-skill",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/xilonen/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 0,
+              "completedRootAttackCount": 0,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 0,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（15 次应用）"
+              ],
+              "scopeNotes": [
+                "Capture `xilonen.skill.blessing-at-entry` from the one original HasBlessing() result; false=>1 root, true=>0. Observe through frame 6 for hit branch, then native terminal dispatch; zero branch closes with no attack dispatch."
+              ]
+            }
+          },
+          {
+            "key": "qiqiQ",
+            "id": 5,
+            "actionSequence": 7,
+            "accepted": true,
+            "entryFacts": {
+              "qiqi.burst.stellar-conduct-at-entry": 0
+            },
+            "expectedRootAttackCount": 2,
+            "contractId": "qiqi-burst",
+            "completeCast": true,
+            "hitCount": 4,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "characterKey": "qiqi",
+                "action": "burst",
+                "method": "Burst",
+                "sourcePath": "internal/characters/qiqi/burst.go",
+                "label": "七七 Q",
+                "sourceSha256": "d697c809b4aa2db212787a265f1393794432f68acaf1cfa820c0507d4267d233",
+                "sourceHashes": {
+                  "classicSha256": "d697c809b4aa2db212787a265f1393794432f68acaf1cfa820c0507d4267d233",
+                  "stellarSha256": "c8872d218a139d9b12f0e4610a902396140d40ff2f40c7edb88d0b8986b52d40"
+                },
+                "sourceEvidence": "burst.go:28-71 Classic queues Cryo damage at frame 82 and a zero-damage talisman-application attack at frame 40. Stellar queues the same two; under `revelation && getRadiance()==radianceStellarConduct` it additionally queues a direct Stellar Conduct attack at frame 82.",
+                "nonDamageCallbacksAndInitAudit": "The cast always queues two deliveries: one Cryo damage root at 82 and one zero-damage AttackTagNone/Physical talisman-application root at 40. The talisman callback applies a 15s enemy status only if that zero-damage attack hits an enemy (Classic burst.go:53-60; Stellar burst.go:27-43). Stellar has an additional direct Q attack only in the original revelation/Stellar Conduct condition and calls c6OnBurst, which changes status/energy/heal behavior; source lane diff is semantically material and represented by branch fact `qiqi.burst.stellar-conduct-at-entry`. Init subscriptions heal on later enemy damage and process later Qiqi NA/CA hooks; they do not create another Q attack (qiqi.go:40-48; Classic burst.go:73-120; Stellar burst.go:77 onward). A1/C1/C2 are heal, energy, or later NA/CA modifier hooks (asc.go:15-45; cons.go:13-53); Stellar C4 adds healing when talisman healing occurs; C6-on-Burst sets status/stacks for later hit modifiers (cons.go:238-252), not a new Q root. Never claim talisman was applied unless the zero-damage callback actually dispatched to an enemy.",
+                "scopeNotes": [
+                  "Two unconditional deliveries in both lanes: zero-damage talisman application at frame 40 and Cryo Q hit at frame 82. Stellar third direct root at 82 only when `qiqi.burst.stellar-conduct-at-entry` is 1. Close only after all observed roots finish native dispatch; talisman status application is target-hit-dependent."
+                ],
+                "id": "qiqi-burst",
+                "producerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/qiqi/burst.go"
+                ]
+              },
+              "expectedRootAttackCount": 2,
+              "completedRootAttackCount": 2,
+              "closed": true,
+              "rootCountKind": "fixed",
+              "observedRootAttackCount": 2,
+              "producerCount": 0,
+              "completedProducerCount": 0,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（11 次应用）"
+              ],
+              "scopeNotes": [
+                "Two unconditional deliveries in both lanes: zero-damage talisman application at frame 40 and Cryo Q hit at frame 82. Stellar third direct root at 82 only when `qiqi.burst.stellar-conduct-at-entry` is 1. Close only after all observed roots finish native dispatch; talisman status application is target-hit-dependent."
+              ]
+            }
+          },
+          {
+            "key": "nilouQ",
+            "id": 6,
+            "actionSequence": 9,
+            "accepted": true,
+            "entryFacts": {},
+            "expectedRootAttackCount": 3,
+            "contractId": "nilou-burst",
+            "completeCast": true,
+            "hitCount": 4,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "finiteCast": {
+              "contract": {
+                "id": "nilou-burst",
+                "label": "妮露 Q：初击与逐目标完整第二段",
+                "characterKey": "nilou",
+                "action": "burst",
+                "method": "Burst",
+                "sourcePath": "internal/characters/nilou/burst.go",
+                "sourceSha256": "ed26e1821d68cd393edc013c3f643bc3ec008ec3256bf2a7659ef60e7fe3f8e8",
+                "sourceHashes": {
+                  "classicSha256": "ed26e1821d68cd393edc013c3f643bc3ec008ec3256bf2a7659ef60e7fe3f8e8",
+                  "stellarSha256": "ed26e1821d68cd393edc013c3f643bc3ec008ec3256bf2a7659ef60e7fe3f8e8"
+                },
+                "sourceEvidence": "Burst 初击91f；LingeringAeon 原敌人类型门后登记一次121敌方局部帧任务；任务执行时新读HP/天赋并向原目标 QueueAttack(0,0)。完整callback槽位清单与逐目标taskId/队列/局部时钟回执共同闭合。",
+                "nonDamageCallbacksAndInitAudit": "Init/onExitField仅E状态维护；C1/C4改同击增伤，C2只减抗，C6重复统计读取无自主伤害；A1/A4处理丰穰之核及反应增益，该独立反应按既有排除范围保留。Q只有LingeringAeon伤害回调；子攻击无hit callbacks。",
+                "producerContract": true,
+                "hitCallbackContract": true,
+                "scopeNotes": [
+                  "初击在调用时读取生命值倍率，91帧后 AoE；每个实际敌人命中回调独立登记 lingering-aeon 任务，不写死两击或固定目标数。",
+                  "第二段保留敌人自己的局部时钟：原 121 local frames 后任务执行时重读生命值/天赋，立刻向该父回调目标发出一次单体攻击；停帧不会被误换算为全局 +121。",
+                  "完整范围包含本次初击及其所有实际敌人回调任务；初击落空、跳过或命中确认阻断不会产生任务。目标死亡后敌人队列不 tick，未执行任务继续 pending，不能宣告完整。",
+                  "不伪造 Origin；原生 callback→producer→taskId→enemy queue targetKey 的明确链接建立所有权，entry Origin 仅用于隔离同步嵌套反应/独立追击。",
+                  "lingeringaeon 状态只在原命中处添加；延迟任务未检查状态或新 Q，因此重叠 Q 不取消旧任务，全部按真实父回调独立追踪。",
+                  "同击支持的增幅/加算反应仍进入该击；独立反应、丰穰之核、装备或其他事件追击保留独立范围。固定源码证据不是实机机制验证。"
+                ],
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/nilou/burst.go"
+                ]
+              },
+              "expectedRootAttackCount": 3,
+              "completedRootAttackCount": 3,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 3,
+              "producerCount": 2,
+              "completedProducerCount": 2,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 4,
+              "completedHitCallbackBatchCount": 4,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 2,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "明确父攻击与目标的已审阅命中回调所产生的本技能追加攻击"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（11 次应用）"
+              ],
+              "scopeNotes": [
+                "初击在调用时读取生命值倍率，91帧后 AoE；每个实际敌人命中回调独立登记 lingering-aeon 任务，不写死两击或固定目标数。",
+                "第二段保留敌人自己的局部时钟：原 121 local frames 后任务执行时重读生命值/天赋，立刻向该父回调目标发出一次单体攻击；停帧不会被误换算为全局 +121。",
+                "完整范围包含本次初击及其所有实际敌人回调任务；初击落空、跳过或命中确认阻断不会产生任务。目标死亡后敌人队列不 tick，未执行任务继续 pending，不能宣告完整。",
+                "不伪造 Origin；原生 callback→producer→taskId→enemy queue targetKey 的明确链接建立所有权，entry Origin 仅用于隔离同步嵌套反应/独立追击。",
+                "lingeringaeon 状态只在原命中处添加；延迟任务未检查状态或新 Q，因此重叠 Q 不取消旧任务，全部按真实父回调独立追踪。",
+                "同击支持的增幅/加算反应仍进入该击；独立反应、丰穰之核、装备或其他事件追击保留独立范围。固定源码证据不是实机机制验证。"
+              ]
+            }
+          }
+        ],
+        "qiqiStellarConductAtEntry": 0,
+        "qiqiExpectedRootAttackCount": 2,
+        "qiqiRootDispatches": [
+          {
+            "attackId": 4,
+            "frame": 232,
+            "enemyTargetKeys": [
+              1,
+              2
+            ],
+            "skipsEnemies": false
+          },
+          {
+            "attackId": 5,
+            "frame": 274,
+            "enemyTargetKeys": [
+              1,
+              2
+            ],
+            "skipsEnemies": false
+          }
+        ],
+        "nilouEnemyTaskEvidence": {
+          "rootAttackIds": [
+            7
+          ],
+          "callbackBatches": [
+            {
+              "id": 11,
+              "parentQueueId": 28,
+              "parentAttackId": 7,
+              "parentDispatchId": 7,
+              "targetKey": 1,
+              "queuedFrame": 396,
+              "runFrame": 396,
+              "completedFrame": 396,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                5
+              ],
+              "hitConfirmBlocked": false
+            },
+            {
+              "id": 12,
+              "parentQueueId": 28,
+              "parentAttackId": 7,
+              "parentDispatchId": 7,
+              "targetKey": 2,
+              "queuedFrame": 396,
+              "runFrame": 396,
+              "completedFrame": 396,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                6
+              ],
+              "hitConfirmBlocked": false
+            }
+          ],
+          "callbacks": [
+            {
+              "id": 5,
+              "batchId": 11,
+              "callbackIndex": 0,
+              "siteId": "nilou.burst.lingering-aeon-hit",
+              "startedFrame": 396,
+              "completedFrame": 396,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "nilou.burst.lingering-aeon-task-count": 1
+              }
+            },
+            {
+              "id": 6,
+              "batchId": 12,
+              "callbackIndex": 0,
+              "siteId": "nilou.burst.lingering-aeon-hit",
+              "startedFrame": 396,
+              "completedFrame": 396,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "nilou.burst.lingering-aeon-task-count": 1
+              }
+            }
+          ],
+          "childProducers": [
+            {
+              "id": 1,
+              "invocationId": 6,
+              "parentHitCallbackId": 5,
+              "taskId": 73,
+              "siteId": "nilou.burst.lingering-aeon-task",
+              "actorIndex": 3,
+              "queuedFrame": 396,
+              "startedFrame": 517,
+              "completedFrame": 517,
+              "state": "completed",
+              "queuedAttacks": [
+                {
+                  "queueId": 33,
+                  "attackId": 8,
+                  "ability": "Lingering Aeon",
+                  "attackTagName": "AttackTagElementalBurst",
+                  "frame": 517
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "invocationId": 6,
+              "parentHitCallbackId": 6,
+              "taskId": 74,
+              "siteId": "nilou.burst.lingering-aeon-task",
+              "actorIndex": 3,
+              "queuedFrame": 396,
+              "startedFrame": 517,
+              "completedFrame": 517,
+              "state": "completed",
+              "queuedAttacks": [
+                {
+                  "queueId": 38,
+                  "attackId": 9,
+                  "ability": "Lingering Aeon",
+                  "attackTagName": "AttackTagElementalBurst",
+                  "frame": 517
+                }
+              ]
+            }
+          ],
+          "tasks": [
+            {
+              "id": 73,
+              "parentTaskId": 70,
+              "queueId": 2,
+              "queuedFrame": 396,
+              "queuedClock": 392,
+              "dueClock": 513,
+              "runFrame": 517,
+              "completedFrame": 517,
+              "state": "completed",
+              "origin": {
+                "creationActionSequence": 9,
+                "triggerActionSequence": 9,
+                "parentAttackId": 7,
+                "via": "task"
+              }
+            },
+            {
+              "id": 74,
+              "parentTaskId": 72,
+              "queueId": 3,
+              "queuedFrame": 396,
+              "queuedClock": 392,
+              "dueClock": 513,
+              "runFrame": 517,
+              "completedFrame": 517,
+              "state": "completed",
+              "origin": {
+                "creationActionSequence": 9,
+                "triggerActionSequence": 9,
+                "parentAttackId": 7,
+                "via": "task"
+              }
+            }
+          ],
+          "enemyQueues": [
+            {
+              "id": 2,
+              "kind": "enemy",
+              "targetKey": 1,
+              "clock": 649
+            },
+            {
+              "id": 3,
+              "kind": "enemy",
+              "targetKey": 2,
+              "clock": 649
+            }
+          ]
+        },
+        "missingBranchFactOffline": {
+          "chascaE2": {
+            "completeCast": false,
+            "zeroAttackCast": false,
+            "knownSubtotal": null,
+            "reasons": [
+              "本次参数分支不在已审阅的有限规则内。"
+            ]
+          },
+          "xilonenE2": {
+            "completeCast": false,
+            "zeroAttackCast": false,
+            "knownSubtotal": null,
+            "reasons": [
+              "本次参数分支不在已审阅的有限规则内。"
+            ]
+          }
+        },
+        "zeroAttackCalculatorRoundTrip": true
+      }
+    ],
+    "scope": "Classic pre-expansion baseline, then one aggregate Classic and Stellar run; one run per lane.",
+    "nativeRunsPerformed": true
+  },
+  "pageErrors": []
+}

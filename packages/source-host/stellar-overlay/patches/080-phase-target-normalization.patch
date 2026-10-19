@@ -1,0 +1,104 @@
+diff --git a/pkg/core/combat/sourcehost_phase.go b/pkg/core/combat/sourcehost_phase.go
+--- a/pkg/core/combat/sourcehost_phase.go
++++ b/pkg/core/combat/sourcehost_phase.go
+@@ -48,9 +48,16 @@
+ 	for i, target := range h.enemies {
+ 		enemies[i] = capture(target, fmt.Sprintf("enemies[%d]", i))
+ 	}
+-	gadgets := make([]map[string]any, len(h.gadgets))
+-	for i, target := range h.gadgets {
+-		gadgets[i] = capture(target, fmt.Sprintf("gadgets[%d]", i))
++	// The source collector only removes nil slots, retaining the order of all
++	// remaining gadgets. Production consumers iterate/filter that same order;
++	// no source gameplay call addresses a gadget by its backing-slice index.
++	// Normalize storage holes and omit the collector's 101-frame cadence.
++	gadgets := make([]map[string]any, 0, len(h.gadgets))
++	for _, target := range h.gadgets {
++		if target == nil {
++			continue
++		}
++		gadgets = append(gadgets, capture(target, fmt.Sprintf("gadgets[%d]", len(gadgets))))
+ 	}
+-	return map[string]any{"enemies": enemies, "gadgets": gadgets, "player": capture(h.player, "player"), "defaultTarget": h.DefaultTarget, "nextTargetKey": h.keycount, "gadgetCollectionTick": h.gccount, "damageMode": h.DamageMode, "defenseHalt": h.DefHalt, "hitlagEnabled": h.EnableHitlag}, gaps
++	return map[string]any{"enemies": enemies, "gadgets": gadgets, "player": capture(h.player, "player"), "defaultTarget": h.DefaultTarget, "nextTargetKey": h.keycount, "damageMode": h.DamageMode, "defenseHalt": h.DefHalt, "hitlagEnabled": h.EnableHitlag}, gaps
+ }
+diff --git a/pkg/core/construct/sourcehost_phase.go b/pkg/core/construct/sourcehost_phase.go
+--- a/pkg/core/construct/sourcehost_phase.go
++++ b/pkg/core/construct/sourcehost_phase.go
+@@ -11,7 +11,16 @@
+ 				continue
+ 			}
+ 			expiry := c.Expiry()
+-			row := map[string]any{"concreteType": fmt.Sprintf("%T", c), "key": c.Key(), "type": c.Type(), "expiryOffsetFrames": expiry - *h.f, "limited": c.IsLimited(), "count": c.Count(), "direction": c.Direction(), "position": c.Pos()}
++			expiryPhase := "pending"
++			if expiry < *h.f {
++				expiryPhase = "past"
++			} else if expiry == *h.f {
++				expiryPhase = "due"
++			}
++			// Tick removes constructs only on exact equality. A retained past
++			// deadline cannot become due as the clock advances; still distinguish
++			// it from a deadline due now, without comparing its increasing age.
++			row := map[string]any{"concreteType": fmt.Sprintf("%T", c), "key": c.Key(), "type": c.Type(), "expiryOffsetFrames": max(0, expiry-*h.f), "expiryPhase": expiryPhase, "limited": c.IsLimited(), "count": c.Count(), "direction": c.Direction(), "position": c.Pos()}
+ 			if provider, ok := c.(interface {
+ 				SourceHostPhaseConstructState() (map[string]any, []string)
+ 			}); ok {
+diff --git a/pkg/target/icd.go b/pkg/target/icd.go
+--- a/pkg/target/icd.go
++++ b/pkg/target/icd.go
+@@ -3,6 +3,7 @@
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attacks"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ func (t *Target) WillApplyEle(tag attacks.ICDTag, grp attacks.ICDGroup, char int) float64 {
+@@ -58,14 +59,21 @@
+ }
+ 
+ func (t *Target) ResetDamageCounterAfterDelay(tag attacks.ICDTag, grp attacks.ICDGroup, char int) {
+-	t.Core.Tasks.Add(func() {
++	t.Core.Tasks.AddWithPhase(func() {
+ 		// set the counter back to 0
+ 		t.icdDamageTagCounter[NewIcdKey(char, tag, grp)] = 0
+ 		t.icdDamageTagOnTimer[NewIcdKey(char, tag, grp)] = false
+ 		t.Core.Log.NewEvent("damage counter reset", glog.LogICDEvent, char).
+ 			Write("tag", tag).
+ 			Write("grp", grp)
+-	}, attacks.ICDGroupResetTimer[grp]-1)
++	}, attacks.ICDGroupResetTimer[grp]-1, "target-icd-damage-reset", phase.Descriptor{
++		Source: "pkg/target/icd.go:ResetDamageCounterAfterDelay",
++		Observe: func() (map[string]any, []string) {
++			// These are the actual receiver/index captures used by the reset.
++			// Its deadline and FIFO position are recorded by task.Handler.
++			return map[string]any{"targetKey": t.Key(), "actor": char, "tag": tag, "group": grp, "keyScope": "actor/tag/group"}, nil
++		},
++	})
+ 	t.Core.Log.NewEvent("damage reset timer set", glog.LogICDEvent, char).
+ 		Write("tag", tag).
+ 		Write("grp", grp).
+@@ -73,14 +81,21 @@
+ }
+ 
+ func (t *Target) ResetTagCounterAfterDelay(tag attacks.ICDTag, grp attacks.ICDGroup, char int) {
+-	t.Core.Tasks.Add(func() {
++	t.Core.Tasks.AddWithPhase(func() {
+ 		// set the counter back to 0
+ 		t.icdTagCounter[NewIcdKey(char, tag, grp)] = 0
+ 		t.icdTagOnTimer[NewIcdKey(char, tag, grp)] = false
+ 		t.Core.Log.NewEvent("ele app counter reset", glog.LogICDEvent, char).
+ 			Write("tag", tag).
+ 			Write("grp", grp)
+-	}, attacks.ICDGroupResetTimer[grp]-1)
++	}, attacks.ICDGroupResetTimer[grp]-1, "target-icd-application-reset", phase.Descriptor{
++		Source: "pkg/target/icd.go:ResetTagCounterAfterDelay",
++		Observe: func() (map[string]any, []string) {
++			// These are the actual receiver/index captures used by the reset.
++			// Its deadline and FIFO position are recorded by task.Handler.
++			return map[string]any{"targetKey": t.Key(), "actor": char, "tag": tag, "group": grp, "keyScope": "actor/tag/group"}, nil
++		},
++	})
+ 	t.Core.Log.NewEvent("ele app reset timer set", glog.LogICDEvent, char).
+ 		Write("tag", tag).
+ 		Write("grp", grp).

@@ -1,0 +1,56 @@
+{
+  "profile": {
+    "id": "lunar-worker-small-delay",
+    "version": "1.1.0",
+    "baselineMode": "runtime-energy-v1",
+    "label": "月绽放线程验证：每次输入1帧",
+    "referenceFps": 60,
+    "inputDelayFrames": 1,
+    "swapDelayFrames": 1,
+    "cancellationDelayFrames": 0,
+    "evidence": "explicit-assumption",
+    "assumptions": [
+      "明确的合成1帧输入延迟；不是现实操作分布。"
+    ]
+  },
+  "baselineOptions": {
+    "randomSeed": "lunar-worker-original-options-reference",
+    "energyMode": "configured",
+    "critMode": "noCrit",
+    "compatibilityMode": "legacy-v0.1",
+    "execution": {
+      "captureHits": true,
+      "detailedTraces": false
+    }
+  },
+  "originalReactionMode": "disabled",
+  "specialReactionMode": "aura-v5",
+  "originalCommandCount": 4,
+  "delayedRequests": [
+    1,
+    7,
+    9,
+    157
+  ],
+  "appendedCleanseRequest": 160,
+  "actualRequests": [
+    1,
+    7,
+    9,
+    157,
+    160
+  ],
+  "specialFrames": [
+    222,
+    230,
+    252
+  ],
+  "replayDifferences": [
+    0,
+    0,
+    0
+  ],
+  "refreshSpawnedWorkers": 0,
+  "runWorkerCount": 1,
+  "seed": "lunar-worker-original-options-reference"
+}

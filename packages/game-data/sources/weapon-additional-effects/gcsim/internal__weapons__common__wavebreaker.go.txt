@@ -1,0 +1,65 @@
+package common
+
+import (
+	"fmt"
+
+	"github.com/genshinsim/gcsim/pkg/core"
+	"github.com/genshinsim/gcsim/pkg/core/attacks"
+	"github.com/genshinsim/gcsim/pkg/core/attributes"
+	"github.com/genshinsim/gcsim/pkg/core/event"
+	"github.com/genshinsim/gcsim/pkg/core/glog"
+	"github.com/genshinsim/gcsim/pkg/core/info"
+	"github.com/genshinsim/gcsim/pkg/core/player/character"
+	"github.com/genshinsim/gcsim/pkg/modifier"
+)
+
+type Wavebreaker struct {
+	Index int
+}
+
+func (w *Wavebreaker) SetIndex(idx int) { w.Index = idx }
+func (w *Wavebreaker) Init() error      { return nil }
+
+func NewWavebreaker() *Wavebreaker {
+	return &Wavebreaker{}
+}
+
+func (w *Wavebreaker) NewWeapon(c *core.Core, char *character.CharWrapper, p info.WeaponProfile) (info.Weapon, error) {
+	r := p.Refine
+
+	per := 0.09 + 0.03*float64(r)
+	maxBonus := 0.3 + 0.1*float64(r)
+
+	var amt float64
+
+	c.Events.Subscribe(event.OnInitialize, func(args ...any) {
+		var energy float64
+
+		for _, x := range c.Player.Chars() {
+			energy += x.EnergyMax
+		}
+
+		amt = energy * per / 100
+		if amt > maxBonus {
+			amt = maxBonus
+		}
+		c.Log.NewEvent("wavebreaker dmg calc", glog.LogWeaponEvent, char.Index()).
+			Write("total", energy).
+			Write("per", per).
+			Write("max", maxBonus).
+			Write("amt", amt)
+		m := make([]float64, attributes.EndStatType)
+		m[attributes.DmgP] = amt
+		char.AddAttackMod(character.AttackMod{
+			Base: modifier.NewBase("wavebreaker", -1),
+			Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+				if atk.Info.AttackTag == attacks.AttackTagElementalBurst {
+					return m
+				}
+				return nil
+			},
+		})
+	}, fmt.Sprintf("wavebreaker-%v", char.Base.Key.String()))
+
+	return w, nil
+}

@@ -29,7 +29,7 @@ import {
 } from "../compiler";
 
 export const DURIN_MECHANICS_MAPPING_VERSION =
-  "durin-gcsim-b4ae769d7c1c.7" as const;
+  "durin-gcsim-b4ae769d7c1c.8" as const;
 
 export const DURIN_SKILL_ICD_GROUP = "durin-skill" as const;
 
@@ -73,7 +73,7 @@ const gcsimIcdEvidence: MechanicsEvidence = {
   verifiedAt,
   verificationStatus: "provisional",
   notes:
-    "用于交叉核对 DurinSkill 的 18 帧重置与 [应用, 不应用, 不应用] 序列。"
+    "用于交叉核对黑 E 的 DurinSkill 18 帧重置/[应用, 不应用, 不应用]，以及白 E 的 Default 150 帧重置/[1,0,0,1,…]。"
 };
 
 const gcsimAttackInfoEvidence: MechanicsEvidence = {
@@ -84,7 +84,7 @@ const gcsimAttackInfoEvidence: MechanicsEvidence = {
   verifiedAt,
   verificationStatus: "provisional",
   notes:
-    "AttackInfo 将 Durability 0 定义为不施加附着；锁定提交的白 E 未设置 Durability，因此本向量按无附着实现，仍需官方或实测交叉验证。"
+    "AttackInfo 的 Durability 以 25 对应 1U；白 E 的 skill.go 明确设置 Durability 25，使用默认 ICD 组。此字段映射已于 2026-09-22 重新核对固定源码，仍不是官方或实测验证。"
 };
 
 const gcsimParticleDelayEvidence: MechanicsEvidence = {
@@ -325,6 +325,14 @@ export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
       scalingRef: durinSkillRef("param1"),
       scalingStat: "atk",
       element: "pyro",
+      application: {
+        gaugeUnits: 1,
+        icd: {
+          mode: "fixed-gcsim-application-v1",
+          icdTag: "durin-elemental-art",
+          groupId: "default"
+        }
+      },
       snapshot: "hit"
     }
   ],
@@ -375,7 +383,7 @@ export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
     "元素战技输入被替换为转变·白化之是"
   ],
   unresolvedMechanics: [
-    "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
+    "白 E 的 1U 火附着与默认 ICD 已对照锁定 gcsim；仍缺官方或实测独立交叉验证",
     "仅支持通用二维形状、静态施放者局部坐标与声明式线性目标移动；杜林真实范围、角色/敌人实战移动和 Boss AI 尚未核验",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ],
@@ -383,6 +391,7 @@ export const durinConfirmationOfPurityBlueprint: AbilityBlueprint = {
     genshinDbEvidence,
     gcsimSkillEvidence,
     gcsimAttackInfoEvidence,
+    gcsimIcdEvidence,
     gcsimParticleDelayEvidence
   ]
 };
@@ -618,7 +627,7 @@ export function createDurinWhiteSkillAuditConfig(
       version: "1.0.0",
       verificationStatus: "provisional",
       note:
-        "只覆盖精质转变前置/状态转换、白 E 单段倍率、命中帧、锁定 gcsim 的无附着口径、带 6 秒共享冷却的固定回能与命中产球；不是完整角色预设，也不是官方验证数据。"
+        "只覆盖精质转变前置/状态转换、白 E 单段倍率、命中帧、锁定 gcsim 的 1U 火附着与默认 ICD、带 6 秒共享冷却的固定回能与命中产球；不是完整角色预设，也不是官方验证数据。"
     },
     duration: 3,
     cycleLength: 3,

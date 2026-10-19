@@ -1,0 +1,48 @@
+{
+  "status": "executed-source-assumed-provisional",
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "wasmSha256": "548a8b8bc2e3cc14e9eed129c4af696a8147c40ea7e12578d49bd58c24eb920d",
+  "goVersion": "go1.27.1",
+  "verifiedSourceGitBlobs": 4283,
+  "swirl": {
+    "config": "example.gcsl",
+    "configSha256": "9960f8d415a0ee125108982173ec3e9b978db3e10aa08eb13a02bd12fd61751d",
+    "seed": "1",
+    "command": "node packages/source-host/stellar-overlay/smoke.mjs packages/source-host/stellar-overlay/example.gcsl",
+    "calculations": 23,
+    "sharedFormulaCalculations": 23,
+    "capturedCalculations": 23,
+    "hpApplications": 17,
+    "kinds": {
+      "damage": 10,
+      "stellar-contributor": 4,
+      "stellar-ranked": 2,
+      "stellar-delivery": 2,
+      "stellar-direct": 5
+    },
+    "observedBranches": [
+      "stellar-swirl-anemo-reaction",
+      "stellar-swirl-vortex-1",
+      "stellar-swirl-delivery",
+      "stellar-swirl-direct"
+    ],
+    "firstInitialDeliveryFrame": 87,
+    "firstVortexDeliveryFrame": 265,
+    "exitCode": 0
+  },
+  "conduct": {
+    "config": "conduct-example.gcsl",
+    "configSha256": "223532e873289c14b49a7ca068f23fc7c20c8a1577dee485ab53047338981c10",
+    "seed": "1",
+    "calculations": 38,
+    "sharedFormulaCalculations": 38,
+    "hpApplications": 33,
+    "kinds": {
+      "damage": 27,
+      "stellar-conduct-event": 5,
+      "stellar-direct": 6
+    },
+    "exitCode": 0
+  },
+  "scope": "These runs validate the compiled archived source and synchronous shared-TS formula boundary for two fixed GCSL inputs. They do not independently verify game mechanics or the guide/source conflicts."
+}

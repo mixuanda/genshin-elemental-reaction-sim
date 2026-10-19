@@ -1,0 +1,88 @@
+--- a/pkg/stats/status/status.go
++++ b/pkg/stats/status/status.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+@@ -91,7 +92,7 @@
+ 		}
+ 	}
+ 
+-	core.Events.Subscribe(event.OnTick, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnTick, func(args ...any) {
+ 		bucket := core.F / bucketSize
+ 		active := core.Player.ActiveChar()
+ 
+@@ -146,7 +147,16 @@
+ 
+ 			out.activeReactions[i] = current
+ 		}
+-	}, "stats-status-log")
++	}, "stats-status-log", phase.Descriptor{
++		Source: "pkg/stats/status/status.go:NewStat/OnTick",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{
++				"playerStateOwner": "player+characters+effects",
++				"combatStateOwner": "targets",
++				"maxEnemyLevel": out.maxEnemyLvl,
++			}, nil
++		},
++	})
+ 
+ 	return &out, nil
+ }
+--- a/pkg/stats/shield/shield.go
++++ b/pkg/stats/shield/shield.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+@@ -37,7 +38,7 @@
+ 		shields: make(map[string][]stats.ShieldInterval),
+ 	}
+ 
+-	core.Events.Subscribe(event.OnShielded, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnShielded, func(args ...any) {
+ 		shield := args[0].(shield.Shield)
+ 		name := shield.Desc()
+ 		bonus := core.Player.Shields.ShieldBonus()
+@@ -82,10 +83,15 @@
+ 		}
+ 
+ 		out.shields[name] = append(out.shields[name], interval)
+-	}, "stats-shield-log")
++	}, "stats-shield-log", phase.Descriptor{
++		Source: "pkg/stats/shield/shield.go:NewStat/OnShielded",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"playerStateOwner": "player+characters+effects"}, nil
++		},
++	})
+ 
+ 	// TODO: Should be replaced with targeted events (IE on shield stats changes + char swap)
+-	core.Events.Subscribe(event.OnTick, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnTick, func(args ...any) {
+ 		bonus := core.Player.Shields.ShieldBonus()
+ 
+ 		for _, shield := range core.Player.Shields.List() {
+@@ -116,7 +122,12 @@
+ 				}
+ 			}
+ 		}
+-	}, "stats-shield-tick-log")
++	}, "stats-shield-tick-log", phase.Descriptor{
++		Source: "pkg/stats/shield/shield.go:NewStat/OnTick",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"playerStateOwner": "player+characters+effects"}, nil
++		},
++	})
+ 
+ 	return &out, nil
+ }

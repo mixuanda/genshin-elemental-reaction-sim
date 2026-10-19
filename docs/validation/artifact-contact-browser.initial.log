@@ -1,0 +1,3 @@
+TypeError: Module "file:///Users/evan/Documents/gidps/packages/game-data/sources/observed-entity-casts/manifest.json" needs an import attribute of "type: json"
+    at eval (<anonymous>:1:1)
+

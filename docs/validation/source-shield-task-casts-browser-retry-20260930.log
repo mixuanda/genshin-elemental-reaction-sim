@@ -1,0 +1,47 @@
+[WebServer] (node:77028) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:77029) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-shield-task-casts.spec.ts:41:1 › Noelle and Xinyan skill casts close their native shield callback and recursive task lifecycles (7.7s)
+
+
+  1) [chromium] › apps/web/e2e/source-shield-task-casts.spec.ts:41:1 › Noelle and Xinyan skill casts close their native shield callback and recursive task lifecycles 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator:  locator('[data-source-finite-skill-shield-producers]')
+    Expected: visible
+    Received: hidden
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-source-finite-skill-shield-producers]')
+        13 × locator resolved to <p data-source-finite-skill-shield-producers="">本技能护盾任务：已完成 2 / 登记 2，待执行 0；任务排队攻击 1 次。</p>
+           - unexpected value "hidden"
+
+
+      165 |     await expect(certificate).toHaveAttribute('data-source-finite-skill-status', 'complete');
+      166 |     await expect(page.locator('[data-source-finite-skill-shields]')).toBeVisible();
+    > 167 |     await expect(page.locator('[data-source-finite-skill-shield-producers]')).toBeVisible();
+          |                                                                               ^
+      168 |     await page.locator('[data-source-finite-skill-shields] > details > summary').click();
+      169 |     await page.locator('[data-source-finite-skill-shield-producer-details] > summary').click();
+      170 |     await expect(page.locator('[data-source-finite-skill-shield-producer]')).toHaveCount(eShieldProducers.length);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-shield-task-casts.spec.ts:167:79
+
+    Error Context: test-results/source-shield-task-casts-N-1b6e9-d-recursive-task-lifecycles-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-shield-task-casts-N-1b6e9-d-recursive-task-lifecycles-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-shield-task-casts-N-1b6e9-d-recursive-task-lifecycles-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-shield-task-casts.spec.ts:41:1 › Noelle and Xinyan skill casts close their native shield callback and recursive task lifecycles 

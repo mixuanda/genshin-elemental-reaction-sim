@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-character-controls.ts(96,77): error TS2339: Property 'phase' does not exist on type '{ ruleId: "char-albedo-albedo-a1-dmgp-0p25" | "char-albedo-albedo-a4-em-125" | "char-albedo-albedo-c4-dmgp-0p3" | "char-albedo-albedo-c6-dmgp-0p17" | "char-amber-amber-a1-cr-0p1" | ... 95 more ... | "char-yoimiya-yoimiya-c2-pyrop-0p25"; modifierKey: string; sourceHolderIndex: number; } | { ...; } | { ...; } | { ...; }'.
+  Property 'phase' does not exist on type '{ ruleId: "char-albedo-albedo-a1-dmgp-0p25" | "char-albedo-albedo-a4-em-125" | "char-albedo-albedo-c4-dmgp-0p3" | "char-albedo-albedo-c6-dmgp-0p17" | "char-amber-amber-a1-cr-0p1" | ... 95 more ... | "char-yoimiya-yoimiya-c2-pyrop-0p25"; modifierKey: string; sourceHolderIndex: number; }'.
+packages/sim-core/src/source-host-formula.ts(121,52): error TS2339: Property 'phase' does not exist on type '{ ruleId: "echoes" | "oceanhuedclam" | "songofdayspast"; sourceValue: number; } | { ruleId: "char-add-citlali-c1" | "char-add-clorinde-a1" | "char-add-durin-c1-black" | "char-add-durin-c1-white" | ... 18 more ... | "char-add-yunjin-burst"; sourceHolderIndex: number; phase: "creation" | "hit"; state: Record<...>; } |...'.
+  Property 'phase' does not exist on type '{ ruleId: "echoes" | "oceanhuedclam" | "songofdayspast"; sourceValue: number; }'.

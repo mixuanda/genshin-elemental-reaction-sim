@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "source-talent-table-measurements-v1",
+  "commands": {
+    "core": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/formula-lookup.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.597
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 9.594
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 9.983
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.148
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.919
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.031
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-talent-table.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 11.721
+    }
+  },
+  "inventory": {
+    "classic": {
+      "instrumentedSites": 514,
+      "skippedCandidateSites": 224,
+      "tables": 498,
+      "characterDirectories": 103,
+      "dimensions": {
+        "1": 441,
+        "2": 70,
+        "3": 3
+      },
+      "coordinateSystem": "patched pre-instrumentation Go source; not upstream-original"
+    },
+    "stellar": {
+      "instrumentedSites": 543,
+      "skippedCandidateSites": 242,
+      "tables": 524,
+      "characterDirectories": 108,
+      "dimensions": {
+        "1": 468,
+        "2": 73,
+        "3": 2
+      },
+      "coordinateSystem": "patched pre-instrumentation Go source; not upstream-original"
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-talent-table-browser-v1",
+    "seed": "11",
+    "script": "options iteration=1 duration=12;\nxingqiu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxingqiu add weapon=\"favoniussword\" refine=1 lvl=90/90;\nxingqiu add stats atk=200 er=0.2 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive xingqiu;\nxingqiu burst;\nxingqiu skill;\nfischl skill;\nxingqiu attack:3;\nwait(300);\n",
+    "measurements": [
+      {
+        "lane": "classic",
+        "rawPath": "/tmp/gidps-talent-table-classic.json",
+        "baselinePath": "docs/validation/reaction-em-classic-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "3793ad70a79fddaf44fcf2249d58c90d855bacb6882258b4cc7b87b924d813ef",
+          "wasmBytes": 44286894
+        },
+        "receiptHitCount": 14,
+        "distinctTableCount": 2,
+        "distinctSiteCount": 2,
+        "selectedApplicationId": 39,
+        "selectedCalculationId": 37,
+        "selectedActorKey": "xingqiu",
+        "selectedFrame": 200,
+        "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+        "siteId": "internal/characters/xingqiu/burst.go:83:15",
+        "indices": [
+          0
+        ],
+        "tableValue": 0.54272,
+        "originalScaling": 0.54272,
+        "lookupFormula": "burst[index0]",
+        "lookupSubstitution": "burst[0]",
+        "lookupNodeId": "sourceTalentTable.37",
+        "replayDifference": 0,
+        "editedScaling": 0.64272,
+        "editedDamageDifference": 54.735166868903946,
+        "nativeGameplayUnchanged": true,
+        "originalReceiptPreserved": true,
+        "calculatorRoundtrip": true
+      },
+      {
+        "lane": "stellar",
+        "rawPath": "/tmp/gidps-talent-table-stellar.json",
+        "baselinePath": "docs/validation/reaction-em-stellar-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "c247280ab1c46b16251705273d9bf6883e1f17f25a296f8304d83e0e324d814a",
+          "wasmBytes": 66483675
+        },
+        "receiptHitCount": 14,
+        "distinctTableCount": 2,
+        "distinctSiteCount": 2,
+        "selectedApplicationId": 39,
+        "selectedCalculationId": 37,
+        "selectedActorKey": "xingqiu",
+        "selectedFrame": 200,
+        "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+        "siteId": "internal/characters/xingqiu/burst.go:83:15",
+        "indices": [
+          0
+        ],
+        "tableValue": 0.54272,
+        "originalScaling": 0.54272,
+        "lookupFormula": "burst[index0]",
+        "lookupSubstitution": "burst[0]",
+        "lookupNodeId": "sourceTalentTable.37",
+        "replayDifference": 0,
+        "editedScaling": 0.64272,
+        "editedDamageDifference": 54.735166868903946,
+        "nativeGameplayUnchanged": true,
+        "originalReceiptPreserved": true,
+        "calculatorRoundtrip": true
+      }
+    ],
+    "pageErrors": [],
+    "scope": "One native XQ/Fischl run per pinned source; indexed talent-table reads, actual applied hit, and an independent scaling edit."
+  },
+  "files": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "bytes": 955
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "bytes": 6035
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "464ec4d9241c1b3c38cfe8d869e1bf9ce14537edcc90862fb43d1e88106dbbfd",
+      "bytes": 566653
+    },
+    {
+      "path": "packages/source-host/scripts/instrument-talent-reads.go",
+      "sha256": "eb1e20483a8f1b2fecd2dc98773e2cd905ddbf1c7ad6dae534066de7539f0aaf",
+      "bytes": 13185
+    },
+    {
+      "path": "docs/validation/talent-table-classic-20260929.capture.json",
+      "sha256": "3e6a06ba451aba01c244c498adba227a64ad3afbe514b2172aee3b1a9d7c2420",
+      "bytes": 566051
+    },
+    {
+      "path": "docs/validation/talent-read-instrumentation-classic-20260929.json",
+      "sha256": "2cac00437f70d51510bba0d24ed46cbd620e394c67178bfb326523f148b43c44",
+      "bytes": 232959
+    },
+    {
+      "path": "docs/validation/talent-table-registry-classic-20260929.json",
+      "sha256": "8dc7b3bde29a0956158b66be10eba7ef5a537aaaea58d7b5d367021d48a1f546",
+      "bytes": 306511
+    },
+    {
+      "path": "docs/validation/talent-table-stellar-20260929.capture.json",
+      "sha256": "7dc6bb99a1e2f92ff1029d6b58bdd0979841aee7701efd025bf6e2b9d605c5f4",
+      "bytes": 572272
+    },
+    {
+      "path": "docs/validation/talent-read-instrumentation-stellar-20260929.json",
+      "sha256": "9971dcb4fb64a5f81be9774c632d35cd5eb2a1bea38893527e3c0b33f618b812",
+      "bytes": 247604
+    },
+    {
+      "path": "docs/validation/talent-table-registry-stellar-20260929.json",
+      "sha256": "2d6952ee194dda6ea5b46a4d2c0db4e141000a17035628291bab62020b6a8915",
+      "bytes": 317743
+    },
+    {
+      "path": "docs/validation/talent-table-classic-20260929.manifest.json",
+      "sha256": "520752a8e7c7725fbe6dc8958fcb52825b6a2cc20084707ca3a1a5e648c8c937",
+      "bytes": 145907
+    },
+    {
+      "path": "docs/validation/talent-table-stellar-20260929.manifest.json",
+      "sha256": "0584a8aba92e6b8c37707e1ad26eb8aa022e88ed3975364dc40f2e8fc20beab0",
+      "bytes": 148248
+    }
+  ],
+  "scope": {
+    "nativeBuilds": 2,
+    "newNativeRuns": 2,
+    "focusedTestsPassed": 2,
+    "browserCasesPassed": 1,
+    "browserLanes": 2,
+    "webBuildAttempts": 2,
+    "firstWebFailure": "Local variable prefixTrace shadowed existing function; renamed to prefixNodes and build passed.",
+    "runtimeTableSitesPerLane": 2,
+    "runtimeTableReceiptHitsPerLane": 14,
+    "dataPromotions": 0,
+    "verification": "provisional",
+    "explanationStatus": "partial",
+    "wholeGoalComplete": false
+  }
+}

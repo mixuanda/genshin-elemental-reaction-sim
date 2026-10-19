@@ -1,0 +1,13 @@
+{
+  "name": "core",
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/er-independent-failure.test.ts",
+    "packages/sim-core/src/__tests__/energy-analysis-dynamic.test.ts"
+  ],
+  "elapsedSeconds": 2.43,
+  "exitCode": 1,
+  "log": "docs/validation/logs/er-independent-120-core.txt"
+}

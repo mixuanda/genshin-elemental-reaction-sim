@@ -1,0 +1,232 @@
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -17,6 +17,9 @@
+ 	SourceHostDispatchID int `json:"-"`
+ 	SourceHostAttackID int
+ 	SourceHostCalculationID int
++	SourceHostApplicationCalculationID int
++	SourceHostTargetPhase *SourceHostTargetPhaseMatch `json:"-"`
++	SourceHostTargetPhaseEffects *SourceHostTargetPhaseEffectsReceipt `json:"-"`
+ 	Info    AttackInfo
+ 	Pattern AttackPattern
+ 	// Timing        AttackTiming
+--- a/pkg/core/event/event.go
++++ b/pkg/core/event/event.go
+@@ -183,6 +183,33 @@
+ 	}
+ }
+ 
++// EmitObserved preserves audited measurement hooks while suppressing gameplay
++// hooks for a target whose hit confirmation is blocked.
++type ObservedEmission struct {
++	GameplaySkipped int
++	ObserversEmitted int
++}
++
++func (h *Handler) EmitObserved(e Event, args ...any) ObservedEmission {
++	var result ObservedEmission
++	for _, v := range h.events[e] {
++		if v.f == nil { continue }
++		if !v.phase.Observational || v.phase.Source == "" {
++			result.GameplaySkipped++
++			continue
++		}
++		if h.Origin == nil {
++			v.f(args...)
++		} else {
++			end := h.Origin.BeginEvent(v.origin, v.key, int(e), args...)
++			v.f(args...)
++			end()
++		}
++		result.ObserversEmitted++
++	}
++	return result
++}
++
+ func (h *Handler) Emit(e Event, args ...any) {
+ 	for _, v := range h.events[e] {
+ 		if v.f != nil {
+--- a/pkg/enemy/attack.go
++++ b/pkg/enemy/attack.go
+@@ -24,12 +24,28 @@
+ }
+ 
+ func (e *Enemy) HandleAttack(atk *info.AttackEvent) float64 {
++	atk.SourceHostTargetPhase = nil
++	atk.SourceHostTargetPhaseEffects = nil
++	atk.SourceHostApplicationCalculationID = 0
++	if e.Core.SourceHost != nil {
++		atk.SourceHostTargetPhase = e.Core.SourceHost.MatchTargetPhase(e.Key(), e.Core.F)
++		if atk.SourceHostTargetPhase != nil {
++			atk.SourceHostTargetPhaseEffects = &info.SourceHostTargetPhaseEffectsReceipt{}
++		}
++	}
++	hitConfirmBlocked := atk.SourceHostTargetPhase != nil && atk.SourceHostTargetPhase.Effects.HitConfirm == "blocked"
+ 	grpMult := 1.0
+ 	if !atk.Info.SourceIsSim {
+ 		grpMult = e.GroupTagDamageMult(atk.Info.ICDTag, atk.Info.ICDGroup, atk.Info.ActorIndex)
+ 	}
+ 	if grpMult > 0 {
+-		e.Core.Combat.Events.Emit(event.OnEnemyHit, e, atk)
++		if hitConfirmBlocked {
++			counts := e.Core.Events.EmitObserved(event.OnEnemyHit, e, atk)
++			atk.SourceHostTargetPhaseEffects.OnEnemyHitGameplaySkipped = counts.GameplaySkipped
++			atk.SourceHostTargetPhaseEffects.OnEnemyHitObserversEmitted = counts.ObserversEmitted
++		} else {
++			e.Core.Combat.Events.Emit(event.OnEnemyHit, e, atk)
++		}
+ 	}
+ 
+ 	var amp string
+@@ -63,19 +79,29 @@
+ 	e.Core.Combat.Tasks.Add(func() {
+ 		// apply the damage
+ 		hpBefore := e.hp
+-		actualDmg := e.applyDamage(atk, dmg)
++		applicationDamage := dmg
++		if e.Core.SourceHost != nil && atk.SourceHostTargetPhase != nil {
++			applicationDamage = e.Core.SourceHost.TargetApplication(atk, e.Key(), dmg, hpBefore, e.Core.Flags.DamageMode)
++		}
++		actualDmg := e.applyDamage(atk, applicationDamage)
+ 		if e.Core.SourceHost != nil { e.Core.SourceHost.Applied(atk, e.Key(), dmg, actualDmg, hpBefore, e.hp, crit, e.Core.Flags.DamageMode) }
+ 		e.Core.Combat.TotalDamage += actualDmg
+-		e.Core.Combat.Events.Emit(event.OnEnemyDamage, e, atk, actualDmg, crit)
+-		// callbacks
+-		cb := info.AttackCB{
+-			Target:      e,
+-			AttackEvent: atk,
+-			Damage:      actualDmg,
+-			IsCrit:      crit,
+-		}
+-		for _, f := range atk.Callbacks {
+-			f(cb)
++		if hitConfirmBlocked {
++			counts := e.Core.Events.EmitObserved(event.OnEnemyDamage, e, atk, actualDmg, crit)
++			atk.SourceHostTargetPhaseEffects.OnEnemyDamageGameplaySkipped = counts.GameplaySkipped
++			atk.SourceHostTargetPhaseEffects.OnEnemyDamageObserversEmitted = counts.ObserversEmitted
++			atk.SourceHostTargetPhaseEffects.HitCallbacksSkipped = len(atk.Callbacks)
++		} else {
++			e.Core.Combat.Events.Emit(event.OnEnemyDamage, e, atk, actualDmg, crit)
++			cb := info.AttackCB{
++				Target:      e,
++				AttackEvent: atk,
++				Damage:      actualDmg,
++				IsCrit:      crit,
++			}
++			for _, f := range atk.Callbacks {
++				f(cb)
++			}
+ 		}
+ 	}, 0)
+ 
+@@ -98,46 +124,48 @@
+ 		atk.Info.NoImpulse = true
+ 	}
+ 
+-	// check poise dmg and then shatter first
+-	e.PoiseDMGCheck(atk)
+-	e.ShatterCheck(atk)
+-
+-	checkBurningICD := func() {
+-		// special global ICD for Burning DMG
+-		if atk.Info.ICDTag != attacks.ICDTagBurningDamage {
+-			return
+-		}
+-		// checks for ICD on all the other characters as well
+-		for i := range e.Core.Player.Chars() {
+-			if i == atk.Info.ActorIndex {
+-				continue
+-			}
+-			// burning durability wiped out to 0 if any of the other char still on icd re burning dmg
+-			atk.Info.Durability *= info.Durability(e.WillApplyEle(atk.Info.ICDTag, atk.Info.ICDGroup, i))
+-		}
+-	}
+-	// check tags
+-	if atk.Info.Durability > 0 {
+-		// check for ICD first
+-		atk.Info.Durability *= info.Durability(e.WillApplyEle(atk.Info.ICDTag, atk.Info.ICDGroup, atk.Info.ActorIndex))
+-		checkBurningICD()
+-		if atk.Info.Durability > 0 && atk.Info.Element != attributes.Physical {
+-			existing := e.ActiveAuraString()
+-			applied := atk.Info.Durability
+-			e.React(atk)
+-			if e.Core.Flags.LogDebug && atk.Reacted {
+-				e.Core.Log.NewEvent(
+-					"application",
+-					glog.LogElementEvent,
+-					atk.Info.ActorIndex,
+-				).
+-					Write("attack_tag", atk.Info.AttackTag).
+-					Write("applied_ele", atk.Info.Element.String()).
+-					Write("dur", applied).
+-					Write("abil", atk.Info.Abil).
+-					Write("target", e.Key()).
+-					Write("existing", existing).
+-					Write("after", e.ActiveAuraString())
++	if atk.SourceHostTargetPhase == nil || atk.SourceHostTargetPhase.Effects.Aura != "blocked" {
++		// check poise dmg and then shatter first
++		e.PoiseDMGCheck(atk)
++		e.ShatterCheck(atk)
++
++		checkBurningICD := func() {
++			// special global ICD for Burning DMG
++			if atk.Info.ICDTag != attacks.ICDTagBurningDamage {
++				return
++			}
++			// checks for ICD on all the other characters as well
++			for i := range e.Core.Player.Chars() {
++				if i == atk.Info.ActorIndex {
++					continue
++				}
++				// burning durability wiped out to 0 if any of the other char still on icd re burning dmg
++				atk.Info.Durability *= info.Durability(e.WillApplyEle(atk.Info.ICDTag, atk.Info.ICDGroup, i))
++			}
++		}
++		// check tags
++		if atk.Info.Durability > 0 {
++			// check for ICD first
++			atk.Info.Durability *= info.Durability(e.WillApplyEle(atk.Info.ICDTag, atk.Info.ICDGroup, atk.Info.ActorIndex))
++			checkBurningICD()
++			if atk.Info.Durability > 0 && atk.Info.Element != attributes.Physical {
++				existing := e.ActiveAuraString()
++				applied := atk.Info.Durability
++				e.React(atk)
++				if e.Core.Flags.LogDebug && atk.Reacted {
++					e.Core.Log.NewEvent(
++						"application",
++						glog.LogElementEvent,
++						atk.Info.ActorIndex,
++					).
++						Write("attack_tag", atk.Info.AttackTag).
++						Write("applied_ele", atk.Info.Element.String()).
++						Write("dur", applied).
++						Write("abil", atk.Info.Abil).
++						Write("target", e.Key()).
++						Write("existing", existing).
++						Write("after", e.ActiveAuraString())
++				}
+ 			}
+ 		}
+ 	}
+@@ -234,7 +262,8 @@
+ 	}
+ 
+ 	// apply auras
+-	if atk.Info.Durability > 0 && !atk.Reacted && atk.Info.Element != attributes.Physical {
++	if atk.Info.Durability > 0 && !atk.Reacted && atk.Info.Element != attributes.Physical &&
++		(atk.SourceHostTargetPhase == nil || atk.SourceHostTargetPhase.Effects.Aura != "blocked") {
+ 		// check for ICD first
+ 		existing := e.ActiveAuraString()
+ 		applied := atk.Info.Durability
+--- a/pkg/enemy/sourcehost_phase.go
++++ b/pkg/enemy/sourcehost_phase.go
+@@ -45,6 +45,9 @@
+ 			drops = append(drops, map[string]any{"dropId": drop.DropId, "hpPercent": drop.HpPercent})
+ 		}
+ 	}
++	if e.Core.SourceHost != nil && e.Core.SourceHost.TargetPhases != nil {
++		state["targetPhases"] = e.Core.SourceHost.TargetPhaseFutureState(e.Key(), e.Core.F)
++	}
+ 	state["particleProfile"] = map[string]any{"threshold": e.prof.ParticleDropThreshold, "count": e.prof.ParticleDropCount, "element": e.prof.ParticleElement.String(), "hpDrops": drops}
+ 	if e.prof.ParticleDropThreshold > 0 {
+ 		state["damageSinceParticleThreshold"] = e.damageTaken - float64(e.lastParticleDrop)*e.prof.ParticleDropThreshold

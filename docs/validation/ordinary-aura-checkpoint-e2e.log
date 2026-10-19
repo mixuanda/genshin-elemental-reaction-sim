@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:84229) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/ordinary-aura-checkpoint.spec.ts:52:1 › Ordinary aura warmup exports actual decay and ICD checkpoints and preserves amplified hit calculator replay (1.2s)
+
+  1 passed (1.8s)

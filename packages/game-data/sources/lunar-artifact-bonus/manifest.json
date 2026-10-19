@@ -1,0 +1,633 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "lunar-artifact-bonus-source-audit",
+  "auditedAt": "2026-09-24T14:16:52.816872+00:00",
+  "verification": "provisional",
+  "scope": "Fixed-source inspection only: lunar reaction bonus tags, timing, Flower stack events and Aubade actual-swap lifecycle. Not independent in-game verification; no simulator or product tests run by this audit.",
+  "sources": [
+    {
+      "id": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "id": "genshin-db",
+      "repository": "theBowja/genshin-db",
+      "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    },
+    {
+      "id": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE"
+    }
+  ],
+  "archive": {
+    "file": "source.json.gz",
+    "sha256": "23e46ddd13264ba078c7ec8e218f3b27b138b4c8d198b2c82146434ecdfd84da",
+    "bytes": 43273,
+    "fileCount": 30,
+    "format": "gzip UTF-8 JSON with original UTF-8 source bytes stored as files[archiveKey] strings"
+  },
+  "files": [
+    {
+      "source": "gcsim",
+      "upstreamPath": "LICENSE",
+      "archiveKey": "gcsim/LICENSE",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "gitBlobSha": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/thunderingfury/thunderingfury.go",
+      "archiveKey": "gcsim/internal/artifacts/thunderingfury/thunderingfury.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thunderingfury/thunderingfury.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thunderingfury/thunderingfury.go",
+      "sha256": "2c8890f37f1920ac86f782a8fb31c97afe79666f0927009d8b1f201fba2ff021",
+      "bytes": 3478,
+      "gitBlobSha": "4ad85921cd177604b4606bdc447f4eb92fb0482a",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "archiveKey": "gcsim/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+      "sha256": "f4fe90daa9f2b85466d0831c9225e63cdb5614371ee353bfe4dcf11f3e0bb862",
+      "bytes": 3541,
+      "gitBlobSha": "b8d7789e8140165926a5df067561a937360ee123",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/aubade/aubade.go",
+      "archiveKey": "gcsim/internal/artifacts/aubade/aubade.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/aubade/aubade.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/aubade/aubade.go",
+      "sha256": "5674f488184a242e81f52fbcc840693ecac54a372f530a266c3187146d91157b",
+      "bytes": 2122,
+      "gitBlobSha": "f6ef4c8e2249e69a03bcbf6da50a95166ea200d5",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/attacks/attack.go",
+      "archiveKey": "gcsim/pkg/core/attacks/attack.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go",
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "bytes": 1484,
+      "gitBlobSha": "63b9b3cc74984420e93df17b90eec90ece9665bd",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "archiveKey": "gcsim/pkg/core/player/character/mods.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "gitBlobSha": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/hitlag.go",
+      "archiveKey": "gcsim/pkg/core/player/character/hitlag.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go",
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "bytes": 1566,
+      "gitBlobSha": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/modifier/modifier.go",
+      "archiveKey": "gcsim/pkg/modifier/modifier.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345,
+      "gitBlobSha": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/reactable/bloom.go",
+      "archiveKey": "gcsim/pkg/reactable/bloom.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/bloom.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/bloom.go",
+      "sha256": "3107d1c5a24603a9d34997db4d98d2f41041c8c494685a04435ce2711f67ca06",
+      "bytes": 3180,
+      "gitBlobSha": "e746c87d6df32681d2789638b872621ffed2f604",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/reactable/lunarbloom.go",
+      "archiveKey": "gcsim/pkg/reactable/lunarbloom.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarbloom.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarbloom.go",
+      "sha256": "a7adc28457716a0854525b652d23200f7f1a3c688cbcaaa37f149497d665493e",
+      "bytes": 86,
+      "gitBlobSha": "29f860ef68e51697f7c5cb1d188efd3f3cb0a951",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/reactable/lunarcharged.go",
+      "archiveKey": "gcsim/pkg/reactable/lunarcharged.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcharged.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcharged.go",
+      "sha256": "3c2bb57d4e6b79cb6f5c85d7275882baad5aeddfef116ccb5a8e18aea150d4a3",
+      "bytes": 7172,
+      "gitBlobSha": "a91d3beaefab59630d04524f8f89982329841dec",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/reactable/lunarcrystallize.go",
+      "archiveKey": "gcsim/pkg/reactable/lunarcrystallize.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcrystallize.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcrystallize.go",
+      "sha256": "3bf2316fd56bc51fd61d0b3bca41dca8a6e9540e590f7dd8b60064e41126e419",
+      "bytes": 7420,
+      "gitBlobSha": "1323eac91c49ea9303b45c3a742ba2bee2fe2926",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/combat/reaction.go",
+      "archiveKey": "gcsim/pkg/core/combat/reaction.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "sha256": "f0acf39365cfd8d751a2a70c4b7fcc7e97f479fe6b9eadb0b56194360089d334",
+      "bytes": 1301,
+      "gitBlobSha": "6cc03353432d8a519433afd09ee732d644507b10",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/enemy/attack.go",
+      "archiveKey": "gcsim/pkg/enemy/attack.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607,
+      "gitBlobSha": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/enemy/damage.go",
+      "archiveKey": "gcsim/pkg/enemy/damage.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "gitBlobSha": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/exec.go",
+      "archiveKey": "gcsim/pkg/core/player/exec.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "bytes": 7052,
+      "gitBlobSha": "1bf462c6ebbc58342377aa1a31ae82285ec6b75b",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/player.go",
+      "archiveKey": "gcsim/pkg/core/player/player.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "bytes": 8629,
+      "gitBlobSha": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/action/action.go",
+      "archiveKey": "gcsim/pkg/core/action/action.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/action/action.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/action/action.go",
+      "sha256": "5074744fa1f71db33c1d13230b3b929fe0df3b87f26fc84a70693ace1cc2ab69",
+      "bytes": 4043,
+      "gitBlobSha": "3a2d1cdcfaa17df8ba93ddfcef62d5c9cc629754",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/simulation/setup.go",
+      "archiveKey": "gcsim/pkg/simulation/setup.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/setup.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/setup.go",
+      "sha256": "14d39712021e9e149ff7c3a5d0e042b7150087e825dac2bb8fd9268e1eeeba67",
+      "bytes": 18223,
+      "gitBlobSha": "755daf1278b5bd697f9ae8533fca9b0f15525d5f",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/simulation/simulation.go",
+      "archiveKey": "gcsim/pkg/simulation/simulation.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/simulation.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/simulation.go",
+      "sha256": "aaa938c5f5cfbf478c4570abab32211f295a378247e087b9a36afbcf53f768a1",
+      "bytes": 2049,
+      "gitBlobSha": "3097847a131bbfbd2e3d983e1d03a29d8228ccf2",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/template/dendrocore/dendrocore.go",
+      "archiveKey": "gcsim/internal/template/dendrocore/dendrocore.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/dendrocore/dendrocore.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/dendrocore/dendrocore.go",
+      "sha256": "b6056a42d1948999ca5c8611bedba30e9a2df37f46cb0f75633b5b6aea77e0e4",
+      "bytes": 6574,
+      "gitBlobSha": "62875d2bd91ea23736a273a09b786e8ee1b583f7",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "bytes": 1065,
+      "archiveKey": "genshin-db/LICENSE",
+      "provenance": "Byte identity checked against existing fixed-source manifest.",
+      "inheritedManifest": "packages/game-data/sources/artifact-additional-effects/manifest.json",
+      "inheritedFile": "genshin-db/LICENSE.txt"
+    },
+    {
+      "source": "optimizer",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "bytes": 1071,
+      "archiveKey": "optimizer/LICENSE",
+      "provenance": "Byte identity checked against existing fixed-source manifest.",
+      "inheritedManifest": "packages/game-data/sources/artifact-additional-effects/manifest.json",
+      "inheritedFile": "optimizer/LICENSE.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "sha256": "d04050f7ef7b67f756c3443144d8c4342b838861f8850c1c3f79ee1711c6b5aa",
+      "bytes": 9283,
+      "archiveKey": "genshin-db/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "provenance": "Byte identity checked against existing fixed-source manifest.",
+      "inheritedManifest": "packages/game-data/sources/artifact-additional-effects/manifest.json",
+      "inheritedFile": "genshin-db/src__data__ChineseSimplified__artifacts__flowerofparadiselost.json.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "sha256": "78bfb28e9c67eaed777c317f0c0a59fb8137fd7904067f445254d57f94ddea00",
+      "bytes": 7230,
+      "archiveKey": "genshin-db/src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "provenance": "Byte identity checked against existing fixed-source manifest.",
+      "inheritedManifest": "packages/game-data/sources/artifact-additional-effects/manifest.json",
+      "inheritedFile": "genshin-db/src__data__ChineseSimplified__artifacts__aubadeofmorningstarandmoon.json.txt"
+    },
+    {
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+      "archiveKey": "optimizer/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+      "sha256": "e8b504efbcf0af685c953d11cf44387c418372cf9efb126ca1efe45fd4cdc5a6",
+      "bytes": 3631,
+      "gitBlobSha": "583880f797f94a36fe63712d049ed44663172fb0",
+      "provenance": "Byte identity checked against existing fixed-source manifest and saved Git tree.",
+      "inheritedManifest": "packages/game-data/sources/artifact-remaining-effects/manifest.json",
+      "inheritedFile": "raw/optimizer/libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/template/character/character.go",
+      "archiveKey": "gcsim/internal/template/character/character.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "bytes": 4270,
+      "gitBlobSha": "8446a3de64aa409a414bbad9897c7fd3d690457c",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/stats.go",
+      "archiveKey": "gcsim/pkg/core/player/character/stats.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321,
+      "gitBlobSha": "33d47f781e040dbabac6622360272235888cf663",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/reactable/reactable.go",
+      "archiveKey": "gcsim/pkg/reactable/reactable.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go",
+      "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307",
+      "bytes": 11418,
+      "gitBlobSha": "3013e769f024a4d2622029a6393232ba0d71bf9e",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/core.go",
+      "archiveKey": "gcsim/pkg/core/core.go",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "bytes": 5508,
+      "gitBlobSha": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "provenance": "Byte identity checked against saved fixed-revision Git tree."
+    }
+  ],
+  "provenance": {
+    "gcsimLocalExtracted": "/tmp/gidps-gcsim-b4ae769",
+    "gcsimSavedTree": {
+      "file": "/tmp/gidps-gcsim-tree.json",
+      "sha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/trees/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "truncated": false,
+      "selectedEntries": [
+        {
+          "path": "LICENSE",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+          "size": 1067,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/194f5e6715dd99e008f815327df1d87228eb5b3b"
+        },
+        {
+          "path": "internal/artifacts/thunderingfury/thunderingfury.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "4ad85921cd177604b4606bdc447f4eb92fb0482a",
+          "size": 3478,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4ad85921cd177604b4606bdc447f4eb92fb0482a"
+        },
+        {
+          "path": "internal/artifacts/flowerofparadiselost/flowerofparadiselost.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "b8d7789e8140165926a5df067561a937360ee123",
+          "size": 3541,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/b8d7789e8140165926a5df067561a937360ee123"
+        },
+        {
+          "path": "internal/artifacts/aubade/aubade.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "f6ef4c8e2249e69a03bcbf6da50a95166ea200d5",
+          "size": 2122,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/f6ef4c8e2249e69a03bcbf6da50a95166ea200d5"
+        },
+        {
+          "path": "pkg/core/attacks/attack.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "63b9b3cc74984420e93df17b90eec90ece9665bd",
+          "size": 1484,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/63b9b3cc74984420e93df17b90eec90ece9665bd"
+        },
+        {
+          "path": "pkg/core/player/character/mods.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+          "size": 9963,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/fd5281e16030e9fabe33a746b53d8dac5b980729"
+        },
+        {
+          "path": "pkg/core/player/character/hitlag.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3a31809c95a9599270b2c165a6a2309c193feda4",
+          "size": 1566,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/3a31809c95a9599270b2c165a6a2309c193feda4"
+        },
+        {
+          "path": "pkg/modifier/modifier.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+          "size": 3345,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+        },
+        {
+          "path": "pkg/reactable/bloom.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e746c87d6df32681d2789638b872621ffed2f604",
+          "size": 3180,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/e746c87d6df32681d2789638b872621ffed2f604"
+        },
+        {
+          "path": "pkg/reactable/lunarbloom.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "29f860ef68e51697f7c5cb1d188efd3f3cb0a951",
+          "size": 86,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/29f860ef68e51697f7c5cb1d188efd3f3cb0a951"
+        },
+        {
+          "path": "pkg/reactable/lunarcharged.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "a91d3beaefab59630d04524f8f89982329841dec",
+          "size": 7172,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/a91d3beaefab59630d04524f8f89982329841dec"
+        },
+        {
+          "path": "pkg/reactable/lunarcrystallize.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1323eac91c49ea9303b45c3a742ba2bee2fe2926",
+          "size": 7420,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/1323eac91c49ea9303b45c3a742ba2bee2fe2926"
+        },
+        {
+          "path": "pkg/core/combat/reaction.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "6cc03353432d8a519433afd09ee732d644507b10",
+          "size": 1301,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/6cc03353432d8a519433afd09ee732d644507b10"
+        },
+        {
+          "path": "pkg/enemy/attack.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "e362d4c75594496770fe52d0b4447e2a446601cd",
+          "size": 7607,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/e362d4c75594496770fe52d0b4447e2a446601cd"
+        },
+        {
+          "path": "pkg/enemy/damage.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+          "size": 11023,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+        },
+        {
+          "path": "pkg/core/player/exec.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "1bf462c6ebbc58342377aa1a31ae82285ec6b75b",
+          "size": 7052,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/1bf462c6ebbc58342377aa1a31ae82285ec6b75b"
+        },
+        {
+          "path": "pkg/core/player/player.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+          "size": 8629,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/2ea49c50ae7327c4e682f99eed9ebce1023cbf00"
+        },
+        {
+          "path": "pkg/core/action/action.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3a2d1cdcfaa17df8ba93ddfcef62d5c9cc629754",
+          "size": 4043,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/3a2d1cdcfaa17df8ba93ddfcef62d5c9cc629754"
+        },
+        {
+          "path": "pkg/simulation/setup.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "755daf1278b5bd697f9ae8533fca9b0f15525d5f",
+          "size": 18223,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/755daf1278b5bd697f9ae8533fca9b0f15525d5f"
+        },
+        {
+          "path": "pkg/simulation/simulation.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3097847a131bbfbd2e3d983e1d03a29d8228ccf2",
+          "size": 2049,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/3097847a131bbfbd2e3d983e1d03a29d8228ccf2"
+        },
+        {
+          "path": "internal/template/dendrocore/dendrocore.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "62875d2bd91ea23736a273a09b786e8ee1b583f7",
+          "size": 6574,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/62875d2bd91ea23736a273a09b786e8ee1b583f7"
+        },
+        {
+          "path": "internal/template/character/character.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "8446a3de64aa409a414bbad9897c7fd3d690457c",
+          "size": 4270,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/8446a3de64aa409a414bbad9897c7fd3d690457c"
+        },
+        {
+          "path": "pkg/core/player/character/stats.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "33d47f781e040dbabac6622360272235888cf663",
+          "size": 3321,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/33d47f781e040dbabac6622360272235888cf663"
+        },
+        {
+          "path": "pkg/reactable/reactable.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "3013e769f024a4d2622029a6393232ba0d71bf9e",
+          "size": 11418,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/3013e769f024a4d2622029a6393232ba0d71bf9e"
+        },
+        {
+          "path": "pkg/core/core.go",
+          "mode": "100644",
+          "type": "blob",
+          "sha": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+          "size": 5508,
+          "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+        }
+      ]
+    },
+    "gcsimOriginalExtraction": {
+      "url": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+      "bytes": 56440121,
+      "retrievedAt": "2026-09-23T06:21:35.667874+00:00",
+      "localExtracted": "/tmp/gidps-gcsim-b4ae769"
+    },
+    "optimizerSavedTree": {
+      "file": "/tmp/gidps-optimizer-180a0a1/tree.json",
+      "sha256": "3fb9ff8b883c2a63c5ccb6569719795389ccd8b8f055a10d5c5af9ae77e612eb",
+      "selectedEntry": {
+        "path": "libs/gi/sheets/src/Artifacts/FlowerOfParadiseLost/index.tsx",
+        "mode": "100644",
+        "type": "blob",
+        "sha": "583880f797f94a36fe63712d049ed44663172fb0",
+        "size": 3631,
+        "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/583880f797f94a36fe63712d049ed44663172fb0"
+      }
+    },
+    "note": "No network refetch performed. Local archive is not a Git checkout. Primary gcsim source bytes were matched to the existing pinned Git-tree evidence; catalog and licenses reuse hash-checked existing archived sources."
+  }
+}

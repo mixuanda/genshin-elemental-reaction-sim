@@ -1,0 +1,40 @@
+[WebServer] (node:89924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:89925) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/observed-input-editors.spec.ts:18:1 › structured observed events and per-hit plunge snapshots edit and restore through the calculator (30.2s)
+
+
+  1) [chromium] › apps/web/e2e/observed-input-editors.spec.ts:18:1 › structured observed events and per-hit plunge snapshots edit and restore through the calculator 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('[data-source-cast-state-field="gameContext.observedPlunge.noExternalInfusion"]')
+
+
+      52 |     const context = 'gameContext.observedPlunge';
+      53 |     const state = (key: string) => page.locator(`[data-source-cast-state-field="${context}.${key}"]`);
+    > 54 |     await state('noExternalInfusion').selectOption('1');
+         |                                       ^
+      55 |     await page.locator(`[data-field="${context}.collisionCount"]`).fill('1');
+      56 |     await state('collisionContacts.1').selectOption('1');
+      57 |     await state('landingContact').selectOption('1');
+        at /Users/evan/Documents/gidps/apps/web/e2e/observed-input-editors.spec.ts:54:39
+
+    Error Context: test-results/observed-input-editors-str-a6343-tore-through-the-calculator-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/observed-input-editors-str-a6343-tore-through-the-calculator-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/observed-input-editors-str-a6343-tore-through-the-calculator-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/observed-input-editors.spec.ts:18:1 › structured observed events and per-hit plunge snapshots edit and restore through the calculator 

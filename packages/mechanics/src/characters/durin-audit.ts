@@ -17,9 +17,10 @@ import {
 import {
   CLASSIC_REACTION_FORMULA_PROFILE_ID
 } from "@genshin-dps-lab/reaction-formulas";
+import { runtimeDatasetMetadata } from "@genshin-dps-lab/game-data";
 
 export const durinBlackSkillAuditDisclosure = {
-  mappingVersion: "durin-gcsim-b4ae769d7c1c.7",
+  mappingVersion: "durin-gcsim-b4ae769d7c1c.8",
   simulationStatus: "partial",
   blueprintIds: [
     "durin-enter-essential-transformation",
@@ -97,8 +98,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
     mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
     policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID
   },
-  dataVersion:
-    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
+  dataVersion: `${runtimeDatasetMetadata.catalogVersion}+${durinBlackSkillAuditDisclosure.mappingVersion}`,
   randomSeed: "durin-black-e-audit-v1",
   meta: {
     name: "杜林黑 E · 部分机制审计向量",
@@ -337,7 +337,7 @@ export const durinBlackSkillAuditPreset: SimConfig = {
 };
 
 export const durinWhiteSkillAuditDisclosure = {
-  mappingVersion: "durin-gcsim-b4ae769d7c1c.7",
+  mappingVersion: "durin-gcsim-b4ae769d7c1c.8",
   simulationStatus: "partial",
   blueprintIds: [
     "durin-enter-essential-transformation",
@@ -360,6 +360,11 @@ export const durinWhiteSkillAuditDisclosure = {
       url: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/combat.go"
     },
     {
+      label: "gcsim 默认附着 ICD",
+      path: "pkg/core/attacks/icd_groups.dm.go",
+      url: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/icd_groups.dm.go"
+    },
+    {
       label: "gcsim 默认粒子飞行帧",
       path: "pkg/core/player/character/character.go",
       url: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go"
@@ -368,7 +373,7 @@ export const durinWhiteSkillAuditDisclosure = {
   unresolvedMechanics: [
     "冲刺/跳跃命令只接受显式占用帧；耐力、位移、无敌帧、落地和碰撞尚未建模",
     "命中停顿、队列窗口与输入缓冲尚未建模",
-    "锁定 gcsim 中白 E 的 Durability 为 0，本向量按无附着实现；该行为尚需官方或实测交叉验证",
+    "白 E 的 1U 火附着与默认 ICD 已对照锁定 gcsim；仍缺官方或实测独立交叉验证",
     "仅支持通用二维形状、静态施放者局部坐标与声明式线性目标移动；杜林真实范围、角色/敌人实战移动和 Boss AI 尚未核验",
     "黑/白爆发、状态驱动被动、命座和装备效果尚未映射"
   ]
@@ -409,15 +414,14 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
     mode: GCSIM_CALLBACK_BUS_POLICY_V2_MODE,
     policyId: GCSIM_CALLBACK_BUS_POLICY_V2_ID
   },
-  dataVersion:
-    "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1+durin-gcsim-b4ae769d7c1c.7",
+  dataVersion: `${runtimeDatasetMetadata.catalogVersion}+${durinWhiteSkillAuditDisclosure.mappingVersion}`,
   randomSeed: "durin-white-e-audit-v1",
   meta: {
     name: "杜林白 E · 部分机制审计向量",
     version: "1.0.0",
     verificationStatus: "provisional",
     note:
-      "只覆盖精质转变前置/状态转换、白 E 单段倍率、命中帧、锁定 gcsim 的无附着口径、带 6 秒共享冷却的固定回能与命中产球；不是完整角色预设，也不是官方验证数据。"
+      "只覆盖精质转变前置/状态转换、白 E 单段倍率、命中帧、锁定 gcsim 的 1U 火附着与默认 ICD、带 6 秒共享冷却的固定回能与命中产球；不是完整角色预设，也不是官方验证数据。"
   },
   duration: 3,
   cycleLength: 3,
@@ -522,6 +526,14 @@ export const durinWhiteSkillAuditPreset: SimConfig = {
             scaling: 1.9008,
             scalingStat: "atk",
             element: "pyro",
+            application: {
+              gaugeUnits: 1,
+              icd: {
+                mode: "fixed-gcsim-application-v1",
+                icdTag: "durin-elemental-art",
+                groupId: "default"
+              }
+            },
             snapshot: "hit"
           }
         ],

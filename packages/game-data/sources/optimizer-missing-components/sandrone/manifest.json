@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 1,
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archivedAt": "2026-09-25T02:51:00.446604+00:00",
+  "evidenceStatus": "source-provisional",
+  "scope": "Observed individual source damage components and their per-hit dependencies. No automatic resource, entity, animation, cadence, complete lifecycle or team execution certification.",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivePath": "raw/LICENSE",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "bytes": 1071,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Sandrone/index.tsx",
+      "sha256": "1f8b80d73cebacc35a3446132e106b0b01ad7d584f1d50ec6673786abcbc4e54",
+      "bytes": 17612,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/skillParam.json",
+      "sha256": "a3936f7b5797c5e5b267abc22e7475b7bfb6b1245933cd81081f1ee6e9760f26",
+      "bytes": 5120,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Sandrone/data.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Sandrone/data.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Sandrone/data.json",
+      "sha256": "0b48e67c2c3fd2d326a4b8edb241a0dabf2698aa5ada5ea771c8aed3627d56c5",
+      "bytes": 963,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Sandrone_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/char_Sandrone_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Sandrone_gen.json",
+      "sha256": "0a15883725d424de3137774b23e54bae263f445c9dda99a6ebadba36c18e1e8d",
+      "bytes": 12743,
+      "retrieval": "fixed revision primary repository"
+    },
+    {
+      "path": "libs/gi/formula/src/data/char/Sandrone.ts",
+      "archivePath": "raw/libs/gi/formula/src/data/char/Sandrone.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/char/Sandrone.ts",
+      "sha256": "96f0e4dab7a29fc779c158f0c50871948fa1d2c3695c21500c9f38dce4cfc773",
+      "bytes": 1921,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "bytes": 15409,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivePath": "raw/libs/gi/wr/src/formula.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "bytes": 15340,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/special.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/special.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts",
+      "sha256": "152819697395a9f7a5ca4f10948c96ae9655cb0ebfe592065056deb4f9f8a0aa",
+      "bytes": 2810,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/stellar.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/stellar.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/stellar.ts",
+      "sha256": "1d27139b3b18a88df1f4c45bebf3306069a84380bf6245064f631a1179a77fce",
+      "bytes": 1307,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "sha256": "f20816bb19c79a617a173d8bade6b7301810d92a893ee4495f2e190365f012dd",
+      "bytes": 38604,
+      "relevantJsonPointers": [
+        "/11330001",
+        "/11330002",
+        "/11330003",
+        "/11500004"
+      ]
+    }
+  ],
+  "rejectedPlaceholders": {
+    "path": "libs/gi/formula/src/data/char/Sandrone.ts",
+    "reason": "TODO formula-layer placeholder is archived for audit only. The production sheet, skill parameter vectors, localized talent text, and shared damage helpers provide the usable evidence."
+  },
+  "newComponentIds": [
+    "sandrone-charged-beam-stellar-conduct-component",
+    "sandrone-charged-beam-stellar-swirl-component",
+    "sandrone-skill-prism-stellar-conduct-component",
+    "sandrone-skill-prism-stellar-swirl-component",
+    "sandrone-burst-ray-stellar-conduct-component",
+    "sandrone-burst-ray-stellar-swirl-component"
+  ],
+  "sourceCoefficientVectors": [
+    {
+      "field": "/auto/5",
+      "catalogParameter": "combat1.param6",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "stellar-conduct-direct",
+      "stat": "atk"
+    },
+    {
+      "field": "/auto/10",
+      "catalogParameter": "combat1.param11",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "stellar-swirl-direct",
+      "stat": "atk"
+    },
+    {
+      "field": "/skill/1",
+      "catalogParameter": "combat2.param2",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "stellar-conduct-direct",
+      "stat": "atk"
+    },
+    {
+      "field": "/skill/3",
+      "catalogParameter": "combat2.param4",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "stellar-swirl-direct",
+      "stat": "atk"
+    },
+    {
+      "field": "/burst/2",
+      "catalogParameter": "combat3.param3",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "stellar-conduct-direct",
+      "stat": "atk"
+    },
+    {
+      "field": "/burst/5",
+      "catalogParameter": "combat3.param6",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "stellar-swirl-direct",
+      "stat": "atk"
+    }
+  ],
+  "componentStatus": "partial",
+  "adjudication": [
+    {
+      "mechanic": "charged beam Stellar Swirl coefficient",
+      "conflict": "index.tsx dmgFormulas.charged.beamSsDmg reads dm.charged.beamStellarDmg (auto[5]), despite defining dm.charged.beamSsDmg as auto[last] (auto[10]).",
+      "acceptedEvidence": [
+        "index.tsx dm.charged.beamSsDmg",
+        "skillParam.json /auto/10",
+        "char_Sandrone_gen.json /auto/skillParams/6 and /auto/skillParamsEncoding/6 = {{10, percent(fixed: 1)}}%"
+      ],
+      "acceptedSourceField": "/auto/10",
+      "rejectedSourceField": "charged.beamSsDmg node reference to auto[5]",
+      "reason": "The separately named parameter and localized field encoding independently bind Stellar Swirl to the dedicated vector. Preserve the conflicting sheet call; do not silently copy the Stellar-Conduct coefficient or loosen global tolerance.",
+      "promotion": "source-provisional; no live-game validation"
+    },
+    {
+      "mechanic": "E A1 multiplier",
+      "formula": "ascension >= 1 and actual Decoding Power at skill > 50 ? 4 : 1",
+      "source": "index.tsx a1Decoding_prism_mult_; char_Sandrone_gen passive1.description.0",
+      "accounting": "Strictly greater than50. Applies only to the second Prism Shot in the actual Radiance special branch; multiply talent*ATK before special additive."
+    },
+    {
+      "mechanic": "Q A1 multiplier",
+      "formula": "ascension >= 1 ? 1 + 0.1 * actual Refined Tactics consumed : 1",
+      "domain": "integer consumed stacks 0..10",
+      "source": "index.tsx a1Decoding_ray_mult_; char_Sandrone_gen passive1.description.1",
+      "accounting": "The sheet reuses the E condition toggle. The talent text makes the Q multiplier depend on actual cleared Tactics, not current Decoding Power >50. Restore actual consumed stacks without manufacturing resource history."
+    },
+    {
+      "mechanic": "A4 EM",
+      "formula": "ascension >= 4 ? min(pre-conversion ATK * 0.08, 160) : 0",
+      "source": "index.tsx a4EleMas; char_Sandrone_gen passive2; skillParam.json /passive2",
+      "accounting": "Use premod ATK, restore actual already-included EM, subtract that share before adding the calculated amount."
+    },
+    {
+      "mechanic": "intrinsic special base bonus",
+      "formula": "min(actual ATK * 0.007 / 100, 0.14)",
+      "source": "index.tsx a0_stellarconduct_baseDmg_ and a0_stellarswirl_baseDmg_; skillParam.json /passive3",
+      "accounting": "Separate from ordinary Cryo/charged/skill/burst bonus and special reaction bonus."
+    },
+    {
+      "mechanic": "Cryo resistance and Radiance",
+      "source": "index.tsx stellarDmgNode(..., cryo); wr/reaction/stellar.ts; tooltips_gen /11500004",
+      "meaning": "Both direct special variants deal Cryo-aligned damage and read Cryo resistance. Radiance states are mutually exclusive; Stellar-Conduct takes priority if both can be triggered. Standalone components restore the actual branch, not an invented transition timeline."
+    }
+  ],
+  "remainingLifecycle": [
+    "Decoding Power continuous gain, beam gain, ordinary/off-field decay and E repair rate; thresholds100 and below50 are known but rates are not supplied.",
+    "Sweep and beam first-hit/period/stop-tail times; Overdrive firing interval; legal input and stance cancellation.",
+    "Radiance transition sampling, field entry/exit and simultaneous-event order.",
+    "Refined Tactics gain/expiry/clearing order and E heat read versus repair callbacks.",
+    "C1+ heat-rate changes, C2 beam crit stack timing, C4 4s proc and C6 multi-beam tails."
+  ]
+}

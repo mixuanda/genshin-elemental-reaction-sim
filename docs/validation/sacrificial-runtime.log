@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/sacrificial-runtime.test.ts (3 tests | 1 failed) 205ms
+     × accepts a real reset in phase 8 at the same frame, while strict phase 0 waits for the next frame and stamina remains a separate wait 31ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  09:30:56
+   Duration  1.09s (transform 645ms, setup 0ms, import 824ms, tests 205ms, environment 0ms)
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/sacrificial-runtime.test.ts > actual Sacrificial callbacks and legal serial skill feedback > accepts a real reset in phase 8 at the same frame, while strict phase 0 waits for the next frame and stamina remains a separate wait
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.1.staminaCost: shared stamina requires an explicit cost for every ability, including zero-cost actions
+- timeline.abilities.2.staminaCost: shared stamina requires an explicit cost for every ability, including zero-cost actions
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33703:11
+    33701|   if (!parsed.success) {
+    33702|     const issues = formatZodError(parsed.error);
+    33703|     throw new ConfigMigrationError(
+       |           ^
+    33704|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33705|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35142:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18376:18
+ ❯ packages/sim-core/src/__tests__/sacrificial-runtime.test.ts:56:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+{"exitCode": 1, "elapsedSeconds": 1.5353349159704521}

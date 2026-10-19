@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:75854) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Kuki source execution browser measurements {"rejectedQFrame":564,"rejectedQEnergy":9,"swapStartFrame":565,"swapEndFrame":566,"finalActiveActor":"amber","followingHealReceivers":[[654,"amber"],[744,"amber"]]}
+  ✓  1 [chromium] › apps/web/e2e/kuki-burst-runtime.spec.ts:182:1 › Kuki rejected Q releases the next swap in the ordinary rotation preview and actual worker execution (794ms)
+
+  1 passed (1.2s)

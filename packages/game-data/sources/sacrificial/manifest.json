@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "gcsimRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogRevision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "scope": "Four Sacrificial wrappers share the fixed common proc and template serial skill cooldown state transitions. Same-frame task/action ordering, delayed starts and hitlag remain explicit host responsibilities.",
+  "files": [
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/common/sacrificial.go",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/gcsim/internal__weapons__common__sacrificial.go.txt",
+      "bytes": 1562,
+      "sha256": "88331402fbe42353adc0015026212467e949f461682eb51f201376d258dcdb98",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/sacrificial.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/sword/sacrificial/sacrificial.go",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/gcsim/internal__weapons__sword__sacrificial__sacrificial.go.txt",
+      "bytes": 397,
+      "sha256": "26ecfc3bfd1223b937df4a0732712fa17e307a17eec89bf4e4323c9577e41c14",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sacrificial/sacrificial.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/claymore/sacrificial/sacrificial.go",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/gcsim/internal__weapons__claymore__sacrificial__sacrificial.go.txt",
+      "bytes": 397,
+      "sha256": "26ecfc3bfd1223b937df4a0732712fa17e307a17eec89bf4e4323c9577e41c14",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/sacrificial/sacrificial.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/catalyst/sacrificial/sacrificial.go",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/gcsim/internal__weapons__catalyst__sacrificial__sacrificial.go.txt",
+      "bytes": 397,
+      "sha256": "26ecfc3bfd1223b937df4a0732712fa17e307a17eec89bf4e4323c9577e41c14",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/sacrificial/sacrificial.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/bow/sacrificial/sacrificial.go",
+      "archivedPath": "packages/game-data/sources/weapon-bow-effects/gcsim/internal__weapons__bow__sacrificial__sacrificial.go.txt",
+      "bytes": 397,
+      "sha256": "26ecfc3bfd1223b937df4a0732712fa17e307a17eec89bf4e4323c9577e41c14",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sacrificial/sacrificial.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/template/character/cooldown.go",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/gcsim/internal__template__character__cooldown.go.txt",
+      "bytes": 7269,
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/cooldown.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/gcsim/pkg__core__player__character__mods.go.txt",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/hitlag.go",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/gcsim/pkg__core__player__character__hitlag.go.txt",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go",
+      "reused": true
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/sacrificialsword.json",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/genshin-db/src__data__ChineseSimplified__weapons__sacrificialsword.json.txt",
+      "bytes": 4282,
+      "sha256": "e3cf406b35965ebd2d045f7fe7813e549f479247882eaee31f11b00895823e14",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificialsword.json",
+      "reused": true
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/sacrificialgreatsword.json",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/genshin-db/src__data__ChineseSimplified__weapons__sacrificialgreatsword.json.txt",
+      "bytes": 4611,
+      "sha256": "f83f68ed54c595ed8218a8fb501ae68963ed9d3f3595f14d0ad42bd31b0e13f2",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificialgreatsword.json",
+      "reused": true
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/sacrificialfragments.json",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__sacrificialfragments.json.txt",
+      "bytes": 4386,
+      "sha256": "80288f1adf731994fa0ae33aeee00dd51cb53da2dac32c1717be4a56f55faba9",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificialfragments.json",
+      "reused": true
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/sacrificialbow.json",
+      "archivedPath": "packages/game-data/sources/weapon-bow-effects/genshin-db/src__data__ChineseSimplified__weapons__sacrificialbow.json.txt",
+      "bytes": 4408,
+      "sha256": "5a1b3eef524cd67068637f1cf3f3adc04ca808a844b23f3fcf2119610e468a0b",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificialbow.json",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/template/character/ready.go",
+      "archivePath": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "archiveEntry": "internal/template/character/ready.go",
+      "archiveSha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d",
+      "sha256": "d8226df747ea6181d5edb40ea3131ff948cf165d1f5c948704402808ed049ef1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/ready.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/core.go",
+      "archivePath": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "archiveEntry": "pkg/core/core.go",
+      "archiveSha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/task/task.go",
+      "archivePath": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "archiveEntry": "pkg/core/task/task.go",
+      "archiveSha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d",
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/enemy/attack.go",
+      "archivePath": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "archiveEntry": "pkg/enemy/attack.go",
+      "archiveSha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/modifier/modifier.go",
+      "archivePath": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "archiveEntry": "pkg/modifier/modifier.go",
+      "archiveSha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "reused": true
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/simulation/run.go",
+      "archivePath": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "archiveEntry": "pkg/simulation/run.go",
+      "archiveSha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d",
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/run.go",
+      "reused": true
+    }
+  ]
+}

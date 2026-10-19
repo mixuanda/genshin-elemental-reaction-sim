@@ -1,0 +1,26 @@
+{
+  "notice": "合成输入机制验证，非真实角色输出",
+  "options": {
+    "party": [
+      {
+        "actorId": "h",
+        "characterKey": "barbara"
+      },
+      {
+        "actorId": "e",
+        "characterKey": "flins"
+      }
+    ],
+    "compatibilityMode": "legal-frame-v1",
+    "critMode": "average"
+  },
+  "classicDamage": 1047.375,
+  "lunarChargedDamage": 12991.61325362727,
+  "totalDamage": 14038.98825362727,
+  "totalDps": 2339.831375604545,
+  "eventFrames": [
+    15,
+    135
+  ],
+  "sourceKey": "gdl-v2-fnv1a32-47ddbf84"
+}

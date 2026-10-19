@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-shared-phase-state.spec.ts",
+    "--workers=1"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 7.342
+}

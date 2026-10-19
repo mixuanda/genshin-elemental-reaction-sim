@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "source-native-phase-state-inventory-v1",
+  "date": "2026-09-28",
+  "scope": {
+    "classic": "/tmp/gidps-source-host-cache/build-5Q2zcD/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-nuG3EO/source",
+    "comparison": "task/task.go and core/core.go match for inspected state; event/event.go differs by added Stellar event kinds; simulation/setup.go adds Stellar subscriptions while energy/hurt scheduling logic remains equivalent. Do not treat this as a complete simulation snapshot inventory."
+  },
+  "taskQueue": {
+    "source": "pkg/core/task/task.go",
+    "structFields": {
+      "Handler": ["f *int", "tasks *minHeap", "counter int"],
+      "task": ["executeBy int", "f func()", "id int"]
+    },
+    "runtimeSemantics": [
+      "Add schedules executeBy = *f + delay and assigns the current counter as id, then increments counter.",
+      "Heap order is executeBy ascending, then id ascending; Run executes and removes all tasks with executeBy <= current frame.",
+      "Callbacks execute synchronously from Run and may enqueue more tasks."
+    ],
+    "normalization": {
+      "frame": "Store each pending deadline as remainingFrames = executeBy - currentFrame; retain negative/past-due values or normalize them to 0 while preserving the original stable id/order. Do not store a raw pointer to Core.F.",
+      "counter": "Preserve Handler.counter as the next insertion id, even when the heap is empty; it is an ordering counter, not a frame deadline.",
+      "heap": "Serialize tasks in semantic (executeBy,id) order, not container/heap backing-array order."
+    },
+    "opaqueState": [
+      "Each task's func() closure is not serializable and may capture an amount, source, entity pointer, config pointer, active-character lookup, or arbitrary local state.",
+      "The handler exposes no queue snapshot/restore API. Generic reflection cannot restore callback behavior or captured state.",
+      "Negative-delay behavior is explicitly marked inconsistent in source; preserve exact signed delay semantics rather than silently clamping at scheduling time."
+    ],
+    "currentExportedAccessors": ["New(*int)", "(*Handler).Add(func(), delay)", "(*Handler).Run()"],
+    "recommendedCaptureBoundary": "Add a source-owned typed task descriptor registry and explicit capture/restore hooks per callback family; report unknown callback descriptors as incomplete instead of omitting them."
+  },
+  "eventBus": {
+    "source": "pkg/core/event/event.go",
+    "structFields": {
+      "Handler": ["events [][]ehook"],
+      "ehook": ["f Hook", "key string"],
+      "Hook": "func(args ...any)"
+    },
+    "runtimeSemantics": [
+      "Subscription order within each event is slice order; subscribing an existing key replaces its callback in place.",
+      "Unsubscribe nils f but leaves the hook slot/key; Emit walks the slice in order and skips nil callbacks.",
+      "Events are synchronously emitted; Handler stores subscribers, not a queued event history."
+    ],
+    "laneDifferences": {
+      "classic": ["OnLunarReactionAttack", "OnMoondriftHarmony", "OnStateChange(prev,next)"],
+      "stellar": ["adds OnElementApplied", "adds OnStellarConduct", "adds OnStellarSwirl", "adds OnMovement", "renames OnLunarReactionAttack to OnSpecialReactionAttack", "adds OnStellarVortexDetonate", "OnStateChange(prev,next,segmented)", "OnMoondriftHarmony retained"]
+    },
+    "closureStateExamples": [
+      {
+        "source": "pkg/core/energy.go: SetupOnNormalHitEnergy",
+        "subscriptionKeys": ["random-energy-restore-on-hit", "random-energy-restore-on-hit-swap"],
+        "capturedLocals": ["current[MaxChars][EndWeaponClass] per-character/per-weapon chance", "icd absolute frame"],
+        "note": "Swap hook resets all chances; sword chance restarts at 0.10. These values are not in Event.Handler."
+      },
+      {
+        "source": "pkg/simulation/setup.go: SetupResonance and setup helpers",
+        "capturedLocals": ["electro resonance last-proc frame", "geo resonance ticker/source state", "timer generations and callback-local values in setup hooks"],
+        "note": "Examples establish that keyed subscriptions alone do not close closure state. Inventory all enabled setup callbacks before claiming capture completeness."
+      }
+    ],
+    "normalization": "Preserve per-event hook order, duplicate-key replacement position, nil/unsubscribed slots, and event enum identity. A registry needs stable callback type/key plus typed captured state; do not persist function pointers or attempt to JSON-encode args.",
+    "currentExportedAccessors": ["New()", "(*Handler).Subscribe(Event, Hook, key)", "(*Handler).Unsubscribe(Event, key)", "(*Handler).Emit(Event, ...any)"],
+    "opaqueState": ["events and ehook fields are private", "Hook closures and arbitrary captured pointers/locals have no generic getter", "no subscriber snapshot/restore or event-history API"]
+  },
+  "coreAndSimulation": {
+    "sources": ["pkg/core/core.go", "pkg/simulation/simulation.go", "pkg/simulation/run.go"],
+    "coreFields": {
+      "exported": ["SourceHost", "F", "Flags", "Seed", "Rand", "Log", "Events", "Status", "Tasks", "Combat", "Constructs", "Player"],
+      "Flags": ["LogDebug", "DamageMode", "DefHalt", "EnableHitlag", "IgnoreBurstEnergy", "Custom map[string]float64"]
+    },
+    "simulationFields": {
+      "private": ["preActionDelay", "cfg *info.ActionList", "queue []*action.Eval", "eval", "noMoreActions", "collectors"],
+      "note": "Core fields are public, but Simulation phase/action queue/config state has no exported mid-run snapshot API."
+    },
+    "normalization": "Core.F is the absolute frame origin. Any absolute expiry/deadline stored in nested handlers should be converted to remaining frames relative to F; counters, ids, RNG progression, and ordered queues must remain distinct fields.",
+    "currentExportedAccessors": ["core.New(Opt)", "(*Core).Init()", "(*Core).Tick()", "(*Core).AddChar(...) ", "(*Simulation).Run()", "(*Simulation).CharacterDetails()"],
+    "closureBoundary": "Core owns pointers to subsystems, not serializable snapshots of their private state. Capturing Core's exported struct fields alone is not a complete phase restore."
+  },
+  "externalEnergyAndHurt": {
+    "sources": ["pkg/core/info/actionlist.go", "pkg/simulation/setup.go:503-605", "pkg/simulation/run.go:341-350", "pkg/core/player/character/energy.go"],
+    "configFields": {
+      "EnergySettings": ["Active", "Once", "Start", "End", "Amount", "LastEnergyDrop"],
+      "HurtSettings": ["Active", "Once", "Start", "End", "Min", "Max", "Element", "LastHurt"]
+    },
+    "normalization": {
+      "lastEnergyDrop": "LastEnergyDrop is treated as an absolute frame: trigger condition is currentFrame - LastEnergyDrop >= Start; on recurring queue it becomes currentFrame + randomOffset.",
+      "lastHurt": "LastHurt is treated as an absolute frame using the same currentFrame delta check and is set to currentFrame + randomOffset.",
+      "queuedOffset": "Recurring offset is Intn(End-Start), so the sampled integer is [0, End-Start); the once delay is Start. Preserve the exact branch and its boundary behavior."
+    },
+    "pendingClosurePayload": [
+      "Energy task captures scheduling delay but reads s.cfg.EnergySettings.Amount at execution, then distributes a neutral particle with Source enemy (once) or drop (recurring).",
+      "Hurt task captures sampled flat amount and delay, reads HurtSettings.Element at execution, and resolves the active character at execution before QueueAttack; its AttackInfo is flat, no snapshot, ignore defense 100%.",
+      "Once branches set Active=false before the queued task executes; recurring branches update LastEnergyDrop/LastHurt before execution. Both config mutation and queued closure must be restored consistently."
+    ],
+    "ordering": "nextFrame increments F, calls Core.Tick (which runs Tasks), then handleEnergy, handleHurt, and OnTick. Newly scheduled zero-offset work is therefore enqueued after that frame's Task.Run and will execute on a later Task.Run.",
+    "currentExportedAccessors": ["ActionList fields are exported; Simulation.cfg is private", "(*Simulation).Run()"],
+    "opaqueState": ["task closures retain delayed energy/hurt work", "sampled amount/offset are local closure captures and are not represented by Last* fields", "the current active actor is resolved only at task execution"]
+  },
+  "rng": {
+    "sources": ["pkg/core/core.go: Core.New", "pkg/core/combat/combat.go", "pkg/simulation/setup.go", "pkg/simulation/randstats.go", "pkg/gcs/eval/sysfunc.go", "pkg/avatar/avatar.go", "pkg/avatar/sourcehost.go", "pkg/enemy/damage.go", "pkg/enemy/sourcehost.go", "pkg/reactable/lunarcharged.go", "pkg/reactable/lunarcrystallize.go", "pkg/core/energy.go"],
+    "typeAndFields": "Core.Rand is *math/rand.Rand initialized with rand.New(rand.NewSource(opt.Seed)); Combat.Rand shares the pointer. math/rand's source internals are unexported; no source-state or draw-count getter exists.",
+    "observedConsumers": ["random substat setup", "GCSL rand/norm", "normal-hit energy proc", "crit rolls", "random target/gadget selection", "external energy/hurt offsets and hurt amounts", "enemy/avatar source procs", "Lunar reaction extra-hit and crit rolls"],
+    "normalization": "Seed is an initialization input, not a mid-run state checkpoint. The random stream has one shared ordered progression across consumers; a draw-count alone is not currently observable and restoring only Seed resets it to the beginning.",
+    "opaqueState": ["*rand.Rand has no public snapshot/restore API for the current rand.Source state", "callbacks and dynamically selected targets affect the future sequence of draws", "replay must preserve every earlier random consumer and call order to reconstruct by rerunning from initialization"],
+    "currentExportedAccessors": ["Core.Seed", "Core.Rand public pointer and standard Rand methods (Intn, Float64, NormFloat64, Perm, etc.)"],
+    "recommendedCaptureBoundary": "Use a project-owned serializable RNG source or instrumented draw journal/checkpoint; persist algorithm/version and exact source state. Do not label seed-only capture as mid-run reproducible."
+  },
+  "implementationGuidance": {
+    "firstCaptureSurface": ["typed task descriptors with stable callback key, remaining frame, sequence id, and typed payload", "typed subscription descriptors with stable callback key, ordered slot, active flag, and explicit closure-state payload", "external energy/hurt pending event payload plus mutated ActionList settings", "serializable RNG state and algorithm/version"],
+    "normalizationRule": "Convert frame deadlines/expiries to remaining-frame offsets relative to Core.F; retain id/counter values and probabilities/state counters without frame conversion.",
+    "incompletenessRule": "Unknown callback, task closure, unsupported RNG state, or hidden phase state must produce a specific blocker/incomplete inventory entry; an empty visible queue or absent getter is not proof of empty runtime closure.",
+    "laneRule": "Maintain separate classic and Stellar event registries because enum/event payload surfaces differ; do not infer lane equivalence from matching task/core structs."
+  }
+}

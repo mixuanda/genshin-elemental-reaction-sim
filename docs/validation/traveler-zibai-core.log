@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/traveler-zibai-source-batch.test.ts (1 test | 1 failed) 147ms
+   × executes cryo callbacks, cross-source traveler snapshots and finite Zibai damage through the same calculator core 146ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/traveler-zibai-source-batch.test.ts > executes cryo callbacks, cross-source traveler snapshots and finite Zibai damage through the same calculator core
+Error: Unknown or unexecuted trace child: hitElementalMastery
+ ❯ TraceBuilder.add packages/sim-core/src/calculation-trace.ts:389:71
+    387|     if (new Set(childIds).size !== childIds.length) throw new Error("T…
+    388|     for (const childId of childIds) {
+    389|       if (!this.traceNodes.some((node) => node.id === childId)) throw …
+       |                                                                       ^
+    390|     }
+    391|     if (!Array.isArray(inputs)) throw new Error("Trace inputs must be …
+ ❯ executeHitPanel packages/sim-core/src/calculator.ts:164:23
+ ❯ calculateHit packages/sim-core/src/calculator.ts:602:18
+ ❯ evaluate packages/sim-core/src/calculator.ts:669:90
+ ❯ packages/sim-core/src/calculator.ts:671:54
+ ❯ calculateDocument packages/sim-core/src/calculator.ts:670:23
+ ❯ complete packages/sim-core/src/traveler-zibai-source-batch.test.ts:51:66
+ ❯ packages/sim-core/src/traveler-zibai-source-batch.test.ts:181:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  10:35:59
+   Duration  2.61s (transform 1.82s, setup 0ms, import 2.38s, tests 147ms, environment 0ms)
+

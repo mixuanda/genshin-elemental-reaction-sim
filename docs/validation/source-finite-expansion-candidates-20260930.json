@@ -1,0 +1,862 @@
+{
+  "schemaVersion": 1,
+  "status": "static source audit; 10 audited rows merged into the direct finite registry; no runtime verification asserted",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-KDmNJx/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Ue6iOx/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "existingRegistries": [
+    "packages/sim-core/src/source-host-finite-cast-contracts.json",
+    "packages/sim-core/src/source-host-producer-contracts.json"
+  ],
+  "staticInventory": {
+    "sourceMethodFilesScanned": 210,
+    "uncoveredSkillOrBurstMethods": 133,
+    "uncoveredMethodsWithDirectQueueAttackCall": 91,
+    "uncoveredMethodsWithQueueCallAndNoLexicalLoopOrTask": 14,
+    "screenLimit": "Balanced lexical scan of Skill/Burst method bodies only; helper calls, entities, callbacks and callbacks registered in Init require separate review. These are inventory counts, not a completeness claim.",
+    "snapshot": "Frozen PRE123 lexical inventory; based on 14 direct rows plus 64 producer rows (77 unique IDs; 75 canonical character/action pairs).",
+    "uniqueMergedIds": 77,
+    "uniqueCanonicalCharacterActionPairs": 75,
+    "rawMergedRows": 78
+  },
+  "laneComparisonSummary": "The 10 proposed attack-method bodies have identical queue sites and direct-root counts across lanes. Sethos skill differs only by a StellarConduct Energy-refund event listener. Varesa skill differs in the Go tag-field type used for Nightsoul. Mona asc/cons and Freminet cons have Stellar-specific reaction/Hexerei edits; neither changes proposed direct root counts. All other cited support files match byte-for-byte across lanes.",
+  "candidateAssessments": [
+    {
+      "characterKey": "mona",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/mona/skill.go",
+      "count": 5,
+      "label": "莫娜 E",
+      "sourceEvidence": "skill.go:38-86; 4 direct DoT queues in the loop at 60-63 plus one direct explosion at 77. hold=0/1 changes timing only; last explosion is frame 329/344.",
+      "audit": "The method queues exactly four tick attacks and one explosion. particleCB at skill.go:89-103 adds particles only. Init at mona.go:51-63 installs A4 and constellation hooks; asc.go:21-63 A1 phantom damage is created by later dash actions. C2 follow-up CA listens only to later Normal hits (cons.go:104-140); C1/reaction and omen detonation effects are separate reaction or later-action scope. E contributes no extra callback-generated attack.",
+      "constraints": "hold=0: ticks 86,145,204,263; explosion 329. hold!=0: ticks 101,160,219,278; explosion 344. Constant total 5; observe through frame 344 and terminal dispatch.",
+      "id": "mona-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 5,
+      "sourceHashes": {
+        "classicSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+        "stellarSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/mona/skill.go",
+          "lines": [
+            38,
+            86
+          ],
+          "purpose": "method; four tick roots and delayed explosion"
+        },
+        {
+          "path": "internal/characters/mona/skill.go",
+          "lines": [
+            89,
+            103
+          ],
+          "purpose": "particle callback only"
+        },
+        {
+          "path": "internal/characters/mona/mona.go",
+          "lines": [
+            51,
+            63
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/mona/asc.go",
+          "lines": [
+            21,
+            63
+          ],
+          "purpose": "A1 damage belongs to dash phantom"
+        },
+        {
+          "path": "internal/characters/mona/cons.go",
+          "lines": [
+            104,
+            140
+          ],
+          "purpose": "C2 only follows Normal hits"
+        }
+      ]
+    },
+    {
+      "characterKey": "venti",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/venti/skill.go",
+      "count": 1,
+      "label": "温迪 E",
+      "sourceEvidence": "skill.go:32-80; one QueueAttack at 76. hold==0 hits at frame 51; hold!=0 at frame 74.",
+      "audit": "Press/hold changes attack multiplier, area, target center, hitmark, and cooldown, but both branches converge to one QueueAttack (skill.go:53-76). c2 callback changes target RES only (cons.go:38-57); makeParticleCB queues particles (skill.go:83-95). Init and C4 add only modifiers. C1 extra arrows are attached to Aimed attacks, not E (cons.go:13-31).",
+      "constraints": "hold==0 or nonzero; direct root count always 1; hitmark 51/74; observe through branch hitmark and terminal dispatch.",
+      "id": "venti-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6",
+        "stellarSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/venti/skill.go",
+          "lines": [
+            32,
+            80
+          ],
+          "purpose": "hold/press branches converge on one root"
+        },
+        {
+          "path": "internal/characters/venti/skill.go",
+          "lines": [
+            83,
+            95
+          ],
+          "purpose": "particle callback only"
+        },
+        {
+          "path": "internal/characters/venti/venti.go",
+          "lines": [
+            35,
+            55
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/venti/cons.go",
+          "lines": [
+            13,
+            57
+          ],
+          "purpose": "C1 aimed-shot roots; C2 E callback is RES-only"
+        }
+      ]
+    },
+    {
+      "characterKey": "sethos",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/sethos/skill.go",
+      "count": 1,
+      "label": "赛索斯 E",
+      "sourceEvidence": "skill.go:61-85; one QueueAttack at 75, due at frame 13.",
+      "audit": "E queues one attack and attaches particleCB only (skill.go:87-96). Init calls skillRefundHook, whose elemental-reaction listeners restore Energy/add a stack and do not queue damage (sethos.go:36-43; skill.go:35-59). Constellation/passive code changes charge/aimed-attack behavior or stats, outside this E root.",
+      "constraints": "No method params select a root-count branch. Constant 1; attack due at frame 13; Stellar adds an OnStellarConduct energy-refund subscription only, with no attack-count effect.",
+      "id": "sethos-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "142d65db6ae5027928ae803082a30a8face72c5291be77d2e19c02089037a64b",
+        "stellarSha256": "cf0f885f875541ce63913ba5772226d322e41f63b1baa1b0ac7ff248c70d4411"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/sethos/skill.go",
+          "lines": [
+            35,
+            85
+          ],
+          "purpose": "energy-only reaction hook and single E root"
+        },
+        {
+          "path": "internal/characters/sethos/skill.go",
+          "lines": [
+            87,
+            96
+          ],
+          "purpose": "particle callback only"
+        },
+        {
+          "path": "internal/characters/sethos/sethos.go",
+          "lines": [
+            36,
+            43
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/sethos/asc.go",
+          "lines": [
+            11,
+            81
+          ],
+          "purpose": "passive stack/modifier behavior"
+        }
+      ]
+    },
+    {
+      "characterKey": "candace",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/candace/skill.go",
+      "count": 1,
+      "label": "坎蒂丝 E",
+      "sourceEvidence": "skill.go:38-149; one QueueAttack at 97. hitmark is 16 for chargeLevel 0, 91 for chargeLevel 1, or 36 for perfect (91-55).",
+      "audit": "hold is clamped to 0/1 and perfect forces chargeLevel 1; branches change attack data, radius, shield, particle count, and timing but all converge on one QueueAttack. Callback grants C2 state/particles only (skill.go:97-108); created shield lasts through the hitmark and has no damage hook (skill.go:110-135). C6 follow-up damage belongs to later normal hits during Burst, not E (cons.go:38 onward).",
+      "constraints": "constant direct count 1 for hold=0/1 and perfect=0/1. Effective hitmark 16, 91, or 36 for perfect level 1; close after hitmark and terminal dispatch.",
+      "id": "candace-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d",
+        "stellarSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/candace/skill.go",
+          "lines": [
+            38,
+            149
+          ],
+          "purpose": "parameter branches; one attack and transient shield"
+        },
+        {
+          "path": "internal/characters/candace/skill.go",
+          "lines": [
+            151,
+            162
+          ],
+          "purpose": "particle callback only"
+        },
+        {
+          "path": "internal/characters/candace/candace.go",
+          "lines": [
+            29,
+            39
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/candace/cons.go",
+          "lines": [
+            17,
+            75
+          ],
+          "purpose": "damage modifier and burst-triggered C6"
+        }
+      ]
+    },
+    {
+      "characterKey": "dahlia",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/dahlia/skill.go",
+      "count": 1,
+      "label": "达莉亚 E",
+      "sourceEvidence": "skill.go:44-78; short_hold selects hitmark 27/28, one QueueAttack at 62.",
+      "audit": "The only attack callback is particleCB (skill.go:80 onward), which queues particles. Init sets up stats/shield and constellation helpers; c1 energy, c2 shield strength, c4 Burst duration, and c6 revival/ATK SPD do not create an E attack (dahlia.go:36-43; cons.go:15-94).",
+      "constraints": "short_hold==0 or nonzero maps to hitmark 27/28; constant direct count 1; observe through selected hitmark and terminal dispatch.",
+      "id": "dahlia-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791",
+        "stellarSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/dahlia/skill.go",
+          "lines": [
+            44,
+            78
+          ],
+          "purpose": "short-hold branch and single root"
+        },
+        {
+          "path": "internal/characters/dahlia/skill.go",
+          "lines": [
+            80,
+            96
+          ],
+          "purpose": "particle callback only"
+        },
+        {
+          "path": "internal/characters/dahlia/dahlia.go",
+          "lines": [
+            36,
+            43
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/dahlia/cons.go",
+          "lines": [
+            15,
+            94
+          ],
+          "purpose": "constellation scope"
+        }
+      ]
+    },
+    {
+      "characterKey": "varesa",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/varesa/skill.go",
+      "count": 1,
+      "label": "瓦雷莎 E",
+      "sourceEvidence": "skill.go:43-100; one QueueAttack at 80. Blessing selects hitmark 5 vs 2 but does not change root count.",
+      "audit": "Blessing alters attack label/multiplier/hitmark only; freeSkill disables particles and cooldown but still queues the attack (skill.go:62-86). particleCB is particle-only (skill.go:103 onward). E applies A1 status for a later Plunge bonus and queues a 5-frame Nightsoul-points task, not damage (skill.go:88-90; asc.go:34-64). Init/constellations add modifiers or affect later Burst/Plunge; no child E attack (varesa.go:46-53; cons.go:14-115).",
+      "constraints": "Constant direct count 1; HasBlessing chooses frame 5 or 2. freeSkill does not skip queue. Stellar source changes AdditionalTags field type at line 50 only; attack count/data are equivalent.",
+      "id": "varesa-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "ba4168c0cedd9af450cd9b55ef922db0b2a553cce2597bd771b5528a066b638d",
+        "stellarSha256": "b20cd7b1a3b013db37485144ebd1daca056b7ae4b75545cce62adeb7a6d4e4a2"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/varesa/skill.go",
+          "lines": [
+            43,
+            100
+          ],
+          "purpose": "state branch, single root, and non-damage task"
+        },
+        {
+          "path": "internal/characters/varesa/skill.go",
+          "lines": [
+            103,
+            118
+          ],
+          "purpose": "particle callback"
+        },
+        {
+          "path": "internal/characters/varesa/varesa.go",
+          "lines": [
+            43,
+            46
+          ],
+          "purpose": "Init entry point"
+        },
+        {
+          "path": "internal/characters/varesa/asc.go",
+          "lines": [
+            34,
+            64
+          ],
+          "purpose": "A1 applies to later Plunge"
+        },
+        {
+          "path": "internal/characters/varesa/cons.go",
+          "lines": [
+            14,
+            55
+          ],
+          "purpose": "C2 energy; C4 damage modifier scopes"
+        }
+      ]
+    },
+    {
+      "characterKey": "aloy",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/aloy/burst.go",
+      "count": 1,
+      "label": "埃洛伊 Q",
+      "sourceEvidence": "burst.go:26-57; one QueueAttackWithSnap at 41, hitmark 100.",
+      "audit": "Burst has one snapshotted direct root and no hit callback. Init and ascension helpers manage Coil/atk buffs, not Q-created attacks (aloy.go:41-50; asc.go:11-85). A1/A4 state applies to Coil/NAs and other later actions; no constellations add a Q child.",
+      "constraints": "No method count branch; constant 1; hitmark 100; terminal dispatch required.",
+      "id": "aloy-burst",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150",
+        "stellarSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/aloy/burst.go",
+          "lines": [
+            26,
+            57
+          ],
+          "purpose": "single direct Q root"
+        },
+        {
+          "path": "internal/characters/aloy/aloy.go",
+          "lines": [
+            41,
+            50
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/aloy/asc.go",
+          "lines": [
+            11,
+            85
+          ],
+          "purpose": "passive effects do not add Q attacks"
+        }
+      ]
+    },
+    {
+      "characterKey": "freminet",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/freminet/burst.go",
+      "count": 1,
+      "label": "菲米尼 Q",
+      "sourceEvidence": "burst.go:29-62; one QueueAttack at 46, hitmark 44.",
+      "audit": "Q starts a 10s status and resets E cooldown, then queues one hit without callbacks (burst.go:29-51); status impacts later E actions, which are excluded. Init and A1/C4/C6 provide modifiers/reaction effects only (freminet.go:33-41; asc.go:20-61; cons.go:23-140). Stellar adds an OnStellarConduct modifier listener in cons.go; it does not queue attacks.",
+      "constraints": "No method count branch; constant 1; hitmark 44; terminal dispatch required.",
+      "id": "freminet-burst",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb",
+        "stellarSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/freminet/burst.go",
+          "lines": [
+            29,
+            62
+          ],
+          "purpose": "single root plus later-action status"
+        },
+        {
+          "path": "internal/characters/freminet/freminet.go",
+          "lines": [
+            33,
+            41
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/freminet/asc.go",
+          "lines": [
+            20,
+            61
+          ],
+          "purpose": "passives"
+        },
+        {
+          "path": "internal/characters/freminet/cons.go",
+          "lines": [
+            23,
+            140
+          ],
+          "purpose": "constellation modifiers; Stellar-only reaction listener"
+        }
+      ]
+    },
+    {
+      "characterKey": "furina",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/furina/burst.go",
+      "count": 1,
+      "label": "芙宁娜 Q",
+      "sourceEvidence": "burst.go:166-205; one QueueAttack at 195, hitmark 98. A C1 setup task at 188-193 establishes Burst state at frame 95 before that hit.",
+      "audit": "The method task sets initial fanfare/status only; the direct Q attack is queued once without callback (burst.go:188-198). Init A1 heals and A4 tracks fanfare; C6 callback is attached to later Normal/Charged attack paths, not Q (furina.go:61-76; asc.go:19-123; cons.go:71-155). Summon attacks are from Skill and are excluded.",
+      "constraints": "No count branch; constant 1; include the pre-hit C1/status task at frame 95 in the observation, then close after hitmark 98 and terminal dispatch.",
+      "id": "furina-burst",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd",
+        "stellarSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/furina/burst.go",
+          "lines": [
+            166,
+            205
+          ],
+          "purpose": "single Q root and pre-hit state task"
+        },
+        {
+          "path": "internal/characters/furina/furina.go",
+          "lines": [
+            61,
+            76
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/furina/asc.go",
+          "lines": [
+            19,
+            123
+          ],
+          "purpose": "A1 heal/A4 fanfare handlers"
+        },
+        {
+          "path": "internal/characters/furina/cons.go",
+          "lines": [
+            71,
+            155
+          ],
+          "purpose": "C6 callback for later normal/charged hits"
+        }
+      ]
+    },
+    {
+      "characterKey": "yunjin",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yunjin/skill.go",
+      "count": 1,
+      "label": "云堇 E",
+      "sourceEvidence": "skill.go:49-145; one QueueAttack at 98. Tap, hold levels 1/2, and perfect counter change data/timing but each call emits one root.",
+      "audit": "Branches choose charge level, radius and skill hitmark (13/50/93); perfect forces level 2 but all branches converge to one QueueAttack. Callback queues particles only (skill.go:148-158); transient counter shield ends at selected hitmark and creates no attack (skill.go:106-131). Init C2/C4/C6 set team buffs only, and burstProc supports later Normal damage (yunjin.go:36-49; cons.go:18-117).",
+      "constraints": "constant direct count 1 for hold levels 0/1/2 and perfect; hitmark 13/50/93 based on animIdx. Close after selected hitmark and terminal dispatch.",
+      "id": "yunjin-skill",
+      "existingCoverage": "not present by canonical config key/action in either merged registry before these 10 batch rows were added",
+      "directRootCount": 1,
+      "sourceHashes": {
+        "classicSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+        "stellarSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07"
+      },
+      "sourceRefs": [
+        {
+          "path": "internal/characters/yunjin/skill.go",
+          "lines": [
+            49,
+            145
+          ],
+          "purpose": "charge/perfect branches and single root"
+        },
+        {
+          "path": "internal/characters/yunjin/skill.go",
+          "lines": [
+            148,
+            158
+          ],
+          "purpose": "particle callback only"
+        },
+        {
+          "path": "internal/characters/yunjin/yunjin.go",
+          "lines": [
+            36,
+            49
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/yunjin/cons.go",
+          "lines": [
+            18,
+            117
+          ],
+          "purpose": "constellation modifiers and later normal buffs"
+        }
+      ]
+    }
+  ],
+  "sourceFiles": {
+    "internal/characters/mona/skill.go": {
+      "classicSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+      "stellarSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/mona/mona.go": {
+      "classicSha256": "9a89a47a05f476f5f6391aca727daab12a764257e80b910a2bf893e7d1735837",
+      "stellarSha256": "9a89a47a05f476f5f6391aca727daab12a764257e80b910a2bf893e7d1735837",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/mona/asc.go": {
+      "classicSha256": "e63fedc882d4043eb3b402298c53f49690d219adf350daeb250c8e079ab42597",
+      "stellarSha256": "acc104c2b7363c2fc288d798af18fca67d32ccaff04a9e5115659a7db1cc4b8e",
+      "sameAcrossLanes": false
+    },
+    "internal/characters/mona/cons.go": {
+      "classicSha256": "6eeca36e8395ab57d469f573c1f0b94566cda4246a1f4844a917764629cfbfcc",
+      "stellarSha256": "e024c6eb92fcea1415f6ecd5727a3ce40cfa0c02a2bcee71ceaf47a8c60a3b0f",
+      "sameAcrossLanes": false
+    },
+    "internal/characters/venti/skill.go": {
+      "classicSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6",
+      "stellarSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/venti/venti.go": {
+      "classicSha256": "14b7ac55a29f2ca9b90acb5d2b260c8bedeb24fc1b6a1c8253299d349670b1ca",
+      "stellarSha256": "14b7ac55a29f2ca9b90acb5d2b260c8bedeb24fc1b6a1c8253299d349670b1ca",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/venti/cons.go": {
+      "classicSha256": "32e80314bdaab747776b318c1c095e4149aedc45edd0b388f457664f9c8b0186",
+      "stellarSha256": "32e80314bdaab747776b318c1c095e4149aedc45edd0b388f457664f9c8b0186",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/sethos/skill.go": {
+      "classicSha256": "142d65db6ae5027928ae803082a30a8face72c5291be77d2e19c02089037a64b",
+      "stellarSha256": "cf0f885f875541ce63913ba5772226d322e41f63b1baa1b0ac7ff248c70d4411",
+      "sameAcrossLanes": false
+    },
+    "internal/characters/sethos/sethos.go": {
+      "classicSha256": "c3b43b7a2a63d7471c9ef438b0952b0116058def96c1c3b2942f0b5ca6aecf71",
+      "stellarSha256": "c3b43b7a2a63d7471c9ef438b0952b0116058def96c1c3b2942f0b5ca6aecf71",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/sethos/asc.go": {
+      "classicSha256": "15aeba29a36de34065d7df639950621a4e6f8eae70d50bcac0bed38f23f52825",
+      "stellarSha256": "15aeba29a36de34065d7df639950621a4e6f8eae70d50bcac0bed38f23f52825",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/candace/skill.go": {
+      "classicSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d",
+      "stellarSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/candace/candace.go": {
+      "classicSha256": "9287711c90afa76f8962ec8b90690752208f04cc035d917dd3b7e454e733664e",
+      "stellarSha256": "9287711c90afa76f8962ec8b90690752208f04cc035d917dd3b7e454e733664e",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/candace/cons.go": {
+      "classicSha256": "afc06401a414b05d50be9b208416997f9bb80b5efe35b2df71258650386ebd6b",
+      "stellarSha256": "afc06401a414b05d50be9b208416997f9bb80b5efe35b2df71258650386ebd6b",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/dahlia/skill.go": {
+      "classicSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791",
+      "stellarSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/dahlia/dahlia.go": {
+      "classicSha256": "b829be9f13e99eca91d09c9b5f42184ee7c2c939e5793afe6cfd41cb929cdaba",
+      "stellarSha256": "b829be9f13e99eca91d09c9b5f42184ee7c2c939e5793afe6cfd41cb929cdaba",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/dahlia/cons.go": {
+      "classicSha256": "947d32967063020d62db6f56abca9b608226e0478a61993b387807ad74592578",
+      "stellarSha256": "947d32967063020d62db6f56abca9b608226e0478a61993b387807ad74592578",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/varesa/skill.go": {
+      "classicSha256": "ba4168c0cedd9af450cd9b55ef922db0b2a553cce2597bd771b5528a066b638d",
+      "stellarSha256": "b20cd7b1a3b013db37485144ebd1daca056b7ae4b75545cce62adeb7a6d4e4a2",
+      "sameAcrossLanes": false
+    },
+    "internal/characters/varesa/varesa.go": {
+      "classicSha256": "3417d4a13146e4941fd6de6d3274d5c5c17ed9e4dc11c15b3c689fc5bc635736",
+      "stellarSha256": "3417d4a13146e4941fd6de6d3274d5c5c17ed9e4dc11c15b3c689fc5bc635736",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/varesa/asc.go": {
+      "classicSha256": "976844c5f70f93511ed1ff8065d1a1c6ea23a98d9dddb9cc9df98f9bf5762523",
+      "stellarSha256": "976844c5f70f93511ed1ff8065d1a1c6ea23a98d9dddb9cc9df98f9bf5762523",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/varesa/cons.go": {
+      "classicSha256": "8c0ec0547b599dc1151ebf09421a4934752921b2ed108ff7407965789e97a58e",
+      "stellarSha256": "8c0ec0547b599dc1151ebf09421a4934752921b2ed108ff7407965789e97a58e",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/aloy/burst.go": {
+      "classicSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150",
+      "stellarSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/aloy/aloy.go": {
+      "classicSha256": "3f180094807cf4f4521344ed0fa5ffb020bd28420cfec775feb17c5484049114",
+      "stellarSha256": "3f180094807cf4f4521344ed0fa5ffb020bd28420cfec775feb17c5484049114",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/aloy/asc.go": {
+      "classicSha256": "2f16edebbe7e687de140fe573cf4343513e38c0ea1436ee025f6dd1786e6ac55",
+      "stellarSha256": "2f16edebbe7e687de140fe573cf4343513e38c0ea1436ee025f6dd1786e6ac55",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/freminet/burst.go": {
+      "classicSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb",
+      "stellarSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/freminet/freminet.go": {
+      "classicSha256": "bfa738211dc9583690ea9f92a8678b17a1e7d4c3da152c07dcf1aa7633178db6",
+      "stellarSha256": "bfa738211dc9583690ea9f92a8678b17a1e7d4c3da152c07dcf1aa7633178db6",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/freminet/asc.go": {
+      "classicSha256": "847dc27436cd087e9d8cab7a5727fe7ea0c50a8a681330539868cc9f367525ec",
+      "stellarSha256": "847dc27436cd087e9d8cab7a5727fe7ea0c50a8a681330539868cc9f367525ec",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/freminet/cons.go": {
+      "classicSha256": "9375198a8f45c284e0664d7faa4abeee78abd991640f6224df9dd98bc0bb8da9",
+      "stellarSha256": "e389fcd1488513ecf940339dc754ff76f31839385184a4708249ca0ed2e86da7",
+      "sameAcrossLanes": false
+    },
+    "internal/characters/furina/burst.go": {
+      "classicSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd",
+      "stellarSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/furina/furina.go": {
+      "classicSha256": "9aed89741bb531e90cc6d7db5afea8e550be13b2e40ba658ad7551383f44f5af",
+      "stellarSha256": "9aed89741bb531e90cc6d7db5afea8e550be13b2e40ba658ad7551383f44f5af",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/furina/asc.go": {
+      "classicSha256": "15dc287c01847b5cdb8fa937402b96546b109b797b144153ea090ae90fbbdfb1",
+      "stellarSha256": "15dc287c01847b5cdb8fa937402b96546b109b797b144153ea090ae90fbbdfb1",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/furina/cons.go": {
+      "classicSha256": "fc098cfb5370b5152a63355f74c6297165b4a4410134d38f49450fb5b5e54d10",
+      "stellarSha256": "fc098cfb5370b5152a63355f74c6297165b4a4410134d38f49450fb5b5e54d10",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yunjin/skill.go": {
+      "classicSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+      "stellarSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yunjin/yunjin.go": {
+      "classicSha256": "e0533faf349ab557e2d64566ef58f28b19b0e270a18d4efdbaf022c31d0de315",
+      "stellarSha256": "e0533faf349ab557e2d64566ef58f28b19b0e270a18d4efdbaf022c31d0de315",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yunjin/cons.go": {
+      "classicSha256": "50a5d6df360b21d83f264fa5904ad0e22f652f8a09ff799be0da17d01ef9f472",
+      "stellarSha256": "50a5d6df360b21d83f264fa5904ad0e22f652f8a09ff799be0da17d01ef9f472",
+      "sameAcrossLanes": true
+    }
+  },
+  "nearMisses": [
+    {
+      "characterKey": "chasca",
+      "action": "skill",
+      "source": "internal/characters/chasca/skill.go:120-150",
+      "reason": "Recasting during Nightsoul returns without a damage root; a constant rule cannot express the status-dependent 0/1 case."
+    },
+    {
+      "characterKey": "yumemizukimizuki",
+      "action": "skill",
+      "source": "internal/characters/mizuki/skill.go:62-130",
+      "reason": "Initial root creates Dreamdrifter cloud attacks; this needs an owned generator/producer closure."
+    },
+    {
+      "characterKey": "xilonen",
+      "action": "skill",
+      "source": "internal/characters/xilonen/skill.go:160-210",
+      "reason": "Recast while Blessing is active exits state without a root; constant count cannot express status-dependent 0/1."
+    },
+    {
+      "characterKey": "ayato",
+      "action": "skill",
+      "source": "internal/characters/ayato/skill.go:22-60",
+      "reason": "Ability queues a delayed task-generated explosion at parameterized illusion_delay (clamped 35..360); producer contract required."
+    },
+    {
+      "characterKey": "arlecchino",
+      "action": "skill",
+      "source": "internal/characters/arlecchino/skill.go:35-75; 88-134",
+      "reason": "Hit callback creates target-owned Blood Debt tasks that emit delayed attacks; owned task/entity receipts needed."
+    },
+    {
+      "characterKey": "nilou",
+      "action": "burst",
+      "source": "internal/characters/nilou/burst.go:30-111",
+      "reason": "One direct damaging hit plus zero-damage mark root; damage later emitted from enemy task callback (Lingering Aeon)."
+    },
+    {
+      "characterKey": "mona",
+      "action": "burst",
+      "source": "internal/characters/mona/burst.go:30-88",
+      "reason": "Includes zero-damage bubble application and break roots; ordinary bubble detonation is damage caused by later enemy hits, outside plain direct root closure."
+    },
+    {
+      "characterKey": "qiqi",
+      "action": "burst",
+      "source": "internal/characters/qiqi/burst.go:28-71",
+      "reason": "Includes one damaging root and one non-damage talisman-application root; global talisman callbacks heal and need distinct accounting."
+    },
+    {
+      "characterKey": "columbina",
+      "action": "skill",
+      "source": "internal/characters/columbina/skill.go:265-303",
+      "reason": "The method queues a task that launches direct damage and recurring skill ticks; task/owned generator closure required."
+    },
+    {
+      "characterKey": "citlali",
+      "action": "skill",
+      "source": "internal/characters/citlali/skill.go:33-90",
+      "reason": "Besides direct hit, E creates Itzpapa state; C4 skull callback emits additional damage, requiring owned producer/callback coverage."
+    },
+    {
+      "characterKey": "ineffa",
+      "action": "skill",
+      "source": "internal/characters/ineffa/skill.go:25-50",
+      "reason": "Direct hit is followed by a Birgitta summon producer."
+    },
+    {
+      "characterKey": "mavuika",
+      "action": "burst",
+      "source": "internal/characters/mavuika/burst.go:42-88",
+      "reason": "The damage root is emitted inside a QueueCharTask after burstHitmark; producer receipt is required."
+    }
+  ],
+  "scopeNotes": [
+    "Each proposed row counts direct method-owned roots only. It is not a complete character kit or per-rotation total.",
+    "The action collection still needs normal terminal dispatch and per-enemy outcomes through the latest branch-specific hit frame; Mona E requires up to frame 344.",
+    "Independent weapon/artifact procs, reactions, later actions and triggered character effects stay outside these fragments."
+  ],
+  "pre123RegistryBaseline": {
+    "directRegistryRows": 14,
+    "producerRegistryRows": 64,
+    "note": "Frozen PRE123 inventory: 14 direct plus 64 producer rows; one duplicate ID gives 77 unique IDs, while Qiqi and Yae Miko Stellar variants reduce canonical character/action pairs to 75.",
+    "lexicalInventoryBasis": "staticInventory below was scanned against the frozen PRE123 merged registry baseline",
+    "producerRowsAddedAfterThisBaseline": 3,
+    "rawMergedRows": 78,
+    "uniqueMergedIds": 77,
+    "uniqueCanonicalCharacterActionPairs": 75
+  },
+  "currentRegistryState": {
+    "directRegistryRows": 24,
+    "producerRegistryRows": 67,
+    "producerRowsAddedSincePre123": 3,
+    "directRowsAfterThese10Rows": 24,
+    "note": "Three producer rows added since PRE123 yield 80 merged unique IDs and 78 canonical character/action pairs before this batch; the ten direct rows bring totals to 90 IDs and 88 pairs.",
+    "rawMergedRowsBeforeThese10Rows": 81,
+    "uniqueMergedIdsBeforeThese10Rows": 80,
+    "uniqueCanonicalCharacterActionPairsBeforeThese10Rows": 78,
+    "rawMergedRowsAfterThese10Rows": 91,
+    "uniqueMergedIdsAfterThese10Rows": 90,
+    "uniqueCanonicalCharacterActionPairsAfterThese10Rows": 88,
+    "producerRowIdsAddedSincePre123": [
+      "shenhe-skill",
+      "shenhe-burst",
+      "chongyun-skill"
+    ]
+  },
+  "contractIntegration": {
+    "path": "packages/sim-core/src/source-host-finite-cast-contracts.json",
+    "mergedRows": [
+      "mona-skill",
+      "venti-skill",
+      "sethos-skill",
+      "candace-skill",
+      "dahlia-skill",
+      "varesa-skill",
+      "aloy-burst",
+      "freminet-burst",
+      "furina-burst",
+      "yunjin-skill"
+    ],
+    "directRegistryRowsAfterMerge": 24,
+    "producerRegistryRowsAtMerge": 67,
+    "rawMergedRowsBeforeBatch": 81,
+    "uniqueMergedIdsBeforeBatch": 80,
+    "uniqueCanonicalCharacterActionPairsBeforeBatch": 78,
+    "rawMergedRowsAfterBatch": 91,
+    "uniqueMergedIdsAfterBatch": 90,
+    "uniqueCanonicalCharacterActionPairsAfterBatch": 88
+  },
+  "existingUniqueMergedIdCountBeforeBatch": 80,
+  "existingUniqueCanonicalCharacterActionPairCountBeforeBatch": 78
+}

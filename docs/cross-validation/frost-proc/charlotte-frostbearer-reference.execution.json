@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.gcsl",
+    "-out",
+    "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.result.json",
+    "-sample",
+    "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-24T01:56:50.136864+00:00",
+  "elapsedSeconds": 0.018644000054337084,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 3.00 seconds (min: 3.00 max: 3.00 std: 0.00)\nAverage 149.18 damage over 3.00 seconds, resulting in 50 dps (min: 49.73 max: 49.73 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 9961035442080606728 to docs/cross-validation/frost-proc/charlotte-frostbearer-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.gcsl",
+      "bytes": 563,
+      "sha256": "bfcb96e79e08b83cd17b1c615c4a01c0d40256527426b677a6b52fcf074d8c17"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.result.json",
+      "bytes": 5992,
+      "sha256": "a18203c6fa4a488de1e1233736a34dd9ac22f431868d89a2f6eeca3bbb22cbec"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.sample.json",
+      "bytes": 13351,
+      "sha256": "8b46e04755c9b10a2d909a4afa2d6f6a123f391ad0b55cbff17cde315248fbe9"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+diff --git a/internal/characters/noelle/skill.go b/internal/characters/noelle/skill.go
+--- a/internal/characters/noelle/skill.go
++++ b/internal/characters/noelle/skill.go
+@@ -51,7 +51,9 @@
+ 	if c.Core.SourceHost != nil {
+ 		shieldhp, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-noelle-skill", map[string]any{"flat": flat, "ratio": ratio, "totalDef": defFactor}, nil, &snap)
+ 	}
+-	c.Core.Player.Shields.Add(c.newShield(shieldhp, shield.NoelleSkill, 720, shieldHPID))
++	c.Core.SourceHostWithShieldBirth("noelle.skill.shield", func() {
++		c.Core.Player.Shields.Add(c.newShield(shieldhp, shield.NoelleSkill, 720, shieldHPID))
++	})
+ 
+ 	// activate shield timer, on expiry explode
+ 	c.shieldTimer = c.Core.F + 720 // 12 seconds
+@@ -63,7 +65,8 @@
+ 
+ 	// center on player
+ 	// use char queue for this just to be safe in case of C4
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("noelle.skill.initial-hit", func() {
++		c.Core.SourceHostAbilityProducerFact("noelle.skill.initial-hit.attack-count", 0)
+ 		c.Core.QueueAttack(
+ 			ai,
+ 			combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 2),
+@@ -71,13 +74,16 @@
+ 			0,
+ 			cb,
+ 		)
++		c.Core.SourceHostAbilityProducerFact("noelle.skill.initial-hit.attack-count", 1)
+ 	}, skillHitmark)
+ 
+ 	// handle C4
+ 	if c.Base.Cons >= 4 {
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("noelle.skill.c4-timer", c.Index(), func() {
++			c.Core.SourceHostAbilityProducerFact("noelle.skill.c4-timer.attack-count", 0)
+ 			if c.shieldTimer == c.Core.F {
+ 				// deal damage
++				c.Core.SourceHostAbilityProducerFact("noelle.skill.c4-timer.attack-count", 1)
+ 				c.explodeShield()
+ 			}
+ 		}, 720)
+@@ -162,5 +168,5 @@
+ 	}
+ 
+ 	// center on player
+-	c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 4), 0, 0)
++	c.Core.SourceHostQueueShieldAttack("noelle.shield.explosion", ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 4), 0, 0)
+ }

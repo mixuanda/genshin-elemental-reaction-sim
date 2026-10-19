@@ -1,0 +1,168 @@
+[WebServer] (node:74652) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:74654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-target-phases.spec.ts:37:1 › one native skill distinguishes damage, aura and hit-confirm target phases at half-open boundaries (1.0m)
+
+
+  1) [chromium] › apps/web/e2e/source-target-phases.spec.ts:37:1 › one native skill distinguishes damage, aura and hit-confirm target phases at half-open boundaries 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#calc-source-single-skill [data-source-single-skill]').locator('[data-single-status]')
+    Timeout: 60000ms
+    - Expected substring  -  1
+    + Received string     + 57
+
+    - 运行完成
+    + 运行停止：[
+    +   {
+    +     "code": "unrecognized_keys",
+    +     "keys": [
+    +       "targetKey"
+    +     ],
+    +     "path": [
+    +       "phases",
+    +       0
+    +     ],
+    +     "message": "Invalid input"
+    +   },
+    +   {
+    +     "code": "unrecognized_keys",
+    +     "keys": [
+    +       "targetKey"
+    +     ],
+    +     "path": [
+    +       "phases",
+    +       1
+    +     ],
+    +     "message": "Invalid input"
+    +   },
+    +   {
+    +     "code": "unrecognized_keys",
+    +     "keys": [
+    +       "targetKey"
+    +     ],
+    +     "path": [
+    +       "phases",
+    +       2
+    +     ],
+    +     "message": "Invalid input"
+    +   },
+    +   {
+    +     "code": "unrecognized_keys",
+    +     "keys": [
+    +       "targetKey"
+    +     ],
+    +     "path": [
+    +       "phases",
+    +       3
+    +     ],
+    +     "message": "Invalid input"
+    +   },
+    +   {
+    +     "code": "unrecognized_keys",
+    +     "keys": [
+    +       "targetKey"
+    +     ],
+    +     "path": [
+    +       "phases",
+    +       4
+    +     ],
+    +     "message": "Invalid input"
+    +   }
+    + ]
+
+    Call log:
+      - Expect "toContainText" with timeout 60000ms
+      - waiting for locator('#calc-source-single-skill [data-source-single-skill]').locator('[data-single-status]')
+        2 × locator resolved to <p role="status" aria-live="polite" data-single-status="">正在加载固定来源执行器并运行一次动作…</p>
+          - unexpected value "正在加载固定来源执行器并运行一次动作…"
+        2 × locator resolved to <p role="status" aria-live="polite" data-single-status="">正在加载固定来源执行器…</p>
+          - unexpected value "正在加载固定来源执行器…"
+        - locator resolved to <p role="status" aria-live="polite" data-single-status="">正在运行角色、装备与反应事件；伤害由共享公式结算…</p>
+        - unexpected value "正在运行角色、装备与反应事件；伤害由共享公式结算…"
+        118 × locator resolved to <p role="status" aria-live="polite" data-single-status="">运行停止：[↵  {↵    "code": "unrecognized_keys",↵    "…</p>
+            - unexpected value "运行停止：[
+      {
+        "code": "unrecognized_keys",
+        "keys": [
+          "targetKey"
+        ],
+        "path": [
+          "phases",
+          0
+        ],
+        "message": "Invalid input"
+      },
+      {
+        "code": "unrecognized_keys",
+        "keys": [
+          "targetKey"
+        ],
+        "path": [
+          "phases",
+          1
+        ],
+        "message": "Invalid input"
+      },
+      {
+        "code": "unrecognized_keys",
+        "keys": [
+          "targetKey"
+        ],
+        "path": [
+          "phases",
+          2
+        ],
+        "message": "Invalid input"
+      },
+      {
+        "code": "unrecognized_keys",
+        "keys": [
+          "targetKey"
+        ],
+        "path": [
+          "phases",
+          3
+        ],
+        "message": "Invalid input"
+      },
+      {
+        "code": "unrecognized_keys",
+        "keys": [
+          "targetKey"
+        ],
+        "path": [
+          "phases",
+          4
+        ],
+        "message": "Invalid input"
+      }
+    ]"
+
+
+      89 |
+      90 |     await panel.locator('[data-single-run]').click();
+    > 91 |     await expect(panel.locator('[data-single-status]')).toContainText('运行完成', { timeout: 60_000 });
+         |                                                         ^
+      92 |     const exported = await download(page, '#calc-source-single-skill [data-single-result-export]') as RunExport;
+      93 |     const rawPath = '/tmp/gidps-target-phases.json';
+      94 |     await writeFile(rawPath, JSON.stringify(exported)); // Complete native evidence precedes every result assertion.
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-target-phases.spec.ts:91:57
+
+    Error Context: test-results/source-target-phases-one-n-377be-ses-at-half-open-boundaries-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-target-phases-one-n-377be-ses-at-half-open-boundaries-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-target-phases-one-n-377be-ses-at-half-open-boundaries-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-target-phases.spec.ts:37:1 › one native skill distinguishes damage, aura and hit-confirm target phases at half-open boundaries 

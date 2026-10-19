@@ -1,0 +1,69 @@
+ONE CONFIG: R1 Rancour, base ATK 1000, equal levels, RES 0, noCrit; expected 500/500/520/540.
+{
+  "status": "PASS",
+  "damage": [
+    {
+      "frame": 0,
+      "damage": 500,
+      "atkPct": 0,
+      "sequence": 1
+    },
+    {
+      "frame": 0,
+      "damage": 500,
+      "atkPct": 0,
+      "sequence": 2
+    },
+    {
+      "frame": 19,
+      "damage": 520,
+      "atkPct": 0.04,
+      "sequence": 3
+    },
+    {
+      "frame": 38,
+      "damage": 540,
+      "atkPct": 0.08,
+      "sequence": 4
+    }
+  ],
+  "callbacks": [
+    {
+      "frame": 0,
+      "outcome": "stack-gained",
+      "stacks": 1,
+      "sequence": 5,
+      "parent": 0
+    },
+    {
+      "frame": 0,
+      "outcome": "cooldown-blocked",
+      "stacks": 1,
+      "sequence": 6,
+      "parent": 1
+    },
+    {
+      "frame": 19,
+      "outcome": "stack-gained",
+      "stacks": 2,
+      "sequence": 7,
+      "parent": 2
+    },
+    {
+      "frame": 38,
+      "outcome": "stack-gained",
+      "stacks": 3,
+      "sequence": 8,
+      "parent": 3
+    }
+  ],
+  "totalDamage": 2060,
+  "logRows": 8,
+  "resultJson": "parsed and exact log/state restored",
+  "calculatorReplayDamage": 540,
+  "calculatorReplayDifference": 0,
+  "sourceContributionTrace": true,
+  "elapsedMs": 1129
+}
+
+Harness note: the single simulation and all assertions printed PASS. The outer zsh wrapper used its reserved status variable and did not persist the process exit code; no functional rerun was performed.

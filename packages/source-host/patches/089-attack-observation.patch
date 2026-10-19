@@ -1,0 +1,26 @@
+diff --git a/pkg/core/combat/attack.go b/pkg/core/combat/attack.go
+--- a/pkg/core/combat/attack.go
++++ b/pkg/core/combat/attack.go
+@@ -12,6 +12,7 @@
+ func (h *Handler) attack(t info.Target, a *info.AttackEvent) (float64, bool) {
+ 	willHit, reason := t.AttackWillLand(a.Pattern)
+ 	if !willHit {
++		if h.SourceHost != nil { h.SourceHost.ObserveAttackTarget(a, t.Key(), "missed", reason) }
+ 		// Move target logs into the "Sim" event log to avoid cluttering main display for stuff like Guoba
+ 		// And obvious things like "Fischl A4 is single target so it didn't hit targets 2-4"
+ 		// TODO: Maybe want to add a separate set of log events for this?
+@@ -28,12 +29,14 @@
+ 	// make a copy first
+ 	cpy := *a
+ 	dmg := t.HandleAttack(&cpy)
++	if h.SourceHost != nil { h.SourceHost.ObserveAttackTarget(a, t.Key(), "resolved", "") }
+ 	return dmg, true
+ }
+ 
+ func (h *Handler) ApplyAttack(a *info.AttackEvent) float64 {
+ 	if h.SourceHost != nil {
+ 		h.SourceHost.PrepareAttack(a)
++		h.SourceHost.ObserveAttackDispatch(a)
+ 		endOrigin := h.SourceHost.Origin.BeginAttack(a.SourceHostOrigin, a.SourceHostAttackID)
+ 		defer endOrigin()
+ 	}

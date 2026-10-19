@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-target-phase.test.ts",
+    "packages/sim-core/src/source-host-target-application.test.ts"
+  ],
+  "exitCode": 1,
+  "elapsedSeconds": 1.227
+}

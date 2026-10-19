@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/artifact-additional-effects.ts(91,56): error TS2379: Argument of type '{ id: string; label: string; reason: string; sourceRefs: string[]; kind: "damageBonus"; elements?: EquipmentEffectElement[]; attackTags?: EquipmentEffectAttackTag[]; } | { ...; }' is not assignable to parameter of type 'EquipmentPendingHitEffect' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ attackTags: EquipmentDynamicHitBonus["attackTags"]; id: string; label: string; reason: string; sourceRefs: string[]; kind: "damageBonus"; }' is not assignable to type 'EquipmentPendingHitEffect' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'attackTags' are incompatible.
+      Type 'EquipmentEffectAttackTag[] | undefined' is not assignable to type 'EquipmentEffectAttackTag[]'.
+        Type 'undefined' is not assignable to type 'EquipmentEffectAttackTag[]'.

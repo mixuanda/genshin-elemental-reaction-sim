@@ -1,0 +1,168 @@
+--- a/internal/characters/mona/burst.go
++++ b/internal/characters/mona/burst.go
+@@ -127,6 +127,8 @@
+ 	// According to: https://docs.google.com/document/d/1pXlgCaYEpoizMIP9-QKlSkQbmRicWfrEoxb9USWD1Ro/edit#
+ 	// only 2nd ec tick should break
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("mona.bubble.on-enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("mona.bubble.on-enemy-damage.attack-count", 0)
+ 		// ignore if target doesn't have debuff
+ 		t, ok := args[0].(*enemy.Enemy)
+ 		if !ok {
+@@ -148,7 +150,7 @@
+ 		// always break if it's due to time up
+ 
+ 		if atk.Info.AttackTag == attacks.AttackTagMonaBubbleBreak {
+-			c.triggerBubbleBurst(t)
++			c.triggerBubbleBurst(t, "mona.bubble.explosion")
+ 			return
+ 		}
+ 		// dont break if no impulse
+@@ -156,11 +158,11 @@
+ 			return
+ 		}
+ 		// otherwise break on damage
+-		c.triggerBubbleBurst(t)
++		c.triggerBubbleBurst(t, "mona.bubble.explosion")
+ 	}, "mona-bubble-check")
+ }
+ 
+-func (c *char) triggerBubbleBurst(t *enemy.Enemy) {
++func (c *char) triggerBubbleBurst(t *enemy.Enemy, sourceEventEmitSite string) {
+ 	// remove bubble tag
+ 	t.DeleteStatus(bubbleKey)
+ 	// add omen debuff
+@@ -181,5 +183,6 @@
+ 		Durability: 50,
+ 		Mult:       explosion[c.TalentLvlBurst()],
+ 	}
+-	c.Core.QueueAttack(ai, combat.NewSingleTargetHit(t.Key()), 1, 1)
++	c.Core.SourceHostEventListenerFact("mona.bubble.on-enemy-damage.attack-count", 1)
++	c.Core.SourceHostQueueEventAttack(sourceEventEmitSite, ai, combat.NewSingleTargetHit(t.Key()), 1, 1)
+ }
+--- a/internal/characters/mona/cons.go
++++ b/internal/characters/mona/cons.go
+@@ -113,6 +113,8 @@
+ 		return
+ 	}
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("mona.c2.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("mona.c2.enemy-damage.attack-count", 0)
+ 		trg, ok := args[0].(*enemy.Enemy)
+ 		if !ok {
+ 			return
+@@ -134,7 +136,7 @@
+ 		c.DeleteStatus(c2HexereiPostBurstCAKey)
+ 		c.AddStatus(c2icdkey, 5*60, true)
+ 
+-		c.doCA(trg, 53)
++		c.doCA(trg, 53, "mona.c2.followup-charged-attack")
+ 	}, "mona-c2-followup")
+ }
+ 
+--- a/internal/characters/mona/charge.go
++++ b/internal/characters/mona/charge.go
+@@ -31,7 +31,7 @@
+ 		windup = 0
+ 	}
+ 
+-	c.doCA(c.Core.Combat.PrimaryTarget(), chargeHitmark-windup)
++	c.doCA(c.Core.Combat.PrimaryTarget(), chargeHitmark-windup, "")
+ 
+ 	return action.Info{
+ 		Frames:          func(next action.Action) int { return chargeFrames[next] - windup },
+@@ -41,7 +41,7 @@
+ 	}, nil
+ }
+ 
+-func (c *char) doCA(target info.Target, delay int) {
++func (c *char) doCA(target info.Target, delay int, sourceEventEmitSite string) {
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       "Charge Attack",
+@@ -61,7 +61,21 @@
+ 		3,
+ 	)
+ 
+-	c.Core.QueueAttack(
++	if sourceEventEmitSite == "" {
++		c.Core.QueueAttack(
++			ai,
++			ap,
++			delay,
++			delay,
++			c.makeC6CAResetCB(),
++			c.astralGlowGainCB,
++			c.c2HexereiCB,
++		)
++		return
++	}
++	c.Core.SourceHostEventListenerFact("mona.c2.enemy-damage.attack-count", 1)
++	c.Core.SourceHostQueueEventAttack(
++		sourceEventEmitSite,
+ 		ai,
+ 		ap,
+ 		delay,
+--- a/internal/characters/nahida/skill.go
++++ b/internal/characters/nahida/skill.go
+@@ -156,11 +156,13 @@
+ 
+ func (c *char) triKarmaOnReaction(args ...any) {
+ 	if t, ok := args[0].(*enemy.Enemy); ok {
+-		c.triggerTriKarmaDamageIfAvail(t)
++		c.triggerTriKarmaDamageIfAvail(t, "")
+ 	}
+ }
+ 
+ func (c *char) triKarmaOnBloomDamage(args ...any) {
++	c.Core.SourceHostLabelEventListener("nahida.trikarma.bloom-enemy-damage", args...)
++	c.Core.SourceHostEventListenerFact("nahida.trikarma.bloom-enemy-damage.attack-count", 0)
+ 	t, ok := args[0].(*enemy.Enemy)
+ 	if !ok {
+ 		return
+@@ -178,10 +180,10 @@
+ 		return
+ 	}
+ 
+-	c.triggerTriKarmaDamageIfAvail(t)
+-}
+-
+-func (c *char) triggerTriKarmaDamageIfAvail(t *enemy.Enemy) {
++	c.triggerTriKarmaDamageIfAvail(t, "nahida.trikarma.bloom-followup")
++}
++
++func (c *char) triggerTriKarmaDamageIfAvail(t *enemy.Enemy, sourceEventEmitSite string) {
+ 	if c.StatusIsActive(skillICDKey) {
+ 		return
+ 	}
+@@ -190,6 +192,7 @@
+ 	}
+ 	c.AddStatus(skillICDKey, c.triKarmaInterval, true) // TODO: this is affected by hitlag?
+ 	done := false
++	queuedAttackCount := 0
+ 	for _, v := range c.Core.Combat.Enemies() {
+ 		e, ok := v.(*enemy.Enemy)
+ 		if !ok {
+@@ -227,12 +230,13 @@
+ 			c.Core.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
+ 		}
+ 
+-		c.Core.QueueAttackWithSnap(
+-			ai,
+-			snap,
+-			combat.NewSingleTargetHit(e.Key()),
+-			3,
+-			cb,
+-		)
+-	}
+-}
++		pattern := combat.NewSingleTargetHit(e.Key())
++		if sourceEventEmitSite == "" {
++			c.Core.QueueAttackWithSnap(ai, snap, pattern, 3, cb)
++			continue
++		}
++		queuedAttackCount++
++		c.Core.SourceHostEventListenerFact("nahida.trikarma.bloom-enemy-damage.attack-count", float64(queuedAttackCount))
++		c.Core.SourceHostQueueEventAttackWithSnap(sourceEventEmitSite, ai, snap, pattern, 3, cb)
++	}
++}

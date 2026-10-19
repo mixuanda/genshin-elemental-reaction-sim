@@ -1,0 +1,40 @@
+[
+  {
+    "host": "source-host",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "characterPackages": 117,
+    "actions": {
+      "implemented": 793,
+      "unsupported": 260,
+      "unresolved": 0
+    },
+    "unknownNormalChain": [
+      "chasca",
+      "kaveh",
+      "mavuika",
+      "xilonen"
+    ],
+    "sourceFiles": 1607,
+    "metadataSha256": "5eee83e87c40776c050f86a7692e2366543662c96ed4d807b76f6a8caf874a41",
+    "metadataBytes": 1810182
+  },
+  {
+    "host": "source-host-stellar",
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "characterPackages": 124,
+    "actions": {
+      "implemented": 840,
+      "unsupported": 276,
+      "unresolved": 0
+    },
+    "unknownNormalChain": [
+      "chasca",
+      "kaveh",
+      "mavuika",
+      "xilonen"
+    ],
+    "sourceFiles": 1694,
+    "metadataSha256": "51646464ed0c6542a9175b5ee3739f92013a901e9109d9793093d4c12869ba33",
+    "metadataBytes": 1883017
+  }
+]

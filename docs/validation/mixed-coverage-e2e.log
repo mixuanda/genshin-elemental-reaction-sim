@@ -1,0 +1,9 @@
+
+Running 2 tests using 1 worker
+
+(node:17110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/mixed-coverage.spec.ts:42:1 › reviewed source resource and resistance formulas, final panels and independent equipment element windows (9.8s)
+  ✓  2 [chromium] › apps/web/e2e/mixed-coverage.spec.ts:122:1 › mixed Lunar reactions share one run, actual Geo budgets and both calculator replays (1.9s)
+
+  2 passed (12.3s)

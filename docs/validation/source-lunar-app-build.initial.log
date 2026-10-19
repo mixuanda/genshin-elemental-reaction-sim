@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-formula.ts(154,53): error TS2345: Argument of type '{ [x: string]: unknown; protocol: "gidps-source-host-v1"; id: number; frame: number; actorIndex: number; actorKey: string; ability: string; attackTag: number; attackTagName: string; element: string; ... 11 more ...; rawAttack: Record<...>; } | ... 4 more ... | { ...; }' is not assignable to parameter of type 'SourceHostSpecialRequest'.
+  Type '{ [x: string]: unknown; protocol: "gidps-source-host-v1"; id: number; frame: number; actorIndex: number; actorKey: string; ability: string; attackTag: number; attackTagName: string; element: string; ... 11 more ...; rawAttack: Record<...>; }' is not assignable to type 'SourceHostSpecialRequest'.
+    Type '{ [x: string]: unknown; protocol: "gidps-source-host-v1"; id: number; frame: number; actorIndex: number; actorKey: string; ability: string; attackTag: number; attackTagName: string; element: string; ... 11 more ...; rawAttack: Record<...>; }' is not assignable to type '{ [x: string]: unknown; protocol: "gidps-source-host-v1"; id: number; frame: number; actorIndex: number; actorKey: string; ability: string; attackTag: number; attackTagName: string; element: string; ... 11 more ...; input: { ...; }; } | { ...; }'.
+
+WALL_SECONDS=2.418

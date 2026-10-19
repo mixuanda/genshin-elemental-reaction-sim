@@ -1,0 +1,19 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/app.ts(3644,85): error TS2345: Argument of type '{ schemaVersion: "source-host-hit-v1"; formulaVersion: "shared-ast-source-host-v1"; executionArtifact?: { wasmSha256: string; wasmBytes: number; } | undefined; sourceCommit: "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"; ... 12 more ...; supportingCalculations?: { ...; }[] |...' is not assignable to parameter of type '{ schemaVersion: "source-host-hit-v1"; formulaVersion: "shared-ast-source-host-v1"; executionArtifact?: { wasmSha256: string; wasmBytes: number; } | undefined; sourceCommit: "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"; ... 12 more ...; supportingCalculations?: { ...; }[] |...'.
+  Type '{ schemaVersion: "source-host-event-collection-v1"; scope: "observed-event-component"; componentId: "baizhu-c2-on-enemy-damage" | "tartaglia-riptide-on-target-died"; selection: { ...; }; sourceContext: { ...; }; nativeEvidence: { ...; }; hits: { ...; }[]; }' is not assignable to type '{ schemaVersion: "source-host-hit-v1"; formulaVersion: "shared-ast-source-host-v1"; executionArtifact?: { wasmSha256: string; wasmBytes: number; } | undefined; sourceCommit: "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"; ... 12 more ...; supportingCalculations?: { ...; }[] |...'.
+    Type '{ schemaVersion: "source-host-event-collection-v1"; scope: "observed-event-component"; componentId: "baizhu-c2-on-enemy-damage" | "tartaglia-riptide-on-target-died"; selection: { ...; }; sourceContext: { ...; }; nativeEvidence: { ...; }; hits: { ...; }[]; }' is missing the following properties from type '{ schemaVersion: "source-host-action-collection-v1"; scope: "finite-skill-cast" | "observed-action-hits"; association: "creation" | "skill-ownership" | "status-owner" | "trigger"; ... 10 more ...; exclusions: { ...; }; }': association, action, exclusions
+packages/sim-core/src/source-host-event-collection.ts(370,17): error TS2379: Argument of type '{ attackId: number | undefined; status: "pending"; reason: string; trace: CalculationTraceNode[]; }' is not assignable to parameter of type 'SourceHostEventCollectionRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'attackId' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-event-collection.ts(383,19): error TS2379: Argument of type '{ attackId: number | undefined; dispatchId: number; targetKey: number; status: "missed"; value: number; reason: string; trace: CalculationTraceNode[]; }' is not assignable to parameter of type 'SourceHostEventCollectionRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'attackId' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-event-collection.ts(388,19): error TS2379: Argument of type '{ attackId: number | undefined; dispatchId: number; targetKey: number; status: "unresolved"; reason: string; trace: CalculationTraceNode[]; }' is not assignable to parameter of type 'SourceHostEventCollectionRow' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'attackId' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.

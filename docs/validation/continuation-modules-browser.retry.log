@@ -1,0 +1,125 @@
+
+Running 2 tests using 1 worker
+
+(node:89266) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit (1.0s)
+(node:89291) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/real-preview-workspace.spec.ts:3:1 › real observed preview stays separate from the released calculator and cannot invent executable skills (528ms)
+
+
+  1) [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 7
+    + Received  + 0
+
+    @@ -85,11 +85,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-state:normal:100:1",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-state:normal:100:1",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 120帧（normal·第1击）",
+    @@ -210,11 +209,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-state:normal:100:2",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-state:normal:100:2",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 120帧（normal·第2击）",
+    @@ -335,11 +333,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-tick:normal:160:1",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-tick:normal:160:1",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 180帧（normal·第1击）",
+    @@ -460,11 +457,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-tick:normal:160:2",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-tick:normal:160:2",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 180帧（normal·第2击）",
+    @@ -585,11 +581,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-tick:normal:160:3",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-tick:normal:160:3",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 180帧（normal·第3击）",
+    @@ -710,11 +705,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-tick:normal:220:1",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-tick:normal:220:1",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 240帧（normal·第1击）",
+    @@ -835,11 +829,10 @@
+          "dependencies": Array [
+            "coordinated-context:source",
+            "coordinated-context:schedule",
+            "coordinated-context:coordinated-xingqiu-burst-c0:proc:normal-tick:normal:220:2",
+          ],
+    -     "effectiveResistance": 0.1,
+          "element": "hydro",
+          "groupMultiplier": 1,
+          "id": "coordinated-xingqiu-burst-c0:proc:normal-tick:normal:220:2",
+          "kind": "ordinary",
+          "label": "剑雨单剑 · 240帧（normal·第2击）",
+
+      74 |   const restored = await audit(page);
+      75 |   expect(restored.document.gameContext!.coordinatedCast).toEqual(converted.document.gameContext!.coordinatedCast);
+    > 76 |   expect(restored.document.hits).toEqual(converted.document.hits);
+         |                                  ^
+      77 |   expect(restored.document.selectedHitIds).toEqual(converted.document.selectedHitIds);
+      78 |   expect(restored.result.totals).toEqual(converted.result.totals);
+      79 |
+        at /Users/evan/Documents/gidps/apps/web/e2e/coordinated-cast.spec.ts:76:34
+
+    Error Context: test-results/coordinated-cast-one-expli-b0335-ins-an-independent-last-hit-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/coordinated-cast-one-expli-b0335-ins-an-independent-last-hit-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/coordinated-cast-one-expli-b0335-ins-an-independent-last-hit-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit 
+  1 passed (2.3s)

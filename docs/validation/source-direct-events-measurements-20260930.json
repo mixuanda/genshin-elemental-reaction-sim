@@ -1,0 +1,357 @@
+{
+  "schemaVersion": "source-direct-events-measurements-v1",
+  "asOf": "2026-09-30",
+  "scope": "113 adds nine source-audited direct listener components to the independent shared-formula calculator. This does not close persistent E/Q, shield or status ownership.",
+  "commands": [
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 15.653,
+      "log": "docs/validation/source-direct-events-classic-build-20260930.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.666,
+      "log": "docs/validation/source-direct-events-stellar-build-20260930.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.312,
+      "log": "docs/validation/source-direct-events-typecheck-20260930.log"
+    },
+    {
+      "name": "registry",
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.116,
+      "log": "docs/validation/source-direct-events-registry-20260930.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.185,
+      "log": "docs/validation/source-direct-events-web-build-20260930.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-direct-events.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 32.99,
+      "log": "docs/validation/source-direct-events-browser-20260930.log",
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      }
+    }
+  ],
+  "counts": {
+    "newDirectEventComponents": 9,
+    "totalEventComponents": 11,
+    "newComponentsWithNativeSample": 3,
+    "newComponentsWithSourceAndBuildEvidenceOnly": 6,
+    "staticEventInventoryFamilies": 23,
+    "inventoryFamiliesWithoutEventCollection": 12,
+    "distinctFiniteSkillContracts": 60,
+    "producerPlanEntries": 51,
+    "nativeRuns": 1,
+    "browserCases": 1,
+    "browserAttempts": 1,
+    "historicalCapturesReused": 1,
+    "historicalComponentsRecalculated": 2
+  },
+  "componentIds": [
+    "baizhu-c2-on-enemy-damage",
+    "tartaglia-riptide-on-target-died",
+    "albedo-skill-proc",
+    "dehya-skill-followup",
+    "raiden-eye-followup",
+    "candace-c6-wave",
+    "kirara-c4-cardamom",
+    "kuki-c4-thundergrass",
+    "clorinde-c1-shade",
+    "chiori-a1-seize",
+    "yoimiya-aurous-blaze-explosion"
+  ],
+  "runtime": {
+    "schemaVersion": "source-direct-events-browser-v1",
+    "measurements": {
+      "nativeRunPerformed": true,
+      "nativeResultArchived": true,
+      "rawPath": "docs/validation/source-direct-events-team-20260930.capture.json",
+      "missingAttackCountFact": {
+        "siteId": "albedo.skill.enemy-damage",
+        "listenerCallId": 18,
+        "factRemoved": "albedo.skill.enemy-damage.attack-count",
+        "deliveryClosed": false,
+        "reasons": [
+          "本次监听器缺少已审阅直接排队分支的攻击数读数，或读数超出允许分支。",
+          "本次监听器发出的直接攻击或延迟任务数与实际分支不符。"
+        ],
+        "additionalNativeRun": false
+      },
+      "directEvents": [
+        {
+          "siteId": "albedo.skill.enemy-damage",
+          "componentId": "albedo-skill-proc",
+          "listenerCallId": 18,
+          "entryFacts": {
+            "albedo.skill.enemy-damage.attack-count": 1
+          },
+          "deliveryClosed": true,
+          "attackCount": 1,
+          "producerCount": 0,
+          "completedProducerCount": 0,
+          "pendingProducerCount": 0,
+          "hitCount": 2,
+          "componentSubtotal": 1356.88886407622,
+          "reasons": []
+        },
+        {
+          "siteId": "dehya.skill.enemy-damage",
+          "componentId": "dehya-skill-followup",
+          "listenerCallId": 47,
+          "entryFacts": {
+            "dehya.skill.enemy-damage.attack-count": 1
+          },
+          "deliveryClosed": true,
+          "attackCount": 1,
+          "producerCount": 0,
+          "completedProducerCount": 0,
+          "pendingProducerCount": 0,
+          "hitCount": 2,
+          "componentSubtotal": 364.9738662611342,
+          "reasons": []
+        },
+        {
+          "siteId": "raiden.eye.enemy-damage",
+          "componentId": "raiden-eye-followup",
+          "listenerCallId": 104,
+          "entryFacts": {
+            "raiden.eye.enemy-damage.attack-count": 1
+          },
+          "deliveryClosed": true,
+          "attackCount": 1,
+          "producerCount": 0,
+          "completedProducerCount": 0,
+          "pendingProducerCount": 0,
+          "hitCount": 2,
+          "componentSubtotal": 153.70568170009923,
+          "reasons": []
+        }
+      ],
+      "originEntriesOpened": 3,
+      "componentImportExportSame": true,
+      "sharedCoreEditChangedSubtotal": true,
+      "offline112Regression": {
+        "rawPath": "docs/validation/source-event-components-team-20260930.capture.json",
+        "selectedCalls": [
+          {
+            "siteId": "baizhu.c2.enemy-damage",
+            "listenerCallId": 12,
+            "componentId": "baizhu-c2-on-enemy-damage",
+            "deliveryClosed": true,
+            "reasons": [],
+            "hitCount": 1,
+            "replayDifferences": [
+              0
+            ],
+            "componentSubtotal": 303.44568032812504
+          },
+          {
+            "siteId": "tartaglia.riptide.target-died",
+            "listenerCallId": 9,
+            "componentId": "tartaglia-riptide-on-target-died",
+            "deliveryClosed": true,
+            "reasons": [],
+            "hitCount": 1,
+            "replayDifferences": [
+              0
+            ],
+            "componentSubtotal": 125.39785272501312
+          }
+        ]
+      }
+    },
+    "pageErrors": [],
+    "scope": "One classic, two-target run checks positive observed Albedo skill, Dehya skill, and Raiden eye event calls during a four-character rotation. It measures only these three direct listener components; Kaeya is the trigger actor, not an audited event component. The 112 Baizhu and Tartaglia calls are recalculated from their archived native capture."
+  },
+  "runtimeDetails": {
+    "lifecycleObservationFrame": 770,
+    "teamApplicationCount": 24,
+    "nativeTotalDamage": 18851.851237575444,
+    "eventRegistrations": 7,
+    "eventEmissions": 24,
+    "eventListenerCalls": 168,
+    "eventProducers": 0,
+    "selectedApplicationCount": 6,
+    "selectedSubtotal": 1875.5684120374535,
+    "maxSelectedReplayDifference": 0,
+    "historicalApplicationCount": 2,
+    "maxHistoricalReplayDifference": 0,
+    "evidence": "Single passing Playwright case checks all six selected fresh hits and both old component hits against the same shared calculation core."
+  },
+  "artifacts": [
+    {
+      "path": "packages/source-host/patches/113-direct-event-sites-a.patch",
+      "bytes": 2963,
+      "sha256": "c9fab68d34cd0638163e0be6fd8fea17b747d046b96dd72ace69a3123425deb3"
+    },
+    {
+      "path": "packages/source-host/patches/113-direct-event-sites-b.patch",
+      "bytes": 3626,
+      "sha256": "178aeb61ebacc4c80bb49b3d2e42797d95932657ed21b488b1d19b3608247bf6"
+    },
+    {
+      "path": "packages/source-host/patches/113-direct-event-sites-c.patch",
+      "bytes": 2112,
+      "sha256": "5ef254149a5ffd60d65ba090d42ec67608d227f5fee70faf521d93e5d55a172f"
+    },
+    {
+      "path": "packages/source-host/go/pkg/core/sourcehost_event_attack.go",
+      "bytes": 1989,
+      "sha256": "d4cdf2ff3df6565d04275027a2371e45734f10569fdf1abc9c4072a9a6d2bdd6"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost_event_attack.go",
+      "bytes": 1989,
+      "sha256": "d4cdf2ff3df6565d04275027a2371e45734f10569fdf1abc9c4072a9a6d2bdd6"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-event-rules.ts",
+      "bytes": 13970,
+      "sha256": "f2486a7974756585843ed307581c68cdb51ba48ad3de351dfbe52329c4c767d5"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-event-collection.ts",
+      "bytes": 26423,
+      "sha256": "47bce0dd200e914981a9a9e713429672f1d81a6633a87d936c23ccb14f0ea57c"
+    },
+    {
+      "path": "apps/web/src/source-host-event-calculator.ts",
+      "bytes": 10262,
+      "sha256": "c909bf3f60a4eb2bb2a28491e1367e877d398eff38055d061bcdb42f0f1274d2"
+    },
+    {
+      "path": "apps/web/src/source-host-origin-panel.ts",
+      "bytes": 13295,
+      "sha256": "7316a1ae9b6127fea7b75a22921e92cc885481644369c21094ef70e4ce5b3853"
+    },
+    {
+      "path": "packages/source-host/scripts/build-source-host.mjs",
+      "bytes": 15581,
+      "sha256": "3ab65ec20f8f13081a5a539946405fcb0dc13cd32ed2505e17ec008128d173c6"
+    },
+    {
+      "path": "packages/source-host/scripts/generate-source-inventory-metadata.mjs",
+      "bytes": 11770,
+      "sha256": "2b699d73bbd7c07a3d8f32b3300d79a83ad32f3b8997b6db774f80b6e7679b7f"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/build.mjs",
+      "bytes": 37859,
+      "sha256": "3fd513adc9aebf6bdc9d6a32f71ae9879e5787cf50f2cbca7b54089f2acdabc1"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/generate-inventory.mjs",
+      "bytes": 11908,
+      "sha256": "1c3e1476b98b4df385890dda5c83287434b59ca3849905a37618474f058711aa"
+    },
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 45053407,
+      "sha256": "433270171c366d68ab3b46a720ac84965b244bfd2a5ff1ee412f1a4d43fbcec6"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 69635738,
+      "sha256": "6762acb85774bd24eb8e5b81b144dad2c4bbf592c48e8546389b980d5f981606"
+    },
+    {
+      "path": "docs/validation/source-direct-events-sites-a-20260930.json",
+      "bytes": 14747,
+      "sha256": "6d77df0f1e611a560d1ab7c6ffc26c671cc04e9fb1b5ebdef774476aef402356"
+    },
+    {
+      "path": "docs/validation/source-direct-events-sites-b-20260930.json",
+      "bytes": 8388,
+      "sha256": "70bf50c283a4480b4d566411459674b0cd12be0449998593a1dc4494292e5357"
+    },
+    {
+      "path": "docs/validation/source-direct-events-sites-c-20260930.json",
+      "bytes": 11510,
+      "sha256": "d285dca454b6292411e1bb40e44da7ef82750128bcca06b17fc7f2fb17f527b2"
+    },
+    {
+      "path": "docs/validation/source-direct-events-team-20260930.capture.json",
+      "bytes": 1331272,
+      "sha256": "f5d599d8ae34d2386abe0f07163961b84f80db2c014805fd093be95687a2c321"
+    },
+    {
+      "path": "docs/data-evidence-refresh-20260930.json",
+      "bytes": 11700,
+      "sha256": "37f25181cb597e788c925d6d9b4bac7ff4b16a05142ffc53a62d5edfd146cad0"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "repairs": [
+    "Build cache directory now propagates to both inventory generators and their Go toolchain preparation. A caller-selected persistent cache no longer silently depends on the default temporary Go cache."
+  ],
+  "limits": [
+    "One four-character, two-target classic native rotation exercises three of nine new listener components; the other six have source/patch/build evidence only. Stellar was built but not runtime sampled.",
+    "The six selected new applications and two historical ones reproduce through shared formulas with exact zero delta; this does not validate all character mechanics in-game.",
+    "Missing direct queue-count evidence was removed offline in the archived object and correctly prevents delivery closure; no extra truncated native run.",
+    "Known listener branches and tagged queues are measured separately from prior status/construct/shield ownership, future procs, non-damage effects and full E/Q lifetime.",
+    "Lunaris index response bytes changed without a new latest version identity or charlist revision; its byte delta is unattributed. No data promotion or verified-pointer activation.",
+    "No full test suite, per-character runtime matrix, commit, push or deployment. Master goal remains active with five remaining broad categories."
+  ]
+}

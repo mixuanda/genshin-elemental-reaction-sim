@@ -1,0 +1,249 @@
+{
+  "schemaVersion": "source-shared-animation-measurements-v1",
+  "batch": 121,
+  "date": "2026-09-30",
+  "status": "shared-callback-state-implemented-with-unknown-gaps-retained",
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 1.815
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 1.923
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.668
+    },
+    "classic-build-repair": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.758
+    },
+    "stellar-build-repair": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.129
+    },
+    "typecheck-repair": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.131
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.109
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shared-animation-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.213
+    }
+  },
+  "initialFailures": {
+    "builds": "Both stopped applying a formatting-only patch hunk before Go compilation; removed that hunk after comparing source to original freeze receipts.",
+    "typecheck": "Previous batch browser test passed SimConfig directly to toMatchObject; changed to an object spread without altering assertions/runtime."
+  },
+  "browserCaseCount": 1,
+  "browserAttempts": 1,
+  "nativeRunCount": 2,
+  "browserRunnerSeconds": 6.8,
+  "browserCaseSeconds": 6.1,
+  "webViteSeconds": 0.909,
+  "pageErrors": [],
+  "phaseJsonRoundtripEqual": true,
+  "sourceAudit": "docs/validation/source-shared-animation-audit-20260930.json",
+  "rawCapture": "docs/validation/source-shared-animation-browser-20260930.capture.json",
+  "browserResult": "docs/validation/source-shared-animation-browser-20260930.result.json",
+  "baselineDrift": "docs/validation/source-shared-animation-baseline-drift-20260930.json",
+  "runs": [
+    {
+      "lane": "classic",
+      "executionArtifact": {
+        "wasmSha256": "e55c5d988844573bead2bc479aa13bf0eca9502c9fb7a5f0dd4c443b309b331e",
+        "wasmBytes": 46364678
+      },
+      "observations": 14,
+      "frames": [
+        7,
+        30,
+        40,
+        46,
+        100,
+        106,
+        160,
+        166,
+        220,
+        226,
+        280,
+        391,
+        404,
+        405
+      ],
+      "applications": 14,
+      "totalAppliedDamage": 13294.693123088311,
+      "actualObservationEndFrame": 406,
+      "normalConstructorCaptureCount": 1,
+      "abilityConstructorCaptureCount": 5,
+      "offsetConstructorCaptureCount": 0,
+      "defaultPauseCaptureCount": 6,
+      "remainingDistinctGapCount": 64,
+      "completeBoundaries": 0,
+      "phaseAnalysis": {
+        "status": "not-established",
+        "evidence": "provisional-source-state",
+        "periodCycles": null,
+        "steadyStateDps": null,
+        "periodDamage": null,
+        "periodFrames": null,
+        "warmupBoundaryFrame": null,
+        "matchedBoundaryFrames": [],
+        "observationCount": 14,
+        "reasons": [
+          "原生边界并非同一解释器重复输入位置。"
+        ],
+        "stateDifferences": [],
+        "intervalDifferences": []
+      },
+      "comparisons": {
+        "framesEqual": true,
+        "applicationsEqual": true
+      }
+    },
+    {
+      "lane": "stellar",
+      "executionArtifact": {
+        "wasmSha256": "e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546",
+        "wasmBytes": 70412296
+      },
+      "observations": 14,
+      "frames": [
+        7,
+        30,
+        40,
+        46,
+        100,
+        106,
+        160,
+        166,
+        220,
+        226,
+        280,
+        391,
+        404,
+        405
+      ],
+      "applications": 14,
+      "totalAppliedDamage": 13294.693123088311,
+      "actualObservationEndFrame": 406,
+      "normalConstructorCaptureCount": 1,
+      "abilityConstructorCaptureCount": 5,
+      "offsetConstructorCaptureCount": 0,
+      "defaultPauseCaptureCount": 6,
+      "remainingDistinctGapCount": 64,
+      "completeBoundaries": 0,
+      "phaseAnalysis": {
+        "status": "not-established",
+        "evidence": "provisional-source-state",
+        "periodCycles": null,
+        "steadyStateDps": null,
+        "periodDamage": null,
+        "periodFrames": null,
+        "warmupBoundaryFrame": null,
+        "matchedBoundaryFrames": [],
+        "observationCount": 14,
+        "reasons": [
+          "原生边界并非同一解释器重复输入位置。"
+        ],
+        "stateDifferences": [],
+        "intervalDifferences": []
+      },
+      "comparisons": {
+        "framesEqual": true,
+        "applicationsEqual": true
+      }
+    }
+  ],
+  "unchangedDataPointers": {
+    "packages/game-data/manifests/pointers.json": {
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "matchesBatch119And120": true
+    },
+    "packages/game-data/manifests/runtime/current.ts": {
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "matchesBatch119And120": true
+    }
+  },
+  "runtimeNotExercised": [
+    "NewAttackFuncWithOffset",
+    "NewAbilFuncWithOffset",
+    "nonzero attack speed",
+    "all character-specific callback replacement paths",
+    "positive paused-hitlag outcome as an independently asserted branch"
+  ],
+  "checksNotRun": [
+    "full unit suite",
+    "native character frame matrices",
+    "per-character browser tests",
+    "performance suite",
+    "unchanged talent registry regeneration",
+    "remote CI or data refresh"
+  ],
+  "scope": "Two source scenes with ignore_burst_energy=true and action-exhaustion termination. Not a game verification, fixed-window DPS, full character coverage or convergence proof."
+}

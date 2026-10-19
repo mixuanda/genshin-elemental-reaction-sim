@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-healing-sources.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 34.693,
+  "log": "docs/validation/source-healing-sources-e2eretry3-20260928.log"
+}

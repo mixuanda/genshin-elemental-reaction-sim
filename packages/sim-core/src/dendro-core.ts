@@ -77,6 +77,12 @@ export interface DendroCoreEntity {
   positionRandomRoll: number;
 }
 
+export interface DendroCoreCapturedState {
+  active: Readonly<DendroCoreEntity>[];
+  nextCoreId: number;
+  usedReservationIds: number[];
+}
+
 export interface DendroCoreSpawnInput {
   reservation: DendroCoreReservation;
   frame: number;
@@ -158,6 +164,18 @@ export class DendroCoreManager {
   private nextCoreId = 0;
 
   constructor(private readonly random: DendroCoreRandomSource) {}
+
+  /**
+   * Detached entity and allocation state, without expiring entities or drawing
+   * randomness. The simulator captures the supplied random source separately.
+   */
+  captureState(): DendroCoreCapturedState {
+    return {
+      active: [...this.active.values()].map(cloneEntity),
+      nextCoreId: this.nextCoreId,
+      usedReservationIds: [...this.usedReservationIds],
+    };
+  }
 
   reserve(
     input: Readonly<DendroCoreReservationInput>

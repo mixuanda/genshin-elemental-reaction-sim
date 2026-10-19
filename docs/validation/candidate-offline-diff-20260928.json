@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.0.0",
+  "executedAt": "2026-09-28",
+  "method": "Imported diffSnapshots from packages/game-data/scripts/update-lib.mjs and read the existing active and isolated candidate snapshots. No network fetch, build, full test suite, candidate rewrite, or active pointer write was performed.",
+  "candidatePath": "/tmp/gidps-candidates-20260928/genshin-db-49a6544a6c6ae36089cb42fa591fc46f01de8bcf-6720353b1a8f5f9b",
+  "candidateCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "candidateProjectionSha256": "6720353b1a8f5f9b26e96a7f117fcfe070c2be3ec469235b7dbae0eb5098d7e0",
+  "activeSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "candidateSnapshotId": "snapshot-e647d8d95e3a15d45da0c1b6757a789efa386a9931ebdf8921027a7344fcdc72",
+  "diffJsonBytesPrettyPrinted": 13153,
+  "counts": {
+    "characters": { "added": 0, "removed": 0, "changed": 124 },
+    "talentSets": { "added": 0, "removed": 0, "changed": 127 },
+    "weapons": { "added": 0, "removed": 0, "changed": 255 },
+    "artifactSets": { "added": 0, "removed": 0, "changed": 0 },
+    "constellationSets": { "added": 0, "removed": 0, "changed": 0 },
+    "fieldAssessmentsChanged": 0,
+    "release": { "from": "released", "to": "unknown" }
+  },
+  "changedIdentityExamples": {
+    "characters": ["character:10000002", "character:10000003", "character:10000005", "character:10000006", "character:10000007"],
+    "talentSets": ["talent-set:aino", "talent-set:albedo", "talent-set:alhaitham", "talent-set:aloy", "talent-set:alyosha"],
+    "weapons": ["weapon:11101", "weapon:11201", "weapon:11301", "weapon:11302", "weapon:11303"]
+  },
+  "interpretation": "The adapter reports snapshot-level field changes despite the matching genshin-db projection hash documented for this capture. These are observed diffSnapshots results and require review; they do not establish new upstream game content."
+}

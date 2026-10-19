@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:20806) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/random-weapon-proc-runtime.spec.ts:46:1 › Random weapon normal controls use actual deferred Cryo state for the whole AoE and preserve replay, checkpoint limits, and two-seed provenance
+[chromium] › apps/web/e2e/random-weapon-proc-runtime.spec.ts:46:1 › Random weapon normal controls use actual deferred Cryo state for the whole AoE and preserve replay, checkpoint limits, and two-seed provenance
+Random weapon proc browser measurements {"totalDamage":1900,"childDamage":700,"triggerFrame":0,"deliveryFrame":1,"callbackSequence":3,"fireSequence":2,"coefficient":1.4,"triggerAura":{"cryo":false,"frozen":false},"random":{"rngStream":"independent-weapon-proc-v1","probability":1,"successComparison":"<","roll":0.8347660845611244,"drawIndex":0,"drawCountBefore":0,"drawCountAfter":1},"replayDifference":0,"startupStatus":"steady-state-not-established","checkpointComplete":false,"batchIterations":2,"batchRngPolicy":"seeded-particles-and-declared-independent-streams-v1","batchWeaponPolicy":{"id":"gcsim-random-weapon-proc-v1","sourceRevision":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","evidence":"fixed-source-assumed","rngStream":"independent-weapon-proc-v1","rngAlgorithm":"fnv1a32-mulberry32-v1","matchesGcsimRandomSequence":false,"cooldownClock":"global-frame-assumes-no-character-hitlag","callbackScope":"ordinary-damage-deferred-same-phase-fifo","assumptions":["新五把武器在普通伤害回调的同帧、同相位 FIFO 队列尾部实际检查前台、冷却、攻击类型和概率；不从动作名称推断标签。","吃虎鱼刀先抽样（roll ≤ 0.5），抽中后才检查非零伤害；试作古华和霜葬没有零伤害门槛，使用严格小于概率比较。","霜葬在成功回调时读取原触发目标当前的独立冰光环或冻结状态，整次范围追击共用这一倍率；精炼 5 仍消耗随机抽样。","成功回调即刻保存独立物理伤害快照，延后 1 帧交付；范围追击以原触发目标当时位置为圆心、半径 3。","独立命名随机流仅保证本地复现，不等同 gcsim 的共享随机序列；角色卡肉延长、反应伤害回调和特殊月曜／星辉宿主不在本接口范围。"]}}
+
+  1 passed (3.2s)

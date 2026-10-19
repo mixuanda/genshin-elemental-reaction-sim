@@ -1,0 +1,37 @@
+COMMAND: npx vitest run packages/schemas/src/stateful-weapon-proc-integrity.test.ts
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/schemas/src/stateful-weapon-proc-integrity.test.ts (2 tests | 1 failed) 297ms
+   × activates Crescent Pike only for the actual pickup front character and preserves its inclusive off-field hit window 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/schemas/src/stateful-weapon-proc-integrity.test.ts > activates Crescent Pike only for the actual pickup front character and preserves its inclusive off-field hit window
+ConfigMigrationError: 配置校验失败：
+- timeline.commands.1.characterId: Invalid input: expected string, received undefined
+- timeline.commands.1: Unrecognized key: "actorId"
+- timeline.commands.4.characterId: Invalid input: expected string, received undefined
+- timeline.commands.4: Unrecognized key: "actorId"
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33714:11
+    33712|   if (!parsed.success) {
+    33713|     const issues = formatZodError(parsed.error);
+    33714|     throw new ConfigMigrationError(
+       |           ^
+    33715|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33716|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35153:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18417:18
+ ❯ packages/schemas/src/stateful-weapon-proc-integrity.test.ts:71:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  11:35:18
+   Duration  1.21s (transform 660ms, setup 0ms, import 843ms, tests 297ms, environment 0ms)
+
+
+EXIT_CODE: 1
+WALL_SECONDS: 1.6364427499938756

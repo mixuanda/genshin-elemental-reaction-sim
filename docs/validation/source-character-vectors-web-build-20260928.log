@@ -1,0 +1,9 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-character-controls.ts(124,60): error TS2740: Type 'Event' is missing the following properties from type 'InputEvent': data, dataTransfer, inputType, isComposing, and 5 more.

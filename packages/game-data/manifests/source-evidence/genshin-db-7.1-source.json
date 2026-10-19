@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogVersion": "gi-7.1-official-next.genshin-db-49a6544a6c6a.1",
+  "gameVersion": "7.1",
+  "sourceVersion": "5.2.14",
+  "sourceCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "retrievedAt": "2026-09-22T14:48:43.352Z",
+  "releaseStatus": "official-next",
+  "sourceSha256": "6720353b1a8f5f9b26e96a7f117fcfe070c2be3ec469235b7dbae0eb5098d7e0",
+  "notes": "Projected combat data from a pinned Git tree. Source files hashed individually; no upstream code executed. This content hash identifies the imported projection, not a nonexistent upstream bundled file. Community values remain provisional."
+}

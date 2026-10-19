@@ -1,0 +1,15 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/equipment-team-handoff.ts(130,95): error TS2367: This comparison appears to be unintentional because the types '"user-supplied"' and '"verified"' have no overlap.
+packages/sim-core/src/equipment-team-handoff.ts(177,34): error TS2345: Argument of type 'ArtifactBuffActor[] | { actorId: string; effectId: "echoes-4pc" | "song-of-days-past-4pc"; }[] | { actorId: string; weaponId: WeaponProcWeaponId; hasInnateArkhe?: boolean; eyeOfPerceptionProfile?: "gcsim-implementation-v1"; refinement: number; physicalDamageBonus: number; }[] | { ...; }[] | { ...; }[] | { ...; }[]' is not assignable to parameter of type 'ArtifactBuffActor[] | undefined'.
+  Type '{ actorId: string; effectId: "echoes-4pc" | "song-of-days-past-4pc"; }[]' is not assignable to type 'ArtifactBuffActor[]'.
+    Type '{ actorId: string; effectId: "echoes-4pc" | "song-of-days-past-4pc"; }' is not assignable to type 'ArtifactBuffActor'.
+      Types of property 'effectId' are incompatible.
+        Type '"echoes-4pc" | "song-of-days-past-4pc"' is not assignable to type '"fragment-4pc" | "gilded-4pc" | "instructor-4pc" | "noblesse-4pc" | "paradise-4pc" | "vermillion-4pc"'.
+          Type '"echoes-4pc"' is not assignable to type '"fragment-4pc" | "gilded-4pc" | "instructor-4pc" | "noblesse-4pc" | "paradise-4pc" | "vermillion-4pc"'.

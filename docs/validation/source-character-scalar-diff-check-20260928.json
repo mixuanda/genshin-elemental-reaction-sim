@@ -1,0 +1,8 @@
+{
+  "command": "git diff --check",
+  "exitCode": 0,
+  "wallSeconds": 0.073,
+  "stdout": "",
+  "stderr": "",
+  "scope": "tracked changes only; does not check untracked files"
+}

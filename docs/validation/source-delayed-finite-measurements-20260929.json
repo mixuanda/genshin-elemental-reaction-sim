@@ -1,0 +1,229 @@
+{
+  "schemaVersion": "source-delayed-finite-measurements-v1",
+  "date": "2026-09-29",
+  "contracts": {
+    "producerFamilies": 12,
+    "producerSites": 19,
+    "uniqueSkillContractsIncluding107": 21,
+    "gameVerified": false
+  },
+  "commands": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.262
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.875
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.183
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 3.616
+    },
+    "web-build-fixed": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.799
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-delayed-finite-cast.spec.ts",
+        "--reporter=line"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 12.416
+    },
+    "browser-valid-input": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-delayed-finite-cast.spec.ts",
+        "--reporter=line"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 7.599
+    },
+    "browser-ready-input": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-delayed-finite-cast.spec.ts",
+        "--reporter=line"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 9.601
+    },
+    "producer-regression": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-producer-analysis.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.75
+    },
+    "web-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.779
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-delayed-finite-browser-v1",
+    "measurements": {
+      "dionaFull": {
+        "rawPath": "/tmp/gidps-delayed-finite-diona-full.json",
+        "nativeResultArchived": true,
+        "producers": 7,
+        "completedProducers": 7,
+        "observedRoots": 7,
+        "replayedHits": 7,
+        "sharedTotal": 2334.666065224993,
+        "nativeTotal": 2334.666065224993,
+        "missingProducerCloses": false,
+        "legacyCaptureAvailable": false,
+        "certificateImportExportSame": true
+      },
+      "kaeyaFull": {
+        "rawPath": "/tmp/gidps-delayed-finite-kaeya-full.json",
+        "nativeResultArchived": true,
+        "producers": 16,
+        "completedProducers": 16,
+        "observedRoots": 13,
+        "replayedHits": 13,
+        "sharedTotal": 2966.6700854069763,
+        "nativeTotal": 2966.6700854069763,
+        "closed": true
+      },
+      "kaeyaPartial": {
+        "rawPath": "/tmp/gidps-delayed-finite-kaeya-partial.json",
+        "nativeResultArchived": true,
+        "producers": 5,
+        "pendingProducers": 3,
+        "observedRoots": 2,
+        "replayedHits": 2,
+        "knownSubtotal": 456.410782370304,
+        "nativeTotal": 456.410782370304,
+        "closed": false
+      }
+    },
+    "pageErrors": [],
+    "scope": "Three actual classic runs: Diona Q 15s, Kaeya Q 12s, Kaeya Q 2s. Completeness is limited to audited intrinsic attacks and native producer/dispatch receipts."
+  },
+  "captures": [
+    {
+      "path": "docs/validation/source-delayed-finite-diona-full-20260929.capture.json",
+      "bytes": 187948,
+      "sha256": "6a893c4859327c464e499f9dc856ab076d3b56221964627618a5e9ab80476603",
+      "character": "diona",
+      "durationSeconds": 15,
+      "applications": 7,
+      "producers": 7
+    },
+    {
+      "path": "docs/validation/source-delayed-finite-kaeya-full-20260929.capture.json",
+      "bytes": 153541,
+      "sha256": "0e2c052d8751c8296cf24fd308b3f2ba33d29d14d74004d360742f10c7b3aa29",
+      "character": "kaeya",
+      "durationSeconds": 12,
+      "applications": 13,
+      "producers": 16
+    },
+    {
+      "path": "docs/validation/source-delayed-finite-kaeya-partial-20260929.capture.json",
+      "bytes": 37495,
+      "sha256": "e0bf4ac5a9c97b2c17f8234b324cb61eab8e7915d398934792c7cc55e5641f48",
+      "character": "kaeya",
+      "durationSeconds": 2,
+      "applications": 2,
+      "producers": 5
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    },
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 44848995,
+      "sha256": "1d8e6f274bfb1f7469548f6419c65c7164fb5bc6b357af7861010d02bfb5807c"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 68711162,
+      "sha256": "982ab0efa06f36b4ae0a897286b752f1e34f71f8daa6456b1bbd6e5d662d9ba5"
+    }
+  ],
+  "executionAccounting": {
+    "nativeRunsInSuccessfulCase": 3,
+    "nativeRunsBeforeFixtureFailure": 1,
+    "nativeRunsInReadinessFailure": 0,
+    "totalNativeExecutions": 4,
+    "browserCommandAttempts": 3,
+    "passedBrowserCases": 1,
+    "unitCases": 1
+  },
+  "failureNotes": [
+    "Initial web typecheck found possibly undefined finite UI alias; narrowed before build passed.",
+    "First browser attempt completed Diona assertions, then rejected illegal level90 Dull Blade fixture before Kaeya execution.",
+    "Second browser attempt imported before the initially disabled control was ready; zero native runs. Restored the existing explicit enabled-control readiness check.",
+    "One source review found Venti terminal outcomes too broad; constrained outcomes by actual recursive depth, followed by one synthetic regression and final typecheck/build."
+  ],
+  "limits": [
+    "Runtime browser samples are classic Diona Q and Kaeya Q only; stellar build succeeds but has no new runtime sample.",
+    "Venti regression uses synthetic receipts; it is not a native or in-game measurement.",
+    "No browser/native rerun after the Venti-only terminal-guard fix; existing Diona/Kaeya browser evidence unchanged.",
+    "Remaining source families and branch alternatives are source audited, not individually sampled.",
+    "No full suite, performance rerun, data promotion, commit, push or deployment."
+  ],
+  "sharedFormulaReplay": {
+    "assertedHitsInSuccessfulBrowserCase": 22,
+    "eachDifference": 0,
+    "source": "Passing assertions in apps/web/e2e/source-delayed-finite-cast.spec.ts, not a separate native execution."
+  }
+}

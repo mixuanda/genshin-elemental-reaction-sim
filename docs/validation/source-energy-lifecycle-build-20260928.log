@@ -1,0 +1,14 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-formula.ts(153,61): error TS2379: Argument of type '{ [x: string]: unknown; protocol: "gidps-source-host-v1"; id: number; frame: number; actorIndex: number; actorKey: string; ability: string; attackTag: number; attackTagName: string; element: string; ... 13 more ...; input: { ...; }; }' is not assignable to parameter of type 'SourceHostPlayerIncomingRequest' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sourceCommit' are incompatible.
+    Type '"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541" | undefined' is not assignable to type '"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"'.
+      Type 'undefined' is not assignable to type '"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"'.
+
+exit=1 wallSeconds=3.2117243750253692

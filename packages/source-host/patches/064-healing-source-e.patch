@@ -1,0 +1,400 @@
+diff --git a/internal/characters/arlecchino/burst.go b/internal/characters/arlecchino/burst.go
+--- a/internal/characters/arlecchino/burst.go
++++ b/internal/characters/arlecchino/burst.go
+@@ -89,12 +89,25 @@
+ }
+ 
+ func (c *char) balemoonRisingHeal() {
+-	amt := 1.5*c.CurrentHPDebt() + 1.5*c.TotalAtk()
++	hpDebt := c.CurrentHPDebt()
++	totalAtk, atkRead := c.TotalAtkWithProvenance()
++	healSrc := 1.5*hpDebt + 1.5*totalAtk
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-arlecchino-burst", map[string]any{"hpDebt": hpDebt, "totalAtk": totalAtk}, []*info.SourceHostStatRead{atkRead}, nil)
++	}
++	healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++	}
+ 	c.Heal(&info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  c.Index(),
+-		Message: balemoonRisingHealAbil,
+-		Src:     amt,
+-		Bonus:   c.Stat(attributes.Heal),
++		Caller:            c.Index(),
++		Target:            c.Index(),
++		Message:           balemoonRisingHealAbil,
++		Src:               healSrc,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	})
+ }
+diff --git a/internal/characters/clorinde/skill.go b/internal/characters/clorinde/skill.go
+--- a/internal/characters/clorinde/skill.go
++++ b/internal/characters/clorinde/skill.go
+@@ -179,13 +179,25 @@
+ }
+ 
+ func (c *char) skillHeal(bolMult float64, msg string) {
+-	amt := c.CurrentHPDebt() * bolMult
++	hpDebt := c.CurrentHPDebt()
++	healSrc := hpDebt * bolMult
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-clorinde-skill", map[string]any{"hpDebt": hpDebt, "bolMultiplier": bolMult}, nil, nil)
++	}
++	healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++	}
+ 	c.Heal(&info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  c.Index(),
+-		Message: msg,
+-		Src:     amt,
+-		Bonus:   c.Stat(attributes.Heal), // TODO: confirms that it scales with healing %
++		Caller:            c.Index(),
++		Target:            c.Index(),
++		Message:           msg,
++		Src:               healSrc,
++		Bonus:             healBonus, // TODO: confirms that it scales with healing %
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	})
+ }
+ 
+diff --git a/internal/characters/traveler/common/anemo/asc.go b/internal/characters/traveler/common/anemo/asc.go
+--- a/internal/characters/traveler/common/anemo/asc.go
++++ b/internal/characters/traveler/common/anemo/asc.go
+@@ -67,12 +67,18 @@
+ 
+ 		for i := range 5 {
+ 			c.QueueCharTask(func() {
++				healSrc := 0.02
++				healSrcID := 0
++				if c.Core.SourceHost != nil {
++					healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-traveler-anemo-a4", map[string]any{}, nil, nil)
++				}
+ 				c.Core.Player.Heal(info.HealInfo{
+-					Caller:  c.Index(),
+-					Target:  c.Index(),
+-					Message: "Second Wind",
+-					Type:    info.HealTypePercent,
+-					Src:     0.02,
++					Caller:          c.Index(),
++					Target:          c.Index(),
++					Message:         "Second Wind",
++					Type:            info.HealTypePercent,
++					Src:             healSrc,
++					SourceHostSrcID: healSrcID,
+ 				})
+ 			}, (i+1)*60) // healing starts 1s after death
+ 		}
+diff --git a/internal/characters/traveler/common/hydro/asc.go b/internal/characters/traveler/common/hydro/asc.go
+--- a/internal/characters/traveler/common/hydro/asc.go
++++ b/internal/characters/traveler/common/hydro/asc.go
+@@ -47,12 +47,25 @@
+ 		droplet.Kill()
+ 		count--
+ 
++		maxHp, maxHpRead := c.MaxHPWithProvenance()
++		healSrc := maxHp * 0.07
++		healSrcID := 0
++		if c.Core.SourceHost != nil {
++			healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-traveler-hydro-a1", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++		healBonusID := 0
++		if c.Core.SourceHost != nil {
++			healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++		}
+ 		c.Core.Player.Heal(info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  c.Index(),
+-			Message: "Spotless Waters",
+-			Src:     c.MaxHP() * 0.07,
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            c.Index(),
++			Message:           "Spotless Waters",
++			Src:               healSrc,
++			Bonus:             healBonus,
++			SourceHostSrcID:   healSrcID,
++			SourceHostBonusID: healBonusID,
+ 		})
+ 
+ 		// Picking up a Sourcewater Droplet will restore 2 Energy to the Traveler.
+diff --git a/internal/characters/traveler/common/hydro/cons.go b/internal/characters/traveler/common/hydro/cons.go
+--- a/internal/characters/traveler/common/hydro/cons.go
++++ b/internal/characters/traveler/common/hydro/cons.go
+@@ -93,12 +93,24 @@
+ 		}
+ 	}
+ 
++	healSrc := 0.06
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-traveler-hydro-c6", map[string]any{}, nil, nil)
++	}
++	healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++	}
+ 	c.Core.Player.Heal(info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  lowest,
+-		Type:    info.HealTypePercent,
+-		Message: "Tides of Justice",
+-		Src:     0.06,
+-		Bonus:   c.Stat(attributes.Heal),
++		Caller:            c.Index(),
++		Target:            lowest,
++		Type:              info.HealTypePercent,
++		Message:           "Tides of Justice",
++		Src:               healSrc,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	})
+ }
+diff --git a/internal/characters/xilonen/burst.go b/internal/characters/xilonen/burst.go
+--- a/internal/characters/xilonen/burst.go
++++ b/internal/characters/xilonen/burst.go
+@@ -80,8 +80,21 @@
+ 	for _, hitmark := range burstHealHitmarks {
+ 		c.Core.Tasks.Add(func() {
+ 			hi.Target = c.Core.Player.Active()
+-			hi.Src = burstHealBase[c.TalentLvlBurst()] + c.TotalDef(false)*burstHealPer[c.TalentLvlBurst()]
+-			hi.Bonus = c.Stat(attributes.Heal)
++			flat := burstHealBase[c.TalentLvlBurst()]
++			totalDef, defRead := c.TotalDefWithProvenance(false)
++			ratio := burstHealPer[c.TalentLvlBurst()]
++			healSrc := flat + totalDef*ratio
++			healSrcID := 0
++			if c.Core.SourceHost != nil {
++				healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-xilonen-burst", map[string]any{"flat": flat, "totalDef": totalDef, "ratio": ratio}, []*info.SourceHostStatRead{defRead}, nil)
++			}
++			hi.Src, hi.SourceHostSrcID = healSrc, healSrcID
++			healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++			healBonusID := 0
++			if c.Core.SourceHost != nil {
++				healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++			}
++			hi.Bonus, hi.SourceHostBonusID = healBonus, healBonusID
+ 			c.Core.Player.Heal(hi)
+ 		}, hitmark)
+ 	}
+diff --git a/internal/characters/xilonen/cons.go b/internal/characters/xilonen/cons.go
+--- a/internal/characters/xilonen/cons.go
++++ b/internal/characters/xilonen/cons.go
+@@ -208,14 +208,25 @@
+ 			if !c.StatusIsActive(c6key) {
+ 				return
+ 			}
+-			hpplus := c.Stat(attributes.Heal)
+-			heal := c.TotalDef(false) * 1.2
++			healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++			healBonusID := 0
++			if c.Core.SourceHost != nil {
++				healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++			}
++			totalDef, defRead := c.TotalDefWithProvenance(false)
++			healSrc := totalDef * 1.2
++			healSrcID := 0
++			if c.Core.SourceHost != nil {
++				healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-xilonen-c6", map[string]any{"totalDef": totalDef}, []*info.SourceHostStatRead{defRead}, nil)
++			}
+ 			c.Core.Player.Heal(info.HealInfo{
+-				Caller:  c.Index(),
+-				Target:  -1,
+-				Message: "Imperishable Night Carnival",
+-				Src:     heal,
+-				Bonus:   hpplus,
++				Caller:            c.Index(),
++				Target:            -1,
++				Message:           "Imperishable Night Carnival",
++				Src:               healSrc,
++				Bonus:             healBonus,
++				SourceHostSrcID:   healSrcID,
++				SourceHostBonusID: healBonusID,
+ 			})
+ 		}, i*90)
+ 	}
+diff --git a/internal/characters/yaoyao/asc.go b/internal/characters/yaoyao/asc.go
+--- a/internal/characters/yaoyao/asc.go
++++ b/internal/characters/yaoyao/asc.go
+@@ -72,12 +72,25 @@
+ 			return
+ 		}
+ 
++		maxHp, maxHpRead := c.MaxHPWithProvenance()
++		healSrc := 0.008 * maxHp
++		healSrcID := 0
++		if c.Core.SourceHost != nil {
++			healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-yaoyao-a4", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		healBonus, healBonusRead := c.StatWithProvenance(attributes.Heal)
++		healBonusID := 0
++		if c.Core.SourceHost != nil {
++			healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++		}
+ 		hi := info.HealInfo{
+-			Caller:  c.Index(),
+-			Target:  index,
+-			Message: "Yaoyao A4",
+-			Src:     0.008 * c.MaxHP(),
+-			Bonus:   c.Stat(attributes.Heal),
++			Caller:            c.Index(),
++			Target:            index,
++			Message:           "Yaoyao A4",
++			Src:               healSrc,
++			Bonus:             healBonus,
++			SourceHostSrcID:   healSrcID,
++			SourceHostBonusID: healBonusID,
+ 		}
+ 		c.Core.Player.Heal(hi)
+ 		c.QueueCharTask(c.a4(index, src), 60)
+diff --git a/internal/characters/yaoyao/burst.go b/internal/characters/yaoyao/burst.go
+--- a/internal/characters/yaoyao/burst.go
++++ b/internal/characters/yaoyao/burst.go
+@@ -71,13 +71,26 @@
+ 
+ func (c *char) getBurstHealInfo(snap *info.Snapshot) info.HealInfo {
+ 	maxhp := snap.Stats.MaxHP()
+-	heal := burstRadishHealing[0][c.TalentLvlBurst()]*maxhp + burstRadishHealing[1][c.TalentLvlBurst()]
++	ratio := burstRadishHealing[0][c.TalentLvlBurst()]
++	flat := burstRadishHealing[1][c.TalentLvlBurst()]
++	healSrc := ratio*maxhp + flat
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-yaoyao-burst", map[string]any{"maxHp": maxhp, "ratio": ratio, "flat": flat}, nil, snap)
++	}
++	healBonus := snap.Stats[attributes.Heal]
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": healBonus}, nil, snap)
++	}
+ 	return info.HealInfo{
+-		Caller:  c.Index(),
+-		Target:  -1,
+-		Message: "Yuegui Burst Heal",
+-		Src:     heal,
+-		Bonus:   snap.Stats[attributes.Heal],
++		Caller:            c.Index(),
++		Target:            -1,
++		Message:           "Yuegui Burst Heal",
++		Src:               healSrc,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	}
+ }
+ 
+diff --git a/internal/characters/yaoyao/cons.go b/internal/characters/yaoyao/cons.go
+--- a/internal/characters/yaoyao/cons.go
++++ b/internal/characters/yaoyao/cons.go
+@@ -98,11 +98,24 @@
+ 		CanBeDefenseHalted: true,
+ 		IsDeployable:       true,
+ 	}
++	maxHp, maxHpRead := yg.c.MaxHPWithProvenance()
++	healSrc := maxHp * 0.075
++	healSrcID := 0
++	if yg.c.Core.SourceHost != nil {
++		healSrc, healSrcID = yg.c.Core.SourceHost.HealSourceCompute(yg.c.Index(), "heal-source-yaoyao-c6", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++	}
++	healBonus, healBonusRead := yg.c.StatWithProvenance(attributes.Heal)
++	healBonusID := 0
++	if yg.c.Core.SourceHost != nil {
++		healBonus, healBonusID = yg.c.Core.SourceHost.HealSourceCompute(yg.c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++	}
+ 	hi := info.HealInfo{
+-		Caller:  yg.c.Index(),
+-		Message: c6HealMsg,
+-		Src:     yg.c.MaxHP() * 0.075,
+-		Bonus:   yg.c.Stat(attributes.Heal),
++		Caller:            yg.c.Index(),
++		Message:           c6HealMsg,
++		Src:               healSrc,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	}
+ 
+ 	c6MegaRadishAoE := combat.NewCircleHitOnTarget(target, nil, c6MegaRadishRad)
+diff --git a/internal/characters/yaoyao/skill.go b/internal/characters/yaoyao/skill.go
+--- a/internal/characters/yaoyao/skill.go
++++ b/internal/characters/yaoyao/skill.go
+@@ -46,11 +46,24 @@
+ 
+ func (c *char) getSkillHealInfo(snap *info.Snapshot) info.HealInfo {
+ 	maxhp := snap.Stats.MaxHP()
+-	heal := skillRadishHealing[0][c.TalentLvlSkill()]*maxhp + skillRadishHealing[1][c.TalentLvlSkill()]
++	ratio := skillRadishHealing[0][c.TalentLvlSkill()]
++	flat := skillRadishHealing[1][c.TalentLvlSkill()]
++	healSrc := ratio*maxhp + flat
++	healSrcID := 0
++	if c.Core.SourceHost != nil {
++		healSrc, healSrcID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-yaoyao-skill", map[string]any{"maxHp": maxhp, "ratio": ratio, "flat": flat}, nil, snap)
++	}
++	healBonus := snap.Stats[attributes.Heal]
++	healBonusID := 0
++	if c.Core.SourceHost != nil {
++		healBonus, healBonusID = c.Core.SourceHost.HealSourceCompute(c.Index(), "heal-source-info-bonus-snapshot", map[string]any{"healBonus": healBonus}, nil, snap)
++	}
+ 	return info.HealInfo{
+-		Caller:  c.Index(),
+-		Message: "Yuegui Skill",
+-		Src:     heal,
+-		Bonus:   snap.Stats[attributes.Heal],
++		Caller:            c.Index(),
++		Message:           "Yuegui Skill",
++		Src:               healSrc,
++		Bonus:             healBonus,
++		SourceHostSrcID:   healSrcID,
++		SourceHostBonusID: healBonusID,
+ 	}
+ }
+diff --git a/internal/characters/zhongli/shield.go b/internal/characters/zhongli/shield.go
+--- a/internal/characters/zhongli/shield.go
++++ b/internal/characters/zhongli/shield.go
+@@ -87,16 +87,27 @@
+ 
+ 		active := s.c.Core.Player.ActiveChar()
+ 		heal := 0.4 * dmg
+-		maxhp := s.c.MaxHP()
++		maxhp, maxHpRead := s.c.MaxHPWithProvenance()
+ 		if heal > 0.08*maxhp {
+ 			heal = 0.08 * maxhp
+ 		}
++		healSrcID := 0
++		if s.c.Core.SourceHost != nil {
++			heal, healSrcID = s.c.Core.SourceHost.HealSourceCompute(s.c.Index(), "heal-source-zhongli-c6", map[string]any{"incomingDamage": dmg, "maxHp": maxhp}, []*info.SourceHostStatRead{maxHpRead}, nil)
++		}
++		healBonus, healBonusRead := s.c.StatWithProvenance(attributes.Heal)
++		healBonusID := 0
++		if s.c.Core.SourceHost != nil {
++			healBonus, healBonusID = s.c.Core.SourceHost.HealSourceCompute(s.c.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": healBonus}, []*info.SourceHostStatRead{healBonusRead}, nil)
++		}
+ 		s.c.Core.Player.Heal(info.HealInfo{
+-			Caller:  s.c.Index(),
+-			Target:  active.Index(),
+-			Message: "Chrysos, Bounty of Dominator",
+-			Src:     heal,
+-			Bonus:   s.c.Stat(attributes.Heal),
++			Caller:            s.c.Index(),
++			Target:            active.Index(),
++			Message:           "Chrysos, Bounty of Dominator",
++			Src:               heal,
++			Bonus:             healBonus,
++			SourceHostSrcID:   healSrcID,
++			SourceHostBonusID: healBonusID,
+ 		})
+ 	}
+ 	if !ok {

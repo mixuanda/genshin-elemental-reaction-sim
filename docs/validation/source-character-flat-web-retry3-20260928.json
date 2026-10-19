@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 18.823,
+  "log": "docs/validation/source-character-flat-web-retry3-20260928.log"
+}

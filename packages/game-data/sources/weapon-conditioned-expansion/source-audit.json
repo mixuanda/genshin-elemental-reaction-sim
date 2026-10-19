@@ -1,0 +1,1036 @@
+{
+  "schemaVersion": "1.0.0",
+  "auditDate": "2026-09-24",
+  "scope": "11 个候选武器；3 个显式条件普通属性条款可实施，8 个保留来源/语义阻塞。该文件是来源审计，不是运行时支持注册表。",
+  "refinementOrder": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "units": "Ratio 字段为小数比例（0.20 = 20%）；EM/energy 为点数。",
+  "sourcePins": {
+    "optimizerCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+    "genshinDbCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "optimizerTree": {
+      "localAuditPath": "/tmp/gidps-optimizer-180a0a1/tree.json",
+      "bytes": 8006896,
+      "sha256": "3fb9ff8b883c2a63c5ccb6569719795389ccd8b8f055a10d5c5af9ae77e612eb"
+    }
+  },
+  "activeCatalog": {
+    "pointerPath": "packages/game-data/manifests/runtime/current.ts",
+    "path": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gamePatch": "7.1",
+    "bytes": 2075105,
+    "sha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602"
+  },
+  "summary": {
+    "candidates": 11,
+    "eligibleExplicitOrdinaryClauses": 3,
+    "blocked": 8,
+    "fullWeaponsVerified": 0,
+    "newOptimizerRawFiles": 2,
+    "reusedOptimizerRawFiles": 3,
+    "productionCodeChangedByThisAudit": false,
+    "testsExecutedByThisAudit": []
+  },
+  "coverageRules": [
+    "数值来源核对不等于触发、持续、冷却、后台、能量或队伍领取已实现。",
+    "普通属性可进入共享 EquipmentStatModifier；星烁反应条款须保留专用通道，不能合并为通用伤害加成。",
+    "仅接受完整且显式的当前计算上下文；不要求用户先建完整队伍或轮转。",
+    "catalog 保持 provisional；本审计不将数据提升到 verified，不改变 released/preview 分类。"
+  ],
+  "weapons": [
+    {
+      "id": "weapon:11435",
+      "slug": "hereticsmoltenblade",
+      "name": "熔猎异端之刃",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/hereticsmoltenblade.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/hereticsmoltenblade.json",
+        "archivePath": "packages/game-data/sources/weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__hereticsmoltenblade.json.txt",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 8425,
+        "sha256": "92282b2531757ac286897ac46850188c3c5f2792bac7a9efb8e4134ea18571f5"
+      },
+      "optimizerSource": {
+        "provider": "genshin-optimizer",
+        "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/HereticsMoltenBlade/index.tsx",
+        "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/HereticsMoltenBlade/index.tsx",
+        "archivePath": "packages/game-data/sources/weapon-extended-effects/optimizer/libs__gi__sheets__src__Weapons__Sword__HereticsMoltenBlade__index.tsx.txt",
+        "bytes": 1694,
+        "sha256": "e93e09d7027f79d521eeba6b0bcc821a1ebc110699ea5aa6941aad53c231b038",
+        "gitBlobSha1": "5057fde32abddd0608ad42ec4d3d80840e0f339f",
+        "fixedTreeBlobMatch": true
+      },
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/HereticsMoltenBlade/index.tsx",
+        "existsAtFixedCommit": true
+      },
+      "r1ToR5": {
+        "minimumAtkRatio": [
+          0.18,
+          0.225,
+          0.27,
+          0.315,
+          0.36
+        ],
+        "maximumAtkRatio": [
+          0.36,
+          0.45,
+          0.54,
+          0.63,
+          0.72
+        ],
+        "optimizerAtkRatioPerManualTier": [
+          0.01,
+          0.0125,
+          0.015,
+          0.0175,
+          0.02
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "已合法触发的 14 秒效果窗口、前台状态；仍须核实上一秒移动距离到档位的映射。"
+      ],
+      "decisionReason": "GO 提供手动 0–18 档位及最小值 + 档位 × 增量，但没有实际移动距离到档位的来源映射；不能把这个手动档位当作已验证游戏状态。",
+      "excludedMechanics": [
+        "移动距离采样及其数值映射",
+        "14 秒持续/冷却",
+        "退场移除"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "18%",
+          "36%"
+        ],
+        [
+          "22.5%",
+          "45%"
+        ],
+        [
+          "27%",
+          "54%"
+        ],
+        [
+          "31.5%",
+          "63%"
+        ],
+        [
+          "36%",
+          "72%"
+        ]
+      ],
+      "catalogReleasePatch": "7.0",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "档位 0 仍包含最小攻击力增幅，与未激活状态不同。"
+      ]
+    },
+    {
+      "id": "weapon:11437",
+      "slug": "newbough",
+      "name": "新枝",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/newbough.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/newbough.json",
+        "archivePath": null,
+        "archiveStatus": "not-copied-in-this-bounded-task",
+        "bytes": 7469,
+        "sha256": "c5b03215245e4133b8e3e742fd6dee40172292f685c02cd91664bec24045ae0f"
+      },
+      "optimizerSource": null,
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/Newbough/index.tsx",
+        "existsAtFixedCommit": false
+      },
+      "r1ToR5": {
+        "ordinaryAtkRatioPerStack": [
+          0.04,
+          0.05,
+          0.06,
+          0.07,
+          0.08
+        ],
+        "ordinaryEmPerStack": [
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "stellarModeAtkRatioPerStack": [
+          0.06,
+          0.075,
+          0.09,
+          0.105,
+          0.12
+        ],
+        "stellarModeReactionDamageRatioPerStack": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "已确认的有效层数 0–3",
+        "普通/辉映·星烁模式",
+        "已合法触发的效果窗口"
+      ],
+      "decisionReason": "固定 GO tree 中无对应生产 sheet；现有普通条款只有固定 catalog 来源，保留待交叉核对。",
+      "excludedMechanics": [
+        "施放 E 后 12 秒触发窗口",
+        "命中获得 6 秒层数及 1 秒间隔",
+        "后台触发",
+        "星烁模式替换普通效果"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "4%",
+          "20",
+          "6%",
+          "8%"
+        ],
+        [
+          "5%",
+          "25",
+          "7.5%",
+          "10%"
+        ],
+        [
+          "6%",
+          "30",
+          "9%",
+          "12%"
+        ],
+        [
+          "7%",
+          "35",
+          "10.5%",
+          "14%"
+        ],
+        [
+          "8%",
+          "40",
+          "12%",
+          "16%"
+        ]
+      ],
+      "catalogReleasePatch": "7.1",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "星烁模式是替换：不能保留普通模式元素精通后再叠加星烁条款。"
+      ]
+    },
+    {
+      "id": "weapon:11438",
+      "slug": "silverlight",
+      "name": "银釭",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/silverlight.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/silverlight.json",
+        "archivePath": null,
+        "archiveStatus": "not-copied-in-this-bounded-task",
+        "bytes": 6848,
+        "sha256": "2395289d933212b6f7ce6f0b20366632a9a9502a075998d092b76154cd06199d"
+      },
+      "optimizerSource": null,
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/Silverlight/index.tsx",
+        "existsAtFixedCommit": false
+      },
+      "r1ToR5": {
+        "emPerStack": [
+          52,
+          65,
+          78,
+          91,
+          104
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "已确认的有效层数 0–2"
+      ],
+      "decisionReason": "数值可表达为有效层数 × 精通，但固定 GO 无对应生产 sheet，单一 catalog 尚不足以消除本批来源阻塞。",
+      "excludedMechanics": [
+        "E 触发",
+        "两层独立的 12 秒计时"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "52"
+        ],
+        [
+          "65"
+        ],
+        [
+          "78"
+        ],
+        [
+          "91"
+        ],
+        [
+          "104"
+        ]
+      ],
+      "catalogReleasePatch": "7.1",
+      "catalogVerificationStatus": "provisional"
+    },
+    {
+      "id": "weapon:11521",
+      "slug": "exaiphanesblade",
+      "name": "星锋剑",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/exaiphanesblade.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/exaiphanesblade.json",
+        "archivePath": "packages/game-data/sources/weapon-extended-effects/genshin-db/src__data__ChineseSimplified__weapons__exaiphanesblade.json.txt",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 3400,
+        "sha256": "29ec45193168f11d983f86ccdbb285fc831fd4ba147a61c1879e799936f09f5c"
+      },
+      "optimizerSource": {
+        "provider": "genshin-optimizer",
+        "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/ExaiphanesBlade/index.tsx",
+        "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/ExaiphanesBlade/index.tsx",
+        "archivePath": "packages/game-data/sources/weapon-extended-effects/optimizer/libs__gi__sheets__src__Weapons__Sword__ExaiphanesBlade__index.tsx.txt",
+        "bytes": 2143,
+        "sha256": "a37971ba946d7b583c30cdb7209bb42f682c8f398aa573d1c6e56d67850f7347",
+        "gitBlobSha1": "bdc154b65af72adddf96c9cd5bafadaa29cddd6f",
+        "fixedTreeBlobMatch": true
+      },
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/ExaiphanesBlade/index.tsx",
+        "existsAtFixedCommit": true
+      },
+      "r1ToR5": {
+        "catalogAtkRatio": [
+          0.16,
+          0.2,
+          0.24,
+          0.32,
+          0.4
+        ],
+        "optimizerAtkRatio": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ],
+        "critDamageRatioPerResonatedElement": [
+          0,
+          0.06,
+          0.06,
+          0.06,
+          0.06
+        ],
+        "flatEnergy": [
+          3,
+          3,
+          5,
+          5,
+          5
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "旅行者身份",
+        "实际曾共鸣过的元素数",
+        "独立的攻击力效果窗口"
+      ],
+      "decisionReason": "R4/R5 攻击力向量及暴伤的条件门控存在来源冲突，未消除前保留阻塞。",
+      "excludedMechanics": [
+        "命中触发及 8 秒窗口",
+        "5 秒冷却",
+        "直接能量恢复及后台触发"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "16%",
+          "8",
+          "3",
+          "5"
+        ],
+        [
+          "20%",
+          "3"
+        ],
+        [
+          "24%",
+          "5"
+        ],
+        [
+          "32%",
+          "5"
+        ],
+        [
+          "40%",
+          "5"
+        ]
+      ],
+      "catalogReleasePatch": "7.0",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "catalog ATK 为 16/20/24/32/40%，GO 为 16/20/24/28/32%。",
+        "catalog R2+ 的每种已共鸣元素暴伤常驻；GO 将此暴伤一并门控于 passive=on。"
+      ]
+    },
+    {
+      "id": "weapon:11522",
+      "slug": "beyondthechrysalis",
+      "name": "蝶变",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/beyondthechrysalis.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/beyondthechrysalis.json",
+        "archivePath": null,
+        "archiveStatus": "not-copied-in-this-bounded-task",
+        "bytes": 9125,
+        "sha256": "b538d7a0f23997dca8ea3291129f1c7209a71229ec1f59bff4c52b08a2bb2220"
+      },
+      "optimizerSource": null,
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Sword/BeyondTheChrysalis/index.tsx",
+        "existsAtFixedCommit": false
+      },
+      "r1ToR5": {
+        "critDamageRatio": [
+          0.56,
+          0.72,
+          0.88,
+          1.04,
+          1.2
+        ],
+        "stellarSwirlDamageRatio": [
+          0.36,
+          0.45,
+          0.54,
+          0.63,
+          0.72
+        ],
+        "flatEnergy": [
+          5,
+          5.5,
+          6,
+          6.5,
+          7
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "当前已经合法取得的分支",
+        "当前前台状态"
+      ],
+      "decisionReason": "固定 GO 无对应生产 sheet；catalog 的三分支循环及退场重置不能由一个暴伤数值状态替代。",
+      "excludedMechanics": [
+        "E/Q 推进循环",
+        "前两分支 10 秒效果",
+        "直接能量及 4 秒间隔",
+        "退场清除/重置",
+        "星扩散伤害"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "56%",
+          "36%",
+          "5",
+          "5"
+        ],
+        [
+          "72%",
+          "45%",
+          "5.5",
+          "5.5"
+        ],
+        [
+          "88%",
+          "54%",
+          "6",
+          "6"
+        ],
+        [
+          "104%",
+          "63%",
+          "6.5",
+          "6.5"
+        ],
+        [
+          "120%",
+          "72%",
+          "7",
+          "7"
+        ]
+      ],
+      "catalogReleasePatch": "7.1",
+      "catalogVerificationStatus": "provisional"
+    },
+    {
+      "id": "weapon:12435",
+      "slug": "forgedbythegoldenmelody",
+      "name": "金律铸影",
+      "decision": "eligible-explicit-ordinary-clauses",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+        "archivePath": "packages/game-data/sources/weapon-conditioned-expansion/genshin-db/forgedbythegoldenmelody.json",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 9017,
+        "sha256": "95e186bed4d5cd95876ca1987ca30c6650f43935cf12c6b34b5df11e79e8b4e0"
+      },
+      "optimizerSource": {
+        "provider": "genshin-optimizer",
+        "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx",
+        "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx",
+        "archivePath": "packages/game-data/sources/weapon-extended-effects/optimizer/libs__gi__sheets__src__Weapons__Claymore__ForgedByTheGoldenMelody__index.tsx.txt",
+        "bytes": 4091,
+        "sha256": "72b3627c605de05cbe9f8604bac834a19a9ff49d0eef20bacd68e6a3e6db5d58",
+        "gitBlobSha1": "1f07c66ee5a5d3ae18294a38be365fe708c78d1c",
+        "fixedTreeBlobMatch": true
+      },
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx",
+        "existsAtFixedCommit": true
+      },
+      "r1ToR5": {
+        "atkRatioPerActiveOrdinaryMelody": [
+          0.18,
+          0.225,
+          0.27,
+          0.315,
+          0.36
+        ],
+        "emPerActiveOrdinaryMelody": [
+          120,
+          150,
+          180,
+          210,
+          240
+        ],
+        "excludedStellarReactionDamageRatioPerMelody": [
+          0.28,
+          0.35,
+          0.42,
+          0.49,
+          0.56
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "当前主乐章类型或未激活：攻击力/精通/星烁",
+        "独立复调乐章类型或未激活：攻击力/精通/星烁",
+        "显式确认两个状态已经合法生效，不从普通层数推断二者"
+      ],
+      "decisionReason": "固定 GO 与 catalog 的普通攻击力/精通向量一致，GO 用两组独立条件并合并 premod；以两个显式已生效状态可开放普通数值条款。",
+      "excludedMechanics": [
+        "星烁伤害通道",
+        "自动 10 秒乐章循环",
+        "星烁反应触发复调",
+        "复调持续时间及 12 秒冷却的自动模拟"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "18%",
+          "120",
+          "28%"
+        ],
+        [
+          "22.5%",
+          "150",
+          "35%"
+        ],
+        [
+          "27%",
+          "180",
+          "42%"
+        ],
+        [
+          "31.5%",
+          "210",
+          "49%"
+        ],
+        [
+          "36%",
+          "240",
+          "56%"
+        ]
+      ],
+      "catalogReleasePatch": "7.0",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "catalog 复调持续 12 秒；GO 文档 UI 为 10 秒，时序冲突保留。",
+        "主乐章与复调可同种叠加，最多两个相同普通加成；不同种时分别贡献攻击力和精通。",
+        "仅显式数值状态解除普通条款阻塞，不宣称已验证全部时间轴。"
+      ]
+    },
+    {
+      "id": "weapon:14435",
+      "slug": "clashofkings",
+      "name": "群王局戏",
+      "decision": "eligible-explicit-ordinary-clauses",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/clashofkings.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/clashofkings.json",
+        "archivePath": "packages/game-data/sources/weapon-conditioned-expansion/genshin-db/clashofkings.json",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 8127,
+        "sha256": "54671d7771d3bc4d1e005856447e48fb2e5fa4c1b5282300f1bc8e59b48eb1de"
+      },
+      "optimizerSource": {
+        "provider": "genshin-optimizer",
+        "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx",
+        "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx",
+        "archivePath": "packages/game-data/sources/weapon-conditioned-expansion/optimizer/ClashOfKings.tsx",
+        "bytes": 1526,
+        "sha256": "4238530d59c41bc1f3d0bd3c59aa1fc601a8e5525eb7e7039c745a4181bc99b0",
+        "gitBlobSha1": "3988bf79dc62957c7299d56ac2d8d8a98fe5e4fe",
+        "fixedTreeBlobMatch": true
+      },
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx",
+        "existsAtFixedCommit": true
+      },
+      "r1ToR5": {
+        "atkRatio": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "em": [
+          100,
+          125,
+          150,
+          175,
+          200
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "施放 E 后已合法取得且当前仍有效的加成窗口（布尔值）"
+      ],
+      "decisionReason": "新增固定 GO 生产 sheet 与 catalog 的五精炼攻击力及精通数值逐项一致；两属性由同一 skill=on 条件控制，可接入共享普通属性修改。",
+      "excludedMechanics": [
+        "E 的自动触发及 12 秒冷却",
+        "初始 6 秒持续时间的自动计时",
+        "重击命中后仅一次延长 6 秒的自动判定"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "20%",
+          "100"
+        ],
+        [
+          "25%",
+          "125"
+        ],
+        [
+          "30%",
+          "150"
+        ],
+        [
+          "35%",
+          "175"
+        ],
+        [
+          "40%",
+          "200"
+        ]
+      ],
+      "catalogReleasePatch": "7.0",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "无叠层；有效窗口可由用户明确给出，但不能用布尔值声称时间轴已实现。"
+      ]
+    },
+    {
+      "id": "weapon:14436",
+      "slug": "echoesoftheheart",
+      "name": "寸心余响",
+      "decision": "eligible-explicit-ordinary-clauses",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+        "archivePath": "packages/game-data/sources/weapon-conditioned-expansion/genshin-db/echoesoftheheart.json",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 6227,
+        "sha256": "c1c2401f92de473717d668c4966fbdceea119413ee5f5301f47454170c6e2802"
+      },
+      "optimizerSource": {
+        "provider": "genshin-optimizer",
+        "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx",
+        "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx",
+        "archivePath": "packages/game-data/sources/weapon-conditioned-expansion/optimizer/EchoesOfTheHeart.tsx",
+        "bytes": 2063,
+        "sha256": "1493e77f79dbffb8debc9e79ada427109d97bb9bae0c55a37f6457c5d2f7bff5",
+        "gitBlobSha1": "074033251c64b9813ed6629fac26607ff66a7ba8",
+        "fixedTreeBlobMatch": true
+      },
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx",
+        "existsAtFixedCommit": true
+      },
+      "r1ToR5": {
+        "em": [
+          60,
+          75,
+          90,
+          105,
+          120
+        ],
+        "excludedStellarReactionDamageRatio": [
+          0.16,
+          0.2,
+          0.24,
+          0.28,
+          0.32
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "触发元素反应后已合法取得、仍在 12 秒内的精通窗口（布尔值）"
+      ],
+      "decisionReason": "新增固定 GO 生产 sheet 将元素反应精通与星烁伤害分为两个独立条件；普通精通向量与 catalog 一致，可单独接入。",
+      "excludedMechanics": [
+        "元素反应自动触发和 12 秒计时",
+        "后台自动触发",
+        "独立星烁条件及星烁专用伤害通道"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "60",
+          "16%"
+        ],
+        [
+          "75",
+          "20%"
+        ],
+        [
+          "90",
+          "24%"
+        ],
+        [
+          "105",
+          "28%"
+        ],
+        [
+          "120",
+          "32%"
+        ]
+      ],
+      "catalogReleasePatch": "7.0",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "星烁增伤只进入各 allStellarReactionKeys 通道，不能写入通用 dmgBonus。"
+      ]
+    },
+    {
+      "id": "weapon:14437",
+      "slug": "wintersheavyheart",
+      "name": "凝雪沉心",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/wintersheavyheart.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/wintersheavyheart.json",
+        "archivePath": "packages/game-data/sources/weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__wintersheavyheart.json.txt",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 9369,
+        "sha256": "03b68e93a1e4b1291b2389a8f618124c4b135e6289258ee1da89ca10d5befe8b"
+      },
+      "optimizerSource": null,
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/WintersHeavyHeart/index.tsx",
+        "existsAtFixedCommit": false
+      },
+      "r1ToR5": {
+        "ordinaryEmPerCryo": [
+          24,
+          30,
+          36,
+          42,
+          48
+        ],
+        "ordinaryAtkRatioPerElectro": [
+          0.048,
+          0.06,
+          0.072,
+          0.084,
+          0.096
+        ],
+        "stellarModeEmPerCryoOrElectro": [
+          20,
+          25,
+          30,
+          35,
+          40
+        ],
+        "stellarModeReactionDamageRatioPerCryoOrElectro": [
+          0.06,
+          0.075,
+          0.09,
+          0.105,
+          0.12
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "冰角色数、雷角色数，合计不超过 4；可直接输入数量，无需强制完整配队",
+        "普通/辉映·星烁模式"
+      ],
+      "decisionReason": "固定 GO 无对应生产 sheet；队伍计数及替换条款只有 catalog，尚未独立交叉核对。",
+      "excludedMechanics": [
+        "队伍元素计数的来源校验",
+        "星烁模式替换",
+        "星烁反应伤害"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "24",
+          "4.8%",
+          "20",
+          "6%"
+        ],
+        [
+          "30",
+          "6%",
+          "25",
+          "7.5%"
+        ],
+        [
+          "36",
+          "7.2%",
+          "30",
+          "9%"
+        ],
+        [
+          "42",
+          "8.4%",
+          "35",
+          "10.5%"
+        ],
+        [
+          "48",
+          "9.6%",
+          "40",
+          "12%"
+        ]
+      ],
+      "catalogReleasePatch": "7.1",
+      "catalogVerificationStatus": "provisional",
+      "sourceDiscrepanciesOrNotes": [
+        "星烁模式替换普通冰精通/雷攻击力，不能叠加两套效果。"
+      ]
+    },
+    {
+      "id": "weapon:14524",
+      "slug": "hymnofthemaelstrom",
+      "name": "漩流颂歌",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/hymnofthemaelstrom.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/hymnofthemaelstrom.json",
+        "archivePath": "packages/game-data/sources/weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__hymnofthemaelstrom.json.txt",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 9164,
+        "sha256": "fe24f2aaa0ff8692dfcfc521c470e4e1e3e92da5b456c857616cbae045b73885"
+      },
+      "optimizerSource": null,
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Catalyst/HymnOfTheMaelstrom/index.tsx",
+        "existsAtFixedCommit": false
+      },
+      "r1ToR5": {
+        "healingBonusRatio": [
+          0.04,
+          0.05,
+          0.06,
+          0.07,
+          0.08
+        ],
+        "hpRatioPerStack": [
+          0.04,
+          0.05,
+          0.06,
+          0.07,
+          0.08
+        ],
+        "recipientAtkRatioPer1000HpAbove40000": [
+          0.004,
+          0.005,
+          0.006,
+          0.007,
+          0.008
+        ],
+        "recipientAtkRatioCap": [
+          0.08,
+          0.1,
+          0.12,
+          0.14,
+          0.16
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "有效层数 0–3",
+        "效果窗口",
+        "冻结/星扩散额外强化状态",
+        "装备者用于转换的 HP 及其取值时点",
+        "明确的当前前台领取角色"
+      ],
+      "decisionReason": "固定 GO 无对应生产 sheet；攻击力领取者是自己的当前场上角色，不能无条件送给装备者；HP/上限与每层转换语义仍待核对。共享 EquipmentStatModifier 也没有治疗加成目标。",
+      "excludedMechanics": [
+        "治疗触发的 10 秒层数",
+        "HP 取值及转换顺序",
+        "每层上限语义",
+        "冻结/星扩散后 5 秒的 1.75 倍效果",
+        "前台领取及切人",
+        "治疗加成通道"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "4%",
+          "4%",
+          "0.4%",
+          "8%"
+        ],
+        [
+          "5%",
+          "5%",
+          "0.5%",
+          "10%"
+        ],
+        [
+          "6%",
+          "6%",
+          "0.6%",
+          "12%"
+        ],
+        [
+          "7%",
+          "7%",
+          "0.7%",
+          "14%"
+        ],
+        [
+          "8%",
+          "8%",
+          "0.8%",
+          "16%"
+        ]
+      ],
+      "catalogReleasePatch": "7.1",
+      "catalogVerificationStatus": "provisional"
+    },
+    {
+      "id": "weapon:15437",
+      "slug": "breezebornerefrain",
+      "name": "柔风游弦",
+      "decision": "blocked",
+      "fullWeaponMechanicsVerified": false,
+      "catalogSource": {
+        "provider": "genshin-db",
+        "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+        "upstreamPath": "src/data/ChineseSimplified/weapons/breezebornerefrain.json",
+        "url": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/breezebornerefrain.json",
+        "archivePath": "packages/game-data/sources/weapon-bow-effects/genshin-db/src__data__ChineseSimplified__weapons__breezebornerefrain.json.txt",
+        "archiveStatus": "exact-bytes-available",
+        "bytes": 9744,
+        "sha256": "cfd14ea7005d7a0864ce2be26bd3a4bb94e67ecd510968a84a794bed0edb07c5"
+      },
+      "optimizerSource": null,
+      "optimizerSheetLookup": {
+        "upstreamPath": "libs/gi/sheets/src/Weapons/Bow/BreezeborneRefrain/index.tsx",
+        "existsAtFixedCommit": false
+      },
+      "r1ToR5": {
+        "energyRechargeBonusRatio": [
+          0.2,
+          0.25,
+          0.3,
+          0.35,
+          0.4
+        ],
+        "teamStellarReactionDamageRatio": [
+          0.24,
+          0.3,
+          0.36,
+          0.42,
+          0.48
+        ]
+      },
+      "minimumExplicitCalculationContext": [
+        "常驻 ER 条款无需条件；队伍星烁条款仍需独立领取状态"
+      ],
+      "decisionReason": "常驻 ER 可用现有 AST 表达，但固定 GO 无对应生产 sheet，本批保留单一 catalog 来源阻塞；常驻 ER 不能代替队伍星烁机制验证。",
+      "excludedMechanics": [
+        "E/Q 命中层数与 0.03 秒间隔",
+        "三层消耗",
+        "队伍领取者",
+        "12 秒内禁止继续叠层",
+        "后台触发",
+        "星烁专用伤害通道"
+      ],
+      "catalogValuesByRefinement": [
+        [
+          "20%",
+          "24%"
+        ],
+        [
+          "25%",
+          "30%"
+        ],
+        [
+          "30%",
+          "36%"
+        ],
+        [
+          "35%",
+          "42%"
+        ],
+        [
+          "40%",
+          "48%"
+        ]
+      ],
+      "catalogReleasePatch": "7.1",
+      "catalogVerificationStatus": "provisional"
+    }
+  ]
+}

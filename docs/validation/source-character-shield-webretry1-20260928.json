@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.934,
+  "log": "docs/validation/source-character-shield-webretry1-20260928.log"
+}

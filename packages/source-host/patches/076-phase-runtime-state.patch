@@ -1,0 +1,75 @@
+diff --git a/pkg/core/event/sourcehost_phase.go b/pkg/core/event/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/event/sourcehost_phase.go
+@@ -0,0 +1,17 @@
++package event
++
++import "fmt"
++
++// Subscription order is gameplay state. Callback code addresses cannot prove
++// equivalence of captured values, so those remain explicit coverage gaps.
++func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
++ rows:=make([]map[string]any,0); gaps:=[]string{}
++ for kind,hooks:=range h.events {
++  if len(hooks)==0 { continue }
++  keys:=make([]string,0,len(hooks))
++  for _,hook:=range hooks { keys=append(keys,hook.key) }
++  rows=append(rows,map[string]any{"eventType":kind,"orderedKeys":keys})
++  gaps=append(gaps,fmt.Sprintf("event %d callback captures have not been exported (%d subscriptions)",kind,len(hooks)))
++ }
++ return map[string]any{"subscriptions":rows},gaps
++}
+diff --git a/pkg/core/sourcehost_phase.go b/pkg/core/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/sourcehost_phase.go
+@@ -0,0 +1,27 @@
++package core
++
++import (
++ "reflect"
++ "strconv"
++)
++
++// The pinned math/rand implementation stores its future sequence in rngSource's
++// tap/feed/vector and Rand's byte-read cache. Reflection only reads scalar fields;
++// it does not call a random method, advance the generator or use unsafe writes.
++func (c *Core) SourceHostRNGPhaseState() (map[string]any, []string) {
++ state:=map[string]any{"algorithm":"math/rand.rngSource","seed":strconv.FormatInt(c.Seed,10)}
++ value:=reflect.ValueOf(c.Rand).Elem()
++ source:=value.FieldByName("src")
++ if source.Kind()!=reflect.Interface || source.IsNil() { return state,[]string{"RNG source unavailable"} }
++ source=source.Elem()
++ if source.Kind()!=reflect.Pointer || source.IsNil() { return state,[]string{"RNG source is not the pinned rngSource"} }
++ source=source.Elem()
++ if source.Type().PkgPath()!="math/rand" || source.Type().Name()!="rngSource" { return state,[]string{"RNG algorithm lacks a reviewed phase exporter"} }
++ vector:=source.FieldByName("vec")
++ if vector.Kind()!=reflect.Array || vector.Type().Elem().Kind()!=reflect.Int64 { return state,[]string{"RNG vector layout differs from pinned runtime"} }
++ values:=make([]string,vector.Len())
++ for i:=range values { values[i]=strconv.FormatInt(vector.Index(i).Int(),10) }
++ state["tap"]=source.FieldByName("tap").Int(); state["feed"]=source.FieldByName("feed").Int()
++ state["vector"]=values;state["readVal"]=strconv.FormatInt(value.FieldByName("readVal").Int(),10);state["readPos"]=value.FieldByName("readPos").Int()
++ return state,[]string{}
++}
+diff --git a/pkg/core/task/sourcehost_phase.go b/pkg/core/task/sourcehost_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/task/sourcehost_phase.go
+@@ -0,0 +1,16 @@
++package task
++
++import "sort"
++
++// Observe remaining deadlines and FIFO ordering without running a task.
++func (s *Handler) SourceHostPhaseState() (map[string]any, []string) {
++ tasks := append([]task(nil), (*s.tasks)...)
++ sort.Slice(tasks, func(i,j int) bool { return tasks[i].id < tasks[j].id })
++ ranks := make(map[int]int, len(tasks))
++ for i,t := range tasks { ranks[t.id]=i }
++ sort.Slice(tasks, func(i,j int) bool { if tasks[i].executeBy==tasks[j].executeBy { return tasks[i].id<tasks[j].id }; return tasks[i].executeBy<tasks[j].executeBy })
++ rows := make([]map[string]any,0,len(tasks)); gaps:=[]string{}
++ for _,t:=range tasks { rows=append(rows,map[string]any{"remainingFrames":t.executeBy-*s.f,"fifoRank":ranks[t.id]}) }
++ if len(tasks)>0 { gaps=append(gaps,"queued task closures and their captured gameplay values are not yet described") }
++ return map[string]any{"orderedTasks":rows},gaps
++}

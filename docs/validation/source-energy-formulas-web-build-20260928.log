@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-energy-formulas.spec.ts(169,61): error TS2339: Property 'energyRecharge' does not exist on type '{ ruleId: "cinnabar" | "foliar" | "hunterspath"; refinement: number; statValue: number; } | { ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ...; } | ... 35 more ... | { ...; }'.
+  Property 'energyRecharge' does not exist on type '{ ruleId: "cinnabar" | "foliar" | "hunterspath"; refinement: number; statValue: number; }'.

@@ -1,0 +1,48 @@
+
+Running 2 tests using 1 worker
+
+(node:78976) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/profile-periodic-checkpoint.spec.ts:24:1 › Execution profiles use the actual energy baseline and retain imported 1.0.0 structural semantics (1.2s)
+(node:78999) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Periodic checkpoint browser measurements {"simulationTicks":1730,"measurement":[1080,1200],"damage":650,"dps":325,"periodCycles":1,"relativeGenerations":[-1,0],"pending":[["periodicEntityTick",0],["hit",50],["periodicEntityTick",120],["hit",170]],"lockedConditions":2}
+  ✓  2 [chromium] › apps/web/e2e/profile-periodic-checkpoint.spec.ts:137:1 › Deterministic periodic entities and accepted action conditions survive real startup Worker checkpoints and export (646ms)
+
+
+  1) [chromium] › apps/web/e2e/profile-periodic-checkpoint.spec.ts:24:1 › Execution profiles use the actual energy baseline and retain imported 1.0.0 structural semantics 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "critMode": "noCrit",
+        "energyMode": "configured",
+    -   "randomSeed": "kuki-profile-energy-reference",
+    +   "randomSeed": "kuki-eq-c0-source-reference-v1",
+      }
+
+      65 |   expect(baseline.policy).toBe("fixed-reference-v1");
+      66 |   expect(baseline.options).toEqual(record.options);
+    > 67 |   expect(baseline.options).toMatchObject({ randomSeed: seed, critMode: "noCrit", energyMode: "configured" });
+         |                            ^
+      68 |   expect(record.batchSummary.seed).toBe(seed);
+      69 |   expect(baseline.changes.map(change => [change.originalStartTick, change.requestedTick, change.addedDelayFrames])).toEqual([[1, 3, 2], [51, 63, 10], [300, 318, 6], [564, 584, 2], [565, 591, 6]]);
+      70 |   expect(baseline.changes[3]).toMatchObject({ baselineStatus: "rejected", baselineFailureCode: "INSUFFICIENT_ENERGY", reason: "ability-input" });
+        at /Users/evan/Documents/gidps/apps/web/e2e/profile-periodic-checkpoint.spec.ts:67:28
+
+    Error Context: test-results/profile-periodic-checkpoin-e15e5--1-0-0-structural-semantics-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/profile-periodic-checkpoin-e15e5--1-0-0-structural-semantics-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/profile-periodic-checkpoin-e15e5--1-0-0-structural-semantics-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/profile-periodic-checkpoint.spec.ts:24:1 › Execution profiles use the actual energy baseline and retain imported 1.0.0 structural semantics 
+  1 passed (3.5s)

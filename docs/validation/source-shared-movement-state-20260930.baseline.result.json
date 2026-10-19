@@ -1,0 +1,1993 @@
+{
+  "measurements": {
+    "lanes": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "e55c5d988844573bead2bc479aa13bf0eca9502c9fb7a5f0dd4c443b309b331e",
+          "wasmBytes": 46364678
+        },
+        "phaseFrames": [
+          1,
+          2,
+          23,
+          54,
+          56,
+          174
+        ],
+        "applications": [
+          {
+            "frame": 114,
+            "targetKey": 1,
+            "rawDamage": 45.39786424509601,
+            "appliedDamage": 45.39786424509601,
+            "hpBefore": 1000000,
+            "hpAfter": 999954.6021357549,
+            "isCrit": false
+          }
+        ],
+        "movementLogs": [
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "executed dash",
+            "values": {
+              "action": "dash",
+              "stam_post": 240,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 1
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "characterKey": "barbara",
+              "sequence": 2,
+              "action": "walk"
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "executed walk",
+            "values": {
+              "stam_post": 222,
+              "swap_cd_post": 0,
+              "action": "walk"
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 2,
+              "action": "walk",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 2
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "action": "jump",
+              "characterKey": "barbara",
+              "sequence": 3
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 0
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 3
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 4,
+              "action": "swap",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "swapping barbara to lisa",
+            "values": {}
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "action": "swap",
+              "characterKey": "lisa",
+              "sequence": 4
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed swap",
+            "values": {
+              "action": "swap",
+              "target": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 4
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "action": "walk",
+              "characterKey": "lisa",
+              "sequence": 5
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed walk",
+            "values": {
+              "stam_post": 222,
+              "swap_cd_post": 60,
+              "action": "walk"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 5
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 59
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "action": "jump",
+              "characterKey": "lisa",
+              "sequence": 6
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 6
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "executed attack",
+            "values": {
+              "action": "attack",
+              "stam_post": 222,
+              "swap_cd_post": 27
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 7
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "executed wait",
+            "values": {
+              "f": 60
+            }
+          }
+        ],
+        "phasePlayerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 1,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 2,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 2,
+            "dashCooldownRemaining": 47,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 23,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 3,
+            "dashCooldownRemaining": 26,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 54,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 34,
+            "dashCooldownRemaining": -5,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 56,
+            "activeCharacter": 1,
+            "stamina": 222,
+            "lastStaminaUseAgo": 36,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 59,
+            "swapInterval": 60
+          },
+          {
+            "frame": 174,
+            "activeCharacter": 1,
+            "stamina": 240,
+            "lastStaminaUseAgo": 91,
+            "dashCooldownRemaining": -119,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          }
+        ],
+        "dashDescriptors": [],
+        "walkDescriptors": [],
+        "jumpDescriptors": [],
+        "swapFrameDescriptors": [],
+        "dashStaminaTaskDescriptors": [],
+        "coverageGaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 41 key \"barbara-a4\" has an undescribed callback",
+          "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+          "tasks: queued task \"\" has an undescribed closure",
+          "player: animation.Frames callback"
+        ],
+        "comparison": null
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546",
+          "wasmBytes": 70412296
+        },
+        "phaseFrames": [
+          1,
+          2,
+          23,
+          27,
+          56,
+          174
+        ],
+        "applications": [
+          {
+            "frame": 114,
+            "targetKey": 1,
+            "rawDamage": 45.39786424509601,
+            "appliedDamage": 45.39786424509601,
+            "hpBefore": 1000000,
+            "hpAfter": 999954.6021357549,
+            "isCrit": false
+          }
+        ],
+        "movementLogs": [
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "totalPreActionDelay": 0,
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara",
+              "profileDelay": 0
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "executed dash",
+            "values": {
+              "swap_cd_post": 0,
+              "action": "dash",
+              "stam_post": 240
+            }
+          },
+          {
+            "frame": 1,
+            "ended": 1,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 1,
+              "action": "dash",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 1
+            }
+          },
+          {
+            "frame": 2,
+            "ended": 2,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 2,
+              "action": "walk",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "executed walk",
+            "values": {
+              "swap_cd_post": 0,
+              "action": "walk",
+              "stam_post": 222
+            }
+          },
+          {
+            "frame": 22,
+            "ended": 22,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 2,
+              "action": "walk",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 2
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "characterKey": "barbara",
+              "sequence": 3,
+              "action": "jump"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host execution delay configured",
+            "values": {
+              "action": "jump",
+              "characterKey": "barbara",
+              "profileDelay": 0,
+              "totalPreActionDelay": 0,
+              "sequence": 3
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "executed jump",
+            "values": {
+              "stam_post": 222,
+              "swap_cd_post": 0,
+              "action": "jump"
+            }
+          },
+          {
+            "frame": 23,
+            "ended": 23,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 3,
+              "action": "jump",
+              "characterKey": "barbara"
+            }
+          },
+          {
+            "frame": 27,
+            "ended": 27,
+            "characterIndex": 0,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 3
+            }
+          },
+          {
+            "frame": 27,
+            "ended": 27,
+            "characterIndex": 0,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 4,
+              "action": "swap",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "swapping barbara to lisa",
+            "values": {}
+          },
+          {
+            "frame": 54,
+            "ended": 54,
+            "characterIndex": 0,
+            "message": "source-host action accepted",
+            "values": {
+              "characterKey": "lisa",
+              "sequence": 4,
+              "action": "swap"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed swap",
+            "values": {
+              "action": "swap",
+              "target": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 4
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "executed walk",
+            "values": {
+              "action": "walk",
+              "stam_post": 222,
+              "swap_cd_post": 60
+            }
+          },
+          {
+            "frame": 55,
+            "ended": 55,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 5,
+              "action": "walk",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 5
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "totalPreActionDelay": 0,
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa",
+              "profileDelay": 0
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "executed jump",
+            "values": {
+              "action": "jump",
+              "stam_post": 222,
+              "swap_cd_post": 59
+            }
+          },
+          {
+            "frame": 56,
+            "ended": 56,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 6,
+              "action": "jump",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 60,
+            "ended": 60,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 6
+            }
+          },
+          {
+            "frame": 60,
+            "ended": 60,
+            "characterIndex": 1,
+            "message": "source-host action queued",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 60,
+            "ended": 60,
+            "characterIndex": 1,
+            "message": "source-host execution delay configured",
+            "values": {
+              "totalPreActionDelay": 0,
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa",
+              "profileDelay": 0
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "executed attack",
+            "values": {
+              "action": "attack",
+              "stam_post": 222,
+              "swap_cd_post": 27
+            }
+          },
+          {
+            "frame": 88,
+            "ended": 88,
+            "characterIndex": 1,
+            "message": "source-host action accepted",
+            "values": {
+              "sequence": 7,
+              "action": "attack",
+              "characterKey": "lisa"
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "source-host input window opened",
+            "values": {
+              "sequence": 7
+            }
+          },
+          {
+            "frame": 114,
+            "ended": 114,
+            "characterIndex": 1,
+            "message": "executed wait",
+            "values": {
+              "f": 60
+            }
+          }
+        ],
+        "phasePlayerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 1,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 2,
+            "activeCharacter": 0,
+            "stamina": 240,
+            "lastStaminaUseAgo": 2,
+            "dashCooldownRemaining": 47,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 23,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 3,
+            "dashCooldownRemaining": 26,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 27,
+            "activeCharacter": 0,
+            "stamina": 222,
+            "lastStaminaUseAgo": 7,
+            "dashCooldownRemaining": 22,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          },
+          {
+            "frame": 56,
+            "activeCharacter": 1,
+            "stamina": 222,
+            "lastStaminaUseAgo": 36,
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "swapCooldown": 59,
+            "swapInterval": 60
+          },
+          {
+            "frame": 174,
+            "activeCharacter": 1,
+            "stamina": 240,
+            "lastStaminaUseAgo": 91,
+            "dashCooldownRemaining": -119,
+            "dashLockout": false,
+            "swapCooldown": 0,
+            "swapInterval": 60
+          }
+        ],
+        "dashDescriptors": [],
+        "walkDescriptors": [],
+        "jumpDescriptors": [],
+        "swapFrameDescriptors": [],
+        "dashStaminaTaskDescriptors": [],
+        "coverageGaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 44 key \"barbara-a4\" has an undescribed callback",
+          "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+          "tasks: queued task \"\" has an undescribed closure",
+          "player: animation.Frames callback"
+        ],
+        "comparison": null
+      }
+    ],
+    "baselinePath": "docs/validation/source-shared-movement-state-20260930.baseline.json",
+    "capturePath": "docs/validation/source-shared-movement-state-20260930.capture.json",
+    "compareAgainstBaseline": false,
+    "scope": "Small classic/stellar movement scene. Markers follow action queue windows; swaps are only recorded after their completion delay, so no pending swap is claimed."
+  },
+  "summaries": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "e55c5d988844573bead2bc479aa13bf0eca9502c9fb7a5f0dd4c443b309b331e",
+        "wasmBytes": 46364678
+      },
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        54,
+        56,
+        174
+      ],
+      "applications": [
+        {
+          "frame": 114,
+          "targetKey": 1,
+          "rawDamage": 45.39786424509601,
+          "appliedDamage": 45.39786424509601,
+          "hpBefore": 1000000,
+          "hpAfter": 999954.6021357549,
+          "isCrit": false
+        }
+      ],
+      "movementLogs": [
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "executed dash",
+          "values": {
+            "action": "dash",
+            "stam_post": 240,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 1
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "characterKey": "barbara",
+            "sequence": 2,
+            "action": "walk"
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "executed walk",
+          "values": {
+            "stam_post": 222,
+            "swap_cd_post": 0,
+            "action": "walk"
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 2,
+            "action": "walk",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 2
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "action": "jump",
+            "characterKey": "barbara",
+            "sequence": 3
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 0
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 3
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 4,
+            "action": "swap",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "swapping barbara to lisa",
+          "values": {}
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "action": "swap",
+            "characterKey": "lisa",
+            "sequence": 4
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed swap",
+          "values": {
+            "action": "swap",
+            "target": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 4
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "action": "walk",
+            "characterKey": "lisa",
+            "sequence": 5
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed walk",
+          "values": {
+            "stam_post": 222,
+            "swap_cd_post": 60,
+            "action": "walk"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 5
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 59
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "action": "jump",
+            "characterKey": "lisa",
+            "sequence": 6
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 6
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "executed attack",
+          "values": {
+            "action": "attack",
+            "stam_post": 222,
+            "swap_cd_post": 27
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 7
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "executed wait",
+          "values": {
+            "f": 60
+          }
+        }
+      ],
+      "phasePlayerState": [
+        {
+          "frame": 1,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 1,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 2,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 2,
+          "dashCooldownRemaining": 47,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 23,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 3,
+          "dashCooldownRemaining": 26,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 54,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 34,
+          "dashCooldownRemaining": -5,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 56,
+          "activeCharacter": 1,
+          "stamina": 222,
+          "lastStaminaUseAgo": 36,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 59,
+          "swapInterval": 60
+        },
+        {
+          "frame": 174,
+          "activeCharacter": 1,
+          "stamina": 240,
+          "lastStaminaUseAgo": 91,
+          "dashCooldownRemaining": -119,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        }
+      ],
+      "dashDescriptors": [],
+      "walkDescriptors": [],
+      "jumpDescriptors": [],
+      "swapFrameDescriptors": [],
+      "dashStaminaTaskDescriptors": [],
+      "coverageGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 41 key \"barbara-a4\" has an undescribed callback",
+        "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+        "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+        "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+        "tasks: queued task \"\" has an undescribed closure",
+        "player: animation.Frames callback"
+      ],
+      "comparison": null
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546",
+        "wasmBytes": 70412296
+      },
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        27,
+        56,
+        174
+      ],
+      "applications": [
+        {
+          "frame": 114,
+          "targetKey": 1,
+          "rawDamage": 45.39786424509601,
+          "appliedDamage": 45.39786424509601,
+          "hpBefore": 1000000,
+          "hpAfter": 999954.6021357549,
+          "isCrit": false
+        }
+      ],
+      "movementLogs": [
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "totalPreActionDelay": 0,
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara",
+            "profileDelay": 0
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "executed dash",
+          "values": {
+            "swap_cd_post": 0,
+            "action": "dash",
+            "stam_post": 240
+          }
+        },
+        {
+          "frame": 1,
+          "ended": 1,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 1,
+            "action": "dash",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 1
+          }
+        },
+        {
+          "frame": 2,
+          "ended": 2,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 2,
+            "action": "walk",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "executed walk",
+          "values": {
+            "swap_cd_post": 0,
+            "action": "walk",
+            "stam_post": 222
+          }
+        },
+        {
+          "frame": 22,
+          "ended": 22,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 2,
+            "action": "walk",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 2
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "characterKey": "barbara",
+            "sequence": 3,
+            "action": "jump"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host execution delay configured",
+          "values": {
+            "action": "jump",
+            "characterKey": "barbara",
+            "profileDelay": 0,
+            "totalPreActionDelay": 0,
+            "sequence": 3
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "executed jump",
+          "values": {
+            "stam_post": 222,
+            "swap_cd_post": 0,
+            "action": "jump"
+          }
+        },
+        {
+          "frame": 23,
+          "ended": 23,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 3,
+            "action": "jump",
+            "characterKey": "barbara"
+          }
+        },
+        {
+          "frame": 27,
+          "ended": 27,
+          "characterIndex": 0,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 3
+          }
+        },
+        {
+          "frame": 27,
+          "ended": 27,
+          "characterIndex": 0,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 4,
+            "action": "swap",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "swapping barbara to lisa",
+          "values": {}
+        },
+        {
+          "frame": 54,
+          "ended": 54,
+          "characterIndex": 0,
+          "message": "source-host action accepted",
+          "values": {
+            "characterKey": "lisa",
+            "sequence": 4,
+            "action": "swap"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed swap",
+          "values": {
+            "action": "swap",
+            "target": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 4
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "executed walk",
+          "values": {
+            "action": "walk",
+            "stam_post": 222,
+            "swap_cd_post": 60
+          }
+        },
+        {
+          "frame": 55,
+          "ended": 55,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 5,
+            "action": "walk",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 5
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "totalPreActionDelay": 0,
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa",
+            "profileDelay": 0
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "executed jump",
+          "values": {
+            "action": "jump",
+            "stam_post": 222,
+            "swap_cd_post": 59
+          }
+        },
+        {
+          "frame": 56,
+          "ended": 56,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 6,
+            "action": "jump",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 60,
+          "ended": 60,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 6
+          }
+        },
+        {
+          "frame": 60,
+          "ended": 60,
+          "characterIndex": 1,
+          "message": "source-host action queued",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 60,
+          "ended": 60,
+          "characterIndex": 1,
+          "message": "source-host execution delay configured",
+          "values": {
+            "totalPreActionDelay": 0,
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa",
+            "profileDelay": 0
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "executed attack",
+          "values": {
+            "action": "attack",
+            "stam_post": 222,
+            "swap_cd_post": 27
+          }
+        },
+        {
+          "frame": 88,
+          "ended": 88,
+          "characterIndex": 1,
+          "message": "source-host action accepted",
+          "values": {
+            "sequence": 7,
+            "action": "attack",
+            "characterKey": "lisa"
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "source-host input window opened",
+          "values": {
+            "sequence": 7
+          }
+        },
+        {
+          "frame": 114,
+          "ended": 114,
+          "characterIndex": 1,
+          "message": "executed wait",
+          "values": {
+            "f": 60
+          }
+        }
+      ],
+      "phasePlayerState": [
+        {
+          "frame": 1,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 1,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 2,
+          "activeCharacter": 0,
+          "stamina": 240,
+          "lastStaminaUseAgo": 2,
+          "dashCooldownRemaining": 47,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 23,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 3,
+          "dashCooldownRemaining": 26,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 27,
+          "activeCharacter": 0,
+          "stamina": 222,
+          "lastStaminaUseAgo": 7,
+          "dashCooldownRemaining": 22,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        },
+        {
+          "frame": 56,
+          "activeCharacter": 1,
+          "stamina": 222,
+          "lastStaminaUseAgo": 36,
+          "dashCooldownRemaining": -1,
+          "dashLockout": false,
+          "swapCooldown": 59,
+          "swapInterval": 60
+        },
+        {
+          "frame": 174,
+          "activeCharacter": 1,
+          "stamina": 240,
+          "lastStaminaUseAgo": 91,
+          "dashCooldownRemaining": -119,
+          "dashLockout": false,
+          "swapCooldown": 0,
+          "swapInterval": 60
+        }
+      ],
+      "dashDescriptors": [],
+      "walkDescriptors": [],
+      "jumpDescriptors": [],
+      "swapFrameDescriptors": [],
+      "dashStaminaTaskDescriptors": [],
+      "coverageGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 44 key \"barbara-a4\" has an undescribed callback",
+        "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+        "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+        "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+        "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+        "tasks: queued task \"\" has an undescribed closure",
+        "player: animation.Frames callback"
+      ],
+      "comparison": null
+    }
+  ],
+  "pageErrors": []
+}

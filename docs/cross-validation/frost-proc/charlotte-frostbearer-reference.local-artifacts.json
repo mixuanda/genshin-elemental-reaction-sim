@@ -1,0 +1,112 @@
+{
+  "localSimulationInvocations": 1,
+  "localFailures": 0,
+  "externalInvocationsDuringLocalStage": 0,
+  "files": [
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.execution.json",
+      "bytes": 1665,
+      "sha256": "0aa424cb391c4ce893e049ba0ceedcadd4c9e64d3b2694cefb1a4bfb2346910a"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.gcsl",
+      "bytes": 563,
+      "sha256": "bfcb96e79e08b83cd17b1c615c4a01c0d40256527426b677a6b52fcf074d8c17"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-0.capture.json",
+      "bytes": 197362,
+      "sha256": "b6194b0910dc9c482d8736bb9effa78d9624d30963a646267ab69e36d2fd5042"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-0.replay.json",
+      "bytes": 247118,
+      "sha256": "2a2428595f33b3480348c12cd05a5b9b05f35f09489b469b29ee6623d2f77bbb"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-1.calculator-result.json",
+      "bytes": 148414,
+      "sha256": "15aebd8d472c97d471c7338528a87992a9e5b9a3da27a41422e8529c4ab03710"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-1.calculator.json",
+      "bytes": 6992,
+      "sha256": "fb7d735aef1f0fb98f1e33602dfa78ab977913eb1d6783822795016c3f02225d"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-1.capture.json",
+      "bytes": 197362,
+      "sha256": "5f1f664651f414dbeaefb8fbd9812574df47de3a95dc764b8dc87193c3ce50b4"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-1.replay.json",
+      "bytes": 254602,
+      "sha256": "89c54d426134264579c7dba21bd8df8729f98e6d6d31f5692daab433453b3975"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-2.calculator-result.json",
+      "bytes": 148414,
+      "sha256": "15aebd8d472c97d471c7338528a87992a9e5b9a3da27a41422e8529c4ab03710"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-2.calculator.json",
+      "bytes": 6992,
+      "sha256": "fb7d735aef1f0fb98f1e33602dfa78ab977913eb1d6783822795016c3f02225d"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-2.capture.json",
+      "bytes": 197362,
+      "sha256": "0c69f04df17453800c6a565d3df694ee03f61a0e4a44d340a177b0f2fc69ad19"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.hit-2.replay.json",
+      "bytes": 254036,
+      "sha256": "aef5f3408dbd6cc6af34834bdf9550ad56bc3a17aa9e1e9c2c3ac3a9821fac42"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.local-config.json",
+      "bytes": 5206,
+      "sha256": "700fc21081f14ae8cf8978187d4853c28c410e066eed02ffb56d2dffe9551a33"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.local-metrics.json",
+      "bytes": 43200,
+      "sha256": "c6e478dd9a7464c175db01fc839b3b604af0437223d315cd1f11dc637fcf214a"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.local-result.json",
+      "bytes": 185465,
+      "sha256": "71231ba30a39ea54d8a82d04bde57f692a3d0c18d7ab42d416b7cafdfca2cf57"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.reference.json",
+      "bytes": 25395,
+      "sha256": "240c494cf2458d13566c45de29be2c8ebef506048aab9c30696a22b3d78b9daf"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.result.json",
+      "bytes": 5992,
+      "sha256": "a18203c6fa4a488de1e1233736a34dd9ac22f431868d89a2f6eeca3bbb22cbec"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/charlotte-frostbearer-reference.sample.json",
+      "bytes": 13351,
+      "sha256": "8b46e04755c9b10a2d909a4afa2d6f6a123f391ad0b55cbff17cde315248fbe9"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/compare-local.mjs",
+      "bytes": 13112,
+      "sha256": "92698fdeb78a30507604b73eafe43588bfc7851f90dc7f98f4a0fa81cdc51f96"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/extract-reference.py",
+      "bytes": 5195,
+      "sha256": "0071a2d7f4fb2e6df72e557713736606e46bb5589695d04ca273fbc3696cf044"
+    },
+    {
+      "path": "docs/cross-validation/frost-proc/source-review.json",
+      "bytes": 19930,
+      "sha256": "d6aa925b5a11634722bfac05a43f4fdb7e84dc6a6be2dfbe412378fc4ab420f2"
+    }
+  ]
+}

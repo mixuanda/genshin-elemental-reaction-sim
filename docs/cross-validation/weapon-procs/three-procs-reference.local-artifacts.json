@@ -1,0 +1,85 @@
+{
+  "kind": "saved-artifact-sha256-only-no-simulator-execution",
+  "files": [
+    {
+      "path": "docs/cross-validation/weapon-procs/compare-local.mjs",
+      "bytes": 10499,
+      "sha256": "51f8502578e30697524df022b5de7c7ac17cc150ff900ff6e35da6a850d4afa3"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.local-config.json",
+      "bytes": 7019,
+      "sha256": "09c0a204b927d3943671a98404ecd09a346dc66b02e4b74d7733998db65593e4"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.local-metrics.json",
+      "bytes": 22560,
+      "sha256": "15b45e265b3798fd85c2962aa73a3df0e2df49889f992a244ef54e248ee21d2c"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.local-result.json",
+      "bytes": 420427,
+      "sha256": "83d23e55a169fcb6233d5f46bb91b38858d98f0975a8fa922f5b1f5aa6603201"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.halberd.calculator-result.json",
+      "bytes": 141891,
+      "sha256": "fd0aa27877f5b98f7a05a0cb7b4ce714be341e93fbbce454adb16cfaaa7ae012"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.halberd.calculator.json",
+      "bytes": 5608,
+      "sha256": "70fc7509ef6cc349c01d5d92dfc78d30a38ebbad8088ac91dc36a0baae096c63"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.halberd.capture.json",
+      "bytes": 446882,
+      "sha256": "319679d5a635b9445452535526fafa0e8374611a883bde799ac9357ca4a72979"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.halberd.replay.json",
+      "bytes": 516536,
+      "sha256": "672295b360cfb4cdb246690dcc3b6ba64f36e8929941f1e36ee33e8b1d617d81"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.ashgravendrinkinghorn.calculator-result.json",
+      "bytes": 143824,
+      "sha256": "214457f4f5dee7c1cb7e773dbc0c562c15a9ba14500eaf625d5f8ed5c7b91507"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.ashgravendrinkinghorn.calculator.json",
+      "bytes": 5904,
+      "sha256": "bbc720e4457219fd043774e588a12b3cd7b88af21591183ffe5f3ea2788f93fb"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.ashgravendrinkinghorn.capture.json",
+      "bytes": 446882,
+      "sha256": "297acaf6f85c0fad9d2ceea1d91272cb3eca300ca8a651c98c9d37412011567d"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.ashgravendrinkinghorn.replay.json",
+      "bytes": 516639,
+      "sha256": "e17260f206983e91e059725a71eedc3135c6107d895abc2dadbb8c04ec5a08cd"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.sequenceofsolitude.calculator-result.json",
+      "bytes": 143535,
+      "sha256": "a19c54d12e3692edb77bb8385c8aa3eed16a94aaf563a6e3553088155e943c37"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.sequenceofsolitude.calculator.json",
+      "bytes": 5880,
+      "sha256": "60291ef8ad153a66d6bb5d324969fc7573da1f1b02755bff8fa387c0a135e778"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.sequenceofsolitude.capture.json",
+      "bytes": 446882,
+      "sha256": "94c3384271bd01a53f2d1745a4811ce3e7c2b41be19787fa282a4016d8bacb46"
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.sequenceofsolitude.replay.json",
+      "bytes": 516612,
+      "sha256": "031da69e80c9a31b8546e057bf1709b7d788c05ea5ad348f89d9e7b8ee854c84"
+    }
+  ]
+}

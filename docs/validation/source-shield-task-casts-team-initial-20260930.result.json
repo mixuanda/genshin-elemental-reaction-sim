@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "source-shield-task-casts-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": true,
+    "rawPath": "docs/validation/source-shield-task-casts-team-20260930.capture.json",
+    "nativeResultArchived": true
+  },
+  "pageErrors": [],
+  "scope": "One classic two-target run selects Noelle C4 E, Xinyan C2 E, and Xinyan C2 Q finite captures. It observes Noelle expiry/fallback behavior and the selected Xinyan shield task chains; it does not establish other character shields or damage-break outcomes."
+}

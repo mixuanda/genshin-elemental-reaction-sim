@@ -1,0 +1,331 @@
+diff --git a/pkg/core/player/character/sourcehost_phase_state.go b/pkg/core/player/character/sourcehost_phase_state.go
+index de5bba4..ce96d69 100644
+--- a/pkg/core/player/character/sourcehost_phase_state.go
++++ b/pkg/core/player/character/sourcehost_phase_state.go
+@@ -124,14 +124,23 @@ func (c *CharWrapper) SourceHostPhaseState() (map[string]any, []string) {
+ 		state["localTasks"] = localTasks
+ 		gaps = append(gaps, taskGaps...)
+ 	}
+-	// Concrete character, weapon and artifact implementations hold mutable
+-	// private state unavailable through their shared interfaces.
+-	gaps = append(gaps, fmt.Sprintf("character[%d] concrete implementation private state", c.index))
++	// Each retained implementation object is read without invoking its
++	// gameplay methods. Any unsupported private field remains an explicit gap.
++	concreteState, concreteGaps := sourceHostPrivatePhaseState(c.Character, fmt.Sprintf("character[%d].concrete", c.index))
++	state["concreteImplementation"] = concreteState
++	gaps = append(gaps, concreteGaps...)
+ 	if c.Equip.Weapon != nil {
+-		gaps = append(gaps, fmt.Sprintf("character[%d] weapon implementation private state", c.index))
++		weaponState, weaponGaps := sourceHostPrivatePhaseState(c.Equip.Weapon, fmt.Sprintf("character[%d].weapon", c.index))
++		state["weaponImplementation"] = weaponState
++		gaps = append(gaps, weaponGaps...)
+ 	}
+-	if len(c.Equip.Sets) > 0 {
+-		gaps = append(gaps, fmt.Sprintf("character[%d] artifact set implementation private state", c.index))
++	setPrivate := make(map[string]any, len(c.Equip.Sets))
++	for key, set := range c.Equip.Sets {
++		name := key.String()
++		setState, setGaps := sourceHostPrivatePhaseState(set, fmt.Sprintf("character[%d].artifactSet[%s]", c.index, name))
++		setPrivate[name] = setState
++		gaps = append(gaps, setGaps...)
+ 	}
++	state["artifactImplementations"] = setPrivate
+ 	return state, gaps
+ }
+diff --git a/pkg/core/player/character/sourcehost_private_phase.go b/pkg/core/player/character/sourcehost_private_phase.go
+new file mode 100644
+index 0000000..31248bd
+--- /dev/null
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -0,0 +1,291 @@
++package character
++
++import (
++	"encoding/json"
++	"fmt"
++	"math"
++	"reflect"
++	"sort"
++)
++
++// sourceHostPrivatePhaseState reads a retained concrete character, weapon, or
++// artifact object. It does not invoke methods, call getters, or expose pointer
++// addresses as phase data. Shared runtime references are represented by their
++// semantic owners, whose state is captured by the other phase providers.
++func sourceHostPrivatePhaseState(object any, path string) (any, []string) {
++	if object == nil {
++		return nil, nil
++	}
++	if state, gaps, reviewed := sourceHostVentiDormantPhaseState(reflect.ValueOf(object), path); reviewed {
++		return state, gaps
++	}
++	reader := privatePhaseReader{seen: make(map[privatePhaseIdentity]string)}
++	value := reader.read(reflect.ValueOf(object), path, "", 0)
++	return value, reader.gaps
++}
++
++// Venti's NewChar leaves these fields zero. Only Burst writes the Q fields
++// (burst.go); C4 Init writes c4bonus (cons.go). Skill and Aim do not write any
++// of them. A wholly zero object therefore denotes the source-reviewed state
++// before either path, with no hidden absolute-frame number in these fields.
++// Once any field changes, the generic reader retains its timing gaps.
++func sourceHostVentiDormantPhaseState(v reflect.Value, path string) (any, []string, bool) {
++	if v.Kind() != reflect.Pointer || v.IsNil() ||
++		v.Type().Elem().PkgPath() != "github.com/genshinsim/gcsim/internal/characters/venti" ||
++		v.Type().Elem().Name() != "char" {
++		return nil, nil, false
++	}
++	concrete := v.Elem()
++	for _, name := range []string{"qPos", "qAbsorb", "absorbCheckLocation", "aiAbsorb", "snapAbsorb", "c4bonus"} {
++		field := concrete.FieldByName(name)
++		if !field.IsValid() || !field.IsZero() {
++			return nil, nil, false
++		}
++	}
++	reader := privatePhaseReader{}
++	templateField := concrete.FieldByName("Character")
++	if !templateField.IsValid() {
++		return nil, nil, false
++	}
++	template, shared := reader.sharedReference(templateField, path+".Character")
++	if !shared {
++		return nil, nil, false
++	}
++	return map[string]any{
++		"type":                v.Type().String(),
++		"sharedTemplate":      template,
++		"qPos":                map[string]float64{"X": 0, "Y": 0},
++		"qAbsorb":             0,
++		"absorbCheckLocation": "zero",
++		"aiAbsorb":            "zero",
++		"snapAbsorb":          "zero",
++		"c4bonus":             nil,
++	}, reader.gaps, true
++}
++
++type privatePhaseReader struct {
++	seen   map[privatePhaseIdentity]string
++	gaps   []string
++	nodes  int
++	slices []privatePhaseSlice
++}
++
++type privatePhaseIdentity struct {
++	kind    reflect.Kind
++	address uintptr
++}
++
++type privatePhaseSlice struct {
++	start uintptr
++	end   uintptr
++	path  string
++}
++
++func (r *privatePhaseReader) gap(path, reason string) {
++	r.gaps = append(r.gaps, path+": "+reason)
++}
++
++func (r *privatePhaseReader) read(v reflect.Value, path, fieldName string, depth int) any {
++	if !v.IsValid() {
++		return nil
++	}
++	if depth > 32 || r.nodes > 10000 {
++		r.gap(path, "private pointer graph exceeds read-only snapshot limit")
++		return map[string]any{"unavailable": v.Type().String()}
++	}
++	r.nodes++
++	if reference, shared := r.sharedReference(v, path); shared {
++		return reference
++	}
++	if sourceHostUnreviewedNumericField(fieldName, v.Kind()) {
++		// A reflected number could be an absolute native frame stamp. Its
++		// raw equality across two different frames is not repeat proof.
++		r.gap(path, "private numeric clock semantics have not been reviewed")
++	}
++	switch v.Kind() {
++	case reflect.Bool:
++		return v.Bool()
++	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
++		return map[string]any{"type": v.Type().String(), "value": v.Int()}
++	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
++		return map[string]any{"type": v.Type().String(), "value": v.Uint()}
++	case reflect.Float32, reflect.Float64:
++		value := v.Float()
++		if math.IsNaN(value) || math.IsInf(value, 0) {
++			r.gap(path, "non-finite private value")
++			return map[string]any{"unavailable": v.Type().String()}
++		}
++		return map[string]any{"type": v.Type().String(), "value": value}
++	case reflect.String:
++		return v.String()
++	case reflect.Pointer:
++		if v.IsNil() {
++			return nil
++		}
++		identity := privatePhaseIdentity{kind: reflect.Pointer, address: v.Pointer()}
++		if previous, ok := r.seen[identity]; ok {
++			return map[string]any{"sharedReference": previous}
++		}
++		r.seen[identity] = path
++		return map[string]any{"type": v.Type().String(), "value": r.read(v.Elem(), path+".*", "", depth+1)}
++	case reflect.Interface:
++		if v.IsNil() {
++			return nil
++		}
++		return map[string]any{"type": v.Elem().Type().String(), "value": r.read(v.Elem(), path, fieldName, depth+1)}
++	case reflect.Struct:
++		fields := make(map[string]any, v.NumField())
++		for i := 0; i < v.NumField(); i++ {
++			field := v.Type().Field(i)
++			qualifiedName := v.Type().PkgPath() + "." + v.Type().Name() + "." + field.Name
++			fields[field.Name] = r.read(v.Field(i), path+"."+field.Name, qualifiedName, depth+1)
++		}
++		return map[string]any{"type": v.Type().String(), "fields": fields}
++	case reflect.Array, reflect.Slice:
++		if v.Kind() == reflect.Slice && v.IsNil() {
++			return map[string]any{"type": v.Type().String(), "nil": true}
++		}
++		if v.Kind() == reflect.Slice && v.Cap() > 0 {
++			start := v.Pointer()
++			end := start + uintptr(v.Cap())*v.Type().Elem().Size()
++			for _, prior := range r.slices {
++				if start == prior.start {
++					return map[string]any{"sharedReference": prior.path, "length": v.Len(), "capacity": v.Cap()}
++				}
++				if start < prior.end && prior.start < end {
++					r.gap(path, "overlapping private slice backing arrays cannot be normalized")
++				}
++			}
++			r.slices = append(r.slices, privatePhaseSlice{start: start, end: end, path: path})
++		}
++		items := make([]any, v.Len())
++		for i := 0; i < v.Len(); i++ {
++			items[i] = r.read(v.Index(i), fmt.Sprintf("%s[%d]", path, i), "", depth+1)
++		}
++		state := map[string]any{"type": v.Type().String(), "items": items}
++		if v.Kind() == reflect.Slice {
++			state["capacity"] = v.Cap()
++		}
++		return state
++	case reflect.Map:
++		if v.IsNil() {
++			return map[string]any{"type": v.Type().String(), "nil": true}
++		}
++		identity := privatePhaseIdentity{kind: reflect.Map, address: v.Pointer()}
++		if previous, ok := r.seen[identity]; ok {
++			return map[string]any{"sharedReference": previous}
++		}
++		r.seen[identity] = path
++		type entry struct {
++			key   reflect.Value
++			order string
++		}
++		ordered := make([]entry, 0, v.Len())
++		for _, key := range v.MapKeys() {
++			order, stable := sourceHostPrivateMapKey(key)
++			if !stable {
++				r.gap(path, "private map key is not a stable scalar")
++				continue
++			}
++			if key.Kind() != reflect.String && key.Kind() != reflect.Bool {
++				r.gap(path, "private numeric map key clock semantics have not been reviewed")
++			}
++			ordered = append(ordered, entry{key: key, order: order})
++		}
++		sort.Slice(ordered, func(i, j int) bool { return ordered[i].order < ordered[j].order })
++		items := make([]any, 0, len(ordered))
++		for _, item := range ordered {
++			items = append(items, map[string]any{
++				"key":   item.order,
++				"value": r.read(v.MapIndex(item.key), path+"["+item.order+"]", "", depth+1),
++			})
++		}
++		return map[string]any{"type": v.Type().String(), "entries": items}
++	case reflect.Func:
++		if v.IsNil() {
++			return nil
++		}
++		r.gap(path, "private function closure is not inspectable")
++		return map[string]any{"unavailable": v.Type().String()}
++	default:
++		r.gap(path, "unsupported private value kind "+v.Kind().String())
++		return map[string]any{"unavailable": v.Type().String()}
++	}
++}
++
++func sourceHostPrivateMapKey(v reflect.Value) (string, bool) {
++	if v.Kind() == reflect.Interface {
++		if v.IsNil() {
++			return "null", true
++		}
++		return sourceHostPrivateMapKey(v.Elem())
++	}
++	var value any
++	switch v.Kind() {
++	case reflect.Bool:
++		value = v.Bool()
++	case reflect.String:
++		value = v.String()
++	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
++		value = v.Int()
++	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
++		value = v.Uint()
++	default:
++		return "", false
++	}
++	encoded, err := json.Marshal(map[string]any{"type": v.Type().String(), "value": value})
++	return string(encoded), err == nil
++}
++
++func (r *privatePhaseReader) sharedReference(v reflect.Value, path string) (any, bool) {
++	t := v.Type()
++	if t.Kind() != reflect.Pointer {
++		return nil, false
++	}
++	base := t.Elem()
++	switch base.PkgPath() + "." + base.Name() {
++	case "github.com/genshinsim/gcsim/internal/template/character.Character":
++		if v.IsNil() {
++			return nil, true
++		}
++		wrapper := v.Elem().FieldByName("CharWrapper")
++		return r.sharedCharacterIndex(wrapper, path, "sharedCharacterTemplate"), true
++	case "github.com/genshinsim/gcsim/pkg/core/player/character.CharWrapper":
++		return r.sharedCharacterIndex(v, path, "characterWrapper"), true
++	case "github.com/genshinsim/gcsim/pkg/core.Core":
++		if v.IsNil() {
++			return nil, true
++		}
++		return map[string]any{"sharedStateOwner": "coreRuntime"}, true
++	}
++	return nil, false
++}
++
++func (r *privatePhaseReader) sharedCharacterIndex(wrapper reflect.Value, path, owner string) any {
++	if !wrapper.IsValid() || wrapper.Kind() != reflect.Pointer || wrapper.IsNil() {
++		r.gap(path, "shared character reference has no retained wrapper")
++		return map[string]any{"sharedStateOwner": owner, "characterIndex": "unavailable"}
++	}
++	index := wrapper.Elem().FieldByName("index")
++	if !index.IsValid() || index.Kind() != reflect.Int {
++		r.gap(path, "shared character reference has no readable index")
++		return map[string]any{"sharedStateOwner": owner, "characterIndex": "unavailable"}
++	}
++	return map[string]any{"sharedStateOwner": owner, "characterIndex": index.Int()}
++}
++
++func sourceHostUnreviewedNumericField(name string, kind reflect.Kind) bool {
++	switch kind {
++	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
++		reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
++		reflect.Float32, reflect.Float64:
++	default:
++		return false
++	}
++	// The no-effect weapon's Index stores only its initialization-time player
++	// slot through SetIndex; it is never a frame or cooldown field. Amber's
++	// burstRadius is initialized in NewChar and changed only by A1 in Init;
++	// its burst implementation reads it solely as an AoE radius.
++	return name != "github.com/genshinsim/gcsim/internal/weapons/common.NoEffect.Index" &&
++		name != "github.com/genshinsim/gcsim/internal/characters/amber.char.burstRadius"
++}

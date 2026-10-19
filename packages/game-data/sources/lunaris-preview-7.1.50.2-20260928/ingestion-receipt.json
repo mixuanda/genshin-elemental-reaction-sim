@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "1.0.0",
+  "candidateLabel": "lunaris-7.1.50.2-preview-observed-20260928.partial-two-characters.1",
+  "snapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+  "commands": [
+    {
+      "command": "python3 packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/prepare-candidate.py",
+      "attempt": 1,
+      "exitCode": 1,
+      "result": "Old retrieval manifest has a separate archive-manifest; adapter corrected.",
+      "toolReportedWallSeconds": 1.0584e-05,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    },
+    {
+      "command": "python3 packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/prepare-candidate.py",
+      "attempt": 2,
+      "exitCode": 1,
+      "result": "Old raw source exists inside source.json.gz rather than as separate files; adapter corrected.",
+      "toolReportedWallSeconds": 8.292e-06,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    },
+    {
+      "command": "python3 packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/prepare-candidate.py",
+      "attempt": 3,
+      "exitCode": 0,
+      "result": "Seven archived source files hash matched; generated two-character candidate and structured revision diff.",
+      "toolReportedWallSeconds": 8.833e-06,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    },
+    {
+      "command": "node packages/game-data/scripts/update-data.mjs sync --store /tmp/gidps-lunaris-71502-validation --input packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/candidate.bundle.json --metadata packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/candidate.metadata.json",
+      "exitCode": 0,
+      "result": "Isolated immutable candidate snapshot created; project pointers unchanged.",
+      "toolReportedWallSeconds": 7e-06,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    },
+    {
+      "command": "node packages/game-data/scripts/update-data.mjs validate --store /tmp/gidps-lunaris-71502-validation --id snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+      "exitCode": 0,
+      "result": "schemaValid true; errors 0; inventory unknown; readiness empty.",
+      "toolReportedWallSeconds": 7.709e-06,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    },
+    {
+      "command": "node packages/game-data/scripts/update-data.mjs preview --input packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/candidate.bundle.json --metadata packages/game-data/sources/lunaris-preview-7.1.50.2-20260928/candidate.metadata.json",
+      "exitCode": 0,
+      "result": "Project snapshot stored and isolated preview workspace selected.",
+      "toolReportedWallSeconds": 0.080455166,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    },
+    {
+      "command": "node packages/game-data/scripts/update-data.mjs status --write --output packages/game-data/src/generated/update-status.json",
+      "exitCode": 0,
+      "result": "Generated status JSON refreshed once; README and docs/update-status.md were not regenerated.",
+      "toolReportedWallSeconds": 3.579538375,
+      "commandWallSeconds": null,
+      "timingSource": "exec_command tool wrapper; not a complete command execution timer"
+    }
+  ],
+  "pointersBefore": {
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "previewWorkspaceSnapshotId": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc"
+  },
+  "pointersAfter": {
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217"
+  },
+  "previousPreviewRetained": true,
+  "previousPreviewArchived": true,
+  "newSnapshotRawAndRuntimePresent": true,
+  "testsOrBuildsRun": false,
+  "providerReleaseIdentity": "7.1.50.2; 7.2 V1 not confirmed",
+  "redistributionLicense": "unknown",
+  "timingCaveat": "No perf_counter command wall time was captured. Tool wrapper timings must not be used as measured command performance."
+}

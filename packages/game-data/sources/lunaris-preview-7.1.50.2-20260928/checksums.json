@@ -1,0 +1,42 @@
+{
+  "charlist.json": {
+    "bytes": 73817,
+    "sha256": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc"
+  },
+  "lunaris-app.js": {
+    "bytes": 668977,
+    "sha256": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b"
+  },
+  "mitya.chs.json": {
+    "bytes": 67229,
+    "sha256": "9c4b0e202c5eaacafcbd41c17bbe7f436cce8c29bc21e3042b1a241104b32efb"
+  },
+  "mitya.en.json": {
+    "bytes": 63807,
+    "sha256": "494aff4797b8867443c92bb363832b4026030542be4df14bb910d8a138552e60"
+  },
+  "release-preview-audit.json": {
+    "bytes": 2015,
+    "sha256": "bb2134a65a6972bc2dfed84fdaaa82ee4c7bb7561e52b9d4454a01c3798bc318"
+  },
+  "retrieval-manifest.json": {
+    "bytes": 3062,
+    "sha256": "c248dd8c11238d303aca31371d73f5af96bbbd258a7ac36f203ca9fe6a4061a2"
+  },
+  "source.json.gz": {
+    "bytes": 219313,
+    "sha256": "d3d87b807628a51fbb65cd55ee61d399b2849ed1b0838d9ba6e70010de8aef08"
+  },
+  "valeriy.chs.json": {
+    "bytes": 64429,
+    "sha256": "2095a051f1d49568eea54f29b0a7a53ba748ffe2274881b0fbff22e8e2761b19"
+  },
+  "valeriy.en.json": {
+    "bytes": 59857,
+    "sha256": "a5e9cd98815e6b0675030f9ef9b0d043a17b11b1f15643375c0c507b1e2e3655"
+  },
+  "version.json": {
+    "bytes": 972,
+    "sha256": "7ecef4c5ae8e09646cca87fffc0f301c00d825fd5b221b52a1b182ee4c2ae313"
+  }
+}

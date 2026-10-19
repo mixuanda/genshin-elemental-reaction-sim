@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "protocol": "explicit-iansan-swift-resolved-v1",
+  "catalog": {
+    "version": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "snapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "sha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602"
+  },
+  "templates": [
+    {
+      "skillId": "iansan-swift-resolved-c0",
+      "characterSlug": "iansan",
+      "talentSetId": "talent-set:iansan",
+      "label": "雷霆飞缒·单次完整重击（C0·普攻等级）",
+      "element": "electro",
+      "abilityKey": "combat1",
+      "protocol": "explicit-iansan-swift-resolved-v1",
+      "sourceRepository": "frzyc/genshin-optimizer",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "behaviorSourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "swift": {
+          "mappingId": "iansan-swift-resolved-c0-swift",
+          "label": "雷霆飞缒（Swift Stormflight）",
+          "abilityKey": "combat1",
+          "parameterKey": "param5",
+          "values": [
+            0.84194,
+            0.91047,
+            0.979,
+            1.0769,
+            1.14543,
+            1.22375,
+            1.33144,
+            1.43913,
+            1.54682,
+            1.6643,
+            1.78178,
+            1.89926,
+            2.01674,
+            2.13422,
+            2.2517
+          ],
+          "sourceValues": [
+            0.84194,
+            0.91047,
+            0.979,
+            1.0769,
+            1.14543,
+            1.22375,
+            1.33144,
+            1.43913,
+            1.54682,
+            1.6643,
+            1.78178,
+            1.89926,
+            2.01674,
+            2.13422,
+            2.2517
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Iansan/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Iansan/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/src/allStat_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/api.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_Iansan_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Iansan_gen.json",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/charge.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/iansan.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/zz_iansan.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/iansan/config.yml",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/stam.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/nightsoul/nightsoul.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/exec.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/player.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/stam.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/stats.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/hitlag.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/core.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/task/task.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/combat/hitbox.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/simulation/run.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "本限定分支要求25帧快照时Q未生效，不接受当前Q攻击力增益反馈。",
+        "实际动作起手资格取执行时状态；夜魂或fast-skill无需持续至25帧，已排队的本击没有命中前资格复查。",
+        "无卡肉、中断或未声明快照变化；实际目标接触或落空须明确输入；不从圆形范围参数自动推断命中。",
+        "既有A1只按25帧实际有效且已包含的攻击力份额处理；新授予A1在本击快照和伤害之后，不反向自增本击。"
+      ]
+    }
+  ],
+  "resolvedTalentBinding": {
+    "catalogAbility": "combat1",
+    "catalogParameter": "param5",
+    "optimizerDataField": "char.skillParam.Iansan.auto[4]",
+    "optimizerFormula": "dmgNode('atk', dm.charged.swiftDmg, 'charged', { hit: { ele: constant('electro') } })",
+    "resolvedTalentIndex": "input.total.autoIndex",
+    "resolvedIndexExpression": "total.auto - 1",
+    "gcsimOriginalBinding": "\t\tMult:             swift[c.TalentLvlSkill()],",
+    "gcsimOriginalComment": "\t// attack: WeightedSpike - Swift Stormflight DMG: {4}",
+    "coefficientTolerance": 0
+  },
+  "actionScope": {
+    "candidateId": "swift",
+    "candidateFrame": 25,
+    "snapshotFrame": 25,
+    "defaultAnimationEndFrame": 33,
+    "damageObservationThroughFrame": 25,
+    "additionalAttackTags": [
+      "nightsoul"
+    ],
+    "completeActionMeaning": "The only direct-damage candidate of one admitted Swift action, including an explicitly observed miss; not E+Swift and not a complete Nightsoul state.",
+    "newA1GrantObservation": "record eligible enemy contact after this hit; do not require observing the 900-frame modifier lifetime or model future attacks"
+  }
+}

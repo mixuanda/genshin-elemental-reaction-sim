@@ -1,0 +1,56 @@
+{
+  "label": "after",
+  "at": "2026-09-23T18:01:48.300Z",
+  "milliseconds": 79.80220800000006,
+  "elements": 573,
+  "htmlBytes": 2580389,
+  "hitCards": 12,
+  "expected": "10,401.2856",
+  "cpuTop": [
+    {
+      "frame": "(program) :0",
+      "ms": 89.992
+    },
+    {
+      "frame": "(idle) :0",
+      "ms": 17.847
+    },
+    {
+      "frame": "Y http://127.0.0.1:4173/assets/calculator-ui-C2GHFXkp.js:30",
+      "ms": 15.063
+    },
+    {
+      "frame": "add http://127.0.0.1:4173/assets/index-Dpz1jUt7.js:2",
+      "ms": 11.356
+    },
+    {
+      "frame": "y http://127.0.0.1:4173/assets/calculator-ui-C2GHFXkp.js:30",
+      "ms": 4.517
+    },
+    {
+      "frame": " :5596",
+      "ms": 1.602
+    },
+    {
+      "frame": "ve http://127.0.0.1:4173/assets/calculator-ui-C2GHFXkp.js:30",
+      "ms": 1.503
+    },
+    {
+      "frame": "n http://127.0.0.1:4173/assets/index-Dpz1jUt7.js:2",
+      "ms": 1.502
+    },
+    {
+      "frame": "xi http://127.0.0.1:4173/assets/index-Dpz1jUt7.js:2",
+      "ms": 0.594
+    },
+    {
+      "frame": "wi http://127.0.0.1:4173/assets/index-Dpz1jUt7.js:2",
+      "ms": 0.018
+    },
+    {
+      "frame": "Di http://127.0.0.1:4173/assets/index-Dpz1jUt7.js:2",
+      "ms": 0.013
+    }
+  ],
+  "note": "Single instrumented interaction. CPU profiler enabled; not a repeated benchmark."
+}

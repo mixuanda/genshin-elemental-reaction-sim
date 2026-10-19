@@ -1,0 +1,57 @@
+
+Running 2 tests using 2 workers
+
+(node:47896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:47895) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/remaining-source-calculator.spec.ts:44:1 › an independent mixed-source special hit and an observed Noelle plunge use normal controls and retain their shared calculations (1.1s)
+Shield and artifact buff browser measurements {"baselineDamage":1000,"noblesseDamage":1200,"noblesseRecipients":2,"shieldAbsorbed":2500,"shieldPassedThrough":500,"playerHp":9500,"replayDifference":0,"completeRecordRestored":true}
+  ✓  2 [chromium] › apps/web/e2e/player-shield-artifact-buff.spec.ts:51:1 › Normal team controls execute a generic player shield and Noblesse, retain actual traces, and restore hit and full-run JSON (1.7s)
+
+
+  1) [chromium] › apps/web/e2e/remaining-source-calculator.spec.ts:44:1 › an independent mixed-source special hit and an observed Noelle plunge use normal controls and retain their shared calculations 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 2
+
+    @@ -23,10 +23,12 @@
+            "mixed-source:mixed-flins-burst-c0-initial",
+            "mixed-source:schedule",
+            "mixed-source:mixed-flins-burst-c0-initial",
+            "mixed-source:schedule",
+            "mixed-source:mixed-flins-burst-c0-initial",
+    +       "mixed-source:schedule",
+    +       "mixed-source:mixed-flins-burst-c0-initial",
+          ],
+          "effectiveResistance": 0.1,
+          "element": "electro",
+          "elementalMasteryAdjustment": Object {
+            "accounting": "add-to-panel",
+
+      112 |   const restored = await audit(page);
+      113 |   expect(restored.document.gameContext!.mixedSourceCast).toEqual(final.document.gameContext!.mixedSourceCast);
+    > 114 |   expect(restored.document.hits).toEqual(final.document.hits);
+          |                                  ^
+      115 |   expect(restored.result.totals).toEqual(final.result.totals);
+      116 |   expect(restored.result.hits[0]!.trace).toEqual(final.result.hits[0]!.trace);
+      117 |
+        at /Users/evan/Documents/gidps/apps/web/e2e/remaining-source-calculator.spec.ts:114:34
+
+    Error Context: test-results/remaining-source-calculato-be9c7-n-their-shared-calculations-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/remaining-source-calculato-be9c7-n-their-shared-calculations-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/remaining-source-calculato-be9c7-n-their-shared-calculations-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/remaining-source-calculator.spec.ts:44:1 › an independent mixed-source special hit and an observed Noelle plunge use normal controls and retain their shared calculations 
+  1 passed (3.1s)
+
+wall_seconds=3.569

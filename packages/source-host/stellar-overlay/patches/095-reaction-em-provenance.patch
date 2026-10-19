@@ -1,0 +1,203 @@
+--- a/pkg/core/combat/reaction.go
++++ b/pkg/core/combat/reaction.go
+@@ -31,13 +31,14 @@
+ 	return (reactionMultiplier*(1+((6*em)/(2000+em))+reactBonus)*CalcReactionBaseDmg(lvl)*(1+atk.BaseDmgBonus) + atk.FlatDmg) * (1 + atk.Elevation)
+ }
+ 
+-func CalcReactionDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64, baseMultiplier float64) (float64, info.Snapshot) {
++func CalcReactionDmg(lvl int, src reactionBonusSrc, atk info.AttackInfo, em float64, baseMultiplier float64, emReads ...*info.SourceHostStatRead) (float64, info.Snapshot) {
+  snap := info.Snapshot{CharLvl:lvl}
+  snap.Stats[attributes.EM]=em
+  bonus,scalarRead:=sourcehost.ReadReactionBonus(src,atk)
+  if provider,ok:=src.(interface{SourceHostBridge() *sourcehost.Bridge});ok {
+   if host:=provider.SourceHostBridge();host!=nil {
+    request:=host.Request("transformative-base",atk)
++   if len(emReads)>0 { request.StatRead=emReads[0] }
+    request.ScalarProvenance=sourcehost.ScalarProvenance(scalarRead)
+    request.DamageCategory="transformative"
+    request.Input=map[string]any{"characterLevel":lvl,"elementalMastery":em,"reactionBonus":bonus,"baseMultiplier":baseMultiplier,"levelBaseDamage":CalcReactionBaseDmg(lvl)}
+@@ -50,11 +51,12 @@
+  return baseMultiplier*(1+((16*em)/(2000+em))+bonus)*CalcReactionBaseDmg(lvl),snap
+ }
+ 
+-func CalcCatalyzeDmg(lvl int, src reactionBonusSrc, atk *info.AttackInfo, em float64, baseMultiplier float64) float64 {
++func CalcCatalyzeDmg(lvl int, src reactionBonusSrc, atk *info.AttackInfo, em float64, baseMultiplier float64, emReads ...*info.SourceHostStatRead) float64 {
+  bonus,scalarRead:=sourcehost.ReadReactionBonus(src,*atk)
+  if provider,ok:=src.(interface{SourceHostBridge() *sourcehost.Bridge});ok {
+   if host:=provider.SourceHostBridge();host!=nil {
+    request:=host.Request("additive-base",*atk)
++   if len(emReads)>0 { request.StatRead=emReads[0] }
+    request.ScalarProvenance=sourcehost.ScalarProvenance(scalarRead)
+    request.Input=map[string]any{"characterLevel":lvl,"elementalMastery":em,"reactionBonus":bonus,"baseMultiplier":baseMultiplier,"levelBaseDamage":CalcReactionBaseDmg(lvl)}
+    value,id:=host.Resolve(request)
+--- a/pkg/reactable/overload.go
++++ b/pkg/reactable/overload.go
+@@ -56,8 +56,8 @@
+ 			IgnoreDefPercent: 1,
+ 		}
+ 		char := r.core.Player.ByIndex(a.Info.ActorIndex)
+-		em := char.Stat(attributes.EM)
+-		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.75)
++		em, emRead := char.StatWithProvenance(attributes.EM)
++		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.75, emRead)
+ 		atk.FlatDmg = flatdmg
+ 		r.core.QueueAttackWithSnap(atk, snap, combat.NewCircleHitOnTarget(r.self, nil, 3), 1)
+ 	}
+--- a/pkg/reactable/burning.go
++++ b/pkg/reactable/burning.go
+@@ -87,8 +87,8 @@
+ 		IgnoreDefPercent: 1,
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+-	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 0.25)
++	em, emRead := char.StatWithProvenance(attributes.EM)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 0.25, emRead)
+ 	atk.FlatDmg = flatdmg
+ 	r.burningAtk = atk
+ 	r.burningSnapshot = snap
+--- a/pkg/reactable/electrocharged.go
++++ b/pkg/reactable/electrocharged.go
+@@ -69,8 +69,8 @@
+ 		IgnoreDefPercent: 1,
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+-	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.0)
++	em, emRead := char.StatWithProvenance(attributes.EM)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 2.0, emRead)
+ 	atk.FlatDmg = flatdmg
+ 	r.ecAtk = atk
+ 	r.ecSnapshot = snap
+--- a/pkg/reactable/swirl.go
++++ b/pkg/reactable/swirl.go
+@@ -32,8 +32,8 @@
+ 		IgnoreDefPercent: 1,
+ 	}
+ 	char := r.core.Player.ByIndex(charIndex)
+-	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 0.6)
++	em, emRead := char.StatWithProvenance(attributes.EM)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 0.6, emRead)
+ 	ai.FlatDmg = flatdmg
+ 	// first attack is self no hitbox
+ 	r.core.QueueAttackWithSnap(
+--- a/pkg/reactable/freeze.go
++++ b/pkg/reactable/freeze.go
+@@ -84,8 +84,8 @@
+ 			IgnoreDefPercent: 1,
+ 		}
+ 		char := r.core.Player.ByIndex(a.Info.ActorIndex)
+-		em := char.Stat(attributes.EM)
+-		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 3.0)
++		em, emRead := char.StatWithProvenance(attributes.EM)
++		flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, 3.0, emRead)
+ 		ai.FlatDmg = flatdmg
+ 		// shatter is a self attack
+ 		r.core.QueueAttackWithSnap(
+--- a/pkg/reactable/superconduct.go
++++ b/pkg/reactable/superconduct.go
+@@ -101,8 +101,8 @@
+ 		IgnoreDefPercent: 1,
+ 	}
+ 	char := r.core.Player.ByIndex(a.Info.ActorIndex)
+-	em := char.Stat(attributes.EM)
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 1.5)
++	em, emRead := char.StatWithProvenance(attributes.EM)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, atk, em, 1.5, emRead)
+ 	atk.FlatDmg = flatdmg
+ 	r.core.QueueAttackWithSnap(atk, snap, combat.NewCircleHitOnTarget(r.self, nil, 3), 1)
+ }
+--- a/pkg/reactable/catalyze.go
++++ b/pkg/reactable/catalyze.go
+@@ -18,10 +18,10 @@
+ 	r.core.Events.Emit(event.OnAggravate, r.self, a)
+ 
+ 	// em isn't snapshot
+-	em := r.core.Player.ByIndex(a.Info.ActorIndex).Stat(attributes.EM)
++	em, emRead := r.core.Player.ByIndex(a.Info.ActorIndex).StatWithProvenance(attributes.EM)
+ 	a.Info.Catalyzed = true
+ 	a.Info.CatalyzedType = info.ReactionTypeAggravate
+-	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.15)
++	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.15, emRead)
+ 	return true
+ }
+ 
+@@ -37,10 +37,10 @@
+ 	r.core.Events.Emit(event.OnSpread, r.self, a)
+ 
+ 	// em isn't snapshot
+-	em := r.core.Player.ByIndex(a.Info.ActorIndex).Stat(attributes.EM)
++	em, emRead := r.core.Player.ByIndex(a.Info.ActorIndex).StatWithProvenance(attributes.EM)
+ 	a.Info.Catalyzed = true
+ 	a.Info.CatalyzedType = info.ReactionTypeSpread
+-	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.25)
++	a.Info.FlatDmg += r.calcCatalyzeDmg(&a.Info, em, 1.25, emRead)
+ 	return true
+ }
+ 
+--- a/pkg/reactable/reactable.go
++++ b/pkg/reactable/reactable.go
+@@ -400,7 +400,7 @@
+ 	}
+ }
+ 
+-func (r *Reactable) calcCatalyzeDmg(atk *info.AttackInfo, em float64, baseMultiplier float64) float64 {
++func (r *Reactable) calcCatalyzeDmg(atk *info.AttackInfo, em float64, baseMultiplier float64, emReads ...*info.SourceHostStatRead) float64 {
+ 	char := r.core.Player.ByIndex(atk.ActorIndex)
+-	return combat.CalcCatalyzeDmg(char.Base.Level, char, atk, em, baseMultiplier)
+-}
++	return combat.CalcCatalyzeDmg(char.Base.Level, char, atk, em, baseMultiplier, emReads...)
++}
+--- a/internal/template/dendrocore/dendrocore.go
++++ b/internal/template/dendrocore/dendrocore.go
+@@ -157,7 +157,7 @@
+ }
+ 
+ func NewBloomAttack(char *character.CharWrapper, src info.Target, modify func(*info.AttackInfo)) (info.AttackInfo, info.Snapshot) {
+-	em := char.Stat(attributes.EM)
++	em, emRead := char.StatWithProvenance(attributes.EM)
+ 	ai := info.AttackInfo{
+ 		ActorIndex:       char.Index(),
+ 		DamageSrc:        src.Key(),
+@@ -172,13 +172,13 @@
+ 	if modify != nil {
+ 		modify(&ai)
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BloomMultiplier)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BloomMultiplier, emRead)
+ 	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+ func NewBurgeonAttack(char *character.CharWrapper, src info.Target) (info.AttackInfo, info.Snapshot) {
+-	em := char.Stat(attributes.EM)
++	em, emRead := char.StatWithProvenance(attributes.EM)
+ 	ai := info.AttackInfo{
+ 		ActorIndex:       char.Index(),
+ 		DamageSrc:        src.Key(),
+@@ -190,13 +190,13 @@
+ 		Abil:             string(info.ReactionTypeBurgeon),
+ 		IgnoreDefPercent: 1,
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BurgeonMultiplier)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, BurgeonMultiplier, emRead)
+ 	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }
+ 
+ func NewHyperbloomAttack(char *character.CharWrapper, src info.Target) (info.AttackInfo, info.Snapshot) {
+-	em := char.Stat(attributes.EM)
++	em, emRead := char.StatWithProvenance(attributes.EM)
+ 	ai := info.AttackInfo{
+ 		ActorIndex:       char.Index(),
+ 		DamageSrc:        src.Key(),
+@@ -208,7 +208,7 @@
+ 		Abil:             string(info.ReactionTypeHyperbloom),
+ 		IgnoreDefPercent: 1,
+ 	}
+-	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, HyperbloomMultiplier)
++	flatdmg, snap := combat.CalcReactionDmg(char.Base.Level, char, ai, em, HyperbloomMultiplier, emRead)
+ 	ai.FlatDmg = flatdmg
+ 	return ai, snap
+ }

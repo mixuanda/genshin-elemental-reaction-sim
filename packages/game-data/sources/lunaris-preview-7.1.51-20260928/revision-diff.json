@@ -1,0 +1,1909 @@
+{
+  "schemaVersion": "1.0.0",
+  "fromProviderVersion": "7.1.50.2",
+  "toProviderVersion": "7.1.51",
+  "fromArchiveSha256": "d3d87b807628a51fbb65cd55ee61d399b2849ed1b0838d9ba6e70010de8aef08",
+  "toArchiveSha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf",
+  "sourceFileHashes": [
+    {
+      "file": "charlist.json",
+      "before": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc",
+      "after": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc"
+    },
+    {
+      "file": "mitya.chs.json",
+      "before": "9c4b0e202c5eaacafcbd41c17bbe7f436cce8c29bc21e3042b1a241104b32efb",
+      "after": "0f022833965ec620b62efa4531b5180af839278dd548cfeef83de28a4077b3b7"
+    },
+    {
+      "file": "mitya.en.json",
+      "before": "494aff4797b8867443c92bb363832b4026030542be4df14bb910d8a138552e60",
+      "after": "d2a4847b10e6f2ec564f938d342a94e187ef30c1d42f1a0885e7d512db951eee"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "before": "2095a051f1d49568eea54f29b0a7a53ba748ffe2274881b0fbff22e8e2761b19",
+      "after": "68d0699b13bffb81fef576bc445d5b02961ae8064478eae58042b11297fabf24"
+    },
+    {
+      "file": "valeriy.en.json",
+      "before": "a5e9cd98815e6b0675030f9ef9b0d043a17b11b1f15643375c0c507b1e2e3655",
+      "after": "8ec673ee3565491781ecdba004b146d1e18a4d28cf559b6a686040f824255f8a"
+    },
+    {
+      "file": "version.json",
+      "before": "7ecef4c5ae8e09646cca87fffc0f301c00d825fd5b221b52a1b182ee4c2ae313",
+      "after": "e749c84a53bc1ecda55ca42aec8e732a43c3021e167ed782b455032e2e6d635f"
+    }
+  ],
+  "countsByKind": {
+    "text": 114,
+    "added": 63,
+    "numeric-value": 14,
+    "removed": 11,
+    "source-array-change": 1,
+    "added-version": 1
+  },
+  "changes": [
+    {
+      "file": "mitya.chs.json",
+      "path": "/attacks/3/damageParam",
+      "kind": "text",
+      "before": "AS_Partner_Enhance_Damage",
+      "after": "AS_Partner_Enhance_Damage|AS_Constellation_6_StableDamageUp|MUL"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/attacks/6/attackType",
+      "kind": "text",
+      "before": "Default",
+      "after": "Range"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/attacks/15",
+      "kind": "added",
+      "before": null,
+      "after": {
+        "name": "Constellation_4",
+        "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+        "icd_rule": "Independent",
+        "gauge": "0U",
+        "poise": "LV2/35",
+        "element": "Electric",
+        "attackType": "Melee",
+        "strikeType": "-",
+        "damageParam": "-"
+      }
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const1/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const1/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const2/description",
+      "kind": "text",
+      "before": "<color=#FFD780FF>{LINK#N11360002}侦测炉心{/LINK}</color>存在期间，处于<color=#FFD780FF>极星辉域</color>内的所有敌人<color=#99FFFFFF>冰元素抗性</color>与<color=#FFACFFFF>雷元素抗性</color>降低25%。\\n此外，若创造的<color=#FFD780FF>侦测炉心</color>为：\\n·稳态：队伍中附近角色的元素精通提升100点；\\n·过载：队伍中自己的当前场上角色的元素精通提升200点。",
+      "after": "<color=#FFD780FF>{LINK#N11360002}侦测炉心{/LINK}</color>存在期间，处于<color=#FFD780FF>极星辉域</color>内的所有敌人<color=#99FFFFFF>冰元素抗性</color>与<color=#FFACFFFF>雷元素抗性</color>降低20%。\\n此外，若创造的<color=#FFD780FF>侦测炉心</color>为：\\n·稳态：队伍中附近角色的元素精通提升100点；\\n·过载：队伍中自己的当前场上角色的元素精通提升200点。"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const2/params/0",
+      "kind": "numeric-value",
+      "before": 0.25,
+      "after": 0.20000000298023224
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const2/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const2/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const3/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const3/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const4/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const4/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const5/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const5/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const6/description",
+      "kind": "text",
+      "before": "米提亚通过<color=#FFD780FF>{LINK#N11360002}侦测炉心{/LINK}</color>消耗<color=#FFD780FF>{LINK#N11360001}递变信标{/LINK}</color>时，有30%的概率创造一枚新的<color=#FFD780FF>递变信标</color>。\\n此外，队伍中附近的所有角色造成的星超导反应伤害<color=#FFD780FF>{LINK#N11190007}擢升{/LINK}</color>20%。",
+      "after": "<color=#FFD780FF>{LINK#N11360002}侦测炉心{/LINK}</color>获得强化。若创造的<color=#FFD780FF>侦测炉心</color>为：\\n·稳态：<color=#FFD780FF>侦测炉心</color>造成原本115%的伤害；\\n·过载：消耗<color=#FFD780FF>{LINK#N11360001}递变信标{/LINK}</color>时，有30%的概率创造一枚新的<color=#FFD780FF>递变信标</color>。\\n此外，队伍中附近的所有角色造成的星超导反应伤害<color=#FFD780FF>{LINK#N11190007}擢升{/LINK}</color>20%。"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const6/params/2",
+      "kind": "numeric-value",
+      "before": 0.0,
+      "after": 0.15000000596046448
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const6/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/constellations/const6/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/info/title",
+      "kind": "text",
+      "before": "？？？",
+      "after": "列律名虚"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/passives/p1/description",
+      "kind": "text",
+      "before": "元素战技<color=#FFD780FF>律定·变量侦测</color>创造的<color=#FFD780FF>{LINK#N11360002}侦测炉心{/LINK}</color>获得强化。若创造的<color=#FFD780FF>侦测炉心</color>为：\\n·稳态：每携带一枚<color=#FFD780FF>{LINK#N11360001}递变信标{/LINK}</color>，都会使队伍中附近的所有角色的元素精通提升30点；\\n·过载：队伍中附近的所有角色触发星超导反应后，获得<color=#FFD780FF>递变信标</color>的数量提升：改为在3秒内，每1.5秒获得一枚<color=#FFD780FF>递变信标</color>。",
+      "after": "元素战技<color=#FFD780FF>律定·变量侦测</color>创造的<color=#FFD780FF>{LINK#N11360002}侦测炉心{/LINK}</color>获得强化。若创造的<color=#FFD780FF>侦测炉心</color>为：\\n·稳态：每携带一枚<color=#FFD780FF>{LINK#N11360001}递变信标{/LINK}</color>，都会使队伍中附近的所有角色的元素精通提升30点；\\n·过载：队伍中附近的所有角色触发星超导反应后，获得<color=#FFD780FF>递变信标</color>的数量提升：改为在6秒内，每1.5秒获得一枚<color=#FFD780FF>递变信标</color>。"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/passives/p3/description",
+      "kind": "text",
+      "before": "队伍中的角色触发超导反应时，将转为触发星超导反应。触发星超导反应时，将不会创造<color=#FFD780FF>星辉棱晶</color>，而是改为在触发星超导反应后的1.5秒内，每1.5秒在附近创造一枚可以被米提亚携带的<color=#FFD780FF>{LINK#N11360001}递变信标{/LINK}</color>，并将其附近的区域变换为<color=#FFD780FF>极星辉域</color>。\\n此外，基于米提亚的元素精通，提升队伍中附近的所有角色造成的星超导反应的基础伤害：每点元素精通都将提升0.028%星超导反应的基础伤害，至多通过这种方式提升14%基础伤害。处于<color=#FFD780FF>极星辉域</color>中时，米提亚还会进入<color=#FFD780FF>辉映·星超导</color>状态。",
+      "after": "队伍中的角色触发超导反应时，将转为触发星超导反应。触发星超导反应时，将不会创造<color=#FFD780FF>星辉棱晶</color>，而是改为在触发星超导反应后的3秒内，每1.5秒在附近创造一枚可以被米提亚携带的<color=#FFD780FF>{LINK#N11360001}递变信标{/LINK}</color>，并将其附近更大的区域变换为<color=#FFD780FF>极星辉域</color>。\\n此外，基于米提亚的元素精通，提升队伍中附近的所有角色造成的星超导反应的基础伤害：每点元素精通都将提升0.028%星超导反应的基础伤害，至多通过这种方式提升14%基础伤害。处于<color=#FFD780FF>极星辉域</color>中时，米提亚还会进入<color=#FFD780FF>辉映·星超导</color>状态。"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/0",
+      "kind": "text",
+      "before": "115.2%/每枚递变信标",
+      "after": "104%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/1",
+      "kind": "text",
+      "before": "123.84%/每枚递变信标",
+      "after": "111.8%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/2",
+      "kind": "text",
+      "before": "132.48%/每枚递变信标",
+      "after": "119.6%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/3",
+      "kind": "text",
+      "before": "144%/每枚递变信标",
+      "after": "130%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/4",
+      "kind": "text",
+      "before": "152.64%/每枚递变信标",
+      "after": "137.8%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/5",
+      "kind": "text",
+      "before": "161.28%/每枚递变信标",
+      "after": "145.6%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/6",
+      "kind": "text",
+      "before": "172.8%/每枚递变信标",
+      "after": "156%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/7",
+      "kind": "text",
+      "before": "184.32%/每枚递变信标",
+      "after": "166.4%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/8",
+      "kind": "text",
+      "before": "195.84%/每枚递变信标",
+      "after": "176.8%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/9",
+      "kind": "text",
+      "before": "207.36%/每枚递变信标",
+      "after": "187.2%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/10",
+      "kind": "text",
+      "before": "218.88%/每枚递变信标",
+      "after": "197.6%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/11",
+      "kind": "text",
+      "before": "230.4%/每枚递变信标",
+      "after": "208%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/12",
+      "kind": "text",
+      "before": "244.8%/每枚递变信标",
+      "after": "221%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/13",
+      "kind": "text",
+      "before": "259.2%/每枚递变信标",
+      "after": "234%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心引爆伤害/14",
+      "kind": "text",
+      "before": "273.6%/每枚递变信标",
+      "after": "247%元素精通/每枚递变信标"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/0",
+      "kind": "text",
+      "before": "96%元素精通",
+      "after": "91.2%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/1",
+      "kind": "text",
+      "before": "103.2%元素精通",
+      "after": "98.04%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/2",
+      "kind": "text",
+      "before": "110.4%元素精通",
+      "after": "104.88%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/3",
+      "kind": "text",
+      "before": "120%元素精通",
+      "after": "114%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/4",
+      "kind": "text",
+      "before": "127.2%元素精通",
+      "after": "120.84%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/5",
+      "kind": "text",
+      "before": "134.4%元素精通",
+      "after": "127.68%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/6",
+      "kind": "text",
+      "before": "144%元素精通",
+      "after": "136.8%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/7",
+      "kind": "text",
+      "before": "153.6%元素精通",
+      "after": "145.92%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/8",
+      "kind": "text",
+      "before": "163.2%元素精通",
+      "after": "155.04%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/9",
+      "kind": "text",
+      "before": "172.8%元素精通",
+      "after": "164.16%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/10",
+      "kind": "text",
+      "before": "182.4%元素精通",
+      "after": "173.28%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/11",
+      "kind": "text",
+      "before": "192%元素精通",
+      "after": "182.4%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/12",
+      "kind": "text",
+      "before": "204%元素精通",
+      "after": "193.8%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/13",
+      "kind": "text",
+      "before": "216%元素精通",
+      "after": "205.2%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/multipliers/稳态炉心消耗递变信标伤害/14",
+      "kind": "text",
+      "before": "228%元素精通",
+      "after": "216.6%元素精通"
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/3",
+      "kind": "numeric-value",
+      "before": 0.9599999785423279,
+      "after": 0.9120000004768372
+    },
+    {
+      "file": "mitya.chs.json",
+      "path": "/skills/elementalskill/params/4",
+      "kind": "numeric-value",
+      "before": 1.1519999504089355,
+      "after": 1.0399999618530273
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/attacks/3/damageParam",
+      "kind": "text",
+      "before": "AS_Partner_Enhance_Damage",
+      "after": "AS_Partner_Enhance_Damage|AS_Constellation_6_StableDamageUp|MUL"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/attacks/6/attackType",
+      "kind": "text",
+      "before": "Default",
+      "after": "Range"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/attacks/15",
+      "kind": "added",
+      "before": null,
+      "after": {
+        "name": "Constellation_4",
+        "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+        "icd_rule": "Independent",
+        "gauge": "0U",
+        "poise": "LV2/35",
+        "element": "Electric",
+        "attackType": "Melee",
+        "strikeType": "-",
+        "damageParam": "-"
+      }
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const1/description",
+      "kind": "text",
+      "before": "The maximum number of {LINK#N11360001}<color=#FFD780FF>Polestar Prisms</color>{/LINK} Mitya can have is increased to 5. Using his Elemental Skill generates 1 <color=#FFD780FF>Polestar Prism</color>;\\nWhile the {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK} is present, the active character's CRIT DMG is increased by 50%;\\nAdditionally, Mitya regenerates 10 Elemental Energy when a <color=#FFD780FF>Polestar Prism</color> is consumed. This effect can be triggered once every 8s.",
+      "after": "The maximum number of <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color> Mitya can carry is increased to 5. Using the Elemental Skill <color=#FFD780FF>Principle: Variable Detection</color> additionally creates 1 <color=#FFD780FF>Gradient Beacon</color>.\\nWhile the <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> is present, the nearby active character's CRIT DMG is increased by 50%.\\nAdditionally, Mitya regenerates 10 Elemental Energy when a <color=#FFD780FF>Gradient Beacon</color> is created. This effect can be triggered once every 8s."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const1/name",
+      "kind": "text",
+      "before": "C1",
+      "after": "The Observer Seeking What Is Missing"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const1/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const1/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const2/description",
+      "kind": "text",
+      "before": "While the {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK} is on the field, opponents within the field have their <color=#99FFFFFF>Cryo RES</color> and <color=#FFACFFFF>Electro RES</color> decreased by 25%. The following effects are also granted based on the mode the Energy Device is in:\\nStable Mode: All party members gain 100 Elemental Mastery;\\nCollapse Mode: The active character gains 200 Elemental Mastery.",
+      "after": "While the <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> is present, all opponents within the <color=#FFD780FF>Polestar Field</color> have their <color=#99FFFFFF>Cryo RES</color> and <color=#FFACFFFF>Electro RES</color> decreased by 25%.\\nAdditionally, if the <color=#FFD780FF>Detection Core</color> created is:\\n·Steady State: Nearby party members gain 100 Elemental Mastery;\\n·Overloaded: Your active character gains 200 Elemental Mastery."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const2/name",
+      "kind": "text",
+      "before": "C2",
+      "after": "The Matter That Slumbers Beyond Inertness"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const2/params/0",
+      "kind": "numeric-value",
+      "before": 0.25,
+      "after": 0.20000000298023224
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const2/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const2/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const3/description",
+      "kind": "text",
+      "before": "Increases Elemental Skill Level by 3.\\nMaximum upgrade level is 15.",
+      "after": "Increases the Level of the Elemental Skill {LINK#S11362}<color=#FFD780FF>Principle: Variable Detection</color>{/LINK} by 3.\\nMaximum upgrade level is 15."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const3/name",
+      "kind": "text",
+      "before": "C3",
+      "after": "The Knotted String of Invariant Topology"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const3/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const3/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const4/description",
+      "kind": "text",
+      "before": "For every 5 {LINK#N11360001}<color=#FFD780FF>Polestar Prisms</color>{/LINK} consumed, Mitya deals 1 additional instance of Stellar-Conduct DMG equal to 400% of his Elemental Mastery to opponents near the {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK}.",
+      "after": "<color=#FFD780FF>{LINK#N11360002}Detection Cores{/LINK}</color> created by Mitya himself deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> equal to 400% of Mitya's Elemental Mastery to nearby opponents for every 5 <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color> consumed while it is on the field. This DMG is considered Stellar-Conduct reaction DMG."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const4/name",
+      "kind": "text",
+      "before": "C4",
+      "after": "The Isotopes Born of Decay"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const4/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const4/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const5/description",
+      "kind": "text",
+      "before": "Increases the Level of Normal Attacks by 3.\\nMaximum upgrade level is 15.",
+      "after": "Increases the Level of Normal Attack: {LINK#S11361}<color=#FFD780FF>Chain Reaction</color>{/LINK} by 3.\\nMaximum upgrade level is 15."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const5/name",
+      "kind": "text",
+      "before": "C5",
+      "after": "The Periodic Law That Orders All"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const5/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const5/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/description",
+      "kind": "text",
+      "before": "There is a 30% chance to immediately generate 1 {LINK#N11360001}<color=#FFD780FF>Polestar Prism</color>{/LINK} whenever Mitya consumes a {LINK#N11360001}<color=#FFD780FF>Polestar Prism</color>{/LINK} via the {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK}. Additionally, Stellar-Conduct reaction DMG dealt by all party members is Elevated by 20%.",
+      "after": "There is a 30% chance to create 1 new <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> whenever Mitya consumes a <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> with the <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color>.\\nAdditionally, Stellar-Conduct reaction DMG dealt by all nearby party members is <color=#FFD780FF>{LINK#N11190007}Elevated{/LINK}</color> by 20%."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/name",
+      "kind": "text",
+      "before": "C6",
+      "after": "Elemental Transition at the Gate of Reason"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/params/2",
+      "kind": "numeric-value",
+      "before": 0.0,
+      "after": 0.15000000596046448
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/constellations/const6/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/hyperlinks/0/description",
+      "kind": "text",
+      "before": "When Stellar-Conduct is triggered, the surrounding area will transform into a Polestar Field for a short period of time, and when inside a Polestar Field, certain characters will enter the Radiance: Stellar-Conduct state, which grants various skill buffs.",
+      "after": "Special DMG Boost effect. It is calculated independently of other DMG Boost effects."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/hyperlinks/0/id",
+      "kind": "numeric-value",
+      "before": 11330003,
+      "after": 11190007
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/hyperlinks/0/name",
+      "kind": "text",
+      "before": "Polestar Field",
+      "after": "Elevation"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/hyperlinks/1",
+      "kind": "added",
+      "before": null,
+      "after": {
+        "id": 11360001,
+        "name": "Gradient Beacons",
+        "description": "When Mitya is in the party, Stellar-Conduct reactions create Gradient Beacons that last for 6s instead of Starlight Prisms. Mitya can consume Gradient Beacons to trigger various effects.\\nGradient Beacons follow the active character and transform the nearby area into a Polestar Field. Mitya can have multiple Gradient Beacons, with an initial maximum of 4. Creating a Gradient Beacon while at the maximum will reset the duration of all Gradient Beacons.",
+        "params": [
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/hyperlinks/2",
+      "kind": "added",
+      "before": null,
+      "after": {
+        "id": 11360002,
+        "name": "Detection Core",
+        "description": "An energy device created after using his Elemental Skill. Tapping it creates a Core in Steady State, while holding it creates an Overloaded core.\\n\\nDetection Core: Steady State\\n·Continuously follows nearby opponents and intermittently deals AoE Electro DMG;\\n·When Mitya has reached the maximum number of Gradient Beacons he can have, the device will consume any newly generated Gradient Beacon and deal AoE Electro DMG that is considered Stellar-Conduct reaction DMG;\\n·When its duration ends or another Detection Core is created, the device will consume all Gradient Beacons Mitya has and deal AoE Electro DMG that is considered Stellar-Conduct reaction DMG based on the number consumed.\\n\\nDetection Core: Overloaded\\n·While this device is present and Mitya has at least 1 Gradient Beacon, he can perform the special Charged Attack Gradient Detonation without consuming Stamina.",
+        "params": [
+          "",
+          "",
+          "",
+          "",
+          ""
+        ]
+      }
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p1/description",
+      "kind": "text",
+      "before": "Grants different enhancement effects based on the mode the Elemental Skill's {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK} is in:\\nStable Mode: For each Prism Mitya has, all nearby party members gain 30 Elemental Mastery;\\nCollapse Mode: Upon triggering a Stellar-Conduct reaction, the effect changes to generating 1 {LINK#N11360001}<color=#FFD780FF>Polestar Prism</color>{/LINK} every 1.5s for 3s.",
+      "after": "The <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> created by the Elemental Skill <color=#FFD780FF>Principle: Variable Detection</color> is enhanced. Depending on the state of the <color=#FFD780FF>Detection Core</color> created:\\n·Steady State: All nearby party members gain 30 Elemental Mastery for each <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> Mitya has;\\n·Overloaded: After nearby party members trigger Stellar-Conduct reactions, instead obtain 1 <color=#FFD780FF>Gradient Beacon</color> every 1.5s for 3s."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p1/name",
+      "kind": "text",
+      "before": "Ascension Talent 1",
+      "after": "Baseline Stress Test"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p2/description",
+      "kind": "text",
+      "before": "After being collected, {LINK#N11360001}<color=#FFD780FF>Polestar Prisms</color>{/LINK} will persist for 10s. Additionally, collecting a Prism increases Mitya's CRIT Rate by 5% for 15s. Max 4 stacks. Repeated triggers refresh the duration.",
+      "after": "The duration of <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color> is increased to 10s. Additionally, Mitya's CRIT Rate increases by 5% for 15s after creating a <color=#FFD780FF>Gradient Beacon</color>. This effect can stack up to 4 times."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p2/name",
+      "kind": "text",
+      "before": "Ascension Talent 2",
+      "after": "Explosive Reagent: Safe Limits Exceeded"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p3/description",
+      "kind": "text",
+      "before": "When party members trigger Superconduct, it will be changed to Stellar-Conduct, and 1 {LINK#N11360001}<color=#FFD780FF>Polestar Prism</color>{/LINK} will be generated every 1.5s for 1.5s. Party members' Base Stellar-Conduct DMG will also be increased based on Mitya's Elemental Mastery: Every point of Elemental Mastery he has increases the Base Stellar-Conduct DMG by 0.028%. The maximum increase that can be gained this way is 14%.\\nAdditionally, when Mitya is within a {LINK#N11330003}<color=#FFD780FF>Polestar Field</color>{/LINK}, he will enter the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state.",
+      "after": "When party members trigger Superconduct, it will be changed to Stellar-Conduct. Stellar-Conduct reactions will no longer create <color=#FFD780FF>Starlight Prisms</color>, and will instead create 1 <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> nearby every 1.5s for 1.5s. These Beacons can be carried by Mitya and transform the area around them into a <color=#FFD780FF>Polestar Field</color>.\\nAdditionally, the Base Stellar-Conduct DMG dealt by all nearby party members will be increased based on Mitya's Elemental Mastery: Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by 0.028%. The maximum Base DMG increase that can be gained this way is 14%. While within a <color=#FFD780FF>Polestar Field</color>, Mitya will also enter the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p3/name",
+      "kind": "text",
+      "before": "Passive Talent",
+      "after": "Stellar Jubilee: Top-Secret Protocol"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p4/description",
+      "kind": "text",
+      "before": "In Voxelrock areas, Energy Devices in Stable Mode can enter a special Excavation Mode, rapidly clearing nearby Voxelrock.\\nAdditionally, when Mitya is in the party, crafting a Prime Ice Construct Basic Heat Source does not consume power.",
+      "after": "When destructible rocks are nearby, <color=#FFD780FF>{LINK#N11360002}Detection Core: Steady State{/LINK}</color> can quickly clear them.\\nAdditionally, when Mitya is in the party, creating <color=#FFD780FF>Prime Ice Construct: Basic Heat Source</color> does not consume Kresnik Energy."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/passives/p4/name",
+      "kind": "text",
+      "before": "Life Talent",
+      "after": "Energy Catalysis"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalburst/description",
+      "kind": "text",
+      "before": "Using precise calculations, Mitya triggers an explosion that deals <color=#FFACFFFF>AoE Electro DMG</color>, then generates several {LINK#N11360001}<color=#FFD780FF>Polestar Prisms</color>{/LINK}.",
+      "after": "Let the elements burst forth like inspiration itself! Deals <color=#FFACFFFF>AoE Electro DMG</color> and creates 3 <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color>.\n\\n\\n<i>\"Even the smallest elemental reaction can build up, step by step, until it unleashes unimaginable amounts of energy — just like a researcher's inspiration.\"</i>"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalburst/multipliers/Gradient Beacons Generated",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalburst/multipliers/Polestar Prisms Generated",
+      "kind": "removed",
+      "before": [
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3",
+        "3"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalburst/name",
+      "kind": "text",
+      "before": "Elemental Burst",
+      "after": "Analysis: Gradient Theory"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/description",
+      "kind": "text",
+      "before": "Deals <color=#FFACFFFF>Electro DMG</color> and generates an {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK} in different modes, depending on whether it was tapped or held.\\n\\nWhile the Energy Device is in Stable Mode, if a {LINK#N11360001}<color=#FFD780FF>Polestar Prism</color>{/LINK} is generated beyond the maximum number Mitya can have, that Prism will be consumed to trigger <color=#FFD780FF>Prism Surge</color>, dealing 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> that is considered Stellar-Conduct reaction DMG;\\nWhen the Stable Mode Energy Device disappears, all Polestar Prisms Mitya has will be consumed to trigger <color=#FFD780FF>Prism Shatter</color>, which deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> based on the number consumed, and is considered Stellar-Conduct reaction DMG.",
+      "after": "Conducts a theoretically relatively safe experiment at a theoretically relatively safe yield, dealing <color=#FFACFFFF>AoE Electro DMG</color> and creating a <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> in different ways depending on whether the Skill is tapped or held.\n\\n\\n<i>\"Don't worry! These quantities have been proven safe in test after test... Hm? It blew up? Oh, I forgot to mention: that conclusion was based on ideal experimental conditions.\"</i>"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Detection Core Duration",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Energy Device Duration",
+      "kind": "removed",
+      "before": [
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s",
+        "20s"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Prism Shard DMG per Prism",
+      "kind": "removed",
+      "before": [
+        "115.2% Elemental Mastery",
+        "123.84% Elemental Mastery",
+        "132.48% Elemental Mastery",
+        "144% Elemental Mastery",
+        "152.64% Elemental Mastery",
+        "161.28% Elemental Mastery",
+        "172.8% Elemental Mastery",
+        "184.32% Elemental Mastery",
+        "195.84% Elemental Mastery",
+        "207.36% Elemental Mastery",
+        "218.88% Elemental Mastery",
+        "230.4% Elemental Mastery",
+        "244.8% Elemental Mastery",
+        "259.2% Elemental Mastery",
+        "273.6% Elemental Mastery"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Prism Surge DMG",
+      "kind": "removed",
+      "before": [
+        "96% Elemental Mastery",
+        "103.2% Elemental Mastery",
+        "110.4% Elemental Mastery",
+        "120% Elemental Mastery",
+        "127.2% Elemental Mastery",
+        "134.4% Elemental Mastery",
+        "144% Elemental Mastery",
+        "153.6% Elemental Mastery",
+        "163.2% Elemental Mastery",
+        "172.8% Elemental Mastery",
+        "182.4% Elemental Mastery",
+        "192% Elemental Mastery",
+        "204% Elemental Mastery",
+        "216% Elemental Mastery",
+        "228% Elemental Mastery"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Stabilizer Pulse DMG",
+      "kind": "removed",
+      "before": [
+        "72%",
+        "77.4%",
+        "82.8%",
+        "90%",
+        "95.4%",
+        "100.8%",
+        "108%",
+        "115.2%",
+        "122.4%",
+        "129.6%",
+        "136.8%",
+        "144%",
+        "153%",
+        "162%",
+        "171%"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Steady State Core DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "72%",
+        "77.4%",
+        "82.8%",
+        "90%",
+        "95.4%",
+        "100.8%",
+        "108%",
+        "115.2%",
+        "122.4%",
+        "129.6%",
+        "136.8%",
+        "144%",
+        "153%",
+        "162%",
+        "171%"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Steady State Core Detonation DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "104%/Beacon",
+        "111.8%/Beacon",
+        "119.6%/Beacon",
+        "130%/Beacon",
+        "137.8%/Beacon",
+        "145.6%/Beacon",
+        "156%/Beacon",
+        "166.4%/Beacon",
+        "176.8%/Beacon",
+        "187.2%/Beacon",
+        "197.6%/Beacon",
+        "208%/Beacon",
+        "221%/Beacon",
+        "234%/Beacon",
+        "247%/Beacon"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/multipliers/Steady State Core Gradient Beacon Consumption DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "91.2% Elemental Mastery",
+        "98.04% Elemental Mastery",
+        "104.88% Elemental Mastery",
+        "114% Elemental Mastery",
+        "120.84% Elemental Mastery",
+        "127.68% Elemental Mastery",
+        "136.8% Elemental Mastery",
+        "145.92% Elemental Mastery",
+        "155.04% Elemental Mastery",
+        "164.16% Elemental Mastery",
+        "173.28% Elemental Mastery",
+        "182.4% Elemental Mastery",
+        "193.8% Elemental Mastery",
+        "205.2% Elemental Mastery",
+        "216.6% Elemental Mastery"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/name",
+      "kind": "text",
+      "before": "Elemental Skill",
+      "after": "Principle: Variable Detection"
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/3",
+      "kind": "numeric-value",
+      "before": 0.9599999785423279,
+      "after": 0.9120000004768372
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/elementalskill/params/4",
+      "kind": "numeric-value",
+      "before": 1.1519999504089355,
+      "after": 1.0399999618530273
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/description",
+      "kind": "text",
+      "before": "<color=#FFD780FF>Normal Attack</color>\\nPerforms a maximum of 3 attacks that deal <color=#FFACFFFF>Electro DMG</color>.\\n\\n<color=#FFD780FF>Charged Attack</color>\\nConsumes a certain amount of Stamina to deal <color=#FFACFFFF>AoE Electro DMG</color> after a short casting time.\\nIf the {LINK#N11360002}<color=#FFD780FF>Energy Device</color>{/LINK} is in Collapse Mode and has at least 1 {LINK#N11360001}<color=#FFD780FF>Polestar Prism</color>{/LINK}, Mitya's Charged Attack will be replaced by the special Charged Attack <color=#FFD780FF>Prism Detonation</color>, which consumes no Stamina: After dealing <color=#FFACFFFF>AoE Electro DMG</color> once, it will continuously consume <color=#FFD780FF>Polestar Prisms</color>. Each Prism consumed deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> that is considered Stellar-Conduct reaction DMG.\\n\\n<color=#FFD780FF>Plunging Attack</color>\\nGathers the power of Electro and plunges towards the ground from mid-air, damaging all opponents in his path. Deals <color=#FFACFFFF>Electro DMG</color> upon impact with the ground.",
+      "after": "<color=#FFD780FF>Normal Attack</color>\\nPerforms a maximum of 3 attacks that deal <color=#FFACFFFF>Electro DMG</color>.\\n\\n<color=#FFD780FF>Charged Attack</color>\\nConsumes a certain amount of Stamina to deal <color=#FFACFFFF>AoE Electro DMG</color> to the area in front after a short casting time.\\nMitya will instead perform the special Charged Attack <color=#FFD780FF>Gradient Detonation</color>, which consumes no Stamina, if a <color=#FFD780FF>{LINK#N11360002}Detection Core: Overload{/LINK}</color> created by Mitya is currently on the field and he has at least 1 <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color>: Deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> to the area in front and continuously consumes <color=#FFD780FF>Gradient Beacons</color> while held. Each <color=#FFD780FF>Gradient Beacon</color> consumed deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> to the area in front that is considered Stellar-Conduct reaction DMG.\\n\\n<color=#FFD780FF>Plunging Attack</color>\\nPlunges from mid-air to strike the ground below, damaging opponents along the path and dealing <color=#FFACFFFF>AoE Electro DMG</color> upon impact."
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Gradient Detonation DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "153%",
+        "164.47%",
+        "175.95%",
+        "191.25%",
+        "202.73%",
+        "214.2%",
+        "229.5%",
+        "244.8%",
+        "260.1%",
+        "275.4%",
+        "290.7%",
+        "306%",
+        "325.13%",
+        "344.25%",
+        "363.37%"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Gradient Detonation Stellar-Conduct DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "204% Elemental Mastery",
+        "219.3% Elemental Mastery",
+        "234.6% Elemental Mastery",
+        "255% Elemental Mastery",
+        "270.3% Elemental Mastery",
+        "285.6% Elemental Mastery",
+        "306% Elemental Mastery",
+        "326.4% Elemental Mastery",
+        "346.8% Elemental Mastery",
+        "367.2% Elemental Mastery",
+        "387.6% Elemental Mastery",
+        "408% Elemental Mastery",
+        "433.5% Elemental Mastery",
+        "459% Elemental Mastery",
+        "484.5% Elemental Mastery"
+      ]
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Special Charged Attack DMG",
+      "kind": "removed",
+      "before": [
+        "153%",
+        "164.47%",
+        "175.95%",
+        "191.25%",
+        "202.73%",
+        "214.2%",
+        "229.5%",
+        "244.8%",
+        "260.1%",
+        "275.4%",
+        "290.7%",
+        "306%",
+        "325.13%",
+        "344.25%",
+        "363.37%"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/multipliers/Special Charged Attack Stellar-Conduct DMG",
+      "kind": "removed",
+      "before": [
+        "204% Elemental Mastery",
+        "219.3% Elemental Mastery",
+        "234.6% Elemental Mastery",
+        "255% Elemental Mastery",
+        "270.3% Elemental Mastery",
+        "285.6% Elemental Mastery",
+        "306% Elemental Mastery",
+        "326.4% Elemental Mastery",
+        "346.8% Elemental Mastery",
+        "367.2% Elemental Mastery",
+        "387.6% Elemental Mastery",
+        "408% Elemental Mastery",
+        "433.5% Elemental Mastery",
+        "459% Elemental Mastery",
+        "484.5% Elemental Mastery"
+      ],
+      "after": null
+    },
+    {
+      "file": "mitya.en.json",
+      "path": "/skills/normalattack/name",
+      "kind": "text",
+      "before": "Normal Attack",
+      "after": "Chain Reaction"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/3/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/4/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "-"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/8/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "-"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/10/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/11/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/12/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/13/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/14/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/attacks/15/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const1/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const1/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const2/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const2/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const3/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const3/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const4/description",
+      "kind": "text",
+      "before": "<color=#FFD780FF>{LINK#N11370003}冲击势能{/LINK}</color>的上限提升30点，且获取效率提升30%。",
+      "after": "<color=#FFD780FF>{LINK#N11370003}冲击势能{/LINK}</color>的上限提升30点，且获取效率提升30%。\\n此外，突破天赋<color=#FFD780FF>{LINK#P1372101}与徐进弹幕为伴{/LINK}</color>的效果获得强化：每次施放元素爆发后，至多可以通过该天赋获得104点<color=#FFD780FF>冲击势能</color>。需要解锁突破天赋<color=#FFD780FF>与徐进弹幕为伴</color>。"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const4/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const4/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const5/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const5/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const6/description",
+      "kind": "text",
+      "before": "特殊重击<color=#FFD780FF>{LINK#N11370001}臼炮直射·抵近轰击{/LINK}</color>与元素爆发<color=#FFD780FF>{LINK#S30605}火力焦点·雷霰急袭{/LINK}</color>中的<color=#FFD780FF>雷霰重弹</color>获得强化：造成的伤害提升100%，并且在命中敌人后的7秒内，使其受到的<color=#FFACFFFF>雷元素伤害</color>的暴击率提升10%；若受到的<color=#FFACFFFF>雷元素伤害</color>为星超导反应伤害，则其暴击伤害也会提升40%。",
+      "after": "特殊重击<color=#FFD780FF>{LINK#N11370001}臼炮直射·抵近轰击{/LINK}</color>与元素爆发<color=#FFD780FF>{LINK#S30605}火力焦点·雷霰急袭{/LINK}</color>中的<color=#FFD780FF>雷霰重弹</color>获得强化：造成的伤害提升100%，并且在命中敌人后的7秒内，使其受到的<color=#FFACFFFF>雷元素伤害</color>的暴击率提升10%；若受到的<color=#FFACFFFF>雷元素伤害</color>为星超导反应伤害，则该伤害的暴击伤害也会提升40%。"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const6/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/constellations/const6/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/endure/1/Actor_EndureDelta",
+      "kind": "numeric-value",
+      "before": 0.5,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/endure/2/Actor_EndureDelta",
+      "kind": "numeric-value",
+      "before": 0.5,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/info/title",
+      "kind": "text",
+      "before": "？？？",
+      "after": "霆骇军垒"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "path": "/passives/p1/description",
+      "kind": "text",
+      "before": "元素爆发<color=#FFD780FF>{LINK#S30605}火力焦点·雷霰急袭{/LINK}</color>中的<color=#FFD780FF>雷霰重弹</color>下坠期间，队伍中附近的当前场上角色的元素类型为<color=#FFACFFFF>雷元素</color>的攻击命中敌人时，瓦列里将获得5点<color=#FFD780FF>{LINK#N11370003}冲击势能{/LINK}</color>。每次施放元素爆发后，至多通过这种方式获得80点<color=#FFD780FF>冲击势能</color>。",
+      "after": "元素爆发<color=#FFD780FF>{LINK#S30605}火力焦点·雷霰急袭{/LINK}</color>中的<color=#FFD780FF>雷霰重弹</color>下坠期间，队伍中附近的当前场上其他角色的元素类型为<color=#FFACFFFF>雷元素</color>的攻击命中敌人时，瓦列里将获得5点<color=#FFD780FF>{LINK#N11370003}冲击势能{/LINK}</color>。每次施放元素爆发后，至多通过这种方式获得80点<color=#FFD780FF>冲击势能</color>。"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/3/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/4/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "-"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/8/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "-"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/10/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/11/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/12/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/13/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/14/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/attacks/15/strikeType",
+      "kind": "text",
+      "before": "Blunt",
+      "after": "Pierce"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const1/description",
+      "kind": "text",
+      "before": "Valeriy regenerates 6 Elemental Energy after using <color=#FFD780FF>Enhanced Charged Attack: Thunderclap</color>. For every 10 Charge consumed beyond the first 40, he regenerates an additional 1.5 Elemental Energy. Up to a total of 15 Elemental Energy can be restored in this way. This effect can trigger once every 15s.\\nAdditionally, the first time Valeriy gains Charge through his Elemental Skill after entering combat, the amount gained is increased by 150%.",
+      "after": "Valeriy regenerates 6 Elemental Energy after performing the special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color>. For every 10 <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> consumed beyond 40 when performing this special Charged Attack, he regenerates an additional 1.5 Elemental Energy. Each time he performs <color=#FFD780FF>Direct-Fire Mortar: Point-Blank Bombardment</color>, he can regenerate up to 15 Elemental Energy in this way. This effect can trigger once every 15s.\\nAdditionally, each time Valeriy enters combat, the first time he uses his Elemental Skill <color=#FFD780FF>{LINK#S30602}Active Defense: Bastion Charge{/LINK}</color>, he gains an additional amount of <color=#FFD780FF>Impact Momentum</color> equal to 150% of the amount normally gained."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const1/name",
+      "kind": "text",
+      "before": "C1",
+      "after": "The Cadence of Suppressive Fire"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const1/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const1/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const2/description",
+      "kind": "text",
+      "before": "All party members gain 100 Elemental Mastery for 18s after Valeriy uses his Elemental Skill.\\nWhile the Electro Energy Shield is active, excess <color=#FFD780FF>Charge</color> gained by Valeriy from any source is converted into shield strength, with each point granting an amount equal to 8% of Valeriy's ATK. A maximum of 20 excess Charge can be converted into his Electro Energy Shield in this way.",
+      "after": "All nearby party members gain 100 Elemental Mastery for 18s after Valeriy uses his Elemental Skill <color=#FFD780FF>{LINK#S30602}Active Defense: Bastion Charge{/LINK}</color>.\\nAdditionally, while protected by a Supercharged Shield, if Valeriy is already at maximum <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color>, any further <color=#FFD780FF>Impact Momentum</color> he would gain is instead converted into increased DMG Absorption for the shield. Each point of excess <color=#FFD780FF>Impact Momentum</color> increases the Supercharged Shield's DMG Absorption by an amount equal to 8% of Valeriy's ATK. Up to 20 excess <color=#FFD780FF>Impact Momentum</color> can be converted in this way."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const2/name",
+      "kind": "text",
+      "before": "C2",
+      "after": "Ranks That Charge as One"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const2/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const2/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const3/description",
+      "kind": "text",
+      "before": "Increases the Level of Normal Attacks by 3.\\nMaximum upgrade level is 15.",
+      "after": "Increases the Level of Normal Attack <color=#FFD780FF>{LINK#S30601}Guard Tactics: Sword and Shield{/LINK}</color> by 3.\\nMaximum upgrade level is 15."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const3/name",
+      "kind": "text",
+      "before": "C3",
+      "after": "Vigilance at Close Quarters"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const3/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const3/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const4/description",
+      "kind": "text",
+      "before": "Maximum <color=#FFD780FF>Charge</color> is increased by 30, and Valeriy gains 30% more Charge from all sources.",
+      "after": "Maximum <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> is increased by 30, and the amount gained is increased by 30%."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const4/name",
+      "kind": "text",
+      "before": "C4",
+      "after": "Fortitude Unshaken by Attrition"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const4/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const4/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const5/description",
+      "kind": "text",
+      "before": "Increases Elemental Skill Level by 3.\\nMaximum upgrade level is 15.",
+      "after": "Increases the Level of the Elemental Skill <color=#FFD780FF>{LINK#S30602}Active Defense: Bastion Charge{/LINK}</color> by 3.\\nMaximum upgrade level is 15."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const5/name",
+      "kind": "text",
+      "before": "C5",
+      "after": "Resolve to Divide and Destroy"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const5/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const5/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const6/description",
+      "kind": "text",
+      "before": "<color=#FFD780FF>Enhanced Charged Attack: Thunderclap</color> and <color=#FFD780FF>Stormshell</color> attacks gain the Armor-Piercing Rounds effect:\\nTheir DMG is increased by 100%. Opponents hit take Electro DMG with 10% increased CRIT Rate for 7s, and if that DMG is considered Stellar-Conduct reaction DMG, its CRIT DMG is further increased by 40%.",
+      "after": "The special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color> and <color=#FFD780FF>Thunderburst Shells</color> from Elemental Burst <color=#FFD780FF>{LINK#S30605}Focused Fire: Lightning Salvo{/LINK}</color> are enhanced: Their DMG is increased by 100%, and opponents they hit have the CRIT Rate of <color=#FFACFFFF>Electro DMG</color> they take increased by 10% for 7s. If the <color=#FFACFFFF>Electro DMG</color> taken is Stellar-Conduct reaction DMG, its CRIT DMG is also increased by 40%."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const6/name",
+      "kind": "text",
+      "before": "C6",
+      "after": "The Strength to Breach Enemy Lines"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const6/params/8",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/constellations/const6/params/9",
+      "kind": "added",
+      "before": null,
+      "after": 0.0
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/endure/1/Actor_EndureDelta",
+      "kind": "numeric-value",
+      "before": 0.5,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/endure/2/Actor_EndureDelta",
+      "kind": "numeric-value",
+      "before": 0.5,
+      "after": 0.30000001192092896
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/hyperlinks",
+      "kind": "source-array-change",
+      "before": [],
+      "after": [
+        {
+          "id": 11370001,
+          "name": "Direct-Fire Mortar: Point-Blank Bombardment",
+          "description": "Valeriy's special Charged Attack. Using a Charged Attack while he has at least 40 Impact Momentum consumes all Impact Momentum to unleash this special Charged Attack instead, dealing AoE Electro DMG in front of him and granting 15 stacks of Offensive Directive.",
+          "params": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "id": 11370002,
+          "name": "Offensive Directive",
+          "description": "A special effect Valeriy gains after performing the special Charged Attack Direct-Fire Mortar: Point-Blank Bombardment. It increases different types of Electro DMG depending on whether Valeriy is in the Radiance: Stellar-Conduct state. If Valeriy is:\\n·In the Radiance: Stellar-Conduct state: When a nearby active character in the party deals Electro DMG considered Stellar-Conduct reaction DMG to an opponent with a Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst, 1 stack of Offensive Directive is consumed to increase that DMG, with the increase based on Valeriy's ATK;\\n·Not in the Radiance: Stellar-Conduct state: When a nearby active character in the party deals Electro DMG to an opponent with a Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst, 1 stack of Offensive Directive is consumed to increase that DMG, with the increase based on Valeriy's ATK.\\nWhen a single instance of Electro DMG hits multiple opponents simultaneously, Offensive Directive stacks are consumed based on the number of opponents hit.",
+          "params": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        },
+        {
+          "id": 11370003,
+          "name": "Impact Momentum",
+          "description": "A special energy Valeriy uses to enhance his combat capabilities. Its initial maximum is 100. When he has at least 40 Impact Momentum, he can perform the special Charged Attack Direct-Fire Mortar: Point-Blank Bombardment.\\nValeriy can gain Impact Momentum in the following ways:\\n·By using his Elemental Skill Active Defense: Bastion Charge;\\n·After unlocking the Passive Talent \"Advance With the Creeping Barrage,\" while his Elemental Burst Focused Fire: Lightning Salvo is active, when a nearby active character in the party hits an opponent with an attack whose Elemental Type is Electro.",
+          "params": [
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        }
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p1/description",
+      "kind": "text",
+      "before": "While the <color=#FFD780FF>Stormshells</color> from his Elemental Burst are falling, Valeriy gains 5 <color=#FFD780FF>Charge</color> whenever the active character deals Electro DMG to an opponent. A maximum of 80 Charge can be restored to Valeriy in this way over the duration of each Elemental Burst.",
+      "after": "Valeriy gains 5 <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> whenever a nearby active character in the party hits an opponent with an attack whose Elemental Type is <color=#FFACFFFF>Electro</color> while the <color=#FFD780FF>Thunderburst Shells</color> from his Elemental Burst <color=#FFD780FF>{LINK#S30605}Focused Fire: Lightning Salvo{/LINK}</color> are falling. He can gain up to 80 <color=#FFD780FF>Impact Momentum</color> in this way after each use of his Elemental Burst."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p1/name",
+      "kind": "text",
+      "before": "Ascension Talent 1",
+      "after": "Advance With the Creeping Barrage"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p2/description",
+      "kind": "text",
+      "before": "Assault Order gained after using <color=#FFD780FF>Enhanced Charged Attack: Thunderclap</color> is further enhanced based on the Charge consumed when used. If Valeriy is:\\n·Not in the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: Each point of Charge consumed further increases the DMG dealt by 0.3% of Valeriy's ATK;\\n·In the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: Each point of Charge consumed further increases the DMG dealt by 0.9% of Valeriy's ATK.",
+      "after": "<color=#FFD780FF>{LINK#N11370002}Offensive Directive{/LINK}</color> is enhanced based on the amount of <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color> consumed when performing his special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color>. Each point consumed further increases the DMG granted by <color=#FFD780FF>Offensive Directive</color>. If Valeriy is:\\n·In the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: Each point of <color=#FFD780FF>Impact Momentum</color> consumed increases this DMG by an amount equal to 0.9% of Valeriy's ATK;\\n·Not in the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: Each point of <color=#FFD780FF>Impact Momentum</color> consumed increases this DMG by an amount equal to 0.3% of Valeriy's ATK."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p2/name",
+      "kind": "text",
+      "before": "Ascension Talent 2",
+      "after": "Into the Breach"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p3/description",
+      "kind": "text",
+      "before": "Gains 25% more rewards when dispatched on a Snezhnaya Expedition for 20 hours.",
+      "after": "Gains 25% more rewards when dispatched on a Snezhnaya (not including Nod-Krai) Expedition for 20 hours."
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/passives/p3/name",
+      "kind": "text",
+      "before": "Life Talent",
+      "after": "Tundra Operational Intelligence"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalburst/description",
+      "kind": "text",
+      "before": "Valeriy gathers his strength, raises his shield cannon, and fires a <color=#FFD780FF>Stormshell</color> into the air. A powerful Electro shockwave spreads out from the shield cannon, dealing <color=#FFACFFFF>AoE Electro DMG</color> to nearby opponents. The Stormshell then splits apart in mid-air, and the resulting munitions gradually fall around him, dealing <color=#FFACFFFF>Electro DMG</color> to nearby opponents.",
+      "after": "Deals <color=#FFACFFFF>AoE Electro DMG</color> to nearby opponents and fires a <color=#FFD780FF>Thunderburst Shell</color> high into the air. The <color=#FFD780FF>Thunderburst Shell</color> disperses into a barrage of projectiles that rain down, dealing <color=#FFACFFFF>AoE Electro DMG</color> to nearby opponents.\n\\n\\n<i>\"Steel your resolve, take the field in heavy armor, and bring death thundering down upon the enemy.\"</i>"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalburst/multipliers/Stormshell DMG",
+      "kind": "removed",
+      "before": [
+        "31.52%",
+        "33.88%",
+        "36.25%",
+        "39.4%",
+        "41.76%",
+        "44.13%",
+        "47.28%",
+        "50.43%",
+        "53.58%",
+        "56.74%",
+        "59.89%",
+        "63.04%",
+        "66.98%",
+        "70.92%",
+        "74.86%"
+      ],
+      "after": null
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalburst/multipliers/Thunderburst Shell DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "31.52%",
+        "33.88%",
+        "36.25%",
+        "39.4%",
+        "41.76%",
+        "44.13%",
+        "47.28%",
+        "50.43%",
+        "53.58%",
+        "56.74%",
+        "59.89%",
+        "63.04%",
+        "66.98%",
+        "70.92%",
+        "74.86%"
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalburst/name",
+      "kind": "text",
+      "before": "Elemental Burst",
+      "after": "Focused Fire: Lightning Salvo"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalskill/description",
+      "kind": "text",
+      "before": "Valeriy braces his shield cannon and charges forward. Upon reaching the end of his charge, he rams opponents in front of him with the shield cannon, dealing <color=#FFACFFFF>AoE Electro DMG</color>, gaining 40 <color=#FFD780FF>Charge</color>, and deploying an Electro Energy Shield.\\nThe Electro Energy Shield's DMG Absorption scales with Valeriy's ATK, and has 250% absorption efficiency against <color=#FFACFFFF></color>Electro DMG<color=#FFACFFFF></color>.",
+      "after": "Valeriy raises his shield cannon and charges forward, dealing <color=#FFACFFFF>AoE Electro DMG</color>, gaining 40 <color=#FFD780FF>Impact Momentum</color>, and deploying a Supercharged Shield.\\nThe Supercharged Shield's DMG Absorption scales with Valeriy's ATK, and has 250% absorption efficiency against <color=#FFACFFFF></color>Electro DMG<color=#FFACFFFF></color>.\n\\n\\n<i>\"Victory takes time, sound judgment, and decisive action when the moment is right.\"</i>"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/elementalskill/name",
+      "kind": "text",
+      "before": "Elemental Skill",
+      "after": "Active Defense: Bastion Charge"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/description",
+      "kind": "text",
+      "before": "<color=#FFD780FF>Normal Attack</color>\\nPerforms up to 3 consecutive sword strikes.\\n\\n<color=#FFD780FF>Charged Attack</color>\\nConsumes a certain amount of Stamina to leap forward, slamming his shield cannon into the ground upon landing and dealing AoE DMG to nearby opponents.\\nValeriy can gather Electro energy from the battlefield and store it within his shield cannon as <color=#FFD780FF>Charge</color>, up to a maximum of 100. When he has at least 40 Charge, Valeriy will consume all Charge to unleash the Enhanced Charged Attack: Thunderclap instead.\\n\\n<color=#FFD780FF>Enhanced Charged Attack: Thunderclap</color>\\nValeriy raises his shield cannon and fires a laser blast at opponents in front of him, dealing <color=#FFACFFFF>AoE Electro DMG</color>, then gains a certain number of Assault Order stacks. If Valeriy is:\\n·Not in the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: When a nearby active character in the party deals Electro DMG to an opponent with a Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst, 1 stack of Assault Order will be consumed to increase the DMG dealt, with the increase based on Valeriy's ATK;\\n·In the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state: When a nearby active character in the party deals Electro DMG to an opponent with a Normal Attack, Charged Attack, Plunging Attack, Elemental Skill, or Elemental Burst, if that DMG is considered DMG dealt by the Stellar-Conduct reaction, 1 stack of Assault Order will be consumed to increase the DMG dealt based on Valeriy's ATK;\\n\\nWhen DMG dealt in the above manner hits multiple opponents simultaneously, Assault Order stacks will be consumed based on the number of opponents hit.\\n\\n<color=#FFD780FF>Plunging Attack</color>\\nPlunges from mid-air to strike the ground below, damaging opponents along the path and dealing AoE DMG upon impact.",
+      "after": "<color=#FFD780FF>Normal Attack</color>\\nPerforms up to 3 consecutive sword strikes.\\n\\n<color=#FFD780FF>Charged Attack</color>\\nConsumes a certain amount of Stamina to leap forward and slam the ground, dealing Physical DMG to nearby opponents.\\nWhen Valeriy has at least 40 <color=#FFD780FF>{LINK#N11370003}Impact Momentum{/LINK}</color>, he will consume all <color=#FFD780FF>Impact Momentum</color> to instead perform the special Charged Attack <color=#FFD780FF>{LINK#N11370001}Direct-Fire Mortar: Point-Blank Bombardment{/LINK}</color>.\\n\\n<color=#FFD780FF>Plunging Attack</color>\\nPlunges from mid-air to strike the ground below, damaging opponents along the path and dealing AoE DMG upon impact.{LINK#N11370002}{/LINK}"
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Assault Order Duration",
+      "kind": "removed",
+      "before": [
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s"
+      ],
+      "after": null
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Assault Order Stacks",
+      "kind": "removed",
+      "before": [
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15"
+      ],
+      "after": null
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Direct-Fire Mortar: Point-Blank Bombardment DMG",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "229.2%",
+        "246.39%",
+        "263.58%",
+        "286.5%",
+        "303.69%",
+        "320.88%",
+        "343.8%",
+        "366.72%",
+        "389.64%",
+        "412.56%",
+        "435.48%",
+        "458.4%",
+        "487.05%",
+        "515.7%",
+        "544.35%"
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Enhanced Charged Attack: Thunderclap DMG",
+      "kind": "removed",
+      "before": [
+        "229.2%",
+        "246.39%",
+        "263.58%",
+        "286.5%",
+        "303.69%",
+        "320.88%",
+        "343.8%",
+        "366.72%",
+        "389.64%",
+        "412.56%",
+        "435.48%",
+        "458.4%",
+        "487.05%",
+        "515.7%",
+        "544.35%"
+      ],
+      "after": null
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Offensive Directive Duration",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s",
+        "18s"
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/multipliers/Offensive Directive Stacks",
+      "kind": "added",
+      "before": null,
+      "after": [
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15",
+        "15"
+      ]
+    },
+    {
+      "file": "valeriy.en.json",
+      "path": "/skills/normalattack/name",
+      "kind": "text",
+      "before": "Normal Attack",
+      "after": "Guard Tactics: Sword and Shield"
+    },
+    {
+      "file": "version.json",
+      "path": "/timestamp",
+      "kind": "numeric-value",
+      "before": 1790589600,
+      "after": 1791194400
+    },
+    {
+      "file": "version.json",
+      "path": "/version",
+      "kind": "text",
+      "before": "7.1.50.2",
+      "after": "7.1.51"
+    },
+    {
+      "file": "version.json",
+      "path": "/versions",
+      "kind": "added-version",
+      "before": null,
+      "after": "7.1.51"
+    }
+  ],
+  "interpretation": "Raw JSON structural/value diff. Near-equal floating values are flagged as representation shifts, not proven balance changes. Attack/energy/endure arrays are source metadata only."
+}

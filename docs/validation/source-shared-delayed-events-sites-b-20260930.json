@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "round": 114,
+  "batch": "event-sites-b",
+  "status": "private source-site proposal only; no source export edits or build/tests",
+  "sourceStage": "verified pre-talent pre-114 source bases",
+  "sourceRoots": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-2OdtDV/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch114/classic/receipt.json",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "verifiedBaseBlobCount": 4021
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-4ao2p7/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch114/stellar/receipt.json",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "verifiedBaseBlobCount": 4283
+    }
+  },
+  "sourceFileHashesSha256": {
+    "classic": {
+      "internal/characters/mona/burst.go": "6de6985b39b99c8b743c737bb41220b0ba48a38a878029e235ca0323711d5c04",
+      "internal/characters/mona/cons.go": "100c2a1d5ed3d3dd85d54c51c775c0c149a87a152a378134976c18b57acd3f1a",
+      "internal/characters/mona/charge.go": "5e36d6460ad5d6ab9fcb531dcfb8bc66e91f9bbcd469ebd5b684916ec0ae5927",
+      "internal/characters/nahida/nahida.go": "deba042f5f68a238aecb3bbe1d31b311acabb45bfb7845c177eb99951261c29a",
+      "internal/characters/nahida/skill.go": "62640e91c2ede69576640dca3c5e487e93af94a1d331f95483e5b9bae1938fa7"
+    },
+    "stellar": {
+      "internal/characters/mona/burst.go": "c8867e452791ca19fd7803697f972e4e36cd25c5730b157bc119c91afff546dc",
+      "internal/characters/mona/cons.go": "7925726690cfdd9d9f4bcf906f0c0dd9de318a2d51e3c95908496a3088087c5f",
+      "internal/characters/mona/charge.go": "6b45cbcd3fb1474f8467a7a0289b57c06e1bd269cf9977e3525abb6a04baca8a",
+      "internal/characters/nahida/nahida.go": "deba042f5f68a238aecb3bbe1d31b311acabb45bfb7845c177eb99951261c29a",
+      "internal/characters/nahida/skill.go": "62640e91c2ede69576640dca3c5e487e93af94a1d331f95483e5b9bae1938fa7"
+    }
+  },
+  "callerAudit": {
+    "mona-triggerBubbleBurst": {
+      "verifiedCallers": [
+        "internal/characters/mona/burst.go:139 (bubble-break-tag branch of mona-bubble-check listener)",
+        "internal/characters/mona/burst.go:147 (impulse branch of mona-bubble-check listener)"
+      ],
+      "instrumentation": "Both listener branches pass explicit emit site mona.bubble.explosion; the helper's single queue is tagged there."
+    },
+    "mona-doCA": {
+      "verifiedCallers": [
+        "internal/characters/mona/charge.go:34 (ordinary ChargeAttack action)",
+        "internal/characters/mona/cons.go:137 (Mona C2 event listener)"
+      ],
+      "instrumentation": "Only C2 passes an event emit site; the ordinary action passes an empty site and retains native QueueAttack with its lane-specific callbacks."
+    },
+    "nahida-triggerTriKarmaDamageIfAvail": {
+      "verifiedCallers": [
+        "internal/characters/nahida/skill.go:159 (reaction-event listener)",
+        "internal/characters/nahida/skill.go:181 (Bloom/Burgeon/Hyperbloom OnEnemyDamage listener)"
+      ],
+      "instrumentation": "Only the Bloom-family OnEnemyDamage listener passes nahida.trikarma.bloom-followup. Reaction-event callers pass an empty site and retain native QueueAttackWithSnap. The Bloom path source-counts one queue for each enemy that passes the existing type/mark checks."
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-b/classic.patch",
+      "sha256": "c17e10dc4fd9cda7f57a0f62e4771207c17baedd730ce695bc721e323e74be95",
+      "bytes": 5309,
+      "pre114ApplyCheckExitCode": 0
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-b/stellar.patch",
+      "sha256": "d67990a020fc81f776714c59dea3dde5d75f7039b2c6412edb21c4fe2ac3ccc2",
+      "bytes": 4930,
+      "pre114ApplyCheckExitCode": 0
+    }
+  },
+  "registryMetadata": {
+    "path": "/Users/evan/Library/Caches/gidps-source-host/114-event-sites-b/registry-metadata.json",
+    "sha256": "c7ea30d289033c314850a6462d905c835beea8d57008778b2885475ab378b578"
+  },
+  "components": [
+    {
+      "id": "mona-burst-bubble",
+      "siteId": "mona.bubble.on-enemy-damage",
+      "registerKey": "mona-bubble-check",
+      "emitSiteId": "mona.bubble.explosion",
+      "ability": "Illusory Bubble (Explosion)",
+      "attackTagName": "AttackTagElementalBurst",
+      "attackCountFact": "mona.bubble.on-enemy-damage.attack-count",
+      "allowedAttackCounts": [0, 1],
+      "gateEvidence": "Enemy target with bubble status active; either incoming AttackTagMonaBubbleBreak or incoming attack has impulse (NoImpulse=false).",
+      "scopeNotes": "Two triggerBubbleBurst callers, both inside the same listener, pass the explicit emit site to its one direct queue. The component closes only that explosion attack; bubble deletion, Omen status/refresh, later effects, and full Q are separate state/lifecycle scope."
+    },
+    {
+      "id": "mona-c2-followup",
+      "siteId": "mona.c2.enemy-damage",
+      "registerKey": "mona-c2-followup",
+      "emitSiteId": "mona.c2.followup-charged-attack",
+      "ability": "Charge Attack",
+      "attackTagName": "AttackTagExtra",
+      "attackCountFact": "mona.c2.enemy-damage.attack-count",
+      "allowedAttackCounts": [0, 1],
+      "gateEvidence": "Enemy target; Mona's Normal hit; Hexerei post-burst state active or existing single 20-percent RNG branch succeeds; C2 ICD inactive.",
+      "scopeNotes": "Only the C2 doCA caller carries event ownership. Ordinary ChargeAttack remains native and untagged. The C6 reset, particle, Omen refresh, and Hexerei callbacks are preserved in the exact lane-specific order and excluded from this direct event component."
+    },
+    {
+      "id": "nahida-trikarma-bloom",
+      "siteId": "nahida.trikarma.bloom-enemy-damage",
+      "registerKey": "nahida-tri-karma",
+      "emitSiteId": "nahida.trikarma.bloom-followup",
+      "ability": "Tri-Karma Purification",
+      "attackTagName": "AttackTagElementalArt",
+      "attackCountFact": "nahida.trikarma.bloom-enemy-damage.attack-count",
+      "attackCountMode": "source-loop",
+      "gateEvidence": "Enemy target; incoming Bloom/Burgeon/Hyperbloom tag; helper ICD inactive; incoming target has Nahida's skill mark. Existing helper then queues once per currently marked enemy.",
+      "scopeNotes": "Bloom listener initializes count to zero and increments at each exact marked-enemy queue branch before enqueue. Reaction listeners continue to use the same helper without this emit site. Registry must require a nonnegative integer source-loop fact and exact count agreement with tagged emits; do not infer the source count from observed rows. Particle callback and mark ownership/lifecycle are outside closure."
+    }
+  ],
+  "notes": [
+    "Patches were checked against verified read-only classic and stellar pre-114 source roots; no patch was applied to those roots.",
+    "Only the private cache workspace copies were edited. No repository files, frozen files, or prepared source exports were modified.",
+    "No builds, tests, or simulation runs were performed; single-run positive-call reachability is a source-path inference only."
+  ]
+}

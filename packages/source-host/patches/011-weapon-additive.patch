@@ -1,0 +1,113 @@
+--- a/internal/weapons/bow/hunterspath/hunterspath.go
++++ b/internal/weapons/bow/hunterspath/hunterspath.go
+@@ -68,7 +68,14 @@
+ 		if !char.StatusIsActive(buffKey) {
+ 			return
+ 		}
+-		baseDmgAdd := char.Stat(attributes.EM) * caBoost
++		statValue, statRead := char.StatWithProvenance(attributes.EM)
++		var baseDmgAdd float64
++		if c.SourceHost != nil {
++			state := map[string]any{"buffExpiry": char.StatusExpiry(buffKey), "cooldownExpiry": char.StatusExpiry(icdKey), "remainingBefore": procCount, "remainingAfter": procCount - 1}
++			baseDmgAdd = c.SourceHost.WeaponAdditive(atk, args[0].(info.Target).Key(), "hunterspath", r, statValue, statRead, state)
++		} else {
++			baseDmgAdd = statValue * caBoost
++		}
+ 		atk.Info.FlatDmg += baseDmgAdd
+ 		procCount -= 1
+ 		if procCount <= 0 {
+--- a/internal/weapons/sword/cinnabar/cinnnabar.go
++++ b/internal/weapons/sword/cinnabar/cinnnabar.go
+@@ -52,7 +52,14 @@
+ 			}, 6) // icd starts 6 frames after
+ 			char.AddStatus(durationKey, 6, false)
+ 		}
+-		damageAdd := char.TotalDef(false) * defPer
++		statValue, statRead := char.TotalDefWithProvenance(false)
++		var damageAdd float64
++		if c.SourceHost != nil {
++			state := map[string]any{"buffExpiry": char.StatusExpiry(durationKey), "cooldownExpiry": char.StatusExpiry(icdKey)}
++			damageAdd = c.SourceHost.WeaponAdditive(atk, args[0].(info.Target).Key(), "cinnabar", r, statValue, statRead, state)
++		} else {
++			damageAdd = statValue * defPer
++		}
+ 		atk.Info.FlatDmg += damageAdd
+ 
+ 		c.Log.NewEvent("Cinnabar Spindle proc dmg add", glog.LogPreDamageMod, char.Index()).
+--- a/internal/weapons/sword/foliar/foliar.go
++++ b/internal/weapons/sword/foliar/foliar.go
+@@ -67,7 +67,14 @@
+ 		if !char.StatusIsActive(buffKey) {
+ 			return
+ 		}
+-		baseDmgAdd := char.Stat(attributes.EM) * caBoost
++		statValue, statRead := char.StatWithProvenance(attributes.EM)
++		var baseDmgAdd float64
++		if c.SourceHost != nil {
++			state := map[string]any{"buffExpiry": char.StatusExpiry(buffKey), "cooldownExpiry": char.StatusExpiry(icdKey), "remainingBefore": procCount, "remainingAfter": procCount - 1}
++			baseDmgAdd = c.SourceHost.WeaponAdditive(atk, args[0].(info.Target).Key(), "foliar", r, statValue, statRead, state)
++		} else {
++			baseDmgAdd = statValue * caBoost
++		}
+ 		atk.Info.FlatDmg += baseDmgAdd
+ 		procCount -= 1
+ 		if procCount <= 0 {
+--- a/pkg/core/player/character/stats.go
++++ b/pkg/core/player/character/stats.go
+@@ -90,6 +90,11 @@
+ }
+ 
+ func (c *CharWrapper) Stat(s attributes.Stat) float64 {
++	value, _ := c.StatWithProvenance(s)
++	return value
++}
++
++func (c *CharWrapper) StatWithProvenance(s attributes.Stat) (float64, *info.SourceHostStatRead) {
+ 	val := c.BaseStats[s]
+ 	var observed attributes.Stats
+ 	observed[s] = val
+@@ -120,7 +125,7 @@
+ 	}
+ 
+ 	if read != nil { read.Result = observed }
+-	return val
++	return val, read
+ }
+ 
+ func (c *CharWrapper) NonExtraStat(s attributes.Stat) float64 {
+@@ -163,6 +168,11 @@
+ }
+ 
+ func (c *CharWrapper) SelectStat(nonExtra bool, stat ...attributes.Stat) attributes.Stats {
++	value, _ := c.SelectStatWithProvenance(nonExtra, stat...)
++	return value
++}
++
++func (c *CharWrapper) SelectStatWithProvenance(nonExtra bool, stat ...attributes.Stat) (attributes.Stats, *info.SourceHostStatRead) {
+ 	var stats attributes.Stats
+ 	for _, k := range stat {
+ 		stats[k] += c.BaseStats[k]
+@@ -202,7 +212,7 @@
+ 	}
+ 
+ 	if read != nil { read.Result = stats }
+-	return stats
++	return stats, read
+ }
+ 
+ func (c *CharWrapper) MaxHP() float64 {
+@@ -216,6 +226,11 @@
+ }
+ 
+ func (c *CharWrapper) TotalDef(nonExtra bool) float64 {
+-	stats := c.SelectStat(nonExtra, attributes.BaseDEF, attributes.DEFP, attributes.DEF)
+-	return stats.TotalDEF()
+-}
++	value, _ := c.TotalDefWithProvenance(nonExtra)
++	return value
++}
++
++func (c *CharWrapper) TotalDefWithProvenance(nonExtra bool) (float64, *info.SourceHostStatRead) {
++	stats, read := c.SelectStatWithProvenance(nonExtra, attributes.BaseDEF, attributes.DEFP, attributes.DEF)
++	return stats.TotalDEF(), read
++}

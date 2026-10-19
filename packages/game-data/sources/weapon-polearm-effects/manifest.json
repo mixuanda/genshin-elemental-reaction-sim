@@ -1,0 +1,278 @@
+{
+  "verification": "provisional",
+  "mode": "conditioned-snapshot",
+  "gcsimCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "optimizerCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "catalogCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "files": [
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/balladofthefjords.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/balladofthefjords.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/balladofthefjords.json",
+      "sha256": "1f5382eb9e6ebc998d08859d005987393add3789850ab338d76f78b86a46b547"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/balladofthefjords/balladofthefjords.go",
+      "sourcePath": "internal/weapons/spear/balladofthefjords/balladofthefjords.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/balladofthefjords/balladofthefjords.go",
+      "sha256": "91f3835d29cc8cebe555479bb07ac2dbe50cbb96b987c7462b70678098fa1dba"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/blacktassel.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/blacktassel.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/blacktassel.json",
+      "sha256": "9c1b45010d921296f4ff6c04343d5d43a56daf9dd277f3124067d10035b24fb8"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/blacktassel/blacktassel.go",
+      "sourcePath": "internal/weapons/spear/blacktassel/blacktassel.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/blacktassel/blacktassel.go",
+      "sha256": "20916fd67b75e226ed97fddaaac098ef15663aba3d7b7a856c413c045524d96a"
+    },
+    {
+      "path": "raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/BlackTassel/index.tsx",
+      "sourcePath": "libs/gi/sheets/src/Weapons/Polearm/BlackTassel/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/BlackTassel/index.tsx",
+      "sha256": "c2856737828cfd97f2e3371e37868cc1d7587ed1cb731cbcb9a74cb20dc9e9f9"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/bloodsoakedruins.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/bloodsoakedruins.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/bloodsoakedruins.json",
+      "sha256": "5e9f4190a2f807c00081d25bd8791c12ac8f7fa03754f38075865f4876374af0"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/bloodsoakedruins/bloodsoakedruins.go",
+      "sourcePath": "internal/weapons/spear/bloodsoakedruins/bloodsoakedruins.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/bloodsoakedruins/bloodsoakedruins.go",
+      "sha256": "7f4f5f39f838b5673099c1d474ed0a0cffe80f46860a2ad5e481f848356d6a1f"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/crimsonmoonssemblance.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/crimsonmoonssemblance.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/crimsonmoonssemblance.json",
+      "sha256": "8ee86acaff5525a40c97523cc90bb640901580dac12eff699f1b2176f9d8d509"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/crimsonmoonssemblance/crimsonmoonssemblance.go",
+      "sourcePath": "internal/weapons/spear/crimsonmoonssemblance/crimsonmoonssemblance.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/crimsonmoonssemblance/crimsonmoonssemblance.go",
+      "sha256": "f60defe2729ae89e445618f2b19b3d51b543d598f7c67c04e5ed12f1ec0e6b8b"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/fracturedhalo.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/fracturedhalo.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fracturedhalo.json",
+      "sha256": "a16180403d171eb439de37371bbb711b38ea2fe59864799ebeb07776ec5f1147"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/fracturedhalo/fracturedhalo.go",
+      "sourcePath": "internal/weapons/spear/fracturedhalo/fracturedhalo.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/fracturedhalo/fracturedhalo.go",
+      "sha256": "16259ed6a5a566530988ef78e5e225a9de677dc430ef891818758e2475ee2ecf"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/kitaincrossspear.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/kitaincrossspear.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/kitaincrossspear.json",
+      "sha256": "37a8f359eadd02c49353afebc3ddc768a595faa3383be753e194b5c9eb30cd7c"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/kitain/kitain.go",
+      "sourcePath": "internal/weapons/spear/kitain/kitain.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/kitain/kitain.go",
+      "sha256": "f3d94b4057bbe721c1ebe6cfa9a5bfbea010d18ad8d8f89607f82689f6e284f7"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/lumidouceelegy.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/lumidouceelegy.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lumidouceelegy.json",
+      "sha256": "86310dfdac69336af896d99d1c704d096c86e27dea9d6109c42f07a018364f22"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/lumidouceelegy/lumidouceelegy.go",
+      "sourcePath": "internal/weapons/spear/lumidouceelegy/lumidouceelegy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/lumidouceelegy/lumidouceelegy.go",
+      "sha256": "eb8f27d1775cfd4f187e1d5983d4be505152e0d90f771d48454a79e25b53b520"
+    },
+    {
+      "path": "raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/LumidouceElegy/index.tsx",
+      "sourcePath": "libs/gi/sheets/src/Weapons/Polearm/LumidouceElegy/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/LumidouceElegy/index.tsx",
+      "sha256": "a98a2795163443b2e429bacdf5e880eb32075cad99b46ea3b877e7d0b859e90f"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/moonpiercer.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/moonpiercer.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/moonpiercer.json",
+      "sha256": "3e601b9607555bf60737a2a6c27daf637c5aa54ee5cac5f9ba172abf843ce41e"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/moonpiercer/moonpiercer.go",
+      "sourcePath": "internal/weapons/spear/moonpiercer/moonpiercer.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/moonpiercer/moonpiercer.go",
+      "sha256": "35008f83b4abf0f534e11b90e815260fe58f56308519341ab8c742c2a1d5d84b"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/mountainbracingbolt.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/mountainbracingbolt.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mountainbracingbolt.json",
+      "sha256": "2c0d0e94bcfa237a204f2a80b53a0330535a3a26470b52b7a0b8196c787aa0d3"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/mountainbracingbolt/mountainbracingbolt.go",
+      "sourcePath": "internal/weapons/spear/mountainbracingbolt/mountainbracingbolt.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/mountainbracingbolt/mountainbracingbolt.go",
+      "sha256": "30ea6f2f6301349df07611538cb75b92134564f7e12c918e865ac52c5c0dea82"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/prospectorsdrill.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/prospectorsdrill.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prospectorsdrill.json",
+      "sha256": "530d7920ceb98d9220d03d4ba0b207f2effca6353b07a4a42d2907e211e8470e"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/prospectorsdrill/prospectorsdrill.go",
+      "sourcePath": "internal/weapons/spear/prospectorsdrill/prospectorsdrill.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prospectorsdrill/prospectorsdrill.go",
+      "sha256": "b9a6abdb11476ebbee0d66b605552f1de2f186f6bd79e4a2d37683a15a708c41"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/prospectorsshovel.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/prospectorsshovel.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prospectorsshovel.json",
+      "sha256": "6b6aabd94df5b5e2544d643b8e10202104594db3d59bc6346924ecd2ba21b90e"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/prospectorsshovel/prospectorsshovel.go",
+      "sourcePath": "internal/weapons/spear/prospectorsshovel/prospectorsshovel.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prospectorsshovel/prospectorsshovel.go",
+      "sha256": "e8fb16fcf70a86d879f1a5d1efc443b30cead9617e76490a22478b64fd1cb6c2"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/sacrificersstaff.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/sacrificersstaff.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificersstaff.json",
+      "sha256": "b84e0f4ac4b793a75c3b181b2bff57ae133db84b2a55bb0c3beca689e1a9a1bd"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/sacrificersstaff/sacrificersstaff.go",
+      "sourcePath": "internal/weapons/spear/sacrificersstaff/sacrificersstaff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/sacrificersstaff/sacrificersstaff.go",
+      "sha256": "b75b17679230e6d2c4a94ac2bbe4133943f22143f1f320eb1fcde9fc7e177fb0"
+    },
+    {
+      "path": "raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/SacrificersStaff/index.tsx",
+      "sourcePath": "libs/gi/sheets/src/Weapons/Polearm/SacrificersStaff/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/SacrificersStaff/index.tsx",
+      "sha256": "eb0b5db48fba6dd1a8796c808c82040b7445375ccfee17694d5a7bbeb171f6e9"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/skywardspine.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/skywardspine.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/skywardspine.json",
+      "sha256": "39248090ccc86dbb76ee047ffd77e0dc1094651904823bf740387a742d6b20ab"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/skyward/skyward.go",
+      "sourcePath": "internal/weapons/spear/skyward/skyward.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/skyward/skyward.go",
+      "sha256": "395956f6fb885d907e122a72830385a16390dcf08068eadb7528753f48df4fe1"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/symphonistofscents.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/symphonistofscents.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/symphonistofscents.json",
+      "sha256": "a24167366d775d38db00ee4cb56977507ead47046a5b6bff6b8e8e343f8b007e"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/symphonist/symphonist.go",
+      "sourcePath": "internal/weapons/spear/symphonist/symphonist.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/symphonist/symphonist.go",
+      "sha256": "5959d1bb31904ffbfb646afbd55695bba13db3449cb505d41e5142958964ca32"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/tamayurateinoohanashi.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/tamayurateinoohanashi.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/tamayurateinoohanashi.json",
+      "sha256": "5d1e8b6545c55de5c519ca12449769e6ac12ca9ec80ff1bd3e7407c7bc1b89e0"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/tamayuratei/tamayuratei.go",
+      "sourcePath": "internal/weapons/spear/tamayuratei/tamayuratei.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/tamayuratei/tamayuratei.go",
+      "sha256": "a436cdf1c4ae7842df6588e6e69956cd517c436aefc700e9702745c80c53deb2"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/thecatch.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/thecatch.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thecatch.json",
+      "sha256": "285c554976185c23c884c815d40666ee907d14af5d0085a9c39002bb05609225"
+    },
+    {
+      "path": "raw/gcsim/internal/weapons/spear/catch/catch.go",
+      "sourcePath": "internal/weapons/spear/catch/catch.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/catch/catch.go",
+      "sha256": "93df55104e76e45ec1a96d8cd4cf6adc37f853d8129d2441963edcdd5f2901fe"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/disasterandremorse.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/disasterandremorse.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/disasterandremorse.json",
+      "sha256": "0d183ce5c37ad03484065366050c4b9d04688d84a4bf56569b30aad2d7dc9fee"
+    },
+    {
+      "path": "raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/DisasterAndRemorse/index.tsx",
+      "sourcePath": "libs/gi/sheets/src/Weapons/Polearm/DisasterAndRemorse/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/DisasterAndRemorse/index.tsx",
+      "sha256": "29859da09338315378b61b54b5bf6de952dfe4fe3869630a26d913768fb49a7b"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/frostbreath.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/frostbreath.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbreath.json",
+      "sha256": "e20a6d15a01a9a2b691043e8adf89fdbeef57ef444b81864112e415787298fb4"
+    },
+    {
+      "path": "raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/Frostbreath/index.tsx",
+      "sourcePath": "libs/gi/sheets/src/Weapons/Polearm/Frostbreath/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/Frostbreath/index.tsx",
+      "sha256": "e78b924d7bfa74a7f533bc32165cec0c76f2900f6ed49ac93f7a80c9f3ab86d8"
+    },
+    {
+      "path": "raw/genshin-db/src/data/ChineseSimplified/weapons/songofthevigil.json",
+      "sourcePath": "src/data/ChineseSimplified/weapons/songofthevigil.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/songofthevigil.json",
+      "sha256": "825e4e627739a15cf5cc9d9a37e758e2ed3a49b9ff980dccc42761f14fe996a8"
+    },
+    {
+      "path": "raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/SongOfTheVigil/index.tsx",
+      "sourcePath": "libs/gi/sheets/src/Weapons/Polearm/SongOfTheVigil/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/SongOfTheVigil/index.tsx",
+      "sha256": "3270b0b58af3ad47ddc5b793811448236dcf381226deef0b9b426a17ead4fe3d"
+    },
+    {
+      "path": "raw/genshin-db/LICENSE",
+      "sourcePath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1"
+    },
+    {
+      "path": "raw/gcsim/LICENSE",
+      "sourcePath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4"
+    },
+    {
+      "path": "raw/optimizer/LICENSE",
+      "sourcePath": "LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c"
+    }
+  ],
+  "knownSourceConflicts": [
+    "BlackTassel gcsim NewNoEffect: use GO conditional implementation plus catalog",
+    "LumidouceElegy gcsim checks StatModIsActive but installs AttackMod; conditional stacks crosschecked against GO; auto stack lifecycle blocked",
+    "SacrificersStaff gcsim duration300frames differs from catalog/GO6seconds; only explicit effective stacks, no timed lifecycle"
+  ]
+}

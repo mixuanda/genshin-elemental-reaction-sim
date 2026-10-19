@@ -1,0 +1,39 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/stochastic-startup.test.ts (3 tests | 1 failed) 120ms
+     × separates empirical spread from a Student-t mean interval and undefined rates 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/stochastic-startup.test.ts > finite stochastic startup diagnostics > separates empirical spread from a Student-t mean interval and undefined rates
+AssertionError: expected { …(5) } to deeply equal { …(5) }
+
+- Expected
++ Received
+
+  {
+    "criticalValue": 2.776,
+    "degreesOfFreedom": 4,
+    "high": 4.962928424573856,
+-   "low": 1.0370715754261444,
++   "low": 1.0370715754261441,
+    "method": "student-t-95-approximation",
+  }
+
+ ❯ packages/sim-core/src/__tests__/stochastic-startup.test.ts:28:44
+     26|     expect(summary.sampleStandardDeviation).toBe(Math.sqrt(2.5));
+     27|     expect(summary.spreadPercentiles).toEqual({ p05: 1.2, p50: 3, p95:…
+     28|     expect(summary.meanConfidenceInterval).toEqual({ method: "student-…
+       |                                            ^
+     29|       criticalValue: 2.776, low: 3 - 2.776 / Math.sqrt(2), high: 3 + 2…
+     30|     expect(summarizeStochasticValues([])).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:52:43
+   Duration  922ms (transform 571ms, setup 0ms, import 743ms, tests 120ms, environment 0ms)
+

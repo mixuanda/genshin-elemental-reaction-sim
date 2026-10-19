@@ -1,0 +1,340 @@
+diff --git a/internal/characters/nicole/shield.go b/internal/characters/nicole/shield.go
+--- a/internal/characters/nicole/shield.go
++++ b/internal/characters/nicole/shield.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+@@ -11,17 +12,26 @@
+ }
+ 
+ func (c *char) addShield() {
+-	shieldHP := skillShieldAtk[c.TalentLvlSkill()]*c.TotalAtk() + skillShieldFlat[c.TalentLvlSkill()]
++	talentRatio := c.TalentLvlSkill()
++	totalAtk, statRead := c.TotalAtkWithProvenance()
++	shieldTerm := skillShieldAtk[talentRatio] * totalAtk
++	talentFlat := c.TalentLvlSkill()
++	shieldHP := shieldTerm + skillShieldFlat[talentFlat]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-nicole-skill", map[string]any{"talentRatio": talentRatio, "totalAtk": totalAtk, "talentFlat": talentFlat}, []*info.SourceHostStatRead{statRead}, nil)
++	}
+ 	c.skillShield = &shd{
+ 		Tmpl: &shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			Name:       "Shield of Blazing Light (Shield)",
+-			ShieldType: shield.NicoleSkill,
+-			HP:         shieldHP,
+-			Ele:        attributes.Pyro,
+-			Expires:    c.Core.F + 20*60,
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			Name:           "Shield of Blazing Light (Shield)",
++			ShieldType:     shield.NicoleSkill,
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Pyro,
++			Expires:        c.Core.F + 20*60,
+ 		},
+ 	}
+ 	c.Core.Player.Shields.Add(c.skillShield)
+diff --git a/internal/characters/citlali/shield.go b/internal/characters/citlali/shield.go
+--- a/internal/characters/citlali/shield.go
++++ b/internal/characters/citlali/shield.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+@@ -11,18 +12,26 @@
+ }
+ 
+ func (c *char) addShield() {
+-	em := c.Stat(attributes.EM)
+-	shieldHP := shieldEM[c.TalentLvlSkill()]*em + shieldFlat[c.TalentLvlSkill()]
++	em, statRead := c.StatWithProvenance(attributes.EM)
++	talentRatio := c.TalentLvlSkill()
++	shieldTerm := shieldEM[talentRatio] * em
++	talentFlat := c.TalentLvlSkill()
++	shieldHP := shieldTerm + shieldFlat[talentFlat]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-citlali-skill", map[string]any{"em": em, "talentRatio": talentRatio, "talentFlat": talentFlat}, []*info.SourceHostStatRead{statRead}, nil)
++	}
+ 	c.skillShield = &shd{
+ 		Tmpl: &shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			Name:       "Dawnfrost Darkstar (Shield)",
+-			ShieldType: shield.CitlaliSkill,
+-			HP:         shieldHP,
+-			Ele:        attributes.Cryo,
+-			Expires:    c.Core.F + 20*60,
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			Name:           "Dawnfrost Darkstar (Shield)",
++			ShieldType:     shield.CitlaliSkill,
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Cryo,
++			Expires:        c.Core.F + 20*60,
+ 		},
+ 	}
+ 	c.Core.Player.Shields.Add(c.skillShield)
+diff --git a/internal/characters/ineffa/shield.go b/internal/characters/ineffa/shield.go
+--- a/internal/characters/ineffa/shield.go
++++ b/internal/characters/ineffa/shield.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+@@ -11,18 +12,26 @@
+ }
+ 
+ func (c *char) addShield() {
+-	atk := c.TotalAtk()
+-	shieldHP := shieldAtk[c.TalentLvlSkill()]*atk + shieldFlat[c.TalentLvlSkill()]
++	atk, statRead := c.TotalAtkWithProvenance()
++	talentRatio := c.TalentLvlSkill()
++	shieldTerm := shieldAtk[talentRatio] * atk
++	talentFlat := c.TalentLvlSkill()
++	shieldHP := shieldTerm + shieldFlat[talentFlat]
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-ineffa-skill", map[string]any{"totalAtk": atk, "talentRatio": talentRatio, "talentFlat": talentFlat}, []*info.SourceHostStatRead{statRead}, nil)
++	}
+ 	c.skillShield = &shd{
+ 		Tmpl: &shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			Name:       "Optical Flow Shield Barrier",
+-			ShieldType: shield.IneffaSkill,
+-			HP:         shieldHP,
+-			Ele:        attributes.Electro,
+-			Expires:    c.Core.F + 20*60,
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			Name:           "Optical Flow Shield Barrier",
++			ShieldType:     shield.IneffaSkill,
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Electro,
++			Expires:        c.Core.F + 20*60,
+ 		},
+ 	}
+ 	c.Core.Player.Shields.Add(c.skillShield)
+diff --git a/internal/characters/sigewinne/shield.go b/internal/characters/sigewinne/shield.go
+--- a/internal/characters/sigewinne/shield.go
++++ b/internal/characters/sigewinne/shield.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+@@ -15,17 +16,23 @@
+ 		return
+ 	}
+ 
+-	shieldHP := 0.3 * c.MaxHP()
++	maxHp, statRead := c.MaxHPWithProvenance()
++	shieldHP := 0.3 * maxHp
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-sigewinne-c2", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{statRead}, nil)
++	}
+ 	c.c2Shield = &shd{
+ 		Tmpl: &shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     c.Index(),
+-			Src:        c.Core.F,
+-			Name:       "Bubbly Shield (C2)",
+-			ShieldType: shield.SigewinneC2,
+-			HP:         shieldHP,
+-			Ele:        attributes.Hydro,
+-			Expires:    c.Core.F + 15*60,
++			ActorIndex:     c.Index(),
++			Target:         c.Index(),
++			Src:            c.Core.F,
++			Name:           "Bubbly Shield (C2)",
++			ShieldType:     shield.SigewinneC2,
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Hydro,
++			Expires:        c.Core.F + 15*60,
+ 		},
+ 	}
+ 	c.Core.Player.Shields.Add(c.c2Shield)
+diff --git a/internal/characters/yanfei/cons.go b/internal/characters/yanfei/cons.go
+--- a/internal/characters/yanfei/cons.go
++++ b/internal/characters/yanfei/cons.go
+@@ -46,14 +46,21 @@
+ 	if c.Base.Cons < 4 {
+ 		return
+ 	}
++	maxHp, statRead := c.MaxHPWithProvenance()
++	shieldHP := maxHp * .45
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-yanfei-c4", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{statRead}, nil)
++	}
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     -1,
+-		Src:        c.Core.F,
+-		ShieldType: shield.YanfeiC4,
+-		Name:       "Supreme Amnesty (Shield)",
+-		HP:         c.MaxHP() * .45,
+-		Ele:        attributes.Pyro,
+-		Expires:    c.Core.F + 15*60,
++		ActorIndex:     c.Index(),
++		Target:         -1,
++		Src:            c.Core.F,
++		ShieldType:     shield.YanfeiC4,
++		Name:           "Supreme Amnesty (Shield)",
++		HP:             shieldHP,
++		SourceHostHPID: shieldHPID,
++		Ele:            attributes.Pyro,
++		Expires:        c.Core.F + 15*60,
+ 	})
+ }
+diff --git a/internal/characters/columbina/cons.go b/internal/characters/columbina/cons.go
+--- a/internal/characters/columbina/cons.go
++++ b/internal/characters/columbina/cons.go
+@@ -70,15 +70,22 @@
+ 		c.Core.Player.ActiveChar().AddEnergy(c1Key, 6.0)
+ 	case LunarCrystallize:
+ 		// add shield
++		maxHp, statRead := c.MaxHPWithProvenance()
++		shieldHP := 0.12 * maxHp
++		shieldHPID := 0
++		if c.Core.SourceHost != nil {
++			shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-columbina-c1", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{statRead}, nil)
++		}
+ 		c.Core.Player.Shields.Add(&shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     c.Index(),
+-			Src:        c.Core.F,
+-			ShieldType: shield.ColumbinaC1,
+-			Name:       "Rainsea Shield",
+-			HP:         0.12 * c.MaxHP(),
+-			Ele:        attributes.Hydro,
+-			Expires:    c.Core.F + 8*60, // last until hitmark
++			ActorIndex:     c.Index(),
++			Target:         c.Index(),
++			Src:            c.Core.F,
++			ShieldType:     shield.ColumbinaC1,
++			Name:           "Rainsea Shield",
++			HP:             shieldHP,
++			SourceHostHPID: shieldHPID,
++			Ele:            attributes.Hydro,
++			Expires:        c.Core.F + 8*60, // last until hitmark
+ 		})
+ 	}
+ }
+diff --git a/internal/characters/kaeya/cons.go b/internal/characters/kaeya/cons.go
+--- a/internal/characters/kaeya/cons.go
++++ b/internal/characters/kaeya/cons.go
+@@ -86,18 +86,24 @@
+ 		if c.Core.F < c.c4icd && c.c4icd != 0 {
+ 			return
+ 		}
+-		maxhp := c.MaxHP()
++		maxhp, statRead := c.MaxHPWithProvenance()
+ 		if c.CurrentHPRatio() < 0.2 {
+ 			c.c4icd = c.Core.F + 3600
++			shieldHP := .3 * maxhp
++			shieldHPID := 0
++			if c.Core.SourceHost != nil {
++				shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-kaeya-c4", map[string]any{"maxHp": maxhp}, []*info.SourceHostStatRead{statRead}, nil)
++			}
+ 			c.Core.Player.Shields.Add(&shield.Tmpl{
+-				ActorIndex: c.Index(),
+-				Target:     c.Index(),
+-				Src:        c.Core.F,
+-				ShieldType: shield.KaeyaC4,
+-				Name:       "Frozen Kiss (Shield)",
+-				HP:         .3 * maxhp,
+-				Ele:        attributes.Cryo,
+-				Expires:    c.Core.F + 1200,
++				ActorIndex:     c.Index(),
++				Target:         c.Index(),
++				Src:            c.Core.F,
++				ShieldType:     shield.KaeyaC4,
++				Name:           "Frozen Kiss (Shield)",
++				HP:             shieldHP,
++				SourceHostHPID: shieldHPID,
++				Ele:            attributes.Cryo,
++				Expires:        c.Core.F + 1200,
+ 			})
+ 		}
+ 	}, "kaeya-c4")
+diff --git a/internal/characters/traveler/common/hydro/cons.go b/internal/characters/traveler/common/hydro/cons.go
+--- a/internal/characters/traveler/common/hydro/cons.go
++++ b/internal/characters/traveler/common/hydro/cons.go
+@@ -19,22 +19,36 @@
+ 	if existingShield != nil {
+ 		// update hp
+ 		shd, _ := existingShield.(*shield.Tmpl)
+-		shd.HP = 0.1 * c.MaxHP()
++		maxHp, statRead := c.MaxHPWithProvenance()
++		shieldHP := 0.1 * maxHp
++		shieldHPID := 0
++		if c.Core.SourceHost != nil {
++			shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-traveler-hydro-c4-refresh", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{statRead}, nil)
++		}
++		shd.HP = shieldHP
++		shd.SourceHostHPID = shieldHPID
+ 		c.Core.Log.NewEvent("update shield hp", glog.LogCharacterEvent, c.Index()).
+ 			Write("hp", shd.HP)
+ 		return
+ 	}
+ 
+ 	// add shield
++	maxHp, statRead := c.MaxHPWithProvenance()
++	shieldHP := 0.1 * maxHp
++	shieldHPID := 0
++	if c.Core.SourceHost != nil {
++		shieldHP, shieldHPID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-traveler-hydro-c4-create", map[string]any{"maxHp": maxHp}, []*info.SourceHostStatRead{statRead}, nil)
++	}
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     c.Index(),
+-		Src:        c.Core.F,
+-		ShieldType: shield.TravelerHydroC4,
+-		Name:       "Traveler (Hydro) C4",
+-		HP:         0.1 * c.MaxHP(),
+-		Ele:        attributes.Hydro,
+-		Expires:    c.Core.F + 15*60,
++		ActorIndex:     c.Index(),
++		Target:         c.Index(),
++		Src:            c.Core.F,
++		ShieldType:     shield.TravelerHydroC4,
++		Name:           "Traveler (Hydro) C4",
++		HP:             shieldHP,
++		SourceHostHPID: shieldHPID,
++		Ele:            attributes.Hydro,
++		Expires:        c.Core.F + 15*60,
+ 	})
+ }
+ 

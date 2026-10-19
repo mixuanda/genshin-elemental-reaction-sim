@@ -1,0 +1,1359 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "artifact-additional-conditioned-effects-source-audit",
+  "retrievedAt": "2026-09-23T10:27:38.911143+00:00",
+  "verification": "provisional",
+  "scope": "Fixed-source audit and original-byte archive for 27 four-piece artifact candidates: 26 conditioned ordinary-stat/damage clauses and the static classic Superconduct reaction-specific bonus. Source agreement is not independent in-game verification. Dynamic events, team propagation and unrepresented auxiliary effects are not certified by this archive.",
+  "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "sources": [
+    {
+      "id": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "id": "genshin-db",
+      "repository": "theBowja/genshin-db",
+      "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    },
+    {
+      "id": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE"
+    }
+  ],
+  "records": [
+    {
+      "id": "artifact-set:10005",
+      "slug": "berserker",
+      "name": "战狂",
+      "fourPieceDescription": "生命值低于70%时，暴击率额外提升24%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/berserker.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/berserker/berserker.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__berserker.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__berserker__berserker.go.txt"
+    },
+    {
+      "id": "artifact-set:10002",
+      "slug": "braveheart",
+      "name": "勇士之心",
+      "fourPieceDescription": "对生命值高于50%的敌人，造成的伤害增加30%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/braveheart.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/braveheart/braveheart.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__braveheart.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__braveheart__braveheart.go.txt"
+    },
+    {
+      "id": "artifact-set:15008",
+      "slug": "bloodstainedchivalry",
+      "name": "染血的骑士道",
+      "fourPieceDescription": "击败敌人后的10秒内，施放重击时不消耗体力，且重击造成的伤害提升50%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/bloodstainedchivalry.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bloodstained/bloodstained.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__bloodstainedchivalry.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__bloodstained__bloodstained.go.txt"
+    },
+    {
+      "id": "artifact-set:10006",
+      "slug": "martialartist",
+      "name": "武人",
+      "fourPieceDescription": "施放元素战技后的8秒内，普通攻击和重击造成的伤害提升25%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/martialartist.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/martialartist/martialartist.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__martialartist.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__martialartist__martialartist.go.txt"
+    },
+    {
+      "id": "artifact-set:15007",
+      "slug": "noblesseoblige",
+      "name": "昔日宗室之仪",
+      "fourPieceDescription": "施放元素爆发后，队伍中所有角色攻击力提升20%，持续12秒。该效果不可叠加。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/noblesseoblige.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/noblesse/noblesse.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__noblesseoblige.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__noblesse__noblesse.go.txt"
+    },
+    {
+      "id": "artifact-set:10007",
+      "slug": "instructor",
+      "name": "教官",
+      "fourPieceDescription": "触发元素反应后，队伍中所有角色的元素精通提高120点，持续8秒。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/instructor.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/instructor/instructor.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__instructor.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__instructor__instructor.go.txt"
+    },
+    {
+      "id": "artifact-set:14003",
+      "slug": "lavawalker",
+      "name": "渡过烈火的贤人",
+      "fourPieceDescription": "对处于火元素影响下的敌人造成的伤害提升35%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/lavawalker/lavawalker.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__lavawalker.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__lavawalker__lavawalker.go.txt"
+    },
+    {
+      "id": "artifact-set:14002",
+      "slug": "thundersoother",
+      "name": "平息鸣雷的尊者",
+      "fourPieceDescription": "对处于雷元素影响下的敌人造成的伤害提升35%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thundersoother/thundersoother.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__thundersoother.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__thundersoother__thundersoother.go.txt"
+    },
+    {
+      "id": "artifact-set:15015",
+      "slug": "retracingbolide",
+      "name": "逆飞的流星",
+      "fourPieceDescription": "处于护盾庇护下时，额外获得40%普通攻击和重击伤害加成。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/retracingbolide.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bolide/bolide.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__retracingbolide.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__bolide__bolide.go.txt"
+    },
+    {
+      "id": "artifact-set:15027",
+      "slug": "desertpavilionchronicle",
+      "name": "沙上楼阁史话",
+      "fourPieceDescription": "重击命中敌人后，该角色的普通攻击速度提升10%，普通攻击、重击与下落攻击造成的伤害提升40%，持续15秒。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/desertpavilionchronicle.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__desertpavilionchronicle.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__desertpavilionchronicle__desertpavilionchronicle.go.txt"
+    },
+    {
+      "id": "artifact-set:15035",
+      "slug": "fragmentofharmonicwhimsy",
+      "name": "谐律异想断章",
+      "fourPieceDescription": "生命之契的数值提升或降低时，角色造成的伤害提升18%，该效果持续6秒，至多叠加3次。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/fragmentofharmonicwhimsy.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__fragmentofharmonicwhimsy.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__fragmentofharmonicwhimsy__fragmentofharmonicwhimsy.go.txt"
+    },
+    {
+      "id": "artifact-set:15039",
+      "slug": "longnightsoath",
+      "name": "长夜之誓",
+      "fourPieceDescription": "装备者的下落攻击/重击/元素战技命中敌人后，获得1/2/2层「永照的流辉」，由下落攻击、重击或元素战技产生的该效果分别每1秒至多触发一次。永照的流辉：下落攻击造成的伤害提升15%，持续6秒，至多叠加5层，每层持续时间独立计算。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/longnightsoath.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/longnightsoath/longnightsoath.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__longnightsoath.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__longnightsoath__longnightsoath.go.txt"
+    },
+    {
+      "id": "artifact-set:15036",
+      "slug": "unfinishedreverie",
+      "name": "未竟的遐思",
+      "fourPieceDescription": "脱离战斗状态3秒后，造成的伤害提升50%。在战斗状态下，附近不存在处于燃烧状态下的敌人超过6秒后，上述伤害提升效果每秒降低10%，直到降低至0%；存在处于燃烧状态下的敌人时，每秒提升10%，直到达到50%。装备此圣遗物套装的角色处于队伍后台时，依然会触发该效果。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/unfinishedreverie.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/unfinishedreverie/unfinishedreverie.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__unfinishedreverie.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__unfinishedreverie__unfinishedreverie.go.txt"
+    },
+    {
+      "id": "artifact-set:15034",
+      "slug": "nighttimewhispersintheechoingwoods",
+      "name": "回声之林夜话",
+      "fourPieceDescription": "施放元素战技后的10秒内，岩元素伤害加成提升20%；若处于结晶反应产生的护盾庇护下，或附近存在月结晶反应产生的月笼，上述效果提高150%，进一步提高的效果将在不满足上述条件的1秒后移除。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/nighttimewhispersintheechoingwoods.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/nighttimewhispersintheechoingwoods/nighttimewhispersintheechoingwoods.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__nighttimewhispersintheechoingwoods.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__nighttimewhispersintheechoingwoods__nighttimewhispersintheechoingwoods.go.txt"
+    },
+    {
+      "id": "artifact-set:15026",
+      "slug": "gildeddreams",
+      "name": "饰金之梦",
+      "fourPieceDescription": "触发元素反应后的8秒内，会根据队伍内其他角色的元素类型，使装备者获得强化：队伍中每存在1个和装备者同类元素的角色，攻击力提升14%；每存在1个和装备者不同元素类型的角色，元素精通提升50点。上述每类效果至多计算3个角色。该效果每8秒至多触发一次。装备者处于队伍后台时，依然能触发该效果。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gildeddreams.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/gildeddreams/gildeddreams.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__gildeddreams.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__gildeddreams__gildeddreams.go.txt"
+    },
+    {
+      "id": "artifact-set:15038",
+      "slug": "obsidiancodex",
+      "name": "黑曜秘典",
+      "fourPieceDescription": "装备者在场上消耗1点夜魂值后，暴击率提高40%，持续6秒。该效果每1秒至多触发一次。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/obsidiancodex/obsidiancodex.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__obsidiancodex.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__obsidiancodex__obsidiancodex.go.txt"
+    },
+    {
+      "id": "artifact-set:15040",
+      "slug": "finaleofthedeepgalleries",
+      "name": "深廊终曲",
+      "fourPieceDescription": "装备者的元素能量为0时，普通攻击造成的伤害提升60%，元素爆发造成的伤害提升60%。装备者的普通攻击造成伤害后，上述元素爆发伤害提升效果将失效6秒；装备者的元素爆发造成伤害后，上述普通攻击伤害提升效果将失效6秒。角色处于队伍后台也能触发。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/finaleofthedeepgalleries.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/finaleofthedeepgalleries/finaleofthedeepgalleries.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__finaleofthedeepgalleries.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__finaleofthedeepgalleries__finaleofthedeepgalleries.go.txt"
+    },
+    {
+      "id": "artifact-set:15014",
+      "slug": "archaicpetra",
+      "name": "悠古的磐岩",
+      "fourPieceDescription": "获得结晶反应形成的晶片或触发月结晶反应时，队伍中所有角色获得35%对应元素伤害加成，持续10秒。同时只能通过该效果获得一种元素伤害加成。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/archaicpetra.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/archaic/archaic.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__archaicpetra.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__archaic__archaic.go.txt"
+    },
+    {
+      "id": "artifact-set:15037",
+      "slug": "scrolloftheheroofcindercity",
+      "name": "烬城勇者绘卷",
+      "fourPieceDescription": "装备者触发其对应元素类型的相关反应后，队伍中附近的所有角色的该元素反应相关的元素伤害加成提升12%，持续15秒。若触发该效果时，装备者处于夜魂加持状态下，还将使队伍中附近的所有角色的与该元素反应相关的元素伤害加成提升28%，持续20秒。装备者处于后台时也能触发上述效果。同名圣遗物套装产生的伤害加成效果无法叠加。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__scrolloftheheroofcindercity.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__scrolloftheheroofcindercity__scrolloftheheroofcindercity.go.txt"
+    },
+    {
+      "id": "artifact-set:15044",
+      "slug": "adaycarvedfromrisingwinds",
+      "name": "风起之日",
+      "fourPieceDescription": "普通攻击、重击、元素战技或元素爆发命中敌人后，将获得持续6秒的「风与牧歌的眷怜」：攻击力提高25%。若装备者已经完成了「魔女的课业」，则「风与牧歌的眷怜」将会升级为「风与牧歌的决意」，额外使通过考验的装备者的暴击率提升20%。装备者处于队伍后台时，也能触发上述效果。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/adaycarvedfromrisingwinds.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/adaycarvedfromrisingwinds/adaycarvedfromrisingwinds.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__adaycarvedfromrisingwinds.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__adaycarvedfromrisingwinds__adaycarvedfromrisingwinds.go.txt"
+    },
+    {
+      "id": "artifact-set:15045",
+      "slug": "celestialgift",
+      "name": "天之美赐",
+      "fourPieceDescription": "若装备者已经完成了魔女的课业，则施放元素战技后，会获得「天光之引」效果：依据装备者的元素类型，使队伍中附近的所有角色获得20%对应元素伤害加成，持续20秒。装备者处于后台时也能触发上述效果，同名圣遗物套装产生的伤害加成效果无法叠加。\n·队伍拥有「魔导·秘仪」效果时，「天光之引」效果将会升级为「凡世颂歌」，除装备者的元素类型外，还会依据队伍中自己的当前场上角色的元素类型，使队伍中附近的所有角色获得对应元素伤害加成，且上述两种元素伤害加成提升至40%，同元素类型的元素伤害加成效果无法叠加。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/celestialgift.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/celestialgift/celestialgift.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__celestialgift.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__celestialgift__celestialgift.go.txt"
+    },
+    {
+      "id": "artifact-set:15041",
+      "slug": "nightoftheskysunveiling",
+      "name": "穹境示现之夜",
+      "fourPieceDescription": "队伍中附近的角色触发月曜反应时，若装备者在场上，将获得持续4秒的「月辉明光·蓄念」效果：队伍的月兆为初辉/满辉时，暴击率提升15%/30%。队伍中的角色每拥有一种不同的「月辉明光」效果，队伍中的所有角色触发的月曜反应造成的伤害提升10%。由「月辉明光」产生的效果无法叠加。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/nightoftheskysunveiling.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__nightoftheskysunveiling.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__nightoftheskysunveiling__nightoftheskysunveiling.go.txt"
+    },
+    {
+      "id": "artifact-set:15042",
+      "slug": "silkenmoonsserenade",
+      "name": "纺月的夜歌",
+      "fourPieceDescription": "造成元素伤害时，获得持续8秒的「月辉明光·崇信」效果：队伍的月兆为初辉/满辉时，队伍中的所有角色的元素精通提高60点/120点。装备者处于后台时也能触发上述效果。队伍中的角色每拥有一种不同的「月辉明光」效果，队伍中的所有角色触发的月曜反应造成的伤害提升10%。由「月辉明光」产生的效果无法叠加。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/silkenmoonsserenade.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__silkenmoonsserenade.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__silkenmoonsserenade__silkenmoonsserenade.go.txt"
+    },
+    {
+      "id": "artifact-set:15047",
+      "slug": "scarletproof",
+      "name": "血红之证",
+      "fourPieceDescription": "装备者触发星扩散反应后的10秒内，暴击率提升16%，星扩散反应伤害提升40%。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scarletproof.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__scarletproof.json.txt",
+      "implementationPath": "optimizer/libs__gi__sheets__src__Artifacts__ScarletProof__index.tsx.txt"
+    },
+    {
+      "id": "artifact-set:15048",
+      "slug": "heartofthefurnace",
+      "name": "炉火融炼之心",
+      "fourPieceDescription": "装备者触发星烁反应或造成星烁反应伤害后的12秒内，攻击力提升12%，队伍中附近的所有角色造成的星烁反应伤害提升50%。装备者处于后台时也能触发上述效果。同名圣遗物套装产生的伤害加成效果无法叠加。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__heartofthefurnace.json.txt",
+      "implementationPath": "optimizer/libs__gi__sheets__src__Artifacts__HeartOfTheFurnace__index.tsx.txt"
+    },
+    {
+      "id": "artifact-set:15017",
+      "slug": "tenacityofthemillelith",
+      "name": "千岩牢固",
+      "fourPieceDescription": "元素战技命中敌人后，使队伍中附近的所有角色攻击力提升20%，护盾强效提升30%，持续3秒。该效果每0.5秒至多触发一次。装备此圣遗物套装的角色处于队伍后台时，依然能触发该效果。",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tenacityofthemillelith.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/tenacity/tenacity.go"
+      ],
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__tenacityofthemillelith.json.txt",
+      "implementationPath": "gcsim/internal__artifacts__tenacity__tenacity.go.txt"
+    },
+    {
+      "id": "artifact-set:15046",
+      "slug": "disenchantmentindeepshadow",
+      "name": "影中沉凝的幻灭",
+      "fourPieceDescription": "超导反应造成的伤害提升80%，星超导反应造成的伤害提升40%；装备者攻击受到超导或星超导反应影响的敌人时，本次攻击的暴击率提高16%。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__disenchantmentindeepshadow.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go"
+      ],
+      "implementationPath": "gcsim/internal__artifacts__disenchantmentindeepshadow__disenchantmentindeepshadow.go.txt"
+    }
+  ],
+  "files": [
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__berserker.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/berserker.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/berserker.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/berserker.json",
+      "sha256": "5f0c200c865715c18700b7e5972301f9c5801e3ec14e8704b69b9b5ece65a66c",
+      "bytes": 2949,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__berserker__berserker.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/berserker/berserker.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/berserker/berserker.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/berserker/berserker.go",
+      "sha256": "111bb6ee02951a04dae3fe9d0ad02d02d791732ff5d9d25ace7172aa3b9f9a24",
+      "bytes": 1320,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__braveheart.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/braveheart.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/braveheart.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/braveheart.json",
+      "sha256": "c8f2ebc08137d95c1b91e34cfb0c64c01c75013d362e5d7c4ce1fbb1de3a7b19",
+      "bytes": 3436,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__braveheart__braveheart.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/braveheart/braveheart.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/braveheart/braveheart.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/braveheart/braveheart.go",
+      "sha256": "38097fe35d5a12f47b2d6934d069dba26100ceeba671623989640e5de6b08aa1",
+      "bytes": 1470,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__bloodstainedchivalry.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/bloodstainedchivalry.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/bloodstainedchivalry.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/bloodstainedchivalry.json",
+      "sha256": "fd6a7fa5df4162a2aec1c1864d0f51f0475fec276c4ae5c6f1d974d8d1a698ca",
+      "bytes": 4074,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__bloodstained__bloodstained.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/bloodstained/bloodstained.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bloodstained/bloodstained.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bloodstained/bloodstained.go",
+      "sha256": "17fc169ab6c051918bed94b1296a8911115883ac5c0b4e1177cb27a346707129",
+      "bytes": 2455,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__martialartist.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/martialartist.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/martialartist.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/martialartist.json",
+      "sha256": "a5d7c1e65d648497390d102e111b01d22d97f243af16e16d632a6d2469cf66f3",
+      "bytes": 2701,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__martialartist__martialartist.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/martialartist/martialartist.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/martialartist/martialartist.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/martialartist/martialartist.go",
+      "sha256": "db58b0c591a19684924419f012e44eae3c448883611fd4f8b772bf2d17afb48e",
+      "bytes": 1963,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__noblesseoblige.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/noblesseoblige.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/noblesseoblige.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/noblesseoblige.json",
+      "sha256": "b34f917aac259616bc4c7ed067e39a21f92fadcd719bae90ab6c2affd2e94609",
+      "bytes": 4179,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__noblesse__noblesse.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/noblesse/noblesse.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/noblesse/noblesse.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/noblesse/noblesse.go",
+      "sha256": "e9feadc42267f06b409ff7cbaca5ea614f65be28af067b3cc18b1652ab2a564a",
+      "bytes": 2989,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__instructor.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/instructor.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/instructor.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/instructor.json",
+      "sha256": "158f243677e2cac1b544fcbd88713fef510362ac1c01869be4594efbb47af807",
+      "bytes": 2955,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__instructor__instructor.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/instructor/instructor.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/instructor/instructor.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/instructor/instructor.go",
+      "sha256": "9844d4ff75aa3e05f0966f7d36984153fe911ec607fd0bb8be7da6c318679e89",
+      "bytes": 2083,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__lavawalker.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "sha256": "de408e936a7c2554e42198f09b45a036ac2ec840f09cde9b1220b1a889211cda",
+      "bytes": 4193,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__lavawalker__lavawalker.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/lavawalker/lavawalker.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/lavawalker/lavawalker.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/lavawalker/lavawalker.go",
+      "sha256": "9e2a5a5d6ca4b782ea5aa167eba1ebf6de882508654850046804a3c8a894dff8",
+      "bytes": 1173,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__thundersoother.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "sha256": "f68c3a9165e10287400dca58f9de02719ad4369e7ac7fc66445535cfaa6a0608",
+      "bytes": 3702,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__thundersoother__thundersoother.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/thundersoother/thundersoother.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thundersoother/thundersoother.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thundersoother/thundersoother.go",
+      "sha256": "2c00825d2536a415085b6f815aba1c9d9a37f4670ba47d09cef3455d65b9be7b",
+      "bytes": 1200,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__retracingbolide.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "sha256": "930b480335b509826c41c25d775fcfa1c6f12b3ef38d98d1009126a85dfd496d",
+      "bytes": 4809,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__bolide__bolide.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/bolide/bolide.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bolide/bolide.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bolide/bolide.go",
+      "sha256": "b8f7fc3aea507f0afc67d39e6a8d5920c04749e48c2cadd781a1f963c3d875df",
+      "bytes": 1313,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__desertpavilionchronicle.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/desertpavilionchronicle.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/desertpavilionchronicle.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/desertpavilionchronicle.json",
+      "sha256": "bb72d337fe2f0e0564cf52f9693262d789b82d8347b580852a090f601636c5c9",
+      "bytes": 10053,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__desertpavilionchronicle__desertpavilionchronicle.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/desertpavilionchronicle/desertpavilionchronicle.go",
+      "sha256": "b6561028d9dcd168bc5fe91052af5573364317b16cd051171dedf2aed1a8acf2",
+      "bytes": 2422,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__fragmentofharmonicwhimsy.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/fragmentofharmonicwhimsy.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/fragmentofharmonicwhimsy.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/fragmentofharmonicwhimsy.json",
+      "sha256": "0b66f03246525ff7f72d7faea61c77e34303cfbbf798ceb514f3c4100b551cc4",
+      "bytes": 9317,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__fragmentofharmonicwhimsy__fragmentofharmonicwhimsy.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go",
+      "sha256": "e6b70093c84f2214ae50ca5ec26e9338fa5980fe11d3b015d392f61afbffd0c7",
+      "bytes": 1686,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__longnightsoath.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/longnightsoath.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/longnightsoath.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/longnightsoath.json",
+      "sha256": "994d8250fd317bd0fec4d54a28f833324bb6c7ad611eb5fae479652dd58c5f0f",
+      "bytes": 9609,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__longnightsoath__longnightsoath.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/longnightsoath/longnightsoath.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/longnightsoath/longnightsoath.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/longnightsoath/longnightsoath.go",
+      "sha256": "82e21212eaaa9a283c4b8b67fec6074034e45f700c2f9f61927f2a81a6a046f5",
+      "bytes": 3052,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__unfinishedreverie.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/unfinishedreverie.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/unfinishedreverie.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/unfinishedreverie.json",
+      "sha256": "61e7079ffb43325aa9c7f055d83d94748f5a0cb63fd20856aba7bb53b4ec297b",
+      "bytes": 10710,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__unfinishedreverie__unfinishedreverie.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/unfinishedreverie/unfinishedreverie.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/unfinishedreverie/unfinishedreverie.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/unfinishedreverie/unfinishedreverie.go",
+      "sha256": "b23003f8782d502e2efa1e68ed2a5bb74033511865c0c449a8de1e21116e0dd4",
+      "bytes": 2211,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__nighttimewhispersintheechoingwoods.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/nighttimewhispersintheechoingwoods.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/nighttimewhispersintheechoingwoods.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/nighttimewhispersintheechoingwoods.json",
+      "sha256": "9f67bd2d7ce8f34c14114bc72e3ea97e71fe52cdb5c50d296f9b376f530f31df",
+      "bytes": 11864,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__nighttimewhispersintheechoingwoods__nighttimewhispersintheechoingwoods.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/nighttimewhispersintheechoingwoods/nighttimewhispersintheechoingwoods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/nighttimewhispersintheechoingwoods/nighttimewhispersintheechoingwoods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/nighttimewhispersintheechoingwoods/nighttimewhispersintheechoingwoods.go",
+      "sha256": "be2eca2229695f55c15c38dc481e12ffe9c3b160664d47a786fb289fc1799347",
+      "bytes": 4146,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__gildeddreams.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/gildeddreams.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gildeddreams.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gildeddreams.json",
+      "sha256": "cbd8b06c84f6a62b73c22a9d5b42981fafdd2511bcadfb9c0712b2060f4dbcde",
+      "bytes": 6357,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__gildeddreams__gildeddreams.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/gildeddreams/gildeddreams.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/gildeddreams/gildeddreams.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/gildeddreams/gildeddreams.go",
+      "sha256": "6743ef793cfdbb5b1ca3484724d7f993ffe0886272f9af59c1665db04717d1e2",
+      "bytes": 2935,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__obsidiancodex.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "sha256": "77124283c25c14ad9f7736438e6c8c335bddc416b7ba128c37b50e28b5086726",
+      "bytes": 9793,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__obsidiancodex__obsidiancodex.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/obsidiancodex/obsidiancodex.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/obsidiancodex/obsidiancodex.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/obsidiancodex/obsidiancodex.go",
+      "sha256": "ec2e882c77448f1ab0c86c58304cd786d8f8c68c009be9415133d98a19d7c779",
+      "bytes": 1919,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__finaleofthedeepgalleries.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/finaleofthedeepgalleries.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/finaleofthedeepgalleries.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/finaleofthedeepgalleries.json",
+      "sha256": "ac91359d27fea80cd4096a8053d331969dc6aca629fabcde24c58f2249a5a689",
+      "bytes": 10081,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__finaleofthedeepgalleries__finaleofthedeepgalleries.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/finaleofthedeepgalleries/finaleofthedeepgalleries.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/finaleofthedeepgalleries/finaleofthedeepgalleries.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/finaleofthedeepgalleries/finaleofthedeepgalleries.go",
+      "sha256": "355c62cda6692f6ce434a00e4be3cead4826cfeb996444f56f8d8e59afa1fece",
+      "bytes": 3070,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__archaicpetra.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/archaicpetra.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/archaicpetra.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/archaicpetra.json",
+      "sha256": "2cfc1d9a52f96fb17b3292127a3767dd29ad1340a5c0db37e393c4541b22c0a8",
+      "bytes": 3871,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__archaic__archaic.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/archaic/archaic.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/archaic/archaic.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/archaic/archaic.go",
+      "sha256": "25f83ce881ee10e81d0cde893368d7a7623ab016900740cd3c6d48a0ae233056",
+      "bytes": 2565,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__scrolloftheheroofcindercity.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "sha256": "fe3f91845f634ab87c2d5c4c4bd097b18589cc9b6bb1145ad0ff3ae262bb90b3",
+      "bytes": 10511,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__scrolloftheheroofcindercity__scrolloftheheroofcindercity.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "sha256": "16774e7726f5270f4598ef17739225aef3a2310bda84cabdbd03a7f5abfef0cc",
+      "bytes": 6991,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__adaycarvedfromrisingwinds.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/adaycarvedfromrisingwinds.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/adaycarvedfromrisingwinds.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/adaycarvedfromrisingwinds.json",
+      "sha256": "15f6ad284448b73af4e0c100a254e54ba9f64b35580781c21fa8c55a01f99082",
+      "bytes": 11482,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__adaycarvedfromrisingwinds__adaycarvedfromrisingwinds.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/adaycarvedfromrisingwinds/adaycarvedfromrisingwinds.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/adaycarvedfromrisingwinds/adaycarvedfromrisingwinds.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/adaycarvedfromrisingwinds/adaycarvedfromrisingwinds.go",
+      "sha256": "f7cd15f7cddc739524d25087c4c9e854c014f54dc95a4c5aa2fb4ee6fdd59580",
+      "bytes": 2344,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__celestialgift.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/celestialgift.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/celestialgift.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/celestialgift.json",
+      "sha256": "781f7b8bcb4f556f0bc0520c6d1ed44022cd7611c1787495cb29af1f3144c2af",
+      "bytes": 10992,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__celestialgift__celestialgift.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/celestialgift/celestialgift.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/celestialgift/celestialgift.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/celestialgift/celestialgift.go",
+      "sha256": "91d71bb5853fe3690a45812d1e6a205c3ffa74171dc59e66942c492d30cb93b1",
+      "bytes": 5257,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__nightoftheskysunveiling.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/nightoftheskysunveiling.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/nightoftheskysunveiling.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/nightoftheskysunveiling.json",
+      "sha256": "2e33030c2a10b68b9bdc08cda29cdd555a9d9c5bbb9e37c5cfda2e6828c38e85",
+      "bytes": 8434,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__nightoftheskysunveiling__nightoftheskysunveiling.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/nightoftheskysunveiling/nightoftheskysunveiling.go",
+      "sha256": "ae4cba1bb9bee1d37b4ed3fff87f2e4e906e99088da977ef22ac2b51f2462135",
+      "bytes": 2802,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__silkenmoonsserenade.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/silkenmoonsserenade.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/silkenmoonsserenade.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/silkenmoonsserenade.json",
+      "sha256": "ef41b00c5868985fa6ab47a0dc96252e8d7d3c58f4ea352fd1bcacf3ec71fd10",
+      "bytes": 10070,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__silkenmoonsserenade__silkenmoonsserenade.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/silkenmoonsserenade/silkenmoonsserenade.go",
+      "sha256": "0e147483bbb4db36d9c68661cf8b4ac424e0a42791595abb33c059af5acdf22a",
+      "bytes": 2887,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__scarletproof.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "sha256": "0a35da3e68ced583aa27953e7d5e28311414260e6ec525fb3372d687482cf3ba",
+      "bytes": 23323,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__ScarletProof__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx",
+      "sha256": "ab66bfad832e80e0192d9ca998f7aab4998112e4463f17c248f3384c96e06424",
+      "bytes": 1742,
+      "evidenceRole": "conditioned-sheet-reference"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__heartofthefurnace.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "sha256": "1c4f2ea37c35cb43b67d2a160f8faa04ca0dd4ffc774ba8a73db525abeae8fe4",
+      "bytes": 10429,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__HeartOfTheFurnace__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx",
+      "sha256": "a61c1c61e3362523c57479e85a1a2b65de8476b6ef56518ec852b138ec12e746",
+      "bytes": 2608,
+      "evidenceRole": "conditioned-sheet-reference"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__tenacityofthemillelith.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/tenacityofthemillelith.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tenacityofthemillelith.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tenacityofthemillelith.json",
+      "sha256": "3acf250a358fb0bdf18262d93419f543a6d562b29f62e30825e45e72355d0f4e",
+      "bytes": 5339,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/internal__artifacts__tenacity__tenacity.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/tenacity/tenacity.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/tenacity/tenacity.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/tenacity/tenacity.go",
+      "sha256": "444c04182f94dcd879709df7a9044f8c20ea68bc58b2d51b85d9fd15c6df13dd",
+      "bytes": 2256,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/LICENSE.txt",
+      "source": "gcsim",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "evidenceRole": "license"
+    },
+    {
+      "file": "genshin-db/LICENSE.txt",
+      "source": "genshin-db",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "bytes": 1065,
+      "evidenceRole": "license"
+    },
+    {
+      "file": "optimizer/LICENSE.txt",
+      "source": "optimizer",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "bytes": 1071,
+      "evidenceRole": "license"
+    },
+    {
+      "file": "gcsim/pkg__core__stacks__refresh.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/stacks/refresh.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/stacks/refresh.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/stacks/refresh.go",
+      "sha256": "79c2f228b23d3cc56a5b57d5c5c8c6537d7815efa9522a75ce2cf549fa7cd6c6",
+      "bytes": 839,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__hacks__hacks.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/hacks/hacks.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/hacks/hacks.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/hacks/hacks.go",
+      "sha256": "fc8ff0b86d3bb6d6e19fb8b461a1f72b38d493183e90e2e8a4cd79eb2d1a5d07",
+      "bytes": 272,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__player__player.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/player.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "bytes": 8629,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__player__shield__handler.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/shield/handler.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go",
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "bytes": 3879,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__player__shield__bonus.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/shield/bonus.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/bonus.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/bonus.go",
+      "sha256": "b1dd22330c876b9fea5fed6911986379975ac2e60603c345ff08594865105e13",
+      "bytes": 2284,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__player__character__energy.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/energy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "bytes": 2327,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "optimizer/libs__gi__consts__src__reaction.ts.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/consts/src/reaction.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/reaction.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/reaction.ts",
+      "sha256": "70f3951f2df2726c1e8332c1e1aca629534c4370405dae70d339ac44ce60732b",
+      "bytes": 1007,
+      "evidenceRole": "reaction-key-domain"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__resolutionofsojourner.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "sha256": "88ed5876205ab5f28554fa4ceb46aa2d24bc7b0a100cee64168d9f18523b6f70",
+      "bytes": 4358,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__defenderswill.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/defenderswill.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/defenderswill.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/defenderswill.json",
+      "sha256": "c357b422bc384342c7aaab8b80a8a24808d89ca04556727cf5268e1577007187",
+      "bytes": 3292,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__tinymiracle.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "sha256": "b7c8d111d04fb0c25799fbd435f8404949992bf7b80f1ce59814eedc2e7e9e4d",
+      "bytes": 2066,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__gambler.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/gambler.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gambler.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gambler.json",
+      "sha256": "e11021eac702f2967d2687346df83a5cdcf7a8b52ccb4b5ad77735b60bc1c27d",
+      "bytes": 2871,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__theexile.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/theexile.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/theexile.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/theexile.json",
+      "sha256": "9e5ccfc45471369594dc3ca4cc27b860ca9d0e900317b7377df600b518c9f277",
+      "bytes": 2865,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__adventurer.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/adventurer.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/adventurer.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/adventurer.json",
+      "sha256": "76a97c1f2cef6652671052a7301682b19726139317d8405b9994b466140d152a",
+      "bytes": 2816,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__luckydog.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/luckydog.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/luckydog.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/luckydog.json",
+      "sha256": "3df9a7c0ad359bbb76d0274a1c833f005a45d447ef037c3cbfa6410da92edbbd",
+      "bytes": 3134,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__scholar.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/scholar.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scholar.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scholar.json",
+      "sha256": "e71e2bdd906385e630dc93f1239efa306334ae5cbaff4301facf6fd359ddd5f4",
+      "bytes": 2957,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__travelingdoctor.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "sha256": "156e4606a69b00d1a161073182b6f214aac518cc84d3ebfe8e0096fb83362f39",
+      "bytes": 2447,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__maidenbeloved.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/maidenbeloved.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/maidenbeloved.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/maidenbeloved.json",
+      "sha256": "52eb9cfada13c2a43f3380ebe1ae95647dbcc23920a93dea01b09783f3ec2478",
+      "bytes": 3389,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__oceanhuedclam.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/oceanhuedclam.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/oceanhuedclam.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/oceanhuedclam.json",
+      "sha256": "e2ab14b9383840a88c6dec5085c9aa24901dab4b72f623c92f738eaec95ae5be",
+      "bytes": 5619,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__echoesofanoffering.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "sha256": "6dcaefd96b1181535594cf64ab4d1f7ce4def16433f7d48098029b82f1eae237",
+      "bytes": 6853,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__flowerofparadiselost.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "sha256": "d04050f7ef7b67f756c3443144d8c4342b838861f8850c1c3f79ee1711c6b5aa",
+      "bytes": 9283,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__songofdayspast.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "sha256": "a81f2387a2118d4cc9ca7b8ede3c928311cf24bc7524b700de3c0fdd3ebbb715",
+      "bytes": 10069,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__aubadeofmorningstarandmoon.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "sha256": "78bfb28e9c67eaed777c317f0c0a59fb8137fd7904067f445254d57f94ddea00",
+      "bytes": 7230,
+      "evidenceRole": "remaining-catalog-clause-inventory"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__disenchantmentindeepshadow.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "sha256": "dd4eff9ee56fc251589c9aae868f04a3e6fd9fe52dc2e358ddf4c8e50bb83fe6",
+      "bytes": 11772,
+      "evidenceRole": "catalog-original"
+    },
+    {
+      "file": "gcsim/pkg__modifier__modifier.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/modifier/modifier.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__enemy__damage.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/enemy/damage.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__combat__reaction.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/combat/reaction.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "sha256": "f0acf39365cfd8d751a2a70c4b7fcc7e97f479fe6b9eadb0b56194360089d334",
+      "bytes": 1301,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/pkg__core__player__character__mods.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "evidenceRole": "supporting-semantics"
+    },
+    {
+      "file": "gcsim/internal__artifacts__disenchantmentindeepshadow__disenchantmentindeepshadow.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go",
+      "sha256": "9df5bbee6a4ac517d05ef4254292f826a6e636e148525b2037807792af94218e",
+      "bytes": 2259,
+      "evidenceRole": "reference-implementation"
+    }
+  ],
+  "notes": [
+    "Original bytes are preserved unchanged. records are a derived index, including exact Chinese effect4Pc strings.",
+    "Scarlet Proof and Heart of the Furnace use the fixed optimizer sheets; newer formula/*.ts TODO placeholders are rejected.",
+    "No production code, schema, UI, tests, coverage output or global report is modified by this source audit.",
+    "Disenchantment in Deep Shadow contributes only the static classic Superconduct +0.8 reaction-specific clause to this candidate batch. Conditional per-target CR +0.16, the unqualified lunar event hook and Stellar Superconduct +0.4 remain separate blockers."
+  ],
+  "activeCatalogDescriptionCheck": {
+    "matchedRecords": 27,
+    "mismatchedRecords": 0,
+    "method": "Exact equality between original genshin-db effect4Pc and immutable active supplemental pieceEffects[pieces=4].description."
+  },
+  "remainingFourPieceInventory": [
+    {
+      "id": "artifact-set:10001",
+      "slug": "resolutionofsojourner",
+      "name": "行者之心",
+      "fourPieceDescription": "重击的暴击率提升30%。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__resolutionofsojourner.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/resolutionofsojourner.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10003",
+      "slug": "defenderswill",
+      "name": "守护之心",
+      "fourPieceDescription": "队伍里每有不同一种元素类型的自己的角色，自身获得30%相应的元素抗性。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__defenderswill.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/defenderswill.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10004",
+      "slug": "tinymiracle",
+      "name": "奇迹",
+      "fourPieceDescription": "受到某个元素类型的伤害后，相应的抗性提升30%，持续10秒。该效果每10秒只能触发一次。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__tinymiracle.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tinymiracle.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10008",
+      "slug": "gambler",
+      "name": "赌徒",
+      "fourPieceDescription": "击败敌人时，有100%概率清除元素战技的冷却时间。该效果每15秒至多触发一次。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__gambler.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/gambler.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10009",
+      "slug": "theexile",
+      "name": "流放者",
+      "fourPieceDescription": "施放元素爆发后，每2秒为队伍中所有角色（不包括自己）恢复2点元素能量。该效果持续6秒，无法叠加。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__theexile.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/theexile.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10010",
+      "slug": "adventurer",
+      "name": "冒险家",
+      "fourPieceDescription": "开启各类宝箱后的5秒内，持续恢复30%生命值。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__adventurer.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/adventurer.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10011",
+      "slug": "luckydog",
+      "name": "幸运儿",
+      "fourPieceDescription": "拾取摩拉时，恢复300点生命值。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__luckydog.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/luckydog.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10012",
+      "slug": "scholar",
+      "name": "学士",
+      "fourPieceDescription": "获得元素微粒或元素晶球时，队伍中所有弓箭和法器角色额外恢复3点元素能量。该效果每3秒只能触发一次。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__scholar.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scholar.json"
+      ]
+    },
+    {
+      "id": "artifact-set:10013",
+      "slug": "travelingdoctor",
+      "name": "游医",
+      "fourPieceDescription": "施放元素爆发时，恢复20%生命值。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__travelingdoctor.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json"
+      ]
+    },
+    {
+      "id": "artifact-set:14004",
+      "slug": "maidenbeloved",
+      "name": "被怜爱的少女",
+      "fourPieceDescription": "施放元素战技或元素爆发后的10秒内，队伍中所有角色受治疗效果加成提高20%。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__maidenbeloved.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/maidenbeloved.json"
+      ]
+    },
+    {
+      "id": "artifact-set:15022",
+      "slug": "oceanhuedclam",
+      "name": "海染砗磲",
+      "fourPieceDescription": "装备此圣遗物套装的角色对队伍中的角色进行治疗时，将产生持续3秒的海染泡沫，记录治疗的生命值回复量（包括溢出值）。持续时间结束时，海染泡沫将会爆炸，对周围的敌人造成90%累计回复量的伤害（该伤害结算方式同感电、超导等元素反应，但不受元素精通、等级或反应伤害加成效果影响）。每3.5秒至多产生一个海染泡沫；海染泡沫至多记录30000点回复量，含溢出部分的治疗量；自己的队伍中同时至多存在一个海染泡沫。装备此圣遗物套装的角色处于队伍后台时，依然能触发该效果。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__oceanhuedclam.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/oceanhuedclam.json"
+      ]
+    },
+    {
+      "id": "artifact-set:15024",
+      "slug": "echoesofanoffering",
+      "name": "来歆余响",
+      "fourPieceDescription": "普通攻击命中敌人时，有36%概率触发「幽谷祝祀」：普通攻击造成的伤害提高，伤害提高值为攻击力的70%，该效果将在普通攻击造成伤害后的0.05秒后清除。普通攻击未触发「幽谷祝祀」时，会使下次触发概率提升20%；0.2秒内至多判定1次触发与否。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__echoesofanoffering.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/echoesofanoffering.json"
+      ]
+    },
+    {
+      "id": "artifact-set:15028",
+      "slug": "flowerofparadiselost",
+      "name": "乐园遗落之花",
+      "fourPieceDescription": "装备者绽放、超绽放、烈绽放反应造成的伤害提升40%，造成的月绽放反应伤害提升10%。此外，装备者触发绽放、超绽放、烈绽放、月绽放后，上述效果带来的加成提升25%，该效果持续10秒，至多叠加4次，每1秒至多触发一次。装备者处于队伍后台时依然能触发该效果。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__flowerofparadiselost.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/flowerofparadiselost.json"
+      ]
+    },
+    {
+      "id": "artifact-set:15033",
+      "slug": "songofdayspast",
+      "name": "昔时之歌",
+      "fourPieceDescription": "装备者对队伍中的角色进行治疗时，将产生持续6秒的渴盼效果，记录治疗的生命值回复量（包括溢出值）。持续时间结束时，渴盼效果将转变为「彼时的浪潮」效果：队伍中自己的当前场上角色的普通攻击、重击、下落攻击、元素战技与元素爆发命中敌人时，将基于渴盼效果所记录的回复量的8%提高造成的伤害，「彼时的浪潮」将在生效5次或10秒后移除。一次渴盼效果至多记录15000点回复量，同时至多存在一个，能够记录多个装备者的产生的回复量；装备者处于队伍后台时，依然能触发该效果。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__songofdayspast.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/songofdayspast.json"
+      ]
+    },
+    {
+      "id": "artifact-set:15043",
+      "slug": "aubadeofmorningstarandmoon",
+      "name": "晨星与月的晓歌",
+      "fourPieceDescription": "装备者处于队伍后台时，造成的月曜反应伤害提升20%；队伍的月兆等级至少为满辉时，造成的月曜反应伤害进一步提升40%。上述效果将在装备者位于场上3秒后移除。",
+      "catalogPath": "genshin-db/src__data__ChineseSimplified__artifacts__aubadeofmorningstarandmoon.json.txt",
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json"
+      ]
+    }
+  ],
+  "gcsimExtractionProvenance": {
+    "url": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "sha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+    "bytes": 56440121,
+    "retrievedAt": "2026-09-23T06:21:35.667874+00:00",
+    "localExtracted": "/tmp/gidps-gcsim-b4ae769"
+  }
+}

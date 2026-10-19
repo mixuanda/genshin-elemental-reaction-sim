@@ -1,0 +1,196 @@
+{
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "localArchivePath": "packages/game-data/sources/conditional-skills/source.json.gz",
+  "localArchiveSha256": "ebba1915274ea16d3e1e492b47a8651dec2bf3359d05e0bf90a282c551d857ac",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/beidou/asc.go": "ce22ebb981cf72330c28d940da34f9500398ad003529be8a9f31b64cd38b7f11",
+    "internal/characters/beidou/beidou.go": "5a474fca851dfdb5ac0f15e4f70da70522477802f5ff02b42aedad4012818cb3",
+    "internal/characters/beidou/cons.go": "4c2726cd3d4756b61d6fc63315267666dac7ef0b9f800c3137bd8aad91947a26",
+    "internal/characters/beidou/skill.go": "65c08e81af17039b5a5e311a6eb433fea0175e4acd54207c376ad9b162de36f4",
+    "internal/characters/beidou/zz_beidou.dm.go": "92ca1cdd6b8063ee604ebdb4a585fa02244caa4c38d8267327d502011c1efd2a",
+    "internal/characters/bennett/asc.go": "08617ccd809b8de921bc61b90e5d48ca0751baae7c0dbfbcbbc6c276e537b022",
+    "internal/characters/bennett/bennett.go": "b4c32ae3c922c90709f7ecf7e58a8daf22a50f2742c7460ee824bfb78e82b551",
+    "internal/characters/bennett/cons.go": "c55f6db05e34d2fb9ed9666068a5481ece81fa22db7032ac87ab5e1bb42fba79",
+    "internal/characters/bennett/skill.go": "7fcb4c069085f734921e97f107fc2c0a71037620c756ad46342a431ae678959d",
+    "internal/characters/bennett/zz_bennett.dm.go": "382a6d6d1e3ebe0ce9752d6e05cf31e9880037a9968ad71d62f0177a4bde4c32",
+    "internal/characters/diluc/burst.go": "980734a506d0e5afda9b59b0fb636a8ebcca1b99b0dc931449790f26669d1f86",
+    "internal/characters/diluc/cons.go": "2718ce2d723fd8e7cf64248314b1be88abcad5d5f65b21cf59e77a7898054875",
+    "internal/characters/diluc/diluc.go": "41583f04730b2c3b6bbb7fbeb354120b4d9c085c0ec4a5331bb1386c6bc7ef0b",
+    "internal/characters/diluc/skill.go": "9042183ddbf40cc0620f13a7c9b3b480cc03876e0853b1df53de390fbed07390",
+    "internal/characters/diluc/zz_diluc.dm.go": "8cd30d7b621915216159292c8eb886a9e3c1137167e1aaf73c908d7fb6256e22",
+    "internal/characters/keqing/asc.go": "8880bc2870628064fea9f1170edcf9396cd465064d3c1e91816ae465823527c0",
+    "internal/characters/keqing/burst.go": "8002f360da1a93ceed52b83a0cd077b1895222316b306d045f57f4ce031eee4a",
+    "internal/characters/keqing/cons.go": "baa5a966a047dca79d1ff377246d5e467676a11765bcc2a562c09fe38a7c4dbb",
+    "internal/characters/keqing/keqing.go": "a776804f66eab0e0d0e15875dd9169d92f39742403c4f1d786e035ed09ddaf27",
+    "internal/characters/keqing/skill.go": "6b6c01f435b3ba3b40b32698f820ed19f9fcaaa0b589ce2fc4e877c8346d07fe",
+    "internal/characters/keqing/zz_keqing.dm.go": "470d8b173d275771dea38c91c41263bfd38a33e765f0e2a1bc43ffab462040ed",
+    "internal/characters/lisa/asc.go": "1fc576afc2dfe3eba4d90509133c3c6591a5dae151f958bdeb6d6f9741ad6d4b",
+    "internal/characters/lisa/cons.go": "57e45501220b6b814635222e2d654ddb34a1005be239e8006439e5e6ed6d8656",
+    "internal/characters/lisa/lisa.go": "470f1fd8536ea24ff69880bf89c18a78ebe1427a12325779e27b1ef77d059537",
+    "internal/characters/lisa/skill.go": "b92321e2b8b3684457dc1aad679d3a46442f799d531e4e2c3b122d7fd886eb2b",
+    "internal/characters/lisa/zz_lisa.dm.go": "7e523e0302c8a3c46fa5c44e8b2f77b2eeb914d1ace2003a81d5fd3b8798be30",
+    "internal/characters/ningguang/asc.go": "a14fd20e97e9edd60885b218a66d9f093b7568bbc0d728f4a99933f2287d4ca0",
+    "internal/characters/ningguang/burst.go": "b16ad91b9be7d9140de6b967d4811514b93e2a3f599aca6c93c11d523813e837",
+    "internal/characters/ningguang/ningguang.go": "6af4c2f3fc0cf76f189922f0ee073c98ab78de07d64d67b96ba20560e92f0b10",
+    "internal/characters/ningguang/zz_ningguang.dm.go": "f8c948e2b7783443d6bc173dfc6d26c8fd92cca4e9375924ff881fb30e8a7c8e",
+    "internal/characters/xiangling/asc.go": "16b1d055b9a67ad32378f9f65b852673923fa82cf741085377092da5e1e7e870",
+    "internal/characters/xiangling/cons.go": "9039050a3b7e7fa19c8432b035b35346910fb1f4a4f700ad0cb0765e6ddae84a",
+    "internal/characters/xiangling/guoba.go": "ea0e937cb352781d50290a8037743374010bc79e3be4ecc78df105ffd6dfa691",
+    "internal/characters/xiangling/skill.go": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+    "internal/characters/xiangling/xiangling.go": "e99d12a05a91c1cfa9b3c296e5906a7c13048f37ca2c2b4ffeb8bc8093791e79",
+    "internal/characters/xiangling/zz_xiangling.dm.go": "514d0f035fbbd02190d700d4e51593be8b01358c0c2ee25e697dd886b2aac4f9",
+    "internal/characters/xingqiu/asc.go": "ea1217f61c236b3ed6eefdf974a2a23aeb781519d26bec520aacf765a1481265",
+    "internal/characters/xingqiu/burst.go": "2ab6c2b1c3cfc6e99ef7ad770570b95e6e478c8dd4568a54cd5da0dbf59690b7",
+    "internal/characters/xingqiu/skill.go": "86f7996a15fc3790b6c1329714ca83966699c468a077c0e062c2a2db62350a43",
+    "internal/characters/xingqiu/xingqiu.go": "9a893da712c6cbd299fd6b4b47e50fe7244150b33071f76bd3f40747ab045e75",
+    "internal/characters/xingqiu/zz_xingqiu.dm.go": "3cc4dae9ad0cbd6900ba1b714784cc45a630619c2b0cc7f6da3c81c647f3a6d4",
+    "pkg/enemy/damage.go": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8"
+  },
+  "classification": "C0 explicitly conditioned self-damage; numerical cross-check, not verified current mechanics",
+  "references": [
+    {
+      "id": "diluc-skill-stage-1-c0-斩击",
+      "sourceTable": "skill",
+      "sourceIndex": [
+        0
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "diluc-skill-stage-2-c0-斩击",
+      "sourceTable": "skill",
+      "sourceIndex": [
+        1
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "diluc-skill-stage-3-c0-斩击",
+      "sourceTable": "skill",
+      "sourceIndex": [
+        2
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "lisa-skill-hold-0-stacks-c0-落雷",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        0
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "lisa-skill-hold-1-stacks-c0-落雷",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        1
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "lisa-skill-hold-2-stacks-c0-落雷",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        2
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "lisa-skill-hold-3-stacks-c0-落雷",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        3
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "bennett-skill-hold-1-c0-挥击1",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        0,
+        0
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "bennett-skill-hold-1-c0-挥击2",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        0,
+        1
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "bennett-skill-hold-2-c0-挥击1",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        1,
+        0
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "bennett-skill-hold-2-c0-挥击2",
+      "sourceTable": "skillHold",
+      "sourceIndex": [
+        1,
+        1
+      ],
+      "additionalTerms": []
+    },
+    {
+      "id": "bennett-skill-hold-2-c0-末段爆炸",
+      "sourceTable": "explosion",
+      "sourceIndex": [],
+      "additionalTerms": []
+    },
+    {
+      "id": "beidou-skill-counter-0-c0-反击",
+      "sourceTable": "skillbase",
+      "sourceIndex": [],
+      "additionalTerms": []
+    },
+    {
+      "id": "beidou-skill-counter-1-c0-反击",
+      "sourceTable": "skillbase",
+      "sourceIndex": [],
+      "additionalTerms": [
+        {
+          "sourceTable": "skillbonus",
+          "sourceIndex": []
+        }
+      ]
+    },
+    {
+      "id": "beidou-skill-counter-2-c0-反击",
+      "sourceTable": "skillbase",
+      "sourceIndex": [],
+      "additionalTerms": [
+        {
+          "sourceTable": "skillbonus",
+          "sourceIndex": []
+        },
+        {
+          "sourceTable": "skillbonus",
+          "sourceIndex": []
+        }
+      ]
+    },
+    {
+      "id": "xiangling-skill-guoba-four-breaths-c0-锅巴喷火",
+      "sourceTable": "guobaTick",
+      "sourceIndex": [],
+      "additionalTerms": []
+    },
+    {
+      "id": "ningguang-burst-no-screen-c0-本体宝石",
+      "sourceTable": "burst",
+      "sourceIndex": [],
+      "additionalTerms": []
+    }
+  ]
+}

@@ -60,6 +60,15 @@ function characterLevel(
   );
 }
 
+function characterAscension(avatar: EnkaAvatar): number | null {
+  // Enka's documented property value is `val`; `ival` is not authoritative.
+  // https://github.com/EnkaNetwork/API-docs/blob/master/docs/gi/api.md#propmap
+  const raw = avatar.propMap?.["1002"]?.val;
+  if (raw === undefined || (typeof raw === "string" && raw.trim() === "")) return null;
+  const value = Number(raw);
+  return Number.isInteger(value) && value >= 0 && value <= 6 ? value : null;
+}
+
 function normalizeStats(
   stats:
     | Array<{
@@ -130,6 +139,8 @@ function normalizeCharacter(
   return {
     avatarId: avatar.avatarId,
     level: characterLevel(response, avatar),
+    ascension: characterAscension(avatar),
+    // Enka documents an absent talentIdList specifically for C0.
     constellation: avatar.talentIdList?.length ?? 0,
     skillLevels: { ...(avatar.skillLevelMap ?? {}) },
     skillLevelBonuses: { ...(avatar.proudSkillExtraLevelMap ?? {}) },

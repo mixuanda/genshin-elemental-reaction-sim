@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 1,
+  "status": "source-audited-private-proposal; not enabled in product",
+  "scope": "fixed native source intrinsic E/Q queued attacks only; full method and Init/passive/constellation audited; does not include reactions, equipment, later player actions or unrelated damage",
+  "sourceTrees": {
+    "classic": "/tmp/gidps-source-host-cache/build-pzmCVq/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-KI7Q5a/source"
+  },
+  "patches": {
+    "classic": "/tmp/gidps-109-finite-batch-a-classic.patch",
+    "stellar": "/tmp/gidps-109-finite-batch-a-stellar.patch",
+    "note": "both diffs equal for accepted source files; source hashes are of already patched private builds"
+  },
+  "rows": [
+    {
+      "characterKey": "aino",
+      "action": "skill",
+      "labelZh": "艾诺 E：两段缪斯捕手固有水伤",
+      "eligibility": {
+        "constellation": "all",
+        "ascension": "all"
+      },
+      "directRootAttacks": 0,
+      "producerSites": [
+        {
+          "siteId": "aino.skill.musecatcher",
+          "registrations": 2,
+          "directQueuedAttacksPerCompletedProducer": 1
+        }
+      ],
+      "closure": "两个施放时注册的角色队列任务均完成；其两次入队攻击的派发和应用均结束。",
+      "sourceEvidence": [
+        "skill.go:36-91 两个 talent range 行各在72注册角色任务，回调73入队一次；skill.go:95-106 粒子回调不生成伤害",
+        "cons.go: c4CB只回能；c2Init所生攻击要求艾诺不在场且Q状态，不能由当前E动作直接触发"
+      ],
+      "sourceBoundary": "只计算固有E两段；反应、武器、套装和其他角色伤害独立。",
+      "sourceFiles": {
+        "skill.go": {
+          "classicSha256": "6dfe8532415188bcfb29e79ebc382a67e47077f7069c97226a0cd1ce0363c564",
+          "stellarSha256": "6dfe8532415188bcfb29e79ebc382a67e47077f7069c97226a0cd1ce0363c564"
+        },
+        "asc.go": {
+          "classicSha256": "f3150ed195a0153c65eaef380fa130b1356e862ff6927a84fa8d9b726202c0ea",
+          "stellarSha256": "f3150ed195a0153c65eaef380fa130b1356e862ff6927a84fa8d9b726202c0ea"
+        },
+        "cons.go": {
+          "classicSha256": "c1044d027a3e52bf73b99f7876d00d972ba76b83a0683fd2398f9cf252bc153d",
+          "stellarSha256": "79e220a57737516928ddf9abc1be2aaa09b7bfc872d3ba7b29c936b3506957fa"
+        },
+        "aino.go": {
+          "classicSha256": "ae4e492a5c0ef29e48ba6b0d875b6d4d85fbc125dcf97d3331c53bda4cb4fd87",
+          "stellarSha256": "ae4e492a5c0ef29e48ba6b0d875b6d4d85fbc125dcf97d3331c53bda4cb4fd87"
+        }
+      }
+    },
+    {
+      "characterKey": "charlotte",
+      "action": "burst",
+      "labelZh": "夏洛蒂 Q：初击与八次留影机固有冰伤",
+      "eligibility": {
+        "constellation": "all",
+        "ascension": "all"
+      },
+      "directRootAttacks": 1,
+      "producerSites": [
+        {
+          "siteId": "charlotte.burst.field-start",
+          "registrations": 1,
+          "directQueuedAttacksPerCompletedProducer": 0
+        },
+        {
+          "siteId": "charlotte.burst.kamera-tick",
+          "registrationsPerParent": 8,
+          "directQueuedAttacksPerCompletedProducer": 1
+        }
+      ],
+      "closure": "初击和场地任务完成，八个由场地任务注册的伤害任务均完成；九次原生入队攻击的派发和应用结束。",
+      "sourceEvidence": [
+        "burst.go:41-115 初击80、场地任务88、八个burstTickFrames于100注册并在101入队",
+        "cons.go: C1为治疗；C4修改已有Q击伤害/能量；C6要求标记目标上的普通或重击，属于后续动作触发"
+      ],
+      "sourceBoundary": "Q的治疗另有来源回执；本伤害范围不把C6后续普通/重击触发误归入Q固有九段。",
+      "sourceFiles": {
+        "burst.go": {
+          "classicSha256": "3dc1227d17c28a1a3e9e399596f709ba5af7b1b5a87058999241332c25820f2e",
+          "stellarSha256": "3dc1227d17c28a1a3e9e399596f709ba5af7b1b5a87058999241332c25820f2e"
+        },
+        "asc.go": {
+          "classicSha256": "59d6dd9eedf958d58870e1120d0dcd1be5ef1b59cb57dc6381eb7a7bd62fe4a2",
+          "stellarSha256": "59d6dd9eedf958d58870e1120d0dcd1be5ef1b59cb57dc6381eb7a7bd62fe4a2"
+        },
+        "cons.go": {
+          "classicSha256": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a",
+          "stellarSha256": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a"
+        },
+        "charlotte.go": {
+          "classicSha256": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8",
+          "stellarSha256": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8"
+        }
+      }
+    },
+    {
+      "characterKey": "xinyan",
+      "action": "burst",
+      "labelZh": "辛焱 Q：仅C0–C1固有初击与七段火焰",
+      "eligibility": {
+        "maxConstellation": 1,
+        "ascension": "all"
+      },
+      "directRootAttacks": 1,
+      "producerSites": [
+        {
+          "siteId": "xinyan.burst.first-dot",
+          "registrations": 1,
+          "directQueuedAttacksPerCompletedProducer": 1
+        },
+        {
+          "siteId": "xinyan.burst.remaining-dots",
+          "registrationsPerParent": 1,
+          "directQueuedAttacksPerCompletedProducer": 6
+        }
+      ],
+      "closure": "初始物理攻击、首段火焰任务及其子任务的六次入队攻击均完成派发和应用。",
+      "sourceEvidence": [
+        "burst.go:30-117 初击47；首火69-77；嵌套子任务79-94循环入队六段",
+        "burst.go:97-115 C2起额外两次护盾脉冲并生成三级护盾；skill.go:106-124 三级盾DoT随盾状态循环"
+      ],
+      "sourceBoundary": "C2及以上绝不据此判定完整Q；三级护盾和其后续DoT需要独立归属及结束证明。",
+      "sourceFiles": {
+        "burst.go": {
+          "classicSha256": "4e2440d93bbd5ad281c8b862fd992e67a1261ae5e2c693cc6874ca8f4880e830",
+          "stellarSha256": "4e2440d93bbd5ad281c8b862fd992e67a1261ae5e2c693cc6874ca8f4880e830"
+        },
+        "asc.go": {
+          "classicSha256": "c3e15fd3273703ecb811d2947c84a7529f395d43f05a9dd72ab13a971f0e1d4c",
+          "stellarSha256": "c3e15fd3273703ecb811d2947c84a7529f395d43f05a9dd72ab13a971f0e1d4c"
+        },
+        "cons.go": {
+          "classicSha256": "d8b82f200caeda847374cc351ec3d0e84984ae23244e2f79d8bf861cd7924359",
+          "stellarSha256": "d8b82f200caeda847374cc351ec3d0e84984ae23244e2f79d8bf861cd7924359"
+        },
+        "xinyan.go": {
+          "classicSha256": "892de20a07ed905914e1fcebffe03e1fb5275ad05ace1203fcf40a6f17153a92",
+          "stellarSha256": "24e9ca9c615fa34b3ab67effa41cc5aa60f19156b93fcfab8dfaed103562d8df"
+        }
+      }
+    },
+    {
+      "characterKey": "xiangling",
+      "action": "burst",
+      "labelZh": "香菱 Q：三次起手与原生固定间隔旋火轮",
+      "eligibility": {
+        "constellation": "all",
+        "ascension": "all"
+      },
+      "directRootAttacks": 0,
+      "producerSites": [
+        {
+          "siteId": "xiangling.burst.initial-hit",
+          "registrations": 3,
+          "directQueuedAttacksPerCompletedProducer": 1
+        },
+        {
+          "siteId": "xiangling.burst.pyronado-start",
+          "registrations": 1,
+          "directQueuedAttacksPerCompletedProducer": 0
+        },
+        {
+          "siteId": "xiangling.burst.pyronado-spin",
+          "registrationsPerParent": {
+            "constellationBelow4": 9,
+            "constellationAtLeast4": 12
+          },
+          "directQueuedAttacksPerCompletedProducer": 1
+        }
+      ],
+      "closure": "三次起手任务、旋火轮起始任务及其九或十二个子任务均完成；全部实际入队攻击均结束派发和应用。",
+      "sourceEvidence": [
+        "burst.go:26-95 三次初击由循环注册角色任务；56帧起始任务在C4前后以600/840帧和73步长注册9/12核心任务",
+        "cons.go: C6只增火伤，不额外入队Q攻击",
+        "cons.go: C2爆炸只由普通攻击回调的敌人标记触发，不由Q方法/旋火轮任务注册；C4延长Q至14秒"
+      ],
+      "sourceBoundary": "源码将旋火轮周期写为“approx 73 frames”并标注命中框近似；此处仅为该固定原生版本的执行完整性，不声称实机频率。",
+      "sourceFiles": {
+        "burst.go": {
+          "classicSha256": "c4accc88e2b4b5333eef83293c4a927c04ad2605e3ef190c3d885089939f08af",
+          "stellarSha256": "c4accc88e2b4b5333eef83293c4a927c04ad2605e3ef190c3d885089939f08af"
+        },
+        "asc.go": {
+          "classicSha256": "a688c9407e6ed13f255a048a21f676c0188bc64421b7423fb4922a72c97d3567",
+          "stellarSha256": "a688c9407e6ed13f255a048a21f676c0188bc64421b7423fb4922a72c97d3567"
+        },
+        "cons.go": {
+          "classicSha256": "6d94f0edfe490b3cf3275fa1027052a15f1f3c944b2d36875ba98d7c848eedd9",
+          "stellarSha256": "6d94f0edfe490b3cf3275fa1027052a15f1f3c944b2d36875ba98d7c848eedd9"
+        },
+        "xiangling.go": {
+          "classicSha256": "e99d12a05a91c1cfa9b3c296e5906a7c13048f37ca2c2b4ffeb8bc8093791e79",
+          "stellarSha256": "e99d12a05a91c1cfa9b3c296e5906a7c13048f37ca2c2b4ffeb8bc8093791e79"
+        }
+      }
+    },
+    {
+      "characterKey": "collei",
+      "action": "burst",
+      "labelZh": "柯莱 Q：爆炸及状态驱动的全部跃击（无再次施放）",
+      "eligibility": {
+        "constellation": "all",
+        "ascension": "all",
+        "noSameBurstBeforeProducerClosure": true
+      },
+      "directRootAttacks": 1,
+      "producerSites": [
+        {
+          "siteId": "collei.burst.field-start",
+          "registrations": 1,
+          "directQueuedAttacksPerCompletedProducer": 0
+        },
+        {
+          "siteId": "collei.burst.leap",
+          "registrationsPerParent": "first 1, then 1 per active-status callback; final inactive callback registers 0",
+          "directQueuedAttacksPerCompletedProducer": "1 while burstKey active, else 0"
+        }
+      ],
+      "closure": "爆炸完成，场地任务及递归跃击生产链全部实际任务已运行，最后一次检查burstKey失效且无子任务；所有已入队攻击派发和应用结束。",
+      "sourceEvidence": [
+        "burst.go:29-120 爆炸46、场地任务53、第一跃击任务56、每次active状态入队一次并于101注册下一次",
+        "asc.go: A4反应可延长burstKey最多三秒；cons.go: C6只由E命中调用",
+        "cons.go: C4施放Q时只给队友元素精通；C2作用于E的Sprout延长，不添加Q攻击"
+      ],
+      "sourceBoundary": "不预设跃击次数；相同Q重施会覆写共享burstPos/status，故重施前必须完成生产链。A4反应延长按原生实际状态观察。",
+      "sourceFiles": {
+        "burst.go": {
+          "classicSha256": "99f41853e5a946390f0bb8c1f8d4b32abbfecd3aae7770027d0b810c5625b642",
+          "stellarSha256": "99f41853e5a946390f0bb8c1f8d4b32abbfecd3aae7770027d0b810c5625b642"
+        },
+        "asc.go": {
+          "classicSha256": "cf2ac336b83661090727be1e7b267c4c2afda2d2ed373539d1c7b31f8856fa24",
+          "stellarSha256": "cf2ac336b83661090727be1e7b267c4c2afda2d2ed373539d1c7b31f8856fa24"
+        },
+        "cons.go": {
+          "classicSha256": "b286307542f499a9eaf9a900cd767e416569409373c99ec2e00a9c939a385862",
+          "stellarSha256": "b286307542f499a9eaf9a900cd767e416569409373c99ec2e00a9c939a385862"
+        },
+        "collei.go": {
+          "classicSha256": "f50e43b099e369dcf45562dac0c3b39631937427366b1b495a729941795fde6f",
+          "stellarSha256": "f50e43b099e369dcf45562dac0c3b39631937427366b1b495a729941795fde6f"
+        }
+      }
+    },
+    {
+      "characterKey": "kazuha",
+      "action": "burst",
+      "labelZh": "枫原万叶 Q：斩击与五次领域跳（可选吸收追加击）",
+      "eligibility": {
+        "constellation": "all",
+        "ascension": "all",
+        "noSameBurstBeforeProducerClosure": true
+      },
+      "directRootAttacks": 1,
+      "producerSites": [
+        {
+          "siteId": "kazuha.burst.initialize",
+          "registrations": 1,
+          "directQueuedAttacksPerCompletedProducer": 0
+        },
+        {
+          "siteId": "kazuha.burst.tick-start",
+          "registrations": 1,
+          "directQueuedAttacksPerCompletedProducer": 0
+        },
+        {
+          "siteId": "kazuha.burst.tick",
+          "registrationsPerParent": 5,
+          "directQueuedAttacksPerCompletedProducer": "1 Anemo plus 0/1 absorbed-element hit from actual qAbsorb"
+        }
+      ],
+      "closure": "斩击、初始化与起始任务、五个领域跳任务完成；五次风击及实际吸收追加击均完成派发和应用。",
+      "sourceEvidence": [
+        "burst.go:29-115 初击50；初始化任务69；起始任务84；五个子任务89，90-94按实际qAbsorb入队1或2击",
+        "burst.go:118-133 吸收检查只改元素不直接攻击；cons.go: C2 buff、C6后续普重下落增益不添加固有Q攻击"
+      ],
+      "sourceBoundary": "吸收由原生队伍/附着状态决定，不预设额外击数；重施会覆写共享qAbsorb与快照，故重施前须结束。",
+      "sourceFiles": {
+        "burst.go": {
+          "classicSha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f",
+          "stellarSha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f"
+        },
+        "asc.go": {
+          "classicSha256": "bb2b63adde059a84262f0429ecf42f60917f82f3cd5ad3d28c32636c5869b78f",
+          "stellarSha256": "4c0d8ef53da0cbc7414c3c85a09f09e263f3236ffbea0284b0605ffcbb3a235c"
+        },
+        "cons.go": {
+          "classicSha256": "92d0cbb9cf02a3e67b6e86fffd1c2d41a8dc5b61d3a52de30ec7d321b09c491c",
+          "stellarSha256": "92d0cbb9cf02a3e67b6e86fffd1c2d41a8dc5b61d3a52de30ec7d321b09c491c"
+        },
+        "kazuha.go": {
+          "classicSha256": "e041dbaec08299d62f70b507199ea862a3d3e4de6844f09fc714a315acd196a3",
+          "stellarSha256": "e041dbaec08299d62f70b507199ea862a3d3e4de6844f09fc714a315acd196a3"
+        }
+      }
+    }
+  ],
+  "deferred": [
+    {
+      "characterKey": "aino",
+      "action": "burst",
+      "reason": "C0-C1 direct tick count depends on party moonsign at method entry (10 or 21), absent in 107 invocation receipt. C2+ adds off-field OnEnemyHit damage from later player action, outside current direct producer chain; cannot claim full Q."
+    },
+    {
+      "characterKey": "charlotte",
+      "action": "skill",
+      "reason": "mark ticks start from OnEnemyHit attack callback and enemy-local tasks, not registered inside method or audited producer; mark replace/status expiry/targets matter."
+    },
+    {
+      "characterKey": "chongyun",
+      "action": "skill",
+      "reason": "A4 old-field flush is scheduled inside a new E invocation (asc.go:43), so method ownership is misleading; expiry and refresh need field-instance attribution. Below A4 only the direct hit is known."
+    },
+    {
+      "characterKey": "xinyan",
+      "action": "skill",
+      "reason": "shield level depends on hit callbacks, shield persistence and later damage; level-3 DoT recurrence is not owned by method producer."
+    },
+    {
+      "characterKey": "xinyan",
+      "action": "burst",
+      "reason": "C2+ shield creation, two extra pulses and ongoing level-3 shield DoT excluded by explicit maxConstellation 1 gate; full C2+ remains open."
+    },
+    {
+      "characterKey": "collei",
+      "action": "skill",
+      "reason": "A1 sprout depends on dendro reaction before return, callback-driven conditional ticks and shared status; C6 extra attack begins at hit callback."
+    }
+  ],
+  "validation": {
+    "classicPatchApplyCheck": "passed",
+    "stellarPatchApplyCheck": "passed",
+    "goBuild": "not run",
+    "runtimeTests": "not run"
+  }
+}

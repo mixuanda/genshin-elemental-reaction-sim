@@ -1,0 +1,22 @@
+
+Running 15 tests using 1 worker
+
+(node:26065) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › apps/web/e2e/simulator.spec.ts:392:1 › shows a field path for an invalid config (924ms)
+  ✓   2 [chromium] › apps/web/e2e/simulator.spec.ts:494:1 › disables an unused shared scalar for target-level resistance tables and identifies mixed consumers (623ms)
+  ✓   3 [chromium] › apps/web/e2e/simulator.spec.ts:911:1 › renders an initial enemy Aura even when the run has no hits or state events (568ms)
+  ✓   4 [chromium] › apps/web/e2e/simulator.spec.ts:3751:1 › audits a scripted target miss before damage, Aura, and hit-confirmed particles (957ms)
+  ✓   5 [chromium] › apps/web/e2e/simulator.spec.ts:3902:1 › keeps landed target damage, Aura, and hit-confirm policies independent (840ms)
+  ✓   6 [chromium] › apps/web/e2e/simulator.spec.ts:4056:1 › applies half-open enemy target phases and exposes their source per hit (749ms)
+  ✓   7 [chromium] › apps/web/e2e/simulator.spec.ts:4201:1 › keeps registered enemy stats, Aura, ICD, and UI filters independent (897ms)
+  ✓   8 [chromium] › apps/web/e2e/simulator.spec.ts:4368:1 › fans one AoE hit across targets while producing hit-confirm particles once (805ms)
+  ✓   9 [chromium] › apps/web/e2e/simulator.spec.ts:4462:1 › derives circle hits from target positions and exposes geometric evidence (875ms)
+  ✓  10 [chromium] › apps/web/e2e/simulator.spec.ts:4611:1 › audits rotated rectangle intersections against circular target hitboxes (856ms)
+  ✓  11 [chromium] › apps/web/e2e/simulator.spec.ts:4766:1 › audits finite capsule side and end-cap intersections (870ms)
+  ✓  12 [chromium] › apps/web/e2e/simulator.spec.ts:4919:1 › audits filled sector arc, radial-edge, and out-of-range intersections (771ms)
+  ✓  13 [chromium] › apps/web/e2e/simulator.spec.ts:5078:1 › transforms actor-local geometry from a static source pose and audits world coordinates (856ms)
+  ✓  14 [chromium] › apps/web/e2e/simulator.spec.ts:5222:1 › interpolates target motion at each hit frame before geometry resolution (971ms)
+  ✓  15 [chromium] › apps/web/e2e/simulator.spec.ts:5525:1 › imports a public UID showcase and keeps graduation data as a placeholder (385ms)
+
+  15 passed (12.7s)

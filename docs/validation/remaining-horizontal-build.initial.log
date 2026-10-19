@@ -1,0 +1,36 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/remaining-horizontal-source.spec.ts(131,42): error TS2339: Property 'sourceNormalChain' does not exist on type 'LegalTimelineCommand'.
+  Property 'sourceNormalChain' does not exist on type 'TimelineCrystallizePickupCommand'.
+packages/game-data/src/classified-hits.ts(230,248): error TS2339: Property 'branch' does not exist on type 'OptimizerSpecialComponent'.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"actionConditionLog" | "artifactBuffLog" | "artifactBuffState" | "artifactDamageLog" | "artifactDamageState" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | ... 20 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainLog" | "Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainState" | ... 55 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: sourceNormalChainState"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainLog" | "Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainState" | ... 55 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: sourceNormalChainState"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "artifactBuffLog" | "artifactBuffState" | "artifactDamageLog" | "artifactDamageState" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | ... 20 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainLog" | "Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainState" | ... 55 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: sourceNormalChainState"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainLog" | "Expected: literal string: actionConditionLog, Actual: literal string: sourceNormalChainState" | ... 55 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: sourceNormalChainState"'.
+packages/sim-core/src/iansan-swift-resolved-formulas.ts(125,13): error TS2375: Type '{ id: "swift"; templateRole: "swift"; frame: number; snapshotFrame: number; snapshotId: string; targetId: string; swiftQualifiedAtCast: boolean | undefined; }' is not assignable to type 'IansanSwiftResolvedHitInstance' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'swiftQualifiedAtCast' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/iansan-swift-resolved-formulas.ts(134,55): error TS2345: Argument of type '{ id: "swift"; templateRole: "swift"; frame: number; snapshotFrame: number; snapshotId: string; targetId: string; swiftQualifiedAtCast: boolean | undefined; } | undefined' is not assignable to parameter of type 'IansanSwiftResolvedHitInstance | undefined'.
+  Type '{ id: "swift"; templateRole: "swift"; frame: number; snapshotFrame: number; snapshotId: string; targetId: string; swiftQualifiedAtCast: boolean | undefined; }' is not assignable to type 'IansanSwiftResolvedHitInstance' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'swiftQualifiedAtCast' are incompatible.
+      Type 'boolean | undefined' is not assignable to type 'boolean'.
+        Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/observed-zibai-resource.ts(82,9): error TS2375: Type '{ frame: number; order: number; phaseActive: boolean; radiance: number; releasedSteeds: number; noPendingSteedConfirmed: boolean; phaseId?: string | undefined; expiresAtFrame?: number | undefined; ... 4 more ...; awaitingFourthReleaseExit: false; }' is not assignable to type 'ObservedZibaiResourceState' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'phaseId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/observed-zibai-resource.ts(228,57): error TS2379: Argument of type '{ throughEventId: string | undefined; }' is not assignable to parameter of type 'ObservedZibaiResourceOptions' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'throughEventId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/remaining-horizontal-source.test.ts(270,106): error TS2339: Property 'sourceNormalChain' does not exist on type 'LegalTimelineCommand'.
+  Property 'sourceNormalChain' does not exist on type 'TimelineCrystallizePickupCommand'.
+
+WALL_SECONDS=2.696

@@ -1,0 +1,51 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2K
+transforming...✓ 479 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                     29.19 kB │ gzip:   9.21 kB
+dist/assets/analysis-worker-CvMZnFTg.js          2,141.48 kB
+dist/assets/simulation-worker-Do8fV7px.js        2,393.54 kB
+dist/assets/lunar-simulation-worker-CXOoU0iY.js  2,402.85 kB
+dist/assets/index-zAuOze8Y.css                      17.68 kB │ gzip:   4.37 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js             0.15 kB │ gzip:   0.15 kB
+dist/assets/supplemental-DBwzEwrS.js                 0.55 kB │ gzip:   0.42 kB
+dist/assets/catalog-CKr8qDeC.js                      0.78 kB │ gzip:   0.38 kB
+dist/assets/catalog-index-CPhRT2fx.js                1.94 kB │ gzip:   0.88 kB
+dist/assets/runtime-metadata-BtX45QAH.js             5.39 kB │ gzip:   2.25 kB
+dist/assets/supplemental-BtdzD0Lr.js                 6.90 kB │ gzip:   2.48 kB
+dist/assets/update-panel-UOD2C7al.js                 9.03 kB │ gzip:   3.99 kB
+dist/assets/equipment-controls-DmDqRPQQ.js          15.42 kB │ gzip:   5.92 kB
+dist/assets/lunar-simulation-panel-CkK-ly94.js      59.85 kB │ gzip:  19.60 kB
+dist/assets/catalog-BFSWA7Ce.js                     71.10 kB │ gzip:  11.69 kB
+dist/assets/calculator-bridge-C-Aq6JPE.js          126.45 kB │ gzip:  40.05 kB
+dist/assets/evidence-v1-ybQAWRem.js                181.37 kB │ gzip:   6.95 kB
+dist/assets/calculator-ui-C1QFcDHK.js              233.74 kB │ gzip:  69.85 kB
+dist/assets/supplemental-DfBDdD6k.js               341.20 kB │ gzip:  68.57 kB
+dist/assets/index-C4FGys1X.js                      345.80 kB │ gzip: 102.64 kB
+dist/assets/src-yZdR1LNm.js                        739.49 kB │ gzip: 176.53 kB
+dist/assets/equipment-build-BST1lGKq.js            949.96 kB │ gzip: 182.43 kB
+dist/assets/character-calculations-B1SOESbo.js   1,210.11 kB │ gzip: 246.88 kB
+dist/assets/src-Ct73wTL3.js                      1,327.55 kB │ gzip: 344.78 kB
+dist/assets/src-BESqdp6x.js                      1,354.03 kB │ gzip: 305.26 kB
+dist/assets/catalog-DfNVY4-r.js                  1,970.69 kB │ gzip: 318.69 kB
+dist/assets/current-B7czK_M4.js                  3,384.94 kB │ gzip: 110.90 kB
+
+✓ built in 436ms
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

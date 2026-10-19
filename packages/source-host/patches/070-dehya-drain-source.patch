@@ -1,0 +1,157 @@
+diff --git a/internal/characters/dehya/dehya.go b/internal/characters/dehya/dehya.go
+--- a/internal/characters/dehya/dehya.go
++++ b/internal/characters/dehya/dehya.go
+@@ -18,6 +18,7 @@
+ 	skillAttackInfo    info.AttackInfo
+ 	skillSnapshot      info.Snapshot
+ 	skillRedmanesBlood float64
++	redmanePoolID      int
+ 	skillSelfDoTQueued bool
+ 	sanctumSavedDur    int
+ 	sanctumICD         int
+diff --git a/internal/characters/dehya/skill.go b/internal/characters/dehya/skill.go
+--- a/internal/characters/dehya/skill.go
++++ b/internal/characters/dehya/skill.go
+@@ -312,12 +312,48 @@
+ 			return
+ 		}
+ 		beforeAmount := di.Amount
++		beforeAmountID := di.SourceHostAmountID
+ 		// calc mitigation based on skill level
+-		mitigation := di.Amount * skillMitigation[c.TalentLvlSkill()]
++		talentRatio := skillMitigation[c.TalentLvlSkill()]
++		mitigation := 0.0
++		mitigationID := 0
++		if c.Core.SourceHost != nil {
++			sources := map[string]int{}
++			if beforeAmountID > 0 {
++				sources["beforeAmount"] = beforeAmountID
++			}
++			mitigation, mitigationID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dehya-mitigation",
++				map[string]any{"beforeAmount": beforeAmount, "talentRatio": talentRatio}, nil, sources)
++		} else {
++			mitigation = beforeAmount * talentRatio
++		}
+ 		// adjust redmane's blood
+-		c.skillRedmanesBlood += mitigation
++		poolBefore := c.skillRedmanesBlood
++		poolAfter := 0.0
++		if c.Core.SourceHost != nil {
++			sources := map[string]int{"mitigation": mitigationID}
++			if c.redmanePoolID > 0 {
++				sources["poolBefore"] = c.redmanePoolID
++			}
++			poolAfter, c.redmanePoolID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dehya-pool-add",
++				map[string]any{"poolBefore": poolBefore, "mitigation": mitigation}, nil, sources)
++		} else {
++			poolAfter = poolBefore + mitigation
++		}
++		c.skillRedmanesBlood = poolAfter
+ 		// modify hp drain
+-		di.Amount = max(di.Amount-mitigation, 0)
++		afterAmount := 0.0
++		if c.Core.SourceHost != nil {
++			sources := map[string]int{"mitigation": mitigationID}
++			if beforeAmountID > 0 {
++				sources["beforeAmount"] = beforeAmountID
++			}
++			afterAmount, di.SourceHostAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dehya-after-mitigation",
++				map[string]any{"beforeAmount": beforeAmount, "mitigation": mitigation}, nil, sources)
++		} else {
++			afterAmount = max(beforeAmount-mitigation, 0)
++		}
++		di.Amount = afterAmount
+ 		// log mitigation
+ 		c.Core.Log.NewEvent("dehya mitigating dmg", glog.LogCharacterEvent, c.Index()).
+ 			Write("hurt_before", beforeAmount).
+@@ -351,15 +387,43 @@
+ 	}
+ 
+ 	// recalculate the dmg on every tick
+-	dmg := c.skillRedmanesBlood * skillSelfDoTRatio
++	poolBefore := c.skillRedmanesBlood
++	dmg := 0.0
++	dmgID := 0
++	if c.Core.SourceHost != nil {
++		sources := map[string]int{}
++		if c.redmanePoolID > 0 {
++			sources["poolBefore"] = c.redmanePoolID
++		}
++		dmg, dmgID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dehya-tick-raw",
++			map[string]any{"poolBefore": poolBefore}, nil, sources)
++	} else {
++		dmg = poolBefore * skillSelfDoTRatio
++	}
+ 
+ 	// reduce redmane's blood (before considering shield mitigation/a1!)
+-	c.skillRedmanesBlood = max(c.skillRedmanesBlood-dmg, 0)
++	poolAfter := 0.0
++	if c.Core.SourceHost != nil {
++		sources := map[string]int{"rawDamage": dmgID}
++		if c.redmanePoolID > 0 {
++			sources["poolBefore"] = c.redmanePoolID
++		}
++		poolAfter, c.redmanePoolID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dehya-pool-consume",
++			map[string]any{"poolBefore": poolBefore, "rawDamage": dmg}, nil, sources)
++	} else {
++		poolAfter = max(poolBefore-dmg, 0)
++	}
++	c.skillRedmanesBlood = poolAfter
+ 
+ 	// modify the dmg if a1 is active (redmane's blood is reduced by full amount before this is checked)
+ 	if c.StatusIsActive(a1ReductionKey) {
+ 		dmgBefore := dmg
+-		dmg *= 1 - a1ReductionMult
++		if c.Core.SourceHost != nil {
++			dmg, dmgID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-dehya-tick-a1",
++				map[string]any{"rawDamage": dmgBefore}, nil, map[string]int{"rawDamage": dmgID})
++		} else {
++			dmg *= 1 - a1ReductionMult
++		}
+ 		c.Core.Log.NewEvent("dehya a1 reducing redmane's blood dmg", glog.LogCharacterEvent, c.Index()).
+ 			Write("dmg_before", dmgBefore).
+ 			Write("dmg", dmg)
+@@ -379,7 +443,8 @@
+ 		Durability: 0,
+ 		FlatDmg:    dmg,
+ 	}
+-	ap := combat.NewSingleTargetHit(c.Core.Combat.Player().Key())
++	playerTarget := c.Core.Combat.Player().Key()
++	ap := combat.NewSingleTargetHit(playerTarget)
+ 	snap := c.Snapshot(&ai)
+ 	ae := &info.AttackEvent{
+ 		Info:        ai,
+@@ -389,13 +454,28 @@
+ 	}
+ 
+ 	c.Core.Combat.Events.Emit(event.OnPlayerHit, c.Index(), ae)
+-	dmgLeft := c.Core.Player.Shields.OnDamage(c.Index(), c.Core.Player.Active(), dmg, ae.Info.Element)
++	shieldRaw := dmg
++	manualID := 0
++	previousAttackID := 0
++	if c.Core.SourceHost != nil {
++		shieldRaw, manualID, previousAttackID = c.Core.SourceHost.ManualPlayerIncoming(ae, playerTarget, dmg, dmgID)
++	}
++	activeActor := c.Core.Player.Active()
++	dmgLeft := c.Core.Player.Shields.OnDamage(c.Index(), activeActor, shieldRaw, ae.Info.Element)
++	drainAttempted := dmgLeft
+ 	if dmgLeft > 0 {
+-		c.Core.Player.Drain(info.DrainInfo{
++		di := info.DrainInfo{
+ 			ActorIndex: c.Index(),
+ 			Abil:       ae.Info.Abil,
+ 			Amount:     dmgLeft,
+ 			External:   true,
+-		})
+-	}
+-}
++		}
++		if c.Core.SourceHost != nil {
++			di.SourceHostAmountID = c.Core.SourceHost.PlayerDrainAmountID(manualID)
++		}
++		drainAttempted = c.Core.Player.Drain(di)
++	}
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.ManualPlayerApplied(ae, playerTarget, c.Index(), activeActor, shieldRaw, dmgLeft, drainAttempted, previousAttackID)
++	}
++}

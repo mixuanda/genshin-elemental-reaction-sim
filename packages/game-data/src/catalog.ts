@@ -5,7 +5,7 @@ import {
   type TalentSetCatalogEntry,
   type WeaponCatalogEntry
 } from "@genshin-dps-lab/schemas";
-import rawCatalog from "./generated/catalog.zh-CN.json";
+import { activeCatalogData as rawCatalog } from "../manifests/runtime/current";
 
 export const gameDataCatalog: GameDataCatalog = migrateGameDataCatalog(
   rawCatalog as unknown

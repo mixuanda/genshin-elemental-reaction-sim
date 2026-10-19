@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-base-panel.test.ts"
+  ],
+  "exitCode": 1,
+  "elapsedSeconds": 0.943
+}

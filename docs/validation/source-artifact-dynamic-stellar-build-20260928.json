@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.14,
+  "log": "docs/validation/source-artifact-dynamic-stellar-build-20260928.log"
+}

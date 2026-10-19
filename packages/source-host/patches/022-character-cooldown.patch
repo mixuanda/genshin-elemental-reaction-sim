@@ -1,0 +1,50 @@
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -322,6 +322,9 @@
+ 	}
+ 	c.mods = c.mods[:n]
+ 
++	if c.SourceHost != nil {
++		return c.SourceHost.CooldownDuration(c.Index(), a, dur, cd)
++	}
+ 	return int(float64(dur) * cd)
+ }
+ 
+--- a/internal/template/character/cooldown.go
++++ b/internal/template/character/cooldown.go
+@@ -93,6 +93,9 @@
+ 		// panic("queue length is somehow 0??")
+ 		return 0
+ 	}
++	if c.Core.SourceHost != nil {
++		return c.Core.SourceHost.CooldownRemaining(c.Index(), a, c.cdQueueWorkerStartedAt[a], c.cdQueue[a][0], c.Core.F)
++	}
+ 	return c.cdQueueWorkerStartedAt[a] + c.cdQueue[a][0] - c.Core.F
+ }
+ 
+@@ -125,14 +128,23 @@
+ 		return
+ 	}
+ 	// check if reduction > time remaing? if so then call reset cd
+-	remain := c.cdQueueWorkerStartedAt[a] + c.cdQueue[a][0] - c.Core.F
++	var remain int
++	if c.Core.SourceHost != nil {
++		remain = c.Core.SourceHost.CooldownRemaining(c.Index(), a, c.cdQueueWorkerStartedAt[a], c.cdQueue[a][0], c.Core.F)
++	} else {
++		remain = c.cdQueueWorkerStartedAt[a] + c.cdQueue[a][0] - c.Core.F
++	}
+ 	// log.Printf("hello reducing; reduction %v, remaining %v, frame %v, old queue %v\n", v, remain, c.F, c.cdQueue[a])
+ 	if v >= remain {
+ 		c.ResetActionCooldown(a)
+ 		return
+ 	}
+ 	// otherwise reduce remain and restart queue
+-	c.cdQueue[a][0] = remain - v
++	if c.Core.SourceHost != nil {
++		c.cdQueue[a][0] = c.Core.SourceHost.CooldownReduce(c.Index(), a, remain, v)
++	} else {
++		c.cdQueue[a][0] = remain - v
++	}
+ 	c.Core.Log.NewEventBuildMsg(glog.LogCooldownEvent, c.Index(), a.String(), " cooldown forcefully reduced").
+ 		Write("type", a.String()).
+ 		Write("expiry", c.Cooldown(a)).

@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/artifact-reaction-effects.test.ts(77,15): error TS2339: Property 'effectiveResistance' does not exist on type '{ id: string; label: string; kind: "transformative"; reaction: "bloom" | "swirlPyro"; reactionBonus: number; dependencies: never[]; sourceRefs: never[]; }'.
+packages/game-data/src/artifact-reaction-effects.test.ts(79,22): error TS2339: Property 'effectiveResistance' does not exist on type '{ id: string; label: string; kind: "transformative"; reaction: "bloom" | "swirlPyro"; reactionBonus: number; dependencies: never[]; sourceRefs: never[]; }'.

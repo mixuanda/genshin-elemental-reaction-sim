@@ -1,0 +1,2212 @@
+{
+    "info": {
+        "name": "Mitya",
+        "description": "",
+        "rarity": "QUALITY_ORANGE",
+        "weapon": "WEAPON_CATALYST",
+        "birthday": "1/1",
+        "element": "Electro",
+        "title": "???",
+        "constellation": "???",
+        "affiliation": "???",
+        "cv": {
+            "EN": "???",
+            "CHS": "???",
+            "JP": "???",
+            "KR": "???"
+        },
+        "attributes": [
+            {
+                "level": 1,
+                "ascension": 0,
+                "hp": 906,
+                "atk": 20,
+                "def": 62,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 2,
+                "ascension": 0,
+                "hp": 981,
+                "atk": 22,
+                "def": 67,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 3,
+                "ascension": 0,
+                "hp": 1056,
+                "atk": 24,
+                "def": 72,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 4,
+                "ascension": 0,
+                "hp": 1132,
+                "atk": 26,
+                "def": 77,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 5,
+                "ascension": 0,
+                "hp": 1207,
+                "atk": 27,
+                "def": 82,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 6,
+                "ascension": 0,
+                "hp": 1283,
+                "atk": 29,
+                "def": 87,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 7,
+                "ascension": 0,
+                "hp": 1358,
+                "atk": 31,
+                "def": 92,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 8,
+                "ascension": 0,
+                "hp": 1435,
+                "atk": 32,
+                "def": 98,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 9,
+                "ascension": 0,
+                "hp": 1511,
+                "atk": 34,
+                "def": 103,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 10,
+                "ascension": 0,
+                "hp": 1586,
+                "atk": 36,
+                "def": 108,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 11,
+                "ascension": 0,
+                "hp": 1662,
+                "atk": 38,
+                "def": 113,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 12,
+                "ascension": 0,
+                "hp": 1738,
+                "atk": 39,
+                "def": 118,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 13,
+                "ascension": 0,
+                "hp": 1814,
+                "atk": 41,
+                "def": 123,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 14,
+                "ascension": 0,
+                "hp": 1891,
+                "atk": 43,
+                "def": 129,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 15,
+                "ascension": 0,
+                "hp": 1967,
+                "atk": 44,
+                "def": 134,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 16,
+                "ascension": 0,
+                "hp": 2043,
+                "atk": 46,
+                "def": 139,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 17,
+                "ascension": 0,
+                "hp": 2120,
+                "atk": 48,
+                "def": 144,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 18,
+                "ascension": 0,
+                "hp": 2196,
+                "atk": 50,
+                "def": 149,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 19,
+                "ascension": 0,
+                "hp": 2273,
+                "atk": 51,
+                "def": 155,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 20,
+                "ascension": 0,
+                "hp": 2349,
+                "atk": 53,
+                "def": 160,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 21,
+                "ascension": 1,
+                "hp": 3203,
+                "atk": 72,
+                "def": 218,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 22,
+                "ascension": 1,
+                "hp": 3280,
+                "atk": 74,
+                "def": 223,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 23,
+                "ascension": 1,
+                "hp": 3357,
+                "atk": 76,
+                "def": 228,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 24,
+                "ascension": 1,
+                "hp": 3434,
+                "atk": 78,
+                "def": 234,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 25,
+                "ascension": 1,
+                "hp": 3511,
+                "atk": 79,
+                "def": 239,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 26,
+                "ascension": 1,
+                "hp": 3589,
+                "atk": 81,
+                "def": 244,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 27,
+                "ascension": 1,
+                "hp": 3666,
+                "atk": 83,
+                "def": 249,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 28,
+                "ascension": 1,
+                "hp": 3743,
+                "atk": 85,
+                "def": 255,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 29,
+                "ascension": 1,
+                "hp": 3820,
+                "atk": 86,
+                "def": 260,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 30,
+                "ascension": 1,
+                "hp": 3897,
+                "atk": 88,
+                "def": 265,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 31,
+                "ascension": 1,
+                "hp": 3975,
+                "atk": 90,
+                "def": 270,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 32,
+                "ascension": 1,
+                "hp": 4053,
+                "atk": 92,
+                "def": 276,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 33,
+                "ascension": 1,
+                "hp": 4131,
+                "atk": 93,
+                "def": 281,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 34,
+                "ascension": 1,
+                "hp": 4208,
+                "atk": 95,
+                "def": 286,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 35,
+                "ascension": 1,
+                "hp": 4286,
+                "atk": 97,
+                "def": 292,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 36,
+                "ascension": 1,
+                "hp": 4365,
+                "atk": 99,
+                "def": 297,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 37,
+                "ascension": 1,
+                "hp": 4443,
+                "atk": 100,
+                "def": 302,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 38,
+                "ascension": 1,
+                "hp": 4520,
+                "atk": 102,
+                "def": 308,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 39,
+                "ascension": 1,
+                "hp": 4598,
+                "atk": 104,
+                "def": 313,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 40,
+                "ascension": 1,
+                "hp": 4677,
+                "atk": 106,
+                "def": 318,
+                "CRIT DMG%": "0",
+                "EM": 100
+            },
+            {
+                "level": 41,
+                "ascension": 2,
+                "hp": 5307,
+                "atk": 120,
+                "def": 361,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 42,
+                "ascension": 2,
+                "hp": 5386,
+                "atk": 122,
+                "def": 366,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 43,
+                "ascension": 2,
+                "hp": 5464,
+                "atk": 124,
+                "def": 372,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 44,
+                "ascension": 2,
+                "hp": 5542,
+                "atk": 125,
+                "def": 377,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 45,
+                "ascension": 2,
+                "hp": 5621,
+                "atk": 127,
+                "def": 382,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 46,
+                "ascension": 2,
+                "hp": 5700,
+                "atk": 129,
+                "def": 388,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 47,
+                "ascension": 2,
+                "hp": 5779,
+                "atk": 131,
+                "def": 393,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 48,
+                "ascension": 2,
+                "hp": 5857,
+                "atk": 132,
+                "def": 399,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 49,
+                "ascension": 2,
+                "hp": 5937,
+                "atk": 134,
+                "def": 404,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 50,
+                "ascension": 2,
+                "hp": 6016,
+                "atk": 136,
+                "def": 409,
+                "CRIT DMG%": "9.6",
+                "EM": 100
+            },
+            {
+                "level": 51,
+                "ascension": 3,
+                "hp": 6830,
+                "atk": 154,
+                "def": 465,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 52,
+                "ascension": 3,
+                "hp": 6910,
+                "atk": 156,
+                "def": 470,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 53,
+                "ascension": 3,
+                "hp": 6989,
+                "atk": 158,
+                "def": 476,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 54,
+                "ascension": 3,
+                "hp": 7069,
+                "atk": 160,
+                "def": 481,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 55,
+                "ascension": 3,
+                "hp": 7148,
+                "atk": 162,
+                "def": 486,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 56,
+                "ascension": 3,
+                "hp": 7228,
+                "atk": 163,
+                "def": 492,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 57,
+                "ascension": 3,
+                "hp": 7308,
+                "atk": 165,
+                "def": 497,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 58,
+                "ascension": 3,
+                "hp": 7387,
+                "atk": 167,
+                "def": 503,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 59,
+                "ascension": 3,
+                "hp": 7467,
+                "atk": 169,
+                "def": 508,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 60,
+                "ascension": 3,
+                "hp": 7547,
+                "atk": 171,
+                "def": 514,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 61,
+                "ascension": 4,
+                "hp": 8178,
+                "atk": 185,
+                "def": 556,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 62,
+                "ascension": 4,
+                "hp": 8258,
+                "atk": 187,
+                "def": 562,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 63,
+                "ascension": 4,
+                "hp": 8338,
+                "atk": 189,
+                "def": 567,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 64,
+                "ascension": 4,
+                "hp": 8418,
+                "atk": 190,
+                "def": 573,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 65,
+                "ascension": 4,
+                "hp": 8499,
+                "atk": 192,
+                "def": 578,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 66,
+                "ascension": 4,
+                "hp": 8579,
+                "atk": 194,
+                "def": 584,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 67,
+                "ascension": 4,
+                "hp": 8659,
+                "atk": 196,
+                "def": 589,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 68,
+                "ascension": 4,
+                "hp": 8740,
+                "atk": 198,
+                "def": 595,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 69,
+                "ascension": 4,
+                "hp": 8820,
+                "atk": 199,
+                "def": 600,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 70,
+                "ascension": 4,
+                "hp": 8901,
+                "atk": 201,
+                "def": 606,
+                "CRIT DMG%": "19.2",
+                "EM": 100
+            },
+            {
+                "level": 71,
+                "ascension": 5,
+                "hp": 9533,
+                "atk": 216,
+                "def": 649,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 72,
+                "ascension": 5,
+                "hp": 9615,
+                "atk": 217,
+                "def": 654,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 73,
+                "ascension": 5,
+                "hp": 9695,
+                "atk": 219,
+                "def": 660,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 74,
+                "ascension": 5,
+                "hp": 9776,
+                "atk": 221,
+                "def": 665,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 75,
+                "ascension": 5,
+                "hp": 9857,
+                "atk": 223,
+                "def": 671,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 76,
+                "ascension": 5,
+                "hp": 9938,
+                "atk": 225,
+                "def": 676,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 77,
+                "ascension": 5,
+                "hp": 10020,
+                "atk": 227,
+                "def": 682,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 78,
+                "ascension": 5,
+                "hp": 10101,
+                "atk": 228,
+                "def": 687,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 79,
+                "ascension": 5,
+                "hp": 10183,
+                "atk": 230,
+                "def": 693,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 80,
+                "ascension": 5,
+                "hp": 10264,
+                "atk": 232,
+                "def": 698,
+                "CRIT DMG%": "28.8",
+                "EM": 100
+            },
+            {
+                "level": 81,
+                "ascension": 6,
+                "hp": 10897,
+                "atk": 246,
+                "def": 742,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 82,
+                "ascension": 6,
+                "hp": 10979,
+                "atk": 248,
+                "def": 747,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 83,
+                "ascension": 6,
+                "hp": 11060,
+                "atk": 250,
+                "def": 753,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 84,
+                "ascension": 6,
+                "hp": 11142,
+                "atk": 252,
+                "def": 758,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 85,
+                "ascension": 6,
+                "hp": 11223,
+                "atk": 254,
+                "def": 764,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 86,
+                "ascension": 6,
+                "hp": 11306,
+                "atk": 256,
+                "def": 769,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 87,
+                "ascension": 6,
+                "hp": 11387,
+                "atk": 258,
+                "def": 775,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 88,
+                "ascension": 6,
+                "hp": 11470,
+                "atk": 259,
+                "def": 780,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 89,
+                "ascension": 6,
+                "hp": 11552,
+                "atk": 261,
+                "def": 786,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 90,
+                "ascension": 6,
+                "hp": 11634,
+                "atk": 263,
+                "def": 792,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 95,
+                "ascension": 6,
+                "hp": 12047,
+                "atk": 293,
+                "def": 820,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            },
+            {
+                "level": 100,
+                "ascension": 6,
+                "hp": 12460,
+                "atk": 322,
+                "def": 848,
+                "CRIT DMG%": "38.4",
+                "EM": 100
+            }
+        ]
+    },
+    "icons": {
+        "forward": "UI_AvatarIcon_Mitya",
+        "coop_img": "UI_CoopImg_Mitya"
+    },
+    "ascension": {
+        "202": 7049900,
+        "exp": {
+            "104001": 2,
+            "104003": 418
+        },
+        "speciality": {
+            "101274": 168
+        },
+        "elemental": {
+            "104141": 1,
+            "104142": 9,
+            "104143": 9,
+            "104144": 6
+        },
+        "worldmonster": {
+            "112149": 18,
+            "112150": 30,
+            "112151": 36
+        },
+        "elitemonster": {
+            "113093": 46
+        }
+    },
+    "costumes": [
+        {
+            "id": 213600,
+            "name": "",
+            "description": "",
+            "icon": "UI_AvatarIcon_Mitya",
+            "sideIcon": "UI_AvatarIcon_Side_Mitya",
+            "gachaImg": "UI_Gacha_AvatarImg_Mitya",
+            "quality": 0,
+            "itemId": 0,
+            "isDefault": true,
+            "isDefaultUnlock": false
+        }
+    ],
+    "envisagedEcho": {},
+    "skills": {
+        "normalattack": {
+            "name": "Chain Reaction",
+            "icon": "Skill_A_Catalyst_MD",
+            "multipliers": {
+                "1-Hit DMG": [
+                    "58.8%",
+                    "63.21%",
+                    "67.62%",
+                    "73.5%",
+                    "77.91%",
+                    "82.32%",
+                    "88.2%",
+                    "94.08%",
+                    "99.96%",
+                    "105.84%",
+                    "111.72%",
+                    "117.6%",
+                    "124.95%",
+                    "132.3%",
+                    "139.65%"
+                ],
+                "2-Hit DMG": [
+                    "48.3%",
+                    "51.92%",
+                    "55.55%",
+                    "60.38%",
+                    "64%",
+                    "67.62%",
+                    "72.45%",
+                    "77.28%",
+                    "82.11%",
+                    "86.94%",
+                    "91.77%",
+                    "96.6%",
+                    "102.64%",
+                    "108.68%",
+                    "114.71%"
+                ],
+                "3-Hit DMG": [
+                    "69.02%",
+                    "74.2%",
+                    "79.38%",
+                    "86.28%",
+                    "91.45%",
+                    "96.63%",
+                    "103.53%",
+                    "110.44%",
+                    "117.34%",
+                    "124.24%",
+                    "131.14%",
+                    "138.04%",
+                    "146.67%",
+                    "155.3%",
+                    "163.93%"
+                ],
+                "Charged Attack DMG": [
+                    "136.88%",
+                    "147.15%",
+                    "157.41%",
+                    "171.1%",
+                    "181.37%",
+                    "191.63%",
+                    "205.32%",
+                    "219.01%",
+                    "232.7%",
+                    "246.38%",
+                    "260.07%",
+                    "273.76%",
+                    "290.87%",
+                    "307.98%",
+                    "325.09%"
+                ],
+                "Charged Attack Stamina Cost": [
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50",
+                    "50"
+                ],
+                "Plunge DMG": [
+                    "56.83%",
+                    "61.45%",
+                    "66.08%",
+                    "72.69%",
+                    "77.31%",
+                    "82.6%",
+                    "89.87%",
+                    "97.14%",
+                    "104.41%",
+                    "112.34%",
+                    "120.27%",
+                    "128.2%",
+                    "136.12%",
+                    "144.05%",
+                    "151.98%"
+                ],
+                "Low/High Plunge DMG": [
+                    "113.63%/141.93%",
+                    "122.88%/153.49%",
+                    "132.13%/165.04%",
+                    "145.35%/181.54%",
+                    "154.59%/193.1%",
+                    "165.16%/206.3%",
+                    "179.7%/224.45%",
+                    "194.23%/242.61%",
+                    "208.77%/260.76%",
+                    "224.62%/280.57%",
+                    "240.48%/300.37%",
+                    "256.34%/320.18%",
+                    "272.19%/339.98%",
+                    "288.05%/359.79%",
+                    "303.9%/379.59%"
+                ],
+                "Gradient Detonation DMG": [
+                    "153%",
+                    "164.47%",
+                    "175.95%",
+                    "191.25%",
+                    "202.73%",
+                    "214.2%",
+                    "229.5%",
+                    "244.8%",
+                    "260.1%",
+                    "275.4%",
+                    "290.7%",
+                    "306%",
+                    "325.13%",
+                    "344.25%",
+                    "363.37%"
+                ],
+                "Gradient Detonation Stellar-Conduct DMG": [
+                    "204% Elemental Mastery",
+                    "219.3% Elemental Mastery",
+                    "234.6% Elemental Mastery",
+                    "255% Elemental Mastery",
+                    "270.3% Elemental Mastery",
+                    "285.6% Elemental Mastery",
+                    "306% Elemental Mastery",
+                    "326.4% Elemental Mastery",
+                    "346.8% Elemental Mastery",
+                    "367.2% Elemental Mastery",
+                    "387.6% Elemental Mastery",
+                    "408% Elemental Mastery",
+                    "433.5% Elemental Mastery",
+                    "459% Elemental Mastery",
+                    "484.5% Elemental Mastery"
+                ]
+            },
+            "description": "<color=#FFD780FF>Normal Attack</color>\\nPerforms a maximum of 3 attacks that deal <color=#FFACFFFF>Electro DMG</color>.\\n\\n<color=#FFD780FF>Charged Attack</color>\\nConsumes a certain amount of Stamina to deal <color=#FFACFFFF>AoE Electro DMG</color> to the area in front after a short casting time.\\nMitya will instead perform the special Charged Attack <color=#FFD780FF>Gradient Detonation</color>, which consumes no Stamina, if a <color=#FFD780FF>{LINK#N11360002}Detection Core: Overload{/LINK}</color> created by Mitya is currently on the field and he has at least 1 <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color>: Deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> to the area in front and continuously consumes <color=#FFD780FF>Gradient Beacons</color> while held. Each <color=#FFD780FF>Gradient Beacon</color> consumed deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> to the area in front that is considered Stellar-Conduct reaction DMG.\\n\\n<color=#FFD780FF>Plunging Attack</color>\\nPlunges from mid-air to strike the ground below, damaging opponents along the path and dealing <color=#FFACFFFF>AoE Electro DMG</color> upon impact.",
+            "params": [
+                0.587984025478363,
+                0.4830079972743988,
+                0.6902239918708801,
+                1.3688000440597534,
+                50.0,
+                0.5682880282402039,
+                1.136335015296936,
+                1.4193439483642578,
+                1.5299999713897705,
+                2.0399999618530273,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "elementalskill": {
+            "name": "Principle: Variable Detection",
+            "icon": "Skill_S_Mitya_01",
+            "multipliers": {
+                "Tap Skill DMG": [
+                    "90.72%",
+                    "97.52%",
+                    "104.33%",
+                    "113.4%",
+                    "120.2%",
+                    "127.01%",
+                    "136.08%",
+                    "145.15%",
+                    "154.22%",
+                    "163.3%",
+                    "172.37%",
+                    "181.44%",
+                    "192.78%",
+                    "204.12%",
+                    "215.46%"
+                ],
+                "Hold Skill DMG": [
+                    "129.6%",
+                    "139.32%",
+                    "149.04%",
+                    "162%",
+                    "171.72%",
+                    "181.44%",
+                    "194.4%",
+                    "207.36%",
+                    "220.32%",
+                    "233.28%",
+                    "246.24%",
+                    "259.2%",
+                    "275.4%",
+                    "291.6%",
+                    "307.8%"
+                ],
+                "Steady State Core DMG": [
+                    "72%",
+                    "77.4%",
+                    "82.8%",
+                    "90%",
+                    "95.4%",
+                    "100.8%",
+                    "108%",
+                    "115.2%",
+                    "122.4%",
+                    "129.6%",
+                    "136.8%",
+                    "144%",
+                    "153%",
+                    "162%",
+                    "171%"
+                ],
+                "Steady State Core Gradient Beacon Consumption DMG": [
+                    "91.2% Elemental Mastery",
+                    "98.04% Elemental Mastery",
+                    "104.88% Elemental Mastery",
+                    "114% Elemental Mastery",
+                    "120.84% Elemental Mastery",
+                    "127.68% Elemental Mastery",
+                    "136.8% Elemental Mastery",
+                    "145.92% Elemental Mastery",
+                    "155.04% Elemental Mastery",
+                    "164.16% Elemental Mastery",
+                    "173.28% Elemental Mastery",
+                    "182.4% Elemental Mastery",
+                    "193.8% Elemental Mastery",
+                    "205.2% Elemental Mastery",
+                    "216.6% Elemental Mastery"
+                ],
+                "Steady State Core Detonation DMG": [
+                    "104%/Beacon",
+                    "111.8%/Beacon",
+                    "119.6%/Beacon",
+                    "130%/Beacon",
+                    "137.8%/Beacon",
+                    "145.6%/Beacon",
+                    "156%/Beacon",
+                    "166.4%/Beacon",
+                    "176.8%/Beacon",
+                    "187.2%/Beacon",
+                    "197.6%/Beacon",
+                    "208%/Beacon",
+                    "221%/Beacon",
+                    "234%/Beacon",
+                    "247%/Beacon"
+                ],
+                "Detection Core Duration": [
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s",
+                    "20s"
+                ],
+                "CD": [
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s"
+                ]
+            },
+            "description": "Conducts a theoretically relatively safe experiment at a theoretically relatively safe yield, dealing <color=#FFACFFFF>AoE Electro DMG</color> and creating a <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> in different ways depending on whether the Skill is tapped or held.\n\\n\\n<i>\"Don't worry! These quantities have been proven safe in test after test... Hm? It blew up? Oh, I forgot to mention: that conclusion was based on ideal experimental conditions.\"</i>",
+            "params": [
+                0.9071999788284302,
+                1.2960000038146973,
+                0.7200000286102295,
+                0.9120000004768372,
+                1.0399999618530273,
+                20.0,
+                15.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "elementalburst": {
+            "name": "Analysis: Gradient Theory",
+            "icon": "Skill_E_Mitya_01",
+            "multipliers": {
+                "Skill DMG": [
+                    "333.6% ATK+667.2% Elemental Mastery",
+                    "358.62% ATK+717.24% Elemental Mastery",
+                    "383.64% ATK+767.28% Elemental Mastery",
+                    "417% ATK+834% Elemental Mastery",
+                    "442.02% ATK+884.04% Elemental Mastery",
+                    "467.04% ATK+934.08% Elemental Mastery",
+                    "500.4% ATK+1000.8% Elemental Mastery",
+                    "533.76% ATK+1067.52% Elemental Mastery",
+                    "567.12% ATK+1134.24% Elemental Mastery",
+                    "600.48% ATK+1200.96% Elemental Mastery",
+                    "633.84% ATK+1267.68% Elemental Mastery",
+                    "667.2% ATK+1334.4% Elemental Mastery",
+                    "708.9% ATK+1417.8% Elemental Mastery",
+                    "750.6% ATK+1501.2% Elemental Mastery",
+                    "792.3% ATK+1584.6% Elemental Mastery"
+                ],
+                "Gradient Beacons Generated": [
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3",
+                    "3"
+                ],
+                "CD": [
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s",
+                    "15s"
+                ],
+                "Energy Cost": [
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60",
+                    "60"
+                ]
+            },
+            "description": "Let the elements burst forth like inspiration itself! Deals <color=#FFACFFFF>AoE Electro DMG</color> and creates 3 <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color>.\n\\n\\n<i>\"Even the smallest elemental reaction can build up, step by step, until it unleashes unimaginable amounts of energy — just like a researcher's inspiration.\"</i>",
+            "params": [
+                3.3359999656677246,
+                6.671999931335449,
+                3.0,
+                15.0,
+                60.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ]
+        },
+        "leveling": {
+            "crown": {
+                "104319": 3
+            },
+            "books": {
+                "104365": 9,
+                "104366": 63,
+                "104367": 114
+            },
+            "worldmonster": {
+                "112149": 18,
+                "112150": 66,
+                "112151": 93
+            },
+            "weekly": {
+                "113081": 18
+            }
+        }
+    },
+    "passives": {
+        "p1": {
+            "name": "Baseline Stress Test",
+            "description": "The <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> created by the Elemental Skill <color=#FFD780FF>Principle: Variable Detection</color> is enhanced. Depending on the state of the <color=#FFD780FF>Detection Core</color> created:\\n·Steady State: All nearby party members gain 30 Elemental Mastery for each <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> Mitya has;\\n·Overloaded: After nearby party members trigger Stellar-Conduct reactions, instead obtain 1 <color=#FFD780FF>Gradient Beacon</color> every 1.5s for 3s.",
+            "params": [
+                30.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_05"
+        },
+        "p2": {
+            "name": "Explosive Reagent: Safe Limits Exceeded",
+            "description": "The duration of <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color> is increased to 10s. Additionally, Mitya's CRIT Rate increases by 5% for 15s after creating a <color=#FFD780FF>Gradient Beacon</color>. This effect can stack up to 4 times.",
+            "params": [
+                0.05000000074505806,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_06"
+        },
+        "p3": {
+            "name": "Stellar Jubilee: Top-Secret Protocol",
+            "description": "When party members trigger Superconduct, it will be changed to Stellar-Conduct. Stellar-Conduct reactions will no longer create <color=#FFD780FF>Starlight Prisms</color>, and will instead create 1 <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> nearby every 1.5s for 1.5s. These Beacons can be carried by Mitya and transform the area around them into a <color=#FFD780FF>Polestar Field</color>.\\nAdditionally, the Base Stellar-Conduct DMG dealt by all nearby party members will be increased based on Mitya's Elemental Mastery: Every point of Elemental Mastery he has increases Base Stellar-Conduct DMG by 0.028%. The maximum Base DMG increase that can be gained this way is 14%. While within a <color=#FFD780FF>Polestar Field</color>, Mitya will also enter the <color=#FFD780FF>Radiance: Stellar-Conduct</color> state.",
+            "params": [
+                0.0002800000074785203,
+                0.14000000059604645,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_07"
+        },
+        "p4": {
+            "name": "Energy Catalysis",
+            "description": "When destructible rocks are nearby, <color=#FFD780FF>{LINK#N11360002}Detection Core: Steady State{/LINK}</color> can quickly clear them.\\nAdditionally, when Mitya is in the party, creating <color=#FFD780FF>Prime Ice Construct: Basic Heat Source</color> does not consume Kresnik Energy.",
+            "params": [
+                0.20000000298023224,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_08"
+        }
+    },
+    "constellations": {
+        "const1": {
+            "name": "The Observer Seeking What Is Missing",
+            "description": "The maximum number of <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color> Mitya can carry is increased to 5. Using the Elemental Skill <color=#FFD780FF>Principle: Variable Detection</color> additionally creates 1 <color=#FFD780FF>Gradient Beacon</color>.\\nWhile the <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> is present, the nearby active character's CRIT DMG is increased by 50%.\\nAdditionally, Mitya regenerates 10 Elemental Energy when a <color=#FFD780FF>Gradient Beacon</color> is created. This effect can be triggered once every 8s.",
+            "params": [
+                0.5,
+                10.0,
+                8.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_01"
+        },
+        "const2": {
+            "name": "The Matter That Slumbers Beyond Inertness",
+            "description": "While the <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color> is present, all opponents within the <color=#FFD780FF>Polestar Field</color> have their <color=#99FFFFFF>Cryo RES</color> and <color=#FFACFFFF>Electro RES</color> decreased by 25%.\\nAdditionally, if the <color=#FFD780FF>Detection Core</color> created is:\\n·Steady State: Nearby party members gain 100 Elemental Mastery;\\n·Overloaded: Your active character gains 200 Elemental Mastery.",
+            "params": [
+                0.20000000298023224,
+                100.0,
+                200.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_02"
+        },
+        "const3": {
+            "name": "The Knotted String of Invariant Topology",
+            "description": "Increases the Level of the Elemental Skill {LINK#S11362}<color=#FFD780FF>Principle: Variable Detection</color>{/LINK} by 3.\\nMaximum upgrade level is 15.",
+            "params": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_U_Mitya_01"
+        },
+        "const4": {
+            "name": "The Isotopes Born of Decay",
+            "description": "<color=#FFD780FF>{LINK#N11360002}Detection Cores{/LINK}</color> created by Mitya himself deals 1 instance of <color=#FFACFFFF>AoE Electro DMG</color> equal to 400% of Mitya's Elemental Mastery to nearby opponents for every 5 <color=#FFD780FF>{LINK#N11360001}Gradient Beacons{/LINK}</color> consumed while it is on the field. This DMG is considered Stellar-Conduct reaction DMG.",
+            "params": [
+                4.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_03"
+        },
+        "const5": {
+            "name": "The Periodic Law That Orders All",
+            "description": "Increases the Level of Normal Attack: {LINK#S11361}<color=#FFD780FF>Chain Reaction</color>{/LINK} by 3.\\nMaximum upgrade level is 15.",
+            "params": [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_U_Mitya_02"
+        },
+        "const6": {
+            "name": "Elemental Transition at the Gate of Reason",
+            "description": "There is a 30% chance to create 1 new <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> whenever Mitya consumes a <color=#FFD780FF>{LINK#N11360001}Gradient Beacon{/LINK}</color> with the <color=#FFD780FF>{LINK#N11360002}Detection Core{/LINK}</color>.\\nAdditionally, Stellar-Conduct reaction DMG dealt by all nearby party members is <color=#FFD780FF>{LINK#N11190007}Elevated{/LINK}</color> by 20%.",
+            "params": [
+                0.30000001192092896,
+                0.20000000298023224,
+                0.15000000596046448,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0
+            ],
+            "icon": "UI_Talent_S_Mitya_04"
+        }
+    },
+    "hyperlinks": [
+        {
+            "id": 11190007,
+            "name": "Elevation",
+            "description": "Special DMG Boost effect. It is calculated independently of other DMG Boost effects.",
+            "params": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]
+        },
+        {
+            "id": 11360001,
+            "name": "Gradient Beacons",
+            "description": "When Mitya is in the party, Stellar-Conduct reactions create Gradient Beacons that last for 6s instead of Starlight Prisms. Mitya can consume Gradient Beacons to trigger various effects.\\nGradient Beacons follow the active character and transform the nearby area into a Polestar Field. Mitya can have multiple Gradient Beacons, with an initial maximum of 4. Creating a Gradient Beacon while at the maximum will reset the duration of all Gradient Beacons.",
+            "params": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]
+        },
+        {
+            "id": 11360002,
+            "name": "Detection Core",
+            "description": "An energy device created after using his Elemental Skill. Tapping it creates a Core in Steady State, while holding it creates an Overloaded core.\\n\\nDetection Core: Steady State\\n·Continuously follows nearby opponents and intermittently deals AoE Electro DMG;\\n·When Mitya has reached the maximum number of Gradient Beacons he can have, the device will consume any newly generated Gradient Beacon and deal AoE Electro DMG that is considered Stellar-Conduct reaction DMG;\\n·When its duration ends or another Detection Core is created, the device will consume all Gradient Beacons Mitya has and deal AoE Electro DMG that is considered Stellar-Conduct reaction DMG based on the number consumed.\\n\\nDetection Core: Overloaded\\n·While this device is present and Mitya has at least 1 Gradient Beacon, he can perform the special Charged Attack Gradient Detonation without consuming Stamina.",
+            "params": [
+                "",
+                "",
+                "",
+                "",
+                ""
+            ]
+        }
+    ],
+    "stories": {
+        "136200": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "136201": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "136202": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "136203": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "136204": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "136205": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        },
+        "136207": {
+            "storyTitle": "???",
+            "storyText": "",
+            "unlockConds": []
+        }
+    },
+    "quotes": {
+        "136000": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136001": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136002": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136003": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136004": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136005": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136006": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136007": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136008": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136009": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136010": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136011": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136012": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136013": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136014": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136015": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136016": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136017": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136018": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136019": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136020": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136021": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136022": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136023": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136024": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136025": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136026": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136027": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136028": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136029": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136030": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136031": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136032": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136033": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136034": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136035": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136036": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136037": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136038": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136039": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136040": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136041": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136042": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136043": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136044": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136045": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136046": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136047": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136048": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136049": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136050": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136051": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136052": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136053": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136054": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136055": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136056": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136057": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136058": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136059": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136060": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136061": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136062": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136063": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136064": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136065": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136066": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136067": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136068": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136069": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136070": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        },
+        "136071": {
+            "quoteTitle": "???",
+            "quoteText": "???",
+            "unlockConds": []
+        }
+    },
+    "energy": [
+        {
+            "source": "DropElemBall",
+            "particles": "5",
+            "chance": "100%",
+            "cd": "0.5s"
+        }
+    ],
+    "attacks": [
+        {
+            "name": "ElementalArt",
+            "icd_source": "Tag: Elemental_Art (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV2/100",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "AS_ArtHold_Dmg"
+        },
+        {
+            "name": "ElementalArt",
+            "icd_source": "Tag: Elemental_Art (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV2/75",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "AS_ArtTrigger_Dmg"
+        },
+        {
+            "name": "Partner_EnhanceAttackManager",
+            "icd_source": "Tag: IceCraftedPickaxe_Dig (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV1/0",
+            "element": "-",
+            "attackType": "Default",
+            "strikeType": "-",
+            "damageParam": "-"
+        },
+        {
+            "name": "Partner_EnhanceAttackManager",
+            "icd_source": "Tag: default",
+            "icd_rule": "Standard (3h/2.5s)",
+            "gauge": "1U",
+            "poise": "LV2/20",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "AS_Partner_Enhance_Damage|AS_Constellation_6_StableDamageUp|MUL"
+        },
+        {
+            "name": "Partner_Enhance_DestroyShard_Gadget",
+            "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV2/35",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "-"
+        },
+        {
+            "name": "OverShardDamage",
+            "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV2/35",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "-"
+        },
+        {
+            "name": "ExtraAttack_Normal",
+            "icd_source": "Tag: ExtraAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV2/80",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "-",
+            "damageParam": "AS_ExtraAttack_Damage"
+        },
+        {
+            "name": "ExtraAttack_Enhance",
+            "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV3/40",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "-"
+        },
+        {
+            "name": "ExtraAttack_Enhance",
+            "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV3/40",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "-"
+        },
+        {
+            "name": "ExtraAttack_Enhance_PartnerControl",
+            "icd_source": "Tag: default",
+            "icd_rule": "Standard (3h/2.5s)",
+            "gauge": "1U",
+            "poise": "LV2/30",
+            "element": "Electric",
+            "attackType": "Range",
+            "strikeType": "-",
+            "damageParam": "AS_ExtraAttackEnhancePre_Damage"
+        },
+        {
+            "name": "ElementalBurstGadget",
+            "icd_source": "Tag: Elemental_Burst (!)",
+            "icd_rule": "Independent",
+            "gauge": "2U",
+            "poise": "LV5/150",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "AS_ElementalBurst_AttackDamageRatio"
+        },
+        {
+            "name": "FallingAnthem",
+            "icd_source": "Tag: FallingAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV2/5",
+            "element": "Electric",
+            "attackType": "Default",
+            "strikeType": "-",
+            "damageParam": "FallingAnthem_Normal_Loop_Damage"
+        },
+        {
+            "name": "FallingAnthem",
+            "icd_source": "Tag: FallingAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV3/50",
+            "element": "Electric",
+            "attackType": "Default",
+            "strikeType": "-",
+            "damageParam": "FallingAnthem_Normal_Rank_1_Damage"
+        },
+        {
+            "name": "FallingAnthem",
+            "icd_source": "Tag: FallingAttack (!)",
+            "icd_rule": "Independent",
+            "gauge": "1U",
+            "poise": "LV4/100",
+            "element": "Electric",
+            "attackType": "Default",
+            "strikeType": "-",
+            "damageParam": "FallingAnthem_Normal_Rank_2_Damage"
+        },
+        {
+            "name": "Constellation_4",
+            "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV2/35",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "-"
+        },
+        {
+            "name": "Constellation_4",
+            "icd_source": "Tag: StarSuperconductorElectricDamage (!)",
+            "icd_rule": "Independent",
+            "gauge": "0U",
+            "poise": "LV2/35",
+            "element": "Electric",
+            "attackType": "Melee",
+            "strikeType": "-",
+            "damageParam": "-"
+        }
+    ],
+    "endure": []
+}

@@ -1,0 +1,68 @@
+--- a/internal/characters/cyno/cyno.go
++++ b/internal/characters/cyno/cyno.go
+@@ -87,6 +87,12 @@
+ }
+ 
+ func (c *char) ReduceActionCooldown(a action.Action, v int) {
++	if c.Core.SourceHost != nil && a == action.ActionSkill {
++		var id int
++		v, id = c.Core.SourceHost.CooldownRoute(c.Index(), a, v, "cyno", false)
++		c.Core.SourceHost.BeginCooldownContext(id)
++		defer c.Core.SourceHost.EndCooldownContext()
++	}
+ 	c.Character.ReduceActionCooldown(a, v)
+ 	if a == action.ActionSkill {
+ 		c.Character.ReduceActionCooldown(action.ActionLowPlunge, v)
+--- a/internal/characters/varka/varka.go
++++ b/internal/characters/varka/varka.go
+@@ -107,7 +107,14 @@
+ }
+ 
+ func (c *char) ReduceActionCooldown(a action.Action, v int) {
+-	if a == action.ActionSkill && c.StatusIsActive(skillKey) {
++	specialActive := a == action.ActionSkill && c.StatusIsActive(skillKey)
++	if c.Core.SourceHost != nil && a == action.ActionSkill {
++		var id int
++		v, id = c.Core.SourceHost.CooldownRoute(c.Index(), a, v, "varka-classic", specialActive)
++		c.Core.SourceHost.BeginCooldownContext(id)
++		defer c.Core.SourceHost.EndCooldownContext()
++	}
++	if specialActive {
+ 		c.reduceFourWindsCD(v)
+ 	}
+ 	c.Character.ReduceActionCooldown(a, v)
+--- a/internal/characters/varka/skill.go
++++ b/internal/characters/varka/skill.go
+@@ -200,7 +200,11 @@
+ 	if c.fourWindsCDDoneF < c.Core.F {
+ 		panic("c.fourWindsCDDoneF should not be less than c.Core.F")
+ 	}
+-	c.fourWindsCDDoneF = max(c.fourWindsCDDoneF-amt, c.Core.F)
++	if c.Core.SourceHost != nil {
++		c.fourWindsCDDoneF = c.Core.SourceHost.CooldownSpecialReduce(c.Index(), action.ActionSkill, c.fourWindsCDDoneF, amt, c.Core.F)
++	} else {
++		c.fourWindsCDDoneF = max(c.fourWindsCDDoneF-amt, c.Core.F)
++	}
+ 
+ 	c.Core.Log.NewEventBuildMsg(glog.LogCooldownEvent, c.Index(), action.ActionSkill.String(), " (four winds) cooldown forcefully reduced").
+ 		Write("type", action.ActionSkill.String()).
+--- a/internal/artifacts/thunderingfury/thunderingfury.go
++++ b/internal/artifacts/thunderingfury/thunderingfury.go
+@@ -94,7 +94,16 @@
+ 			return
+ 		}
+ 		char.AddStatus(icdKey, icd, true)
+-		char.ReduceActionCooldown(action.ActionSkill, 60)
++		reduction := 60
++		if c.SourceHost != nil {
++			var id int
++			reduction, id = c.SourceHost.CooldownSource(char.Index(), action.ActionSkill, "thundering-fury", reduction)
++			c.SourceHost.BeginCooldownContext(id)
++			char.ReduceActionCooldown(action.ActionSkill, reduction)
++			c.SourceHost.EndCooldownContext()
++		} else {
++			char.ReduceActionCooldown(action.ActionSkill, reduction)
++		}
+ 		c.Log.NewEvent("thunderfury 4pc proc", glog.LogArtifactEvent, char.Index()).
+ 			Write("reaction", atk.Info.Abil).
+ 			Write("new cd", char.Cooldown(action.ActionSkill))

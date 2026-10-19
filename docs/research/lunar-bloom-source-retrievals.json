@@ -1,0 +1,270 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "Lunar-Bloom direct ability and resource timing source audit; not in-game verification",
+  "sources": [
+    {
+      "repositoryPath": "internal/characters/columbina/asc.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/columbina/asc.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:01.022370+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 4097,
+      "sha256": "58986a718d6773fa5317fab85c3d57506fb40a4cce92b9a1e9b388e95fd82f20",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__columbina__asc.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/columbina/charge.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/columbina/charge.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:01.021725+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 3772,
+      "sha256": "ca60734828ddfeb51bdc48253362d38b16b636e7b00b7f5d28f4314cadde5de0",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__columbina__charge.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/columbina/columbina.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/columbina/columbina.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:02.451577+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 1871,
+      "sha256": "f0d4346ffca5007e934b658392545fbfbe1c2a629eba00647453bfa2fbebf498",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__columbina__columbina.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/columbina/skill.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/columbina/skill.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:01.539330+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 8633,
+      "sha256": "18370f7dd01684fdc196c225b40b4eb52549cd08abb7c7dd1baead26f6142cbf",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__columbina__skill.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/columbina/zz_columbina.dm.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/columbina/zz_columbina.dm.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:01.022397+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 3714,
+      "sha256": "815e0fd1f710aef639f8b8dccf36f43999a87a09ac2988dd1acfd301957828a0",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__columbina__zz_columbina.dm.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/lauma/asc.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/asc.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:01.022029+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 3214,
+      "sha256": "b613d0c753abb5106caa19972b1b24261d99b58c0cd6beb5d349d57fc4a7d54c",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__lauma__asc.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/lauma/cons.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/cons.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:02.451393+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 3965,
+      "sha256": "a37f57f8f602d323780614ac437b297f002a38b2bd1b7522b90b707ed88c5ca4",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__lauma__cons.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/lauma/lauma.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/lauma.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:01.982162+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 1709,
+      "sha256": "98b02c85f1af51d35ef0e8ee7e3f1712d34ef2943f40fa0f7d06ac1befbbfff2",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__lauma__lauma.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/lauma/skill.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/skill.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:05.813837+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 7422,
+      "sha256": "2acf748244a4070c6392dc8df59f411ad0adbe7e32b4dba47d8a4c09e1d64a9b",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__lauma__skill.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/characters/lauma/zz_lauma.dm.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/zz_lauma.dm.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:05.225478+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 4650,
+      "sha256": "4a2662631d55f9c891ed7a94a55cb8fc0901d02ed06e5e936b8011e043556aba",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__characters__lauma__zz_lauma.dm.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "internal/template/character/character.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:02.959550+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/internal__template__character__character.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/core/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:03.471281+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__core__attack.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/core/core.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:03.766346+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__core__core.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/core/player/character/character.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:03.739299+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__core__player__character__character.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/core/player/character/hitlag.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:05.930819+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__core__player__character__hitlag.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/core/player/player.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:04.472353+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__core__player__player.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/core/player/verdantdew.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/verdantdew.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:04.890826+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 2965,
+      "sha256": "ff0c23d92fc5ef087d8b5f99f29c64eef8f113b78b1d2c92aa6b12f31dd923d9",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__core__player__verdantdew.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/enemy/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:04.801768+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__enemy__attack.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "repositoryPath": "pkg/enemy/damage.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T08:15:05.597755+00:00",
+      "httpStatus": 200,
+      "contentType": "text/plain; charset=utf-8",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "localArtifact": "/tmp/gidps-lunar-bloom-sources/pkg__enemy__damage.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    }
+  ],
+  "repositoryTree": {
+    "url": "https://api.github.com/repos/genshinsim/gcsim/git/trees/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541?recursive=1",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "retrievedAt": "2026-09-23T08:15:11.653936+00:00",
+    "bytes": 1191820,
+    "sha256": "a9ef31a52356c0ddbe9fdd677e3339e9ad60b260079473c282316762ee58fee5",
+    "localArtifact": "/tmp/gidps-lunar-bloom-sources/git-tree.json",
+    "truncated": false,
+    "neferCharacterFileCount": 0
+  },
+  "localProjectionComparison": {
+    "sourceCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "releaseStatus": "official-next",
+    "localArtifact": "/Users/evan/Documents/gidps/packages/game-data/manifests/source-evidence/genshin-db-7.1-projection.json.gz",
+    "compressedFileSha256": "3d64a1813e73dcf0563daa5a73670460a27910e2683e9b9ddd7820775fee4ae7",
+    "comparisons": [
+      {
+        "gcsimVariable": "columbina.chargeLB",
+        "localProjectionField": "stats.talents.columbina.combat1.param6",
+        "valuesCompared": 15,
+        "exactlyEqual": true
+      },
+      {
+        "gcsimVariable": "columbina.skillLB",
+        "localProjectionField": "stats.talents.columbina.combat2.param4",
+        "valuesCompared": 15,
+        "exactlyEqual": true
+      },
+      {
+        "gcsimVariable": "lauma.skillHold2",
+        "localProjectionField": "stats.talents.lauma.combat2.param3",
+        "valuesCompared": 15,
+        "exactlyEqual": true
+      }
+    ]
+  }
+}

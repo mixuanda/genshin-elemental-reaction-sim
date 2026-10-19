@@ -1,0 +1,10 @@
+[WebServer] (node:94440) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:94441) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-recurring-skill-ownership.spec.ts:88:1 › recurring skill casts close only their native owned status, entity, and callback lifecycles (20.6s)
+
+  1 passed (21.7s)

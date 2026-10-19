@@ -1,0 +1,65 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts(1,32): error TS2307: Cannot find module '@genshin-optimizer/gi/consts' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts(1,32): error TS2307: Cannot find module '@genshin-optimizer/gi/consts' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts(8,8): error TS2307: Cannot find module '../util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/AshGravenDrinkingHorn.ts(9,34): error TS2307: Cannot find module './util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/Halberd.ts(1,32): error TS2307: Cannot find module '@genshin-optimizer/gi/consts' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/Halberd.ts(8,8): error TS2307: Cannot find module '../util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/Halberd.ts(9,34): error TS2307: Cannot find module './util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts(1,32): error TS2307: Cannot find module '@genshin-optimizer/gi/consts' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts(8,8): error TS2307: Cannot find module '../util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/formula/src/data/weapon/SequenceOfSolitude.ts(9,34): error TS2307: Cannot find module './util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(5,8): error TS2307: Cannot find module '@genshin-optimizer/common/util' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(12,8): error TS2307: Cannot find module '@genshin-optimizer/gi/consts' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(16,8): error TS2307: Cannot find module '@genshin-optimizer/gi/keymap' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(28,8): error TS2307: Cannot find module '@genshin-optimizer/gi/wr-types' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(29,22): error TS2307: Cannot find module './info' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(30,31): error TS2307: Cannot find module './internal' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(31,71): error TS2307: Cannot find module './type' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(54,8): error TS2307: Cannot find module './utils' or its corresponding type declarations.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(59,39): error TS7006: Parameter 't' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(62,49): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(65,55): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(96,43): error TS7006: Parameter 'reaction' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(149,42): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(162,36): error TS7006: Parameter 'talent' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(173,37): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(174,42): error TS7006: Parameter '_' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(180,42): error TS7006: Parameter 'set' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(202,24): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(203,8): error TS7006: Parameter '_' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(207,35): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(231,55): error TS7006: Parameter '_' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(245,34): error TS7006: Parameter 'stat' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(265,6): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(268,31): error TS7006: Parameter 'talent' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(269,35): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(280,32): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(294,39): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(300,36): error TS7006: Parameter 'move' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(314,39): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(320,36): error TS7006: Parameter 'move' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(342,31): error TS7006: Parameter 'talent' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(343,32): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(344,35): error TS7006: Parameter 'key' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(345,34): error TS7006: Parameter 'talent' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(363,30): error TS7006: Parameter 'move' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(372,33): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(387,37): error TS7006: Parameter 'element' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(393,34): error TS7006: Parameter 'move' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(446,33): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(509,35): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts(520,32): error TS7006: Parameter 'ele' implicitly has an 'any' type.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"actionConditionLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "periodicEntityLog" | "playerHealthEvents" | "stamina" | "statConversionLog" | "summonLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: weaponProcLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: weaponProcLog" | ... 9 more ... | "Expected: literal string: summonLog, Actual: literal string: weaponProcLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: weaponProcLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: weaponProcLog" | ... 9 more ... | "Expected: literal string: summonLog, Actual: literal string: weaponProcLog"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "periodicEntityLog" | "playerHealthEvents" | "stamina" | "statConversionLog" | "summonLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: weaponProcLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: weaponProcLog" | ... 9 more ... | "Expected: literal string: summonLog, Actual: literal string: weaponProcLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: weaponProcLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: weaponProcLog" | ... 9 more ... | "Expected: literal string: summonLog, Actual: literal string: weaponProcLog"'.
+packages/sim-core/src/simulator.ts(16390,61): error TS2322: Type 'number | null' is not assignable to type '3 | null'.
+  Type 'number' is not assignable to type '3'.

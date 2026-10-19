@@ -1,0 +1,48 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/noelle-source-action.test.ts (2 tests | 2 failed) 24ms
+     × matches the single external damage fixture and restores actual conversion, delayed energy and RNG context 21ms
+     × takes live DEF at cast, preserves its value after DEF buff expiry and removes ATK/Geo exactly at conversion expiry 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/noelle-source-action.test.ts > Noelle source Q to normal chain > matches the single external damage fixture and restores actual conversion, delayed energy and RNG context
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.0.hits.0.application: aura-v1 elemental applications currently support only pyro, cryo, and hydro hits
+- timeline.abilities.0.hits.1.application: aura-v1 elemental applications currently support only pyro, cryo, and hydro hits
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33417:11
+    33415|   if (!parsed.success) {
+    33416|     const issues = formatZodError(parsed.error);
+    33417|     throw new ConfigMigrationError(
+       |           ^
+    33418|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33419|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34824:12
+ ❯ simulate packages/sim-core/src/simulator.ts:17945:18
+ ❯ packages/sim-core/src/__tests__/noelle-source-action.test.ts:19:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/noelle-source-action.test.ts > Noelle source Q to normal chain > takes live DEF at cast, preserves its value after DEF buff expiry and removes ATK/Geo exactly at conversion expiry
+ConfigMigrationError: 配置校验失败：
+- reactionEngine: aura-v1 through aura-v9 currently require timeline.mode legal-frame-v1
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33417:11
+    33415|   if (!parsed.success) {
+    33416|     const issues = formatZodError(parsed.error);
+    33417|     throw new ConfigMigrationError(
+       |           ^
+    33418|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33419|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34824:12
+ ❯ simulate packages/sim-core/src/simulator.ts:17945:18
+ ❯ packages/sim-core/src/__tests__/noelle-source-action.test.ts:54:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 1 passed (3)
+   Start at  21:31:41
+   Duration  901ms (transform 576ms, setup 0ms, import 749ms, tests 26ms, environment 0ms)
+

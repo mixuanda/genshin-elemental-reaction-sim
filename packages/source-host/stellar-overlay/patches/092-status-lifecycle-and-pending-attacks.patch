@@ -1,0 +1,266 @@
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -48,7 +48,36 @@
+ 
+ // Add.
+ 
++// sourceHostStatusForKey identifies the exact object modifier.Add will replace.
++func (c *CharWrapper) sourceHostStatusForKey(key string) *Status {
++	i := modifier.Find(&c.mods, key)
++	if i < 0 {
++		return nil
++	}
++	status, _ := c.mods[i].(*Status)
++	return status
++}
++
++func (c *CharWrapper) sourceHostRecordReplacement(previous *Status) {
++	if c.SourceHost != nil && previous != nil {
++		c.SourceHost.RecordStatusReplaced(previous.SourceHostStatusOwner, previous.Expiry())
++	}
++}
++
++// SourceHostObserveStatusesAtEnd reads only actual retained Status objects.
++func (c *CharWrapper) SourceHostObserveStatusesAtEnd() {
++	if c.SourceHost == nil {
++		return
++	}
++	for _, mod := range c.mods {
++		if status, ok := mod.(*Status); ok {
++			c.SourceHost.ObserveLiveStatus(status.SourceHostStatusOwner, status.Expiry())
++		}
++	}
++}
++
+ func (c *CharWrapper) AddStatus(key string, dur int, hitlag bool) {
++	previous := c.sourceHostStatusForKey(key)
+ 	mod := Status{
+ 		Base: modifier.Base{
+ 			ModKey: key,
+@@ -70,6 +99,14 @@
+ 		mod.ModExpiry = *c.f + mod.Dur
+ 	}
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	if c.SourceHost != nil {
++		var previousOwner *info.SourceHostStatusOwner
++		var previousExpiry int
++		if previous != nil {
++			previousOwner, previousExpiry = previous.SourceHostStatusOwner, previous.Expiry()
++		}
++		c.SourceHost.RecordStatusAdded(mod.SourceHostStatusOwner, mod.Expiry(), overwrote, previousOwner, previousExpiry)
++	}
+ 	modifier.LogAdd("status", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -90,8 +127,10 @@
+ //		},
+ //	})
+ func (c *CharWrapper) AddAttackMod(mod AttackMod) {
++	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	c.sourceHostRecordReplacement(previous)
+ 	modifier.LogAdd("attack", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -109,14 +148,18 @@
+ //		},
+ //	})
+ func (c *CharWrapper) AddCooldownMod(mod CooldownMod) {
++	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	c.sourceHostRecordReplacement(previous)
+ 	modifier.LogAdd("cd", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+ func (c *CharWrapper) AddDamageReductionMod(mod DamageReductionMod) {
++	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	c.sourceHostRecordReplacement(previous)
+ 	modifier.LogAdd("dr", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -129,8 +172,10 @@
+ //		},
+ //	})
+ func (c *CharWrapper) AddHealBonusMod(mod HealBonusMod) {
++	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	c.sourceHostRecordReplacement(previous)
+ 	modifier.LogAdd("heal bonus", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -148,8 +193,10 @@
+ //		},
+ //	})
+ func (c *CharWrapper) AddReactBonusMod(mod ReactBonusMod) {
++	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	c.sourceHostRecordReplacement(previous)
+ 	modifier.LogAdd("react bonus", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -165,8 +212,10 @@
+ //		 },
+ //	})
+ func (c *CharWrapper) AddStatMod(mod StatMod) {
++	previous := c.sourceHostStatusForKey(mod.Key())
+ 	mod.SetExpiry(*c.f)
+ 	overwrote, oldEvt := modifier.Add[modifier.Mod](&c.mods, &mod, *c.f)
++	c.sourceHostRecordReplacement(previous)
+ 	modifier.LogAdd("stat", c.Index(), &mod, c.log, overwrote, oldEvt)
+ }
+ 
+@@ -174,6 +223,11 @@
+ 
+ func (c *CharWrapper) deleteMod(key string) {
+ 	m := modifier.Delete(&c.mods, key)
++	if c.SourceHost != nil {
++		if status, ok := m.(*Status); ok {
++			c.SourceHost.RecordStatusRemoved(status.SourceHostStatusOwner, status.Expiry())
++		}
++	}
+ 	if m != nil && (m.Expiry() > *c.f || m.Expiry() == -1) {
+ 		m.Event().SetEnded(*c.f)
+ 	}
+@@ -192,6 +246,7 @@
+ 	_, ok := modifier.FindCheckExpiry(&c.mods, key, *c.f)
+ 	return ok
+ }
++
+ // SourceHostStatusOwner returns the exact active Status object's captured
+ // owner. A missing, expired, deleted, or differently typed modifier has no owner.
+ func (c *CharWrapper) SourceHostStatusOwner(key string) *info.SourceHostStatusOwner {
+@@ -268,7 +323,10 @@
+ 	}
+ 
+ 	read := c.beginSourceHostStatRead("attack-mods", a.Snapshot.Stats, nil, false)
+-	if read != nil { target := int(t.Key()); read.TargetKey = &target }
++	if read != nil {
++		target := int(t.Key())
++		read.TargetKey = &target
++	}
+ 	defer c.endSourceHostStatRead(read)
+ 	var sb strings.Builder
+ 	var logDetails []any
+@@ -303,7 +361,9 @@
+ 			a.Snapshot.Stats[k] += v
+ 		}
+ 		outcome := "applied"
+-		if reject { outcome = "returned-nil" }
++		if reject {
++			outcome = "returned-nil"
++		}
+ 		c.finishSourceHostStatStep(step, outcome, returned, a.Snapshot.Stats, m.Expiry())
+ 		c.mods[n] = v
+ 		n++
+@@ -334,7 +394,9 @@
+ 		sb.Reset()
+ 	}
+ 	c.mods = c.mods[:n]
+-	if read != nil { read.Result = a.Snapshot.Stats }
++	if read != nil {
++		read.Result = a.Snapshot.Stats
++	}
+ 	sourcehost.AppendAttackStatRead(&a.Snapshot, read)
+ 	return logDetails
+ }
+@@ -373,7 +435,9 @@
+ 		}
+ 	}
+ 	c.mods = c.mods[:n]
+-	if read != nil { read.Sum, read.Output = cd, cd }
++	if read != nil {
++		read.Sum, read.Output = cd, cd
++	}
+ 
+ 	if c.SourceHost != nil {
+ 		return c.SourceHost.CooldownDuration(c.Index(), a, dur, cd, read)
+@@ -461,6 +525,9 @@
+ 		}
+ 	}
+ 	c.mods = c.mods[:n]
+-	if read != nil { read.Sum = amt; read.Output = amt }
++	if read != nil {
++		read.Sum = amt
++		read.Output = amt
++	}
+ 	return amt, read
+ }
+--- a/pkg/core/attack.go
++++ b/pkg/core/attack.go
+@@ -20,7 +20,9 @@
+ 		Snapshot:    s,
+ 		SourceFrame: c.F,
+ 	}
+-	if c.SourceHost != nil { c.SourceHost.CaptureAttack(&ae) }
++	if c.SourceHost != nil {
++		c.SourceHost.CaptureAttack(&ae)
++	}
+ 	// add callbacks only if not nil
+ 	for _, f := range callbacks {
+ 		if f != nil {
+@@ -31,7 +33,9 @@
+ }
+ 
+ func (c *Core) QueueAttackEvent(ae *info.AttackEvent, dmgDelay int) {
+-	if c.SourceHost != nil { c.SourceHost.CaptureAttack(ae) }
++	if c.SourceHost != nil {
++		c.SourceHost.CaptureAttack(ae)
++	}
+ 	c.queueDmg(ae, dmgDelay)
+ }
+ 
+@@ -56,7 +60,9 @@
+ 		Pattern:     p,
+ 		SourceFrame: c.F,
+ 	}
+-	if c.SourceHost != nil { c.SourceHost.CaptureAttack(&ae) }
++	if c.SourceHost != nil {
++		c.SourceHost.CaptureAttack(&ae)
++	}
+ 	// add callbacks only if not nil
+ 	for _, f := range callbacks {
+ 		if f != nil {
+@@ -74,7 +80,14 @@
+ 		c.queueDmg(&ae, dmgDelay)
+ 	default:
+ 		// use add task ctrl to queue; no need to track here
++		var stageID int
++		if c.SourceHost != nil {
++			stageID = c.SourceHost.ScheduleAttackStage(&ae, "snapshot", snapshotDelay)
++		}
+ 		c.Tasks.Add(func() {
++			if c.SourceHost != nil {
++				c.SourceHost.BeginAttackStage(stageID)
++			}
+ 			c.generateSnapshot(&ae)
+ 			c.queueDmg(&ae, dmgDelay-snapshotDelay)
+ 		}, snapshotDelay)
+@@ -90,12 +103,21 @@
+ }
+ 
+ func (c *Core) queueDmg(a *info.AttackEvent, delay int) {
+-	if c.SourceHost != nil { c.SourceHost.PrepareAttack(a) }
++	if c.SourceHost != nil {
++		c.SourceHost.PrepareAttack(a)
++	}
+ 	if delay == 0 {
+ 		c.Combat.ApplyAttack(a)
+ 		return
+ 	}
++	var stageID int
++	if c.SourceHost != nil {
++		stageID = c.SourceHost.ScheduleAttackStage(a, "application", delay)
++	}
+ 	c.Tasks.Add(func() {
++		if c.SourceHost != nil {
++			c.SourceHost.BeginAttackStage(stageID)
++		}
+ 		c.Combat.ApplyAttack(a)
+ 	}, delay)
+ }

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "source-character-additive-validation-v1",
+  "laneFilter": "both",
+  "measurements": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "be81467f8dc8c2aa0fcb626c685c7ab2191065b6cd6669fe2fbbc6f1ca69f8e1",
+      "applications": 10,
+      "calculations": 2594,
+      "observedRules": {
+        "char-add-yunjin-burst": 3,
+        "char-add-kokomi-a4": 2,
+        "char-add-xianyun-a4-atk-snapshot": 23,
+        "char-add-xianyun-a4": 1
+      },
+      "normal": {
+        "applicationId": 520,
+        "frame": 148,
+        "kokomiId": 518,
+        "yunJinId": 513,
+        "kokomiValue": 1246.7588733900002,
+        "yunJinValue": 291.26032761294005,
+        "replayDifference": 0
+      },
+      "plunge": {
+        "applicationId": 1243,
+        "frame": 357,
+        "hitId": 1241,
+        "creationId": 1210,
+        "creationFrame": 342,
+        "hitValue": 2375.454244032,
+        "snapshotValue": 1187.727122016,
+        "replayDifference": 0
+      },
+      "edit": {
+        "calculationId": 518,
+        "originalValue": 1246.7588733900002,
+        "editedValue": 1584.2588733900002,
+        "originalCaptureUnchanged": true,
+        "restoredValue": 1584.2588733900002,
+        "scope": "formula-only"
+      }
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "d9a59c26391b36eee390f36799aca9e254d43a75f6cc85b84d46e5f9dab2387f",
+      "applications": 10,
+      "calculations": 2590,
+      "observedRules": {
+        "char-add-yunjin-burst": 3,
+        "char-add-kokomi-a4": 2,
+        "char-add-xianyun-a4-atk-snapshot": 23,
+        "char-add-xianyun-a4": 1
+      },
+      "normal": {
+        "applicationId": 512,
+        "frame": 146,
+        "kokomiId": 510,
+        "yunJinId": 505,
+        "kokomiValue": 1246.7588733900002,
+        "yunJinValue": 291.26032761294005,
+        "replayDifference": 0
+      },
+      "plunge": {
+        "applicationId": 1235,
+        "frame": 355,
+        "hitId": 1233,
+        "creationId": 1202,
+        "creationFrame": 340,
+        "hitValue": 2375.454244032,
+        "snapshotValue": 1187.727122016,
+        "replayDifference": 0
+      }
+    }
+  ],
+  "pageErrors": []
+}

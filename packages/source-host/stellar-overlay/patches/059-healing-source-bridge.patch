@@ -1,0 +1,65 @@
+diff --git a/pkg/core/info/heal.go b/pkg/core/info/heal.go
+--- a/pkg/core/info/heal.go
++++ b/pkg/core/info/heal.go
+@@ -1,12 +1,14 @@
+ package info
+ 
+ type HealInfo struct {
+-	Caller  int // index of healing character
+-	Target  int // index of char receiving the healing. use -1 to heal all characters
+-	Type    HealType
+-	Message string
+-	Src     float64 // depends on the type
+-	Bonus   float64
++	Caller            int // index of healing character
++	Target            int // index of char receiving the healing. use -1 to heal all characters
++	Type              HealType
++	Message           string
++	Src               float64 // depends on the type
++	Bonus             float64
++	SourceHostSrcID   int // source formula that wrote Src; zero means unavailable
++	SourceHostBonusID int // source formula that wrote Bonus; zero means unavailable
+ }
+ 
+ type HealType int
+diff --git a/internal/template/character/heal.go b/internal/template/character/heal.go
+--- a/internal/template/character/heal.go
++++ b/internal/template/character/heal.go
+@@ -36,7 +36,11 @@
+ 	baseInput["healType"] = healType
+ 	baseID, bonusID := 0, 0
+ 	if c.Core.SourceHost != nil {
+-		hp, baseID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message, baseInput, maxHPRead, nil, nil)
++		var srcComponents []int
++		if hi.SourceHostSrcID > 0 {
++			srcComponents = []int{hi.SourceHostSrcID}
++		}
++		hp, baseID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message, baseInput, maxHPRead, nil, srcComponents)
+ 	}
+ 	healBonus := 0.0
+ 	var bonusRead *info.SourceHostScalarRead
+@@ -47,8 +51,12 @@
+ 	}
+ 	bonus = 1 + healBonus + hi.Bonus
+ 	if c.Core.SourceHost != nil {
++		var bonusComponents []int
++		if hi.SourceHostBonusID > 0 {
++			bonusComponents = []int{hi.SourceHostBonusID}
++		}
+ 		bonus, bonusID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
+-			map[string]any{"operation": "bonus", "healBonus": healBonus, "infoBonus": hi.Bonus}, nil, bonusRead, nil)
++			map[string]any{"operation": "bonus", "healBonus": healBonus, "infoBonus": hi.Bonus}, nil, bonusRead, bonusComponents)
+ 	}
+ 	return hp, bonus, baseID, bonusID
+ }
+@@ -92,7 +100,9 @@
+ 	overhealID := 0
+ 	if c.Core.SourceHost != nil {
+ 		components := []int{amountID}
+-		if receiveID > 0 { components = append(components, receiveID) }
++		if receiveID > 0 {
++			components = append(components, receiveID)
++		}
+ 		overheal, overhealID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
+ 			map[string]any{"operation": "overheal", "previousHp": prevHP, "receivedAmount": heal,
+ 				"maxHpForOverheal": maxHpForOverheal}, maxHPRead, nil, components)

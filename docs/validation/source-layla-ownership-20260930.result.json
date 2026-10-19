@@ -1,0 +1,3284 @@
+{
+  "schemaVersion": "source-layla-ownership-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=30 ignore_burst_energy=true;\nchongyun char lvl=90/90 cons=2 talent=1,1,1;\nchongyun add weapon=\"wastergreatsword\" refine=1 lvl=1/20;\nlayla char lvl=90/90 cons=0 talent=1,1,1;\nlayla add weapon=\"dullblade\" refine=1 lvl=1/20;\nkaeya char lvl=90/90 cons=0 talent=1,1,1;\nkaeya add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.4,1;\nactive chongyun;\nchongyun skill;\nlayla skill;\nlayla burst;\nwait(180);\nkaeya skill;\nwait(300);\nlayla skill;\nwait(1000);",
+    "seed": "20260930126",
+    "baselinePath": "docs/validation/source-layla-ownership-20260930.baseline.json",
+    "capturePath": "docs/validation/source-layla-ownership-20260930.capture.json",
+    "runs": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "b5e123ee3ef4dee2b96ff5388f2a7ccbdbced93e27a680a391c95ccd318aa1e1",
+          "wasmBytes": 46922059
+        },
+        "applications": 58,
+        "baselineComparison": {
+          "damageAndOriginsEqual": true,
+          "actionLogsEqual": true
+        },
+        "laylaInvocations": [
+          {
+            "id": 2,
+            "actionSequence": 3,
+            "action": "skill",
+            "contractId": "layla-skill",
+            "expectedRootAttackCount": 17,
+            "observedRootAttackCount": 17,
+            "completeCast": true,
+            "includedHitCount": 34,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "report": {
+              "contract": {
+                "id": "layla-skill",
+                "label": "莱依拉 E：护盾归属与完整星矢",
+                "characterKey": "layla",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/layla/skill.go",
+                "sourceSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                "sourceHashes": {
+                  "classicSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                  "stellarSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+                },
+                "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+                "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+                "producerContract": true,
+                "scopeNotes": [
+                  "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                  "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                  "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                  "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                  "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                  "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+                ],
+                "ownedShieldContract": true,
+                "shieldProducerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 17,
+              "completedRootAttackCount": 17,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 17,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [
+                1
+              ],
+              "shieldCount": 1,
+              "endedShieldCount": 1,
+              "openShieldCount": 0,
+              "shieldHookCount": 25,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38
+              ],
+              "shieldProducerCount": 38,
+              "completedShieldProducerCount": 38,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（24 次应用）"
+              ],
+              "scopeNotes": [
+                "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+              ]
+            }
+          },
+          {
+            "id": 3,
+            "actionSequence": 4,
+            "action": "burst",
+            "contractId": "layla-burst",
+            "expectedRootAttackCount": 8,
+            "observedRootAttackCount": 8,
+            "completeCast": true,
+            "includedHitCount": 16,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "report": {
+              "contract": {
+                "id": "layla-burst",
+                "label": "莱依拉 Q：弹体与晚星贡献归属",
+                "characterKey": "layla",
+                "action": "burst",
+                "method": "Burst",
+                "sourcePath": "internal/characters/layla/burst.go",
+                "sourceSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289",
+                "sourceHashes": {
+                  "classicSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289",
+                  "stellarSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289"
+                },
+                "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+                "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+                "producerContract": true,
+                "scopeNotes": [
+                  "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+                  "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+                  "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+                  "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+                ],
+                "hitCallbackContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/burst.go"
+                ]
+              },
+              "expectedRootAttackCount": 8,
+              "completedRootAttackCount": 8,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 8,
+              "producerCount": 8,
+              "completedProducerCount": 8,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 16,
+              "completedHitCallbackBatchCount": 16,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 16,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "明确父攻击与目标的已审阅命中回调所产生的本技能追加攻击"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（42 次应用）"
+              ],
+              "scopeNotes": [
+                "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+                "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+                "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+                "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+              ]
+            }
+          },
+          {
+            "id": 5,
+            "actionSequence": 8,
+            "action": "skill",
+            "contractId": "layla-skill",
+            "expectedRootAttackCount": 1,
+            "observedRootAttackCount": 1,
+            "completeCast": true,
+            "includedHitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "report": {
+              "contract": {
+                "id": "layla-skill",
+                "label": "莱依拉 E：护盾归属与完整星矢",
+                "characterKey": "layla",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/layla/skill.go",
+                "sourceSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                "sourceHashes": {
+                  "classicSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                  "stellarSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+                },
+                "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+                "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+                "producerContract": true,
+                "scopeNotes": [
+                  "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                  "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                  "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                  "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                  "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                  "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+                ],
+                "ownedShieldContract": true,
+                "shieldProducerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/layla/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 1,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [
+                1
+              ],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（56 次应用）"
+              ],
+              "scopeNotes": [
+                "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+              ]
+            }
+          }
+        ],
+        "shield": {
+          "id": 1,
+          "creationSiteId": "layla.skill.shield",
+          "birthInvocationId": 2,
+          "terminalFrame": 1427,
+          "terminalReason": "expired",
+          "refreshProducer": {
+            "id": 11,
+            "invocationId": 5,
+            "taskId": 134,
+            "siteId": "layla.skill.shield-update",
+            "entryFacts": {
+              "layla.skill.refresh": 1,
+              "layla.skill.shield-instance": 1,
+              "layla.tick.branch": 2
+            },
+            "actorIndex": 1,
+            "queuedFrame": 688,
+            "startedFrame": 707,
+            "completedFrame": 707,
+            "state": "completed",
+            "queuedAttacks": []
+          },
+          "refreshHook": {
+            "id": 15,
+            "instanceId": 1,
+            "siteId": "layla.skill.shield-refresh",
+            "cause": "refresh",
+            "abilityProducerId": 11,
+            "entryFacts": {
+              "layla.refresh.expiry-after": 1427,
+              "layla.refresh.expiry-before": 796
+            },
+            "startedFrame": 707,
+            "completedFrame": 707,
+            "hpBefore": 2525.502969476544,
+            "hpAfter": 2525.502969476544,
+            "queuedAttacks": []
+          }
+        },
+        "externalSkillContribution": {
+          "kaeyaInvocationId": 4,
+          "kaeyaStartedFrame": 346,
+          "listenerCall": {
+            "id": 27,
+            "emissionId": 11,
+            "registrationId": 3,
+            "slotIndex": 0,
+            "eventType": 57,
+            "key": "stars-skill",
+            "siteId": "layla.shield.on-skill",
+            "startedFrame": 346,
+            "completedFrame": 346,
+            "queuedAttacks": [],
+            "entryFacts": {
+              "layla.shield.instance": 1
+            }
+          },
+          "emission": {
+            "id": 11,
+            "eventType": 57,
+            "mode": "gameplay",
+            "frame": 346,
+            "targetKey": 0,
+            "listenerIds": [
+              27
+            ],
+            "suppressedListenerIds": [],
+            "completedFrame": 346
+          },
+          "hook": {
+            "id": 6,
+            "instanceId": 1,
+            "siteId": "layla.shield.skill-stars",
+            "cause": "trigger",
+            "eventListenerCallId": 27,
+            "entryFacts": {
+              "layla.stars.branch": 0,
+              "layla.stars.count": 2
+            },
+            "startedFrame": 346,
+            "completedFrame": 346,
+            "hpBefore": 2525.502969476544,
+            "hpAfter": 2525.502969476544,
+            "queuedAttacks": []
+          }
+        },
+        "qSlugProducerCount": 8,
+        "qQueuedAttackCount": 8,
+        "qCallbackLinks": [
+          {
+            "callback": {
+              "id": 3,
+              "batchId": 5,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 214,
+              "completedFrame": 214,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 5,
+              "parentQueueId": 9,
+              "parentAttackId": 3,
+              "parentDispatchId": 3,
+              "targetKey": 1,
+              "queuedFrame": 214,
+              "runFrame": 214,
+              "completedFrame": 214,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                3
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 3,
+                "invocationId": 3,
+                "taskId": 33,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 136,
+                "completedFrame": 136,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 9,
+                    "attackId": 3,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 136
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 9,
+                "attackId": 3,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 136
+              }
+            },
+            "hook": {
+              "id": 2,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 3,
+              "entryFacts": {
+                "layla.stars.after": 2,
+                "layla.stars.before": 1,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 214,
+              "completedFrame": 214,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 4,
+              "batchId": 6,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 214,
+              "completedFrame": 214,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 6,
+              "parentQueueId": 9,
+              "parentAttackId": 3,
+              "parentDispatchId": 3,
+              "targetKey": 2,
+              "queuedFrame": 214,
+              "runFrame": 214,
+              "completedFrame": 214,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                4
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 3,
+                "invocationId": 3,
+                "taskId": 33,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 136,
+                "completedFrame": 136,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 9,
+                    "attackId": 3,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 136
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 9,
+                "attackId": 3,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 136
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 5,
+              "batchId": 7,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 304,
+              "completedFrame": 304,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 7,
+              "parentQueueId": 13,
+              "parentAttackId": 4,
+              "parentDispatchId": 4,
+              "targetKey": 1,
+              "queuedFrame": 304,
+              "runFrame": 304,
+              "completedFrame": 304,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                5
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 4,
+                "invocationId": 3,
+                "taskId": 34,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 226,
+                "completedFrame": 226,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 13,
+                    "attackId": 4,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 226
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 13,
+                "attackId": 4,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 226
+              }
+            },
+            "hook": {
+              "id": 4,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 5,
+              "entryFacts": {
+                "layla.stars.after": 4,
+                "layla.stars.before": 3,
+                "layla.stars.branch": 4,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 304,
+              "completedFrame": 304,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 6,
+              "batchId": 8,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 304,
+              "completedFrame": 304,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 8,
+              "parentQueueId": 13,
+              "parentAttackId": 4,
+              "parentDispatchId": 4,
+              "targetKey": 2,
+              "queuedFrame": 304,
+              "runFrame": 304,
+              "completedFrame": 304,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                6
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 4,
+                "invocationId": 3,
+                "taskId": 34,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 226,
+                "completedFrame": 226,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 13,
+                    "attackId": 4,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 226
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 13,
+                "attackId": 4,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 226
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 17,
+              "batchId": 13,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 394,
+              "completedFrame": 394,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 13,
+              "parentQueueId": 17,
+              "parentAttackId": 8,
+              "parentDispatchId": 7,
+              "targetKey": 1,
+              "queuedFrame": 394,
+              "runFrame": 394,
+              "completedFrame": 394,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                17
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 5,
+                "invocationId": 3,
+                "taskId": 35,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 316,
+                "completedFrame": 316,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 17,
+                    "attackId": 8,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 316
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 17,
+                "attackId": 8,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 316
+              }
+            },
+            "hook": {
+              "id": 7,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 17,
+              "entryFacts": {
+                "layla.stars.branch": 0,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 394,
+              "completedFrame": 394,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 18,
+              "batchId": 14,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 394,
+              "completedFrame": 394,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 14,
+              "parentQueueId": 17,
+              "parentAttackId": 8,
+              "parentDispatchId": 7,
+              "targetKey": 2,
+              "queuedFrame": 394,
+              "runFrame": 394,
+              "completedFrame": 394,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                18
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 5,
+                "invocationId": 3,
+                "taskId": 35,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 316,
+                "completedFrame": 316,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 17,
+                    "attackId": 8,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 316
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 17,
+                "attackId": 8,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 316
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 31,
+              "batchId": 21,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 484,
+              "completedFrame": 484,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 21,
+              "parentQueueId": 34,
+              "parentAttackId": 11,
+              "parentDispatchId": 11,
+              "targetKey": 1,
+              "queuedFrame": 484,
+              "runFrame": 484,
+              "completedFrame": 484,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                31
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 6,
+                "invocationId": 3,
+                "taskId": 36,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 406,
+                "completedFrame": 406,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 34,
+                    "attackId": 11,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 406
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 34,
+                "attackId": 11,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 406
+              }
+            },
+            "hook": {
+              "id": 8,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 31,
+              "entryFacts": {
+                "layla.stars.after": 1,
+                "layla.stars.before": 0,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 484,
+              "completedFrame": 484,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 32,
+              "batchId": 22,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 484,
+              "completedFrame": 484,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 22,
+              "parentQueueId": 34,
+              "parentAttackId": 11,
+              "parentDispatchId": 11,
+              "targetKey": 2,
+              "queuedFrame": 484,
+              "runFrame": 484,
+              "completedFrame": 484,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                32
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 6,
+                "invocationId": 3,
+                "taskId": 36,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 406,
+                "completedFrame": 406,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 34,
+                    "attackId": 11,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 406
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 34,
+                "attackId": 11,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 406
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 33,
+              "batchId": 23,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 574,
+              "completedFrame": 574,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 23,
+              "parentQueueId": 45,
+              "parentAttackId": 12,
+              "parentDispatchId": 12,
+              "targetKey": 1,
+              "queuedFrame": 574,
+              "runFrame": 574,
+              "completedFrame": 574,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                33
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 7,
+                "invocationId": 3,
+                "taskId": 37,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 496,
+                "completedFrame": 496,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 45,
+                    "attackId": 12,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 496
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 45,
+                "attackId": 12,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 496
+              }
+            },
+            "hook": {
+              "id": 10,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 33,
+              "entryFacts": {
+                "layla.stars.after": 3,
+                "layla.stars.before": 2,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 574,
+              "completedFrame": 574,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 34,
+              "batchId": 24,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 574,
+              "completedFrame": 574,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 24,
+              "parentQueueId": 45,
+              "parentAttackId": 12,
+              "parentDispatchId": 12,
+              "targetKey": 2,
+              "queuedFrame": 574,
+              "runFrame": 574,
+              "completedFrame": 574,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                34
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 7,
+                "invocationId": 3,
+                "taskId": 37,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 496,
+                "completedFrame": 496,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 45,
+                    "attackId": 12,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 496
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 45,
+                "attackId": 12,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 496
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 37,
+              "batchId": 27,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 664,
+              "completedFrame": 664,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 27,
+              "parentQueueId": 49,
+              "parentAttackId": 14,
+              "parentDispatchId": 14,
+              "targetKey": 1,
+              "queuedFrame": 664,
+              "runFrame": 664,
+              "completedFrame": 664,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                37
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 8,
+                "invocationId": 3,
+                "taskId": 38,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 586,
+                "completedFrame": 586,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 49,
+                    "attackId": 14,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 586
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 49,
+                "attackId": 14,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 586
+              }
+            },
+            "hook": {
+              "id": 12,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 37,
+              "entryFacts": {
+                "layla.stars.branch": 0,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 664,
+              "completedFrame": 664,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 38,
+              "batchId": 28,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 664,
+              "completedFrame": 664,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 28,
+              "parentQueueId": 49,
+              "parentAttackId": 14,
+              "parentDispatchId": 14,
+              "targetKey": 2,
+              "queuedFrame": 664,
+              "runFrame": 664,
+              "completedFrame": 664,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                38
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 8,
+                "invocationId": 3,
+                "taskId": 38,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 586,
+                "completedFrame": 586,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 49,
+                    "attackId": 14,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 586
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 49,
+                "attackId": 14,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 586
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 55,
+              "batchId": 39,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 754,
+              "completedFrame": 754,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 39,
+              "parentQueueId": 62,
+              "parentAttackId": 20,
+              "parentDispatchId": 20,
+              "targetKey": 1,
+              "queuedFrame": 754,
+              "runFrame": 754,
+              "completedFrame": 754,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                55
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 9,
+                "invocationId": 3,
+                "taskId": 39,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 676,
+                "completedFrame": 676,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 62,
+                    "attackId": 20,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 676
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 62,
+                "attackId": 20,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 676
+              }
+            },
+            "hook": {
+              "id": 16,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 55,
+              "entryFacts": {
+                "layla.stars.after": 1,
+                "layla.stars.before": 0,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 754,
+              "completedFrame": 754,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 56,
+              "batchId": 40,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 754,
+              "completedFrame": 754,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 40,
+              "parentQueueId": 62,
+              "parentAttackId": 20,
+              "parentDispatchId": 20,
+              "targetKey": 2,
+              "queuedFrame": 754,
+              "runFrame": 754,
+              "completedFrame": 754,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                56
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 9,
+                "invocationId": 3,
+                "taskId": 39,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 676,
+                "completedFrame": 676,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 62,
+                    "attackId": 20,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 676
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 62,
+                "attackId": 20,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 676
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 57,
+              "batchId": 41,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 844,
+              "completedFrame": 844,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 41,
+              "parentQueueId": 81,
+              "parentAttackId": 21,
+              "parentDispatchId": 21,
+              "targetKey": 1,
+              "queuedFrame": 844,
+              "runFrame": 844,
+              "completedFrame": 844,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                57
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 10,
+                "invocationId": 3,
+                "taskId": 40,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 766,
+                "completedFrame": 766,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 81,
+                    "attackId": 21,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 766
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 81,
+                "attackId": 21,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 766
+              }
+            },
+            "hook": {
+              "id": 18,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 57,
+              "entryFacts": {
+                "layla.stars.after": 3,
+                "layla.stars.before": 2,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 844,
+              "completedFrame": 844,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 58,
+              "batchId": 42,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 844,
+              "completedFrame": 844,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 42,
+              "parentQueueId": 81,
+              "parentAttackId": 21,
+              "parentDispatchId": 21,
+              "targetKey": 2,
+              "queuedFrame": 844,
+              "runFrame": 844,
+              "completedFrame": 844,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                58
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 10,
+                "invocationId": 3,
+                "taskId": 40,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 766,
+                "completedFrame": 766,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 81,
+                    "attackId": 21,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTagElementalBurst",
+                    "frame": 766
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 81,
+                "attackId": 21,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTagElementalBurst",
+                "frame": 766
+              }
+            }
+          }
+        ],
+        "shieldProducerCount": 38,
+        "shootingStarAttackCount": 16,
+        "calculatorImportedCompleteE": true
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "01d1e2f1ce51b6faf58494a9f926b71ba13e3be0b8eb7388f9a4bdc9f9997873",
+          "wasmBytes": 70965087
+        },
+        "applications": 58,
+        "baselineComparison": {
+          "damageAndOriginsEqual": true,
+          "actionLogsEqual": true
+        },
+        "laylaInvocations": [
+          {
+            "id": 2,
+            "actionSequence": 3,
+            "action": "skill",
+            "contractId": "layla-skill",
+            "expectedRootAttackCount": 17,
+            "observedRootAttackCount": 17,
+            "completeCast": true,
+            "includedHitCount": 34,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "report": {
+              "contract": {
+                "id": "layla-skill",
+                "label": "莱依拉 E：护盾归属与完整星矢",
+                "characterKey": "layla",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/layla/skill.go",
+                "sourceSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                "sourceHashes": {
+                  "classicSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                  "stellarSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+                },
+                "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+                "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+                "producerContract": true,
+                "scopeNotes": [
+                  "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                  "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                  "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                  "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                  "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                  "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+                ],
+                "ownedShieldContract": true,
+                "shieldProducerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/layla/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 17,
+              "completedRootAttackCount": 17,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 17,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [
+                1
+              ],
+              "shieldCount": 1,
+              "endedShieldCount": 1,
+              "openShieldCount": 0,
+              "shieldHookCount": 25,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10,
+                11,
+                12,
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                19,
+                20,
+                21,
+                22,
+                23,
+                24,
+                25,
+                26,
+                27,
+                28,
+                29,
+                30,
+                31,
+                32,
+                33,
+                34,
+                35,
+                36,
+                37,
+                38
+              ],
+              "shieldProducerCount": 38,
+              "completedShieldProducerCount": 38,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（24 次应用）"
+              ],
+              "scopeNotes": [
+                "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+              ]
+            }
+          },
+          {
+            "id": 3,
+            "actionSequence": 4,
+            "action": "burst",
+            "contractId": "layla-burst",
+            "expectedRootAttackCount": 8,
+            "observedRootAttackCount": 8,
+            "completeCast": true,
+            "includedHitCount": 16,
+            "replayDifferences": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            "report": {
+              "contract": {
+                "id": "layla-burst",
+                "label": "莱依拉 Q：弹体与晚星贡献归属",
+                "characterKey": "layla",
+                "action": "burst",
+                "method": "Burst",
+                "sourcePath": "internal/characters/layla/burst.go",
+                "sourceSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289",
+                "sourceHashes": {
+                  "classicSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289",
+                  "stellarSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289"
+                },
+                "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+                "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+                "producerContract": true,
+                "scopeNotes": [
+                  "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+                  "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+                  "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+                  "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+                ],
+                "hitCallbackContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/layla/burst.go"
+                ]
+              },
+              "expectedRootAttackCount": 8,
+              "completedRootAttackCount": 8,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 8,
+              "producerCount": 8,
+              "completedProducerCount": 8,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 16,
+              "completedHitCallbackBatchCount": 16,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 16,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "明确父攻击与目标的已审阅命中回调所产生的本技能追加攻击"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（42 次应用）"
+              ],
+              "scopeNotes": [
+                "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+                "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+                "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+                "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+              ]
+            }
+          },
+          {
+            "id": 5,
+            "actionSequence": 8,
+            "action": "skill",
+            "contractId": "layla-skill",
+            "expectedRootAttackCount": 1,
+            "observedRootAttackCount": 1,
+            "completeCast": true,
+            "includedHitCount": 2,
+            "replayDifferences": [
+              0,
+              0
+            ],
+            "report": {
+              "contract": {
+                "id": "layla-skill",
+                "label": "莱依拉 E：护盾归属与完整星矢",
+                "characterKey": "layla",
+                "action": "skill",
+                "method": "Skill",
+                "sourcePath": "internal/characters/layla/skill.go",
+                "sourceSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                "sourceHashes": {
+                  "classicSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+                  "stellarSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+                },
+                "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+                "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+                "producerContract": true,
+                "scopeNotes": [
+                  "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                  "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                  "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                  "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                  "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                  "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+                ],
+                "ownedShieldContract": true,
+                "shieldProducerContract": true,
+                "sourceRefs": [
+                  "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/layla/skill.go"
+                ]
+              },
+              "expectedRootAttackCount": 1,
+              "completedRootAttackCount": 1,
+              "closed": true,
+              "rootCountKind": "runtime",
+              "observedRootAttackCount": 1,
+              "producerCount": 1,
+              "completedProducerCount": 1,
+              "pendingProducerCount": 0,
+              "generatorCount": 0,
+              "endedGeneratorCount": 0,
+              "openGeneratorCount": 0,
+              "triggerCount": 0,
+              "entityCount": 0,
+              "endedEntityCount": 0,
+              "openEntityCount": 0,
+              "entityTriggerCount": 0,
+              "entityProducerCount": 0,
+              "completedEntityProducerCount": 0,
+              "pendingEntityProducerCount": 0,
+              "shieldInstanceIds": [],
+              "shieldCount": 0,
+              "endedShieldCount": 0,
+              "openShieldCount": 0,
+              "shieldHookCount": 0,
+              "shieldRelatedExcludedInstanceIds": [
+                1
+              ],
+              "shieldProducerIds": [],
+              "shieldProducerCount": 0,
+              "completedShieldProducerCount": 0,
+              "pendingShieldProducerCount": 0,
+              "hitCallbackBatchCount": 0,
+              "completedHitCallbackBatchCount": 0,
+              "pendingHitCallbackBatchCount": 0,
+              "hitCallbackCount": 0,
+              "reasons": [],
+              "includedComponents": [
+                "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+                "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+                "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属"
+              ],
+              "excludedComponents": [
+                "另行派发的剧变或其他反应伤害",
+                "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+                "治疗、护盾量与持续增益效果",
+                "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（56 次应用）"
+              ],
+              "scopeNotes": [
+                "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+                "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+                "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+                "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+                "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+                "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+              ]
+            }
+          }
+        ],
+        "shield": {
+          "id": 1,
+          "creationSiteId": "layla.skill.shield",
+          "birthInvocationId": 2,
+          "terminalFrame": 1427,
+          "terminalReason": "expired",
+          "refreshProducer": {
+            "id": 11,
+            "invocationId": 5,
+            "taskId": 134,
+            "siteId": "layla.skill.shield-update",
+            "entryFacts": {
+              "layla.skill.refresh": 1,
+              "layla.skill.shield-instance": 1,
+              "layla.tick.branch": 2
+            },
+            "actorIndex": 1,
+            "queuedFrame": 688,
+            "startedFrame": 707,
+            "completedFrame": 707,
+            "state": "completed",
+            "queuedAttacks": []
+          },
+          "refreshHook": {
+            "id": 15,
+            "instanceId": 1,
+            "siteId": "layla.skill.shield-refresh",
+            "cause": "refresh",
+            "abilityProducerId": 11,
+            "entryFacts": {
+              "layla.refresh.expiry-after": 1427,
+              "layla.refresh.expiry-before": 796
+            },
+            "startedFrame": 707,
+            "completedFrame": 707,
+            "hpBefore": 2525.502969476544,
+            "hpAfter": 2525.502969476544,
+            "queuedAttacks": []
+          }
+        },
+        "externalSkillContribution": {
+          "kaeyaInvocationId": 4,
+          "kaeyaStartedFrame": 346,
+          "listenerCall": {
+            "id": 27,
+            "emissionId": 11,
+            "registrationId": 3,
+            "slotIndex": 0,
+            "eventType": 61,
+            "key": "stars-skill",
+            "siteId": "layla.shield.on-skill",
+            "startedFrame": 346,
+            "completedFrame": 346,
+            "queuedAttacks": [],
+            "entryFacts": {
+              "layla.shield.instance": 1
+            }
+          },
+          "emission": {
+            "id": 11,
+            "eventType": 61,
+            "mode": "gameplay",
+            "frame": 346,
+            "targetKey": 0,
+            "listenerIds": [
+              27
+            ],
+            "suppressedListenerIds": [],
+            "completedFrame": 346
+          },
+          "hook": {
+            "id": 6,
+            "instanceId": 1,
+            "siteId": "layla.shield.skill-stars",
+            "cause": "trigger",
+            "eventListenerCallId": 27,
+            "entryFacts": {
+              "layla.stars.branch": 0,
+              "layla.stars.count": 2
+            },
+            "startedFrame": 346,
+            "completedFrame": 346,
+            "hpBefore": 2525.502969476544,
+            "hpAfter": 2525.502969476544,
+            "queuedAttacks": []
+          }
+        },
+        "qSlugProducerCount": 8,
+        "qQueuedAttackCount": 8,
+        "qCallbackLinks": [
+          {
+            "callback": {
+              "id": 3,
+              "batchId": 5,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 214,
+              "completedFrame": 214,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 5,
+              "parentQueueId": 9,
+              "parentAttackId": 3,
+              "parentDispatchId": 3,
+              "targetKey": 1,
+              "queuedFrame": 214,
+              "runFrame": 214,
+              "completedFrame": 214,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                3
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 3,
+                "invocationId": 3,
+                "taskId": 33,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 136,
+                "completedFrame": 136,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 9,
+                    "attackId": 3,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 136
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 9,
+                "attackId": 3,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 136
+              }
+            },
+            "hook": {
+              "id": 2,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 3,
+              "entryFacts": {
+                "layla.stars.after": 2,
+                "layla.stars.before": 1,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 214,
+              "completedFrame": 214,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 4,
+              "batchId": 6,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 214,
+              "completedFrame": 214,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 6,
+              "parentQueueId": 9,
+              "parentAttackId": 3,
+              "parentDispatchId": 3,
+              "targetKey": 2,
+              "queuedFrame": 214,
+              "runFrame": 214,
+              "completedFrame": 214,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                4
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 3,
+                "invocationId": 3,
+                "taskId": 33,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 136,
+                "completedFrame": 136,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 9,
+                    "attackId": 3,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 136
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 9,
+                "attackId": 3,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 136
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 5,
+              "batchId": 7,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 304,
+              "completedFrame": 304,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 7,
+              "parentQueueId": 13,
+              "parentAttackId": 4,
+              "parentDispatchId": 4,
+              "targetKey": 1,
+              "queuedFrame": 304,
+              "runFrame": 304,
+              "completedFrame": 304,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                5
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 4,
+                "invocationId": 3,
+                "taskId": 34,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 226,
+                "completedFrame": 226,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 13,
+                    "attackId": 4,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 226
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 13,
+                "attackId": 4,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 226
+              }
+            },
+            "hook": {
+              "id": 4,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 5,
+              "entryFacts": {
+                "layla.stars.after": 4,
+                "layla.stars.before": 3,
+                "layla.stars.branch": 4,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 304,
+              "completedFrame": 304,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 6,
+              "batchId": 8,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 304,
+              "completedFrame": 304,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 8,
+              "parentQueueId": 13,
+              "parentAttackId": 4,
+              "parentDispatchId": 4,
+              "targetKey": 2,
+              "queuedFrame": 304,
+              "runFrame": 304,
+              "completedFrame": 304,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                6
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 4,
+                "invocationId": 3,
+                "taskId": 34,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 226,
+                "completedFrame": 226,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 13,
+                    "attackId": 4,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 226
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 13,
+                "attackId": 4,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 226
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 17,
+              "batchId": 13,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 394,
+              "completedFrame": 394,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 13,
+              "parentQueueId": 17,
+              "parentAttackId": 8,
+              "parentDispatchId": 7,
+              "targetKey": 1,
+              "queuedFrame": 394,
+              "runFrame": 394,
+              "completedFrame": 394,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                17
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 5,
+                "invocationId": 3,
+                "taskId": 35,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 316,
+                "completedFrame": 316,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 17,
+                    "attackId": 8,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 316
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 17,
+                "attackId": 8,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 316
+              }
+            },
+            "hook": {
+              "id": 7,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 17,
+              "entryFacts": {
+                "layla.stars.branch": 0,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 394,
+              "completedFrame": 394,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 18,
+              "batchId": 14,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 394,
+              "completedFrame": 394,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 14,
+              "parentQueueId": 17,
+              "parentAttackId": 8,
+              "parentDispatchId": 7,
+              "targetKey": 2,
+              "queuedFrame": 394,
+              "runFrame": 394,
+              "completedFrame": 394,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                18
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 5,
+                "invocationId": 3,
+                "taskId": 35,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 316,
+                "completedFrame": 316,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 17,
+                    "attackId": 8,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 316
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 17,
+                "attackId": 8,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 316
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 31,
+              "batchId": 21,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 484,
+              "completedFrame": 484,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 21,
+              "parentQueueId": 34,
+              "parentAttackId": 11,
+              "parentDispatchId": 11,
+              "targetKey": 1,
+              "queuedFrame": 484,
+              "runFrame": 484,
+              "completedFrame": 484,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                31
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 6,
+                "invocationId": 3,
+                "taskId": 36,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 406,
+                "completedFrame": 406,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 34,
+                    "attackId": 11,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 406
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 34,
+                "attackId": 11,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 406
+              }
+            },
+            "hook": {
+              "id": 8,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 31,
+              "entryFacts": {
+                "layla.stars.after": 1,
+                "layla.stars.before": 0,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 484,
+              "completedFrame": 484,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 32,
+              "batchId": 22,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 484,
+              "completedFrame": 484,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 22,
+              "parentQueueId": 34,
+              "parentAttackId": 11,
+              "parentDispatchId": 11,
+              "targetKey": 2,
+              "queuedFrame": 484,
+              "runFrame": 484,
+              "completedFrame": 484,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                32
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 6,
+                "invocationId": 3,
+                "taskId": 36,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 406,
+                "completedFrame": 406,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 34,
+                    "attackId": 11,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 406
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 34,
+                "attackId": 11,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 406
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 33,
+              "batchId": 23,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 574,
+              "completedFrame": 574,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 23,
+              "parentQueueId": 45,
+              "parentAttackId": 12,
+              "parentDispatchId": 12,
+              "targetKey": 1,
+              "queuedFrame": 574,
+              "runFrame": 574,
+              "completedFrame": 574,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                33
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 7,
+                "invocationId": 3,
+                "taskId": 37,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 496,
+                "completedFrame": 496,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 45,
+                    "attackId": 12,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 496
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 45,
+                "attackId": 12,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 496
+              }
+            },
+            "hook": {
+              "id": 10,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 33,
+              "entryFacts": {
+                "layla.stars.after": 3,
+                "layla.stars.before": 2,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 574,
+              "completedFrame": 574,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 34,
+              "batchId": 24,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 574,
+              "completedFrame": 574,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 24,
+              "parentQueueId": 45,
+              "parentAttackId": 12,
+              "parentDispatchId": 12,
+              "targetKey": 2,
+              "queuedFrame": 574,
+              "runFrame": 574,
+              "completedFrame": 574,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                34
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 7,
+                "invocationId": 3,
+                "taskId": 37,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 496,
+                "completedFrame": 496,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 45,
+                    "attackId": 12,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 496
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 45,
+                "attackId": 12,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 496
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 37,
+              "batchId": 27,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 664,
+              "completedFrame": 664,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 27,
+              "parentQueueId": 49,
+              "parentAttackId": 14,
+              "parentDispatchId": 14,
+              "targetKey": 1,
+              "queuedFrame": 664,
+              "runFrame": 664,
+              "completedFrame": 664,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                37
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 8,
+                "invocationId": 3,
+                "taskId": 38,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 586,
+                "completedFrame": 586,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 49,
+                    "attackId": 14,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 586
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 49,
+                "attackId": 14,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 586
+              }
+            },
+            "hook": {
+              "id": 12,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 37,
+              "entryFacts": {
+                "layla.stars.branch": 0,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 664,
+              "completedFrame": 664,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 38,
+              "batchId": 28,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 664,
+              "completedFrame": 664,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 28,
+              "parentQueueId": 49,
+              "parentAttackId": 14,
+              "parentDispatchId": 14,
+              "targetKey": 2,
+              "queuedFrame": 664,
+              "runFrame": 664,
+              "completedFrame": 664,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                38
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 8,
+                "invocationId": 3,
+                "taskId": 38,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 586,
+                "completedFrame": 586,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 49,
+                    "attackId": 14,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 586
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 49,
+                "attackId": 14,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 586
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 55,
+              "batchId": 39,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 754,
+              "completedFrame": 754,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 39,
+              "parentQueueId": 62,
+              "parentAttackId": 20,
+              "parentDispatchId": 20,
+              "targetKey": 1,
+              "queuedFrame": 754,
+              "runFrame": 754,
+              "completedFrame": 754,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                55
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 9,
+                "invocationId": 3,
+                "taskId": 39,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 676,
+                "completedFrame": 676,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 62,
+                    "attackId": 20,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 676
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 62,
+                "attackId": 20,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 676
+              }
+            },
+            "hook": {
+              "id": 16,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 55,
+              "entryFacts": {
+                "layla.stars.after": 1,
+                "layla.stars.before": 0,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 754,
+              "completedFrame": 754,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 56,
+              "batchId": 40,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 754,
+              "completedFrame": 754,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 40,
+              "parentQueueId": 62,
+              "parentAttackId": 20,
+              "parentDispatchId": 20,
+              "targetKey": 2,
+              "queuedFrame": 754,
+              "runFrame": 754,
+              "completedFrame": 754,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                56
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 9,
+                "invocationId": 3,
+                "taskId": 39,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 676,
+                "completedFrame": 676,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 62,
+                    "attackId": 20,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 676
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 62,
+                "attackId": 20,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 676
+              }
+            }
+          },
+          {
+            "callback": {
+              "id": 57,
+              "batchId": 41,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 844,
+              "completedFrame": 844,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 1,
+                "layla.burst.callback.shield-instance": 1,
+                "layla.burst.callback.shield-present": 1
+              }
+            },
+            "batch": {
+              "id": 41,
+              "parentQueueId": 81,
+              "parentAttackId": 21,
+              "parentDispatchId": 21,
+              "targetKey": 1,
+              "queuedFrame": 844,
+              "runFrame": 844,
+              "completedFrame": 844,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                57
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 10,
+                "invocationId": 3,
+                "taskId": 40,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 766,
+                "completedFrame": 766,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 81,
+                    "attackId": 21,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 766
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 81,
+                "attackId": 21,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 766
+              }
+            },
+            "hook": {
+              "id": 18,
+              "instanceId": 1,
+              "siteId": "layla.shield.burst-star",
+              "cause": "trigger",
+              "hitCallbackId": 57,
+              "entryFacts": {
+                "layla.stars.after": 3,
+                "layla.stars.before": 2,
+                "layla.stars.branch": 3,
+                "layla.stars.count": 1
+              },
+              "startedFrame": 844,
+              "completedFrame": 844,
+              "hpBefore": 2525.502969476544,
+              "hpAfter": 2525.502969476544,
+              "queuedAttacks": []
+            }
+          },
+          {
+            "callback": {
+              "id": 58,
+              "batchId": 42,
+              "callbackIndex": 0,
+              "siteId": "layla.burst.night-star-hit",
+              "startedFrame": 844,
+              "completedFrame": 844,
+              "queuedAttacks": [],
+              "entryFacts": {
+                "layla.burst.callback.first": 0
+              }
+            },
+            "batch": {
+              "id": 42,
+              "parentQueueId": 81,
+              "parentAttackId": 21,
+              "parentDispatchId": 21,
+              "targetKey": 2,
+              "queuedFrame": 844,
+              "runFrame": 844,
+              "completedFrame": 844,
+              "state": "completed",
+              "callbackCount": 1,
+              "callbackIds": [
+                58
+              ],
+              "hitConfirmBlocked": false
+            },
+            "qRoot": {
+              "producer": {
+                "id": 10,
+                "invocationId": 3,
+                "taskId": 40,
+                "siteId": "layla.burst.slug",
+                "entryFacts": {
+                  "layla.burst.slug.attack-count": 1
+                },
+                "actorIndex": 1,
+                "queuedFrame": 100,
+                "startedFrame": 766,
+                "completedFrame": 766,
+                "state": "completed",
+                "queuedAttacks": [
+                  {
+                    "queueId": 81,
+                    "attackId": 21,
+                    "ability": "Starlight Slug",
+                    "attackTagName": "AttackTag(6)",
+                    "frame": 766
+                  }
+                ]
+              },
+              "attack": {
+                "queueId": 81,
+                "attackId": 21,
+                "ability": "Starlight Slug",
+                "attackTagName": "AttackTag(6)",
+                "frame": 766
+              }
+            }
+          }
+        ],
+        "shieldProducerCount": 38,
+        "shootingStarAttackCount": 16,
+        "calculatorImportedCompleteE": false
+      }
+    ],
+    "scope": "One combined C2 Chongyun cooldown-field, Layla E/Q/E refresh, and Kaeya E scene per lane. Source receipts establish native ownership and closure; this is not game verification.",
+    "nativeRunsPerformed": true
+  },
+  "pageErrors": []
+}

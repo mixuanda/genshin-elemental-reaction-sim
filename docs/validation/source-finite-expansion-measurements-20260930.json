@@ -1,0 +1,362 @@
+{
+  "schemaVersion": "source-finite-expansion-measurements-v1",
+  "asOf": "2026-09-30",
+  "goalStatus": "active",
+  "report": "docs/source-finite-expansion-20260930.zh-CN.md",
+  "change": {
+    "newDirectContracts": 10,
+    "newProducerContracts": 3,
+    "mergedContractIds": 90,
+    "canonicalCharacterActions": 88,
+    "directRegistryRows": 24,
+    "producerRegistryRows": 67,
+    "producerPlanDeclarations": 67,
+    "explicitProducerSiteDeclarations": 99,
+    "uniqueProducerSiteIds": 92
+  },
+  "checks": {
+    "browser-baseline": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-finite-expansion.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.119
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.772
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.077
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.111
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.649
+    },
+    "typecheck-final": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.794
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.065
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-finite-expansion.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 29.699
+    }
+  },
+  "testScope": {
+    "browserCases": 1,
+    "browserInvocations": 2,
+    "nativeRuns": 3,
+    "nativeBaselineClassic": 1,
+    "nativePostChangeClassic": 1,
+    "nativePostChangeStellar": 1,
+    "nativeRetries": 0,
+    "unitTestsRun": 0,
+    "performanceTestsRun": 0,
+    "note": "One baseline capture and one aggregate two-lane browser case. One TypeScript test-harness union narrowing repair; all build/browser commands passed first attempt."
+  },
+  "lanes": {
+    "classic": {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "b1aeaeaf870788dbd019a4c77f9651b0991ef97889766d7dc036f07029de17e2",
+        "wasmBytes": 46810582
+      },
+      "observationEndFrame": 1707,
+      "configuredDurationSeconds": 40,
+      "actualEndReason": "native action sequence exhausted after wait; not a fixed 40-second DPS benchmark",
+      "calculations": 779,
+      "allApplications": 62,
+      "selectedApplications": 58,
+      "cases": [
+        {
+          "case": "chongyunE1",
+          "contractId": "chongyun-skill",
+          "nativeInvocationId": 1,
+          "rootCount": 1,
+          "includedApplications": 2,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 1512.5510198139264
+        },
+        {
+          "case": "chongyunE2",
+          "contractId": "chongyun-skill",
+          "nativeInvocationId": 2,
+          "rootCount": 3,
+          "includedApplications": 6,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 6199.863045061513
+        },
+        {
+          "case": "shenheE",
+          "contractId": "shenhe-skill",
+          "nativeInvocationId": 3,
+          "rootCount": 1,
+          "includedApplications": 2,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 2140.324979068602
+        },
+        {
+          "case": "shenheQ",
+          "contractId": "shenhe-burst",
+          "nativeInvocationId": 4,
+          "rootCount": 19,
+          "includedApplications": 38,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 9711.890229857067
+        },
+        {
+          "case": "monaE",
+          "contractId": "mona-skill",
+          "nativeInvocationId": 5,
+          "rootCount": 5,
+          "includedApplications": 10,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 1887.4530865567447
+        }
+      ],
+      "shenheDoTTalentReadApplications": 36,
+      "shenheDoTReadSiteIds": [
+        "internal/characters/shenhe/burst.go:75:15"
+      ],
+      "shenheQQuillComponents": 3,
+      "calculatorEditExportImport": true,
+      "instrumentation": {
+        "before": 600,
+        "after": 663,
+        "added": 63,
+        "addedFiles": 55,
+        "removedKeyCounts": []
+      },
+      "chongyunProducers": [
+        {
+          "id": 1,
+          "invocationId": 1,
+          "siteId": "chongyun.skill.a4-expiry",
+          "state": "completed",
+          "entryFacts": {
+            "chongyun.skill.a4.attack-count": 0
+          },
+          "queuedAttackCount": 0
+        },
+        {
+          "id": 2,
+          "invocationId": 2,
+          "siteId": "chongyun.skill.a4-replacement",
+          "state": "completed",
+          "entryFacts": {
+            "chongyun.skill.a4.attack-count": 1
+          },
+          "queuedAttackCount": 1
+        },
+        {
+          "id": 3,
+          "invocationId": 2,
+          "siteId": "chongyun.skill.a4-expiry",
+          "state": "completed",
+          "entryFacts": {
+            "chongyun.skill.a4.attack-count": 1
+          },
+          "queuedAttackCount": 1
+        }
+      ],
+      "applicationProjectionUnchangedFromBaseline": true
+    },
+    "stellar": {
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "9619acc156d9cfe321ae982d177f9c90dc0cf73a7d88c3394a15ef8362a17105",
+        "wasmBytes": 70617927
+      },
+      "observationEndFrame": 1707,
+      "configuredDurationSeconds": 40,
+      "actualEndReason": "native action sequence exhausted after wait; not a fixed 40-second DPS benchmark",
+      "calculations": 780,
+      "allApplications": 62,
+      "selectedApplications": 58,
+      "cases": [
+        {
+          "case": "chongyunE1",
+          "contractId": "chongyun-skill",
+          "nativeInvocationId": 1,
+          "rootCount": 1,
+          "includedApplications": 2,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 1512.5510198139264
+        },
+        {
+          "case": "chongyunE2",
+          "contractId": "chongyun-skill",
+          "nativeInvocationId": 2,
+          "rootCount": 3,
+          "includedApplications": 6,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 6199.863045061513
+        },
+        {
+          "case": "shenheE",
+          "contractId": "shenhe-skill",
+          "nativeInvocationId": 3,
+          "rootCount": 1,
+          "includedApplications": 2,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 2140.324979068602
+        },
+        {
+          "case": "shenheQ",
+          "contractId": "shenhe-burst",
+          "nativeInvocationId": 4,
+          "rootCount": 19,
+          "includedApplications": 38,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 9711.890229857067
+        },
+        {
+          "case": "monaE",
+          "contractId": "mona-skill",
+          "nativeInvocationId": 5,
+          "rootCount": 5,
+          "includedApplications": 10,
+          "completeCast": true,
+          "maximumAbsoluteReplayDifference": 0,
+          "nativeAppliedSubtotal": 1887.4530865567447
+        }
+      ],
+      "shenheDoTTalentReadApplications": 36,
+      "shenheDoTReadSiteIds": [
+        "internal/characters/shenhe/burst.go:75:15"
+      ],
+      "shenheQQuillComponents": 3,
+      "calculatorEditExportImport": false,
+      "instrumentation": {
+        "before": 632,
+        "after": 698,
+        "added": 66,
+        "addedFiles": 58,
+        "removedKeyCounts": []
+      },
+      "chongyunProducers": [
+        {
+          "id": 1,
+          "invocationId": 1,
+          "siteId": "chongyun.skill.a4-expiry",
+          "state": "completed",
+          "entryFacts": {
+            "chongyun.skill.a4.attack-count": 0
+          },
+          "queuedAttackCount": 0
+        },
+        {
+          "id": 2,
+          "invocationId": 2,
+          "siteId": "chongyun.skill.a4-replacement",
+          "state": "completed",
+          "entryFacts": {
+            "chongyun.skill.a4.attack-count": 1
+          },
+          "queuedAttackCount": 1
+        },
+        {
+          "id": 3,
+          "invocationId": 2,
+          "siteId": "chongyun.skill.a4-expiry",
+          "state": "completed",
+          "entryFacts": {
+            "chongyun.skill.a4.attack-count": 1
+          },
+          "queuedAttackCount": 1
+        }
+      ]
+    }
+  },
+  "pageErrors": [],
+  "dataFiles": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "bytes": 955,
+      "unchangedFrom122": true
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "bytes": 6035,
+      "unchangedFrom122": true
+    }
+  ],
+  "limits": [
+    "Nine new direct contracts have static source audit/build evidence only; the runtime case exercises four distinct new contracts.",
+    "Hold/C0 and other unobserved branches remain source evidence only.",
+    "Source instrumenter still skips dynamic helper/alias/later-write cases it cannot bind; added source sites are not full game coverage.",
+    "No game verified promotion, no remote update workflow run, no new official-to-preview version mapping.",
+    "All master-prompt requirements are not yet complete."
+  ]
+}

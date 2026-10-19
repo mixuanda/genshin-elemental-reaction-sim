@@ -1,0 +1,114 @@
+diff --git a/internal/characters/chiori/cons.go b/internal/characters/chiori/cons.go
+index 3f59c34..cf7cc74 100644
+--- a/internal/characters/chiori/cons.go
++++ b/internal/characters/chiori/cons.go
+@@ -75,7 +75,7 @@ func (c *char) c2() {
+ 	// spawn new c2 ticker
+ 	// yes, the c2 duration and spawn interval is hitlag affected
+ 	t := newTicker(c.Core, c2Duration, c.QueueCharTask)
+-	t.cb = c.createKinu(c.Core.F, c2CenterOffset, c2MinRandom, c2MaxRandom)
++	t.cb = c.createKinu(c.Core.F, c2CenterOffset, c2MinRandom, c2MaxRandom, false)
+ 	t.interval = c2SpawnInterval
+ 	c.QueueCharTask(t.tick, c2SpawnInterval)
+ 	c.c2Ticker = t
+@@ -118,6 +118,8 @@ func (c *char) c4() {
+ 		return
+ 	}
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("chiori.c4.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("chiori.c4.enemy-damage.producer-count", 0)
+ 		// c4 status not active
+ 		if !c.StatusIsActive(c4Key) {
+ 			return
+@@ -146,7 +148,8 @@ func (c *char) c4() {
+ 		c.Core.Log.NewEvent("c4 spawning kinu", glog.LogCharacterEvent, c.Index())
+ 
+ 		// spawn kinu
+-		c.createKinu(c.Core.F, c4CenterOffset, c4MinRandom, c4MaxRandom)()
++		c.Core.SourceHostEventListenerFact("chiori.c4.enemy-damage.producer-count", 2)
++		c.createKinu(c.Core.F, c4CenterOffset, c4MinRandom, c4MaxRandom, true)()
+ 
+ 		// increment attack count and delete c4 if reached limit
+ 		c.c4AttackCount++
+diff --git a/internal/characters/chiori/kinu.go b/internal/characters/chiori/kinu.go
+index cba3a14..ec7374e 100644
+--- a/internal/characters/chiori/kinu.go
++++ b/internal/characters/chiori/kinu.go
+@@ -20,7 +20,7 @@ const (
+ // Tamoto's DMG. DMG dealt this way is considered Elemental Skill DMG.
+ //
+ // Kinu will leave the field after 1 attack or after lasting 3s.
+-func (c *char) createKinu(src int, centerOffset, minRandom, maxRandom float64) func() {
++func (c *char) createKinu(src int, centerOffset, minRandom, maxRandom float64, sourceHostC4 bool) func() {
+ 	return func() {
+ 		// determine kinu pos
+ 		player := c.Core.Combat.Player()
+@@ -34,17 +34,49 @@ func (c *char) createKinu(src int, centerOffset, minRandom, maxRandom float64) f
+ 		c.Core.Log.NewEvent("kinu spawned", glog.LogCharacterEvent, c.Index()).Write("src", src)
+ 
+ 		// spawn kinu
+-		kinu := newTicker(c.Core, kinuDuration, nil)
+-		kinu.cb = c.kinuAttack(src, kinu, kinuPos)
++		var kinu *ticker
++		queue := c.Core.Tasks.Add
++		if sourceHostC4 {
++			// newTicker queues expiry first; all subsequent calls queue ticks.
++			expiryPending := true
++			queue = func(callback func(), delay int) {
++				site := "chiori.c4.kinu.tick-task"
++				if expiryPending {
++					site = "chiori.c4.kinu.expiry-task"
++					expiryPending = false
++				}
++				c.Core.SourceHostQueueEventTask(site, func() {
++					c.Core.SourceHostEventProducerFact(site+".child-count", 0)
++					c.Core.SourceHostEventProducerFact(site+".attack-count", 0)
++					if site == "chiori.c4.kinu.tick-task" && kinu.alive {
++						// The unchanged live tick queues its attack attempt and next tick.
++						c.Core.SourceHostEventProducerFact(site+".child-count", 2)
++					}
++					callback()
++				}, delay)
++			}
++		}
++		kinu = newTicker(c.Core, kinuDuration, queue)
++		kinu.cb = c.kinuAttack(src, kinu, kinuPos, sourceHostC4)
+ 		kinu.interval = kinuAttackInterval
+-		c.Core.Tasks.Add(kinu.tick, kinuStartDelay)
++		queue(kinu.tick, kinuStartDelay)
+ 		c.kinus = append(c.kinus, kinu)
+ 	}
+ }
+ 
+-func (c *char) kinuAttack(src int, kinu *ticker, pos info.Point) func() {
++func (c *char) kinuAttack(src int, kinu *ticker, pos info.Point, sourceHostC4 bool) func() {
+ 	return func() {
+-		c.Core.Tasks.Add(func() {
++		queue := c.Core.Tasks.Add
++		if sourceHostC4 {
++			queue = func(callback func(), delay int) {
++				c.Core.SourceHostQueueEventTask("chiori.c4.kinu.attack-task", callback, delay)
++			}
++		}
++		queue(func() {
++			if sourceHostC4 {
++				c.Core.SourceHostEventProducerFact("chiori.c4.kinu.attack-task.child-count", 0)
++				c.Core.SourceHostEventProducerFact("chiori.c4.kinu.attack-task.attack-count", 0)
++			}
+ 			ai := info.AttackInfo{
+ 				Abil:       "Fluttering Hasode (Kinu)",
+ 				ActorIndex: c.Index(),
+@@ -88,7 +120,12 @@ func (c *char) kinuAttack(src int, kinu *ticker, pos info.Point) func() {
+ 				return
+ 			}
+ 
+-			c.Core.QueueAttackWithSnap(ai, snap, combat.NewCircleHitOnTarget(t, nil, skillDollAoE), 0)
++			if sourceHostC4 {
++				c.Core.SourceHostEventProducerFact("chiori.c4.kinu.attack-task.attack-count", 1)
++				c.Core.SourceHostQueueEventAttackWithSnap("chiori.c4.kinu.attack", ai, snap, combat.NewCircleHitOnTarget(t, nil, skillDollAoE), 0)
++			} else {
++				c.Core.QueueAttackWithSnap(ai, snap, combat.NewCircleHitOnTarget(t, nil, skillDollAoE), 0)
++			}
+ 
+ 			c.Core.Log.NewEvent("kinu killed on attack", glog.LogCharacterEvent, c.Index()).Write("src", src)
+ 

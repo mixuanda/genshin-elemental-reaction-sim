@@ -1,0 +1,306 @@
+[
+  {
+    "id": "weapon:11430",
+    "slug": "sturdybone",
+    "name": "弥坚骨",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的16%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的20%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的24%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的28%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "冲刺或替代冲刺的能力消耗的体力降低15%；此外，使用冲刺或替代冲刺的能力后，普通攻击造成的伤害提高，提高数值相当于攻击力的32%，该效果在生效18次或7秒后消失。",
+        "values": [
+          "32%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sturdybone.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/SturdyBone/index.tsx",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sturdybone/sturdybone.go"
+    ]
+  },
+  {
+    "id": "weapon:12424",
+    "slug": "talkingstick",
+    "name": "聊聊棒",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "承受火元素附着后的15秒内，攻击力提升16%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升12%，每12秒至多触发一次。",
+        "values": [
+          "16%",
+          "12%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "承受火元素附着后的15秒内，攻击力提升20%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升15%，每12秒至多触发一次。",
+        "values": [
+          "20%",
+          "15%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "承受火元素附着后的15秒内，攻击力提升24%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升18%，每12秒至多触发一次。",
+        "values": [
+          "24%",
+          "18%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "承受火元素附着后的15秒内，攻击力提升28%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升21%，每12秒至多触发一次。",
+        "values": [
+          "28%",
+          "21%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "承受火元素附着后的15秒内，攻击力提升32%，每12秒至多触发一次；承受水元素、冰元素、雷元素或草元素附着后的15秒内，所有元素伤害加成提升24%，每12秒至多触发一次。",
+        "values": [
+          "32%",
+          "24%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/talkingstick.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/TalkingStick/index.tsx",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/talkingstick/talkingstick.go"
+    ]
+  },
+  {
+    "id": "weapon:13402",
+    "slug": "prototypestarglitter",
+    "name": "试作星镰",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "施放元素战技后，普通攻击和重击造成的伤害提高8%。该效果持续12秒，最多叠加2层。",
+        "values": [
+          "8%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "施放元素战技后，普通攻击和重击造成的伤害提高10%。该效果持续12秒，最多叠加2层。",
+        "values": [
+          "10%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "施放元素战技后，普通攻击和重击造成的伤害提高12%。该效果持续12秒，最多叠加2层。",
+        "values": [
+          "12%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "施放元素战技后，普通攻击和重击造成的伤害提高14%。该效果持续12秒，最多叠加2层。",
+        "values": [
+          "14%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "施放元素战技后，普通攻击和重击造成的伤害提高16%。该效果持续12秒，最多叠加2层。",
+        "values": [
+          "16%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/PrototypeStarglitter/index.tsx",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prototype/prototype.go"
+    ]
+  },
+  {
+    "id": "weapon:14435",
+    "slug": "clashofkings",
+    "name": "群王局戏",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备者施放元素战技后，获得持续6秒的「棋中法度」：攻击力提升20%，元素精通提升100点，该效果每12秒至多触发一次，无法叠加。持续期间，装备者的重击命中敌人时，还会使上述效果的持续时间延长6秒，至多通过这种方式使持续时间延长6秒。",
+        "values": [
+          "20%",
+          "100"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备者施放元素战技后，获得持续6秒的「棋中法度」：攻击力提升25%，元素精通提升125点，该效果每12秒至多触发一次，无法叠加。持续期间，装备者的重击命中敌人时，还会使上述效果的持续时间延长6秒，至多通过这种方式使持续时间延长6秒。",
+        "values": [
+          "25%",
+          "125"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备者施放元素战技后，获得持续6秒的「棋中法度」：攻击力提升30%，元素精通提升150点，该效果每12秒至多触发一次，无法叠加。持续期间，装备者的重击命中敌人时，还会使上述效果的持续时间延长6秒，至多通过这种方式使持续时间延长6秒。",
+        "values": [
+          "30%",
+          "150"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备者施放元素战技后，获得持续6秒的「棋中法度」：攻击力提升35%，元素精通提升175点，该效果每12秒至多触发一次，无法叠加。持续期间，装备者的重击命中敌人时，还会使上述效果的持续时间延长6秒，至多通过这种方式使持续时间延长6秒。",
+        "values": [
+          "35%",
+          "175"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备者施放元素战技后，获得持续6秒的「棋中法度」：攻击力提升40%，元素精通提升200点，该效果每12秒至多触发一次，无法叠加。持续期间，装备者的重击命中敌人时，还会使上述效果的持续时间延长6秒，至多通过这种方式使持续时间延长6秒。",
+        "values": [
+          "40%",
+          "200"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/clashofkings.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/ClashOfKings/index.tsx"
+    ]
+  },
+  {
+    "id": "weapon:14436",
+    "slug": "echoesoftheheart",
+    "name": "寸心余响",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "触发元素反应的12秒内，装备者的元素精通提升60点；触发星烁反应的12秒内，装备者造成的星烁反应伤害提升16%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "60",
+          "16%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "触发元素反应的12秒内，装备者的元素精通提升75点；触发星烁反应的12秒内，装备者造成的星烁反应伤害提升20%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "75",
+          "20%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "触发元素反应的12秒内，装备者的元素精通提升90点；触发星烁反应的12秒内，装备者造成的星烁反应伤害提升24%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "90",
+          "24%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "触发元素反应的12秒内，装备者的元素精通提升105点；触发星烁反应的12秒内，装备者造成的星烁反应伤害提升28%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "105",
+          "28%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "触发元素反应的12秒内，装备者的元素精通提升120点；触发星烁反应的12秒内，装备者造成的星烁反应伤害提升32%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "120",
+          "32%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/EchoesOfTheHeart/index.tsx"
+    ]
+  },
+  {
+    "id": "weapon:12435",
+    "slug": "forgedbythegoldenmelody",
+    "name": "金律铸影",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升18%/元素精通提升120点/星烁反应伤害提升28%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+        "values": [
+          "18%",
+          "120",
+          "28%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升22.5%/元素精通提升150点/星烁反应伤害提升35%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+        "values": [
+          "22.5%",
+          "150",
+          "35%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升27%/元素精通提升180点/星烁反应伤害提升42%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+        "values": [
+          "27%",
+          "180",
+          "42%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升31.5%/元素精通提升210点/星烁反应伤害提升49%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+        "values": [
+          "31.5%",
+          "210",
+          "49%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "每10秒，装备者按照以下顺序，分别奏响对应效果的「谐律乐章」：攻击力提升36%/元素精通提升240点/星烁反应伤害提升56%，每种乐章效果持续10秒，装备者处于队伍后台时，依然能触发上述效果。\n触发星烁反应后，还会额外获得持续12秒的、与触发星烁反应时演奏乐章效果相同的「谐律乐章·复调」，该效果可以与原本的乐章效果叠加，每12秒至多触发一次。",
+        "values": [
+          "36%",
+          "240",
+          "56%"
+        ]
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/ForgedByTheGoldenMelody/index.tsx"
+    ]
+  }
+]

@@ -1,0 +1,129 @@
+{
+  "schemaVersion": 1,
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archivedAt": "2026-09-25T02:51:01.759374+00:00",
+  "evidenceStatus": "source-provisional",
+  "scope": "Observed individual source damage components and their per-hit dependencies. No automatic resource, entity, animation, cadence, complete lifecycle or team execution certification.",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivePath": "raw/LICENSE",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "bytes": 1071,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Alyosha/index.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/Alyosha/index.tsx",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Alyosha/index.tsx",
+      "sha256": "7cd1316665c786efabe55a5309390b258b31febcb444baa0c824ff90cafbf6e4",
+      "bytes": 9802,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Alyosha/skillParam.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Alyosha/skillParam.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Alyosha/skillParam.json",
+      "sha256": "5fcd7a9fb2bbfad186cfb5ec026dcc256092e74fe10d962d50f8f6f4513a8931",
+      "bytes": 4824,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Alyosha/data.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Alyosha/data.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Alyosha/data.json",
+      "sha256": "962b2ca7e208cad388499fbb39f8b0568d9ae717e3885d8b2e21b225b8a4c0f9",
+      "bytes": 955,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Alyosha_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/char_Alyosha_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Alyosha_gen.json",
+      "sha256": "4606aca258324646901e283ff72ab5f523618f56595ef3a9816c25ac19998536",
+      "bytes": 9542,
+      "retrieval": "fixed revision primary repository"
+    },
+    {
+      "path": "libs/gi/formula/src/data/char/Alyosha.ts",
+      "archivePath": "raw/libs/gi/formula/src/data/char/Alyosha.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/char/Alyosha.ts",
+      "sha256": "05a7b4613b69f19487d8048757790717b5bebf0c2069341d346883e50468b3d8",
+      "bytes": 1920,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "bytes": 15409,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivePath": "raw/libs/gi/wr/src/formula.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "bytes": 15340,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "sha256": "f20816bb19c79a617a173d8bade6b7301810d92a893ee4495f2e190365f012dd",
+      "bytes": 38604,
+      "relevantJsonPointers": [
+        "/11480001",
+        "/11480002",
+        "/11330003"
+      ]
+    }
+  ],
+  "rejectedPlaceholders": {
+    "path": "libs/gi/formula/src/data/char/Alyosha.ts",
+    "reason": "TODO formula-layer placeholder is archived for audit only. The production sheet, skill parameter vectors, localized talent text, and shared damage helpers provide the usable evidence."
+  },
+  "newComponentIds": [],
+  "componentStatus": "existing field tick and bite remain partial",
+  "adjudication": [
+    {
+      "mechanic": "No new direct special attack found",
+      "source": "index.tsx dmgFormulas; char_Alyosha_gen burst and passive3",
+      "meaning": "Field and Tugarin use ordinary Electro burst dmgNode. The Radiance passive grants a Stellar-Conduct reaction damage buff to the active Precision recipient, not a special bite or field damage coefficient."
+    },
+    {
+      "mechanic": "A4 ordinary E/Q damage bonus",
+      "formula": "ascension >= 4 ? 0.0035 * min(100 * energyRechargeRatio, 200) : 0",
+      "source": "index.tsx a4_skill_dmg_ and a4_burst_dmg_; skillParam.json /passive2",
+      "accounting": "Maximum0.70; already implemented ordinary source paths should retain this and avoid duplicate addition."
+    },
+    {
+      "mechanic": "Hunter Mark / Precision",
+      "source": "tooltips_gen /11480001; index.tsx skillPrecision_atk_; skillParam.json /skill/4 and /skill/5",
+      "meaning": "Applying a mark to an already-marked target activates and removes that mark, granting nearby party members Precision. The actual active recipient gains skill[4] ATK ratio for the listed15s; C0 supports one Precision level. State must follow actual application order."
+    },
+    {
+      "mechanic": "Radiance Precision buff",
+      "formula": "actual Stellar-Conduct Radiance and actual active Precision recipient ? 0.20 : 0 at C0",
+      "source": "index.tsx a0Precision_stellarconduct_dmg_; char_Alyosha_gen passive3",
+      "accounting": "Applies to the active recipient special reaction bonus; no new own damage component is justified."
+    },
+    {
+      "mechanic": "Tugarin healing",
+      "formula": "ascension >= 1 ? actual Alyosha ATK * 1.2, then actual healing modifiers : 0",
+      "source": "index.tsx passive1.heal; char_Alyosha_gen passive1",
+      "meaning": "Tugarin attack event triggers healing of nearby active characters. Damage and healing need their actual event links; do not synthesize seven heals from14/2."
+    }
+  ],
+  "remainingLifecycle": [
+    "Source confirms field and bite every2s but not exact first tick, expiry equality, target arrival or issued-tail timing in the14s window.",
+    "Tugarin target selection prefers marked opponents, approach movement and repeated mark trigger order need actual observations.",
+    "Mark application by N4, press/hold E, and bite activation plus Precision recipient changes need an ordered state ledger.",
+    "Healing event target/range and final HP application require actual event linkage.",
+    "C1 energy cooldown, C2 duration/mark non-activation distinction, C4 weakest-ratio healing and C6 Precision2 are outside C0 scope."
+  ]
+}

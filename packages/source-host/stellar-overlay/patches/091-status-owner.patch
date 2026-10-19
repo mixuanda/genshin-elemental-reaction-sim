@@ -1,0 +1,104 @@
+diff --git a/pkg/core/player/character/mods.go b/pkg/core/player/character/mods.go
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -16,6 +16,7 @@
+ 	// Status is basic mod for keeping track Status; usually affected by hitlag
+ 	Status struct {
+ 		modifier.Base
++		SourceHostStatusOwner *info.SourceHostStatusOwner `json:"-"`
+ 	}
+ 	AttackMod struct {
+ 		modifier.Base
+@@ -54,6 +55,14 @@
+ 			Dur:    dur,
+ 			Hitlag: hitlag,
+ 		},
++	}
++	if c.SourceHost != nil {
++		origin := c.SourceHost.Origin.Snapshot()
++		mod.SourceHostStatusOwner = &info.SourceHostStatusOwner{
++			ActorIndex: c.Index(), StatusKey: key,
++			InstanceID: c.SourceHost.NextStatusInstanceID(), CreatedFrame: *c.f,
++			CreationActionSequence: origin.CreationActionSequence,
++		}
+ 	}
+ 	if mod.Dur < 0 {
+ 		mod.ModExpiry = -1
+@@ -183,6 +192,20 @@
+ 	_, ok := modifier.FindCheckExpiry(&c.mods, key, *c.f)
+ 	return ok
+ }
++// SourceHostStatusOwner returns the exact active Status object's captured
++// owner. A missing, expired, deleted, or differently typed modifier has no owner.
++func (c *CharWrapper) SourceHostStatusOwner(key string) *info.SourceHostStatusOwner {
++	index, active := modifier.FindCheckExpiry(&c.mods, key, *c.f)
++	if !active {
++		return nil
++	}
++	status, ok := c.mods[index].(*Status)
++	if !ok {
++		return nil
++	}
++	return status.SourceHostStatusOwner
++}
++
+ func (c *CharWrapper) StatusIsActive(key string) bool             { return c.modIsActive(key) }
+ func (c *CharWrapper) CooldownModIsActive(key string) bool        { return c.modIsActive(key) }
+ func (c *CharWrapper) DamageReductionModIsActive(key string) bool { return c.modIsActive(key) }
+diff --git a/internal/template/minazuki/minazuki.go b/internal/template/minazuki/minazuki.go
+--- a/internal/template/minazuki/minazuki.go
++++ b/internal/template/minazuki/minazuki.go
+@@ -148,7 +148,7 @@
+ 				Write("icd_key", w.icdKey)
+ 			return
+ 		}
+-		w.triggerFunc()
++		w.triggerWithStatusOwner()
+ 		w.core.Log.NewEventBuildMsg(glog.LogCharacterEvent, c.Index(), w.abil, " triggered on state change").
+ 			Write("state", next).
+ 			Write("icd", c.StatusExpiry(w.icdKey)).
+@@ -157,6 +157,19 @@
+ 		w.tickSrc = w.core.F
+ 		w.queueTick(w.core.F)
+ 	}
++}
++
++// triggerWithStatusOwner binds the active status instance only for work
++// created by this trigger. The Init-installed callback ancestry and the
++// later normal-attack trigger remain independent in the origin record.
++func (w *Watcher) triggerWithStatusOwner() {
++	if w.core.SourceHost == nil {
++		w.triggerFunc()
++		return
++	}
++	end := w.core.SourceHost.Origin.BeginStatusOwner(w.caster.SourceHostStatusOwner(w.statusKey))
++	w.triggerFunc()
++	end()
+ }
+ 
+ func (w *Watcher) queueTick(src int) {
+@@ -212,7 +225,7 @@
+ 			Write("state", state).
+ 			Write("icd", c.StatusExpiry(w.statusKey))
+ 		// we can trigger a wave here b/c we're in normal state still and src is still the same
+-		w.triggerFunc()
++		w.triggerWithStatusOwner()
+ 		// in theory this should not hit an icd?
+ 		// use the hitlag affected queue for this
+ 		w.queueTick(src)
+diff --git a/pkg/core/player/character/sourcehost_private_phase.go b/pkg/core/player/character/sourcehost_private_phase.go
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -144,6 +144,12 @@
+ 				(field.Name == "SourceHostOrigin" || field.Name == "SourceHostQueuedObservationIndex") {
+ 				continue
+ 			}
++			// Captured Status ownership is trace-only; duration and active
++			// gameplay state remain in CharWrapper.SourceHostPhaseState.
++			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/player/character" &&
++				v.Type().Name() == "Status" && field.Name == "SourceHostStatusOwner" {
++				continue
++			}
+ 			qualifiedName := v.Type().PkgPath() + "." + v.Type().Name() + "." + field.Name
+ 			fields[field.Name] = r.read(v.Field(i), path+"."+field.Name, qualifiedName, depth+1)
+ 		}

@@ -1,0 +1,12 @@
+{"slug":"gorou","acceptedInputs":4,"arrows":4,"nextIndex":1,"totalDamage":916.76,"restored":true}
+{"slug":"kujousara","acceptedInputs":5,"arrows":5,"nextIndex":1,"totalDamage":1162.72,"restored":true}
+{"slug":"diona","acceptedInputs":5,"arrows":5,"nextIndex":1,"totalDamage":1059.95,"restored":true}
+{"slug":"collei","acceptedInputs":4,"arrows":4,"nextIndex":1,"totalDamage":1041.8899999999999,"restored":true}
+{"slug":"faruzan","acceptedInputs":4,"arrows":4,"nextIndex":1,"totalDamage":1053.5,"restored":true}
+{"slug":"ganyu","acceptedInputs":6,"arrows":6,"nextIndex":1,"totalDamage":1320.96,"restored":true}
+{"slug":"tighnari","acceptedInputs":4,"arrows":5,"nextIndex":1,"totalDamage":1040.6,"restored":true}
+{"slug":"venti","acceptedInputs":6,"arrows":8,"nextIndex":1,"totalDamage":1556.1699999999998,"restored":true}
+{"slug":"fischl","acceptedInputs":5,"arrows":5,"nextIndex":1,"totalDamage":1394.06,"restored":true}
+{"slug":"yelan","acceptedInputs":4,"arrows":5,"nextIndex":1,"totalDamage":981.6899999999999,"restored":true}
+
+WALL_SECONDS=1.465

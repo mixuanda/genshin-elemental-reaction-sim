@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "calculator-aggregation-measurements-v1",
+  "derivedFrom": "calculator-aggregation-20260928.result.json",
+  "sourceSkillId": "xingqiu-skill-complete-cast",
+  "segments": 2,
+  "pageErrors": [],
+  "states": {
+    "single": {
+      "scope": "single-hit",
+      "status": "calculated",
+      "expected": 1360.8000000000002,
+      "components": [
+        {
+          "id": "xingqiu-skill-complete-cast-first",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1360.8000000000002
+        },
+        {
+          "id": "xingqiu-skill-complete-cast-second",
+          "status": "excluded",
+          "selected": false,
+          "expected": null
+        }
+      ],
+      "omittedHitIds": [
+        "xingqiu-skill-complete-cast-second"
+      ]
+    },
+    "complete": {
+      "scope": "complete-cast",
+      "status": "calculated",
+      "expected": 2909.5200000000004,
+      "components": [
+        {
+          "id": "xingqiu-skill-complete-cast-first",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1360.8000000000002
+        },
+        {
+          "id": "xingqiu-skill-complete-cast-second",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1548.72
+        }
+      ],
+      "omittedHitIds": []
+    },
+    "partial": {
+      "scope": "selected-components",
+      "status": "calculated",
+      "expected": 1360.8000000000002,
+      "components": [
+        {
+          "id": "xingqiu-skill-complete-cast-first",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1360.8000000000002
+        },
+        {
+          "id": "xingqiu-skill-complete-cast-second",
+          "status": "excluded",
+          "selected": false,
+          "expected": null
+        }
+      ],
+      "omittedHitIds": [
+        "xingqiu-skill-complete-cast-second"
+      ]
+    },
+    "edited": {
+      "scope": "complete-cast",
+      "status": "calculated",
+      "expected": 3491.424,
+      "components": [
+        {
+          "id": "xingqiu-skill-complete-cast-first",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1632.9599999999998
+        },
+        {
+          "id": "xingqiu-skill-complete-cast-second",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1858.4640000000002
+        }
+      ],
+      "omittedHitIds": []
+    },
+    "restored": {
+      "scope": "complete-cast",
+      "status": "calculated",
+      "expected": 3491.424,
+      "components": [
+        {
+          "id": "xingqiu-skill-complete-cast-first",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1632.9599999999998
+        },
+        {
+          "id": "xingqiu-skill-complete-cast-second",
+          "status": "calculated",
+          "selected": true,
+          "expected": 1858.4640000000002
+        }
+      ],
+      "omittedHitIds": []
+    }
+  },
+  "importedAggregationMatchesEdited": true,
+  "reportAggregationMatchesEdited": true
+}

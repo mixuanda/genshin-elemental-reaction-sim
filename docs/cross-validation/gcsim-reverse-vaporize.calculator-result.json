@@ -1,0 +1,4356 @@
+{
+  "status": "calculated",
+  "verification": "provisional",
+  "hits": [
+    {
+      "id": "vaporized-arrow",
+      "label": "Fully-Charged Aimed Shot",
+      "status": "calculated",
+      "nonCritical": 28.886037332931956,
+      "critical": 43.32905599939794,
+      "expected": 28.886037332931956,
+      "trace": [
+        {
+          "id": "applicableReactionBonus",
+          "ruleId": "applicableReactionBonus",
+          "titleKey": "stage.applicableReactionBonus",
+          "explanationKey": "explain.applicableReactionBonus",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "manualReactionBonus"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "manualReactionBonus",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.manualReactionBonus",
+              "origin": "user"
+            }
+          ],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(manualReactionBonus)",
+          "substitution": "(0)"
+        },
+        {
+          "id": "totalResistanceReduction",
+          "ruleId": "totalResistanceReduction",
+          "titleKey": "stage.totalResistanceReduction",
+          "explanationKey": "explain.totalResistanceReduction",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "constant",
+                "value": 0
+              }
+            ]
+          },
+          "inputs": [],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(0)",
+          "substitution": "(0)"
+        },
+        {
+          "id": "effectiveResistance",
+          "ruleId": "effectiveResistance",
+          "titleKey": "stage.effectiveResistance",
+          "explanationKey": "explain.effectiveResistance",
+          "status": "applied",
+          "expression": {
+            "kind": "subtract",
+            "left": {
+              "kind": "variable",
+              "key": "enemyResistance"
+            },
+            "right": {
+              "kind": "variable",
+              "key": "totalResistanceReduction"
+            }
+          },
+          "inputs": [
+            {
+              "key": "enemyResistance",
+              "value": 0.1,
+              "unit": "ratio",
+              "meaningKey": "input.enemyResistance",
+              "origin": "user"
+            },
+            {
+              "key": "totalResistanceReduction",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.totalResistanceReduction",
+              "origin": "previous-step"
+            }
+          ],
+          "result": {
+            "value": 0.1,
+            "display": "0.1",
+            "unit": "ratio"
+          },
+          "childIds": [
+            "totalResistanceReduction"
+          ],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(enemyResistance − totalResistanceReduction)",
+          "substitution": "(0.1 − 0)"
+        },
+        {
+          "id": "applicableDamageBonus",
+          "ruleId": "applicableDamageBonus",
+          "titleKey": "stage.applicableDamageBonus",
+          "explanationKey": "explain.applicableDamageBonus",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "manualDamageBonus"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "manualDamageBonus",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.damageBonus",
+              "origin": "user"
+            }
+          ],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(manualDamageBonus)",
+          "substitution": "(0)"
+        },
+        {
+          "id": "damageBonusPercent",
+          "ruleId": "damageBonusPercent",
+          "titleKey": "stage.damageBonusPercent",
+          "explanationKey": "explain.damageBonusPercent",
+          "status": "applied",
+          "expression": {
+            "kind": "divide",
+            "left": {
+              "kind": "variable",
+              "key": "percentage"
+            },
+            "right": {
+              "kind": "constant",
+              "value": 100
+            }
+          },
+          "inputs": [
+            {
+              "key": "percentage",
+              "value": 0,
+              "unit": "percent",
+              "meaningKey": "input.percentage",
+              "origin": "calculated-percentage-equivalent"
+            }
+          ],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [
+            "applicableDamageBonus"
+          ],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(percentage / 100)",
+          "substitution": "(0 / 100)"
+        },
+        {
+          "id": "coefficientPercent.0",
+          "ruleId": "coefficientPercent.0",
+          "titleKey": "stage.coefficientPercent",
+          "explanationKey": "explain.coefficientPercent",
+          "status": "applied",
+          "expression": {
+            "kind": "divide",
+            "left": {
+              "kind": "variable",
+              "key": "percentage"
+            },
+            "right": {
+              "kind": "constant",
+              "value": 100
+            }
+          },
+          "inputs": [
+            {
+              "key": "percentage",
+              "value": 124,
+              "unit": "percent",
+              "meaningKey": "input.percentage",
+              "origin": "talent-percentage-equivalent"
+            }
+          ],
+          "result": {
+            "value": 1.24,
+            "display": "1.24",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(percentage / 100)",
+          "substitution": "(124 / 100)"
+        },
+        {
+          "id": "scaling.0",
+          "ruleId": "scaling.0",
+          "titleKey": "stage.scaling",
+          "explanationKey": "explain.scaling",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "atk"
+              },
+              {
+                "kind": "variable",
+                "key": "coefficient"
+              },
+              {
+                "kind": "variable",
+                "key": "baseMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "atk",
+              "value": 41.9434,
+              "unit": "stat",
+              "meaningKey": "input.atk",
+              "origin": "manual-final"
+            },
+            {
+              "key": "coefficient",
+              "value": 1.24,
+              "unit": "ratio",
+              "meaningKey": "input.coefficient",
+              "origin": "talent"
+            },
+            {
+              "key": "baseMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.baseMultiplier",
+              "origin": "conditioned-rule"
+            }
+          ],
+          "result": {
+            "value": 52.009815999999994,
+            "display": "52.009816",
+            "unit": "damage"
+          },
+          "childIds": [
+            "coefficientPercent.0"
+          ],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(atk × coefficient × baseMultiplier)",
+          "substitution": "(41.9434 × 1.24 × 1)"
+        },
+        {
+          "id": "scalingSum",
+          "ruleId": "scalingSum",
+          "titleKey": "stage.scalingSum",
+          "explanationKey": "explain.scalingSum",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "term1"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "term1",
+              "value": 52.009815999999994,
+              "unit": "damage",
+              "meaningKey": "input.scalingTerm",
+              "origin": "previous-step"
+            }
+          ],
+          "result": {
+            "value": 52.009815999999994,
+            "display": "52.009816",
+            "unit": "damage"
+          },
+          "childIds": [
+            "scaling.0"
+          ],
+          "sourceRefs": [
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(term1)",
+          "substitution": "(52.009815999999994)"
+        },
+        {
+          "id": "talentDamage",
+          "ruleId": "talentDamage",
+          "titleKey": "stage.talentDamage",
+          "explanationKey": "explain.talentDamage",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "scaling"
+              },
+              {
+                "kind": "variable",
+                "key": "scalingValue"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "scaling",
+              "value": 1.24,
+              "unit": "ratio",
+              "meaningKey": "input.scaling",
+              "origin": "calculation-context"
+            },
+            {
+              "key": "scalingValue",
+              "value": 41.9434,
+              "unit": "stat",
+              "meaningKey": "input.scalingValue",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 52.009815999999994,
+            "display": "52.009816",
+            "unit": "damage"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(scaling × scalingValue)",
+          "substitution": "(1.24 × 41.9434)"
+        },
+        {
+          "id": "baseDamage",
+          "ruleId": "baseDamage",
+          "titleKey": "stage.baseDamage",
+          "explanationKey": "explain.baseDamage",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "talentDamage"
+              },
+              {
+                "kind": "variable",
+                "key": "flatDamage"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "talentDamage",
+              "value": 52.009815999999994,
+              "unit": "damage",
+              "meaningKey": "input.talentDamage",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "talentDamage"
+              }
+            },
+            {
+              "key": "flatDamage",
+              "value": 0,
+              "unit": "damage",
+              "meaningKey": "input.flatDamage",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 52.009815999999994,
+            "display": "52.009816",
+            "unit": "damage"
+          },
+          "childIds": [
+            "talentDamage"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(talentDamage + flatDamage)",
+          "substitution": "(52.009815999999994 + 0)"
+        },
+        {
+          "id": "damageBonusMultiplier",
+          "ruleId": "damageBonusMultiplier",
+          "titleKey": "stage.damageBonusMultiplier",
+          "explanationKey": "explain.damageBonusMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "constant",
+                "value": 1
+              },
+              {
+                "kind": "variable",
+                "key": "damageBonus"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "damageBonus",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.damageBonus",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 1,
+            "display": "1",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(1 + damageBonus)",
+          "substitution": "(1 + 0)"
+        },
+        {
+          "id": "afterBonus",
+          "ruleId": "afterBonus",
+          "titleKey": "stage.afterBonus",
+          "explanationKey": "explain.afterBonus",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "baseDamage"
+              },
+              {
+                "kind": "variable",
+                "key": "damageBonusMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "baseDamage",
+              "value": 52.009815999999994,
+              "unit": "damage",
+              "meaningKey": "input.baseDamage",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "baseDamage"
+              }
+            },
+            {
+              "key": "damageBonusMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.damageBonusMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "damageBonusMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 52.009815999999994,
+            "display": "52.009816",
+            "unit": "damage"
+          },
+          "childIds": [
+            "baseDamage",
+            "damageBonusMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(baseDamage × damageBonusMultiplier)",
+          "substitution": "(52.009815999999994 × 1)"
+        },
+        {
+          "id": "defenseIgnore",
+          "ruleId": "defenseIgnore",
+          "titleKey": "stage.defenseIgnore",
+          "explanationKey": "explain.defenseIgnore",
+          "status": "applied",
+          "expression": {
+            "kind": "clamp",
+            "value": {
+              "kind": "variable",
+              "key": "defenseIgnore"
+            },
+            "min": {
+              "kind": "constant",
+              "value": 0
+            },
+            "max": {
+              "kind": "constant",
+              "value": 1
+            }
+          },
+          "inputs": [
+            {
+              "key": "defenseIgnore",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.defenseIgnore",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "clamp(defenseIgnore, 0, 1)",
+          "substitution": "clamp(0, 0, 1)"
+        },
+        {
+          "id": "defenseAdjustment",
+          "ruleId": "defenseAdjustment",
+          "titleKey": "stage.defenseAdjustment",
+          "explanationKey": "explain.defenseAdjustment",
+          "status": "applied",
+          "expression": {
+            "kind": "clamp",
+            "value": {
+              "kind": "variable",
+              "key": "defenseAdjustment"
+            },
+            "min": {
+              "kind": "constant",
+              "value": -1
+            },
+            "max": {
+              "kind": "constant",
+              "value": 0.9
+            }
+          },
+          "inputs": [
+            {
+              "key": "defenseAdjustment",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.defenseAdjustment",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "clamp(defenseAdjustment, (-1), 0.9)",
+          "substitution": "clamp(0, (-1), 0.9)"
+        },
+        {
+          "id": "defenseMultiplier",
+          "ruleId": "defenseMultiplier",
+          "titleKey": "stage.defenseMultiplier",
+          "explanationKey": "explain.defenseMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "divide",
+            "left": {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "variable",
+                  "key": "characterLevel"
+                },
+                {
+                  "kind": "constant",
+                  "value": 100
+                }
+              ]
+            },
+            "right": {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "add",
+                  "terms": [
+                    {
+                      "kind": "variable",
+                      "key": "characterLevel"
+                    },
+                    {
+                      "kind": "constant",
+                      "value": 100
+                    }
+                  ]
+                },
+                {
+                  "kind": "multiply",
+                  "terms": [
+                    {
+                      "kind": "add",
+                      "terms": [
+                        {
+                          "kind": "variable",
+                          "key": "enemyLevel"
+                        },
+                        {
+                          "kind": "constant",
+                          "value": 100
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "add",
+                      "terms": [
+                        {
+                          "kind": "constant",
+                          "value": 1
+                        },
+                        {
+                          "kind": "variable",
+                          "key": "defenseAdjustment"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "subtract",
+                      "left": {
+                        "kind": "constant",
+                        "value": 1
+                      },
+                      "right": {
+                        "kind": "variable",
+                        "key": "defenseIgnore"
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          },
+          "inputs": [
+            {
+              "key": "characterLevel",
+              "value": 1,
+              "unit": "level",
+              "meaningKey": "input.characterLevel",
+              "origin": "calculation-context"
+            },
+            {
+              "key": "enemyLevel",
+              "value": 90,
+              "unit": "level",
+              "meaningKey": "input.enemyLevel",
+              "origin": "calculation-context"
+            },
+            {
+              "key": "defenseAdjustment",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.defenseAdjustment",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "defenseAdjustment"
+              }
+            },
+            {
+              "key": "defenseIgnore",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.defenseIgnore",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "defenseIgnore"
+              }
+            }
+          ],
+          "result": {
+            "value": 0.3470790378006873,
+            "display": "0.347079",
+            "unit": "ratio"
+          },
+          "childIds": [
+            "defenseAdjustment",
+            "defenseIgnore"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))",
+          "substitution": "((1 + 100) / ((1 + 100) + ((90 + 100) × (1 + 0) × (1 − 0))))"
+        },
+        {
+          "id": "afterDefense",
+          "ruleId": "afterDefense",
+          "titleKey": "stage.afterDefense",
+          "explanationKey": "explain.afterDefense",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterBonus"
+              },
+              {
+                "kind": "variable",
+                "key": "defenseMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterBonus",
+              "value": 52.009815999999994,
+              "unit": "damage",
+              "meaningKey": "input.afterBonus",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterBonus"
+              }
+            },
+            {
+              "key": "defenseMultiplier",
+              "value": 0.3470790378006873,
+              "unit": "ratio",
+              "meaningKey": "input.defenseMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "defenseMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 18.051516893470787,
+            "display": "18.051517",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterBonus",
+            "defenseMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterBonus × defenseMultiplier)",
+          "substitution": "(52.009815999999994 × 0.3470790378006873)"
+        },
+        {
+          "id": "resistanceMultiplier",
+          "ruleId": "resistanceMultiplier",
+          "titleKey": "stage.resistanceMultiplier",
+          "explanationKey": "explain.resistanceMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "condition",
+            "operator": "lt",
+            "left": {
+              "kind": "variable",
+              "key": "resistance"
+            },
+            "right": {
+              "kind": "constant",
+              "value": 0
+            },
+            "whenTrue": {
+              "kind": "subtract",
+              "left": {
+                "kind": "constant",
+                "value": 1
+              },
+              "right": {
+                "kind": "divide",
+                "left": {
+                  "kind": "variable",
+                  "key": "resistance"
+                },
+                "right": {
+                  "kind": "constant",
+                  "value": 2
+                }
+              }
+            },
+            "whenFalse": {
+              "kind": "condition",
+              "operator": "lt",
+              "left": {
+                "kind": "variable",
+                "key": "resistance"
+              },
+              "right": {
+                "kind": "constant",
+                "value": 0.75
+              },
+              "whenTrue": {
+                "kind": "subtract",
+                "left": {
+                  "kind": "constant",
+                  "value": 1
+                },
+                "right": {
+                  "kind": "variable",
+                  "key": "resistance"
+                }
+              },
+              "whenFalse": {
+                "kind": "divide",
+                "left": {
+                  "kind": "constant",
+                  "value": 1
+                },
+                "right": {
+                  "kind": "add",
+                  "terms": [
+                    {
+                      "kind": "multiply",
+                      "terms": [
+                        {
+                          "kind": "constant",
+                          "value": 4
+                        },
+                        {
+                          "kind": "variable",
+                          "key": "resistance"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "constant",
+                      "value": 1
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "inputs": [
+            {
+              "key": "resistance",
+              "value": 0.1,
+              "unit": "ratio",
+              "meaningKey": "input.resistance",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 0.9,
+            "display": "0.9",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))",
+          "substitution": "(if 0.1 < 0 then (1 − (0.1 / 2)) else (if 0.1 < 0.75 then (1 − 0.1) else (1 / ((4 × 0.1) + 1))))"
+        },
+        {
+          "id": "afterResistance",
+          "ruleId": "afterResistance",
+          "titleKey": "stage.afterResistance",
+          "explanationKey": "explain.afterResistance",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterDefense"
+              },
+              {
+                "kind": "variable",
+                "key": "resistanceMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterDefense",
+              "value": 18.051516893470787,
+              "unit": "damage",
+              "meaningKey": "input.afterDefense",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterDefense"
+              }
+            },
+            {
+              "key": "resistanceMultiplier",
+              "value": 0.9,
+              "unit": "ratio",
+              "meaningKey": "input.resistanceMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "resistanceMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 16.24636520412371,
+            "display": "16.246365",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterDefense",
+            "resistanceMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterDefense × resistanceMultiplier)",
+          "substitution": "(18.051516893470787 × 0.9)"
+        },
+        {
+          "id": "critRate",
+          "ruleId": "critRate",
+          "titleKey": "stage.critRate",
+          "explanationKey": "explain.critRate",
+          "status": "applied",
+          "expression": {
+            "kind": "clamp",
+            "value": {
+              "kind": "variable",
+              "key": "critRate"
+            },
+            "min": {
+              "kind": "constant",
+              "value": 0
+            },
+            "max": {
+              "kind": "constant",
+              "value": 1
+            }
+          },
+          "inputs": [
+            {
+              "key": "critRate",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.critRate",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 0,
+            "display": "0",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "clamp(critRate, 0, 1)",
+          "substitution": "clamp(0, 0, 1)"
+        },
+        {
+          "id": "critDamage",
+          "ruleId": "critDamage",
+          "titleKey": "stage.critDamage",
+          "explanationKey": "explain.critDamage",
+          "status": "applied",
+          "expression": {
+            "kind": "max",
+            "terms": [
+              {
+                "kind": "constant",
+                "value": 0
+              },
+              {
+                "kind": "variable",
+                "key": "critDamage"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "critDamage",
+              "value": 0.5,
+              "unit": "ratio",
+              "meaningKey": "input.critDamage",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 0.5,
+            "display": "0.5",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "max(0, critDamage)",
+          "substitution": "max(0, 0.5)"
+        },
+        {
+          "id": "nonCriticalMultiplier",
+          "ruleId": "nonCriticalMultiplier",
+          "titleKey": "stage.nonCriticalMultiplier",
+          "explanationKey": "explain.nonCriticalMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "constant",
+            "value": 1
+          },
+          "inputs": [
+            {
+              "key": "critRate",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.critRate",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "critRate"
+              }
+            },
+            {
+              "key": "critDamage",
+              "value": 0.5,
+              "unit": "ratio",
+              "meaningKey": "input.critDamage",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "critDamage"
+              }
+            }
+          ],
+          "result": {
+            "value": 1,
+            "display": "1",
+            "unit": "ratio"
+          },
+          "childIds": [
+            "critRate",
+            "critDamage"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "1",
+          "substitution": "1"
+        },
+        {
+          "id": "amplifyingEmBonus",
+          "ruleId": "amplifyingEmBonus",
+          "titleKey": "stage.amplifyingEmBonus",
+          "explanationKey": "explain.amplifyingEmBonus",
+          "status": "applied",
+          "expression": {
+            "kind": "divide",
+            "left": {
+              "kind": "multiply",
+              "terms": [
+                {
+                  "kind": "constant",
+                  "value": 2.78
+                },
+                {
+                  "kind": "variable",
+                  "key": "elementalMastery"
+                }
+              ]
+            },
+            "right": {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "constant",
+                  "value": 1400
+                },
+                {
+                  "kind": "variable",
+                  "key": "elementalMastery"
+                }
+              ]
+            }
+          },
+          "inputs": [
+            {
+              "key": "elementalMastery",
+              "value": 100,
+              "unit": "stat",
+              "meaningKey": "input.elementalMastery",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 0.18533333333333332,
+            "display": "0.185333",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "((2.78 × elementalMastery) / (1400 + elementalMastery))",
+          "substitution": "((2.78 × 100) / (1400 + 100))",
+          "applicabilityReason": "reaction.amplifying"
+        },
+        {
+          "id": "reactionMultiplier",
+          "ruleId": "reactionMultiplier",
+          "titleKey": "stage.reactionMultiplier",
+          "explanationKey": "explain.reactionMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "reactionBase"
+              },
+              {
+                "kind": "add",
+                "terms": [
+                  {
+                    "kind": "constant",
+                    "value": 1
+                  },
+                  {
+                    "kind": "variable",
+                    "key": "elementalMasteryBonus"
+                  },
+                  {
+                    "kind": "variable",
+                    "key": "reactionBonus"
+                  }
+                ]
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "reactionBase",
+              "value": 1.5,
+              "unit": "ratio",
+              "meaningKey": "input.reactionBase",
+              "origin": "calculation-context"
+            },
+            {
+              "key": "elementalMasteryBonus",
+              "value": 0.18533333333333332,
+              "unit": "ratio",
+              "meaningKey": "input.elementalMasteryBonus",
+              "origin": "calculation-context"
+            },
+            {
+              "key": "reactionBonus",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.reactionBonus",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 1.778,
+            "display": "1.778",
+            "unit": "ratio"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(reactionBase × (1 + elementalMasteryBonus + reactionBonus))",
+          "substitution": "(1.5 × (1 + 0.18533333333333332 + 0))",
+          "applicabilityReason": "reaction.amplifying"
+        },
+        {
+          "id": "afterCritical",
+          "ruleId": "afterCritical",
+          "titleKey": "stage.afterCritical",
+          "explanationKey": "explain.afterCritical",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterResistance"
+              },
+              {
+                "kind": "variable",
+                "key": "critMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterResistance",
+              "value": 16.24636520412371,
+              "unit": "damage",
+              "meaningKey": "input.afterResistance",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterResistance"
+              }
+            },
+            {
+              "key": "critMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.critMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "nonCriticalMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 16.24636520412371,
+            "display": "16.246365",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterResistance",
+            "nonCriticalMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterResistance × critMultiplier)",
+          "substitution": "(16.24636520412371 × 1)"
+        },
+        {
+          "id": "afterReaction",
+          "ruleId": "afterReaction",
+          "titleKey": "stage.afterReaction",
+          "explanationKey": "explain.afterReaction",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterCritical"
+              },
+              {
+                "kind": "variable",
+                "key": "reactionMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterCritical",
+              "value": 16.24636520412371,
+              "unit": "damage",
+              "meaningKey": "input.afterCritical",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterCritical"
+              }
+            },
+            {
+              "key": "reactionMultiplier",
+              "value": 1.778,
+              "unit": "ratio",
+              "meaningKey": "input.reactionMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "reactionMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 28.886037332931956,
+            "display": "28.886037",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterCritical",
+            "reactionMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterCritical × reactionMultiplier)",
+          "substitution": "(16.24636520412371 × 1.778)"
+        },
+        {
+          "id": "finalDamage",
+          "ruleId": "finalDamage",
+          "titleKey": "stage.finalDamage",
+          "explanationKey": "explain.finalDamage",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterReaction"
+              },
+              {
+                "kind": "variable",
+                "key": "groupMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterReaction",
+              "value": 28.886037332931956,
+              "unit": "damage",
+              "meaningKey": "input.afterReaction",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterReaction"
+              }
+            },
+            {
+              "key": "groupMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.groupMultiplier",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 28.886037332931956,
+            "display": "28.886037",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterReaction"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterReaction × groupMultiplier)",
+          "substitution": "(28.886037332931956 × 1)"
+        },
+        {
+          "id": "critical.criticalMultiplier",
+          "ruleId": "criticalMultiplier",
+          "titleKey": "stage.criticalMultiplier",
+          "explanationKey": "explain.criticalMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "constant",
+                "value": 1
+              },
+              {
+                "kind": "variable",
+                "key": "critDamage"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "critRate",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.critRate",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "critRate"
+              }
+            },
+            {
+              "key": "critDamage",
+              "value": 0.5,
+              "unit": "ratio",
+              "meaningKey": "input.critDamage",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "critDamage"
+              }
+            }
+          ],
+          "result": {
+            "value": 1.5,
+            "display": "1.5",
+            "unit": "ratio"
+          },
+          "childIds": [
+            "critRate",
+            "critDamage"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(1 + critDamage)",
+          "substitution": "(1 + 0.5)"
+        },
+        {
+          "id": "critical.afterCritical",
+          "ruleId": "afterCritical",
+          "titleKey": "stage.afterCritical",
+          "explanationKey": "explain.afterCritical",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterResistance"
+              },
+              {
+                "kind": "variable",
+                "key": "critMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterResistance",
+              "value": 16.24636520412371,
+              "unit": "damage",
+              "meaningKey": "input.afterResistance",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterResistance"
+              }
+            },
+            {
+              "key": "critMultiplier",
+              "value": 1.5,
+              "unit": "ratio",
+              "meaningKey": "input.critMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "criticalMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 24.369547806185565,
+            "display": "24.369548",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterResistance",
+            "critical.criticalMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterResistance × critMultiplier)",
+          "substitution": "(16.24636520412371 × 1.5)"
+        },
+        {
+          "id": "critical.afterReaction",
+          "ruleId": "afterReaction",
+          "titleKey": "stage.afterReaction",
+          "explanationKey": "explain.afterReaction",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterCritical"
+              },
+              {
+                "kind": "variable",
+                "key": "reactionMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterCritical",
+              "value": 24.369547806185565,
+              "unit": "damage",
+              "meaningKey": "input.afterCritical",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterCritical"
+              }
+            },
+            {
+              "key": "reactionMultiplier",
+              "value": 1.778,
+              "unit": "ratio",
+              "meaningKey": "input.reactionMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "reactionMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 43.32905599939794,
+            "display": "43.329056",
+            "unit": "damage"
+          },
+          "childIds": [
+            "critical.afterCritical",
+            "reactionMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterCritical × reactionMultiplier)",
+          "substitution": "(24.369547806185565 × 1.778)"
+        },
+        {
+          "id": "critical.finalDamage",
+          "ruleId": "finalDamage",
+          "titleKey": "stage.finalDamage",
+          "explanationKey": "explain.finalDamage",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterReaction"
+              },
+              {
+                "kind": "variable",
+                "key": "groupMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterReaction",
+              "value": 43.32905599939794,
+              "unit": "damage",
+              "meaningKey": "input.afterReaction",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterReaction"
+              }
+            },
+            {
+              "key": "groupMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.groupMultiplier",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 43.32905599939794,
+            "display": "43.329056",
+            "unit": "damage"
+          },
+          "childIds": [
+            "critical.afterReaction"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterReaction × groupMultiplier)",
+          "substitution": "(43.32905599939794 × 1)"
+        },
+        {
+          "id": "expected.expectedMultiplier",
+          "ruleId": "expectedMultiplier",
+          "titleKey": "stage.expectedMultiplier",
+          "explanationKey": "explain.expectedMultiplier",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "constant",
+                "value": 1
+              },
+              {
+                "kind": "multiply",
+                "terms": [
+                  {
+                    "kind": "variable",
+                    "key": "critRate"
+                  },
+                  {
+                    "kind": "variable",
+                    "key": "critDamage"
+                  }
+                ]
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "critRate",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.critRate",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "critRate"
+              }
+            },
+            {
+              "key": "critDamage",
+              "value": 0.5,
+              "unit": "ratio",
+              "meaningKey": "input.critDamage",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "critDamage"
+              }
+            }
+          ],
+          "result": {
+            "value": 1,
+            "display": "1",
+            "unit": "ratio"
+          },
+          "childIds": [
+            "critRate",
+            "critDamage"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(1 + (critRate × critDamage))",
+          "substitution": "(1 + (0 × 0.5))"
+        },
+        {
+          "id": "expected.afterCritical",
+          "ruleId": "afterCritical",
+          "titleKey": "stage.afterCritical",
+          "explanationKey": "explain.afterCritical",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterResistance"
+              },
+              {
+                "kind": "variable",
+                "key": "critMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterResistance",
+              "value": 16.24636520412371,
+              "unit": "damage",
+              "meaningKey": "input.afterResistance",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterResistance"
+              }
+            },
+            {
+              "key": "critMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.critMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "expectedMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 16.24636520412371,
+            "display": "16.246365",
+            "unit": "damage"
+          },
+          "childIds": [
+            "afterResistance",
+            "expected.expectedMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterResistance × critMultiplier)",
+          "substitution": "(16.24636520412371 × 1)"
+        },
+        {
+          "id": "expected.afterReaction",
+          "ruleId": "afterReaction",
+          "titleKey": "stage.afterReaction",
+          "explanationKey": "explain.afterReaction",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterCritical"
+              },
+              {
+                "kind": "variable",
+                "key": "reactionMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterCritical",
+              "value": 16.24636520412371,
+              "unit": "damage",
+              "meaningKey": "input.afterCritical",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterCritical"
+              }
+            },
+            {
+              "key": "reactionMultiplier",
+              "value": 1.778,
+              "unit": "ratio",
+              "meaningKey": "input.reactionMultiplier",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "reactionMultiplier"
+              }
+            }
+          ],
+          "result": {
+            "value": 28.886037332931956,
+            "display": "28.886037",
+            "unit": "damage"
+          },
+          "childIds": [
+            "expected.afterCritical",
+            "reactionMultiplier"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterCritical × reactionMultiplier)",
+          "substitution": "(16.24636520412371 × 1.778)"
+        },
+        {
+          "id": "expected.finalDamage",
+          "ruleId": "finalDamage",
+          "titleKey": "stage.finalDamage",
+          "explanationKey": "explain.finalDamage",
+          "status": "applied",
+          "expression": {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "afterReaction"
+              },
+              {
+                "kind": "variable",
+                "key": "groupMultiplier"
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "afterReaction",
+              "value": 28.886037332931956,
+              "unit": "damage",
+              "meaningKey": "input.afterReaction",
+              "origin": {
+                "kind": "previous-step",
+                "reference": "afterReaction"
+              }
+            },
+            {
+              "key": "groupMultiplier",
+              "value": 1,
+              "unit": "ratio",
+              "meaningKey": "input.groupMultiplier",
+              "origin": "calculation-context"
+            }
+          ],
+          "result": {
+            "value": 28.886037332931956,
+            "display": "28.886037",
+            "unit": "damage"
+          },
+          "childIds": [
+            "expected.afterReaction"
+          ],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(afterReaction × groupMultiplier)",
+          "substitution": "(28.886037332931956 × 1)"
+        },
+        {
+          "id": "weightedVerification",
+          "ruleId": "weightedVerification",
+          "titleKey": "stage.weightedVerification",
+          "explanationKey": "explain.weightedVerification",
+          "status": "applied",
+          "expression": {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "multiply",
+                "terms": [
+                  {
+                    "kind": "subtract",
+                    "left": {
+                      "kind": "constant",
+                      "value": 1
+                    },
+                    "right": {
+                      "kind": "variable",
+                      "key": "critRate"
+                    }
+                  },
+                  {
+                    "kind": "variable",
+                    "key": "nonCriticalDamage"
+                  }
+                ]
+              },
+              {
+                "kind": "multiply",
+                "terms": [
+                  {
+                    "kind": "variable",
+                    "key": "critRate"
+                  },
+                  {
+                    "kind": "variable",
+                    "key": "criticalDamage"
+                  }
+                ]
+              }
+            ]
+          },
+          "inputs": [
+            {
+              "key": "critRate",
+              "value": 0,
+              "unit": "ratio",
+              "meaningKey": "input.critRate",
+              "origin": "user"
+            },
+            {
+              "key": "nonCriticalDamage",
+              "value": 28.886037332931956,
+              "unit": "damage",
+              "meaningKey": "input.nonCriticalDamage",
+              "origin": "user"
+            },
+            {
+              "key": "criticalDamage",
+              "value": 43.32905599939794,
+              "unit": "damage",
+              "meaningKey": "input.criticalDamage",
+              "origin": "user"
+            }
+          ],
+          "result": {
+            "value": 28.886037332931956,
+            "display": "28.886037",
+            "unit": "damage"
+          },
+          "childIds": [],
+          "sourceRefs": [
+            "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+            "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+          ],
+          "warnings": [],
+          "symbolicFormula": "(((1 − critRate) × nonCriticalDamage) + (critRate × criticalDamage))",
+          "substitution": "(((1 − 0) × 28.886037332931956) + (0 × 43.32905599939794))"
+        }
+      ],
+      "blockers": []
+    }
+  ],
+  "trace": [
+    {
+      "id": "build.supplied.atk",
+      "ruleId": "supplied.atk",
+      "titleKey": "stage.supplied.atk",
+      "explanationKey": "explain.supplied.atk",
+      "status": "applied",
+      "expression": {
+        "kind": "variable",
+        "key": "atk"
+      },
+      "inputs": [
+        {
+          "key": "atk",
+          "value": 41.9434,
+          "unit": "stat",
+          "meaningKey": "input.atk",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 41.9434,
+        "display": "41.9434",
+        "unit": "stat"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "atk",
+      "substitution": "41.9434"
+    },
+    {
+      "id": "build.supplied.hp",
+      "ruleId": "supplied.hp",
+      "titleKey": "stage.supplied.hp",
+      "explanationKey": "explain.supplied.hp",
+      "status": "applied",
+      "expression": {
+        "kind": "variable",
+        "key": "hp"
+      },
+      "inputs": [
+        {
+          "key": "hp",
+          "value": 793.2582,
+          "unit": "stat",
+          "meaningKey": "input.hp",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 793.2582,
+        "display": "793.2582",
+        "unit": "stat"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "hp",
+      "substitution": "793.2582"
+    },
+    {
+      "id": "build.supplied.def",
+      "ruleId": "supplied.def",
+      "titleKey": "stage.supplied.def",
+      "explanationKey": "explain.supplied.def",
+      "status": "applied",
+      "expression": {
+        "kind": "variable",
+        "key": "def"
+      },
+      "inputs": [
+        {
+          "key": "def",
+          "value": 50.358,
+          "unit": "stat",
+          "meaningKey": "input.def",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 50.358,
+        "display": "50.358",
+        "unit": "stat"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "def",
+      "substitution": "50.358"
+    },
+    {
+      "id": "build.supplied.em",
+      "ruleId": "supplied.em",
+      "titleKey": "stage.supplied.em",
+      "explanationKey": "explain.supplied.em",
+      "status": "applied",
+      "expression": {
+        "kind": "variable",
+        "key": "em"
+      },
+      "inputs": [
+        {
+          "key": "em",
+          "value": 100,
+          "unit": "stat",
+          "meaningKey": "input.em",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 100,
+        "display": "100",
+        "unit": "stat"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "em",
+      "substitution": "100"
+    },
+    {
+      "id": "build.supplied.critRate",
+      "ruleId": "supplied.critRate",
+      "titleKey": "stage.supplied.critRate",
+      "explanationKey": "explain.supplied.critRate",
+      "status": "applied",
+      "expression": {
+        "kind": "variable",
+        "key": "critRate"
+      },
+      "inputs": [
+        {
+          "key": "critRate",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.critRate",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "critRate",
+      "substitution": "0"
+    },
+    {
+      "id": "build.supplied.critDamage",
+      "ruleId": "supplied.critDamage",
+      "titleKey": "stage.supplied.critDamage",
+      "explanationKey": "explain.supplied.critDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "variable",
+        "key": "critDamage"
+      },
+      "inputs": [
+        {
+          "key": "critDamage",
+          "value": 0.5,
+          "unit": "ratio",
+          "meaningKey": "input.critDamage",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 0.5,
+        "display": "0.5",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "critDamage",
+      "substitution": "0.5"
+    },
+    {
+      "id": "build.critRatePercent",
+      "ruleId": "critRatePercent",
+      "titleKey": "stage.critRatePercent",
+      "explanationKey": "explain.critRatePercent",
+      "status": "applied",
+      "expression": {
+        "kind": "divide",
+        "left": {
+          "kind": "variable",
+          "key": "percentage"
+        },
+        "right": {
+          "kind": "constant",
+          "value": 100
+        }
+      },
+      "inputs": [
+        {
+          "key": "percentage",
+          "value": 0,
+          "unit": "percent",
+          "meaningKey": "input.percentage",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(percentage / 100)",
+      "substitution": "(0 / 100)"
+    },
+    {
+      "id": "build.critDamagePercent",
+      "ruleId": "critDamagePercent",
+      "titleKey": "stage.critDamagePercent",
+      "explanationKey": "explain.critDamagePercent",
+      "status": "applied",
+      "expression": {
+        "kind": "divide",
+        "left": {
+          "kind": "variable",
+          "key": "percentage"
+        },
+        "right": {
+          "kind": "constant",
+          "value": 100
+        }
+      },
+      "inputs": [
+        {
+          "key": "percentage",
+          "value": 50,
+          "unit": "percent",
+          "meaningKey": "input.percentage",
+          "origin": "manual-final"
+        }
+      ],
+      "result": {
+        "value": 0.5,
+        "display": "0.5",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(percentage / 100)",
+      "substitution": "(50 / 100)"
+    },
+    {
+      "id": "vaporized-arrow.applicableReactionBonus",
+      "ruleId": "applicableReactionBonus",
+      "titleKey": "stage.applicableReactionBonus",
+      "explanationKey": "explain.applicableReactionBonus",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "manualReactionBonus"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "manualReactionBonus",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.manualReactionBonus",
+          "origin": "user"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(manualReactionBonus)",
+      "substitution": "(0)"
+    },
+    {
+      "id": "vaporized-arrow.totalResistanceReduction",
+      "ruleId": "totalResistanceReduction",
+      "titleKey": "stage.totalResistanceReduction",
+      "explanationKey": "explain.totalResistanceReduction",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "constant",
+            "value": 0
+          }
+        ]
+      },
+      "inputs": [],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(0)",
+      "substitution": "(0)"
+    },
+    {
+      "id": "vaporized-arrow.effectiveResistance",
+      "ruleId": "effectiveResistance",
+      "titleKey": "stage.effectiveResistance",
+      "explanationKey": "explain.effectiveResistance",
+      "status": "applied",
+      "expression": {
+        "kind": "subtract",
+        "left": {
+          "kind": "variable",
+          "key": "enemyResistance"
+        },
+        "right": {
+          "kind": "variable",
+          "key": "totalResistanceReduction"
+        }
+      },
+      "inputs": [
+        {
+          "key": "enemyResistance",
+          "value": 0.1,
+          "unit": "ratio",
+          "meaningKey": "input.enemyResistance",
+          "origin": "user"
+        },
+        {
+          "key": "totalResistanceReduction",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.totalResistanceReduction",
+          "origin": "previous-step"
+        }
+      ],
+      "result": {
+        "value": 0.1,
+        "display": "0.1",
+        "unit": "ratio"
+      },
+      "childIds": [
+        "vaporized-arrow.totalResistanceReduction"
+      ],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(enemyResistance − totalResistanceReduction)",
+      "substitution": "(0.1 − 0)"
+    },
+    {
+      "id": "vaporized-arrow.applicableDamageBonus",
+      "ruleId": "applicableDamageBonus",
+      "titleKey": "stage.applicableDamageBonus",
+      "explanationKey": "explain.applicableDamageBonus",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "manualDamageBonus"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "manualDamageBonus",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.damageBonus",
+          "origin": "user"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(manualDamageBonus)",
+      "substitution": "(0)"
+    },
+    {
+      "id": "vaporized-arrow.damageBonusPercent",
+      "ruleId": "damageBonusPercent",
+      "titleKey": "stage.damageBonusPercent",
+      "explanationKey": "explain.damageBonusPercent",
+      "status": "applied",
+      "expression": {
+        "kind": "divide",
+        "left": {
+          "kind": "variable",
+          "key": "percentage"
+        },
+        "right": {
+          "kind": "constant",
+          "value": 100
+        }
+      },
+      "inputs": [
+        {
+          "key": "percentage",
+          "value": 0,
+          "unit": "percent",
+          "meaningKey": "input.percentage",
+          "origin": "calculated-percentage-equivalent"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [
+        "vaporized-arrow.applicableDamageBonus"
+      ],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(percentage / 100)",
+      "substitution": "(0 / 100)"
+    },
+    {
+      "id": "vaporized-arrow.coefficientPercent.0",
+      "ruleId": "coefficientPercent.0",
+      "titleKey": "stage.coefficientPercent",
+      "explanationKey": "explain.coefficientPercent",
+      "status": "applied",
+      "expression": {
+        "kind": "divide",
+        "left": {
+          "kind": "variable",
+          "key": "percentage"
+        },
+        "right": {
+          "kind": "constant",
+          "value": 100
+        }
+      },
+      "inputs": [
+        {
+          "key": "percentage",
+          "value": 124,
+          "unit": "percent",
+          "meaningKey": "input.percentage",
+          "origin": "talent-percentage-equivalent"
+        }
+      ],
+      "result": {
+        "value": 1.24,
+        "display": "1.24",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(percentage / 100)",
+      "substitution": "(124 / 100)"
+    },
+    {
+      "id": "vaporized-arrow.scaling.0",
+      "ruleId": "scaling.0",
+      "titleKey": "stage.scaling",
+      "explanationKey": "explain.scaling",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "atk"
+          },
+          {
+            "kind": "variable",
+            "key": "coefficient"
+          },
+          {
+            "kind": "variable",
+            "key": "baseMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "atk",
+          "value": 41.9434,
+          "unit": "stat",
+          "meaningKey": "input.atk",
+          "origin": "manual-final"
+        },
+        {
+          "key": "coefficient",
+          "value": 1.24,
+          "unit": "ratio",
+          "meaningKey": "input.coefficient",
+          "origin": "talent"
+        },
+        {
+          "key": "baseMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.baseMultiplier",
+          "origin": "conditioned-rule"
+        }
+      ],
+      "result": {
+        "value": 52.009815999999994,
+        "display": "52.009816",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.coefficientPercent.0"
+      ],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(atk × coefficient × baseMultiplier)",
+      "substitution": "(41.9434 × 1.24 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.scalingSum",
+      "ruleId": "scalingSum",
+      "titleKey": "stage.scalingSum",
+      "explanationKey": "explain.scalingSum",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "term1"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "term1",
+          "value": 52.009815999999994,
+          "unit": "damage",
+          "meaningKey": "input.scalingTerm",
+          "origin": "previous-step"
+        }
+      ],
+      "result": {
+        "value": 52.009815999999994,
+        "display": "52.009816",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.scaling.0"
+      ],
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(term1)",
+      "substitution": "(52.009815999999994)"
+    },
+    {
+      "id": "vaporized-arrow.talentDamage",
+      "ruleId": "talentDamage",
+      "titleKey": "stage.talentDamage",
+      "explanationKey": "explain.talentDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "scaling"
+          },
+          {
+            "kind": "variable",
+            "key": "scalingValue"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "scaling",
+          "value": 1.24,
+          "unit": "ratio",
+          "meaningKey": "input.scaling",
+          "origin": "calculation-context"
+        },
+        {
+          "key": "scalingValue",
+          "value": 41.9434,
+          "unit": "stat",
+          "meaningKey": "input.scalingValue",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 52.009815999999994,
+        "display": "52.009816",
+        "unit": "damage"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(scaling × scalingValue)",
+      "substitution": "(1.24 × 41.9434)"
+    },
+    {
+      "id": "vaporized-arrow.baseDamage",
+      "ruleId": "baseDamage",
+      "titleKey": "stage.baseDamage",
+      "explanationKey": "explain.baseDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "talentDamage"
+          },
+          {
+            "kind": "variable",
+            "key": "flatDamage"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "talentDamage",
+          "value": 52.009815999999994,
+          "unit": "damage",
+          "meaningKey": "input.talentDamage",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "talentDamage"
+          }
+        },
+        {
+          "key": "flatDamage",
+          "value": 0,
+          "unit": "damage",
+          "meaningKey": "input.flatDamage",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 52.009815999999994,
+        "display": "52.009816",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.talentDamage"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(talentDamage + flatDamage)",
+      "substitution": "(52.009815999999994 + 0)"
+    },
+    {
+      "id": "vaporized-arrow.damageBonusMultiplier",
+      "ruleId": "damageBonusMultiplier",
+      "titleKey": "stage.damageBonusMultiplier",
+      "explanationKey": "explain.damageBonusMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "constant",
+            "value": 1
+          },
+          {
+            "kind": "variable",
+            "key": "damageBonus"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "damageBonus",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.damageBonus",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 1,
+        "display": "1",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(1 + damageBonus)",
+      "substitution": "(1 + 0)"
+    },
+    {
+      "id": "vaporized-arrow.afterBonus",
+      "ruleId": "afterBonus",
+      "titleKey": "stage.afterBonus",
+      "explanationKey": "explain.afterBonus",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "baseDamage"
+          },
+          {
+            "kind": "variable",
+            "key": "damageBonusMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "baseDamage",
+          "value": 52.009815999999994,
+          "unit": "damage",
+          "meaningKey": "input.baseDamage",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "baseDamage"
+          }
+        },
+        {
+          "key": "damageBonusMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.damageBonusMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "damageBonusMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 52.009815999999994,
+        "display": "52.009816",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.baseDamage",
+        "vaporized-arrow.damageBonusMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(baseDamage × damageBonusMultiplier)",
+      "substitution": "(52.009815999999994 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.defenseIgnore",
+      "ruleId": "defenseIgnore",
+      "titleKey": "stage.defenseIgnore",
+      "explanationKey": "explain.defenseIgnore",
+      "status": "applied",
+      "expression": {
+        "kind": "clamp",
+        "value": {
+          "kind": "variable",
+          "key": "defenseIgnore"
+        },
+        "min": {
+          "kind": "constant",
+          "value": 0
+        },
+        "max": {
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "inputs": [
+        {
+          "key": "defenseIgnore",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.defenseIgnore",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "clamp(defenseIgnore, 0, 1)",
+      "substitution": "clamp(0, 0, 1)"
+    },
+    {
+      "id": "vaporized-arrow.defenseAdjustment",
+      "ruleId": "defenseAdjustment",
+      "titleKey": "stage.defenseAdjustment",
+      "explanationKey": "explain.defenseAdjustment",
+      "status": "applied",
+      "expression": {
+        "kind": "clamp",
+        "value": {
+          "kind": "variable",
+          "key": "defenseAdjustment"
+        },
+        "min": {
+          "kind": "constant",
+          "value": -1
+        },
+        "max": {
+          "kind": "constant",
+          "value": 0.9
+        }
+      },
+      "inputs": [
+        {
+          "key": "defenseAdjustment",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.defenseAdjustment",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "clamp(defenseAdjustment, (-1), 0.9)",
+      "substitution": "clamp(0, (-1), 0.9)"
+    },
+    {
+      "id": "vaporized-arrow.defenseMultiplier",
+      "ruleId": "defenseMultiplier",
+      "titleKey": "stage.defenseMultiplier",
+      "explanationKey": "explain.defenseMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "divide",
+        "left": {
+          "kind": "add",
+          "terms": [
+            {
+              "kind": "variable",
+              "key": "characterLevel"
+            },
+            {
+              "kind": "constant",
+              "value": 100
+            }
+          ]
+        },
+        "right": {
+          "kind": "add",
+          "terms": [
+            {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "variable",
+                  "key": "characterLevel"
+                },
+                {
+                  "kind": "constant",
+                  "value": 100
+                }
+              ]
+            },
+            {
+              "kind": "multiply",
+              "terms": [
+                {
+                  "kind": "add",
+                  "terms": [
+                    {
+                      "kind": "variable",
+                      "key": "enemyLevel"
+                    },
+                    {
+                      "kind": "constant",
+                      "value": 100
+                    }
+                  ]
+                },
+                {
+                  "kind": "add",
+                  "terms": [
+                    {
+                      "kind": "constant",
+                      "value": 1
+                    },
+                    {
+                      "kind": "variable",
+                      "key": "defenseAdjustment"
+                    }
+                  ]
+                },
+                {
+                  "kind": "subtract",
+                  "left": {
+                    "kind": "constant",
+                    "value": 1
+                  },
+                  "right": {
+                    "kind": "variable",
+                    "key": "defenseIgnore"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "key": "characterLevel",
+          "value": 1,
+          "unit": "level",
+          "meaningKey": "input.characterLevel",
+          "origin": "calculation-context"
+        },
+        {
+          "key": "enemyLevel",
+          "value": 90,
+          "unit": "level",
+          "meaningKey": "input.enemyLevel",
+          "origin": "calculation-context"
+        },
+        {
+          "key": "defenseAdjustment",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.defenseAdjustment",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "defenseAdjustment"
+          }
+        },
+        {
+          "key": "defenseIgnore",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.defenseIgnore",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "defenseIgnore"
+          }
+        }
+      ],
+      "result": {
+        "value": 0.3470790378006873,
+        "display": "0.347079",
+        "unit": "ratio"
+      },
+      "childIds": [
+        "vaporized-arrow.defenseAdjustment",
+        "vaporized-arrow.defenseIgnore"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))",
+      "substitution": "((1 + 100) / ((1 + 100) + ((90 + 100) × (1 + 0) × (1 − 0))))"
+    },
+    {
+      "id": "vaporized-arrow.afterDefense",
+      "ruleId": "afterDefense",
+      "titleKey": "stage.afterDefense",
+      "explanationKey": "explain.afterDefense",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterBonus"
+          },
+          {
+            "kind": "variable",
+            "key": "defenseMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterBonus",
+          "value": 52.009815999999994,
+          "unit": "damage",
+          "meaningKey": "input.afterBonus",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterBonus"
+          }
+        },
+        {
+          "key": "defenseMultiplier",
+          "value": 0.3470790378006873,
+          "unit": "ratio",
+          "meaningKey": "input.defenseMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "defenseMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 18.051516893470787,
+        "display": "18.051517",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterBonus",
+        "vaporized-arrow.defenseMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterBonus × defenseMultiplier)",
+      "substitution": "(52.009815999999994 × 0.3470790378006873)"
+    },
+    {
+      "id": "vaporized-arrow.resistanceMultiplier",
+      "ruleId": "resistanceMultiplier",
+      "titleKey": "stage.resistanceMultiplier",
+      "explanationKey": "explain.resistanceMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "condition",
+        "operator": "lt",
+        "left": {
+          "kind": "variable",
+          "key": "resistance"
+        },
+        "right": {
+          "kind": "constant",
+          "value": 0
+        },
+        "whenTrue": {
+          "kind": "subtract",
+          "left": {
+            "kind": "constant",
+            "value": 1
+          },
+          "right": {
+            "kind": "divide",
+            "left": {
+              "kind": "variable",
+              "key": "resistance"
+            },
+            "right": {
+              "kind": "constant",
+              "value": 2
+            }
+          }
+        },
+        "whenFalse": {
+          "kind": "condition",
+          "operator": "lt",
+          "left": {
+            "kind": "variable",
+            "key": "resistance"
+          },
+          "right": {
+            "kind": "constant",
+            "value": 0.75
+          },
+          "whenTrue": {
+            "kind": "subtract",
+            "left": {
+              "kind": "constant",
+              "value": 1
+            },
+            "right": {
+              "kind": "variable",
+              "key": "resistance"
+            }
+          },
+          "whenFalse": {
+            "kind": "divide",
+            "left": {
+              "kind": "constant",
+              "value": 1
+            },
+            "right": {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "multiply",
+                  "terms": [
+                    {
+                      "kind": "constant",
+                      "value": 4
+                    },
+                    {
+                      "kind": "variable",
+                      "key": "resistance"
+                    }
+                  ]
+                },
+                {
+                  "kind": "constant",
+                  "value": 1
+                }
+              ]
+            }
+          }
+        }
+      },
+      "inputs": [
+        {
+          "key": "resistance",
+          "value": 0.1,
+          "unit": "ratio",
+          "meaningKey": "input.resistance",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 0.9,
+        "display": "0.9",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))",
+      "substitution": "(if 0.1 < 0 then (1 − (0.1 / 2)) else (if 0.1 < 0.75 then (1 − 0.1) else (1 / ((4 × 0.1) + 1))))"
+    },
+    {
+      "id": "vaporized-arrow.afterResistance",
+      "ruleId": "afterResistance",
+      "titleKey": "stage.afterResistance",
+      "explanationKey": "explain.afterResistance",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterDefense"
+          },
+          {
+            "kind": "variable",
+            "key": "resistanceMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterDefense",
+          "value": 18.051516893470787,
+          "unit": "damage",
+          "meaningKey": "input.afterDefense",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterDefense"
+          }
+        },
+        {
+          "key": "resistanceMultiplier",
+          "value": 0.9,
+          "unit": "ratio",
+          "meaningKey": "input.resistanceMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "resistanceMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 16.24636520412371,
+        "display": "16.246365",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterDefense",
+        "vaporized-arrow.resistanceMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterDefense × resistanceMultiplier)",
+      "substitution": "(18.051516893470787 × 0.9)"
+    },
+    {
+      "id": "vaporized-arrow.critRate",
+      "ruleId": "critRate",
+      "titleKey": "stage.critRate",
+      "explanationKey": "explain.critRate",
+      "status": "applied",
+      "expression": {
+        "kind": "clamp",
+        "value": {
+          "kind": "variable",
+          "key": "critRate"
+        },
+        "min": {
+          "kind": "constant",
+          "value": 0
+        },
+        "max": {
+          "kind": "constant",
+          "value": 1
+        }
+      },
+      "inputs": [
+        {
+          "key": "critRate",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.critRate",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 0,
+        "display": "0",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "clamp(critRate, 0, 1)",
+      "substitution": "clamp(0, 0, 1)"
+    },
+    {
+      "id": "vaporized-arrow.critDamage",
+      "ruleId": "critDamage",
+      "titleKey": "stage.critDamage",
+      "explanationKey": "explain.critDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "max",
+        "terms": [
+          {
+            "kind": "constant",
+            "value": 0
+          },
+          {
+            "kind": "variable",
+            "key": "critDamage"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "critDamage",
+          "value": 0.5,
+          "unit": "ratio",
+          "meaningKey": "input.critDamage",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 0.5,
+        "display": "0.5",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "max(0, critDamage)",
+      "substitution": "max(0, 0.5)"
+    },
+    {
+      "id": "vaporized-arrow.nonCriticalMultiplier",
+      "ruleId": "nonCriticalMultiplier",
+      "titleKey": "stage.nonCriticalMultiplier",
+      "explanationKey": "explain.nonCriticalMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "constant",
+        "value": 1
+      },
+      "inputs": [
+        {
+          "key": "critRate",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.critRate",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "critRate"
+          }
+        },
+        {
+          "key": "critDamage",
+          "value": 0.5,
+          "unit": "ratio",
+          "meaningKey": "input.critDamage",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "critDamage"
+          }
+        }
+      ],
+      "result": {
+        "value": 1,
+        "display": "1",
+        "unit": "ratio"
+      },
+      "childIds": [
+        "vaporized-arrow.critRate",
+        "vaporized-arrow.critDamage"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "1",
+      "substitution": "1"
+    },
+    {
+      "id": "vaporized-arrow.amplifyingEmBonus",
+      "ruleId": "amplifyingEmBonus",
+      "titleKey": "stage.amplifyingEmBonus",
+      "explanationKey": "explain.amplifyingEmBonus",
+      "status": "applied",
+      "expression": {
+        "kind": "divide",
+        "left": {
+          "kind": "multiply",
+          "terms": [
+            {
+              "kind": "constant",
+              "value": 2.78
+            },
+            {
+              "kind": "variable",
+              "key": "elementalMastery"
+            }
+          ]
+        },
+        "right": {
+          "kind": "add",
+          "terms": [
+            {
+              "kind": "constant",
+              "value": 1400
+            },
+            {
+              "kind": "variable",
+              "key": "elementalMastery"
+            }
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "key": "elementalMastery",
+          "value": 100,
+          "unit": "stat",
+          "meaningKey": "input.elementalMastery",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 0.18533333333333332,
+        "display": "0.185333",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "((2.78 × elementalMastery) / (1400 + elementalMastery))",
+      "substitution": "((2.78 × 100) / (1400 + 100))",
+      "applicabilityReason": "reaction.amplifying"
+    },
+    {
+      "id": "vaporized-arrow.reactionMultiplier",
+      "ruleId": "reactionMultiplier",
+      "titleKey": "stage.reactionMultiplier",
+      "explanationKey": "explain.reactionMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "reactionBase"
+          },
+          {
+            "kind": "add",
+            "terms": [
+              {
+                "kind": "constant",
+                "value": 1
+              },
+              {
+                "kind": "variable",
+                "key": "elementalMasteryBonus"
+              },
+              {
+                "kind": "variable",
+                "key": "reactionBonus"
+              }
+            ]
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "reactionBase",
+          "value": 1.5,
+          "unit": "ratio",
+          "meaningKey": "input.reactionBase",
+          "origin": "calculation-context"
+        },
+        {
+          "key": "elementalMasteryBonus",
+          "value": 0.18533333333333332,
+          "unit": "ratio",
+          "meaningKey": "input.elementalMasteryBonus",
+          "origin": "calculation-context"
+        },
+        {
+          "key": "reactionBonus",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.reactionBonus",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 1.778,
+        "display": "1.778",
+        "unit": "ratio"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(reactionBase × (1 + elementalMasteryBonus + reactionBonus))",
+      "substitution": "(1.5 × (1 + 0.18533333333333332 + 0))",
+      "applicabilityReason": "reaction.amplifying"
+    },
+    {
+      "id": "vaporized-arrow.afterCritical",
+      "ruleId": "afterCritical",
+      "titleKey": "stage.afterCritical",
+      "explanationKey": "explain.afterCritical",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterResistance"
+          },
+          {
+            "kind": "variable",
+            "key": "critMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterResistance",
+          "value": 16.24636520412371,
+          "unit": "damage",
+          "meaningKey": "input.afterResistance",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterResistance"
+          }
+        },
+        {
+          "key": "critMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.critMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "nonCriticalMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 16.24636520412371,
+        "display": "16.246365",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterResistance",
+        "vaporized-arrow.nonCriticalMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterResistance × critMultiplier)",
+      "substitution": "(16.24636520412371 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.afterReaction",
+      "ruleId": "afterReaction",
+      "titleKey": "stage.afterReaction",
+      "explanationKey": "explain.afterReaction",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterCritical"
+          },
+          {
+            "kind": "variable",
+            "key": "reactionMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterCritical",
+          "value": 16.24636520412371,
+          "unit": "damage",
+          "meaningKey": "input.afterCritical",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterCritical"
+          }
+        },
+        {
+          "key": "reactionMultiplier",
+          "value": 1.778,
+          "unit": "ratio",
+          "meaningKey": "input.reactionMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "reactionMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterCritical",
+        "vaporized-arrow.reactionMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterCritical × reactionMultiplier)",
+      "substitution": "(16.24636520412371 × 1.778)"
+    },
+    {
+      "id": "vaporized-arrow.finalDamage",
+      "ruleId": "finalDamage",
+      "titleKey": "stage.finalDamage",
+      "explanationKey": "explain.finalDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterReaction"
+          },
+          {
+            "kind": "variable",
+            "key": "groupMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterReaction",
+          "value": 28.886037332931956,
+          "unit": "damage",
+          "meaningKey": "input.afterReaction",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterReaction"
+          }
+        },
+        {
+          "key": "groupMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.groupMultiplier",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterReaction"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterReaction × groupMultiplier)",
+      "substitution": "(28.886037332931956 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.critical.criticalMultiplier",
+      "ruleId": "criticalMultiplier",
+      "titleKey": "stage.criticalMultiplier",
+      "explanationKey": "explain.criticalMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "constant",
+            "value": 1
+          },
+          {
+            "kind": "variable",
+            "key": "critDamage"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "critRate",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.critRate",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "critRate"
+          }
+        },
+        {
+          "key": "critDamage",
+          "value": 0.5,
+          "unit": "ratio",
+          "meaningKey": "input.critDamage",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "critDamage"
+          }
+        }
+      ],
+      "result": {
+        "value": 1.5,
+        "display": "1.5",
+        "unit": "ratio"
+      },
+      "childIds": [
+        "vaporized-arrow.critRate",
+        "vaporized-arrow.critDamage"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(1 + critDamage)",
+      "substitution": "(1 + 0.5)"
+    },
+    {
+      "id": "vaporized-arrow.critical.afterCritical",
+      "ruleId": "afterCritical",
+      "titleKey": "stage.afterCritical",
+      "explanationKey": "explain.afterCritical",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterResistance"
+          },
+          {
+            "kind": "variable",
+            "key": "critMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterResistance",
+          "value": 16.24636520412371,
+          "unit": "damage",
+          "meaningKey": "input.afterResistance",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterResistance"
+          }
+        },
+        {
+          "key": "critMultiplier",
+          "value": 1.5,
+          "unit": "ratio",
+          "meaningKey": "input.critMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "criticalMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 24.369547806185565,
+        "display": "24.369548",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterResistance",
+        "vaporized-arrow.critical.criticalMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterResistance × critMultiplier)",
+      "substitution": "(16.24636520412371 × 1.5)"
+    },
+    {
+      "id": "vaporized-arrow.critical.afterReaction",
+      "ruleId": "afterReaction",
+      "titleKey": "stage.afterReaction",
+      "explanationKey": "explain.afterReaction",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterCritical"
+          },
+          {
+            "kind": "variable",
+            "key": "reactionMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterCritical",
+          "value": 24.369547806185565,
+          "unit": "damage",
+          "meaningKey": "input.afterCritical",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterCritical"
+          }
+        },
+        {
+          "key": "reactionMultiplier",
+          "value": 1.778,
+          "unit": "ratio",
+          "meaningKey": "input.reactionMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "reactionMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 43.32905599939794,
+        "display": "43.329056",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.critical.afterCritical",
+        "vaporized-arrow.reactionMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterCritical × reactionMultiplier)",
+      "substitution": "(24.369547806185565 × 1.778)"
+    },
+    {
+      "id": "vaporized-arrow.critical.finalDamage",
+      "ruleId": "finalDamage",
+      "titleKey": "stage.finalDamage",
+      "explanationKey": "explain.finalDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterReaction"
+          },
+          {
+            "kind": "variable",
+            "key": "groupMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterReaction",
+          "value": 43.32905599939794,
+          "unit": "damage",
+          "meaningKey": "input.afterReaction",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterReaction"
+          }
+        },
+        {
+          "key": "groupMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.groupMultiplier",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 43.32905599939794,
+        "display": "43.329056",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.critical.afterReaction"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterReaction × groupMultiplier)",
+      "substitution": "(43.32905599939794 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.expected.expectedMultiplier",
+      "ruleId": "expectedMultiplier",
+      "titleKey": "stage.expectedMultiplier",
+      "explanationKey": "explain.expectedMultiplier",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "constant",
+            "value": 1
+          },
+          {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "critRate"
+              },
+              {
+                "kind": "variable",
+                "key": "critDamage"
+              }
+            ]
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "critRate",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.critRate",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "critRate"
+          }
+        },
+        {
+          "key": "critDamage",
+          "value": 0.5,
+          "unit": "ratio",
+          "meaningKey": "input.critDamage",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "critDamage"
+          }
+        }
+      ],
+      "result": {
+        "value": 1,
+        "display": "1",
+        "unit": "ratio"
+      },
+      "childIds": [
+        "vaporized-arrow.critRate",
+        "vaporized-arrow.critDamage"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(1 + (critRate × critDamage))",
+      "substitution": "(1 + (0 × 0.5))"
+    },
+    {
+      "id": "vaporized-arrow.expected.afterCritical",
+      "ruleId": "afterCritical",
+      "titleKey": "stage.afterCritical",
+      "explanationKey": "explain.afterCritical",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterResistance"
+          },
+          {
+            "kind": "variable",
+            "key": "critMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterResistance",
+          "value": 16.24636520412371,
+          "unit": "damage",
+          "meaningKey": "input.afterResistance",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterResistance"
+          }
+        },
+        {
+          "key": "critMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.critMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "expectedMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 16.24636520412371,
+        "display": "16.246365",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.afterResistance",
+        "vaporized-arrow.expected.expectedMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterResistance × critMultiplier)",
+      "substitution": "(16.24636520412371 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.expected.afterReaction",
+      "ruleId": "afterReaction",
+      "titleKey": "stage.afterReaction",
+      "explanationKey": "explain.afterReaction",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterCritical"
+          },
+          {
+            "kind": "variable",
+            "key": "reactionMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterCritical",
+          "value": 16.24636520412371,
+          "unit": "damage",
+          "meaningKey": "input.afterCritical",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterCritical"
+          }
+        },
+        {
+          "key": "reactionMultiplier",
+          "value": 1.778,
+          "unit": "ratio",
+          "meaningKey": "input.reactionMultiplier",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "reactionMultiplier"
+          }
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.expected.afterCritical",
+        "vaporized-arrow.reactionMultiplier"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterCritical × reactionMultiplier)",
+      "substitution": "(16.24636520412371 × 1.778)"
+    },
+    {
+      "id": "vaporized-arrow.expected.finalDamage",
+      "ruleId": "finalDamage",
+      "titleKey": "stage.finalDamage",
+      "explanationKey": "explain.finalDamage",
+      "status": "applied",
+      "expression": {
+        "kind": "multiply",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "afterReaction"
+          },
+          {
+            "kind": "variable",
+            "key": "groupMultiplier"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "afterReaction",
+          "value": 28.886037332931956,
+          "unit": "damage",
+          "meaningKey": "input.afterReaction",
+          "origin": {
+            "kind": "previous-step",
+            "reference": "afterReaction"
+          }
+        },
+        {
+          "key": "groupMultiplier",
+          "value": 1,
+          "unit": "ratio",
+          "meaningKey": "input.groupMultiplier",
+          "origin": "calculation-context"
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [
+        "vaporized-arrow.expected.afterReaction"
+      ],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(afterReaction × groupMultiplier)",
+      "substitution": "(28.886037332931956 × 1)"
+    },
+    {
+      "id": "vaporized-arrow.weightedVerification",
+      "ruleId": "weightedVerification",
+      "titleKey": "stage.weightedVerification",
+      "explanationKey": "explain.weightedVerification",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "subtract",
+                "left": {
+                  "kind": "constant",
+                  "value": 1
+                },
+                "right": {
+                  "kind": "variable",
+                  "key": "critRate"
+                }
+              },
+              {
+                "kind": "variable",
+                "key": "nonCriticalDamage"
+              }
+            ]
+          },
+          {
+            "kind": "multiply",
+            "terms": [
+              {
+                "kind": "variable",
+                "key": "critRate"
+              },
+              {
+                "kind": "variable",
+                "key": "criticalDamage"
+              }
+            ]
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "critRate",
+          "value": 0,
+          "unit": "ratio",
+          "meaningKey": "input.critRate",
+          "origin": "user"
+        },
+        {
+          "key": "nonCriticalDamage",
+          "value": 28.886037332931956,
+          "unit": "damage",
+          "meaningKey": "input.nonCriticalDamage",
+          "origin": "user"
+        },
+        {
+          "key": "criticalDamage",
+          "value": 43.32905599939794,
+          "unit": "damage",
+          "meaningKey": "input.criticalDamage",
+          "origin": "user"
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(((1 − critRate) × nonCriticalDamage) + (critRate × criticalDamage))",
+      "substitution": "(((1 − 0) × 28.886037332931956) + (0 × 43.32905599939794))"
+    },
+    {
+      "id": "total.nonCritical",
+      "ruleId": "total.nonCritical",
+      "titleKey": "stage.total.nonCritical",
+      "explanationKey": "explain.skillTotal",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "hit1"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "hit1",
+          "value": 28.886037332931956,
+          "unit": "damage",
+          "meaningKey": "Fully-Charged Aimed Shot",
+          "origin": "included-hit"
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(hit1)",
+      "substitution": "(28.886037332931956)"
+    },
+    {
+      "id": "total.critical",
+      "ruleId": "total.critical",
+      "titleKey": "stage.total.critical",
+      "explanationKey": "explain.skillTotal",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "hit1"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "hit1",
+          "value": 43.32905599939794,
+          "unit": "damage",
+          "meaningKey": "Fully-Charged Aimed Shot",
+          "origin": "included-hit"
+        }
+      ],
+      "result": {
+        "value": 43.32905599939794,
+        "display": "43.329056",
+        "unit": "damage"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(hit1)",
+      "substitution": "(43.32905599939794)"
+    },
+    {
+      "id": "total.expected",
+      "ruleId": "total.expected",
+      "titleKey": "stage.total.expected",
+      "explanationKey": "explain.skillTotal",
+      "status": "applied",
+      "expression": {
+        "kind": "add",
+        "terms": [
+          {
+            "kind": "variable",
+            "key": "hit1"
+          }
+        ]
+      },
+      "inputs": [
+        {
+          "key": "hit1",
+          "value": 28.886037332931956,
+          "unit": "damage",
+          "meaningKey": "Fully-Charged Aimed Shot",
+          "origin": "included-hit"
+        }
+      ],
+      "result": {
+        "value": 28.886037332931956,
+        "display": "28.886037",
+        "unit": "damage"
+      },
+      "childIds": [],
+      "sourceRefs": [
+        "https://library.keqingmains.com/combat-mechanics/damage/damage-formula",
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go"
+      ],
+      "warnings": [],
+      "symbolicFormula": "(hit1)",
+      "substitution": "(28.886037332931956)"
+    }
+  ],
+  "includedHitIds": [
+    "vaporized-arrow"
+  ],
+  "excludedHitIds": [],
+  "warnings": [
+    "Reaction was decided automatically in the saved two-character simulation; this single-hit document conditions on that recorded reaction.",
+    "Resolved final panel: do not add character or weapon ATK again.",
+    "最终面板作为入口；其之前的装备与增益分解不可用，不重复加入装备数值。",
+    "数据渠道 unknown：不能进入已发布验证排名。",
+    "相关数值或机制证据仍为 provisional；计算可复现不等于已验证的完整游戏机制。"
+  ],
+  "blockers": [],
+  "totals": {
+    "nonCritical": 28.886037332931956,
+    "critical": 43.32905599939794,
+    "expected": 28.886037332931956
+  }
+}

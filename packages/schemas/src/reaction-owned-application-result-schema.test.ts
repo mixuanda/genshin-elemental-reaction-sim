@@ -821,7 +821,7 @@ describe("1.48 reaction-owned elemental-application result wire", () => {
         (field) =>
           !Object.keys(simulationResultV152ValueSchema.shape).includes(field)
       )
-    ).toEqual(["callbackRegistrationLog", "callbackDeliveryLog"]);
+    ).toEqual(["executionAudit", "callbackRegistrationLog", "callbackDeliveryLog"]);
     expect(simulationResultSchema).toBe(simulationResultV153Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV152Schema);
     expect(simulationResultSchema).not.toBe(simulationResultV151Schema);

@@ -1,0 +1,150 @@
+{
+  "batch": "118-entities",
+  "kind": "source-host-owned-entity instrumentation audit",
+  "roots": {
+    "classic": {
+      "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/build-PwOq3n/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch118/classic/receipt.json",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "0165de73b2482d67110f86eda01eeaf091f2b138b76e9e62b65f4014e5e7d605",
+      "targetSourceFiles": {
+        "internal/characters/xiangling/skill.go": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+        "internal/characters/xiangling/guoba.go": "ea0e937cb352781d50290a8037743374010bc79e3be4ecc78df105ffd6dfa691",
+        "internal/characters/yaoyao/burst.go": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f",
+        "internal/characters/yaoyao/yuegui.go": "865f871644b81737b92e20482c406264c727c0a5b416d309f93784b4ef5bf055",
+        "internal/characters/yaoyao/asc.go": "9991bb5572f44f6ed2edb3fd79cee66c7a8d8a8a1e9f6e123516f7f6d85b355a"
+      },
+      "privatePatch": "/Users/evan/Library/Caches/gidps-source-host/118-entities/classic.patch",
+      "patchSha256": "b11e9b24f8ecf1eb25a75f747db7cfa64f1d42b0afc81487f7ba73cb66ea85c2",
+      "gitApplyCheck": "passed"
+    },
+    "stellar": {
+      "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-OHxtfN/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch118/stellar/receipt.json",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "8fb6f24b22fff8b0ae99fb01b686959e4a2f909db2c01a22784782be6bf09265",
+      "targetSourceFiles": {
+        "internal/characters/xiangling/skill.go": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+        "internal/characters/xiangling/guoba.go": "ea0e937cb352781d50290a8037743374010bc79e3be4ecc78df105ffd6dfa691",
+        "internal/characters/yaoyao/burst.go": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f",
+        "internal/characters/yaoyao/yuegui.go": "865f871644b81737b92e20482c406264c727c0a5b416d309f93784b4ef5bf055",
+        "internal/characters/yaoyao/asc.go": "9991bb5572f44f6ed2edb3fd79cee66c7a8d8a8a1e9f6e123516f7f6d85b355a"
+      },
+      "privatePatch": "/Users/evan/Library/Caches/gidps-source-host/118-entities/stellar.patch",
+      "patchSha256": "b11e9b24f8ecf1eb25a75f747db7cfa64f1d42b0afc81487f7ba73cb66ea85c2",
+      "gitApplyCheck": "passed"
+    }
+  },
+  "laneComparison": "The audited Xiangling and Yaoyao source files listed above are byte-identical between classic and Stellar pre-118 roots; private source patches are byte-identical. No lane-specific gameplay branch was found in this scope.",
+  "sites": [
+    {
+      "character": "xiangling",
+      "ability": "E / Guoba",
+      "siteId": "xiangling.skill.guoba",
+      "producerSite": "xiangling.skill.spawn-guoba",
+      "triggerSiteId": "xiangling.skill.guoba.think",
+      "emitSiteId": "xiangling.skill.guoba-breath",
+      "abilityName": "Guoba",
+      "attackTagName": "AttackTagElementalArt",
+      "queueDelayFrames": 10,
+      "entityDurationFrames": 438,
+      "sourceRefs": [
+        "internal/characters/xiangling/skill.go:48-59",
+        "internal/characters/xiangling/guoba.go:43-63",
+        "internal/characters/xiangling/guoba.go:66-76"
+      ],
+      "scopeNotes": "Spawn is the existing +13-frame Core task. Trigger is wrapped exactly at each existing timer branch 103/203/303/403 because panda.Tick invokes Gadget.Tick before the custom breath branch; generic Gadget.OnThinkInterval does not enclose it. Actual queue uses the original AttackInfo, snapshot, 60-degree fan pattern, callbacks, and damage delay 10. Count is variable 0..4 based on entity tick/lifetime, with source native tickCount proof; A4 chili callback adds the existing active-character ATK modifier; it is not part of the Guoba attack scope and remains outside.",
+      "breathCountBounds": [
+        0,
+        4
+      ]
+    },
+    {
+      "character": "yaoyao",
+      "ability": "Q / Moonjade Descent jumping Yuegui",
+      "siteId": "yaoyao.burst.yuegui-jumping",
+      "producerSites": [
+        "yaoyao.burst.jump-yuegui-1",
+        "yaoyao.burst.jump-yuegui-2",
+        "yaoyao.burst.jump-yuegui-3"
+      ],
+      "spawnFactKeys": [
+        "yaoyao.burst.jump-yuegui-1.spawn-count",
+        "yaoyao.burst.jump-yuegui-2.spawn-count",
+        "yaoyao.burst.jump-yuegui-3.spawn-count"
+      ],
+      "flightProducerSite": "yaoyao.skill.radish-flight",
+      "emitSiteId": "yaoyao.skill.radish",
+      "abilityName": "Radish (Burst)",
+      "attackTagName": "AttackTagElementalBurst",
+      "entityCardinality": [
+        0,
+        3
+      ],
+      "nativeTaskDelays": [
+        104,
+        162,
+        221
+      ],
+      "thinkCadence": "first native think interval 29 frames; subsequent 60 frames",
+      "flightDelayCharacterFrames": 12,
+      "damageDelayFrames": 1,
+      "sourceRefs": [
+        "internal/characters/yaoyao/burst.go:30-63",
+        "internal/characters/yaoyao/yuegui.go:56-85",
+        "internal/characters/yaoyao/yuegui.go:99-103",
+        "internal/characters/yaoyao/yuegui.go:122-168",
+        "internal/characters/yaoyao/burst.go:36-49"
+      ],
+      "scopeNotes": "Each scheduled native jump producer records actual 0/1 at the existing status/max-three gate and binds only the actual AddGadget object by target key. Q-born jumping Yuegui ai is initialized from burstRadishAI, so already-scheduled flight callbacks retain Burst AI after Q removal. The common radish emitter is used by E and Q; ownership is exact entity birth. E-born throwing Yuegui can independently select Radish (Burst) while Q is active; these remain E-owned and are excluded from Q-born totals. Q removes its jump entities at 360 frames or on swap; already queued character-clock flights remain independently observed by task ID.",
+      "invocationDirectAttackCount": 1,
+      "invocationDirectAttack": {
+        "abilityName": "Moonjade Descent",
+        "attackTagName": "AttackTagElementalBurst",
+        "queueAndHitDelayFrames": 16,
+        "sourceRef": "internal/characters/yaoyao/burst.go:36-49",
+        "countSeparateFromEntityRoots": true
+      }
+    },
+    {
+      "character": "yaoyao",
+      "ability": "Q / A1 dash-jump radish",
+      "producerSite": "yaoyao.burst.a1-ticker",
+      "flightProducerSite": "yaoyao.burst.a1-radish-flight",
+      "modeFactKey": "yaoyao.burst.a1-radish.burst-mode",
+      "abilityName": "Radish (Burst) when captured mode fact is 1",
+      "attackTagName": "AttackTagElementalBurst when mode fact is 1",
+      "flightDelayCharacterFrames": 12,
+      "damageDelayFrames": 1,
+      "sourceRefs": [
+        "internal/characters/yaoyao/burst.go:30-63",
+        "internal/characters/yaoyao/asc.go:13-61"
+      ],
+      "scopeNotes": "A1 ticks every 36 character-clock frames while Q remains active and the current action state is DashState or JumpState; a single existing enemy-area selector may return nil and then no radish is scheduled. For positive branches, existing selected target and current-status mode are not recomputed. Each flight producer records the existing Burst-vs-Skill status branch once, so delayed output after Q removal is not mislabeled.",
+      "branchFactKey": "yaoyao.burst.a1-ticker.branch",
+      "branchFacts": {
+        "0": "Q status inactive at ticker entry; terminal and no children",
+        "1": "Q active but native player state is not Dash or Jump; next ticker child only",
+        "2": "native Dash or Jump and original target selector returned nil; next ticker child only",
+        "3": "native Dash or Jump and original selector returned an enemy; next ticker child plus one radish-flight child"
+      },
+      "flightModeFactKey": "yaoyao.burst.a1-radish.burst-mode",
+      "flightModeFacts": {
+        "0": "Q status inactive when original delayed flight callback chooses AttackInfo; queued Skill-mode radish",
+        "1": "Q status active when original delayed flight callback chooses AttackInfo; queued Burst-mode radish"
+      }
+    }
+  ],
+  "excludedInteractions": [
+    "E-born Yaoyao throwing Yuegui whose getInfos sees active Q and selects burstRadishAI is retained under E birth identity; not a Q-born entity and excluded from Q total.",
+    "Xiangling A4 chili pickup adds an ATK modifier and is not Guoba damage."
+  ],
+  "validation": "Private source patches were gofmt-formatted and default git apply --check passed against both frozen roots. No build or tests were run.",
+  "nativeReceiptFieldsRequired": {
+    "ownedEntity": "tickCount, incremented once at actual combat gadget Tick entry for the exact registered target key",
+    "ownedEntityProducer": "taskId, binding existing character-clock scheduled flight task without converting it to Core-clock delay",
+    "guobaTrigger": "kind=think; siteId=xiangling.skill.guoba.think; direct source wrap at timer-selected p.breath call"
+  }
+}

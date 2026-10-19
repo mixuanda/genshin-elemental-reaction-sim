@@ -1,0 +1,34 @@
+
+> genshin-dps-lab@1.0.0 test
+> npm run test:unit && npm run test:performance
+
+
+> genshin-dps-lab@1.0.0 test:unit
+> vitest run --exclude packages/sim-core/src/__tests__/performance.test.ts
+
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  165 passed (165)
+      Tests  1994 passed (1994)
+   Start at  22:52:31
+   Duration  90.83s (transform 1.76s, setup 0ms, import 19.23s, tests 62.68s, environment 6ms)
+
+
+> genshin-dps-lab@1.0.0 test:performance
+> vitest run packages/sim-core/src/__tests__/performance.test.ts
+
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+120s benchmark: avg=29.304ms median=28.508ms p95=33.928ms max=37.421ms runs=21
+120s runtime-energy benchmark: avg=6.201ms median=5.905ms p95=7.195ms max=7.774ms runs=21
+120s sustained-Burning output probe: totalDamage=305928.90484071366 dps=2549.4075403392803 ticks=479 applications=479 allowedApplications=60 blockedApplications=419 applicationHash=60b3b32508e8dab91a95bf2f8e8dc455171dc7bc2e0534927d9a987a0a32e011 frozenV146ProjectionHash=d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65
+120s sustained-Burning benchmark: ticks=479 refreshes=119 targetStatePoints=1198 hash=d26177a6c34306f895fe385a8d6452037ef0fc125545becf833f34134fe3fc65 avg=91.682ms median=89.559ms p95=103.406ms max=109.306ms runs=21
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  22:54:02
+   Duration  3.62s (transform 504ms, setup 0ms, import 646ms, tests 2.92s, environment 0ms)
+

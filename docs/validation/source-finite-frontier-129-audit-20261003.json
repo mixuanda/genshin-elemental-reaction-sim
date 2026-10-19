@@ -1,0 +1,919 @@
+{
+  "schemaVersion": 1,
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "treePins": {
+    "classic": {
+      "treeJsonPath": "/Users/evan/Documents/gidps/packages/source-host/sources/gcsim-b4ae769-tree.json",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "revisionMatches": true
+    },
+    "stellar": {
+      "treeJsonGzipPath": "/Users/evan/Documents/gidps/packages/source-host/stellar-overlay/source-tree.json.gz",
+      "treeJsonSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "revisionMatches": true
+    }
+  },
+  "verification": "For every method/support reference, read raw bytes from the immutable upstream/<commit>/source snapshot, match file length and Git blob SHA-1 from the pinned tree JSON, then compute SHA-256. No network fetch or build/test was needed. Hu Tao Q was removed from contracts because C2 installs Q-owned Blood Blossom damage ticks; its verified source refs were preserved in the complex inventory. Faruzan Q was audited at both fixed commits and moved to complex scope because C6 can queue Hurricane Arrow damage during the Q buff. Albedo E is marked delivered127.",
+  "eligibleRows": 2,
+  "excludedComplexRows": 8,
+  "triage": {
+    "checkedCandidates": [
+      "faruzan-burst",
+      "zhongli-burst",
+      "nilou-burst"
+    ],
+    "addedContracts": 0,
+    "reason": "Faruzan Q has stateful C6 attack follow-ups; Zhongli Q and Nilou Q are already covered by existing direct/producer contracts."
+  },
+  "parentReviewedRows": [
+    {
+      "id": "yanfei-burst",
+      "label": "煙緋 Q",
+      "characterKey": "yanfei",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yanfei/burst.go",
+      "sourceSha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+      "sourceHashes": {
+        "classicSha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+        "stellarSha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "Burst queues exactly one direct root at burst.go:77-83. The hit callback grants seals only; the repeated burstAddSealHook adds seals/status only. c.c4() creates a shield, and Init/C2 adjusts charge-attack modifiers. Later charge attacks are player actions outside the cast root. No helper, callback, or Init path adds another Q-owned attack.",
+      "nonDamageCallbacksAndInitAudit": "Burst queues exactly one direct root at burst.go:77-83. The hit callback grants seals only; the repeated burstAddSealHook adds seals/status only. c.c4() creates a shield, and Init/C2 adjusts charge-attack modifiers. Later charge attacks are player actions outside the cast root. No helper, callback, or Init path adds another Q-owned attack.",
+      "sourceReferences": [
+        {
+          "path": "internal/characters/yanfei/burst.go",
+          "lineRef": "22-116",
+          "integrityByLane": {
+            "classic": {
+              "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "gitBlobSha1": "2652ee20c36bf9e3e230b0c0054e1842de4d9f15",
+              "expectedGitBlobSha1": "2652ee20c36bf9e3e230b0c0054e1842de4d9f15",
+              "sizeBytes": 3235,
+              "expectedSizeBytes": 3235,
+              "sha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+              "verified": true
+            },
+            "stellar": {
+              "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "gitBlobSha1": "2652ee20c36bf9e3e230b0c0054e1842de4d9f15",
+              "expectedGitBlobSha1": "2652ee20c36bf9e3e230b0c0054e1842de4d9f15",
+              "sizeBytes": 3235,
+              "expectedSizeBytes": 3235,
+              "sha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+              "verified": true
+            }
+          }
+        },
+        {
+          "path": "internal/characters/yanfei/yanfei.go",
+          "lineRef": "46-74",
+          "integrityByLane": {
+            "classic": {
+              "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "gitBlobSha1": "27ccc46a21dfdb82adfcc064315e96743080249e",
+              "expectedGitBlobSha1": "27ccc46a21dfdb82adfcc064315e96743080249e",
+              "sizeBytes": 2110,
+              "expectedSizeBytes": 2110,
+              "sha256": "54ed0b1c0c8cb4bd5df3e6633faea85ce40fa8c625baa37f6a9a7485523bb369",
+              "verified": true
+            },
+            "stellar": {
+              "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "gitBlobSha1": "27ccc46a21dfdb82adfcc064315e96743080249e",
+              "expectedGitBlobSha1": "27ccc46a21dfdb82adfcc064315e96743080249e",
+              "sizeBytes": 2110,
+              "expectedSizeBytes": 2110,
+              "sha256": "54ed0b1c0c8cb4bd5df3e6633faea85ce40fa8c625baa37f6a9a7485523bb369",
+              "verified": true
+            }
+          }
+        },
+        {
+          "path": "internal/characters/yanfei/cons.go",
+          "lineRef": "13-56",
+          "integrityByLane": {
+            "classic": {
+              "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "gitBlobSha1": "7ee1080ec30df14b6af6f544ac33bb5fa364243e",
+              "expectedGitBlobSha1": "7ee1080ec30df14b6af6f544ac33bb5fa364243e",
+              "sizeBytes": 1489,
+              "expectedSizeBytes": 1489,
+              "sha256": "34b6c89634484ce751f3905749ea26dc08aa4c9b3a1bd42d404f555af6dd948c",
+              "verified": true
+            },
+            "stellar": {
+              "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "gitBlobSha1": "7ee1080ec30df14b6af6f544ac33bb5fa364243e",
+              "expectedGitBlobSha1": "7ee1080ec30df14b6af6f544ac33bb5fa364243e",
+              "sizeBytes": 1489,
+              "expectedSizeBytes": 1489,
+              "sha256": "34b6c89634484ce751f3905749ea26dc08aa4c9b3a1bd42d404f555af6dd948c",
+              "verified": true
+            }
+          }
+        }
+      ],
+      "sourceIntegrityReason": "Both original source files were read from the immutable upstream/<commit>/source snapshots. Each byte stream independently matches the pinned tree JSON Git blob SHA-1 and byte size for its fixed commit before SHA-256 is recorded.",
+      "fixedCommitSourceStatus": "verified_original_bytes"
+    },
+    {
+      "id": "mika-burst",
+      "label": "米卡 Q",
+      "characterKey": "mika",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/mika/burst.go",
+      "sourceSha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed",
+      "sourceHashes": {
+        "classicSha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed",
+        "stellarSha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 0
+      },
+      "sourceEvidence": "Burst queues a delayed character task for an initial party heal and Eagleplume status, but no attack. Init installs OnEnemyDamage handling that heals on qualifying normal hits and may grant C4 energy; it never queues attack damage. C6 adds a physical-crit modifier only. Exact direct root count is zero; heal events and later normal attacks are outside this burst root count.",
+      "nonDamageCallbacksAndInitAudit": "Burst queues a delayed character task for an initial party heal and Eagleplume status, but no attack. Init installs OnEnemyDamage handling that heals on qualifying normal hits and may grant C4 energy; it never queues attack damage. C6 adds a physical-crit modifier only. Exact direct root count is zero; heal events and later normal attacks are outside this burst root count.",
+      "sourceReferences": [
+        {
+          "path": "internal/characters/mika/burst.go",
+          "lineRef": "20-88",
+          "integrityByLane": {
+            "classic": {
+              "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "gitBlobSha1": "ee616f4638809903a7e9015ab65ff10645777e96",
+              "expectedGitBlobSha1": "ee616f4638809903a7e9015ab65ff10645777e96",
+              "sizeBytes": 2414,
+              "expectedSizeBytes": 2414,
+              "sha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed",
+              "verified": true
+            },
+            "stellar": {
+              "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "gitBlobSha1": "ee616f4638809903a7e9015ab65ff10645777e96",
+              "expectedGitBlobSha1": "ee616f4638809903a7e9015ab65ff10645777e96",
+              "sizeBytes": 2414,
+              "expectedSizeBytes": 2414,
+              "sha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed",
+              "verified": true
+            }
+          }
+        },
+        {
+          "path": "internal/characters/mika/mika.go",
+          "lineRef": "36-60",
+          "integrityByLane": {
+            "classic": {
+              "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "gitBlobSha1": "e6ae7af56b18744010106b27c751b516af2c8782",
+              "expectedGitBlobSha1": "e6ae7af56b18744010106b27c751b516af2c8782",
+              "sizeBytes": 1648,
+              "expectedSizeBytes": 1648,
+              "sha256": "6c69370f3594fab478e050e6a985d3718fc482db266891954afaaf66533cd96b",
+              "verified": true
+            },
+            "stellar": {
+              "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "gitBlobSha1": "e6ae7af56b18744010106b27c751b516af2c8782",
+              "expectedGitBlobSha1": "e6ae7af56b18744010106b27c751b516af2c8782",
+              "sizeBytes": 1648,
+              "expectedSizeBytes": 1648,
+              "sha256": "6c69370f3594fab478e050e6a985d3718fc482db266891954afaaf66533cd96b",
+              "verified": true
+            }
+          }
+        },
+        {
+          "path": "internal/characters/mika/cons.go",
+          "lineRef": "10-45",
+          "integrityByLane": {
+            "classic": {
+              "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+              "gitBlobSha1": "d05a28ce35e817573fbfb6141c2ed009745cd668",
+              "expectedGitBlobSha1": "d05a28ce35e817573fbfb6141c2ed009745cd668",
+              "sizeBytes": 1363,
+              "expectedSizeBytes": 1363,
+              "sha256": "2b0d0e55532293b2c5a70e04ff8dbe5e2db03efe4b49524e9fdda368d0dba5cc",
+              "verified": true
+            },
+            "stellar": {
+              "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+              "gitBlobSha1": "d05a28ce35e817573fbfb6141c2ed009745cd668",
+              "expectedGitBlobSha1": "d05a28ce35e817573fbfb6141c2ed009745cd668",
+              "sizeBytes": 1363,
+              "expectedSizeBytes": 1363,
+              "sha256": "2b0d0e55532293b2c5a70e04ff8dbe5e2db03efe4b49524e9fdda368d0dba5cc",
+              "verified": true
+            }
+          }
+        }
+      ],
+      "sourceIntegrityReason": "Both original source files were read from the immutable upstream/<commit>/source snapshots. Each byte stream independently matches the pinned tree JSON Git blob SHA-1 and byte size for its fixed commit before SHA-256 is recorded.",
+      "fixedCommitSourceStatus": "verified_original_bytes"
+    }
+  ],
+  "integrationStatus": "Both rows integrated; source reviewed. Runtime/build checks pending with shared frontier batch.",
+  "remainingComplexCandidates": {
+    "schemaVersion": 1,
+    "sourceCommits": {
+      "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+    },
+    "authoritativeUnclassifiedInventory": "/Users/evan/Library/Caches/gidps-source-host/128-finite-frontier/remaining-eq-inventory.json",
+    "summary": {
+      "classicMissingBindings": 133,
+      "stellarMissingBindings": 147,
+      "classicUniqueMethods": 121,
+      "stellarUniqueMethods": 133
+    },
+    "sourceIntegrityReason": "Original references in this report were independently validated against the pinned tree JSON Git blob SHA-1 and size per fixed source commit, then SHA-256 hashed. The full 128 inventory remains a discovery crosswalk, not semantic completion.",
+    "reviewedComplexCandidates": [
+      {
+        "id": "raidenshogun-skill-eye",
+        "label": "雷电 E 眼",
+        "sourcePath": "internal/characters/raiden/skill.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/raiden/skill.go",
+            "lineRef": "36-165",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "d24bad4bb7173d918dee8d47781ae336a0ddf45b",
+                "expectedGitBlobSha1": "d24bad4bb7173d918dee8d47781ae336a0ddf45b",
+                "sizeBytes": 4461,
+                "expectedSizeBytes": 4461,
+                "sha256": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "d24bad4bb7173d918dee8d47781ae336a0ddf45b",
+                "expectedGitBlobSha1": "d24bad4bb7173d918dee8d47781ae336a0ddf45b",
+                "sizeBytes": 4461,
+                "expectedSizeBytes": 4461,
+                "sha256": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/raiden/raiden.go",
+            "lineRef": "43-50",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "3ac9d4e53771a303d9b567052d49ea58d96dc740",
+                "expectedGitBlobSha1": "3ac9d4e53771a303d9b567052d49ea58d96dc740",
+                "sizeBytes": 1349,
+                "expectedSizeBytes": 1349,
+                "sha256": "cc69de33fefcc136d8535b29c72ce5ac7d468e4ff7e767aabbc283d2d2d7c994",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "3ac9d4e53771a303d9b567052d49ea58d96dc740",
+                "expectedGitBlobSha1": "3ac9d4e53771a303d9b567052d49ea58d96dc740",
+                "sizeBytes": 1349,
+                "expectedSizeBytes": 1349,
+                "sha256": "cc69de33fefcc136d8535b29c72ce5ac7d468e4ff7e767aabbc283d2d2d7c994",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_followup_or_stateful_inventory",
+        "reason": "E queues one initial hit, then Init registers eyeOnDamage; active Eye state plus qualifying positive enemy damage queues coordinated strikes with a party-wide 54-frame ICD. Do not summarize the E cast as one total attack."
+      },
+      {
+        "id": "candace-burst-switch-c6",
+        "label": "坎蒂丝 Q 换人与 C6",
+        "sourcePath": "internal/characters/candace/burst.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/candace/burst.go",
+            "lineRef": "32-158",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "46fcd2ba5a76cba94e0f9bf7e7501d4bcfa186a3",
+                "expectedGitBlobSha1": "46fcd2ba5a76cba94e0f9bf7e7501d4bcfa186a3",
+                "sizeBytes": 4139,
+                "expectedSizeBytes": 4139,
+                "sha256": "b1a709f7d91efc3f987e757f00308650b1658ead4ff2818ac72ac83d8529d541",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "46fcd2ba5a76cba94e0f9bf7e7501d4bcfa186a3",
+                "expectedGitBlobSha1": "46fcd2ba5a76cba94e0f9bf7e7501d4bcfa186a3",
+                "sizeBytes": 4139,
+                "expectedSizeBytes": 4139,
+                "sha256": "b1a709f7d91efc3f987e757f00308650b1658ead4ff2818ac72ac83d8529d541",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/candace/candace.go",
+            "lineRef": "29-38",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "28be2dce4801dcbd9db33336dd0b9ecb683f1fd1",
+                "expectedGitBlobSha1": "28be2dce4801dcbd9db33336dd0b9ecb683f1fd1",
+                "sizeBytes": 909,
+                "expectedSizeBytes": 909,
+                "sha256": "9287711c90afa76f8962ec8b90690752208f04cc035d917dd3b7e454e733664e",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "28be2dce4801dcbd9db33336dd0b9ecb683f1fd1",
+                "expectedGitBlobSha1": "28be2dce4801dcbd9db33336dd0b9ecb683f1fd1",
+                "sizeBytes": 909,
+                "expectedSizeBytes": 909,
+                "sha256": "9287711c90afa76f8962ec8b90690752208f04cc035d917dd3b7e454e733664e",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/candace/cons.go",
+            "lineRef": "29-86",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "b48ec829e6b0407683e13f033566e9a7cd6446f6",
+                "expectedGitBlobSha1": "b48ec829e6b0407683e13f033566e9a7cd6446f6",
+                "sizeBytes": 2351,
+                "expectedSizeBytes": 2351,
+                "sha256": "376e17c62fc49511a0bd70fb33288e064b6fe266f751a882f5d2a96bc8b96068",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "b48ec829e6b0407683e13f033566e9a7cd6446f6",
+                "expectedGitBlobSha1": "b48ec829e6b0407683e13f033566e9a7cd6446f6",
+                "sizeBytes": 2351,
+                "expectedSizeBytes": 2351,
+                "sha256": "376e17c62fc49511a0bd70fb33288e064b6fe266f751a882f5d2a96bc8b96068",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_followup_or_stateful_inventory",
+        "reason": "Q queues one initial hit, starts a timed status, and Init registers a swap listener that queues up to three waves; C6 has its own qualifying attack event path. Both swap count and C6 triggers must be reviewed."
+      },
+      {
+        "id": "aethergeo-skill-construct",
+        "label": "岩主 E 造物破坏",
+        "sourcePath": "internal/characters/traveler/common/geo/skill.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/traveler/common/geo/skill.go",
+            "lineRef": "60-185",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "21e30234cbad789dbe16eaad00bf39c8c5b22903",
+                "expectedGitBlobSha1": "21e30234cbad789dbe16eaad00bf39c8c5b22903",
+                "sizeBytes": 5381,
+                "expectedSizeBytes": 5381,
+                "sha256": "2db3eb938639f28525ead52185ebafb3df1350422d8dcffb8194fc8db9ebf1a4",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "21e30234cbad789dbe16eaad00bf39c8c5b22903",
+                "expectedGitBlobSha1": "21e30234cbad789dbe16eaad00bf39c8c5b22903",
+                "sizeBytes": 5381,
+                "expectedSizeBytes": 5381,
+                "sha256": "2db3eb938639f28525ead52185ebafb3df1350422d8dcffb8194fc8db9ebf1a4",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_followup_or_stateful_inventory",
+        "reason": "E queues one direct hit and separately creates a construct unless no_meteorite is set. The meteorite OnDestruct path queues another attack; replacement, expiry, destruction, and construct interactions affect the result."
+      },
+      {
+        "id": "razor-burst-wolf-followups",
+        "label": "雷泽 Q 狼协同",
+        "sourcePath": "internal/characters/razor/burst.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/razor/burst.go",
+            "lineRef": "37-157",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "e9153a4d7201c0f2810fa67dad872cc82902790c",
+                "expectedGitBlobSha1": "e9153a4d7201c0f2810fa67dad872cc82902790c",
+                "sizeBytes": 3581,
+                "expectedSizeBytes": 3581,
+                "sha256": "c727840a5a9d97279806b2f86ab3e2c17f4dbc5bd78917a98fe0df48d74208d2",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "e9153a4d7201c0f2810fa67dad872cc82902790c",
+                "expectedGitBlobSha1": "e9153a4d7201c0f2810fa67dad872cc82902790c",
+                "sizeBytes": 3581,
+                "expectedSizeBytes": 3581,
+                "sha256": "c727840a5a9d97279806b2f86ab3e2c17f4dbc5bd78917a98fe0df48d74208d2",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/razor/razor.go",
+            "lineRef": "43-63",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "4266ef90ea73628e0468d64e57c1cdaf0a3dea75",
+                "expectedGitBlobSha1": "4266ef90ea73628e0468d64e57c1cdaf0a3dea75",
+                "sizeBytes": 1367,
+                "expectedSizeBytes": 1367,
+                "sha256": "23c445de378521ba63f30ee8c958268749498a3af21a80481bd51093c60c54d0",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "4266ef90ea73628e0468d64e57c1cdaf0a3dea75",
+                "expectedGitBlobSha1": "4266ef90ea73628e0468d64e57c1cdaf0a3dea75",
+                "sizeBytes": 1367,
+                "expectedSizeBytes": 1367,
+                "sha256": "23c445de378521ba63f30ee8c958268749498a3af21a80481bd51093c60c54d0",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/razor/attack.go",
+            "lineRef": "1-120",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "7ce37183d549cb6fb177f55bfa9a00d9feb96476",
+                "expectedGitBlobSha1": "7ce37183d549cb6fb177f55bfa9a00d9feb96476",
+                "sizeBytes": 2813,
+                "expectedSizeBytes": 2813,
+                "sha256": "983aee217f95659582493b935a732ad1d3ff5684e0b49ab17e1d1c9892d4e7b1",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "7ce37183d549cb6fb177f55bfa9a00d9feb96476",
+                "expectedGitBlobSha1": "7ce37183d549cb6fb177f55bfa9a00d9feb96476",
+                "sizeBytes": 2813,
+                "expectedSizeBytes": 2813,
+                "sha256": "983aee217f95659582493b935a732ad1d3ff5684e0b49ab17e1d1c9892d4e7b1",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_followup_or_stateful_inventory",
+        "reason": "Q queues one initial root, but normal-hit callbacks invoke wolfBurst and queue extra Q-owned attacks. Must be fully modeled as a stateful follow-up; excluded from this batch."
+      },
+      {
+        "id": "yoimiya-burst-aurous-blaze",
+        "label": "宵宫 Q 印记爆炸",
+        "sourcePath": "internal/characters/yoimiya/burst.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/yoimiya/burst.go",
+            "lineRef": "31-177",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "336e43fc90fd1bc26387d028a1c2d211e2572d77",
+                "expectedGitBlobSha1": "336e43fc90fd1bc26387d028a1c2d211e2572d77",
+                "sizeBytes": 4315,
+                "expectedSizeBytes": 4315,
+                "sha256": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "336e43fc90fd1bc26387d028a1c2d211e2572d77",
+                "expectedGitBlobSha1": "336e43fc90fd1bc26387d028a1c2d211e2572d77",
+                "sizeBytes": 4315,
+                "expectedSizeBytes": 4315,
+                "sha256": "f98879b748aa98274a451f5265739a63a46d8e8eb8a0b4378146bcfd0ee52f04",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/yoimiya/yoimiya.go",
+            "lineRef": "34-42",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "8cd6d12e652e09f1df658138ffe4ce11a987217e",
+                "expectedGitBlobSha1": "8cd6d12e652e09f1df658138ffe4ce11a987217e",
+                "sizeBytes": 1549,
+                "expectedSizeBytes": 1549,
+                "sha256": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "8cd6d12e652e09f1df658138ffe4ce11a987217e",
+                "expectedGitBlobSha1": "8cd6d12e652e09f1df658138ffe4ce11a987217e",
+                "sizeBytes": 1549,
+                "expectedSizeBytes": 1549,
+                "sha256": "30b36eafa2d7cfcfb249b63cc1c89fc4614d8764ae6851d3648259b3de0aae16",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_followup_or_stateful_inventory",
+        "reason": "Q queues one initial hit, applies Aurous Blaze on hit, and Init registers an enemy-damage callback that queues explosions for qualifying later party hits under target status and ICD. Must be fully modeled as a stateful follow-up; excluded from this batch."
+      },
+      {
+        "id": "ningguang-skill-burst-screen-jades",
+        "label": "凝光 E/Q 屏与璇玑",
+        "sourcePath": "internal/characters/ningguang/burst.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/ningguang/skill.go",
+            "lineRef": "1-140",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "385b870b4fc5e93f834ed2882ca560444014b7ff",
+                "expectedGitBlobSha1": "385b870b4fc5e93f834ed2882ca560444014b7ff",
+                "sizeBytes": 2534,
+                "expectedSizeBytes": 2534,
+                "sha256": "c8ba05dfc7ca3db7f84e19b65f8b062319dcd5be3cf20b8134b67597c63a5e8b",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "385b870b4fc5e93f834ed2882ca560444014b7ff",
+                "expectedGitBlobSha1": "385b870b4fc5e93f834ed2882ca560444014b7ff",
+                "sizeBytes": 2534,
+                "expectedSizeBytes": 2534,
+                "sha256": "c8ba05dfc7ca3db7f84e19b65f8b062319dcd5be3cf20b8134b67597c63a5e8b",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/ningguang/burst.go",
+            "lineRef": "1-160",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "c843995b6fb894159c966c3e2357c2076030cf57",
+                "expectedGitBlobSha1": "c843995b6fb894159c966c3e2357c2076030cf57",
+                "sizeBytes": 2320,
+                "expectedSizeBytes": 2320,
+                "sha256": "b16ad91b9be7d9140de6b967d4811514b93e2a3f599aca6c93c11d523813e837",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "c843995b6fb894159c966c3e2357c2076030cf57",
+                "expectedGitBlobSha1": "c843995b6fb894159c966c3e2357c2076030cf57",
+                "sizeBytes": 2320,
+                "expectedSizeBytes": 2320,
+                "sha256": "b16ad91b9be7d9140de6b967d4811514b93e2a3f599aca6c93c11d523813e837",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_followup_or_stateful_inventory",
+        "reason": "Jade projectile count depends on screen/construct state; E input and Q screen/consumption branches require full helper and state review."
+      },
+      {
+        "id": "hutao-burst-c2-blood-blossom",
+        "label": "胡桃 Q C2 血梅香后续",
+        "sourcePath": "internal/characters/hutao/burst.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/hutao/burst.go",
+            "lineRef": "16-94",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d",
+                "expectedGitBlobSha1": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d",
+                "sizeBytes": 2822,
+                "expectedSizeBytes": 2822,
+                "sha256": "8757cc0423fde1cb7dc8cdcd4d9485763c1145c160caa476dca6bbe7c20dce0e",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d",
+                "expectedGitBlobSha1": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d",
+                "sizeBytes": 2822,
+                "expectedSizeBytes": 2822,
+                "sha256": "8757cc0423fde1cb7dc8cdcd4d9485763c1145c160caa476dca6bbe7c20dce0e",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/hutao/skill.go",
+            "lineRef": "100-151",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "8aa3d354ab9366e9902e315a07ae763314729e78",
+                "expectedGitBlobSha1": "8aa3d354ab9366e9902e315a07ae763314729e78",
+                "sizeBytes": 4319,
+                "expectedSizeBytes": 4319,
+                "sha256": "8ccdf8eebe5a75ef4561bf78822d81d399a0c9177e48a3acdad4bd89b91d1685",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "8aa3d354ab9366e9902e315a07ae763314729e78",
+                "expectedGitBlobSha1": "8aa3d354ab9366e9902e315a07ae763314729e78",
+                "sizeBytes": 4319,
+                "expectedSizeBytes": 4319,
+                "sha256": "8ccdf8eebe5a75ef4561bf78822d81d399a0c9177e48a3acdad4bd89b91d1685",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/hutao/hutao.go",
+            "lineRef": "41-68",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "89ce3569987d7fb4e620cb639bb186cdfc37833c",
+                "expectedGitBlobSha1": "89ce3569987d7fb4e620cb639bb186cdfc37833c",
+                "sizeBytes": 2097,
+                "expectedSizeBytes": 2097,
+                "sha256": "484ce9c2d3e8e50e7583741adc6705140f99ff099a67b2915582917437c97b6f",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "89ce3569987d7fb4e620cb639bb186cdfc37833c",
+                "expectedGitBlobSha1": "89ce3569987d7fb4e620cb639bb186cdfc37833c",
+                "sizeBytes": 2097,
+                "expectedSizeBytes": 2097,
+                "sha256": "484ce9c2d3e8e50e7583741adc6705140f99ff099a67b2915582917437c97b6f",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/hutao/cons.go",
+            "lineRef": "65-94",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "e5d0426fa2afc8a4d153e97f829c92fa1d693790",
+                "expectedGitBlobSha1": "e5d0426fa2afc8a4d153e97f829c92fa1d693790",
+                "sizeBytes": 2391,
+                "expectedSizeBytes": 2391,
+                "sha256": "898f808f65281bc1d74fa9bc497e781c40ecf33f26b95c3ebf2177120ab02070",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "e5d0426fa2afc8a4d153e97f829c92fa1d693790",
+                "expectedGitBlobSha1": "e5d0426fa2afc8a4d153e97f829c92fa1d693790",
+                "sizeBytes": 2391,
+                "expectedSizeBytes": 2391,
+                "sha256": "898f808f65281bc1d74fa9bc497e781c40ecf33f26b95c3ebf2177120ab02070",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_q_owned_followup",
+        "reason": "The Q hit callback is C2-gated and calls applyBB. On a valid target, it starts/refreshes Blood Blossom; the tagged enemy task queues repeated Pyro attacks every 240 frames while the status/source remains active (burst.go:50-54; skill.go:100-151). The direct cast has one initial queue, but that is not a complete Q-owned damage closure, so it is not promoted as a fixed one-attack contract."
+      },
+      {
+        "id": "faruzan-burst-c6-hurricane-arrow",
+        "label": "珐露珊 Q C6 风压坍陷",
+        "sourcePath": "internal/characters/faruzan/burst.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/faruzan/burst.go",
+            "lineRef": "23-158",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf",
+                "expectedGitBlobSha1": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf",
+                "sizeBytes": 4529,
+                "expectedSizeBytes": 4529,
+                "sha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "1856f22116473026099cdf1ce72f141da2c505c9",
+                "expectedGitBlobSha1": "1856f22116473026099cdf1ce72f141da2c505c9",
+                "sizeBytes": 4533,
+                "expectedSizeBytes": 4533,
+                "sha256": "48c2f1c1f536780e830f8ad407621d0820e7e77c8c2648052d52a4b43c71ac34",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/faruzan/faruzan.go",
+            "lineRef": "30-35",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+                "expectedGitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+                "sizeBytes": 1082,
+                "expectedSizeBytes": 1082,
+                "sha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+                "expectedGitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab",
+                "sizeBytes": 1082,
+                "expectedSizeBytes": 1082,
+                "sha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/faruzan/cons.go",
+            "lineRef": "35-75",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3",
+                "expectedGitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3",
+                "sizeBytes": 2143,
+                "expectedSizeBytes": 2143,
+                "sha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3",
+                "expectedGitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3",
+                "sizeBytes": 2143,
+                "expectedSizeBytes": 2143,
+                "sha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/faruzan/skill.go",
+            "lineRef": "95-131",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+                "expectedGitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+                "sizeBytes": 3850,
+                "expectedSizeBytes": 3850,
+                "sha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+                "expectedGitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b",
+                "sizeBytes": 3850,
+                "expectedSizeBytes": 3850,
+                "sha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reviewStatus": "complex_q_owned_followup",
+        "reason": "Q queues one initial hit (burst.go:56-62) and repeatedly applies the Anemo buff on a scheduled cadence (burst.go:97-116). Init activates c6Collapse at C6 (faruzan.go:30-35); while the Q buff is active, qualifying positive active-character damage queues pressurizedCollapse/Hurricane Arrow attacks under a 180-frame ICD (cons.go:56-75; skill.go:95-131). The complete Q-owned attack count is state-dependent, so no fixed contract row is emitted."
+      }
+    ],
+    "deliveredOutOfBatch": [
+      {
+        "id": "albedo-skill-flower",
+        "status": "delivered127",
+        "label": "阿贝多 E 阳华",
+        "sourcePath": "internal/characters/albedo/skill.go",
+        "sourceReferences": [
+          {
+            "path": "internal/characters/albedo/skill.go",
+            "lineRef": "1-170",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e",
+                "expectedGitBlobSha1": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e",
+                "sizeBytes": 4457,
+                "expectedSizeBytes": 4457,
+                "sha256": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e",
+                "expectedGitBlobSha1": "a24870d9c01490051ad0632b38fc7f7b17ab8e8e",
+                "sizeBytes": 4457,
+                "expectedSizeBytes": 4457,
+                "sha256": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/albedo/albedo.go",
+            "lineRef": "1-110",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "390a15da2b139a4f1605509e5a404cbee41aeb82",
+                "expectedGitBlobSha1": "390a15da2b139a4f1605509e5a404cbee41aeb82",
+                "sizeBytes": 1221,
+                "expectedSizeBytes": 1221,
+                "sha256": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "390a15da2b139a4f1605509e5a404cbee41aeb82",
+                "expectedGitBlobSha1": "390a15da2b139a4f1605509e5a404cbee41aeb82",
+                "sizeBytes": 1221,
+                "expectedSizeBytes": 1221,
+                "sha256": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+                "verified": true
+              }
+            }
+          },
+          {
+            "path": "internal/characters/albedo/construct.go",
+            "lineRef": "1-90",
+            "integrityByLane": {
+              "classic": {
+                "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+                "gitBlobSha1": "84b83fdd1003730e8b3e014669dd3fa094a45227",
+                "expectedGitBlobSha1": "84b83fdd1003730e8b3e014669dd3fa094a45227",
+                "sizeBytes": 1075,
+                "expectedSizeBytes": 1075,
+                "sha256": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355",
+                "verified": true
+              },
+              "stellar": {
+                "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+                "gitBlobSha1": "84b83fdd1003730e8b3e014669dd3fa094a45227",
+                "expectedGitBlobSha1": "84b83fdd1003730e8b3e014669dd3fa094a45227",
+                "sizeBytes": 1075,
+                "expectedSizeBytes": 1075,
+                "sha256": "be177dcb97c0a5e0fb35d0dd684ca089b5e3f82ed294b5a17e69f063c542f355",
+                "verified": true
+              }
+            }
+          }
+        ],
+        "reason": "Already integrated in the 127 constructs batch; retained here only as delivery provenance, not as remaining work."
+      }
+    ],
+    "candidateTriage": [
+      {
+        "id": "faruzan-burst",
+        "result": "reviewed_complex_followup",
+        "detail": "C6 Q-owned Hurricane Arrows depend on later qualifying attacks and buff/ICD state; moved to complex inventory."
+      },
+      {
+        "id": "zhongli-burst",
+        "result": "already_covered",
+        "detail": "Existing direct finite-cast contract `zhongli-burst` is present in packages/sim-core/src/source-host-finite-cast-contracts.json; not duplicated."
+      },
+      {
+        "id": "nilou-burst",
+        "result": "already_covered",
+        "detail": "Existing producer contract `nilou-burst` is present in packages/sim-core/src/source-host-producer-contracts.json and includes the delayed Lingering Aeon attack; not duplicated."
+      }
+    ],
+    "triageConclusion": "Reviewed three additional easy candidates. Faruzan Q is complex because of C6 Q-owned attack follow-ups; Zhongli Q and Nilou Q are already registered. No additional candidate is added; the batch remains two complete contracts."
+  }
+}

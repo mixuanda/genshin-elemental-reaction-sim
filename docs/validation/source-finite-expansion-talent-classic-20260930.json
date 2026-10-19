@@ -1,0 +1,1025 @@
+{
+  "lane": "classic",
+  "comparisonKey": [
+    "path",
+    "tableId",
+    "indexExpressions"
+  ],
+  "before": 600,
+  "after": 663,
+  "addedSites": [
+    {
+      "siteId": "internal/characters/albedo/burst.go:81:13",
+      "path": "internal/characters/albedo/burst.go",
+      "line": 81,
+      "column": 13,
+      "tableId": "internal/characters/albedo/zz_albedo.dm.go#burstPerBloom",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/albedo/skill.go:60:12",
+      "path": "internal/characters/albedo/skill.go",
+      "line": 60,
+      "column": 12,
+      "tableId": "internal/characters/albedo/zz_albedo.dm.go#skillTick",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/aloy/aimed.go:69:13",
+      "path": "internal/characters/aloy/aimed.go",
+      "line": 69,
+      "column": 13,
+      "tableId": "internal/characters/aloy/zz_aloy.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/aloy/skill.go:90:23",
+      "path": "internal/characters/aloy/skill.go",
+      "line": 90,
+      "column": 23,
+      "tableId": "internal/characters/aloy/zz_aloy.dm.go#skillBomblets",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/arlecchino/skill.go:60:23",
+      "path": "internal/characters/arlecchino/skill.go",
+      "line": 60,
+      "column": 23,
+      "tableId": "internal/characters/arlecchino/zz_arlecchino.dm.go#skillFinal",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/ayaka/burst.go:76:13",
+      "path": "internal/characters/ayaka/burst.go",
+      "line": 76,
+      "column": 13,
+      "tableId": "internal/characters/ayaka/zz_kamisatoayaka.dm.go#burstCut",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/charlotte/burst.go:83:12",
+      "path": "internal/characters/charlotte/burst.go",
+      "line": 83,
+      "column": 12,
+      "tableId": "internal/characters/charlotte/zz_charlotte.dm.go#burstDot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/chasca/aimed.go:233:15",
+      "path": "internal/characters/chasca/aimed.go",
+      "line": 233,
+      "column": 15,
+      "tableId": "internal/characters/chasca/zz_chasca.dm.go#skillShining",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/chasca/aimed.go:99:13",
+      "path": "internal/characters/chasca/aimed.go",
+      "line": 99,
+      "column": 13,
+      "tableId": "internal/characters/chasca/zz_chasca.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/chasca/burst.go:86:14",
+      "path": "internal/characters/chasca/burst.go",
+      "line": 86,
+      "column": 14,
+      "tableId": "internal/characters/chasca/zz_chasca.dm.go#burstSoulseeker",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/chevreuse/skill.go:115:16",
+      "path": "internal/characters/chevreuse/skill.go",
+      "line": 115,
+      "column": 16,
+      "tableId": "internal/characters/chevreuse/zz_chevreuse.dm.go#skillOvercharged",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/chevreuse/skill.go:132:16",
+      "path": "internal/characters/chevreuse/skill.go",
+      "line": 132,
+      "column": 16,
+      "tableId": "internal/characters/chevreuse/zz_chevreuse.dm.go#skillHold",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/clorinde/attack.go:141:13",
+      "path": "internal/characters/clorinde/attack.go",
+      "line": 141,
+      "column": 13,
+      "tableId": "internal/characters/clorinde/zz_clorinde.dm.go#skillNA",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/collei/aimed.go:68:13",
+      "path": "internal/characters/collei/aimed.go",
+      "line": 68,
+      "column": 13,
+      "tableId": "internal/characters/collei/zz_collei.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/diluc/burst.go:107:13",
+      "path": "internal/characters/diluc/burst.go",
+      "line": 107,
+      "column": 13,
+      "tableId": "internal/characters/diluc/zz_diluc.dm.go#burstExplode",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/diona/aimed.go:78:13",
+      "path": "internal/characters/diona/aimed.go",
+      "line": 78,
+      "column": 13,
+      "tableId": "internal/characters/diona/zz_diona.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/diona/burst.go:40:12",
+      "path": "internal/characters/diona/burst.go",
+      "line": 40,
+      "column": 12,
+      "tableId": "internal/characters/diona/zz_diona.dm.go#burstDot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/faruzan/aimed.go:88:13",
+      "path": "internal/characters/faruzan/aimed.go",
+      "line": 88,
+      "column": 13,
+      "tableId": "internal/characters/faruzan/zz_faruzan.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/fischl/aimed.go:67:13",
+      "path": "internal/characters/fischl/aimed.go",
+      "line": 67,
+      "column": 13,
+      "tableId": "internal/characters/fischl/zz_fischl.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/flins/burst.go:119:13",
+      "path": "internal/characters/flins/burst.go",
+      "line": 119,
+      "column": 13,
+      "tableId": "internal/characters/flins/zz_flins.dm.go#symphonyExtra",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/flins/burst.go:86:13",
+      "path": "internal/characters/flins/burst.go",
+      "line": 86,
+      "column": 13,
+      "tableId": "internal/characters/flins/zz_flins.dm.go#burstFinal",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/ganyu/aimed.go:124:14",
+      "path": "internal/characters/ganyu/aimed.go",
+      "line": 124,
+      "column": 14,
+      "tableId": "internal/characters/ganyu/zz_ganyu.dm.go#ffb",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/gorou/aimed.go:68:13",
+      "path": "internal/characters/gorou/aimed.go",
+      "line": 68,
+      "column": 13,
+      "tableId": "internal/characters/gorou/zz_gorou.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/itto/charge.go:232:13",
+      "path": "internal/characters/itto/charge.go",
+      "line": 232,
+      "column": 13,
+      "tableId": "internal/characters/itto/zz_aratakiitto.dm.go#akFinal",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/jean/burst.go:55:12",
+      "path": "internal/characters/jean/burst.go",
+      "line": 55,
+      "column": 12,
+      "tableId": "internal/characters/jean/zz_jean.dm.go#burstEnter",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/kazuha/burst.go:55:12",
+      "path": "internal/characters/kazuha/burst.go",
+      "line": 55,
+      "column": 12,
+      "tableId": "internal/characters/kazuha/zz_kaedeharakazuha.dm.go#burstDot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/kazuha/burst.go:62:18",
+      "path": "internal/characters/kazuha/burst.go",
+      "line": 62,
+      "column": 18,
+      "tableId": "internal/characters/kazuha/zz_kaedeharakazuha.dm.go#burstEleDot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/keqing/burst.go:56:12",
+      "path": "internal/characters/keqing/burst.go",
+      "line": 56,
+      "column": 12,
+      "tableId": "internal/characters/keqing/zz_keqing.dm.go#burstFinal",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/kinich/charge.go:46:13",
+      "path": "internal/characters/kinich/charge.go",
+      "line": 46,
+      "column": 13,
+      "tableId": "internal/characters/kinich/zz_kinich.dm.go#charge",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/lisa/burst.go:52:15",
+      "path": "internal/characters/lisa/burst.go",
+      "line": 52,
+      "column": 15,
+      "tableId": "internal/characters/lisa/zz_lisa.dm.go#burst",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/lyney/aimed.go:94:13",
+      "path": "internal/characters/lyney/aimed.go",
+      "line": 94,
+      "column": 13,
+      "tableId": "internal/characters/lyney/zz_lyney.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/navia/burst.go:66:13",
+      "path": "internal/characters/navia/burst.go",
+      "line": 66,
+      "column": 13,
+      "tableId": "internal/characters/navia/zz_navia.dm.go#burst",
+      "indexExpressions": [
+        "1",
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 1,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/ningguang/charge.go:132:23",
+      "path": "internal/characters/ningguang/charge.go",
+      "line": 132,
+      "column": 23,
+      "tableId": "internal/characters/ningguang/zz_ningguang.dm.go#jade",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/noelle/burst.go:125:13",
+      "path": "internal/characters/noelle/burst.go",
+      "line": 125,
+      "column": 13,
+      "tableId": "internal/characters/noelle/zz_noelle.dm.go#burstskill",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/noelle/charge.go:187:13",
+      "path": "internal/characters/noelle/charge.go",
+      "line": 187,
+      "column": 13,
+      "tableId": "internal/characters/noelle/zz_noelle.dm.go#chargeFinal",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/ororon/aimed.go:68:13",
+      "path": "internal/characters/ororon/aimed.go",
+      "line": 68,
+      "column": 13,
+      "tableId": "internal/characters/ororon/zz_ororon.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/qiqi/skill.go:90:17",
+      "path": "internal/characters/qiqi/skill.go",
+      "line": 90,
+      "column": 17,
+      "tableId": "internal/characters/qiqi/zz_qiqi.dm.go#skillDmgCont",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/rosaria/burst.go:61:12",
+      "path": "internal/characters/rosaria/burst.go",
+      "line": 61,
+      "column": 12,
+      "tableId": "internal/characters/rosaria/zz_rosaria.dm.go#burst",
+      "indexExpressions": [
+        "1",
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 1,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/rosaria/burst.go:94:16",
+      "path": "internal/characters/rosaria/burst.go",
+      "line": 94,
+      "column": 16,
+      "tableId": "internal/characters/rosaria/zz_rosaria.dm.go#burstDot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/rosaria/skill.go:75:23",
+      "path": "internal/characters/rosaria/skill.go",
+      "line": 75,
+      "column": 23,
+      "tableId": "internal/characters/rosaria/zz_rosaria.dm.go#skill",
+      "indexExpressions": [
+        "1",
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 1,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/sara/aimed.go:86:13",
+      "path": "internal/characters/sara/aimed.go",
+      "line": 86,
+      "column": 13,
+      "tableId": "internal/characters/sara/zz_kujousara.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/sara/burst.go:70:12",
+      "path": "internal/characters/sara/burst.go",
+      "line": 70,
+      "column": 12,
+      "tableId": "internal/characters/sara/zz_kujousara.dm.go#burstCluster",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/sayu/skill.go:133:21",
+      "path": "internal/characters/sayu/skill.go",
+      "line": 133,
+      "column": 21,
+      "tableId": "internal/characters/sayu/zz_sayu.dm.go#skillPressEnd",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/sethos/aimed.go:95:14",
+      "path": "internal/characters/sethos/aimed.go",
+      "line": 95,
+      "column": 14,
+      "tableId": "internal/characters/sethos/zz_sethos.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/shenhe/burst.go:75:15",
+      "path": "internal/characters/shenhe/burst.go",
+      "line": 75,
+      "column": 15,
+      "tableId": "internal/characters/shenhe/zz_shenhe.dm.go#burstdot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/sigewinne/aimed.go:78:13",
+      "path": "internal/characters/sigewinne/aimed.go",
+      "line": 78,
+      "column": 13,
+      "tableId": "internal/characters/sigewinne/zz_sigewinne.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/tartaglia/aimed.go:73:13",
+      "path": "internal/characters/tartaglia/aimed.go",
+      "line": 73,
+      "column": 13,
+      "tableId": "internal/characters/tartaglia/zz_tartaglia.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/tartaglia/burst.go:63:13",
+      "path": "internal/characters/tartaglia/burst.go",
+      "line": 63,
+      "column": 13,
+      "tableId": "internal/characters/tartaglia/zz_tartaglia.dm.go#meleeBurst",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/tighnari/aimed.go:174:17",
+      "path": "internal/characters/tighnari/aimed.go",
+      "line": 174,
+      "column": 17,
+      "tableId": "internal/characters/tighnari/zz_tighnari.dm.go#clusterbloom",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/tighnari/aimed.go:82:13",
+      "path": "internal/characters/tighnari/aimed.go",
+      "line": 82,
+      "column": 13,
+      "tableId": "internal/characters/tighnari/zz_tighnari.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/tighnari/burst.go:54:12",
+      "path": "internal/characters/tighnari/burst.go",
+      "line": 54,
+      "column": 12,
+      "tableId": "internal/characters/tighnari/zz_tighnari.dm.go#burstSecond",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/varesa/burst.go:71:13",
+      "path": "internal/characters/varesa/burst.go",
+      "line": 71,
+      "column": 13,
+      "tableId": "internal/characters/varesa/zz_varesa.dm.go#fieryKick",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/varesa/plunge.go:222:13",
+      "path": "internal/characters/varesa/plunge.go",
+      "line": 222,
+      "column": 13,
+      "tableId": "internal/characters/varesa/zz_varesa.dm.go#fieryHighPlunge",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/varesa/plunge.go:292:13",
+      "path": "internal/characters/varesa/plunge.go",
+      "line": 292,
+      "column": 13,
+      "tableId": "internal/characters/varesa/zz_varesa.dm.go#fieryHighPlunge",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/varesa/plunge.go:362:13",
+      "path": "internal/characters/varesa/plunge.go",
+      "line": 362,
+      "column": 13,
+      "tableId": "internal/characters/varesa/zz_varesa.dm.go#fieryLowPlunge",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/varesa/skill.go:66:13",
+      "path": "internal/characters/varesa/skill.go",
+      "line": 66,
+      "column": 13,
+      "tableId": "internal/characters/varesa/zz_varesa.dm.go#fieryRush",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/venti/aimed.go:67:13",
+      "path": "internal/characters/venti/aimed.go",
+      "line": 67,
+      "column": 13,
+      "tableId": "internal/characters/venti/zz_venti.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/venti/skill.go:66:13",
+      "path": "internal/characters/venti/skill.go",
+      "line": 66,
+      "column": 13,
+      "tableId": "internal/characters/venti/zz_venti.dm.go#skillHold",
+      "indexExpressions": [
+        "c.TalentLvlSkill()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "skill"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/xilonen/burst.go:67:14",
+      "path": "internal/characters/xilonen/burst.go",
+      "line": 67,
+      "column": 14,
+      "tableId": "internal/characters/xilonen/zz_xilonen.dm.go#burstFollowDMG",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/xinyan/burst.go:61:23",
+      "path": "internal/characters/xinyan/burst.go",
+      "line": 61,
+      "column": 23,
+      "tableId": "internal/characters/xinyan/zz_xinyan.dm.go#burstDot",
+      "indexExpressions": [
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/yaemiko/burst.go:48:12",
+      "path": "internal/characters/yaemiko/burst.go",
+      "line": 48,
+      "column": 12,
+      "tableId": "internal/characters/yaemiko/zz_yaemiko.dm.go#burst",
+      "indexExpressions": [
+        "1",
+        "c.TalentLvlBurst()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 1,
+          "kind": "burst"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/yelan/aimed.go:121:13",
+      "path": "internal/characters/yelan/aimed.go",
+      "line": 121,
+      "column": 13,
+      "tableId": "internal/characters/yelan/zz_yelan.dm.go#aim",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    },
+    {
+      "siteId": "internal/characters/yoimiya/aimed.go:117:13",
+      "path": "internal/characters/yoimiya/aimed.go",
+      "line": 117,
+      "column": 13,
+      "tableId": "internal/characters/yoimiya/zz_yoimiya.dm.go#aimExtra",
+      "indexExpressions": [
+        "c.TalentLvlAttack()"
+      ],
+      "talentLevelIndices": [
+        {
+          "position": 0,
+          "kind": "attack"
+        }
+      ]
+    }
+  ],
+  "removedKeyCounts": []
+}

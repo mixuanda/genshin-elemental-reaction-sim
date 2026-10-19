@@ -1,0 +1,26 @@
+{
+  "candidate.bundle.json": {
+    "bytes": 145643,
+    "sha256": "cf68519ca9348120a3f578a13cd7e67fb7f52a317b304642d2ab9a5acc1b11b5"
+  },
+  "candidate.metadata.json": {
+    "bytes": 249058,
+    "sha256": "5da88860e27bd577f54583fb2b2e211b128c7d10d84e38e2a6371ec714080ac1"
+  },
+  "candidate-evidence.json": {
+    "bytes": 1288,
+    "sha256": "9cddc5aa0d7cdb88219433e0cae59edc885711a0960888933d067288baebbd4f"
+  },
+  "revision-diff.json": {
+    "bytes": 55407,
+    "sha256": "82ee2fa408a5f467ae78e5667e91702f406e641e18889c08d203b4a99892060b"
+  },
+  "prepare-candidate.py": {
+    "bytes": 15523,
+    "sha256": "a9188bb335a81fff0555fd594b22c7dcefd621d14130671eb47893fd6cb34248"
+  },
+  "ingestion-receipt.json": {
+    "bytes": 4604,
+    "sha256": "6c9e6c9ba3ef0d18064f22bf9d84d2ffa8f000475f4316527ff89d1ec568101f"
+  }
+}

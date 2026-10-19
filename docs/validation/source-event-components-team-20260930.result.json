@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "source-event-components-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": false,
+    "nativeResultArchived": true,
+    "rawPath": "docs/validation/source-event-components-team-20260930.capture.json",
+    "receipts": {
+      "registrations": 2,
+      "emissions": 9,
+      "listenerCalls": 9,
+      "delayedProducers": 1,
+      "linkedTasks": 1,
+      "linkedTaskStates": [
+        "completed"
+      ],
+      "components": [
+        {
+          "siteId": "baizhu.c2.enemy-damage",
+          "listenerCallId": 12,
+          "componentId": "baizhu-c2-on-enemy-damage",
+          "deliveryClosed": true,
+          "attackCount": 1,
+          "producerCount": 0,
+          "completedProducerCount": 0,
+          "pendingProducerCount": 0,
+          "hitCount": 1,
+          "componentSubtotal": 303.44568032812504
+        },
+        {
+          "siteId": "tartaglia.riptide.target-died",
+          "listenerCallId": 9,
+          "componentId": "tartaglia-riptide-on-target-died",
+          "deliveryClosed": true,
+          "attackCount": 1,
+          "producerCount": 1,
+          "completedProducerCount": 1,
+          "pendingProducerCount": 0,
+          "hitCount": 1,
+          "componentSubtotal": 125.39785272501312
+        }
+      ]
+    },
+    "componentImportExportSame": true,
+    "sharedCoreEditChangedSubtotal": true,
+    "missingDelayedProducerCloses": false,
+    "missingDelayedProducerReasons": [
+      "本次监听器发出的直接攻击或延迟任务数与实际分支不符。"
+    ],
+    "eventEmissionCount": 9
+  },
+  "pageErrors": [],
+  "scope": "One classic two-target run covers only observed Baizhu C2 and Riptide target-death event components; it does not establish ability ownership, full-cast closure, or game verification."
+}

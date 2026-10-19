@@ -1,0 +1,52 @@
+diff --git a/internal/template/dendrocore/dendrocore.go b/internal/template/dendrocore/dendrocore.go
+--- a/internal/template/dendrocore/dendrocore.go
++++ b/internal/template/dendrocore/dendrocore.go
+@@ -52,7 +52,7 @@
+ 
+ 				// self damage
+ 				ai.Abil += info.SelfDamageSuffix
+-				ai.FlatDmg = 0.02 * ai.FlatDmg
++				recordSelfDamageFlat(c, &ai, &snap)
+ 				ap.SkipTargets[info.TargettablePlayer] = false
+ 				ap.SkipTargets[info.TargettableEnemy] = true
+ 				ap.SkipTargets[info.TargettableGadget] = true
+@@ -104,7 +104,7 @@
+ 
+ 				// also queue self damage
+ 				ai.Abil += info.SelfDamageSuffix
+-				ai.FlatDmg = 0.02 * ai.FlatDmg
++				recordSelfDamageFlat(s.Core, &ai, &snap)
+ 				ap.SkipTargets[info.TargettablePlayer] = false
+ 				ap.SkipTargets[info.TargettableEnemy] = true
+ 				ap.SkipTargets[info.TargettableGadget] = true
+@@ -132,7 +132,7 @@
+ 
+ 			// queue self damage
+ 			ai.Abil += info.SelfDamageSuffix
+-			ai.FlatDmg = 0.02 * ai.FlatDmg
++			recordSelfDamageFlat(s.Core, &ai, &snap)
+ 			ap.SkipTargets[info.TargettablePlayer] = false
+ 			ap.SkipTargets[info.TargettableEnemy] = true
+ 			ap.SkipTargets[info.TargettableGadget] = true
+@@ -213,6 +213,21 @@
+ 	return ai, snap
+ }
+ 
++// recordSelfDamageFlat preserves the already queued enemy hit, then records the
++// source's 2% self-hit write on this local AttackInfo and Snapshot only.
++func recordSelfDamageFlat(c *core.Core, ai *info.AttackInfo, snap *info.Snapshot) {
++	priorFlat := ai.FlatDmg
++	if c.SourceHost != nil {
++		priorComponents := c.SourceHost.CharacterFlatPrior(ai, snap)
++		value, id := c.SourceHost.CharacterFlatCompute(ai.ActorIndex,
++			"char-flat-dendrocore-self-hit", priorFlat, map[string]any{}, nil, snap, priorComponents)
++		ai.FlatDmg = value
++		c.SourceHost.CharacterFlatAttach(ai, snap, id, value)
++		return
++	}
++	ai.FlatDmg = 0.02 * priorFlat
++}
++
+ func (s *Gadget) SetDirection(trg info.Point) {}
+ func (s *Gadget) SetDirectionToClosestEnemy() {}
+ func (s *Gadget) CalcTempDirection(trg info.Point) info.Point {

@@ -1,0 +1,34 @@
+{
+  "latestObservedOfficialRelease": {
+    "version": "7.0",
+    "observedAt": "2026-09-22T14:35:20Z",
+    "sourceUrls": [
+      "https://www.hoyolab.com/article/46233468",
+      "https://www.reddit.com/r/Genshin_Impact/comments/1wm149c/version_71_update_maintenance_preview/"
+    ],
+    "evidenceNote": "以官方账号公告的日期和版本为观察依据；HoYoLAB 下载仅返回 JavaScript 外壳，其哈希不证明文章正文。"
+  },
+  "officialNextCandidates": [
+    {
+      "version": "7.1",
+      "releaseStatus": "official-next",
+      "observedAt": "2026-09-22T14:35:20Z",
+      "scheduledMaintenanceStart": "2026-09-23T06:00:00+08:00",
+      "sourceUrls": [
+        "https://www.reddit.com/r/Genshin_Impact/comments/1wm149c/version_71_update_maintenance_preview/",
+        "https://www.hoyolab.com/article_pre/18014398241022008"
+      ],
+      "note": "观察时间在维护之前；不能标作已发布，预下载也不等于已发布。"
+    }
+  ],
+  "unavailableTargets": [
+    {
+      "target": "7.1 released-content",
+      "reason": "观察时为 official-next，不能作为7.1已发布内容；已取得钉住commit的社区结构化候选，完整数值/机制核验和独立名册仍缺失。"
+    },
+    {
+      "target": "7.2 V1 partial preview",
+      "reason": "未取得可下载且钉住版本的结构化快照；查询源访问受限，不等于证明不存在。未创建空的成功预览。"
+    }
+  ]
+}

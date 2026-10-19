@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.627,
+  "log": "docs/validation/source-startup-web-build-20260928.log"
+}

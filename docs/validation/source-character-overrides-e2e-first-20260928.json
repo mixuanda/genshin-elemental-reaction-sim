@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-overrides.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 13.132,
+  "log": "docs/validation/source-character-overrides-e2e-first-20260928.log"
+}

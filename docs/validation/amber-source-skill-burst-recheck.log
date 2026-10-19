@@ -1,0 +1,54 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/source-action-amber-skill-burst.test.ts (3 tests | 2 failed) 127ms
+     × matches external input, snapshot, expiry, delayed debit, damage and particles without shifting frames 69ms
+     × rejects edited energy, summon lifetimes and unsupported dynamic contexts under the source identity 35ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/source-action-amber-skill-burst.test.ts > fixed-source Amber natural-expiry E and eighteen-hit Q > matches external input, snapshot, expiry, delayed debit, damage and particles without shifting frames
+AssertionError: expected 82.36383082193812 to be 82.36383082193814 // Object.is equality
+
+- Expected
++ Received
+
+- 82.36383082193814
++ 82.36383082193812
+
+ ❯ packages/sim-core/src/__tests__/source-action-amber-skill-burst.test.ts:23:32
+     21|     expect(result.damageEvents.map((event) => event.frame)).toEqual(re…
+     22|     expect(result.damageEvents.map((event) => event.finalDamage)).toEq…
+     23|     expect(result.totalDamage).toBe(reference.externalValidation.total…
+       |                                ^
+     24|     expect(result.summonLog?.map((entry) => [entry.operation, entry.fr…
+     25|       ["spawn", 46, 46, 531], ["expire", 530, 46, 531]
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/source-action-amber-skill-burst.test.ts > fixed-source Amber natural-expiry E and eighteen-hit Q > rejects edited energy, summon lifetimes and unsupported dynamic contexts under the source identity
+AssertionError: expected [Function] to throw error including '来源动作契约校验失败' but got '配置校验失败：\n- timeline.abilities.5.summo…'
+
+- Expected
++ Received
+
+- 来源动作契约校验失败
++ 配置校验失败：
++ - timeline.abilities.5.summons.0.hitIds.0: summon hit timing must equal spawnFrame + lifetimeFrames + expiryAttackDelayFrames
+
+ ❯ packages/sim-core/src/__tests__/source-action-amber-skill-burst.test.ts:80:38
+     78|       else if (field === "summon") config.timeline!.abilities.find((en…
+     79|       else config.characters[0]!.initialEnergy = 0;
+     80|       expect(() => simulate(config)).toThrow("来源动作契约校验失败");
+       |                                      ^
+     81|     }
+     82|     const movement = createAmberSkillBurstScenario();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  20:27:08
+   Duration  880ms (transform 547ms, setup 0ms, import 696ms, tests 127ms, environment 0ms)
+

@@ -1,0 +1,544 @@
+[
+  {
+    "id": "artifact-set:10004",
+    "slug": "tinymiracle",
+    "name": "奇迹",
+    "releasePatch": "1.0",
+    "rarityList": [
+      3,
+      4
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "奇迹之花",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "奇迹之羽",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "奇迹之沙",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "奇迹之杯",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "奇迹耳坠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "所有元素抗性提高20%。"
+      },
+      {
+        "pieces": 4,
+        "description": "受到某个元素类型的伤害后，相应的抗性提升30%，持续10秒。该效果每10秒只能触发一次。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "所有元素抗性提高20%。"
+  },
+  {
+    "id": "artifact-set:10013",
+    "slug": "travelingdoctor",
+    "name": "游医",
+    "releasePatch": "1.0",
+    "rarityList": [
+      1,
+      2,
+      3
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "游医的银莲",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "游医的枭羽",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "游医的怀钟",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "游医的药壶",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "游医的方巾",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "角色受到的治疗效果提高20%。"
+      },
+      {
+        "pieces": 4,
+        "description": "施放元素爆发时，恢复20%生命值。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "角色受到的治疗效果提高20%。"
+  },
+  {
+    "id": "artifact-set:14002",
+    "slug": "thundersoother",
+    "name": "平息鸣雷的尊者",
+    "releasePatch": "1.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "平雷之心",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "平雷之羽",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "平雷之刻",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "平雷之器",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "平雷之冠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "雷元素抗性提高40%。"
+      },
+      {
+        "pieces": 4,
+        "description": "对处于雷元素影响下的敌人造成的伤害提升35%。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "雷元素抗性提高40%。"
+  },
+  {
+    "id": "artifact-set:14003",
+    "slug": "lavawalker",
+    "name": "渡过烈火的贤人",
+    "releasePatch": "1.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "渡火者的决绝",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "渡火者的解脱",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "渡火者的煎熬",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "渡火者的醒悟",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "渡火者的智慧",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "火元素抗性提高40%。"
+      },
+      {
+        "pieces": 4,
+        "description": "对处于火元素影响下的敌人造成的伤害提升35%。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "火元素抗性提高40%。"
+  },
+  {
+    "id": "artifact-set:15009",
+    "slug": "prayersforillumination",
+    "name": "祭火之人",
+    "releasePatch": "1.0",
+    "rarityList": [
+      3,
+      4
+    ],
+    "slots": [
+      {
+        "slot": "circlet",
+        "name": "祭火礼冠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 1,
+        "description": "受到的火元素附着效果的持续时间减少40%。"
+      }
+    ],
+    "auditedPiece": 1,
+    "auditedDescription": "受到的火元素附着效果的持续时间减少40%。"
+  },
+  {
+    "id": "artifact-set:15010",
+    "slug": "prayersfordestiny",
+    "name": "祭水之人",
+    "releasePatch": "1.0",
+    "rarityList": [
+      3,
+      4
+    ],
+    "slots": [
+      {
+        "slot": "circlet",
+        "name": "祭水礼冠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 1,
+        "description": "受到的水元素附着效果的持续时间减少40%。"
+      }
+    ],
+    "auditedPiece": 1,
+    "auditedDescription": "受到的水元素附着效果的持续时间减少40%。"
+  },
+  {
+    "id": "artifact-set:15011",
+    "slug": "prayersforwisdom",
+    "name": "祭雷之人",
+    "releasePatch": "1.0",
+    "rarityList": [
+      3,
+      4
+    ],
+    "slots": [
+      {
+        "slot": "circlet",
+        "name": "祭雷礼冠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 1,
+        "description": "受到的雷元素附着效果的持续时间减少40%。"
+      }
+    ],
+    "auditedPiece": 1,
+    "auditedDescription": "受到的雷元素附着效果的持续时间减少40%。"
+  },
+  {
+    "id": "artifact-set:15013",
+    "slug": "prayerstospringtime",
+    "name": "祭冰之人",
+    "releasePatch": "1.0",
+    "rarityList": [
+      3,
+      4
+    ],
+    "slots": [
+      {
+        "slot": "circlet",
+        "name": "祭冰礼冠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 1,
+        "description": "受到的冰元素附着效果的持续时间减少40%。"
+      }
+    ],
+    "auditedPiece": 1,
+    "auditedDescription": "受到的冰元素附着效果的持续时间减少40%。"
+  },
+  {
+    "id": "artifact-set:15015",
+    "slug": "retracingbolide",
+    "name": "逆飞的流星",
+    "releasePatch": "1.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "夏祭之花",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "夏祭终末",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "夏祭之刻",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "夏祭水玉",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "夏祭之面",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "护盾强效提高35%。"
+      },
+      {
+        "pieces": 4,
+        "description": "处于护盾庇护下时，额外获得40%普通攻击和重击伤害加成。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "护盾强效提高35%。"
+  },
+  {
+    "id": "artifact-set:15037",
+    "slug": "scrolloftheheroofcindercity",
+    "name": "烬城勇者绘卷",
+    "releasePatch": "5.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "驯兽师的护符",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "巡山客的信标",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "秘术家的金盘",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "游学者的爪杯",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "魔战士的羽面",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "队伍中附近的角色触发「夜魂迸发」时，装备者恢复6点元素能量。"
+      },
+      {
+        "pieces": 4,
+        "description": "装备者触发其对应元素类型的相关反应后，队伍中附近的所有角色的该元素反应相关的元素伤害加成提升12%，持续15秒。若触发该效果时，装备者处于夜魂加持状态下，还将使队伍中附近的所有角色的与该元素反应相关的元素伤害加成提升28%，持续20秒。装备者处于后台时也能触发上述效果。同名圣遗物套装产生的伤害加成效果无法叠加。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "队伍中附近的角色触发「夜魂迸发」时，装备者恢复6点元素能量。"
+  },
+  {
+    "id": "artifact-set:15038",
+    "slug": "obsidiancodex",
+    "name": "黑曜秘典",
+    "releasePatch": "5.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "异种的期许",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "灵髓的根脉",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "夜域的迷思",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "纷争的前宴",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "诸圣的礼冠",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "装备者处于夜魂加持状态，并且在场上时，造成的伤害提高15%。"
+      },
+      {
+        "pieces": 4,
+        "description": "装备者在场上消耗1点夜魂值后，暴击率提高40%，持续6秒。该效果每1秒至多触发一次。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "装备者处于夜魂加持状态，并且在场上时，造成的伤害提高15%。"
+  },
+  {
+    "id": "artifact-set:15047",
+    "slug": "scarletproof",
+    "name": "血红之证",
+    "releasePatch": "7.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "感谢你的奉献",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "铭记你的功勋",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "授予你的年华",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "饮尽你的血泪",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "缅怀你的信仰",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "攻击力提高18%。"
+      },
+      {
+        "pieces": 4,
+        "description": "装备者触发星扩散反应后的10秒内，暴击率提升16%，星扩散反应伤害提升40%。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "攻击力提高18%。"
+  },
+  {
+    "id": "artifact-set:15048",
+    "slug": "heartofthefurnace",
+    "name": "炉火融炼之心",
+    "releasePatch": "7.0",
+    "rarityList": [
+      4,
+      5
+    ],
+    "slots": [
+      {
+        "slot": "flower",
+        "name": "熔铸者的揣度",
+        "relicType": "EQUIP_BRACER"
+      },
+      {
+        "slot": "plume",
+        "name": "熔铸者的观测",
+        "relicType": "EQUIP_NECKLACE"
+      },
+      {
+        "slot": "sands",
+        "name": "熔铸者的计算",
+        "relicType": "EQUIP_SHOES"
+      },
+      {
+        "slot": "goblet",
+        "name": "熔铸者的雅量",
+        "relicType": "EQUIP_RING"
+      },
+      {
+        "slot": "circlet",
+        "name": "熔铸者的继志",
+        "relicType": "EQUIP_DRESS"
+      }
+    ],
+    "pieceEffects": [
+      {
+        "pieces": 2,
+        "description": "攻击力提高18%。"
+      },
+      {
+        "pieces": 4,
+        "description": "装备者触发星烁反应或造成星烁反应伤害后的12秒内，攻击力提升12%，队伍中附近的所有角色造成的星烁反应伤害提升50%。装备者处于后台时也能触发上述效果。同名圣遗物套装产生的伤害加成效果无法叠加。"
+      }
+    ],
+    "auditedPiece": 2,
+    "auditedDescription": "攻击力提高18%。"
+  }
+]

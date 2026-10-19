@@ -1,0 +1,128 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "source-backed-provisional",
+  "sourceRevision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "archivePath": "packages/game-data/sources/stellar-swirl-high-jump/source.json.gz",
+  "archiveSha256": "f9b5a8089c07a49b4ce0085d655e54359a8c4febaf72802c41c4af35da37699a",
+  "archiveBytes": 22721,
+  "archivedFileCount": 11,
+  "scope": "Actual jump consumption and separate airborne/plunge lifecycle; retains guide-profile-source-conflict and excludes mid-jump uplift TODO.",
+  "sourceLicense": "Pinned LICENSE states AGPL-3.0-or-later effective 2026-09-19; exact original retained.",
+  "pinnedGitTree": {
+    "sha": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "truncated": false,
+    "savedTreeSha256": "898affa52cb190212170ae84018180e18868cd7b54363270937078bc2a8b141d"
+  },
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 35211,
+      "sha256": "bdef457104e8696158ed0f1bf4c165602b8f5db72d6c2f9bf564f21ee90a1906",
+      "gitBlobSha1": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "pinnedTreeBlobSha1": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/LICENSE"
+    },
+    {
+      "path": "internal/template/character/animation.go",
+      "bytes": 155,
+      "sha256": "97c61df00fa31e7d65363c6366a949b2290375d608adfd1dedf08561cdd9b2f0",
+      "gitBlobSha1": "d3fc9a811a39bc1aa6c97eb390f3c4b7b0d06ed6",
+      "pinnedTreeBlobSha1": "d3fc9a811a39bc1aa6c97eb390f3c4b7b0d06ed6",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/animation.go"
+    },
+    {
+      "path": "internal/template/character/character.go",
+      "bytes": 5080,
+      "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+      "gitBlobSha1": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "pinnedTreeBlobSha1": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go"
+    },
+    {
+      "path": "internal/template/character/default.go",
+      "bytes": 226,
+      "sha256": "798e50e474f27fbee50182c0771ba1b3795882aaceee8080d06e8724a3d2cda0",
+      "gitBlobSha1": "122e5fb12e42b9e005cfc783a7c0dda885f2666b",
+      "pinnedTreeBlobSha1": "122e5fb12e42b9e005cfc783a7c0dda885f2666b",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/default.go"
+    },
+    {
+      "path": "internal/template/character/ready.go",
+      "bytes": 1602,
+      "sha256": "d8226df747ea6181d5edb40ea3131ff948cf165d1f5c948704402808ed049ef1",
+      "gitBlobSha1": "b121ecf707885873328debcf2c1fbd5a5b2d665d",
+      "pinnedTreeBlobSha1": "b121ecf707885873328debcf2c1fbd5a5b2d665d",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/ready.go"
+    },
+    {
+      "path": "internal/template/character/stam.go",
+      "bytes": 6165,
+      "sha256": "19bcf98e2e135385be8189b44245958e59d4c9da9be3cc1d24465afa47ebb2f9",
+      "gitBlobSha1": "daad47c45064dad029794802f5ed41136cdb07d9",
+      "pinnedTreeBlobSha1": "daad47c45064dad029794802f5ed41136cdb07d9",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/stam.go"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "bytes": 7607,
+      "sha256": "7256ca1d27b03e1855f3cdb014644115003e7585f3f6bf6023871a78c76a180c",
+      "gitBlobSha1": "4c6f739ee82d4aa50e0cd899238237044e99ba22",
+      "pinnedTreeBlobSha1": "4c6f739ee82d4aa50e0cd899238237044e99ba22",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/exec.go"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "bytes": 8881,
+      "sha256": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46",
+      "gitBlobSha1": "e0d2ec53cc57341da1a8b33064ce3f0f553d307e",
+      "pinnedTreeBlobSha1": "e0d2ec53cc57341da1a8b33064ce3f0f553d307e",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789",
+      "pinnedTreeBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/status/status.go"
+    },
+    {
+      "path": "pkg/reactable/stellarswirl.go",
+      "bytes": 6801,
+      "sha256": "1a90e83efa5034b32747ee4ca3d9a4268d846cf3011159ebf65d619e32499363",
+      "gitBlobSha1": "28a7d5c69a505fd837a7f77388ab93790596198e",
+      "pinnedTreeBlobSha1": "28a7d5c69a505fd837a7f77388ab93790596198e",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarswirl.go"
+    },
+    {
+      "path": "pkg/reactable/stellarswirl_gadget.go",
+      "bytes": 2237,
+      "sha256": "d29cda200530382aabd325c404caa2937cde31d6c1feb16e30646a6152a55b53",
+      "gitBlobSha1": "e9b2d6bcbf182b61ab92c47a7ffd4158bab227eb",
+      "pinnedTreeBlobSha1": "e9b2d6bcbf182b61ab92c47a7ffd4158bab227eb",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "url": "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarswirl_gadget.go"
+    }
+  ]
+}

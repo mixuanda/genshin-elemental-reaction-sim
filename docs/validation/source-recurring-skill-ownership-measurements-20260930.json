@@ -1,0 +1,693 @@
+{
+  "schemaVersion": "source-recurring-skill-ownership-measurements-v1",
+  "asOf": "2026-09-30",
+  "previousGoalTurnClassification": "progress: batch117 implemented seven source finite scopes, corrected native metadata and recorded passing focused checks.",
+  "baseline": {
+    "workingTree": "/Users/evan/Documents/gidps",
+    "branch": "main",
+    "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+    "preservedExistingChanges": true,
+    "committedOrPublished": false
+  },
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.291
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.586
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.113
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.95
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.23,
+      "viteElapsedMilliseconds": 1000,
+      "warnings": [
+        "Existing ineffective dynamic import for workspace-panels.ts",
+        "Some chunks exceed 500 kB after minification"
+      ]
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-recurring-skill-ownership.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 22.105,
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      },
+      "runnerElapsedSeconds": 21.7,
+      "testElapsedSeconds": 20.6
+    }
+  },
+  "counts": {
+    "distinctSourceContracts": 77,
+    "distinctCharacterActions": 75,
+    "producerPlans": 64,
+    "producerSites": 94,
+    "newCharacterActions": 5,
+    "newSourceSpecificContracts": 7,
+    "nativeRuns": 3,
+    "browserCases": 1,
+    "browserAttempts": 1,
+    "selectedApplications": 66,
+    "selectedRootAttacks": 65
+  },
+  "wasm": {
+    "classic": {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 45233941,
+      "sha256": "9c976b69bdc79825703bcd691c9f1ebe33848be12e4f167f8642e78c25142ecd"
+    },
+    "stellar": {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 70046980,
+      "sha256": "841b7397e134036f48dd68f992b7e2fb8b71e359e420d310c008508f55e0e3ff"
+    }
+  },
+  "native": [
+    {
+      "run": "teamA",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "seed": "202609301181",
+      "observationWindow": {
+        "policy": "native",
+        "configuredEndFrame": 1440,
+        "actualEndFrame": 1377,
+        "endReason": "actions-exhausted"
+      },
+      "lifecycleObservationFrame": 1377,
+      "resultDurationFrames": 1377,
+      "nativeTotalDamage": 25901.9321242462,
+      "applicationDamageSum": 25901.9321242462,
+      "applicationCount": 53,
+      "abilityInvocationCount": 5,
+      "abilityProducerCount": 34,
+      "entities": [
+        {
+          "id": 1,
+          "kind": "gadget",
+          "siteId": "xiangling.skill.guoba",
+          "invocationId": 3,
+          "spawnProducerId": 7,
+          "actorIndex": 2,
+          "targetKey": 2,
+          "createdFrame": 140,
+          "tickCount": 438,
+          "endedFrame": 578,
+          "endReason": "expired",
+          "triggerIds": [
+            1,
+            3,
+            9,
+            13
+          ],
+          "producerIds": []
+        },
+        {
+          "id": 2,
+          "kind": "gadget",
+          "siteId": "yaoyao.burst.yuegui-jumping",
+          "invocationId": 4,
+          "spawnProducerId": 9,
+          "actorIndex": 3,
+          "targetKey": 3,
+          "createdFrame": 292,
+          "tickCount": 256,
+          "endedFrame": 548,
+          "endReason": "killed",
+          "triggerIds": [
+            2,
+            5,
+            8,
+            12,
+            14
+          ],
+          "producerIds": [
+            1,
+            3,
+            6,
+            9
+          ]
+        },
+        {
+          "id": 3,
+          "kind": "gadget",
+          "siteId": "yaoyao.burst.yuegui-jumping",
+          "invocationId": 4,
+          "spawnProducerId": 10,
+          "actorIndex": 3,
+          "targetKey": 4,
+          "createdFrame": 350,
+          "tickCount": 198,
+          "endedFrame": 548,
+          "endReason": "killed",
+          "triggerIds": [
+            4,
+            7,
+            11,
+            15
+          ],
+          "producerIds": [
+            2,
+            5,
+            8
+          ]
+        },
+        {
+          "id": 4,
+          "kind": "gadget",
+          "siteId": "yaoyao.burst.yuegui-jumping",
+          "invocationId": 4,
+          "spawnProducerId": 11,
+          "actorIndex": 3,
+          "targetKey": 5,
+          "createdFrame": 409,
+          "tickCount": 139,
+          "endedFrame": 548,
+          "endReason": "killed",
+          "triggerIds": [
+            6,
+            10,
+            16
+          ],
+          "producerIds": [
+            4,
+            7
+          ]
+        }
+      ],
+      "ownedGenerators": [],
+      "rawPath": "docs/validation/source-recurring-skill-ownership-team-20260930.capture.json"
+    },
+    {
+      "run": "teamB",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "seed": "202609301182",
+      "observationWindow": {
+        "policy": "native",
+        "configuredEndFrame": 1200,
+        "actualEndFrame": 1019,
+        "endReason": "actions-exhausted"
+      },
+      "lifecycleObservationFrame": 1019,
+      "resultDurationFrames": 1019,
+      "nativeTotalDamage": 1371.4595053765534,
+      "applicationDamageSum": 1371.4595053765531,
+      "applicationCount": 9,
+      "abilityInvocationCount": 2,
+      "abilityProducerCount": 0,
+      "entities": [],
+      "ownedGenerators": [
+        {
+          "id": 1,
+          "siteId": "beidou.burst.stormbreaker-status",
+          "invocationId": 1,
+          "statusInstanceId": 1,
+          "actorIndex": 0,
+          "activatedFrame": 1,
+          "triggerIds": [
+            1
+          ]
+        }
+      ],
+      "rawPath": "docs/validation/source-recurring-skill-ownership-team-20260930.capture.json"
+    },
+    {
+      "run": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "seed": "202609301183",
+      "observationWindow": {
+        "policy": "native",
+        "configuredEndFrame": 2400,
+        "actualEndFrame": 1939,
+        "endReason": "actions-exhausted"
+      },
+      "lifecycleObservationFrame": 1939,
+      "resultDurationFrames": 1939,
+      "nativeTotalDamage": 10749.741115689858,
+      "applicationDamageSum": 10749.741115689858,
+      "applicationCount": 31,
+      "abilityInvocationCount": 4,
+      "abilityProducerCount": 22,
+      "entities": [],
+      "ownedGenerators": [
+        {
+          "id": 1,
+          "siteId": "qiqi.skill.herald-status",
+          "invocationId": 1,
+          "statusInstanceId": 1,
+          "actorIndex": 1,
+          "activatedFrame": 1,
+          "triggerIds": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ]
+        }
+      ],
+      "rawPath": "docs/validation/source-recurring-skill-ownership-team-20260930.capture.json"
+    }
+  ],
+  "rawCapture": {
+    "path": "docs/validation/source-recurring-skill-ownership-team-20260930.capture.json",
+    "bytes": 6628273,
+    "sha256": "1099f93c741c848423a36ae33f315353d5c7c74f4c4b5dd8a4fa8176ca955e66"
+  },
+  "selected": [
+    {
+      "characterKey": "qiqi",
+      "action": "skill",
+      "contractId": "qiqi-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "qiqi-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 10,
+      "observedRootAttackCount": 10,
+      "completedRootAttackCount": 10,
+      "producerCount": 11,
+      "completedProducerCount": 11,
+      "triggerCount": 0,
+      "generatorCount": 0,
+      "endedGeneratorCount": 0,
+      "entityCount": 0,
+      "endedEntityCount": 0,
+      "entityProducerCount": 0,
+      "completedEntityProducerCount": 0,
+      "hitCallbackBatchCount": 0,
+      "completedHitCallbackBatchCount": 0,
+      "hitCallbackCount": 0,
+      "hitCount": 10,
+      "componentSubtotal": 661.7825664480001,
+      "appliedDamageSubtotal": 661.7825664480001,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "characterKey": "yaemiko",
+      "action": "skill",
+      "contractId": "yaemiko-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "yaemiko-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 5,
+      "observedRootAttackCount": 5,
+      "completedRootAttackCount": 5,
+      "producerCount": 8,
+      "completedProducerCount": 8,
+      "triggerCount": 0,
+      "generatorCount": 0,
+      "endedGeneratorCount": 0,
+      "entityCount": 0,
+      "endedEntityCount": 0,
+      "entityProducerCount": 0,
+      "completedEntityProducerCount": 0,
+      "hitCallbackBatchCount": 0,
+      "completedHitCallbackBatchCount": 0,
+      "hitCallbackCount": 0,
+      "hitCount": 5,
+      "componentSubtotal": 544.9096607784193,
+      "appliedDamageSubtotal": 544.9096607784193,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "characterKey": "xiangling",
+      "action": "skill",
+      "contractId": "xiangling-skill",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "xiangling-skill",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 4,
+      "observedRootAttackCount": 4,
+      "completedRootAttackCount": 4,
+      "producerCount": 1,
+      "completedProducerCount": 1,
+      "triggerCount": 0,
+      "generatorCount": 0,
+      "endedGeneratorCount": 0,
+      "entityCount": 1,
+      "endedEntityCount": 1,
+      "entityProducerCount": 0,
+      "completedEntityProducerCount": 0,
+      "hitCallbackBatchCount": 0,
+      "completedHitCallbackBatchCount": 0,
+      "hitCallbackCount": 0,
+      "hitCount": 4,
+      "componentSubtotal": 773.9264442602156,
+      "appliedDamageSubtotal": 773.9264442602156,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "characterKey": "yaoyao",
+      "action": "burst",
+      "contractId": "yaoyao-burst",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "yaoyao-burst",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 11,
+      "observedRootAttackCount": 11,
+      "completedRootAttackCount": 11,
+      "producerCount": 14,
+      "completedProducerCount": 14,
+      "triggerCount": 0,
+      "generatorCount": 0,
+      "endedGeneratorCount": 0,
+      "entityCount": 3,
+      "endedEntityCount": 3,
+      "entityProducerCount": 9,
+      "completedEntityProducerCount": 9,
+      "hitCallbackBatchCount": 0,
+      "completedHitCallbackBatchCount": 0,
+      "hitCallbackCount": 0,
+      "hitCount": 11,
+      "componentSubtotal": 1026.51351774048,
+      "appliedDamageSubtotal": 1026.51351774048,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "a1FlightCount": 1
+    },
+    {
+      "characterKey": "beidou",
+      "action": "burst",
+      "contractId": "beidou-burst",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "beidou-burst",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 6,
+      "observedRootAttackCount": 6,
+      "completedRootAttackCount": 6,
+      "producerCount": 0,
+      "completedProducerCount": 0,
+      "triggerCount": 1,
+      "generatorCount": 1,
+      "endedGeneratorCount": 1,
+      "entityCount": 0,
+      "endedEntityCount": 0,
+      "entityProducerCount": 0,
+      "completedEntityProducerCount": 0,
+      "hitCallbackBatchCount": 5,
+      "completedHitCallbackBatchCount": 5,
+      "hitCallbackCount": 4,
+      "hitCount": 7,
+      "componentSubtotal": 1222.5479210496783,
+      "appliedDamageSubtotal": 1222.5479210496783,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "normalTriggerInvocationFound": true,
+      "normalTriggerInvocationSuccess": true,
+      "ownedGeneratorTriggers": [
+        {
+          "id": 1,
+          "siteId": "beidou.burst.stormbreaker.enemy-damage",
+          "kind": "enemy-damage",
+          "queuedAttacks": [
+            {
+              "queueId": 9,
+              "attackId": 3,
+              "ability": "Stormbreaker (Bounce)",
+              "attackTagName": "AttackTagElementalBurst",
+              "frame": 68,
+              "emitSiteId": "beidou.burst.bounce"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "characterKey": "qiqi",
+      "action": "skill",
+      "contractId": "qiqi-skill-stellar",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "qiqi-skill-stellar",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 16,
+      "observedRootAttackCount": 16,
+      "completedRootAttackCount": 16,
+      "producerCount": 11,
+      "completedProducerCount": 11,
+      "triggerCount": 6,
+      "generatorCount": 1,
+      "endedGeneratorCount": 1,
+      "entityCount": 0,
+      "endedEntityCount": 0,
+      "entityProducerCount": 0,
+      "completedEntityProducerCount": 0,
+      "hitCallbackBatchCount": 0,
+      "completedHitCallbackBatchCount": 0,
+      "hitCallbackCount": 0,
+      "hitCount": 16,
+      "componentSubtotal": 850.4324828582401,
+      "appliedDamageSubtotal": 850.4324828582401,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "characterKey": "yaemiko",
+      "action": "skill",
+      "contractId": "yaemiko-skill-stellar",
+      "invocationFound": true,
+      "invocationSuccess": true,
+      "componentContractId": "yaemiko-skill-stellar",
+      "completeCast": true,
+      "reasons": [],
+      "expectedRootAttackCount": 13,
+      "observedRootAttackCount": 13,
+      "completedRootAttackCount": 13,
+      "producerCount": 11,
+      "completedProducerCount": 11,
+      "triggerCount": 0,
+      "generatorCount": 0,
+      "endedGeneratorCount": 0,
+      "entityCount": 0,
+      "endedEntityCount": 0,
+      "entityProducerCount": 0,
+      "completedEntityProducerCount": 0,
+      "hitCallbackBatchCount": 13,
+      "completedHitCallbackBatchCount": 13,
+      "hitCallbackCount": 13,
+      "hitCount": 13,
+      "componentSubtotal": 9771.195528534767,
+      "appliedDamageSubtotal": 9771.195528534767,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "revelationStrikeCount": 5
+    }
+  ],
+  "qiqiUiEditExportImport": {
+    "hitCount": 10,
+    "completed": true
+  },
+  "pageErrors": [],
+  "runtimeResult": "docs/validation/source-recurring-skill-ownership-team-20260930.result.json",
+  "sourceAudits": [
+    {
+      "path": "docs/validation/source-recurring-skills-classic-audit-20260930.json",
+      "bytes": 12522,
+      "sha256": "a1f96c83405a305e9b893aa6c11082d54e18b2011825ccc5178d140bcd779e37"
+    },
+    {
+      "path": "docs/validation/source-recurring-skills-stellar-audit-20260930.json",
+      "bytes": 17856,
+      "sha256": "09a2b59c83304ad2f2dd5a244c2330896bc567ee54c2b552a69158badde70f47"
+    },
+    {
+      "path": "docs/validation/source-beidou-owned-burst-audit-20260930.json",
+      "bytes": 3230,
+      "sha256": "c10470c39de2f9e04ae02ffafe1f09429995b5d24092fc87d68e89b8a0d75bcb"
+    },
+    {
+      "path": "docs/validation/source-recurring-owned-entities-audit-20260930.json",
+      "bytes": 9175,
+      "sha256": "56754a82863f7a5661f4e3a25ef6b3ddc83984683e3f48d6b7c2ab4c4e591083"
+    },
+    {
+      "path": "docs/validation/source-owned-entity-event-native-20260930.json",
+      "bytes": 6023,
+      "sha256": "cfbe0da91761e2a817fd52d70eb58169aa477e675e9253dbfc6bdc9a98d5b578"
+    },
+    {
+      "path": "docs/validation/source-recurring-skill-ownership-contracts-20260930.json",
+      "bytes": 28653,
+      "sha256": "31e66e3763a54ddc0ea7ca9257f8a5263662b2751c079d206006a90f5718b6ef"
+    }
+  ],
+  "patches": [
+    {
+      "path": "packages/source-host/patches/118-beidou-owned-burst.patch",
+      "bytes": 1165,
+      "sha256": "98584849808c1bbbea3b5b16fd235ea8e794e81a68855a3b9c18d6cb7e0fc1a3"
+    },
+    {
+      "path": "packages/source-host/patches/118-entity-native-ticks.patch",
+      "bytes": 370,
+      "sha256": "ce1825496a472db2dc411b35802b80672784a15d4694481a25281084700cd1d0"
+    },
+    {
+      "path": "packages/source-host/patches/118-owned-entities.patch",
+      "bytes": 4963,
+      "sha256": "b11e9b24f8ecf1eb25a75f747db7cfa64f1d42b0afc81487f7ba73cb66ea85c2"
+    },
+    {
+      "path": "packages/source-host/patches/118-recurring-skills.patch",
+      "bytes": 3932,
+      "sha256": "0c0fbc0e046e47ae224931badb38bdb653118d699b00da1387b829b8fa339d05"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/118-recurring-skills.patch",
+      "bytes": 6487,
+      "sha256": "93c86517308db5bfdc718104f29222cba0687cbb0ef9c83a9ae3611f77eb9b95"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "matchesPre118": true
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "matchesPre118": true
+    }
+  ],
+  "dataEvidence": "docs/data-evidence-refresh-20260930.json",
+  "nextCrossCuttingAudit": "docs/validation/source-cross-cutting-next-step-20260930.json",
+  "limitations": [
+    "Three focused configurations only: C0 except Beidou C2; level90, talent1, level1 refinement1 weapons; burst energy ignored explicitly, so no energy/steady-state validation is claimed.",
+    "Yae fourth-totem replacement A1, early Yaoyao swap, revelation disabled, no-target and other constellation/target branches are source-audited rather than runtime matrix-validated.",
+    "Qiqi source explicitly approximates recurring frame timings and Sacrificial Sword refresh behavior; native reproducibility is not game validation.",
+    "Yaoyao E-born Yuegui retains E birth ownership when Q changes its formula; the Q-born subtotal excludes that cross-skill contribution to avoid duplicate ownership.",
+    "Released/preview pointers unchanged; activeVerified remains null. Complete game mechanics/version evidence, broad native phase closure, stochastic steady state and remote CI observation remain unfinished.",
+    "No repeated suites, replay tamper matrix, commit or deployment; active goal remains open."
+  ]
+}

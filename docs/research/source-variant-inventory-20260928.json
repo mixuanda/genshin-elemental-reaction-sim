@@ -1,0 +1,335 @@
+{
+  "title": "Classic b4 vs Stellar a7 source inventory and preset overlap audit",
+  "asOf": "2026-09-28",
+  "inputs": {
+    "classic": {
+      "manifest": "apps/web/public/source-host/manifest.json",
+      "inventory": "apps/web/public/source-host/inventory-metadata.json",
+      "repository": "https://github.com/genshinsim/gcsim",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "inventoryMeaning": "Pinned Go blank-import registrations; not canonical character IDs, a latest-release list, or a claim that every registered package is ready.",
+      "counts": {
+        "character": 117,
+        "weapon": 231,
+        "artifact": 53
+      },
+      "registeredPackageCount": 401,
+      "resolvedKeyCount": 401,
+      "todoPackageCount": 182,
+      "explicitTodoMarkerCount": 493
+    },
+    "stellar": {
+      "manifest": "apps/web/public/source-host-stellar/manifest.json",
+      "inventory": "apps/web/public/source-host-stellar/inventory-metadata.json",
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "inventoryMeaning": "Pinned a7 blank imports; not game verification or ability completeness",
+      "counts": {
+        "character": 124,
+        "weapon": 241,
+        "artifact": 55
+      },
+      "registeredPackageCount": 420,
+      "resolvedKeyCount": 420,
+      "todoPackageCount": 178,
+      "explicitTodoMarkerCount": 444
+    },
+    "currentCatalog": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "presetSource": "packages/game-data/src/character-build-presets.ts"
+  },
+  "delta": {
+    "addedKeys": {
+      "character": [
+        "aethercryo",
+        "iansan",
+        "ifa",
+        "jahoda",
+        "luminecryo",
+        "odette",
+        "prune"
+      ],
+      "weapon": [
+        "bladeofatonement",
+        "covenantoffrostandsnow",
+        "disasterandremorse",
+        "echoesoftheheart",
+        "emberwell",
+        "exaiphanesblade",
+        "forgedbythegoldenmelody",
+        "frostbreath",
+        "jadevista",
+        "lightbearingmoonshard"
+      ],
+      "artifact": [
+        "heartofthefurnace",
+        "scarletproof"
+      ]
+    },
+    "removedKeys": {
+      "character": [],
+      "weapon": [],
+      "artifact": []
+    },
+    "addedCounts": {
+      "character": 7,
+      "weapon": 10,
+      "artifact": 2
+    },
+    "removedCounts": {
+      "character": 0,
+      "weapon": 0,
+      "artifact": 0
+    }
+  },
+  "stellarOnlyCharacters": [
+    {
+      "key": "aethercryo",
+      "sourceGameId": 10000005,
+      "sourceNameZh": "空 (冰元素)",
+      "weaponClass": "WEAPON_SWORD_ONE_HAND",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000005",
+      "catalogSlug": "aether",
+      "catalogName": "空",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "existing-traveler-identity-new-element-form"
+    },
+    {
+      "key": "iansan",
+      "sourceGameId": 10000110,
+      "sourceNameZh": "伊安珊",
+      "weaponClass": "WEAPON_POLE",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000110",
+      "catalogSlug": "iansan",
+      "catalogName": "伊安珊",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "new-nontraveler-identity"
+    },
+    {
+      "key": "ifa",
+      "sourceGameId": 10000113,
+      "sourceNameZh": "伊法",
+      "weaponClass": "WEAPON_CATALYST",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000113",
+      "catalogSlug": "ifa",
+      "catalogName": "伊法",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "new-nontraveler-identity"
+    },
+    {
+      "key": "jahoda",
+      "sourceGameId": 10000124,
+      "sourceNameZh": "雅珂达",
+      "weaponClass": "WEAPON_BOW",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000124",
+      "catalogSlug": "jahoda",
+      "catalogName": "雅珂达",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "new-nontraveler-identity"
+    },
+    {
+      "key": "luminecryo",
+      "sourceGameId": 10000007,
+      "sourceNameZh": "荧 (冰元素)",
+      "weaponClass": "WEAPON_SWORD_ONE_HAND",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000007",
+      "catalogSlug": "lumine",
+      "catalogName": "荧",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "existing-traveler-identity-new-element-form"
+    },
+    {
+      "key": "odette",
+      "sourceGameId": 10000150,
+      "sourceNameZh": "奥黛塔",
+      "weaponClass": "WEAPON_SWORD_ONE_HAND",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000150",
+      "catalogSlug": "odette",
+      "catalogName": "奥黛塔",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "new-nontraveler-identity"
+    },
+    {
+      "key": "prune",
+      "sourceGameId": 10000132,
+      "sourceNameZh": "布伦妮",
+      "weaponClass": "WEAPON_CATALYST",
+      "classicPresent": false,
+      "stellarPresent": true,
+      "currentCatalogCharacter": true,
+      "catalogCharacterId": "character:10000132",
+      "catalogSlug": "prune",
+      "catalogName": "布伦妮",
+      "presetTiers": [
+        "starter",
+        "developed"
+      ],
+      "identityNovelty": "new-nontraveler-identity"
+    }
+  ],
+  "stellarOnlyCatalogPresetCoverage": {
+    "sourceConfigurationKeyCount": 7,
+    "catalogMatchedSourceGameIdCount": 7,
+    "newNonTravelerGameplayIdentityCount": 5,
+    "travelerForms": [
+      "aethercryo",
+      "luminecryo"
+    ],
+    "travelerIdentityHandling": "These two elemental source keys map to existing Aether/Lumine catalog identities and share one team identity in source-team-builder.ts; they are not new unique gameplay identities. The two reference preset tiers are already generated for the existing catalog entries.",
+    "catalogCharacterIds": [
+      "character:10000005",
+      "character:10000110",
+      "character:10000113",
+      "character:10000124",
+      "character:10000007",
+      "character:10000150",
+      "character:10000132"
+    ],
+    "tiersPerCatalogCharacter": [
+      "starter",
+      "developed"
+    ],
+    "note": "All seven keys can resolve to catalog-backed reference-assumption presets (14 source-key/tier combinations). Two are Aether/Lumine Traveler element forms with existing character identities/presets; the five non-Traveler identities account for 10 newly source-selectable preset rows against classic inventory.",
+    "sourceSelectablePresetRowsForNetNewIdentities": 10
+  },
+  "equipment": {
+    "stellarOnlyWeaponKeys": [
+      "bladeofatonement",
+      "covenantoffrostandsnow",
+      "disasterandremorse",
+      "echoesoftheheart",
+      "emberwell",
+      "exaiphanesblade",
+      "forgedbythegoldenmelody",
+      "frostbreath",
+      "jadevista",
+      "lightbearingmoonshard"
+    ],
+    "stellarOnlyArtifactKeys": [
+      "heartofthefurnace",
+      "scarletproof"
+    ],
+    "removedWeaponKeys": [],
+    "removedArtifactKeys": []
+  },
+  "actionsAndCapabilities": {
+    "inventoryMetadataHasActionPackages": false,
+    "sourceTeamBuilderActionKinds": [
+      "skill",
+      "burst",
+      "attack",
+      "charge",
+      "aim",
+      "dash",
+      "jump",
+      "low_plunge",
+      "high_plunge",
+      "wait"
+    ],
+    "classicActionAttemptsPatch": {
+      "path": "007-action-attempts.patch",
+      "sha256": "8bdfff8db19bf895b5786168b6a8f20f59eb2c5c50ed50ebf82359e982bd2d86",
+      "size": 929
+    },
+    "stellarActionAttemptsPatch": {
+      "path": "action-attempts.patch",
+      "sha256": "8bdfff8db19bf895b5786168b6a8f20f59eb2c5c50ed50ebf82359e982bd2d86",
+      "bytes": 929
+    },
+    "classicSupportedFormulaFamilies": [
+      "ordinary",
+      "amplifying",
+      "additive",
+      "transformative",
+      "lunar-charged-direct",
+      "lunar-bloom-direct",
+      "lunar-crystallize-direct",
+      "lunar-charged-reaction",
+      "lunar-crystallize-reaction",
+      "lunar-bloom-event",
+      "player-incoming",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "stellarSupportedFormulaFamilies": [
+      "ordinary",
+      "classic-reaction",
+      "lunar",
+      "stellar-conduct-event",
+      "stellar-conduct-direct",
+      "stellar-swirl-direct",
+      "stellar-swirl-reaction",
+      "player-incoming",
+      "player-shield",
+      "player-shield-min",
+      "player-drain"
+    ],
+    "classicUnsupportedSpecialFormulaFamilies": [
+      "stellar"
+    ],
+    "classicPlayerIncomingDamageSharedFormula": true,
+    "classicPlayerShieldAndDrainSharedFormula": true,
+    "stellarPlayerIncomingDamageSharedFormula": true,
+    "stellarPlayerShieldAndDrainSharedFormula": true,
+    "evidencePaths": {
+      "classicActionPatch": "apps/web/public/source-host/manifest.json#/patches (007-action-attempts.patch)",
+      "classicFormulaAndSharedPlayerCapabilities": "apps/web/public/source-host/manifest.json#/limitations",
+      "stellarActionAndFormulaCapabilities": "apps/web/public/source-host-stellar/manifest.json#/actionAttemptsPatch and #/supportedFormulaFamilies"
+    },
+    "caveat": "Action kind list is shared UI schema in apps/web/src/source-team-builder.ts, not per-character source action availability. Both variants declare an action-attempts patch and overlapping classic/player families; stellar additionally declares four stellar formula families. Manifest capability metadata does not establish per-character coverage or readiness."
+  },
+  "catalogContext": {
+    "characterCount": 124,
+    "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gamePatch": "7.1",
+    "simulationStatusForStellarOnlyCatalogCharacters": {
+      "aether": "metadata-only",
+      "lumine": "metadata-only",
+      "iansan": "metadata-only",
+      "ifa": "metadata-only",
+      "jahoda": "metadata-only",
+      "prune": "metadata-only",
+      "odette": "metadata-only"
+    },
+    "catalogSourceScope": "Current local catalog identity presence yields the two generated reference-assumption preset tiers. It does not establish source readiness or game-verified data."
+  },
+  "interpretation": "These are checked-in registry and catalog intersections. Inventory metadata explicitly limits scope to pinned source registration/literal factory key/parser aliases/localization/TODO markers and says it is not a current canonical roster, game-verified status, or readiness claim. Source-host classic manifest says registrations do not establish readiness. Stellar verification is source-assumed-provisional. Treat every inclusion as inventory evidence only."
+}

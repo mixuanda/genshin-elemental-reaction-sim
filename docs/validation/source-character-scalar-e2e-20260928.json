@@ -1,0 +1,12 @@
+{
+  "command": [
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-scalar.spec.ts"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 3.371,
+  "log": "docs/validation/source-character-scalar-e2e-20260928.log"
+}

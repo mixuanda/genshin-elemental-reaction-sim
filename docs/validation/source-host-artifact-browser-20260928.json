@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-host-artifact-formulas.spec.ts"
+  ],
+  "environment": {
+    "GIDPS_PREBUILT": "1"
+  },
+  "exitCode": 1,
+  "wallSeconds": 7.956,
+  "log": "docs/validation/source-host-artifact-browser-20260928.log"
+}

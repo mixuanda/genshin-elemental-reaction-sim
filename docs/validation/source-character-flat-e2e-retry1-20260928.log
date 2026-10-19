@@ -1,0 +1,146 @@
+[WebServer] (node:91337) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:91338) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-flat.spec.ts:98:1 › native queued FlatDmg preserves set/add/multiply, saved values, recipient identity, and formula edits (7.1s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-flat.spec.ts:98:1 › native queued FlatDmg preserves set/add/multiply, saved values, recipient identity, and formula edits 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#source-host-status')
+    Timeout: 5000ms
+    - Expected substring  -  1
+    + Received string     + 49
+
+    - 本次运行完成
+    + 运行停止：simulation panic occured: source-host formula rejected: 来源角色排队 FlatDmg #432 与原生攻击时序或应用量不一致。 
+    + goroutine 8 [running]:
+    + runtime/debug.Stack()
+    + 	runtime/debug/stack.go:26 +0x6
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run.func1()
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:380 +0xb
+    + panic({0xa8e20, 0x1973ba0})
+    + 	runtime/panic.go:783 +0x1a
+    + github.com/genshinsim/gcsim/pkg/core/sourcehost.(*Bridge).Resolve(0x14a4500, {{0x227982, 0x14}, 0x1b1, {0x2183a8, 0x6}, 0x66, 0x0, {0x22390b, 0x11}, ...})
+    + 	github.com/genshinsim/gcsim/pkg/core/sourcehost/bridge.go:203 +0x10c
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calcSourceHost(0x161c900, 0x1483348, {0x3244a0, 0x1646eb0}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/sourcehost.go:80 +0x165
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calc(0x161c900, 0x1483348, {0x3244a0, 0x1646eb0}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/damage.go:11 +0x68
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).attack(0x161c900, 0x1483348, {0x3244a0, 0x1646eb0}, 0x3ff0000000000000)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/attack.go:145 +0x5b
+    + github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).HandleAttack(0x161c900, 0x1483348)
+    + 	github.com/genshinsim/gcsim/pkg/enemy/attack.go:60 +0x6b
+    + github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).attack(0x1545a40, {0x326e50, 0x161c900}, 0x14822c8)
+    + 	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:30 +0x33
+    + github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).ApplyAttack(0x1545a40, 0x14822c8)
+    + 	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:54 +0x27
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).queueDmg(0x15cb8f0, 0x14822c8, 0x0)
+    + 	github.com/genshinsim/gcsim/pkg/core/attack.go:92 +0x1f
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).QueueAttackEvent(...)
+    + 	github.com/genshinsim/gcsim/pkg/core/attack.go:33
+    + github.com/genshinsim/gcsim/internal/characters/kokomi.(*char).skillTick(0x1622300, 0x14822c8)
+    + 	github.com/genshinsim/gcsim/internal/characters/kokomi/skill.go:120 +0x39
+    + github.com/genshinsim/gcsim/internal/characters/kokomi.(*char).Skill.func1()
+    + 	github.com/genshinsim/gcsim/internal/characters/kokomi/skill.go:43 +0x2
+    + github.com/genshinsim/gcsim/pkg/core/task.(*Handler).Run(0x140b920)
+    + 	github.com/genshinsim/gcsim/pkg/core/task/task.go:40 +0x5
+    + github.com/genshinsim/gcsim/pkg/core.(*Core).Tick(0x15cb8f0)
+    + 	github.com/genshinsim/gcsim/pkg/core/core.go:155 +0x7
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).nextFrame(0x15fcd20)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:343 +0x6
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).advanceFrames(0x15fcd20, 0x1, 0x24c508)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:330 +0x5
+    + github.com/genshinsim/gcsim/pkg/simulation.skipUntilCanQueue(0x15fcd20)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:317 +0x12
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).run(0x15fcd20)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:54 +0x5
+    + github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run(0x15fcd20)
+    + 	github.com/genshinsim/gcsim/pkg/simulation/run.go:383 +0x2
+    + main.run({{}, 0x7ff8000100000005, 0x140c4b0}, {0x15e2620, 0x2, 0x2})
+    + 	github.com/genshinsim/gcsim/cmd/sourcehost/main.go:107 +0xa6
+    + syscall/js.handleEvent()
+    + 	syscall/js/func.go:117 +0x28
+    +
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#source-host-status')
+        14 × locator resolved to <p role="status" aria-live="polite" id="source-host-status">运行停止：simulation panic occured: source-host formul…</p>
+           - unexpected value "运行停止：simulation panic occured: source-host formula rejected: 来源角色排队 FlatDmg #432 与原生攻击时序或应用量不一致。 
+    goroutine 8 [running]:
+    runtime/debug.Stack()
+    	runtime/debug/stack.go:26 +0x6
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run.func1()
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:380 +0xb
+    panic({0xa8e20, 0x1973ba0})
+    	runtime/panic.go:783 +0x1a
+    github.com/genshinsim/gcsim/pkg/core/sourcehost.(*Bridge).Resolve(0x14a4500, {{0x227982, 0x14}, 0x1b1, {0x2183a8, 0x6}, 0x66, 0x0, {0x22390b, 0x11}, ...})
+    	github.com/genshinsim/gcsim/pkg/core/sourcehost/bridge.go:203 +0x10c
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calcSourceHost(0x161c900, 0x1483348, {0x3244a0, 0x1646eb0}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/sourcehost.go:80 +0x165
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).calc(0x161c900, 0x1483348, {0x3244a0, 0x1646eb0}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/damage.go:11 +0x68
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).attack(0x161c900, 0x1483348, {0x3244a0, 0x1646eb0}, 0x3ff0000000000000)
+    	github.com/genshinsim/gcsim/pkg/enemy/attack.go:145 +0x5b
+    github.com/genshinsim/gcsim/pkg/enemy.(*Enemy).HandleAttack(0x161c900, 0x1483348)
+    	github.com/genshinsim/gcsim/pkg/enemy/attack.go:60 +0x6b
+    github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).attack(0x1545a40, {0x326e50, 0x161c900}, 0x14822c8)
+    	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:30 +0x33
+    github.com/genshinsim/gcsim/pkg/core/combat.(*Handler).ApplyAttack(0x1545a40, 0x14822c8)
+    	github.com/genshinsim/gcsim/pkg/core/combat/attack.go:54 +0x27
+    github.com/genshinsim/gcsim/pkg/core.(*Core).queueDmg(0x15cb8f0, 0x14822c8, 0x0)
+    	github.com/genshinsim/gcsim/pkg/core/attack.go:92 +0x1f
+    github.com/genshinsim/gcsim/pkg/core.(*Core).QueueAttackEvent(...)
+    	github.com/genshinsim/gcsim/pkg/core/attack.go:33
+    github.com/genshinsim/gcsim/internal/characters/kokomi.(*char).skillTick(0x1622300, 0x14822c8)
+    	github.com/genshinsim/gcsim/internal/characters/kokomi/skill.go:120 +0x39
+    github.com/genshinsim/gcsim/internal/characters/kokomi.(*char).Skill.func1()
+    	github.com/genshinsim/gcsim/internal/characters/kokomi/skill.go:43 +0x2
+    github.com/genshinsim/gcsim/pkg/core/task.(*Handler).Run(0x140b920)
+    	github.com/genshinsim/gcsim/pkg/core/task/task.go:40 +0x5
+    github.com/genshinsim/gcsim/pkg/core.(*Core).Tick(0x15cb8f0)
+    	github.com/genshinsim/gcsim/pkg/core/core.go:155 +0x7
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).nextFrame(0x15fcd20)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:343 +0x6
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).advanceFrames(0x15fcd20, 0x1, 0x24c508)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:330 +0x5
+    github.com/genshinsim/gcsim/pkg/simulation.skipUntilCanQueue(0x15fcd20)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:317 +0x12
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).run(0x15fcd20)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:54 +0x5
+    github.com/genshinsim/gcsim/pkg/simulation.(*Simulation).Run(0x15fcd20)
+    	github.com/genshinsim/gcsim/pkg/simulation/run.go:383 +0x2
+    main.run({{}, 0x7ff8000100000005, 0x140c4b0}, {0x15e2620, 0x2, 0x2})
+    	github.com/genshinsim/gcsim/cmd/sourcehost/main.go:107 +0xa6
+    syscall/js.handleEvent()
+    	syscall/js/func.go:117 +0x28
+    "
+
+
+      110 |     await page.locator("#source-host-run").click();
+      111 |     await expect(page.locator("#source-host-status")).toContainText(/本次运行完成|运行停止|执行器错误/, { timeout: 90000 });
+    > 112 |     await expect(page.locator("#source-host-status")).toContainText("本次运行完成");
+          |                                                       ^
+      113 |     const pending = page.waitForEvent("download");
+      114 |     await page.locator("#source-host-export").click();
+      115 |     const raw = await readFile((await (await pending).path())!, "utf8");
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-flat.spec.ts:112:55
+
+    Error Context: test-results/source-character-flat-nati-78ead--identity-and-formula-edits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-flat-nati-78ead--identity-and-formula-edits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-flat-nati-78ead--identity-and-formula-edits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-flat.spec.ts:98:1 › native queued FlatDmg preserves set/add/multiply, saved values, recipient identity, and formula edits 

@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 4.426,
+  "log": "docs/validation/source-drain-sources-stellarretry1-20260928.log"
+}

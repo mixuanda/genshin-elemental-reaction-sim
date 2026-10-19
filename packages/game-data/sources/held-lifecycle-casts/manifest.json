@@ -1,0 +1,1232 @@
+{
+  "schemaVersion": 1,
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-24T15:42:42.587257+00:00",
+  "evidenceStatus": "fixed-source-provisional",
+  "protocol": "explicit-held-lifecycle-v1",
+  "originalArchiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+  "archive": {
+    "path": "packages/game-data/sources/held-lifecycle-casts/source.json.gz",
+    "bytes": 151999,
+    "sha256": "273af72e63057b32135185df4c5c3220d84c4f3e37b817a48e295e3313282f8f"
+  },
+  "definitions": {
+    "path": "packages/game-data/sources/held-lifecycle-casts/definitions.json",
+    "sha256": "f3f0f4b3cdb4952b96697e2f20de4b9c3bf64598448deed26494e762aa4bc62d"
+  },
+  "verification": {
+    "gitTreeCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "gitTreeTruncated": false,
+    "allArchivedGitBlobHashesMatch": true,
+    "catalogFile": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+    "catalogSourceRevision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "canonicalCatalogMatchesRawStats": true,
+    "exactUniqueCoefficientVectors": 8,
+    "roundedUniqueCoefficientVectors": 2,
+    "catalogCoefficientRule": "8 unique vectors match exactly at all 15 levels; Hydro skillPress and burstDot retain existing per-field four-decimal 5e-5 source rounding, while runtime values retain canonical catalog precision."
+  },
+  "coefficientBindings": [
+    {
+      "sourcePath": "internal/characters/traveler/common/dendro/stats.go",
+      "sourceField": "burstExplode",
+      "talentSetId": "talent-set:travelerdendro",
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "sourceValues": [
+        4.008,
+        4.3086,
+        4.6092,
+        5.01,
+        5.3106,
+        5.6112,
+        6.012,
+        6.4128,
+        6.8136,
+        7.2144,
+        7.6152,
+        8.016,
+        8.517,
+        9.018,
+        9.519
+      ],
+      "catalogValues": [
+        4.008,
+        4.3086,
+        4.6092,
+        5.01,
+        5.3106,
+        5.6112,
+        6.012,
+        6.4128,
+        6.8136,
+        7.2144,
+        7.6152,
+        8.016,
+        8.517,
+        9.018,
+        9.519
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/hydro/stats.go",
+      "sourceField": "skillDewdrop",
+      "talentSetId": "talent-set:travelerhydro",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "sourceValues": [
+        0.328,
+        0.3526,
+        0.3772,
+        0.41,
+        0.4346,
+        0.4592,
+        0.492,
+        0.5248,
+        0.5576,
+        0.5904,
+        0.6232,
+        0.656,
+        0.697,
+        0.738,
+        0.779
+      ],
+      "catalogValues": [
+        0.328,
+        0.3526,
+        0.3772,
+        0.41,
+        0.4346,
+        0.4592,
+        0.492,
+        0.5248,
+        0.5576,
+        0.5904,
+        0.6232,
+        0.656,
+        0.697,
+        0.738,
+        0.779
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/hydro/stats.go",
+      "sourceField": "skillPress",
+      "talentSetId": "talent-set:travelerhydro",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "sourceValues": [
+        1.8928,
+        2.0348,
+        2.1767,
+        2.366,
+        2.508,
+        2.6499,
+        2.8392,
+        3.0285,
+        3.2178,
+        3.407,
+        3.5963,
+        3.7856,
+        4.0222,
+        4.2588,
+        4.4954
+      ],
+      "catalogValues": [
+        1.8928,
+        2.03476,
+        2.17672,
+        2.366,
+        2.50796,
+        2.64992,
+        2.8392,
+        3.02848,
+        3.21776,
+        3.40704,
+        3.59632,
+        3.7856,
+        4.0222,
+        4.2588,
+        4.4954
+      ],
+      "absoluteDeltas": [
+        0.0,
+        4.000000000026205e-05,
+        2.0000000000131024e-05,
+        0.0,
+        3.999999999981796e-05,
+        1.9999999999686935e-05,
+        0.0,
+        2.0000000000131024e-05,
+        3.999999999981796e-05,
+        3.999999999981796e-05,
+        2.0000000000131024e-05,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 5e-05,
+      "matchingRule": "existing-traveler-four-decimal-rounding",
+      "existingEvidence": "packages/game-data/src/character-mappings/traveler-mappings.ts#travelerRoundingEvidence"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/hydro/stats.go",
+      "sourceField": "spiritbreathThorn",
+      "talentSetId": "talent-set:travelerhydro",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "sourceValues": [
+        0.328,
+        0.3526,
+        0.3772,
+        0.41,
+        0.4346,
+        0.4592,
+        0.492,
+        0.5248,
+        0.5576,
+        0.5904,
+        0.6232,
+        0.656,
+        0.697,
+        0.738,
+        0.779
+      ],
+      "catalogValues": [
+        0.328,
+        0.3526,
+        0.3772,
+        0.41,
+        0.4346,
+        0.4592,
+        0.492,
+        0.5248,
+        0.5576,
+        0.5904,
+        0.6232,
+        0.656,
+        0.697,
+        0.738,
+        0.779
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/hydro/stats.go",
+      "sourceField": "burstDot",
+      "talentSetId": "talent-set:travelerhydro",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "sourceValues": [
+        1.0187,
+        1.0951,
+        1.1715,
+        1.2733,
+        1.3497,
+        1.4261,
+        1.528,
+        1.6299,
+        1.7317,
+        1.8336,
+        1.9355,
+        2.0373,
+        2.1647,
+        2.292,
+        2.4193
+      ],
+      "catalogValues": [
+        1.018664,
+        1.095064,
+        1.171464,
+        1.27333,
+        1.34973,
+        1.42613,
+        1.527996,
+        1.629862,
+        1.731729,
+        1.833595,
+        1.935462,
+        2.037328,
+        2.164661,
+        2.291994,
+        2.419327
+      ],
+      "absoluteDeltas": [
+        3.599999999992498e-05,
+        3.599999999992498e-05,
+        3.599999999992498e-05,
+        2.999999999997449e-05,
+        3.0000000000196536e-05,
+        2.999999999997449e-05,
+        4.000000000115023e-06,
+        3.799999999998249e-05,
+        2.9000000000056758e-05,
+        4.999999999810711e-06,
+        3.799999999998249e-05,
+        2.799999999991698e-05,
+        3.899999999967818e-05,
+        5.999999999950489e-06,
+        2.700000000022129e-05
+      ],
+      "coefficientTolerance": 5e-05,
+      "matchingRule": "existing-traveler-four-decimal-rounding",
+      "existingEvidence": "packages/game-data/src/character-mappings/traveler-mappings.ts#travelerRoundingEvidence"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/pyro/stats.go",
+      "sourceField": "blazingThreshold",
+      "talentSetId": "talent-set:travelerpyro",
+      "abilityKey": "combat2",
+      "parameterKey": "param1",
+      "sourceValues": [
+        0.2808,
+        0.30186,
+        0.32292,
+        0.351,
+        0.37206,
+        0.39312,
+        0.4212,
+        0.44928,
+        0.47736,
+        0.50544,
+        0.53352,
+        0.5616,
+        0.5967,
+        0.6318,
+        0.6669
+      ],
+      "catalogValues": [
+        0.2808,
+        0.30186,
+        0.32292,
+        0.351,
+        0.37206,
+        0.39312,
+        0.4212,
+        0.44928,
+        0.47736,
+        0.50544,
+        0.53352,
+        0.5616,
+        0.5967,
+        0.6318,
+        0.6669
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/pyro/stats.go",
+      "sourceField": "holdDMG",
+      "talentSetId": "talent-set:travelerpyro",
+      "abilityKey": "combat2",
+      "parameterKey": "param2",
+      "sourceValues": [
+        0.988,
+        1.0621,
+        1.1362,
+        1.235,
+        1.3091,
+        1.3832,
+        1.482,
+        1.5808,
+        1.6796,
+        1.7784,
+        1.8772,
+        1.976,
+        2.0995,
+        2.223,
+        2.3465
+      ],
+      "catalogValues": [
+        0.988,
+        1.0621,
+        1.1362,
+        1.235,
+        1.3091,
+        1.3832,
+        1.482,
+        1.5808,
+        1.6796,
+        1.7784,
+        1.8772,
+        1.976,
+        2.0995,
+        2.223,
+        2.3465
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/traveler/common/pyro/stats.go",
+      "sourceField": "scorchingThreshold",
+      "talentSetId": "talent-set:travelerpyro",
+      "abilityKey": "combat2",
+      "parameterKey": "param3",
+      "sourceValues": [
+        0.8144,
+        0.87548,
+        0.93656,
+        1.018,
+        1.07908,
+        1.14016,
+        1.2216,
+        1.30304,
+        1.38448,
+        1.46592,
+        1.54736,
+        1.6288,
+        1.7306,
+        1.8324,
+        1.9342
+      ],
+      "catalogValues": [
+        0.8144,
+        0.87548,
+        0.93656,
+        1.018,
+        1.07908,
+        1.14016,
+        1.2216,
+        1.30304,
+        1.38448,
+        1.46592,
+        1.54736,
+        1.6288,
+        1.7306,
+        1.8324,
+        1.9342
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/noelle/zz_noelle.dm.go",
+      "sourceField": "charge",
+      "talentSetId": "talent-set:noelle",
+      "abilityKey": "combat1",
+      "parameterKey": "param5",
+      "sourceValues": [
+        0.5074,
+        0.5487,
+        0.59,
+        0.649,
+        0.6903,
+        0.7375,
+        0.8024,
+        0.8673,
+        0.9322,
+        1.003,
+        1.0738,
+        1.1446,
+        1.2154,
+        1.2862,
+        1.357
+      ],
+      "catalogValues": [
+        0.5074,
+        0.5487,
+        0.59,
+        0.649,
+        0.6903,
+        0.7375,
+        0.8024,
+        0.8673,
+        0.9322,
+        1.003,
+        1.0738,
+        1.1446,
+        1.2154,
+        1.2862,
+        1.357
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "sourcePath": "internal/characters/noelle/zz_noelle.dm.go",
+      "sourceField": "chargeFinal",
+      "talentSetId": "talent-set:noelle",
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "sourceValues": [
+        0.90472,
+        0.97836,
+        1.052,
+        1.1572,
+        1.23084,
+        1.315,
+        1.43072,
+        1.54644,
+        1.66216,
+        1.7884,
+        1.91464,
+        2.04088,
+        2.16712,
+        2.29336,
+        2.4196
+      ],
+      "catalogValues": [
+        0.90472,
+        0.97836,
+        1.052,
+        1.1572,
+        1.23084,
+        1.315,
+        1.43072,
+        1.54644,
+        1.66216,
+        1.7884,
+        1.91464,
+        2.04088,
+        2.16712,
+        2.29336,
+        2.4196
+      ],
+      "absoluteDeltas": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coefficientTolerance": 0,
+      "matchingRule": "exact-all-15"
+    }
+  ],
+  "excludedConflicts": [
+    {
+      "sourcePath": "internal/characters/traveler/common/dendro/stats.go",
+      "sourceField": "burstTick",
+      "sourceValues": [
+        0.8016,
+        0.8617,
+        0.9218,
+        1.002,
+        1.0621,
+        1.1222,
+        1.2024,
+        1.2826,
+        1.3627,
+        1.4429,
+        1.523,
+        1.6032,
+        1.7034,
+        1.80036,
+        1.9038
+      ],
+      "catalogValues": [
+        0.8016,
+        0.86172,
+        0.92184,
+        1.002,
+        1.06212,
+        1.12224,
+        1.2024,
+        1.28256,
+        1.36272,
+        1.44288,
+        1.52304,
+        1.6032,
+        1.7034,
+        1.8036,
+        1.9038
+      ],
+      "level": 14,
+      "sourceValue": 1.80036,
+      "catalogValue": 1.8036,
+      "reason": "Existing periodic coefficient mismatch remains blocked. New branch requires first Pyro transformation at frames 55–90, before first periodic tick at 91, and emits only the complete explosion tail."
+    }
+  ],
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/asc.go",
+      "bytes": 2185,
+      "sha256": "f06a358e6610eec48279f7bf87247935f90142c425dac47dcb09a698f9750809",
+      "gitBlobSha1": "1f996e569e9c91a6a4108c290943895c9a955552"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/attack.go",
+      "bytes": 3227,
+      "sha256": "45c5e467e50ed82d0ee64fae4dd425f90a86d82bae19ebc09f6592130f03b1b8",
+      "gitBlobSha1": "d0a03d5fb48ee67feb9d54591ec03b25e8381594"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/burst.go",
+      "bytes": 3922,
+      "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d",
+      "gitBlobSha1": "ae4b7433645675eecd49144e5e39384088562842"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/charge.go",
+      "bytes": 5615,
+      "sha256": "d8c5644f132963aebf6c14bc17a852512e0197b5ddaf75317c8bd6da0ba74302",
+      "gitBlobSha1": "b6e157229a0d61dde603e9f65389f90586601d8c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/cons.go",
+      "bytes": 870,
+      "sha256": "d150c8f57ba79f38d2289510fa61d471edaaf7f109fea1d9275034aab9a9cfd5",
+      "gitBlobSha1": "c3ed3c37af705af60fb857be7af73ed909c7cf28"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/noelle.go",
+      "bytes": 1536,
+      "sha256": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+      "gitBlobSha1": "ce31150fa480543faf8402480a87d4c60cce9449"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/plunge.go",
+      "bytes": 4892,
+      "sha256": "c3373a9f2e201acfd7395c44cb28c70721b115f228b7b3fc88b43ef61f492d71",
+      "gitBlobSha1": "15a7ca025826defe5e7817db1c0748c761b4c2c6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/shield.go",
+      "bytes": 884,
+      "sha256": "ad21509e87cda3e0a10add0e22c2fa6a82d64fce40a6ec13029826b2b23a78fa",
+      "gitBlobSha1": "9d38c58cebe93456fb503509f36ba5fdc5c85572"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/skill.go",
+      "bytes": 4082,
+      "sha256": "cec083f6050a1a2eba01fd2750138d0fd44b4c0183647c4391df29a68ebece94",
+      "gitBlobSha1": "8479f76df853921a34a1a6ec671cb8b759ec7dd8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/noelle/zz_noelle.dm.go",
+      "bytes": 5059,
+      "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe",
+      "gitBlobSha1": "b98c2ce27278494a2aeefddaf571119a47d59240"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/asc.go",
+      "bytes": 2643,
+      "sha256": "36c372c028429d25a8dec78bf2d590ff95081849902d6cd2f076f9447454cd55",
+      "gitBlobSha1": "fd7a94b5a2e853924973c1341e65df5883b38460"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/attack.go",
+      "bytes": 4623,
+      "sha256": "9e294f2aec97a573d01cea65fd70b1df8d06bdb9e66c6bfbe51fe9093dca5420",
+      "gitBlobSha1": "1e2a2f27659d2f4296ae226442d296704452dac6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/burst.go",
+      "bytes": 1487,
+      "sha256": "16c6923b8e909cd6deda190de59485df48c993167915430b90ba1d08773fefce",
+      "gitBlobSha1": "572ca46be22bdc776932959938c88d252f38807d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/charge.go",
+      "bytes": 2499,
+      "sha256": "b253be67b97db8498d9c671be958692060a16a6666eb864aba41319b81a01429",
+      "gitBlobSha1": "ab1246ebadaeb0315499b513d98595770b158ee8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/cons.go",
+      "bytes": 1946,
+      "sha256": "f0536358129d93cbaa1ef0656cf62d443073923ae05a47aa4141b88198a85ea2",
+      "gitBlobSha1": "5ac64d3b6718cb9358a4559420fc4bc6066d8683"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/lealotus.go",
+      "bytes": 6499,
+      "sha256": "992baeee57523e1bc51bbcf094fded6daad6c216cb2c64fde76f9a7545349998",
+      "gitBlobSha1": "3ff3914442ccc303fde42ddc08a9aeb8ab88f97f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/skill.go",
+      "bytes": 2317,
+      "sha256": "d59501920937d354b654065bd7630abe5ef9692aa89db4fc1e23641ab930c0fe",
+      "gitBlobSha1": "b02fd45c493f3023262d4c39075c3260f9902ded"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/stats.go",
+      "bytes": 2219,
+      "sha256": "846e51614e40265ba894611a1ed05490707f20c881835eaa318f6d6cef122b2d",
+      "gitBlobSha1": "6bb73dc9877cba0c53736ac721fc4d47365608a7"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/dendro/travelerdendro.go",
+      "bytes": 1415,
+      "sha256": "f2ac76d7b6c00619ad5a7a10de277311983529dc0df5a05332f4901ff9fcad0a",
+      "gitBlobSha1": "595e63f80a606c7ce02580bc4cbff3efaab3a245"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/asc.go",
+      "bytes": 1960,
+      "sha256": "5f3ba2f1331a861c3a8e96bc9f5e2c5b63553911421cce638ea02a2f78592846",
+      "gitBlobSha1": "e14d04f2b7f37e5194a22a2d24ef6d642f0fa4ee"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/attack.go",
+      "bytes": 4622,
+      "sha256": "32e369393b33b92f54ae42e5680820941221dc83b6a3387547da4d6ad95ce474",
+      "gitBlobSha1": "79b9cf1d0bffb1f35d25329c80777457200af406"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/burst.go",
+      "bytes": 2724,
+      "sha256": "f7c915244ce138ae0fb1ee56a9e66e14a1dc36cfe8343088f4a62478e95721ca",
+      "gitBlobSha1": "d7f2acd7131362994430a34030e604e6fb187657"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/charge.go",
+      "bytes": 2498,
+      "sha256": "4106002640800aa86a835964b8383c122dc44913009bcbe35b2fae4bf221d845",
+      "gitBlobSha1": "60815e1455a542031f9e96a984d865313982cb14"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/cons.go",
+      "bytes": 2506,
+      "sha256": "3929c86f062b49695c855979ac22532a2e39aba9892c0f454a8e5fae5442554a",
+      "gitBlobSha1": "7d30fe9c3920054066643e3dead0f915058d9f2f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/dash.go",
+      "bytes": 256,
+      "sha256": "cdc25f708ba8c3ccbd26002351f59da06a7d6ea8680204fdbe90a3caf03f8047",
+      "gitBlobSha1": "710960294a9f06dd1fbcf0eddd4d9ec6cbec6daf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/skill.go",
+      "bytes": 11448,
+      "sha256": "2d9894c5d3d5b1d04440583e25b39174bcfa907014c9f39ca81c96d4348f44fb",
+      "gitBlobSha1": "3541a3e1f1dd4b077edd252135d3447f437526d0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/stats.go",
+      "bytes": 2580,
+      "sha256": "833142af5a55583f19df69b6173215b6a534f6d58ecc510619d3f80d963cc079",
+      "gitBlobSha1": "955d67b5199e7593f2f78c35f71b0ae47f8395c5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/hydro/travelerhydro.go",
+      "bytes": 1086,
+      "sha256": "85851344bf1b797fa3309ee2fbd90872d66ad5c6260b644e862be4904e07f2fc",
+      "gitBlobSha1": "7c10dea05225f0c484b45ca118c6e34755f66e07"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/asc.go",
+      "bytes": 1396,
+      "sha256": "aee57d39135a888bc8e9ffb7cd3a2e42495127ed1c9b076eb4493715f819904c",
+      "gitBlobSha1": "c5ddc6ec53d06f3f337fd68fdb17deb6ab60ace4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/attack.go",
+      "bytes": 4817,
+      "sha256": "2c4d3d0ed2360187ae1ca2b5a7a6cc9d753ba79c2c34b69df963fbcb7556f1c6",
+      "gitBlobSha1": "a0b614d4e4eae8e0f6079e89b99f40099721c3a0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/burst.go",
+      "bytes": 2068,
+      "sha256": "6e7e559c6e97eec2dfdd546bb84a9e1524640dcc8c656d00826e72e257ff816b",
+      "gitBlobSha1": "44767868e9da71f6ca39bf2a70093b2aa55f8f55"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/charge.go",
+      "bytes": 2693,
+      "sha256": "abf7ee9ef5082c2bc999c9f0a399a61408154668d14899d14b4b7918d4639c66",
+      "gitBlobSha1": "a7b6666e97ae1cc47b575fa6bef8d4684bc59a67"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/cons.go",
+      "bytes": 3069,
+      "sha256": "9263f3ad684a9bf0148f5a98092c3d8d5a58dd28de2eca6b83f757c7d3eaff42",
+      "gitBlobSha1": "0dea20e4aef1d12e913e552c592939d9726aa6bc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/plunge.go",
+      "bytes": 5732,
+      "sha256": "d92dd6f240bd35d76fbae0c47947194dcc700778d4f3b38fe45e1585ddbb7226",
+      "gitBlobSha1": "fc39f8ea98e8f7fe64ed126b1bfe6b5269b46d80"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/skill.go",
+      "bytes": 8045,
+      "sha256": "d7613291c372fa97fc93a67d2642ef88c65317f4331b01dd9d531ef4612b8416",
+      "gitBlobSha1": "9a3c2af21d371dae1d13d4e1325af1344dfcda39"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/stats.go",
+      "bytes": 3219,
+      "sha256": "303cc5667b7f0d1c51a0cd89643a9385b47a25907aec986cbdbb3e57fbd5ca56",
+      "gitBlobSha1": "4f75b39bc21b8fd4e07f0c34260f7c679999d654"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/pyro/travelerpyro.go",
+      "bytes": 1587,
+      "sha256": "09c462e8e6a513705d29de5962f867e486b30812e5b62131cd32d0ad873e53cd",
+      "gitBlobSha1": "09ed3a0d4b5816631b60c7f13034bbce5bb6b6db"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/common/storybuffs.go",
+      "bytes": 1229,
+      "sha256": "44b884a1f14c304387f48fca48e949c41d38b4e29d72c2d8b182defaa290033f",
+      "gitBlobSha1": "b17213a3361b0852e5b87f5df991ff244dbd62aa"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/dendro/aether/aether.go",
+      "bytes": 508,
+      "sha256": "6e72669876b88d49c3b12b994017b83299061946b4ae3f1666c566558cbd07b2",
+      "gitBlobSha1": "ff86e955797df3512898768cebe73d6a93b85b97"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/dendro/aether/zz_aetherdendro.dm.go",
+      "bytes": 701,
+      "sha256": "c61cec38a7f17288264a81ecd4a4ce81198f86c118f9f6e1917aa57b5cbf9d3e",
+      "gitBlobSha1": "981f045dfa1314823cfa3937e3313caf10876f54"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/dendro/lumine/lumine.go",
+      "bytes": 508,
+      "sha256": "a0ab081149a576abaa87d26c2a0ea3fccb0cba57e65f343a4bce362eea342871",
+      "gitBlobSha1": "a2cd8447203dd1bfa7b4ab94f1e386921b141d83"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/dendro/lumine/zz_luminedendro.dm.go",
+      "bytes": 701,
+      "sha256": "c5de913762a701bc675023601d5fd28dbc97e6c9ef67b0e75ba742dd9c3326a8",
+      "gitBlobSha1": "71cfb881ce477202ca193162973e3ad719005be1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/hydro/aether/aether.go",
+      "bytes": 505,
+      "sha256": "a14b4d4f8747475735c273f050a8dd16859d8160b04a8dca1c387a09a7f603f7",
+      "gitBlobSha1": "e398bb60ad737f02ab4165d5b714e44dd61d577d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/hydro/aether/zz_aetherhydro.dm.go",
+      "bytes": 800,
+      "sha256": "9e18447a146c3f067aa6e3a3813a6de079ee3ccee02c50c3e3e560f023f6e847",
+      "gitBlobSha1": "5be679b9e9f9c22f357c632bbbf232ff04517dc0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/hydro/lumine/lumine.go",
+      "bytes": 505,
+      "sha256": "60e043adc87c67d5c8304054bc17a42e1a7d9178899adc54a009ac1114d38b74",
+      "gitBlobSha1": "649297e9aad7930561b8fbfd60e9cef91a4cf762"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/hydro/lumine/zz_luminehydro.dm.go",
+      "bytes": 800,
+      "sha256": "92655da10cb783be3d90b30c54dbc1ee6e362801fc3738c85875820ad9e41983",
+      "gitBlobSha1": "bfe0b432e1c32384dd3d60cb6487d2b651dcfe07"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/pyro/aether/aether.go",
+      "bytes": 502,
+      "sha256": "13b3fb8964d2f3fba4d024720dcb26152728c44e847714387b949a297c923530",
+      "gitBlobSha1": "abe25b7445ca2547bc7c7a805ee0069461a53e91"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/pyro/aether/zz_aetherpyro.dm.go",
+      "bytes": 820,
+      "sha256": "e19d72fce0236b405369a1db3a5e72c7d1467b5c8b56cd6c568340e028894823",
+      "gitBlobSha1": "93fcf584108c90c293297c7c5a6420ecb669621b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/pyro/lumine/lumine.go",
+      "bytes": 502,
+      "sha256": "e4b15fca3e1b2df3bcc02c660d440716b68542fcae8aeb1957f40e590b982826",
+      "gitBlobSha1": "85500a055e26682d1937a6d332c4f8e9fcf2e7fb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/traveler/pyro/lumine/zz_luminepyro.dm.go",
+      "bytes": 820,
+      "sha256": "599d42190f686b296eb6ae1f66c70513457c750db5514321e445dce8fe26947b",
+      "gitBlobSha1": "364699303c34c900c10f217123f20ea291a28ea1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "gitBlobSha1": "6f0f47b4097751ee1076677356ce0c4bdbe038c7"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/nightsoul/nightsoul.go",
+      "bytes": 5077,
+      "sha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "gitBlobSha1": "c014ea4505d6ca601c39ccdfbf0a967b1f50523b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/sourcewaterdroplet/sourcewaterdroplet.go",
+      "bytes": 924,
+      "sha256": "9b8c2a856bfb79ad1264e4a6c026e24848be13710c2b60dea7d7dd395c54f712",
+      "gitBlobSha1": "a3f96c8858c3a4df2fc0274bb34fe8b9aaa791a9"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/action/action.go",
+      "bytes": 4043,
+      "sha256": "5074744fa1f71db33c1d13230b3b929fe0df3b87f26fc84a70693ace1cc2ab69",
+      "gitBlobSha1": "3a2d1cdcfaa17df8ba93ddfcef62d5c9cc629754"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/combat/attack.go",
+      "bytes": 2494,
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "gitBlobSha1": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/combat/combat.go",
+      "bytes": 2422,
+      "sha256": "54dc23a14ec8e4b7a72d8f8a316948e4fe86f03473ff669dc5f225c3341bba41",
+      "gitBlobSha1": "e7d73d942b7cdee1f9e7536317b71fb24c535695"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/hacks/reactable.go",
+      "bytes": 383,
+      "sha256": "a650bcbce3f3e9825eaf6f963698acde8b17897cd250d3f8d12fa408e70d537e",
+      "gitBlobSha1": "c3b6df8273e4ed33b1d33900aca3e2b6e71c3b39"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/animation/animation.go",
+      "bytes": 3385,
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "gitBlobSha1": "a11a10d7afbe88a8d1eefb60439a2c07e8823c88"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/mods.go",
+      "bytes": 4013,
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "gitBlobSha1": "d1c63e76895a0b8964567f0697aa9df8375ada71"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/gadget/gadget.go",
+      "bytes": 1657,
+      "sha256": "9dae7ac35683c46018961b84fee0176aa5806de44841e08b1d4c61fd0a187105",
+      "gitBlobSha1": "551d8cfe4645ec6d1e9ba2066f49fccd3125c263"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "gitBlobSha1": "5335086ba177d823d802d64e7a255e0256258099"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/stats/talents.json",
+      "bytes": 566511,
+      "sha256": "a6e87c30c325f6dd5f7441cbeded21b329175286c92bfd9757ce9be2680048d7",
+      "gitBlobSha1": "36ed6ee699d7ed2c80a5cc29d61685b3c9441e95"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/travelerdendro.json",
+      "bytes": 6815,
+      "sha256": "b14502890a6236c59cf512e4d786340980401df4976f667706d1ad1d5c9a4df3",
+      "gitBlobSha1": "420b8c5819eb01c11e954980f815c4e68db64aec"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/travelerhydro.json",
+      "bytes": 7514,
+      "sha256": "d3bac6a1e66a9b6d9705ba4ad07d2911e8f990beb2c09064e429202cbac9ec2e",
+      "gitBlobSha1": "e267b5424174fa8ca4aa4df1253a3b8b94ece837"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/travelerpyro.json",
+      "bytes": 8594,
+      "sha256": "150fa2ddc974f0fc64a15457d82f3a18317e3477a2508d8e44188844c02b7e32",
+      "gitBlobSha1": "43131b7fc33b27d22da6386fa36c6cacf1144be7"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/noelle.json",
+      "bytes": 7553,
+      "sha256": "8d55d1f7ee6ed0f36445fa473f50179dc8dc14e8bb64b8f88297c3a17af943bb",
+      "gitBlobSha1": "4f9dcda16628450890a5a38132709c3c5b005a88"
+    }
+  ]
+}

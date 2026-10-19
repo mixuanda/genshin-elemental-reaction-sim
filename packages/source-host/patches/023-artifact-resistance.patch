@@ -1,0 +1,113 @@
+--- a/internal/artifacts/deepwood/deepwood.go
++++ b/internal/artifacts/deepwood/deepwood.go
+@@ -55,11 +55,20 @@
+ 				return
+ 			}
+ 
+-			t.AddResistMod(info.ResistMod{
++			mod := info.ResistMod{
+ 				Base:  modifier.NewBaseWithHitlag("dm-4pc", 8*60),
+ 				Ele:   attributes.Dendro,
+ 				Value: -0.3,
+-			})
++			}
++			if c.SourceHost != nil {
++				value, formulaID := c.SourceHost.ArtifactResistanceScalar(char.Index(), "deepwood-4pc-res", t.Key(), attributes.Dendro, &atk.Info, atk.SourceHostAttackID)
++				mod.Value = value
++				mod.SourceHostArtifactResistance = &info.SourceHostArtifactResistanceMeta{
++					FormulaCalculationID: formulaID, SourceHolderIndex: char.Index(), CreatedFrame: c.F,
++					TargetKey: int(t.Key()), Element: attributes.Dendro.String(),
++				}
++			}
++			t.AddResistMod(mod)
+ 			c.Log.NewEvent("dm 4pc proc", glog.LogArtifactEvent, char.Index()).Write("char", char.Index())
+ 		}, fmt.Sprintf("dm-4pc-%v", char.Base.Key.String()))
+ 	}
+--- a/internal/artifacts/viridescent/viridescent.go
++++ b/internal/artifacts/viridescent/viridescent.go
+@@ -78,11 +78,20 @@
+ 				return
+ 			}
+ 
+-			t.AddResistMod(info.ResistMod{
++			mod := info.ResistMod{
+ 				Base:  modifier.NewBaseWithHitlag(key, 10*60),
+ 				Ele:   ele,
+ 				Value: -0.4,
+-			})
++			}
++			if c.SourceHost != nil {
++				value, formulaID := c.SourceHost.ArtifactResistanceScalar(char.Index(), fmt.Sprintf("viridescent-4pc-res-%v", ele), t.Key(), ele, &atk.Info, atk.SourceHostAttackID)
++				mod.Value = value
++				mod.SourceHostArtifactResistance = &info.SourceHostArtifactResistanceMeta{
++					FormulaCalculationID: formulaID, SourceHolderIndex: char.Index(), CreatedFrame: c.F,
++					TargetKey: int(t.Key()), Element: ele.String(),
++				}
++			}
++			t.AddResistMod(mod)
+ 			c.Log.NewEventBuildMsg(glog.LogArtifactEvent, char.Index(), "vv 4pc proc: ", key).Write("reaction", key).Write("char", char.Index()).Write("target", t.Key())
+ 		}
+ 	}
+@@ -120,11 +129,20 @@
+ 			return
+ 		}
+ 
+-		t.AddResistMod(info.ResistMod{
++		mod := info.ResistMod{
+ 			Base:  modifier.NewBaseWithHitlag(key, 10*60),
+ 			Ele:   ele,
+ 			Value: -0.4,
+-		})
++		}
++		if c.SourceHost != nil {
++			value, formulaID := c.SourceHost.ArtifactResistanceScalar(char.Index(), fmt.Sprintf("viridescent-4pc-res-%v", ele), t.Key(), ele, &atk.Info, atk.SourceHostAttackID)
++			mod.Value = value
++			mod.SourceHostArtifactResistance = &info.SourceHostArtifactResistanceMeta{
++				FormulaCalculationID: formulaID, SourceHolderIndex: char.Index(), CreatedFrame: c.F,
++				TargetKey: int(t.Key()), Element: ele.String(),
++			}
++		}
++		t.AddResistMod(mod)
+ 		c.Log.NewEventBuildMsg(glog.LogArtifactEvent, char.Index(), "vv 4pc proc: ", key).Write("reaction", key).Write("char", char.Index()).Write("target", t.Key())
+ 	}, fmt.Sprintf("vv-4pc-secondary-%v", char.Base.Key.String()))
+ 
+--- a/pkg/core/info/modifier.go
++++ b/pkg/core/info/modifier.go
+@@ -13,7 +13,17 @@
+ type ResistMod struct {
+ 	Ele   attributes.Element
+ 	Value float64
++	// The optional source receipt was created with this debuff, not at a later resistance read.
++	SourceHostArtifactResistance *SourceHostArtifactResistanceMeta
+ 	modifier.Base
++}
++
++type SourceHostArtifactResistanceMeta struct {
++	FormulaCalculationID int `json:"-"`
++	SourceHolderIndex int `json:"sourceHolderIndex"`
++	CreatedFrame int `json:"createdFrame"`
++	TargetKey int `json:"targetKey"`
++	Element string `json:"element"`
+ }
+ 
+ type DefMod struct {
+--- a/pkg/core/info/sourcehost_scalar_provenance.go
++++ b/pkg/core/info/sourcehost_scalar_provenance.go
+@@ -28,6 +28,7 @@
+ 	After float64 `json:"after"`
+ 	Dependencies []*SourceHostStatRead `json:"dependencies"`
+ 	FormulaCalculationIDs []int `json:"formulaCalculationIds,omitempty"`
++	ArtifactResistance *SourceHostArtifactResistanceMeta `json:"artifactResistance,omitempty"`
+ }
+ type SourceHostScalarTransform struct {
+ 	Kind string `json:"kind"`
+--- a/pkg/enemy/mods.go
++++ b/pkg/enemy/mods.go
+@@ -127,6 +127,7 @@
+ 			}
+ 			r += m.Value
+ 			sourcehost.FinishScalarStep(step, "applied", &m.Value, r, m.Expiry())
++			sourcehost.FinishArtifactResistanceStep(step, m)
+ 		} else {
+ 			outcome := "element-mismatch"
+ 			if m.Expiry() <= e.Core.F { outcome = "expired" }

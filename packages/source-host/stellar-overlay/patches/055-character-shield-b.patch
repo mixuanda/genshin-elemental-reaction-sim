@@ -1,0 +1,416 @@
+--- a/internal/characters/thoma/skill.go
++++ b/internal/characters/thoma/skill.go
+@@ -44,8 +44,8 @@
+ 	// snap := c.Snapshot(&ai)
+ 
+ 	c.Core.Tasks.Add(func() {
+-		shieldamt := (shieldpp[c.TalentLvlSkill()]*c.MaxHP() + shieldflat[c.TalentLvlSkill()])
+-		c.genShield("Thoma Skill", shieldamt, false)
++		shieldamt, shieldID := c.skillShieldHPSource()
++		c.genShield("Thoma Skill", shieldamt, shieldID, false)
+ 	}, 9)
+ 
+ 	// damage component not final
+--- a/internal/characters/thoma/burst.go
++++ b/internal/characters/thoma/burst.go
+@@ -99,8 +99,8 @@
+ 		if done {
+ 			return
+ 		}
+-		shieldamt := (burstshieldpp[c.TalentLvlBurst()]*c.MaxHP() + burstshieldflat[c.TalentLvlBurst()])
+-		c.genShield("Thoma Burst", shieldamt, true)
++		shieldamt, shieldID := c.burstShieldHPSource()
++		c.genShield("Thoma Burst", shieldamt, shieldID, true)
+ 		done = true
+ 	}
+ 	c.Core.QueueAttack(
+--- a/internal/characters/thoma/thoma.go
++++ b/internal/characters/thoma/thoma.go
+@@ -61,6 +61,17 @@
+ 	return shieldppmax[c.TalentLvlSkill()]*c.MaxHP() + shieldflatmax[c.TalentLvlSkill()]
+ }
+ 
++func (c *char) maxShieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return c.maxShieldHP(), 0
++	}
++	ratio := shieldppmax[c.TalentLvlSkill()]
++	maxHP, read := c.MaxHPWithProvenance()
++	flat := shieldflatmax[c.TalentLvlSkill()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-thoma-max",
++		map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}
++
+ func (c *char) AnimationStartDelay(k info.AnimationDelayKey) int {
+ 	if k == info.AnimationXingqiuN0StartDelay {
+ 		return 11
+--- a/internal/characters/thoma/shield.go
++++ b/internal/characters/thoma/shield.go
+@@ -9,7 +9,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+ 
+-func (c *char) genShield(src string, shieldamt float64, shouldStack bool) {
++func (c *char) genShield(src string, shieldamt float64, shieldID int, shouldStack bool) {
+ 	if !c.StatusIsActive("thoma-a1-icd") && c.a1Stack < 5 {
+ 		c.a1Stack++
+ 		c.AddStatus("thoma-a1-icd", 18, true) // 0.3s * 60
+@@ -17,24 +17,44 @@
+ 	}
+ 	existingShield := c.Core.Player.Shields.Get(shield.ThomaSkill)
+ 	if existingShield != nil {
+-		if shouldStack {
+-			shieldamt += existingShield.CurrentHP()
++		oldHP := existingShield.CurrentHP()
++		oldID := 0
++		if c.Core.SourceHost != nil {
++			oldID = existingShield.(interface{ SourceHostHPSource() int }).SourceHostHPSource()
++		}
++		maximum, maxID := c.maxShieldHPSource()
++		if c.Core.SourceHost != nil {
++			ruleID := "char-shield-thoma-refresh"
++			if shouldStack {
++				ruleID = "char-shield-thoma-stack"
++			}
++			sources := map[string]int{"amount": shieldID, "maximum": maxID}
++			if oldID > 0 {
++				sources["oldHP"] = oldID
++			}
++			shieldamt, shieldID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), ruleID,
++				map[string]any{"amount": shieldamt, "oldHP": oldHP, "maximum": maximum}, nil, nil, sources)
+ 		} else {
+-			shieldamt = max(shieldamt, existingShield.CurrentHP())
++			if shouldStack {
++				shieldamt += oldHP
++			} else {
++				shieldamt = max(shieldamt, oldHP)
++			}
++			shieldamt = min(shieldamt, maximum)
+ 		}
+-		shieldamt = min(shieldamt, c.maxShieldHP())
+ 	}
+ 	// add shield
+ 	c.Core.Tasks.Add(func() {
+ 		c.Core.Player.Shields.Add(&shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			ShieldType: shield.ThomaSkill,
+-			Name:       src,
+-			HP:         shieldamt,
+-			Ele:        attributes.Pyro,
+-			Expires:    c.Core.F + 8*60, // 8 sec
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			ShieldType:     shield.ThomaSkill,
++			Name:           src,
++			HP:             shieldamt,
++			SourceHostHPID: shieldID,
++			Ele:            attributes.Pyro,
++			Expires:        c.Core.F + 8*60, // 8 sec
+ 		})
+ 	}, 1)
+ 
+@@ -56,3 +76,25 @@
+ 		}
+ 	}
+ }
++
++func (c *char) skillShieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return shieldpp[c.TalentLvlSkill()]*c.MaxHP() + shieldflat[c.TalentLvlSkill()], 0
++	}
++	ratio := shieldpp[c.TalentLvlSkill()]
++	maxHP, read := c.MaxHPWithProvenance()
++	flat := shieldflat[c.TalentLvlSkill()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-thoma-skill-base",
++		map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}
++
++func (c *char) burstShieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return burstshieldpp[c.TalentLvlBurst()]*c.MaxHP() + burstshieldflat[c.TalentLvlBurst()], 0
++	}
++	ratio := burstshieldpp[c.TalentLvlBurst()]
++	maxHP, read := c.MaxHPWithProvenance()
++	flat := burstshieldflat[c.TalentLvlBurst()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-thoma-burst-base",
++		map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}
+--- a/internal/characters/kirara/shield.go
++++ b/internal/characters/kirara/shield.go
+@@ -2,27 +2,49 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+-func (c *char) genShield(src string, shieldamt float64) {
++func (c *char) genShield(src string, shieldamt float64, shieldID int) {
+ 	existingShield := c.Core.Player.Shields.Get(shield.KiraraSkill)
++	oldHP := 0.0
++	oldID := 0
+ 	if existingShield != nil {
+-		shieldamt += existingShield.CurrentHP()
++		oldHP = existingShield.CurrentHP()
++		if c.Core.SourceHost != nil {
++			oldID = existingShield.(interface{ SourceHostHPSource() int }).SourceHostHPSource()
++		}
+ 	}
+-	shieldamt = min(shieldamt, c.maxShieldHP())
++	maximum, maxID := c.maxShieldHPSource()
++	if c.Core.SourceHost != nil {
++		ruleID := "char-shield-kirara-create"
++		sources := map[string]int{"amount": shieldID, "maximum": maxID}
++		state := map[string]any{"amount": shieldamt, "maximum": maximum}
++		if existingShield != nil {
++			ruleID = "char-shield-kirara-refresh"
++			state["oldHP"] = oldHP
++			if oldID > 0 {
++				sources["oldHP"] = oldID
++			}
++		}
++		shieldamt, shieldID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), ruleID, state, nil, nil, sources)
++	} else {
++		shieldamt = min(shieldamt+oldHP, maximum)
++	}
+ 
+ 	// add shield
+ 	c.Core.Tasks.Add(func() {
+ 		c.Core.Player.Shields.Add(&shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			ShieldType: shield.KiraraSkill,
+-			Name:       src,
+-			HP:         shieldamt,
+-			Ele:        attributes.Dendro,
+-			Expires:    c.Core.F + 12*60,
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			ShieldType:     shield.KiraraSkill,
++			Name:           src,
++			HP:             shieldamt,
++			SourceHostHPID: shieldID,
++			Ele:            attributes.Dendro,
++			Expires:        c.Core.F + 12*60,
+ 		})
+ 	}, 1)
+ }
+@@ -34,3 +56,25 @@
+ func (c *char) maxShieldHP() float64 {
+ 	return maxShieldPP[c.TalentLvlSkill()]*c.MaxHP() + maxShieldFlat[c.TalentLvlSkill()]
+ }
++
++func (c *char) shieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return c.shieldHP(), 0
++	}
++	ratio := shieldPP[c.TalentLvlSkill()]
++	maxHP, read := c.MaxHPWithProvenance()
++	flat := shieldFlat[c.TalentLvlSkill()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-kirara-base",
++		map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}
++
++func (c *char) maxShieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return c.maxShieldHP(), 0
++	}
++	ratio := maxShieldPP[c.TalentLvlSkill()]
++	maxHP, read := c.MaxHPWithProvenance()
++	flat := maxShieldFlat[c.TalentLvlSkill()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-kirara-max",
++		map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}
+--- a/internal/characters/kirara/asc.go
++++ b/internal/characters/kirara/asc.go
+@@ -32,8 +32,16 @@
+ }
+ 
+ func (c *char) a1() {
+-	shieldamt := c.shieldHP() * 0.2 * float64(c.a1Stacks)
+-	c.genShield("Shield of Safe Transport", shieldamt)
++	base, baseID := c.shieldHPSource()
++	var shieldamt float64
++	shieldID := 0
++	if c.Core.SourceHost != nil {
++		shieldamt, shieldID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-kirara-a1",
++			map[string]any{"amount": base, "stacks": c.a1Stacks}, nil, nil, map[string]int{"amount": baseID})
++	} else {
++		shieldamt = base * 0.2 * float64(c.a1Stacks)
++	}
++	c.genShield("Shield of Safe Transport", shieldamt, shieldID)
+ }
+ 
+ // Every 1,000 Max HP Kirara possesses will increase the DMG dealt by Meow-teor Kick by 0.4%, and the DMG dealt by Secret Art: Surprise Dispatch by 0.3%.
+--- a/internal/characters/kirara/skill.go
++++ b/internal/characters/kirara/skill.go
+@@ -270,7 +270,8 @@
+ }
+ 
+ func (c *char) generateSkillShield() {
+-	c.genShield("Shield of Safe Transport", c.shieldHP())
++	shieldamt, shieldID := c.shieldHPSource()
++	c.genShield("Shield of Safe Transport", shieldamt, shieldID)
+ 
+ 	player, ok := c.Core.Combat.Player().(*avatar.Player)
+ 	if !ok {
+--- a/internal/characters/lanyan/shield.go
++++ b/internal/characters/lanyan/shield.go
+@@ -2,39 +2,66 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+ func (c *char) genShield(ele attributes.Element) {
++	amount, shieldID := c.shieldHPSource()
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     -1,
+-		Src:        c.Core.F,
+-		ShieldType: shield.LanyanShield,
+-		Name:       "Swallow-Wisp Pinion Dance (Shield)",
+-		HP:         c.shieldHP(),
+-		Ele:        ele,
+-		Expires:    c.Core.F + 12.5*60,
++		ActorIndex:     c.Index(),
++		Target:         -1,
++		Src:            c.Core.F,
++		ShieldType:     shield.LanyanShield,
++		Name:           "Swallow-Wisp Pinion Dance (Shield)",
++		HP:             amount,
++		SourceHostHPID: shieldID,
++		Ele:            ele,
++		Expires:        c.Core.F + 12.5*60,
+ 	})
+ }
+ 
+ func (c *char) restoreShield(percent float64) {
+-	amt := c.shieldHP() * percent
++	base, baseID := c.shieldHPSource()
++	var amt float64
++	shieldID := 0
++	if c.Core.SourceHost != nil {
++		amt, shieldID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-lanyan-restore-fraction",
++			map[string]any{"amount": base, "percent": percent}, nil, nil, map[string]int{"amount": baseID})
++	} else {
++		amt = base * percent
++	}
+ 	existingShield := c.Core.Player.Shields.Get(shield.LanyanShield)
+ 	if existingShield == nil {
+ 		return
+ 	}
+-	amt = min(amt+existingShield.CurrentHP(), c.shieldHP())
++	oldHP := existingShield.CurrentHP()
++	oldID := 0
++	if c.Core.SourceHost != nil {
++		oldID = existingShield.(interface{ SourceHostHPSource() int }).SourceHostHPSource()
++	}
++	maximum, maxID := c.shieldHPSource()
++	if c.Core.SourceHost != nil {
++		sources := map[string]int{"amount": shieldID, "maximum": maxID}
++		if oldID > 0 {
++			sources["oldHP"] = oldID
++		}
++		amt, shieldID = c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-lanyan-restore",
++			map[string]any{"amount": amt, "oldHP": oldHP, "maximum": maximum}, nil, nil, sources)
++	} else {
++		amt = min(amt+oldHP, maximum)
++	}
+ 
+ 	c.Core.Player.Shields.Add(&shield.Tmpl{
+-		ActorIndex: c.Index(),
+-		Target:     -1,
+-		Src:        c.Core.F,
+-		ShieldType: shield.LanyanShield,
+-		Name:       existingShield.Desc(),
+-		HP:         amt,
+-		Ele:        existingShield.Element(),
+-		Expires:    existingShield.Expiry(),
++		ActorIndex:     c.Index(),
++		Target:         -1,
++		Src:            c.Core.F,
++		ShieldType:     shield.LanyanShield,
++		Name:           existingShield.Desc(),
++		HP:             amt,
++		SourceHostHPID: shieldID,
++		Ele:            existingShield.Element(),
++		Expires:        existingShield.Expiry(),
+ 	})
+ }
+ 
+@@ -45,3 +72,14 @@
+ func (c *char) shieldHP() float64 {
+ 	return shieldAmt[c.TalentLvlSkill()]*c.TotalAtk() + shieldFlat[c.TalentLvlSkill()]
+ }
++
++func (c *char) shieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return c.shieldHP(), 0
++	}
++	ratio := shieldAmt[c.TalentLvlSkill()]
++	totalAtk, read := c.TotalAtkWithProvenance()
++	flat := shieldFlat[c.TalentLvlSkill()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-lanyan-base",
++		map[string]any{"ratio": ratio, "totalAtk": totalAtk, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}
+--- a/internal/characters/dahlia/shield.go
++++ b/internal/characters/dahlia/shield.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+ )
+ 
+@@ -11,16 +12,18 @@
+ }
+ 
+ func (c *char) genShield() {
++	amount, shieldID := c.shieldHPSource()
+ 	c.shield = &shd{
+ 		Tmpl: &shield.Tmpl{
+-			ActorIndex: c.Index(),
+-			Target:     -1,
+-			Src:        c.Core.F,
+-			Name:       "Radiant Psalter (Shield)",
+-			ShieldType: shield.DahliaBurst,
+-			HP:         c.shieldHP(),
+-			Ele:        attributes.Hydro,
+-			Expires:    -1, // QueueCharTask in Burst handles cuz hitlag affected
++			ActorIndex:     c.Index(),
++			Target:         -1,
++			Src:            c.Core.F,
++			Name:           "Radiant Psalter (Shield)",
++			ShieldType:     shield.DahliaBurst,
++			HP:             amount,
++			SourceHostHPID: shieldID,
++			Ele:            attributes.Hydro,
++			Expires:        -1, // QueueCharTask in Burst handles cuz hitlag affected
+ 		},
+ 		c: c,
+ 	}
+@@ -68,3 +71,14 @@
+ 		c.c2()
+ 	}, delay)
+ }
++
++func (c *char) shieldHPSource() (float64, int) {
++	if c.Core.SourceHost == nil {
++		return c.shieldHP(), 0
++	}
++	ratio := burstShieldPP[c.TalentLvlBurst()]
++	maxHP, read := c.MaxHPWithProvenance()
++	flat := burstShieldFlat[c.TalentLvlBurst()]
++	return c.Core.SourceHost.CharacterShieldCompute(c.Index(), "char-shield-dahlia-burst",
++		map[string]any{"ratio": ratio, "maxHp": maxHP, "flat": flat}, []*info.SourceHostStatRead{read}, nil)
++}

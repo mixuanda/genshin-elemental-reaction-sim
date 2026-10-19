@@ -1,0 +1,281 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "source-backed-provisional",
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogRelativePath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "recordedAt": "2026-09-23T14:51:00.425983+00:00",
+  "comparisonMethod": "Parse all five charge vectors and burstBonus from pinned Go source as Decimal; compare all fifteen entries to active genshin-db catalog combat1.param4..param8 and combat3.param2. Local archived source bytes were independently compared to the immutable raw GitHub commit URLs. This is a source/data comparison, not a test-suite, simulator or live-game run.",
+  "comparedCoefficientPositions": 90,
+  "maximumAbsoluteDifference": 0,
+  "coefficients": {
+    "charge": [
+      {
+        "abilityKey": "combat1",
+        "parameterKey": "param4",
+        "sealCount": 0,
+        "values": [
+          0.982294,
+          1.041114,
+          1.099934,
+          1.1764,
+          1.23522,
+          1.29404,
+          1.370506,
+          1.446972,
+          1.523438,
+          1.599904,
+          1.67637,
+          1.752836,
+          1.829302,
+          1.905768,
+          1.982234
+        ]
+      },
+      {
+        "abilityKey": "combat1",
+        "parameterKey": "param5",
+        "sealCount": 1,
+        "values": [
+          1.15564,
+          1.22484,
+          1.29404,
+          1.384,
+          1.4532,
+          1.5224,
+          1.61236,
+          1.70232,
+          1.79228,
+          1.88224,
+          1.9722,
+          2.06216,
+          2.15212,
+          2.24208,
+          2.33204
+        ]
+      },
+      {
+        "abilityKey": "combat1",
+        "parameterKey": "param6",
+        "sealCount": 2,
+        "values": [
+          1.328986,
+          1.408566,
+          1.488146,
+          1.5916,
+          1.67118,
+          1.75076,
+          1.854214,
+          1.957668,
+          2.061122,
+          2.164576,
+          2.26803,
+          2.371484,
+          2.474938,
+          2.578392,
+          2.681846
+        ]
+      },
+      {
+        "abilityKey": "combat1",
+        "parameterKey": "param7",
+        "sealCount": 3,
+        "values": [
+          1.502332,
+          1.592292,
+          1.682252,
+          1.7992,
+          1.88916,
+          1.97912,
+          2.096068,
+          2.213016,
+          2.329964,
+          2.446912,
+          2.56386,
+          2.680808,
+          2.797756,
+          2.914704,
+          3.031652
+        ]
+      },
+      {
+        "abilityKey": "combat1",
+        "parameterKey": "param8",
+        "sealCount": 4,
+        "values": [
+          1.675678,
+          1.776018,
+          1.876358,
+          2.0068,
+          2.10714,
+          2.20748,
+          2.337922,
+          2.468364,
+          2.598806,
+          2.729248,
+          2.85969,
+          2.990132,
+          3.120574,
+          3.251016,
+          3.381458
+        ]
+      }
+    ],
+    "burstBonus": {
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        0.334,
+        0.354,
+        0.374,
+        0.4,
+        0.42,
+        0.44,
+        0.466,
+        0.492,
+        0.518,
+        0.544,
+        0.57,
+        0.596,
+        0.622,
+        0.648,
+        0.674
+      ]
+    }
+  },
+  "sourceFiles": {
+    "internal/characters/yanfei/zz_yanfei.dm.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/yanfei/zz_yanfei.dm.go",
+      "sha256": "f54f160bec148553d3f813872496c4cb4ce490bce54797550a986a9c5c45479f",
+      "gitBlobSha": "011d12f692802d65b6aae1cfa3dd88bb49eafede",
+      "bytes": 4294,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/internal/characters/yanfei/zz_yanfei.dm.go",
+      "pinnedUrlBytesEqual": true
+    },
+    "internal/characters/yanfei/charge.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/yanfei/charge.go",
+      "sha256": "d57de88f0bba0cb12ad18dcd9b8c194a8ddd8c900385aa9d2d114120438c51fe",
+      "gitBlobSha": "161b8fad1975f82614119f76881f48d1748118b7",
+      "bytes": 2546,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/internal/characters/yanfei/charge.go",
+      "pinnedUrlBytesEqual": true
+    },
+    "internal/characters/yanfei/asc.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/yanfei/asc.go",
+      "sha256": "27980c6800dd64a81f8471240c8ca38d932f91ec8dbca0f0f7bbc2f8f23f3341",
+      "gitBlobSha": "6ea67dbb6a81ccf1ec0bb2e6eb078d16286fca22",
+      "bytes": 1954,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/internal/characters/yanfei/asc.go",
+      "pinnedUrlBytesEqual": true
+    },
+    "internal/characters/yanfei/cons.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/yanfei/cons.go",
+      "sha256": "34b6c89634484ce751f3905749ea26dc08aa4c9b3a1bd42d404f555af6dd948c",
+      "gitBlobSha": "7ee1080ec30df14b6af6f544ac33bb5fa364243e",
+      "bytes": 1489,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/internal/characters/yanfei/cons.go",
+      "pinnedUrlBytesEqual": true
+    },
+    "internal/characters/yanfei/burst.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/yanfei/burst.go",
+      "sha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+      "gitBlobSha": "2652ee20c36bf9e3e230b0c0054e1842de4d9f15",
+      "bytes": 3235,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/internal/characters/yanfei/burst.go",
+      "pinnedUrlBytesEqual": true
+    },
+    "internal/characters/yanfei/yanfei.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/yanfei/yanfei.go",
+      "sha256": "54ed0b1c0c8cb4bd5df3e6633faea85ce40fa8c625baa37f6a9a7485523bb369",
+      "gitBlobSha": "27ccc46a21dfdb82adfcc064315e96743080249e",
+      "bytes": 2110,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/internal/characters/yanfei/yanfei.go",
+      "pinnedUrlBytesEqual": true
+    },
+    "pkg/core/attack.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "bytes": 2255,
+      "archivePath": "packages/game-data/sources/yanfei-charged/raw/gcsim/pkg/core/attack.go",
+      "pinnedUrlBytesEqual": true
+    }
+  },
+  "sourceLocations": [
+    {
+      "path": "internal/characters/yanfei/zz_yanfei.dm.go",
+      "startLine": 90,
+      "endLine": 176,
+      "meaning": "charge[0..4] 的 5×15 级倍率由消耗的丹火印数选择；对应 combat1.param4..param8。"
+    },
+    {
+      "path": "internal/characters/yanfei/zz_yanfei.dm.go",
+      "startLine": 267,
+      "endLine": 284,
+      "meaning": "burstBonus 的 15 级增伤对应 combat3.param2；必须用独立有效 Q 天赋等级。"
+    },
+    {
+      "path": "internal/characters/yanfei/charge.go",
+      "startLine": 30,
+      "endLine": 75,
+      "meaning": "CA 起手确认有效丹火印、建立 A1、使用重击标签并排入一次主击；主击快照时点仍为 TODO，随后清除丹火印。"
+    },
+    {
+      "path": "internal/characters/yanfei/asc.go",
+      "startLine": 16,
+      "endLine": 28,
+      "meaning": "突破 >=1 时 A1 = 消耗丹火印数 × 0.05 火伤加成；新值替换旧值。"
+    },
+    {
+      "path": "internal/characters/yanfei/asc.go",
+      "startLine": 33,
+      "endLine": 69,
+      "meaning": "A4 要求突破 >=4、主击暴击、目标为敌人且烟绯仍在场；一次 CA 回调最多一次，0.8×ATK、火元素、重击标签、+10 帧独立快照/伤害。"
+    },
+    {
+      "path": "internal/characters/yanfei/cons.go",
+      "startLine": 13,
+      "endLine": 39,
+      "meaning": "C2 在目标当前生命值严格低于 50% 时，对 AttackTagExtra 加 0.20 暴击率；主击和 A4 均适用，各自命中条件应独立恢复。"
+    },
+    {
+      "path": "internal/characters/yanfei/burst.go",
+      "startLine": 31,
+      "endLine": 45,
+      "meaning": "Q 的 AttackTagExtra 增伤持续 15 秒；丹火印任务状态额外 1 帧并留有结束帧 TODO。"
+    },
+    {
+      "path": "internal/characters/yanfei/yanfei.go",
+      "startLine": 31,
+      "endLine": 51,
+      "meaning": "丹火印上限 C0–C5 为 3，C6 为 4；C1 修改体力而非伤害；burstBonus 由独立有效 Q 等级读取。"
+    },
+    {
+      "path": "internal/characters/yanfei/yanfei.go",
+      "startLine": 67,
+      "endLine": 74,
+      "meaning": "退场清印，但固定源码删除的 yanfeiburst 与 burst.go 的 yanfei-q 名称不一致，不能据此验证退场结束 Q 行为。"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "startLine": 36,
+      "endLine": 81,
+      "meaning": "QueueAttack 的 snapshotDelay 为独立快照计划；A4 不是重用主击快照。"
+    }
+  ],
+  "scope": [
+    "仅一次主动重击的自身主击及可能产生的一次 A4；命中所选单个目标。主击以 0 印作为映射基底，适配器按显式合法印数替换。",
+    "主击和 A4 均为火伤、重击标签；A4 自己仍可暴击且没有递归 A4 回调。其发生概率取决于主击暴击，不得把无条件两击相加或把两击强制为同一暴击判定。",
+    "主击倍率依有效普攻等级，Q 增伤依有效 Q 等级；四印只对 C6 合法。",
+    "条件适配器应显式处理 A1、C2、Q 状态、A4 资格及各命中上下文。"
+  ],
+  "unverified": [
+    "固定社区源码及 genshin-db 数表交叉一致不等于当前游戏实测验证。",
+    "charge.go:59 明确主击快照时点不确定；本映射不认证帧、取消、卡肉、目标几何或完整丹火印循环。",
+    "burst.go:34 对 Q 结束帧产印留有 TODO；yanfei.go:72 删除的状态名与 Q 状态名不一致，退场消除 Q 的正确生命周期不能据此认证。",
+    "A4 是后续独立快照与元素附着，不能自动继承主击反应；其间状态或目标生命变化须显式恢复。",
+    "不运行完整旋转、资源循环、独立随机抽样或外部模拟器。"
+  ]
+}

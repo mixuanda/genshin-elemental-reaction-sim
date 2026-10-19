@@ -1,0 +1,10 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.201,
+  "log": "docs/validation/source-character-additive-diff-final-20260928.log"
+}

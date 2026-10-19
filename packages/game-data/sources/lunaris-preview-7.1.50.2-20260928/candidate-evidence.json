@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "sourceArchiveSha256": "d3d87b807628a51fbb65cd55ee61d399b2849ed1b0838d9ba6e70010de8aef08",
+  "providerVersion": "7.1.50.2",
+  "gameVersionMapping": "unknown",
+  "requested72V1MappingConfirmed": false,
+  "observedEntityIds": [
+    10000136,
+    10000137
+  ],
+  "fullInventory": "unknown",
+  "licenseStatus": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+  "officialObservation": {
+    "version": "7.1",
+    "status": "released",
+    "sourceUrl": "https://genshin.hoyoverse.com/en/news/detail/166383",
+    "sourceUrlAlt": "https://genshin.hoyoverse.com/en/news/396",
+    "observation": "Official HoYoverse update-detail search result says Version 7.1 update details and gives publication date 2026-09-23; official news index currently lists 7.1 Phase I preview/events and the in-game event announcement."
+  },
+  "officialSourceLimit": "Indexed official update detail observed; complete official page response bytes were not downloaded here.",
+  "newSourceMetadata": {
+    "mityaAttacks": 15,
+    "mityaEnergy": 1,
+    "valeriyAttacks": 16,
+    "valeriyEnergy": 1,
+    "valeriyEndure": 3
+  },
+  "semanticStatus": "All new source combat rows and raw parameters are unverified; no executable definitions."
+}

@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "source-backed-provisional",
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "archivePath": "packages/game-data/sources/player-max-hp/source.json.gz",
+  "archiveSha256": "e7767513f432c3196b7f7f96c4ca3182ab8edc73aa32043af1708f8e0183406b",
+  "archiveBytes": 8156,
+  "archivedFileCount": 9,
+  "scope": "Generic dynamic MaxHP: stored HP ratio, live stat reads, stat-mod add/replace/remove/expiry and absolute HPDebt semantics. Source audit only; character/weapon-specific MaxHP providers and synchronous OnHPDebt callbacks changing MaxHP during healing remain unmapped.",
+  "pinnedGitTree": {
+    "sha": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "url": "https://api.github.com/repos/genshinsim/gcsim/git/trees/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "truncated": false,
+    "entries": 4779,
+    "savedTreeSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "verificationMethod": "Recomputed Git blob SHA-1 from each exact archived UTF-8 source byte sequence and compared with its path entry in the saved pinned Git tree before writing the archive."
+  },
+  "knownSourceAssumptions": [
+    "Default ReceiveHeal explicitly assumes same-heal remainder may heal after clearing debt; no independent in-game verification.",
+    "OnHPDebt callbacks execute synchronously before the remaining heal updates HP. Callback-induced MaxHP changes within one heal are source behavior, not mapped by this increment.",
+    "Generic MaxHP reads include currently active StatMod Amount callbacks; character-specific state providers are not automatically installed by this archive."
+  ],
+  "files": [
+    {
+      "path": "internal/template/character/hp.go",
+      "bytes": 1572,
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "gitBlobSha1": "287f1dfe98e3af969e0113877ed329e52e799f38",
+      "pinnedTreeBlobSha1": "287f1dfe98e3af969e0113877ed329e52e799f38",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go"
+    },
+    {
+      "path": "internal/template/character/heal.go",
+      "bytes": 2632,
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "gitBlobSha1": "f8b39ba0edc7532e3f955520c42914baafba472a",
+      "pinnedTreeBlobSha1": "f8b39ba0edc7532e3f955520c42914baafba472a",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "pinnedTreeBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+      "pinnedTreeBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": null,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+    },
+    {
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "pinnedTreeBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": null,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "pinnedTreeBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": null,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "path": "pkg/core/attributes/stats.go",
+      "bytes": 1677,
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "gitBlobSha1": "cc142a8c7ebd88cf2e212786bc3f260b936fc960",
+      "pinnedTreeBlobSha1": "cc142a8c7ebd88cf2e212786bc3f260b936fc960",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": null,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    },
+    {
+      "path": "pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "gitBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88",
+      "pinnedTreeBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "pinnedTreeBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "verifiedAgainstPinnedGitTree": true,
+      "retrievalMethod": "existing-pinned-local-source",
+      "matchesExistingBondOfLifeArchive": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    }
+  ]
+}

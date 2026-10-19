@@ -1,0 +1,4 @@
+{"id":"observed-resource-lohen-81-will","expected":1072.44,"traceNodes":61,"status":"calculated","verification":"provisional","restoredTraceEqual":true}
+{"id":"observed-resource-zibai-lunar-debit","expected":5845.171915636364,"traceNodes":52,"status":"calculated","verification":"provisional","restoredTraceEqual":true}
+
+WALL_SECONDS=0.553

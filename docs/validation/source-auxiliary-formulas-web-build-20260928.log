@@ -1,0 +1,46 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-cooldown-calculator.ts(25,40): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type '{ readonly duration: { readonly originalDuration: "来源输入持续帧数"; readonly cooldownFactor: "来源读取冷却倍率"; }; readonly remaining: { readonly workerStartedAt: "冷却队列 worker 起始帧"; readonly headDuration: "队首冷却帧数"; readonly currentFrame: "本次读取帧"; }; readonly red...'.
+apps/web/src/source-host-cooldown-calculator.ts(25,72): error TS2339: Property 'operation' does not exist on type '{ ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ruleId: "nd-2pc"; } | { ruleId: "pf-2pc"; } | { ruleId: "cw-2pc"; } | { ruleId: "vg-2pc"; } | { ruleId: "vg-4pc-base"; } | ... 43 more ... | { ...; }'.
+  Property 'operation' does not exist on type '{ ruleId: "mh-2pc"; }'.
+apps/web/src/source-host-cooldown-calculator.ts(28,107): error TS2339: Property 'action' does not exist on type '{ ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ruleId: "nd-2pc"; } | { ruleId: "pf-2pc"; } | { ruleId: "cw-2pc"; } | { ruleId: "vg-2pc"; } | { ruleId: "vg-4pc-base"; } | ... 43 more ... | { ...; }'.
+  Property 'action' does not exist on type '{ ruleId: "mh-2pc"; }'.
+apps/web/src/source-host-cooldown-calculator.ts(28,135): error TS2339: Property 'actionType' does not exist on type '{ ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ruleId: "nd-2pc"; } | { ruleId: "pf-2pc"; } | { ruleId: "cw-2pc"; } | { ruleId: "vg-2pc"; } | { ruleId: "vg-4pc-base"; } | ... 43 more ... | { ...; }'.
+  Property 'actionType' does not exist on type '{ ruleId: "mh-2pc"; }'.
+apps/web/src/source-host-cooldown-calculator.ts(28,151): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<"duration" | "reduce" | "remaining", string>'.
+apps/web/src/source-host-cooldown-calculator.ts(28,174): error TS2339: Property 'operation' does not exist on type '{ ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ruleId: "nd-2pc"; } | { ruleId: "pf-2pc"; } | { ruleId: "cw-2pc"; } | { ruleId: "vg-2pc"; } | { ruleId: "vg-4pc-base"; } | ... 43 more ... | { ...; }'.
+  Property 'operation' does not exist on type '{ ruleId: "mh-2pc"; }'.
+apps/web/src/source-host-healing-calculator.ts(28,131): error TS2339: Property 'maxHpForBase' does not exist on type '{ operation: "base"; healType: "percent"; sourceAmount: number; maxHpForBase: number; } | { operation: "base"; healType: "unsupported"; originalHealType: number; sourceAmount: number; }'.
+  Property 'maxHpForBase' does not exist on type '{ operation: "base"; healType: "unsupported"; originalHealType: number; sourceAmount: number; }'.
+packages/sim-core/src/source-host-artifact-support.ts(74,13): error TS2322: Type '(string | undefined)[] | readonly string[]' is not assignable to type 'readonly string[]'.
+  Type '(string | undefined)[]' is not assignable to type 'readonly string[]'.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/source-host-capture.ts(252,21): error TS2339: Property 'levelBaseDamage' does not exist on type '{ operation: "base"; healType: "absolute"; sourceAmount: number; } | { operation: "base"; healType: "percent"; sourceAmount: number; maxHpForBase: number; } | { operation: "base"; healType: "unsupported"; originalHealType: number; sourceAmount: number; } | ... 7 more ... | { ...; }'.
+  Property 'levelBaseDamage' does not exist on type '{ operation: "base"; healType: "absolute"; sourceAmount: number; }'.
+packages/sim-core/src/source-host-capture.ts(252,77): error TS2339: Property 'characterLevel' does not exist on type '{ operation: "base"; healType: "absolute"; sourceAmount: number; } | { operation: "base"; healType: "percent"; sourceAmount: number; maxHpForBase: number; } | { operation: "base"; healType: "unsupported"; originalHealType: number; sourceAmount: number; } | ... 7 more ... | { ...; }'.
+  Property 'characterLevel' does not exist on type '{ operation: "base"; healType: "absolute"; sourceAmount: number; }'.
+packages/sim-core/src/source-host-cooldown-capture.ts(112,50): error TS2339: Property 'operation' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; } | ... 51 more ... | { ...; }'.
+  Property 'operation' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; }'.
+packages/sim-core/src/source-host-cooldown-capture.ts(113,48): error TS2339: Property 'action' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; } | ... 51 more ... | { ...; }'.
+  Property 'action' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; }'.
+packages/sim-core/src/source-host-cooldown-capture.ts(113,102): error TS2339: Property 'actionType' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; } | ... 51 more ... | { ...; }'.
+  Property 'actionType' does not exist on type '{ ruleId: "bolide-2pc-shield" | "deepwood-4pc-res" | "maiden-4pc-heal" | "tenacity-4pc-shield" | "viridescent-4pc-res-cryo" | "viridescent-4pc-res-electro" | "viridescent-4pc-res-hydro" | "viridescent-4pc-res-pyro"; }'.
+packages/sim-core/src/source-host-healing-capture.ts(122,3): error TS2322: Type '{ id: string; parentId?: string; ruleId: string; titleKey: string; explanationKey: string; status: TraceStatus; expression: FormulaExpression; result?: TraceValue; ... 6 more ...; inputs: { ...; }[]; }[]' is not assignable to type 'CalculationTraceNode[]'.
+  Type '{ id: string; parentId?: string; ruleId: string; titleKey: string; explanationKey: string; status: TraceStatus; expression: FormulaExpression; result?: TraceValue; childIds: string[]; ... 5 more ...; inputs: { ...; }[]; }' is not assignable to type 'CalculationTraceNode' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'inputs' are incompatible.
+      Type '{ key: string; value: number; unit: string; meaningKey: string; context?: TraceContext; origin: string | { kind: string; reference: string | undefined; }; }[]' is not assignable to type 'TraceInput[]'.
+        Type '{ key: string; value: number; unit: string; meaningKey: string; context?: TraceContext; origin: string | { kind: string; reference: string | undefined; }; }' is not assignable to type 'TraceInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'origin' are incompatible.
+            Type 'string | { kind: string; reference: string | undefined; }' is not assignable to type 'string | { kind: string; reference?: string; }'.
+              Type '{ kind: string; reference: string | undefined; }' is not assignable to type 'string | { kind: string; reference?: string; }'.
+                Type '{ kind: string; reference: string | undefined; }' is not assignable to type '{ kind: string; reference?: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                  Types of property 'reference' are incompatible.
+                    Type 'string | undefined' is not assignable to type 'string'.
+                      Type 'undefined' is not assignable to type 'string'.

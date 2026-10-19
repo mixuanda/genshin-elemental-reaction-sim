@@ -1,0 +1,51 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts (2 tests | 1 failed) 105ms
+     × captures all seven real streams, cooldowns, in-flight procs and particles without claiming stochastic steady state 103ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts > actual named random state at pre-event boundaries > captures all seven real streams, cooldowns, in-flight procs and particles without claiming stochastic steady state
+AssertionError: expected { complete: false, …(2) } to deeply equal { complete: true, …(2) }
+
+- Expected
++ Received
+
+  {
+-   "complete": true,
+-   "missingDimensions": [],
+-   "reasons": [],
++   "complete": false,
++   "missingDimensions": [
++     "energy",
++     "cooldownsAndCharges",
++     "buffsAndDebuffs",
++     "entities",
++     "auras",
++     "resourcesAndHp",
++     "icdAndTriggerHistory",
++     "pendingEvents",
++     "activeCharacterAndActionPhase",
++   ],
++   "reasons": [
++     "未来完整输入周期并不重复，或不足两次完整的 1 至 16 周期模式；不能折叠为已验证周期输入。",
++   ],
+  }
+
+ ❯ packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts:63:55
+     61|   it("captures all seven real streams, cooldowns, in-flight procs and …
+     62|     const result = simulate(randomCheckpointFixture(), { execution: { …
+     63|     expect(result.executionAudit!.checkpointCoverage).toEqual({ comple…
+       |                                                       ^
+     64|     const at = (tick: number) => result.executionAudit!.phaseCheckpoin…
+     65|     const rng = (tick: number) => (at(tick).state.icdAndTriggerHistory…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  23:54:29
+   Duration  1.08s (transform 716ms, setup 0ms, import 914ms, tests 105ms, environment 0ms)
+

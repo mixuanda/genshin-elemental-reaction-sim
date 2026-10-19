@@ -1,0 +1,82 @@
+
+Running 2 tests using 1 worker
+
+(node:88978) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit (750ms)
+(node:88992) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [chromium] › apps/web/e2e/real-preview-workspace.spec.ts:3:1 › real observed preview stays separate from the released calculator and cannot invent executable skills (5.4s)
+
+
+  1) [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit 
+
+    Error: expect(received).toMatchObject(expected)
+
+    - Expected  - 1
+    + Received  + 1
+
+      Object {
+        "effectiveTalentLevel": 1,
+    -   "scopeCoverage": "complete-cast",
+    +   "scopeCoverage": "selected-components",
+        "skillId": "coordinated-xingqiu-burst-c0",
+      }
+
+      52 |   const equipment = await audit(page);
+      53 |   expect(equipment.document.build.mode).toBe("equipment-derived");
+    > 54 |   expect(equipment.document.gameContext).toMatchObject({ skillId: "coordinated-xingqiu-burst-c0", scopeCoverage: "complete-cast", effectiveTalentLevel: 1 });
+         |                                          ^
+      55 |   expect(equipment.result.status).toBe("calculated");
+      56 |   expect(equipment.result.hits).toHaveLength(7);
+      57 |   expect(equipment.document.hits.map(hit => hit.kind === "ordinary" ? hit.coordinatedEvent?.frame : undefined)).toEqual([120, 120, 180, 180, 180, 240, 240]);
+        at /Users/evan/Documents/gidps/apps/web/e2e/coordinated-cast.spec.ts:54:42
+
+    Error Context: test-results/coordinated-cast-one-expli-b0335-ins-an-independent-last-hit-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/coordinated-cast-one-expli-b0335-ins-an-independent-last-hit-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/coordinated-cast-one-expli-b0335-ins-an-independent-last-hit-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/real-preview-workspace.spec.ts:3:1 › real observed preview stays separate from the released calculator and cannot invent executable skills 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#calc-character-status')
+    Expected substring: "米提亚"
+    Received string:    "目录名称已匹配；所选等级的倍率含义、伤害命中分类或适用机制尚未核实。"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#calc-character-status')
+        14 × locator resolved to <div class="calculator-hint" id="calc-character-status">目录名称已匹配；所选等级的倍率含义、伤害命中分类或适用机制尚未核实。</div>
+           - unexpected value "目录名称已匹配；所选等级的倍率含义、伤害命中分类或适用机制尚未核实。"
+
+
+      11 |   expect(await characters.evaluateAll(options => options.map(option => (option as HTMLOptionElement).value))).toEqual(["", "character:10000136", "character:10000137"]);
+      12 |   await page.locator("#calc-character").selectOption("character:10000136");
+    > 13 |   await expect(page.locator("#calc-character-status")).toContainText("米提亚");
+         |                                                        ^
+      14 |   await expect(page.getByTestId("calc-expected")).toHaveCount(0);
+      15 |   await expect(page.locator('[data-action="load-example"]')).toBeDisabled();
+      16 |   await page.locator("#calc-workspace").selectOption("released");
+        at /Users/evan/Documents/gidps/apps/web/e2e/real-preview-workspace.spec.ts:13:56
+
+    Error Context: test-results/real-preview-workspace-rea-9a183-ot-invent-executable-skills-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/real-preview-workspace-rea-9a183-ot-invent-executable-skills-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/real-preview-workspace-rea-9a183-ot-invent-executable-skills-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › apps/web/e2e/coordinated-cast.spec.ts:12:1 › one explicit coordinated schedule is editable, survives final-panel JSON, and retains an independent last hit 
+    [chromium] › apps/web/e2e/real-preview-workspace.spec.ts:3:1 › real observed preview stays separate from the released calculator and cannot invent executable skills 

@@ -1,0 +1,61 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 2 failed) 401ms
+   × calculates resolved Hydro/Swift, observed special components and the finite five-hit Phantasm with source oracles 44ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 356ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > calculates resolved Hydro/Swift, observed special components and the finite five-hit Phantasm with source oracles
+AssertionError: nefer-phantasm-observed-c0: expected [ …(5) ] to deeply equal []
+
+- Expected
++ Received
+
+- []
++ [
++   "nefer-phantasm:schedule：幻戏系数来自奈芙尔战技天赋，不使用普攻等级。",
++   "nefer-phantasm:schedule：幻戏系数来自奈芙尔战技天赋，不使用普攻等级。",
++   "nefer-phantasm:schedule：幻戏系数来自奈芙尔战技天赋，不使用普攻等级。",
++   "nefer-phantasm:schedule：幻戏系数来自奈芙尔战技天赋，不使用普攻等级。",
++   "nefer-phantasm:schedule：幻戏系数来自奈芙尔战技天赋，不使用普攻等级。",
++ ]
+
+ ❯ complete packages/sim-core/src/remaining-horizontal-source.test.ts:59:58
+     57| function complete(document: CalculatorDocument) {
+     58|   const prepared = prepareSourceCastDocument(document), result = calcu…
+     59|   expect(result.blockers, document.gameContext!.skillId).toEqual([]);
+       |                                                          ^
+     60|   expect(prepared.gameContext!.scopeCoverage).toBe("complete-cast");
+     61|   return { prepared, result };
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:219:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+ConfigMigrationError: 配置校验失败：
+- timeline.abilities.0.hits.0.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks
+- timeline.abilities.0.hits.1.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks
+ ❯ parseSimConfig packages/schemas/src/schema.ts:34049:11
+    34047|   if (!parsed.success) {
+    34048|     const issues = formatZodError(parsed.error);
+    34049|     throw new ConfigMigrationError(
+       |           ^
+    34050|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    34051|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35537:12
+ ❯ simulate packages/sim-core/src/simulator.ts:19094:18
+ ❯ assertHorizontalPeriodicMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:344:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:389:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  12:19:05
+   Duration  3.11s (transform 2.03s, setup 0ms, import 2.63s, tests 401ms, environment 0ms)
+
+
+WALL_SECONDS=3.650

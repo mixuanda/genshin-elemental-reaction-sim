@@ -1,0 +1,32 @@
+[
+  {
+    "name": "source-reexecution-core-20260928",
+    "exitCode": 0,
+    "wallSeconds": 0.428,
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "packages/sim-core/src/__tests__/source-host-reexecution.test.ts"
+    ]
+  },
+  {
+    "name": "source-reexecution-build-20260928",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.457
+  },
+  {
+    "name": "source-reexecution-browser-20260928",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/source-complete-reexecution.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.928
+  }
+]

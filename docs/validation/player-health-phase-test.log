@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/player-health-phase-checkpoint.test.ts (3 tests | 1 failed) 134ms
+     × refuses truncated tails and unsupported Aura state while preserving the no-health checkpoint shape 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-phase-checkpoint.test.ts > complete deterministic health phase checkpoints > refuses truncated tails and unsupported Aura state while preserving the no-health checkpoint shape
+ConfigMigrationError: 配置校验失败：
+- reactionEngine: aura-v1 through aura-v9 currently require timeline.mode legal-frame-v1
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33553:11
+    33551|   if (!parsed.success) {
+    33552|     const issues = formatZodError(parsed.error);
+    33553|     throw new ConfigMigrationError(
+       |           ^
+    33554|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33555|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34974:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18039:18
+ ❯ packages/sim-core/src/__tests__/player-health-phase-checkpoint.test.ts:90:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 3 passed | 2 skipped (6)
+   Start at  02:54:04
+   Duration  1.22s (transform 574ms, setup 0ms, import 882ms, tests 223ms, environment 0ms)
+

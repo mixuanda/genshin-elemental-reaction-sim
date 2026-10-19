@@ -1,0 +1,280 @@
+{
+  "schemaVersion": 1,
+  "task": "109 owned persistent generator feasibility audit; design only, no repository edits, builds or tests",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceCaches": {
+    "classic": "/tmp/gidps-source-host-cache/build-pzmCVq/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-KI7Q5a/source"
+  },
+  "coordinateSystem": "line numbers in the current patched classic/Stellar source caches; relevant character and Minazuki files are byte-identical between lanes",
+  "sourceFiles": {
+    "internal/template/minazuki/minazuki.go": {
+      "classicSha256": "32d894e715ff829919b1e157584088f1b4c059ab1305370f31b4bc9adfb7c718",
+      "stellarSha256": "32d894e715ff829919b1e157584088f1b4c059ab1305370f31b4bc9adfb7c718"
+    },
+    "internal/characters/xingqiu/burst.go": {
+      "classicSha256": "1e0c69dc08ee45e1862184121a1be49b339e3e5b842722880d6a6ac359522fec",
+      "stellarSha256": "1e0c69dc08ee45e1862184121a1be49b339e3e5b842722880d6a6ac359522fec"
+    },
+    "internal/characters/xingqiu/xingqiu.go": {
+      "classicSha256": "9a893da712c6cbd299fd6b4b47e50fe7244150b33071f76bd3f40747ab045e75",
+      "stellarSha256": "9a893da712c6cbd299fd6b4b47e50fe7244150b33071f76bd3f40747ab045e75"
+    },
+    "internal/characters/xingqiu/orbital.go": {
+      "classicSha256": "2ba81e0e3e55e375dad57c94e792377c8cbc93300e3c87ee1b68d0b75d7aa3c1",
+      "stellarSha256": "2ba81e0e3e55e375dad57c94e792377c8cbc93300e3c87ee1b68d0b75d7aa3c1"
+    },
+    "internal/characters/yelan/burst.go": {
+      "classicSha256": "7b80871e0081bf00b853e60c6e363f2c6a854fc7befb42ccb4f46d49ff45fd09",
+      "stellarSha256": "7b80871e0081bf00b853e60c6e363f2c6a854fc7befb42ccb4f46d49ff45fd09"
+    },
+    "internal/characters/yelan/skill.go": {
+      "classicSha256": "837d0ba1843191fa5d44a180315a0d2e1d15aa0f0aaf0cebe64dd76208850164",
+      "stellarSha256": "837d0ba1843191fa5d44a180315a0d2e1d15aa0f0aaf0cebe64dd76208850164"
+    },
+    "internal/characters/yelan/yelan.go": {
+      "classicSha256": "787f8b7e0608d4ac58d53ab87649657f7feb416e2ea269048d7ce6fe97f67db5",
+      "stellarSha256": "787f8b7e0608d4ac58d53ab87649657f7feb416e2ea269048d7ce6fe97f67db5"
+    },
+    "internal/characters/thoma/burst.go": {
+      "classicSha256": "d2870868a839d76e2c92edd29a8fa9236a74b820b5b75c0fbfdf03d35a938a59",
+      "stellarSha256": "d2870868a839d76e2c92edd29a8fa9236a74b820b5b75c0fbfdf03d35a938a59"
+    },
+    "internal/characters/thoma/thoma.go": {
+      "classicSha256": "3fa2aa79995885d19c8f91eb746b209919a8ebce37b34487abe3e3aca886f56c",
+      "stellarSha256": "3fa2aa79995885d19c8f91eb746b209919a8ebce37b34487abe3e3aca886f56c"
+    },
+    "pkg/core/player/character/mods.go": {
+      "classicSha256": "8f112875979b5834caabe068acfc629a4342e785a2635e93da62bbfc810a7593",
+      "stellarSha256": "93b57e9b9801ee40eb9c5e585f8aba8129fcf204e27e6aa680a2f467341232ac"
+    },
+    "pkg/core/sourcehost/status_lifecycle.go": {
+      "classicSha256": "1b12d3775fcf0827d8d544892c58a516ac17c27d14198ab23fa64a5223973e8c",
+      "stellarSha256": "1b12d3775fcf0827d8d544892c58a516ac17c27d14198ab23fa64a5223973e8c"
+    },
+    "pkg/modifier/modifier.go": {
+      "classicSha256": "e8a87d2ab58bb80924562fcaaf99d80cc2fb5cb6919563f3023dce8da2a996d9",
+      "stellarSha256": "e8a87d2ab58bb80924562fcaaf99d80cc2fb5cb6919563f3023dce8da2a996d9"
+    }
+  },
+  "coreFinding": "The Init-installed Minazuki event hook is persistent and has unknown creationActionSequence. A Q creates a distinct status object; after a later N or ticker passes the actual active-status check, SourceHostStatusOwner gives that instance to work from the trigger. The Q ownership is a separate status-instance link, never a rewrite of callback creation ancestry or trigger action.",
+  "minimalAbi": {
+    "ownedGenerators": {
+      "optionalTopLevelArray": true,
+      "row": {
+        "id": "positive per-run integer",
+        "siteId": "explicit pinned Q AddStatus callsite string",
+        "invocationId": "optional exact Q AbilityInvocation ID; absent if no exact action-sequence/actor match",
+        "statusInstanceId": "positive exact SourceHostStatusOwner.instanceId",
+        "actorIndex": "nonnegative caster index",
+        "activatedFrame": "actual AddStatus frame"
+      },
+      "construction": "At each audited Q status AddStatus call, use one source-site helper that delegates to AddStatus once and binds the actual newly installed status owner. Xingqiu/Thoma bind synchronously inside f(param); Yelan binds inside the existing burstHitmark core task with the saved Q origin. Do not select by ability name, damage number, or last status read."
+    },
+    "ownedGeneratorTriggers": {
+      "optionalTopLevelArray": true,
+      "row": {
+        "id": "positive per-run integer",
+        "generatorId": "exact ownedGenerators.id resolved from currently active status instance",
+        "siteId": "explicit trigger callsite string",
+        "kind": "state-change | ticker | skill-hit",
+        "origin": "unchanged SourceHostOrigin including independent triggerActionSequence, callback creationActionSequence if known, parentAttackId, and statusOwner",
+        "startedFrame": "actual triggerFunc entry frame",
+        "completedFrame": "actual triggerFunc return frame",
+        "queuedAttacks": "array of existing AbilityQueuedAttack shape {queueId, attackId?, ability, attackTagName, frame}"
+      },
+      "construction": "In Minazuki successful triggerWithStatusOwner, capture the already resolved active StatusOwner and wrap the existing triggerFunc call with an active trigger ID. The same helper wraps Yelan skill-hit direct summonExquisiteThrow. Exact intrinsic AttackEvents are captured only at explicitly wrapped QueueAttack/QueueAttackWithSnap emission sites during that active trigger; finalize attackId without calling NextAttackID. No extra trigger on failed status/ICD/state/delay checks."
+    },
+    "sourceConfiguration": "Give only Xingqiu, Yelan, and Thoma Minazuki watchers an explicit source-reviewed generator/trigger site config; other Minazuki callers remain unbound. Wrap Yelan skill hit callback at its existing successful burstKey guard.",
+    "statusLifecycleReference": "Join generator.statusInstanceId to existing statusInstances.instanceId; do not duplicate inferred expiry transitions. Preserve creationActionSequence Q when known and the original status lifecycle endState.",
+    "emissionSites": {
+      "scope": "Explicit audited queue calls, not a temporal sweep of every CaptureAttack while triggerFunc runs. Two shared core wrappers delegate QueueAttack and QueueAttackWithSnap unchanged while exposing an emitSiteId only around their native CaptureAttack.",
+      "sites": [
+        {
+          "siteId": "xingqiu.burst.rainsword",
+          "path": "internal/characters/xingqiu/burst.go",
+          "line": 130,
+          "queue": "QueueAttackWithSnap",
+          "perTrigger": "2/3/5 according to actual numSwords"
+        },
+        {
+          "siteId": "yelan.burst.dice",
+          "path": "internal/characters/yelan/burst.go",
+          "line": 117,
+          "queue": "QueueAttackWithSnap",
+          "perTrigger": 3
+        },
+        {
+          "siteId": "yelan.burst.c2-dice",
+          "path": "internal/characters/yelan/burst.go",
+          "line": 138,
+          "queue": "QueueAttack",
+          "perTrigger": "0 or 1 when C>=2 and c2icd <= current frame"
+        },
+        {
+          "siteId": "thoma.burst.collapse",
+          "path": "internal/characters/thoma/burst.go",
+          "line": 110,
+          "queue": "QueueAttack",
+          "perTrigger": 1
+        }
+      ],
+      "reason": "Snapshot/stat/callback work inside a trigger may be synchronous. Active trigger time alone does not prove an incidental CaptureAttack belongs to the intrinsic wave."
+    }
+  },
+  "closureRule": [
+    "Require the exact Q invocation, its explicitly tagged generator activation and status instance, and all direct intrinsic Q AttackEvents from AbilityInvocation (Xingqiu 0, Yelan 1, Thoma 1). A missing activation at observation end, including Yelan before frame 76, is open.",
+    "The same status instance must have endState replaced or removed at its recorded physical end, or expired-at-end at lifecycleObservationFrame. active-at-end and unknown-at-end remain open. Equal expiry frame is still active under FindCheckExpiry; hitlag can extend Xingqiu/Thoma actual expiry.",
+    "For that generator, include every trigger row bound by exact statusInstanceId, with source-audited per-trigger AttackEvent counts. Require each queued event to have an assigned AttackID, one completed dispatch, and terminal outcome for every checked enemy. A queued/pending attack at end remains open.",
+    "A pending delayed Minazuki check or ticker task after status replacement/expiry cannot generate an attack for the old instance: on execution it checks actual status and resolves the then-current owner. It may generate for a newly cast Q and must be attributed to the new generator.",
+    "Keep callback creation ancestry (often unknown from Init), later player N/E trigger lineage, and Q status ownership separate. Do not mark a whole skill or every effect complete from these intrinsic damage opportunities.",
+    "Do not reuse the eager-root intrinsicOrigin predicate for owned trigger attacks: Minazuki hook creation is from Init and often unknown, while Yelan Skill-hit waves can have an E AttackEvent parentAttackId. The exact generatorId/status instance and active trigger ID are their ownership proof.",
+    "Require every trigger queued attack to carry one of that character’s explicit emitSite IDs and match its source-audited per-trigger count. An untagged attack within the callback interval is not silently absorbed into the Q damage contract."
+  ],
+  "families": [
+    {
+      "character": "xingqiu",
+      "generatorSiteId": "xingqiu.burst.raincutter-status",
+      "statusKey": "xingqiuburst",
+      "activation": {
+        "path": "internal/characters/xingqiu/burst.go",
+        "line": 55,
+        "timing": "synchronous in Q f(param)",
+        "duration": "15*60+33, or 18*60+33 at C>=2; hitlag-aware, actual expiry may extend",
+        "recast": "Q AddStatus replaces exact prior instance; burstCounter/numSwords/nextRegen reset after AddStatus"
+      },
+      "watcher": {
+        "path": "internal/characters/xingqiu/xingqiu.go",
+        "line": 39,
+        "triggerPath": "internal/template/minazuki/minazuki.go",
+        "stateChangeLine": 113,
+        "tickerLine": 188,
+        "triggerMethod": "internal/characters/xingqiu/burst.go:74 summonSwordWave",
+        "triggerCallLines": [
+          151,
+          228
+        ]
+      },
+      "triggerSites": [
+        "xingqiu.burst.raincutter.state-change",
+        "xingqiu.burst.raincutter.ticker"
+      ],
+      "directIntrinsicAttackEvents": 0,
+      "attackEventsPerSuccessfulTrigger": {
+        "C<6": [
+          2,
+          3
+        ],
+        "C>=6": [
+          2,
+          3,
+          5
+        ],
+        "rule": "Actual c.numSwords at trigger; 2→3→2 or 2→3→5→2. Each sword is a separate QueueAttackWithSnap at burst.go:130, delay20."
+      },
+      "additionalPaths": [
+        "Q calls applyOrbital(burst.go:56); Xingqiu E also calls applyOrbital(skill.go:78), so orbitalKey/ticks cannot be asserted as uniquely Q-owned.",
+        "C2 rain sword callback schedules a resistance modifier task at burst.go:118; C6 callback grants energy. These are not additional intrinsic damage AttackEvents."
+      ]
+    },
+    {
+      "character": "yelan",
+      "generatorSiteId": "yelan.burst.dice-status",
+      "statusKey": "yelanburst",
+      "activation": {
+        "path": "internal/characters/yelan/burst.go",
+        "line": 72,
+        "timing": "inside existing Q core task at burstHitmark=76, after Q f(param) returned",
+        "duration": "15*60 from actual status creation; hitlag=false",
+        "recast": "delayed Q AddStatus replaces prior instance only when the task executes; earlier triggers before replacement still belong to prior Q"
+      },
+      "watcher": {
+        "path": "internal/characters/yelan/yelan.go",
+        "line": 62,
+        "triggerPath": "internal/template/minazuki/minazuki.go",
+        "stateChangeLine": 113,
+        "tickerLine": 188,
+        "triggerMethod": "internal/characters/yelan/burst.go:93 burstWaveWrapper → summonExquisiteThrow",
+        "triggerCallLines": [
+          151,
+          228
+        ]
+      },
+      "triggerSites": [
+        "yelan.burst.dice.state-change",
+        "yelan.burst.dice.ticker",
+        "yelan.burst.dice.skill-hit"
+      ],
+      "directIntrinsicAttackEvents": 1,
+      "attackEventsPerSuccessfulTrigger": {
+        "C<2": [
+          3
+        ],
+        "C>=2": [
+          3,
+          4
+        ],
+        "rule": "Three Exquisite Throw events at burst.go:117 plus optional C2 event at burst.go:138 when c.c2icd <= current frame. burstTravel is a mutable Q parameter and timing is observed, not fixed."
+      },
+      "additionalPaths": [
+        "Skill hit callback at internal/characters/yelan/skill.go:110-112 checks burstKey then calls summonExquisiteThrow directly, bypassing Minazuki.triggerWithStatusOwner. Each marked-target hit can invoke it; this site must be explicitly wrapped. It calls summonExquisiteThrow rather than burstWaveWrapper, so this path does not add burstICDKey; do not impose the Minazuki ICD gate on the skill-hit trigger.",
+        "Q C6 status transforms later player attacks; A4 and C4 effects are separate non-intrinsic-damage components."
+      ]
+    },
+    {
+      "character": "thoma",
+      "generatorSiteId": "thoma.burst.oyoroi-status",
+      "statusKey": "thoma-q",
+      "activation": {
+        "path": "internal/characters/thoma/burst.go",
+        "line": 59,
+        "timing": "synchronous in Q f(param)",
+        "duration": "15*60, or 18*60 at C>=2; hitlag-aware, actual expiry may extend",
+        "recast": "Q AddStatus replaces exact prior instance"
+      },
+      "watcher": {
+        "path": "internal/characters/thoma/thoma.go",
+        "line": 49,
+        "triggerPath": "internal/template/minazuki/minazuki.go",
+        "stateChangeLine": 113,
+        "tickerLine": 188,
+        "triggerMethod": "internal/characters/thoma/burst.go:83 summonFieryCollapse",
+        "triggerCallLines": [
+          151,
+          228
+        ]
+      },
+      "triggerSites": [
+        "thoma.burst.collapse.state-change",
+        "thoma.burst.collapse.ticker"
+      ],
+      "directIntrinsicAttackEvents": 1,
+      "attackEventsPerSuccessfulTrigger": {
+        "allConstellations": [
+          1
+        ],
+        "rule": "One Fiery Collapse QueueAttack at burst.go:110; generated shield callback is a separate non-damage component."
+      },
+      "additionalPaths": [
+        "C4 Q energy task and C6 shield-derived attack modifier are not intrinsic Q attack events."
+      ]
+    }
+  ],
+  "terminationAndRefreshEvidence": {
+    "statusSource": "pkg/core/player/character/mods.go:80-110,249-260; pkg/core/sourcehost/status_lifecycle.go:7-70",
+    "nativeReplacement": "modifier.Add replaces a same-key object regardless of NativeOverwrite flag; RecordStatusAdded records prior exact owner as replaced and new instance ID",
+    "naturalExpiry": "FindCheckExpiry is inactive only when expiry < current frame and expiry > -1. Existing end snapshot records expired-at-end only after actual retained owner is inactive; it does not invent exact expiry transition frame.",
+    "explicitRemoval": "The three role packages contain no DeleteStatus(burstKey) or Watcher.Kill call. Generic DeleteStatus and RecordStatusRemoved exist but are not used for these burst keys in the audited source.",
+    "watcherHook": "Installed during Init, remains registered; hook lifetime itself is not the Q generator lifetime.",
+    "recastTicker": "Minazuki ticker checks current status and tickSrc at execution, then resolves current owner. A pending ticker from an older activation can trigger under a replacement instance; never assign by scheduling ancestry."
+  },
+  "limitations": [
+    "No generic all-effects complete flag: Xingqiu orbital can originate from E or Q; Yelan A4/C6 and Thoma shields/modifiers persist or arise outside intrinsic attack event closure.",
+    "Yelan Q status does not exist until the frame-76 task executes; before then there is no active dice generator even though the Q method returned.",
+    "If an activation, direct Yelan Skill trigger, or status terminal observation is absent/unknown, leave Q intrinsic coordination scope open rather than infer from action names, elapsed frames, or empty task queues.",
+    "Current 091 origin.statusOwner on individual attacks already gives Q ownership when Minazuki is used, but does not by itself enumerate successful trigger invocations or certify no future triggers."
+  ]
+}

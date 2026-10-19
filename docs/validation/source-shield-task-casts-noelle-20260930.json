@@ -1,0 +1,316 @@
+{
+  "schemaVersion": 1,
+  "round": 116,
+  "batch": "Noelle",
+  "status": "private source-site patches and source contract; default git apply --check passed both lanes; no builds or tests",
+  "sourceStage": "verified frozen PRE-talent pre116 source trees with 115 generic shield observation",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-XZWitQ/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-wrBc8S/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch116/classic/receipt.json",
+      "sha256": "9bdd296574e39efc16237fa89c70fc04caeaed42e7b4e8bf75f57b8147ba03a5",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "e3a4007eb395aecb9fab77cfdecf8fdd8cc6867ebe348d7d0169a5af1daea0dd"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch116/stellar/receipt.json",
+      "sha256": "8f6695409d4e90d6b86e60038391ae045553f11dd478308084e0e569f55aacce",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "7d55c532e11fe116e36fd2d4a85c392c19a21d37f9eb9ad4df3c0603b7553488"
+    }
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/noelle/skill.go": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+      "internal/characters/noelle/shield.go": "293c6d080a0efed14b73b7ddd23aeff409a92b0f5941622ca224fe32e415557d",
+      "internal/characters/noelle/asc.go": "fdb6f78051582ce51b272e78e35075857a8f00e9aee11b508a2b9e8addd4a859",
+      "internal/characters/noelle/noelle.go": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+      "internal/characters/noelle/cons.go": "3e2166f75eb6da199f44b5029e5b664db37aab608ef004d7f19d2dc3fa6f429b",
+      "pkg/core/player/shield/handler.go": "ddc3ab395261ad4f1ae7fc503b83482481e7cf27477898e2bb419926f4b3cb0f",
+      "pkg/core/player/shield/template.go": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+      "pkg/core/player/shield/shield.go": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "pkg/core/player/player.go": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "pkg/core/core.go": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5",
+      "pkg/core/sourcehost_ability_producer.go": "ba337979a752e538806b36b98cfe9d3ef03c9738108a49e7543180af4a414235",
+      "pkg/core/player/character/sourcehost_ability_producer.go": "1962c54795f9668cabeb0e644086d48cb61a6065428096c854d8f973884bd52f",
+      "pkg/core/player/character/hitlag.go": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "pkg/core/sourcehost_shield.go": "ea2a65d7d6b800965ef812d4df9b5a32e493e5f7a2ae4d516cc69abe1d34f9e0",
+      "pkg/core/sourcehost/shield_lifecycle.go": "82e74a349456a5b6c1c91975067a8c8e3254f5c5226a32d93d3b8360d628821d",
+      "pkg/core/sourcehost/ability_producer.go": "a334dd1d77bdee6a9ce948a17e9cbd05563984f479efb4fe9bfce5fc3004ffb9"
+    },
+    "stellar": {
+      "internal/characters/noelle/skill.go": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+      "internal/characters/noelle/shield.go": "90697d3099f62e47dc8903bfe68ea870d30f7a338f66554f4d3e39a555d665ba",
+      "internal/characters/noelle/asc.go": "fdb6f78051582ce51b272e78e35075857a8f00e9aee11b508a2b9e8addd4a859",
+      "internal/characters/noelle/noelle.go": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+      "internal/characters/noelle/cons.go": "3e2166f75eb6da199f44b5029e5b664db37aab608ef004d7f19d2dc3fa6f429b",
+      "pkg/core/player/shield/handler.go": "ddc3ab395261ad4f1ae7fc503b83482481e7cf27477898e2bb419926f4b3cb0f",
+      "pkg/core/player/shield/template.go": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+      "pkg/core/player/shield/shield.go": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "pkg/core/player/player.go": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46",
+      "pkg/core/core.go": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5",
+      "pkg/core/sourcehost_ability_producer.go": "ba337979a752e538806b36b98cfe9d3ef03c9738108a49e7543180af4a414235",
+      "pkg/core/player/character/sourcehost_ability_producer.go": "1962c54795f9668cabeb0e644086d48cb61a6065428096c854d8f973884bd52f",
+      "pkg/core/player/character/hitlag.go": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "pkg/core/sourcehost_shield.go": "ea2a65d7d6b800965ef812d4df9b5a32e493e5f7a2ae4d516cc69abe1d34f9e0",
+      "pkg/core/sourcehost/shield_lifecycle.go": "82e74a349456a5b6c1c91975067a8c8e3254f5c5226a32d93d3b8360d628821d",
+      "pkg/core/sourcehost/ability_producer.go": "a334dd1d77bdee6a9ce948a17e9cbd05563984f479efb4fe9bfce5fc3004ffb9"
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/116-noelle/116-noelle-shield-sites-classic.patch",
+      "sha256": "02820ae8078a3b6a034458f85d45443acfceb17ed72d5a74b7638d2526d39518",
+      "bytes": 1955,
+      "patchedSourceSha256": {
+        "internal/characters/noelle/skill.go": "be2e4aefbbc40f6ed5aee818bfc8e57e35fa22e27b552b1c4900efcbe199aa41"
+      },
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/116-noelle/116-noelle-shield-sites-classic.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/build-XZWitQ/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/116-noelle/116-noelle-shield-sites-stellar.patch",
+      "sha256": "02820ae8078a3b6a034458f85d45443acfceb17ed72d5a74b7638d2526d39518",
+      "bytes": 1955,
+      "patchedSourceSha256": {
+        "internal/characters/noelle/skill.go": "be2e4aefbbc40f6ed5aee818bfc8e57e35fa22e27b552b1c4900efcbe199aa41"
+      },
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/116-noelle/116-noelle-shield-sites-stellar.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-wrBc8S/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    }
+  },
+  "contract": {
+    "schemaVersion": 1,
+    "round": 116,
+    "id": "noelle-skill-shield-damage",
+    "status": "source contract proposal; TS/native analysis and runtime verification belong to parent task",
+    "sourceCommits": {
+      "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+    },
+    "sourceHashesSha256": {
+      "classic": {
+        "internal/characters/noelle/skill.go": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+        "internal/characters/noelle/shield.go": "293c6d080a0efed14b73b7ddd23aeff409a92b0f5941622ca224fe32e415557d",
+        "internal/characters/noelle/asc.go": "fdb6f78051582ce51b272e78e35075857a8f00e9aee11b508a2b9e8addd4a859",
+        "internal/characters/noelle/noelle.go": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+        "internal/characters/noelle/cons.go": "3e2166f75eb6da199f44b5029e5b664db37aab608ef004d7f19d2dc3fa6f429b"
+      },
+      "stellar": {
+        "internal/characters/noelle/skill.go": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+        "internal/characters/noelle/shield.go": "90697d3099f62e47dc8903bfe68ea870d30f7a338f66554f4d3e39a555d665ba",
+        "internal/characters/noelle/asc.go": "fdb6f78051582ce51b272e78e35075857a8f00e9aee11b508a2b9e8addd4a859",
+        "internal/characters/noelle/noelle.go": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+        "internal/characters/noelle/cons.go": "3e2166f75eb6da199f44b5029e5b664db37aab608ef004d7f19d2dc3fa6f429b"
+      }
+    },
+    "abilityInvocation": {
+      "actor": "noelle",
+      "action": "skill",
+      "constellations": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "scope": "Initial Breastplate damage, actual E-created shield terminal C4 damage, and actual C4 timer fallback branch. Healing and A1 shield are separate.",
+      "directAttackCountAtCast": 0,
+      "synchronousShieldBirthCount": 1
+    },
+    "birth": {
+      "siteId": "noelle.skill.shield",
+      "nativeHelper": "SourceHostWithShieldBirth",
+      "source": "Skill synchronous Shields.Add(c.newShield(...))",
+      "actorIndex": "actual c.Index()",
+      "shieldTarget": -1,
+      "shieldTypeSymbol": "shield.NoelleSkill",
+      "description": "Noelle Skill",
+      "nativeExpiryOffsetFrames": 720,
+      "nativeKey": "Core.F at constructor; not a unique identity",
+      "hpSource": "char-shield-noelle-skill from existing Skill snapshot TotalDEF and unchanged talent reads",
+      "identityRule": "Exact shieldInstances birth with this invocation and creation site; do not use frame/type alone.",
+      "laneElement": {
+        "classic": "newShield leaves Tmpl.Ele unset; preserve enum zero value",
+        "stellar": "newShield explicitly sets attributes.Geo"
+      }
+    },
+    "producers": [
+      {
+        "siteId": "noelle.skill.initial-hit",
+        "countPerInvocation": 1,
+        "nativeHelper": "SourceHostQueueCharTask",
+        "taskKind": "character",
+        "delayCharacterFrames": 14,
+        "globalTimingRule": "Native character task clock may pause under hitlag; do not require global elapsed time exactly 14.",
+        "attackCountFact": "noelle.skill.initial-hit.attack-count",
+        "allowedAttackCounts": [
+          1
+        ],
+        "factSemantics": "Zero at task entry; one after the original single QueueAttack call completes.",
+        "ability": "Breastplate",
+        "attackTagName": "AttackTagElementalArt",
+        "snapshotDelayFrames": 0,
+        "damageDelayFrames": 0,
+        "pattern": "combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 2)",
+        "callbacks": [
+          "original skillHealCB closure"
+        ],
+        "snapshotNote": "The earlier snap in Skill supplies shield HP. The initial damage still uses the original QueueAttack at task execution, not QueueAttackWithSnap."
+      },
+      {
+        "siteId": "noelle.skill.c4-timer",
+        "countPerInvocationBelowC4": 0,
+        "countPerInvocationAtC4Plus": 1,
+        "nativeHelper": "SourceHostQueueTask",
+        "taskKind": "core",
+        "delayFrames": 720,
+        "attackCountFact": "noelle.skill.c4-timer.attack-count",
+        "allowedAttackCounts": [
+          0,
+          1
+        ],
+        "guard": "original single c.shieldTimer == c.Core.F comparison",
+        "factSemantics": "Zero at callback entry; one only in the existing guard-positive branch before explodeShield.",
+        "abilityWhenPositive": "Breastplate (C4)",
+        "attackTagNameWhenPositive": "AttackTagElementalArt",
+        "ownerRule": "Timer fallback is ability-producer-owned when there is no active shield hook. Do not invent or attach a shield instance from timer/frame equality.",
+        "pendingRule": "At C4+ the pending timer remains part of finite damage scope even if the shield already broke or was overwritten; require its actual completed branch."
+      }
+    ],
+    "explosion": {
+      "emitSiteId": "noelle.shield.explosion",
+      "nativeHelper": "SourceHostQueueShieldAttack",
+      "ability": "Breastplate (C4)",
+      "attackTagName": "AttackTagElementalArt",
+      "snapshotDelayFrames": 0,
+      "damageDelayFrames": 0,
+      "pattern": "combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 4)",
+      "callbacks": [],
+      "firstSideEffect": "c.shieldTimer = 0",
+      "formula": "Unchanged native multiplier 4, Geo element, existing hitlag and defense-halt flags.",
+      "ownerRule": "Generic expiry/overwrite/damage hook uses the exact old E shield instance. The separate timer path retains producer ownership and no fabricated shield cause."
+    },
+    "hooks": [
+      {
+        "cause": "expiry",
+        "attackCountBelowC4": 0,
+        "attackCountAtC4Plus": 1,
+        "nativePath": "noelleShield.OnExpire -> explodeShield",
+        "ordering": "Native expiration callback runs before removal; explosion resets shared shieldTimer before later core timer task."
+      },
+      {
+        "cause": "overwrite",
+        "attackCountBelowC4": 0,
+        "attackCountAtC4Plus": 1,
+        "nativePath": "noelleShield.OnOverwrite -> explodeShield",
+        "ordering": "Old shield explodes inside original Shields.Add before new shield installation. Skill sets the new shared shieldTimer after Add returns."
+      },
+      {
+        "cause": "damage",
+        "attackCountBelowC4": 0,
+        "attackCountAtC4PlusWhenSurvives": 0,
+        "attackCountAtC4PlusWhenBroken": 1,
+        "nativePath": "noelleShield.OnDamage -> Tmpl.OnDamage; explodeShield only when !ok && Cons>=4",
+        "ordering": "Explosion occurs before generic handler removal and OnShieldBreak event."
+      }
+    ],
+    "timerAudit": {
+      "writes": [
+        "Skill sets shieldTimer=F+720 after Shields.Add",
+        "explodeShield sets shieldTimer=0 before queueing damage"
+      ],
+      "reads": [
+        "Only the C4 core timer guard compares shieldTimer to Core.F"
+      ],
+      "nativeOrder": "Core.Tick calls Player.Tick before Core.Tasks.Run; Player.Tick executes Shields.Tick before character.Tick.",
+      "normalExpiryConsequence": "C4 native OnExpire normally resets timer before the same-frame +720 core task, whose actual branch is then zero. This is an observed branch requirement, not a skipped task or assumed cleanup.",
+      "replacementConsequence": "Native old-shield OnOverwrite explosion resets timer, then Skill writes new timer. Earlier task guards still execute later; their exact 0/1 facts govern ownership.",
+      "sameFrameRule": "Do not infer timer ownership by matching equal frame keys or configured lifetimes."
+    },
+    "a1Exclusion": {
+      "constructor": "direct plain shield.Tmpl in a1, not noelleShield/newShield",
+      "shieldTypeSymbol": "shield.NoelleA1",
+      "description": "Devotion (Shield)",
+      "target": "actual active character index",
+      "element": "attributes.Cryo in both lanes",
+      "nativeExpiryOffsetFrames": 1200,
+      "nativeBirthSite": "untagged all-Add observation remains outside noelle.skill.shield",
+      "c4Hooks": false,
+      "note": "No A1 source edit; its HP formula, event guards, active target and passive lifecycle remain separate."
+    },
+    "callbackAudit": [
+      "skillHealCB checks enemy, closure-local done, current NoelleSkill shield, probability/C1 state, then existing RNG; it queues healing only and no damage.",
+      "skillHealCB is also used by normal/charged attacks but those callbacks and their healing are outside this E intrinsic damage component.",
+      "newShield has only the E Skill caller; A1 does not reuse it.",
+      "explodeShield has exactly four source callsites: the C4 core timer plus custom shield OnExpire, OnOverwrite, and broken OnDamage."
+    ],
+    "collectionRequirements": [
+      "Require exactly one E birth with creationSiteId noelle.skill.shield and exact invocation identity.",
+      "Require one initial character producer with the original single Breastplate queue and terminal targets; check character scheduling without equating it to a global +14 deadline.",
+      "For C4+ require the one actual +720 core timer producer and its source-known 0/1 count; do not silently omit a pending or positive timer.",
+      "Require actual native terminal lifecycle and hook receipts for the E-born shield; configured expiry alone is not observed termination.",
+      "Select terminal explosion damage by exact shield instance and allowed hook cause; exclude A1/other shields and later E births.",
+      "If a timer branch emits an explosion without an active shield hook, count it through that timer producer rather than attaching it to an assumed shield.",
+      "Keep shield-owned queued attacks out of new invocation/producer root census, especially old-shield overwrite explosion during a subsequent E.",
+      "Do not normalize the Classic/stellar shield element difference or add cleanup/removal behavior."
+    ],
+    "scopeNotes": [
+      "Healing, A1 passive shield, A4 cooldown reduction, Burst state, normal/charged attacks, crystallize shields and downstream reactions are outside this intrinsic E damage component.",
+      "All gameplay formulas, snapshot timing, RNG draws, task clocks, delays, state mutation order and queue arguments stay unchanged."
+    ],
+    "sourceRefs": [
+      "internal/characters/noelle/skill.go:28-94",
+      "internal/characters/noelle/skill.go:97-142",
+      "internal/characters/noelle/skill.go:144-166",
+      "internal/characters/noelle/shield.go:13-46 (classic)",
+      "internal/characters/noelle/shield.go:13-48 (stellar)",
+      "internal/characters/noelle/asc.go:19-61",
+      "internal/characters/noelle/noelle.go:13-18",
+      "pkg/core/core.go:144-156",
+      "pkg/core/player/player.go:299-323",
+      "pkg/core/player/character/sourcehost_ability_producer.go:3-11"
+    ]
+  },
+  "editedPaths": [
+    "internal/characters/noelle/skill.go"
+  ],
+  "verificationBoundary": [
+    "Only source-site observation wrappers, producer labels/facts and the shared explosion queue label are changed.",
+    "No shield constructor, passive A1, generic Go core, TypeScript, UI, test or build file edited.",
+    "Native generic hook API supplies old-shield owner/cause; timer remains original separate core task with producer ownership.",
+    "All frozen source file hashes were checked against receipts and remained unchanged.",
+    "No native execution or game-correctness claim is made by this source-only audit."
+  ]
+}

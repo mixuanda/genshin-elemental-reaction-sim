@@ -1,0 +1,252 @@
+{
+  "schemaVersion": "source-finite-coverage-batch-contract-audit-v1",
+  "asOf": "2026-09-30",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "counts": {
+    "distinctFiniteSkillContracts": 70,
+    "producerPlanEntries": 57,
+    "producerSites": 74,
+    "newFiniteSkillContracts": 7,
+    "nativeRuns": 2,
+    "browserCases": 1,
+    "browserAttempts": 2,
+    "additionalNativeRunsOnRetry": 0,
+    "selectedHits": 10
+  },
+  "contracts": [
+    {
+      "characterKey": "ganyu",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ganyu/skill.go",
+      "sourceSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+      "sourceHashes": {
+        "classicSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+        "stellarSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 2
+      },
+      "sourceEvidence": "skill.go:19-50 direct QueueAttackWithSnap calls at 35 (delay 13) and 37 (delay 373).",
+      "nonDamageCallbacksAndInitAudit": "skill.go:53-65 callback queues particles only. ganyu.go:42-49 Init installs C1/C4 only; cons.go:20-42 C1 callback is for Frostflake Arrow/Bloom and is not attached by E; cons.go:44-68 C4 is a damage modifier, not another attack. Skill line 39-41 grants C6 status consumed by a later aimed shot (aimed.go:78-85), which is a later player action and excluded.",
+      "id": "ganyu-skill",
+      "label": "甘雨 E"
+    },
+    {
+      "characterKey": "yanfei",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yanfei/skill.go",
+      "sourceSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+      "sourceHashes": {
+        "classicSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+        "stellarSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:31-85 one direct QueueAttack at 63.",
+      "nonDamageCallbacksAndInitAudit": "skill.go:32-48 addSeal and 87-96 particleCB update seals/particles only. yanfei.go:47-59 Init initializes modifiers and C2; cons.go:15-39 C2 applies only to AttackTagExtra, while E is AttackTagElementalArt. asc.go:38-76 A4 queues Blazing Eye only from a later charged-attack crit; burst.go:90 calls c4 from Q (shield only).",
+      "id": "yanfei-skill",
+      "label": "烟绯 E"
+    },
+    {
+      "characterKey": "xiao",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xiao/skill.go",
+      "sourceSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+      "sourceHashes": {
+        "classicSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+        "stellarSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:31-83 one direct QueueAttack at 50, hitmark 4.",
+      "nonDamageCallbacksAndInitAudit": "skill.go:44-48 / 85-96 particle callback queues particles only. skill.go:63-66 schedules A4; asc.go:40-68 creates a 420-frame modifier for subsequent Elemental Art-tagged attacks, no attack. xiao.go:46-55 Init adds no cast attack; cons.go:61-88 C6 resets E cooldown after qualifying plunge hits, and plunge.go:168-174,251-257 attach it to later plunge attacks, not E.",
+      "id": "xiao-skill",
+      "label": "魈 E"
+    },
+    {
+      "id": "thoma-skill",
+      "label": "托马 E（固定来源施放伤害）",
+      "characterKey": "thoma",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/thoma/skill.go",
+      "sourceSha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a",
+      "sourceHashes": {
+        "classicSha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a",
+        "stellarSha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "Skill queues one Blazing Blessing directly with snapshot/damage delay 11; native shield creation at +9/+1 and self-infusion at +9 do not emit skill damage.",
+      "nonDamageCallbacksAndInitAudit": "particleCB generates particles only; shield refresh has no terminal damage; A1/C6 modify shield strength or later attack tags. Init burst watcher emits only on later normals under its Q status. C1 cooldown, snapshot and damage comments remain source limitations.",
+      "scopeNotes": [
+        "本规则汇总固定来源的托马 E 施放伤害；护盾量、自附火、粒子及后续 Q 协同攻击分别处理。",
+        "来源仍标注快照时点未知、伤害组件未最终确认，且 C1 冷却按无条件 12 秒简化；本结果复现该来源，不宣称游戏机制已核验。"
+      ]
+    },
+    {
+      "id": "ayato-skill",
+      "label": "神里绫人 E（水影爆炸）",
+      "characterKey": "kamisatoayato",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ayato/skill.go",
+      "sourceSha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+      "sourceHashes": {
+        "classicSha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+        "stellarSha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d"
+      },
+      "sourceEvidence": "One native Core task at min(max(illusion_delay,35),360) queues exactly one water-illusion attack. AttackInfo and ePos target reference are captured by Skill; hitbox creation, snapshot and damage remain inside the task with original 0/0 delays. No branch, callback or descendant attack task exists in this scope.",
+      "nonDamageCallbacksAndInitAudit": "Init registers A4 energy regeneration, on-exit status cleanup and C1/C2 modifiers. a1OnSkill and a1OnExplosion only set Namisen stacks. C6 is armed by Skill but its two attacks are queued only by makeC6CB, attached exclusively to a later Attack -> SoukaiKanka action. Its particles and stack callback are likewise later-action effects. Skill water-illusion queue has no callbacks; no external event listener registered by this character adds intrinsic damage to this explosion.",
+      "producerContract": true
+    },
+    {
+      "id": "yunjin-burst",
+      "label": "云堇 Q（施放伤害）",
+      "characterKey": "yunjin",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yunjin/burst.go",
+      "sourceSha256": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0",
+      "sourceHashes": {
+        "classicSha256": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0",
+        "stellarSha256": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0"
+      },
+      "sourceEvidence": "One native character-clock task at burstHitmark=35 queues exactly one Geo initial hit with original snapshot/damage delays 0/0 and no callbacks, then installs the party tags/statuses and C2/C6 buffs. Character hitlag clock is retained.",
+      "nonDamageCallbacksAndInitAudit": "Init calls a4Init, burstProc and c4, and prepares C6 modifier values. burstProc handles only AttackTagNormal by modifying that existing attack FlatDmg and consuming its actor flag count; it never queues an attack and cannot run for this ElementalBurst hit. A4 returns a buff coefficient; C2/C6 add or remove modifiers; C4 reaction events add DEF modifier only. A1 is not implemented in the pinned source and has no Q damage path.",
+      "producerContract": true
+    },
+    {
+      "id": "kirara-skill",
+      "label": "绮良良 E（点按／短按／长按固有伤害）",
+      "characterKey": "kirara",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kirara/skill.go",
+      "sourceSha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2",
+      "sourceHashes": {
+        "classicSha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2",
+        "stellarSha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2"
+      },
+      "sourceEvidence": "Native dispatcher resolves short_hold first, otherwise positive hold capped at 600 frames. One direct kick is always queued. Short-hold registers one roll task at +17; hold registers actual loop tasks +16,+46,... through hold+12, then kick at hold+36. Each reused native AttackEvent queue occurrence has independent observed identity.",
+      "nonDamageCallbacksAndInitAudit": "Roll callbacks generate particles and A1 shield stacks only. A1 delayed work and generateSkillShield are non-damage. C6 changes team damage modifiers; C4 is separately captured later global event damage and is excluded from intrinsic E kick/roll scope. C2 co-op is not implemented by the pinned source.",
+      "producerContract": true
+    }
+  ],
+  "plans": {
+    "ayato-skill": {
+      "directRootCount": 0,
+      "expectedRootAttackCount": 1,
+      "sites": [
+        {
+          "siteId": "ayato.skill.illusion-explosion",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "本规则仅汇总本次 E 方法创建的水影爆炸伤害，不代表完整站场输出循环。",
+        "瞬水剑由后续独立普攻动作产生，C6 追击只由该普攻的命中回调触发；计算瞬水剑及 C6 需使用自定义动作序列，均不并入本次 E 水影爆炸。",
+        "A1 仅调整浪闪层数；浪闪、C2 生命值、C1 普攻增伤、粒子及 A4 回能不构成本 E 的额外攻击生产任务。"
+      ]
+    },
+    "yunjin-burst": {
+      "directRootCount": 0,
+      "expectedRootAttackCount": 1,
+      "sites": [
+        {
+          "siteId": "yunjin.burst.initial-hit",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "本规则仅汇总本次 Q 施放的固有岩元素伤害。",
+        "飞云旗阵对后续普通攻击增加的基础伤害，以及 C2／C6 队伍增益，归入相应后续攻击的计算，不计入本次 Q 固有伤害。"
+      ]
+    },
+    "kirara-skill": {
+      "directRootCount": 1,
+      "expectedRootAttackCount": {
+        "op": "add",
+        "left": 1,
+        "right": {
+          "op": "fact",
+          "name": "kirara.skill.roll-task-count"
+        }
+      },
+      "sites": [
+        {
+          "siteId": "kirara.skill.short-hold.roll",
+          "rootCount": 1,
+          "parentSites": [],
+          "when": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "kirara.skill.resolved-mode"
+            },
+            "right": 1
+          },
+          "outcomes": [
+            {
+              "attackCount": 1
+            }
+          ]
+        },
+        {
+          "siteId": "kirara.skill.hold.roll",
+          "rootCount": {
+            "op": "fact",
+            "name": "kirara.skill.roll-task-count"
+          },
+          "parentSites": [],
+          "when": {
+            "op": "compare",
+            "cmp": "eq",
+            "left": {
+              "op": "fact",
+              "name": "kirara.skill.resolved-mode"
+            },
+            "right": 2
+          },
+          "outcomes": [
+            {
+              "attackCount": 1
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "本规则按原生实际分支汇总一次 E 的踢击和滚动碰撞；长按时长按来源上限 600 帧处理，每次滚动排队独立归属。",
+        "C4 后续队友攻击触发的协同伤害属于独立事件组件，不纳入本次 E 固有踢击／滚动小计；护盾量、A1 护盾叠层和 C6 增益不计作额外伤害。"
+      ]
+    }
+  },
+  "canonicalKeyAudit": "docs/validation/source-finite-native-key-audit-20260930.json",
+  "verification": "Fixed-source audit and selected runtime closure/replay; no full constellation or game-mechanic verification."
+}

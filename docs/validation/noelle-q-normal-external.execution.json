@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "/Users/evan/Documents/gidps/docs/validation/noelle-q-normal-external.gcsl",
+    "-out",
+    "/Users/evan/Documents/gidps/docs/validation/noelle-q-normal-external.result.json",
+    "-sample",
+    "/Users/evan/Documents/gidps/docs/validation/noelle-q-normal-external.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "startedAt": "2026-09-23T13:09:26.444164+00:00",
+  "elapsedSeconds": 0.020213791984133422,
+  "exitCode": 0,
+  "stdout": "Average duration of 6.00 seconds (min: 6.00 max: 6.00 std: 0.00)\nAverage 105.68 damage over 6.00 seconds, resulting in 18 dps (min: 17.61 max: 17.61 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 1522789908294901352 to /Users/evan/Documents/gidps/docs/validation/noelle-q-normal-external.sample.json\n",
+  "stderr": "",
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "executionCount": 1,
+  "iterationsNote": "One CLI invocation requests one aggregate iteration and a separately generated sample iteration. Not Monte Carlo validation."
+}

@@ -1,0 +1,181 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:17.676135+00:00",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Rosaria/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/Rosaria/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Rosaria/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Rosaria/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:17.717618+00:00",
+      "sha256": "4ab610972fe7206886ab4761a1b0ff103a2d62c2686ddd9436a41825558f83bc",
+      "gitBlobSha": "c1ee2ab528ce711fb1687e44e6646e1c024f0340",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Rosaria/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/Rosaria/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Rosaria/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Rosaria/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:15.368331+00:00",
+      "sha256": "b6839acc10a06b02060347dc7ef309924652744d455d5e1a30862cb6ee0a5508",
+      "gitBlobSha": "7c4d0982f0b26b74bc36e2e6e68af20bad382efa",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Qiqi/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/Qiqi/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Qiqi/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Qiqi/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:17.860374+00:00",
+      "sha256": "ea9ecc9768e24470470db1a7303ad92f81fd310cf54b50755b7fd4f4d341951b",
+      "gitBlobSha": "8f23336ff848ae9c7a694845d35430bb8708e75a",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Qiqi/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/Qiqi/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Qiqi/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Qiqi/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:16.393192+00:00",
+      "sha256": "6abc5f315511ee90f7df231b5111b1b762b5ccf445758b38e38f98fa1de8f7cb",
+      "gitBlobSha": "4dc9467f05d0744e93a75eb0ffb9146f70e84c5a",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Kaeya/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/Kaeya/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Kaeya/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Kaeya/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:18.207315+00:00",
+      "sha256": "04937a305ab6c62173aa4efffd2b09bf6134e4b567e2ecaeb80915cad5f20dec",
+      "gitBlobSha": "2bce4e2907e53cc92f13ad57b2fbdca14162ecd1",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Kaeya/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/Kaeya/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Kaeya/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Kaeya/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:17.827432+00:00",
+      "sha256": "ad753eee8e883942450288ffcb3d682b92e76ff331f7e541da1ad3d40f89841e",
+      "gitBlobSha": "9c4785809fd31cd394a0643adcce858329f26e2d",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/SangonomiyaKokomi/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/SangonomiyaKokomi/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/SangonomiyaKokomi/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/SangonomiyaKokomi/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:18.555602+00:00",
+      "sha256": "27f8a7f109a37b5c9c651057cfa6c4dd6ce5b1c8fe7bb8f06ff10259fb779080",
+      "gitBlobSha": "7de2b4ec3e4dec494ff771f65d72a9deadddb029",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/SangonomiyaKokomi/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/SangonomiyaKokomi/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/SangonomiyaKokomi/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/SangonomiyaKokomi/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:18.668793+00:00",
+      "sha256": "d20ef3f9fec531ca4ac84e8aff23df68821bc22aa1869b0a9e8d6eb775460750",
+      "gitBlobSha": "b0db53338b360524b00b2642bcc8982393636b9b",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Venti/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/Venti/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Venti/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Venti/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:18.802660+00:00",
+      "sha256": "65a3989f2d06e99a1ccf54b328c562bdccaa84233581d4a51e7e3d34f66ebe19",
+      "gitBlobSha": "ac88159c754b5ceed9b4a7fb611942a2bab38efb",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Venti/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/Venti/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Venti/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Venti/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:01:18.671559+00:00",
+      "sha256": "0306b6ac8cc54a967e9b7a0a4b5d35a9529ae9423b1900726a0b46da18f6d22f",
+      "gitBlobSha": "f6af1a8981bb5c4c6087fd008b995f6297df5d88",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Shenhe/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/Shenhe/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Shenhe/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Shenhe/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:28:11.881376+00:00",
+      "sha256": "1679cda489f208728db1e1bbc58fd3a3aa66540f0a09a5c78dfa6b267d2f4f2f",
+      "gitBlobSha": "b0c4a9c406bdc95e6fc405d10d364751e734176d",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Shenhe/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/Shenhe/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Shenhe/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Shenhe/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:28:11.831314+00:00",
+      "sha256": "3324047c3393d2ed7f26481e9c037f8d3e914fa9bbd840572acead629090a3c9",
+      "gitBlobSha": "ef7b2ea1da3b68b43b31c4d658205bb385af063d",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Escoffier/index.tsx",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/sheets/src/Characters/Escoffier/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Escoffier/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Escoffier/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:28:11.898202+00:00",
+      "sha256": "7db658f465b09cb66a9b6188ec057728e5ef718a0c3b77e8387be212c6637b02",
+      "gitBlobSha": "55053886db15d9861945e99e0e262cbde9fec30a",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Escoffier/skillParam.json",
+      "archivedPath": "packages/game-data/sources/batch-complete-periodic/raw/optimizer/libs/gi/stats/Data/Characters/Escoffier/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Escoffier/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Escoffier/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-24T06:28:11.831237+00:00",
+      "sha256": "16be955ae1a2687c35292c7d5d4d11d1cceeea1535dc0bde65c6bf74c82a0dc8",
+      "gitBlobSha": "184c0c96b3c7d1b2610344115f28d784b1502a1e",
+      "matchesPinnedTree": true
+    }
+  ],
+  "treeTruncated": false,
+  "treeSha256": "3fb9ff8b883c2a63c5ccb6569719795389ccd8b8f055a10d5c5af9ae77e612eb",
+  "comparedCoefficientPositions": 210,
+  "maximumAbsoluteDifference": 0.0,
+  "comparisonScope": "Skill and Q raw multipliers plus Shenhe Q resistance reduction; not all passives or timeline",
+  "observedUnimplementedModes": {
+    "Venti": "lockedPassive Q multiplier and active damage bonus when Hexerei conditions hold; named action requires inactive.",
+    "Qiqi": "lockRevelation frostCoordDmg adds E damage; named full action requires inactive. GO sheet does not alone establish released/preview status."
+  }
+}

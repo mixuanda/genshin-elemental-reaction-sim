@@ -1,0 +1,135 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "recordedAt": "2026-09-23T20:05:30.472689+00:00",
+  "networkRequestsThisTask": 0,
+  "newRawCopies": 0,
+  "note": "All needed phase sources were already archived at the fixed revision; this manifest reuses and fingerprints them without duplicate copies.",
+  "sources": [
+    {
+      "path": "pkg/simulation/run.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/simulation/run.go",
+      "bytes": 9886,
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/run.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/core/core.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/exec.go",
+      "bytes": 7052,
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/core/task/task.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/core/player/character/energy.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/skill.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/skill.go",
+      "bytes": 4293,
+      "sha256": "7d14fab1e06c4dad5179a2a09c612f61080ccfd0d0aee58b21e665e533273782",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/burst.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/burst.go",
+      "bytes": 1860,
+      "sha256": "f395c9dd5a31e63239b8b43625b41183fb762b4783463117442485b6b5b2fcd6",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/burst.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/asc.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/asc.go",
+      "bytes": 1153,
+      "sha256": "523efefcd5fdf9957631a5efe7cbf7d05992b123351683edca5c4792b9dd16b8",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/asc.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "internal/characters/kuki/zz_kukishinobu.dm.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/zz_kukishinobu.dm.go",
+      "bytes": 3497,
+      "sha256": "a33b132e2e2e3e3d00a30e704f71e68e74d91f1e3343f7cd677cd4f19fb30c87",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/zz_kukishinobu.dm.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "internal/template/character/cooldown.go",
+      "archivedPath": "docs/cross-validation/action-library/source/internal/template/character/cooldown.go",
+      "bytes": 7269,
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/cooldown.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "internal/frames/frames.go",
+      "archivedPath": "docs/cross-validation/action-library/source/internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/frames/frames.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    },
+    {
+      "path": "pkg/gcs/eval/sysfunc.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/gcs/eval/sysfunc.go",
+      "bytes": 12654,
+      "sha256": "0e5352aafe132b4a20d79bfbad30a0c0b932d7e421d7e3f132dd15434e2010ae",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/eval/sysfunc.go",
+      "reusedArchive": true,
+      "matchesFixedLocalCheckout": true
+    }
+  ]
+}

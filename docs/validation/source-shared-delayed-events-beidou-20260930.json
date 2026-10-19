@@ -1,0 +1,24 @@
+{
+  "scope": "Beidou selected Stormbreaker event invocation and its finite callback chain only",
+  "file": "internal/characters/beidou/burst.go",
+  "baselineSha256": "45bba1b60c87c2795ee4084c39bbd9c859993cada435a84b9ace9d209ba552d7",
+  "patchSha256": "1e8033b4917dfdfff158ee24622c6973628927291ed4d2332e4e5ffa5fd35449",
+  "sameBothLanes": true,
+  "sourceRefs": {
+    "listener": "burst.go:130-164 before patch, frozen batch114",
+    "chain": "burst.go:167-192 before patch, frozen batch114"
+  },
+  "eventSite": "beidou.burst.enemy-damage",
+  "directEmitSite": "beidou.burst.first-bounce",
+  "callbackSite": "beidou.burst.chain",
+  "callbackEmitSite": "beidou.burst.chain-bounce",
+  "branchFacts": [
+    "beidou.burst.attack-count",
+    "beidou.burst.max-hit-count",
+    "beidou.burst.chain-index",
+    "beidou.burst.chain-attack-count",
+    "beidou.burst.chain-max-hit-count",
+    "beidou.burst.chain-target-key"
+  ],
+  "behavior": "Original callback recursion, RandomEnemyWithinArea selection, native queues and delays unchanged; no extra RNG/getter calls. Plain constellation reads only determine observational fixed bound. All queues are original attack pointers passed once."
+}

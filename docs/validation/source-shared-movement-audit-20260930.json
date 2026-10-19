@@ -1,0 +1,305 @@
+{
+  "schemaVersion": "source-shared-movement-audit-v1",
+  "batch": 122,
+  "date": "2026-09-30",
+  "scope": "Shared queue descriptor lifecycle, swap frame/completion descriptors, default movement frames and delayed dash stamina. Fixed-source implementation, not game verification.",
+  "core": {
+    "classic": {
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/build-8jk63z/source",
+      "patch": "packages/source-host/patches/122-movement-core.patch",
+      "patchSha256": "4f685327e8dcb405df1b76dd71fa6c4ff9ade4d930d7ca05f4ec6a8e94dc02a6",
+      "files": [
+        {
+          "path": "pkg/core/action/action.go",
+          "beforeSha256": "4f24fdeebe6ab1fa570fc5b27a294f482063244cd1ede8616887f6e5a9905c79",
+          "afterSha256": "7d5b9b2090a9baecc370f4620ab1f047d7b27fefa4474fe786f3837295722725"
+        },
+        {
+          "path": "pkg/core/action/sourcehost_phase_state.go",
+          "beforeSha256": "672cdaf6afd459cdd461013bc53557292326fa15f13da9a2b78077e92be62a53",
+          "afterSha256": "5dc58b05944599132107ed11754793a75c58b10e53838c12fcd69aa111f68b6f"
+        },
+        {
+          "path": "pkg/core/player/exec.go",
+          "beforeSha256": "a7f31797fc0438e4a29beeb9ed24da9c2b1e21ca7be540567d0a517089e3a76c",
+          "afterSha256": "2939f466a6bd7903705fb8ac4b56f7d91a639d9d65f799c62ca4389a5a47c43d"
+        },
+        {
+          "path": "pkg/core/player/sourcehost_phase_movement.go",
+          "beforeSha256": null,
+          "afterSha256": "9dbd0046361a10e6e393bc910c3dcd988d9e7c9f92ae37fdb4e57735f9747b4c"
+        }
+      ],
+      "gitApplyCheckExitCode": 0
+    },
+    "stellar": {
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-ojElM4/source",
+      "patch": "packages/source-host/stellar-overlay/patches/122-movement-core.patch",
+      "patchSha256": "56ca686d454275bfb6b7dd67594e2581e67a3c7882227b8935f88794e1608a6c",
+      "files": [
+        {
+          "path": "pkg/core/action/action.go",
+          "beforeSha256": "6aa6391d1eeb9078e59510aa2b3942d2d897d3b1e57da72084ab0a5337f015cc",
+          "afterSha256": "e49d86fbf979ac37045bdd2a69b083a1cff81dfad4235eeacde1c2c00eacb853"
+        },
+        {
+          "path": "pkg/core/action/sourcehost_phase_state.go",
+          "beforeSha256": "672cdaf6afd459cdd461013bc53557292326fa15f13da9a2b78077e92be62a53",
+          "afterSha256": "5dc58b05944599132107ed11754793a75c58b10e53838c12fcd69aa111f68b6f"
+        },
+        {
+          "path": "pkg/core/player/exec.go",
+          "beforeSha256": "f4a5cae1d552388e6f2c9f9b6e4b4abdd058f3242821ec9b101ad9c9750c231c",
+          "afterSha256": "bc780bc9f8c19527dc39785018af676858b39003a8ed323ab0d1ebb5911af77a"
+        },
+        {
+          "path": "pkg/core/player/sourcehost_phase_movement.go",
+          "beforeSha256": null,
+          "afterSha256": "9dbd0046361a10e6e393bc910c3dcd988d9e7c9f92ae37fdb4e57735f9747b4c"
+        }
+      ],
+      "gitApplyCheckExitCode": 0
+    }
+  },
+  "movement": {
+    "schemaVersion": "shared-movement-stamina-source-audit-v1",
+    "batch": 122,
+    "scope": "Default movement FrameFunc descriptors and delayed shared dash stamina task only; source-pinned, not game verified.",
+    "lanes": {
+      "classic": {
+        "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/build-8jk63z/source",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch122/classic/receipt.json",
+        "receiptSha256": "ea702e2a40afc9c685f07bf57130c61b07540747d7215f1297a0c3e343a14712",
+        "path": "internal/template/character/stam.go",
+        "beforeSha256": "1de5c7356c8ca72bbcf9c24235d1631ffc4635d934871cc4a5c9bb36f8265230",
+        "afterSha256": "3d3d5221e041ba170e90dbbc4b7a6c628c7e389d1520b97c3d7f7fa15166f847",
+        "patch": "/Users/evan/Library/Caches/gidps-source-host/122-movement/stam/122-stam-movement-classic.patch",
+        "patchSha256": "16aa4c05262285fb07612b372484ab65fd3a3e824a4c1f2cabb54302848dd59c",
+        "patchBytes": 3997,
+        "descriptors": [
+          {
+            "source": "internal/template/character/stam.go:Dash:frames",
+            "capturedExpressions": "\"dashFrames\": length, \"jumpCancelFrames\": dashJumpLength"
+          },
+          {
+            "source": "internal/template/character/stam.go:Jump:xianyun-airborne:frames",
+            "capturedExpressions": "\"lowPlungeFrames\": lowPlunge, \"highPlungeFrames\": highPlunge, \"otherActionFrames\": animLength"
+          },
+          {
+            "source": "internal/template/character/stam.go:Jump:ordinary:frames",
+            "capturedExpressions": "\"frames\": f"
+          },
+          {
+            "source": "internal/template/character/stam.go:Walk:frames",
+            "capturedExpressions": "\"frames\": f"
+          }
+        ],
+        "taskSource": "internal/template/character/stam.go:QueueDashStaminaConsumption",
+        "taskKey": "dash-stamina-consumption",
+        "gofmt": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "gitApplyCheckExitCode": 0,
+        "frozenSourceUnchanged": true,
+        "installedPatch": "packages/source-host/patches/122-movement-stam.patch"
+      },
+      "stellar": {
+        "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-ojElM4/source",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch122/stellar/receipt.json",
+        "receiptSha256": "7243bca6221d6af29a6ca85a0719824c04c4eb85d7d01f99c3d2b45451d4327b",
+        "path": "internal/template/character/stam.go",
+        "beforeSha256": "f1f3be584ee5fa5200ab8c007e39495f9932f437734c8570683684c2bada93e9",
+        "afterSha256": "9620da13d37b7294705ad2f84e03e738eeb58cd3c82165da38bded4e2ce5788c",
+        "patch": "/Users/evan/Library/Caches/gidps-source-host/122-movement/stam/122-stam-movement-stellar.patch",
+        "patchSha256": "dffe1c9fdda2f7cf274b81119e4f76e08a94455621eefcb6a6a73e3fbf06d205",
+        "patchBytes": 5585,
+        "descriptors": [
+          {
+            "source": "internal/template/character/stam.go:Dash:frames",
+            "capturedExpressions": "\"dashFrames\": length, \"jumpCancelFrames\": dashJumpLength"
+          },
+          {
+            "source": "internal/template/character/stam.go:Jump:xianyun-airborne:frames",
+            "capturedExpressions": "\"lowPlungeFrames\": lowPlunge, \"highPlungeFrames\": highPlunge, \"otherActionFrames\": animLength"
+          },
+          {
+            "source": "internal/template/character/stam.go:Jump:stellar-airborne:frames",
+            "capturedExpressions": "\"lowPlungeFrames\": lowPlunge, \"highPlungeFrames\": highPlunge, \"otherActionFrames\": animLength"
+          },
+          {
+            "source": "internal/template/character/stam.go:Jump:stellar-dynamic:frames",
+            "capturedExpressions": "\"actorIndex\": c.Index(), \"jumpModified\": int(c.JumpModified), \"airborneSource\": int(c.Core.Player.Airborne()), \"ordinaryFrames\": f, \"lowPlungeFrames\": lowPlunge, \"highPlungeFrames\": highPlunge, \"otherActionFrames\": animLength"
+          },
+          {
+            "source": "internal/template/character/stam.go:Walk:frames",
+            "capturedExpressions": "\"frames\": f"
+          }
+        ],
+        "taskSource": "internal/template/character/stam.go:QueueDashStaminaConsumption",
+        "taskKey": "dash-stamina-consumption",
+        "gofmt": "/Users/evan/Library/Caches/gidps-source-host/go1.27.1/darwin-arm64/go/bin/gofmt",
+        "gitApplyCheckExitCode": 0,
+        "frozenSourceUnchanged": true,
+        "installedPatch": "packages/source-host/stellar-overlay/patches/122-movement-stam.patch"
+      }
+    },
+    "semantics": [
+      "Every original Frames function body is retained as FrameFunc.Run at the original construction site; no gameplay callback is evaluated during observation.",
+      "Default Dash captures original length and dashJumpLength; default Walk captures the original selected f including source fallback 1.",
+      "Classic ordinary Jump captures the f from the original single JumpLength call. Fixed Xianyun/Stellar-airborne closures capture low/high plunge and fallback animation frames chosen by the original branch.",
+      "Stellar ordinary Jump retains the live short-circuit JumpModified/Airborne predicate in Run. Observe reads both live values with pure Index/Airborne getters and copies the already captured frame lengths. No StatusIsActive, Duration, SetAirborne, JumpLength or Stat call is added to observation.",
+      "JumpModifiedF is not consumed by this frame callback and is not invented as a dependency. Existing Stellar jump event and character/player phase providers retain their own state coverage.",
+      "The delayed dash task uses the original captured parameter map at execution. Observe copies its current contents while preserving nil, so future mutations do not rewrite historical observations.",
+      "The original single DashLength()-1 scheduling expression, task callback and execution order are retained. AddWithPhase uses the same task.add implementation as Add.",
+      "AbilStamCost, StamPercentMod callbacks, ActionStam dispatch and UseStam remain at execution time only. This descriptor does not claim custom character or modifier state has become complete.",
+      "Custom character movement implementations are not edited; unknown overrides and other callbacks remain opaque."
+    ],
+    "readAudit": [
+      {
+        "path": "pkg/core/player/player.go",
+        "symbols": [
+          "AbilStamCost",
+          "UseStam",
+          "Airborne"
+        ],
+        "finding": "AbilStamCost reads/consumes stamina modifiers and calls ActionStam; UseStam updates stamina/time and emits event. Neither is observed. Airborne returns the stored enum without side effects."
+      },
+      {
+        "path": "pkg/core/player/character/character.go",
+        "symbols": [
+          "Index"
+        ],
+        "finding": "Index returns the stored character index without side effects."
+      },
+      {
+        "path": "internal/template/character/character.go",
+        "symbols": [
+          "JumpModified",
+          "JumpModifiedF",
+          "stellar-vortex-jump event"
+        ],
+        "finding": "Stellar event may change JumpModified while animation runs; dynamic descriptor reads it live rather than freezing the jump kind."
+      },
+      {
+        "path": "pkg/core/task/task.go",
+        "symbols": [
+          "Add",
+          "AddWithPhase",
+          "add"
+        ],
+        "finding": "Both scheduling APIs call same add function; task ordering, delay, origin and lifecycle tracking remain intact."
+      }
+    ],
+    "validation": {
+      "gofmt": "private copies only",
+      "patchApplicability": "passed on both frozen PRE122 roots without applying",
+      "buildsExecuted": 0,
+      "testsExecuted": 0
+    }
+  },
+  "baselines": {
+    "classic": {
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch122/classic/receipt.json",
+      "receiptSha256": "ea702e2a40afc9c685f07bf57130c61b07540747d7215f1297a0c3e343a14712",
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/build-8jk63z/source",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "exportSha256": "574ff0fb820ef45f43ac4773e79fa7fd87baf8c1b1032703fa6ca9dc440b37db",
+      "verifiedBaseBlobCount": 4021,
+      "exportedFileCount": 4123,
+      "exportedBytes": 78719801,
+      "editedBaselinePathsReceiptMatched": [
+        "pkg/core/action/action.go",
+        "pkg/core/action/sourcehost_phase_state.go",
+        "pkg/core/player/exec.go",
+        "internal/template/character/stam.go"
+      ]
+    },
+    "stellar": {
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch122/stellar/receipt.json",
+      "receiptSha256": "7243bca6221d6af29a6ca85a0719824c04c4eb85d7d01f99c3d2b45451d4327b",
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-ojElM4/source",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "exportSha256": "ac0aefb8ecd08455fb07902f6d83350466ef0983bfc30348baddcac65fdda6e7",
+      "verifiedBaseBlobCount": 4283,
+      "exportedFileCount": 4386,
+      "exportedBytes": 89704590,
+      "editedBaselinePathsReceiptMatched": [
+        "pkg/core/action/action.go",
+        "pkg/core/action/sourcehost_phase_state.go",
+        "pkg/core/player/exec.go",
+        "internal/template/character/stam.go"
+      ]
+    }
+  },
+  "semantics": [
+    "QueueAction remains opaque. QueueActionWithPhase shares the same registration and Tick code; descriptor and callback occupy one record, including original origin capture.",
+    "Each queued callback has its own phase gap or captured state. Queue order and remainingTime are preserved; executed callbacks leave no detached metadata.",
+    "Swap Run reads live h.Delays.Swap; observation copies that same dependency without invoking Run. Native h.swap(to) closure, action timing, cooldown bookkeeping, normal resets and event order are unchanged.",
+    "Swap descriptor records captured destination key and current destination index. Active actor, dash state, swap cooldown and character counters remain represented by existing player/character phase providers.",
+    "All original movement callbacks and delayed stamina task bodies are retained. Observe never invokes gameplay callbacks, Stat, AbilStamCost or UseStam.",
+    "Stellar Jump keeps both airborne branches and its live JumpModified/Airborne condition; it is not converted to Classic fixed timing."
+  ],
+  "delayedCooldown": {
+    "schemaVersion": "shared-delayed-cooldown-phase-audit-v1",
+    "batch": 122,
+    "scope": "Source-pinned shared delayed cooldown start task registration; not game verified.",
+    "lanes": {
+      "classic": {
+        "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/build-8jk63z/source",
+        "sourceFile": "internal/template/character/cooldown.go",
+        "privateFile": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/classic/internal/template/character/cooldown.go",
+        "beforeSha256": "0d51f9ebdd040ff835d2524e3f708e443103c0091d20b06fb54853bcce05423b",
+        "afterSha256": "a6d8b0de4953d8c676baf445459c9f0d2aeab80bfe14835ec6a185485d9458fc",
+        "patch": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/classic/122-movement-cooldown.patch",
+        "patchSha256": "6d60d08fed472bf9b660fbeac50312152349cc7c877f14e21b2433074782c9fd",
+        "patchBytes": 586,
+        "gofmt": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "gitApplyCheckExitCode": 0,
+        "frozenSourceUnchanged": true
+      },
+      "stellar": {
+        "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-ojElM4/source",
+        "sourceFile": "internal/template/character/cooldown.go",
+        "privateFile": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/stellar/internal/template/character/cooldown.go",
+        "beforeSha256": "829e4bef429c084dd6b4d2fd2d0b226bc963a24d7baa939492e06a772dd5e24e",
+        "afterSha256": "5b545199ee94ae25c9fa22ccea5b9d21b750f38a8872b41df69a7ab14942f2c0",
+        "patch": "/Users/evan/Library/Caches/gidps-source-host/122-movement/cooldown/stellar/122-movement-cooldown.patch",
+        "patchSha256": "6d60d08fed472bf9b660fbeac50312152349cc7c877f14e21b2433074782c9fd",
+        "patchBytes": 586,
+        "gofmt": "/Users/evan/Library/Caches/gidps-source-host/go1.27.1/darwin-arm64/go/bin/gofmt",
+        "gitApplyCheckExitCode": 0,
+        "frozenSourceUnchanged": true
+      }
+    },
+    "taskKey": "delayed-cooldown-start",
+    "descriptorSource": "internal/template/character/cooldown.go:SetCDWithDelay",
+    "capturedExpressions": {
+      "actorIndex": "c.Index()",
+      "action": "a.String()",
+      "duration": "dur"
+    },
+    "semantics": [
+      "Only the original nonzero-delay Tasks.Add registration changes to AddWithPhase; callback body and delay argument are identical.",
+      "The delay == 0 branch is byte-identical and still invokes SetCD synchronously.",
+      "Observe uses only pure Index and Action.String reads plus captured dur.",
+      "CDReduction and its arbitrary Amount callbacks remain at execution time; no gameplay call or timing/stat read is added.",
+      "Task queue clock, origin, FIFO and lifecycle tracking continue through the same Handler.add implementation.",
+      "Shared character cooldown and modifier state providers retain existing coverage and gaps. This task descriptor does not close unreviewed cooldown modifier callbacks.",
+      "Separate lane copies preserve all existing cooldown semantics, including unrelated Stellar differences."
+    ],
+    "validation": {
+      "gofmt": "private copies only",
+      "patchApplicability": "passed against both frozen PRE122 roots without applying",
+      "buildsExecuted": 0,
+      "testsExecuted": 0,
+      "runtimeExercised": false,
+      "runtimeStatement": "No new runtime case exercised this delayed-cooldown descriptor. Parent integration uses the existing planned two-lane builds."
+    }
+  },
+  "validation": "docs/validation/source-shared-movement-measurements-20260930.json",
+  "queueLifecycleTest": {
+    "path": "packages/source-host/tests/sourcehost-movement-queue_test.go",
+    "sha256": "60728c2b840ab42d6b11d74d3a62fadb63a21934bab6bd70d521ff9c32169f0a",
+    "executedInBothBuiltLanes": true
+  }
+}

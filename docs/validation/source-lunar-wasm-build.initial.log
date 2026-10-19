@@ -1,0 +1,24 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs
+
+Exporting verified source into /tmp/gidps-source-host-cache/build-9CGJnT/source
+go version go1.25.0 darwin/arm64; building ./cmd/sourcehost once
+{"output":"/tmp/gidps-source-host-cache/build-9CGJnT/dist/inventory-metadata.json","packages":401,"resolvedKeys":401,"todoPackages":182,"todoMarkers":493,"sourceFiles":1599}
+node:fs:3105
+  binding.copyFile(
+          ^
+
+Error: EACCES: permission denied, copyfile '/tmp/gidps-source-host-cache/build-9CGJnT/dist/licenses/dependencies/github.com__aclements__go-moremath@v0.0.0-20210112150236-f10218a38794/LICENSE' -> '/Users/evan/Documents/gidps/packages/source-host/dist/licenses/dependencies/github.com__aclements__go-moremath@v0.0.0-20210112150236-f10218a38794/LICENSE'
+    at copyFileSync (node:fs:3105:11)
+    at file:///Users/evan/Documents/gidps/packages/source-host/scripts/build-source-host.mjs:204:3 {
+  errno: -13,
+  code: 'EACCES',
+  syscall: 'copyfile',
+  path: '/tmp/gidps-source-host-cache/build-9CGJnT/dist/licenses/dependencies/github.com__aclements__go-moremath@v0.0.0-20210112150236-f10218a38794/LICENSE',
+  dest: '/Users/evan/Documents/gidps/packages/source-host/dist/licenses/dependencies/github.com__aclements__go-moremath@v0.0.0-20210112150236-f10218a38794/LICENSE'
+}
+
+Node.js v24.15.0
+
+WALL_SECONDS=3.865

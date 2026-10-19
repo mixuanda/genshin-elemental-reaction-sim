@@ -1,0 +1,32 @@
+diff --git a/pkg/core/info/heal.go b/pkg/core/info/heal.go
+--- a/pkg/core/info/heal.go
++++ b/pkg/core/info/heal.go
+@@ -22,5 +22,6 @@
+ 	ActorIndex int
+ 	Abil       string
+ 	Amount     float64
++	SourceHostAmountID int // source formula that wrote Amount; zero means unavailable
+ 	External   bool
+ }
+diff --git a/pkg/avatar/avatar.go b/pkg/avatar/avatar.go
+--- a/pkg/avatar/avatar.go
++++ b/pkg/avatar/avatar.go
+@@ -48,11 +48,16 @@
+ 	dmgLeft := p.Core.Player.Shields.OnDamage(activeChar, activeChar, dmg, atk.Info.Element)
+ 	damageAfterShield := dmgLeft
+ 	if dmgLeft > 0 {
++		amountID := 0
++		if p.Core.SourceHost != nil {
++			amountID = p.Core.SourceHost.PlayerDrainAmountID(atk.SourceHostCalculationID)
++		}
+ 		dmgLeft = p.Core.Player.Drain(info.DrainInfo{
+ 			ActorIndex: activeChar,
+ 			Abil:       atk.Info.Abil,
+-			Amount:     dmgLeft,
+-			External:   true,
++			Amount:             dmgLeft,
++			SourceHostAmountID: amountID,
++			External:           true,
+ 		})
+ 	}
+ 	if p.Core.SourceHost != nil {

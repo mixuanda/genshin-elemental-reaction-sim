@@ -1,0 +1,21 @@
+[WebServer] (node:76043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 2 tests using 1 worker
+
+(node:76044) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/2] [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › classic: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay
+[chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › classic: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay
+{"seeds":["1","2","1","2"],"shieldAbsorbed":[2750.769483240001,2750.769483240001,2750.769483240001,2750.769483240001],"drainAttempted":[9249.230516759999,9249.230516759999,9249.230516759999,9249.230516759999],"calculations":[6,6,6,6],"wasmSha256":["457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74","457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74","457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74","457ee7fa1db6f1895ad3d80d16dc8b8a9d12efa01ffbdeb6e69d75d242e1ec74"],"errors":[]}
+
+[2/2] [chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › stellar: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay
+[chromium] › apps/web/e2e/source-host-energy-shield.spec.ts:17:56 › stellar: two real source seeds preserve Noelle shield, Drain, energy requests and incoming standalone replay
+{"seeds":["1","2"],"shieldAbsorbed":[2750.769483240001,2750.769483240001],"drainAttempted":[9249.230516759999,9249.230516759999],"calculations":[6,6],"wasmSha256":["b38c27d8fb828f4a09a0cee6a1af3c4a2993c98d8722cab3e429796e81820bad","b38c27d8fb828f4a09a0cee6a1af3c4a2993c98d8722cab3e429796e81820bad"],"errors":[]}
+
+  2 passed (8.8s)
+
+exit=0 wallSeconds=9.019305792055093

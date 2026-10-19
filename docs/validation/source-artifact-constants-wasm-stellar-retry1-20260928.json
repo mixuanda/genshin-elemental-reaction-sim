@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 6.051,
+  "log": "docs/validation/source-artifact-constants-wasm-stellar-retry1-20260928.log"
+}

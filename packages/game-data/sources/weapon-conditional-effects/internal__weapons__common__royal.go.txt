@@ -1,0 +1,68 @@
+package common
+
+import (
+	"fmt"
+
+	"github.com/genshinsim/gcsim/pkg/core"
+	"github.com/genshinsim/gcsim/pkg/core/attributes"
+	"github.com/genshinsim/gcsim/pkg/core/event"
+	"github.com/genshinsim/gcsim/pkg/core/glog"
+	"github.com/genshinsim/gcsim/pkg/core/info"
+	"github.com/genshinsim/gcsim/pkg/core/player/character"
+	"github.com/genshinsim/gcsim/pkg/modifier"
+)
+
+const icdKey = "royal-icd"
+
+type Royal struct {
+	Index int
+}
+
+func (r *Royal) SetIndex(idx int) { r.Index = idx }
+func (r *Royal) Init() error      { return nil }
+
+func NewRoyal() *Royal {
+	return &Royal{}
+}
+
+func (r *Royal) NewWeapon(c *core.Core, char *character.CharWrapper, p info.WeaponProfile) (info.Weapon, error) {
+	refine := p.Refine
+
+	stacks := 0
+
+	c.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
+		atk := args[1].(*info.AttackEvent)
+		dmg := args[2].(float64)
+		crit := args[3].(bool)
+		if dmg == 0 {
+			return
+		}
+		if atk.Info.ActorIndex != char.Index() {
+			return
+		}
+		if crit {
+			stacks = 0
+		} else if !char.StatusIsActive(icdKey) {
+			stacks++
+			if stacks > 5 {
+				stacks = 5
+			}
+			char.AddStatus(icdKey, 18, true)
+			c.Log.NewEvent("royal stacked", glog.LogWeaponEvent, char.Index()).
+				Write("stacks", stacks)
+		}
+	}, fmt.Sprintf("royal-%v", char.Base.Key.String()))
+
+	rate := 0.06 + float64(refine)*0.02
+	m := make([]float64, attributes.EndStatType)
+	char.AddStatMod(character.StatMod{
+		Base:         modifier.NewBase("royal", -1),
+		AffectedStat: attributes.NoStat,
+		Amount: func() []float64 {
+			m[attributes.CR] = float64(stacks) * rate
+			return m
+		},
+	})
+
+	return r, nil
+}

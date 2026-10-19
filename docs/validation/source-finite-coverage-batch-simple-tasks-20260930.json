@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "round": 117,
+  "status": "ready: private patches and registry/plan proposal; gofmt and default git apply --check passed for both fresh lanes",
+  "scope": "Ayato E water-illusion explosion and Yun Jin Q cast damage only",
+  "sourceStage": "verified frozen through116/pre117 PRE-talent exports",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-yNtRq2/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-lzWkaI/source"
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch117/classic/receipt.json",
+      "sha256": "b7cfa856bd7856cb5babe573900f1005d7ef041b6457bb5666650e8cd172356d",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "6884b9117d95c4f7487749ea80d6a41ad549a5d88a32741988b9bcd4f1381326"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch117/stellar/receipt.json",
+      "sha256": "66edbcdff3f63c8bb2422e5848ee05b31dd7b258aab1a02baa9ae407ada844e2",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "30c4ccbbdd41529001f3c725dad36f7548c9d3bd2e25b2789e38012a19d70b2d"
+    }
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/ayato/ayato.go": "96ad97e299ed5bd54e30d49436d8ac99af6f3fffb896de64e43b40f21eb37259",
+      "internal/characters/ayato/skill.go": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+      "internal/characters/ayato/burst.go": "0d88d9b32501cd50808751d6b88080a016e890ab011d869f63a70cc1f0245119",
+      "internal/characters/ayato/asc.go": "55e9af3f30366353a5c42b2c081a0fb0c60421db0fe2df47f71700532578593b",
+      "internal/characters/ayato/cons.go": "8431fcd506755e2f15083352f4e027e3a0d0c4b81f15803930e36bbed7e4e144",
+      "internal/characters/ayato/attack.go": "278ef36749a1a9f1a4517d61c828e289ec6bc7eb94393949f5dfd5908eb8b77a",
+      "internal/characters/yunjin/yunjin.go": "e0533faf349ab557e2d64566ef58f28b19b0e270a18d4efdbaf022c31d0de315",
+      "internal/characters/yunjin/skill.go": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+      "internal/characters/yunjin/burst.go": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0",
+      "internal/characters/yunjin/asc.go": "e57445d63f859f57786d027d0240c8fa32b7d055648d7b0cdd49f41bfa4b4a35",
+      "internal/characters/yunjin/cons.go": "50a5d6df360b21d83f264fa5904ad0e22f652f8a09ff799be0da17d01ef9f472",
+      "internal/characters/yunjin/attack.go": "e0eaab53675213ed6eb60290a83dcba16c2b8294e25b5eaeb422ee84859c2262",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/player/character/hitlag.go": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "pkg/core/sourcehost_ability_producer.go": "9054aaabf5cfe7757851b0fca5cdd5683997a2b9171ae98fc2f74a914b83a4a5",
+      "pkg/core/player/character/sourcehost_ability_producer.go": "79e6e81faad35a79f5276407edd31288ccb3532819e205eae800ec5bb0ba3a27",
+      "pkg/core/sourcehost/ability_producer.go": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504"
+    },
+    "stellar": {
+      "internal/characters/ayato/ayato.go": "96ad97e299ed5bd54e30d49436d8ac99af6f3fffb896de64e43b40f21eb37259",
+      "internal/characters/ayato/skill.go": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+      "internal/characters/ayato/burst.go": "0d88d9b32501cd50808751d6b88080a016e890ab011d869f63a70cc1f0245119",
+      "internal/characters/ayato/asc.go": "55e9af3f30366353a5c42b2c081a0fb0c60421db0fe2df47f71700532578593b",
+      "internal/characters/ayato/cons.go": "8431fcd506755e2f15083352f4e027e3a0d0c4b81f15803930e36bbed7e4e144",
+      "internal/characters/ayato/attack.go": "5bd1fb45bfeb1c3e27fa0200aa7fd3870bf7b7b323c534ad55034082273ce37d",
+      "internal/characters/yunjin/yunjin.go": "e0533faf349ab557e2d64566ef58f28b19b0e270a18d4efdbaf022c31d0de315",
+      "internal/characters/yunjin/skill.go": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+      "internal/characters/yunjin/burst.go": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0",
+      "internal/characters/yunjin/asc.go": "e57445d63f859f57786d027d0240c8fa32b7d055648d7b0cdd49f41bfa4b4a35",
+      "internal/characters/yunjin/cons.go": "50a5d6df360b21d83f264fa5904ad0e22f652f8a09ff799be0da17d01ef9f472",
+      "internal/characters/yunjin/attack.go": "56117579b66803edc4d05845a025cdd0d8c06ecbce4c51c0f97f5017443ab2c8",
+      "pkg/core/attack.go": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "pkg/core/task/task.go": "2dbf54e19ca1aff0e69a0ab4220841b3a365bbe079a99d30b22aaa30b77cacc2",
+      "pkg/core/player/character/hitlag.go": "2c501a601873d3ca4399e48e5b38bbd4df9d4c2948b7edd06be7a86c942ac4f8",
+      "pkg/core/sourcehost_ability_producer.go": "9054aaabf5cfe7757851b0fca5cdd5683997a2b9171ae98fc2f74a914b83a4a5",
+      "pkg/core/player/character/sourcehost_ability_producer.go": "79e6e81faad35a79f5276407edd31288ccb3532819e205eae800ec5bb0ba3a27",
+      "pkg/core/sourcehost/ability_producer.go": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504"
+    }
+  },
+  "patchedSourceHashesSha256": {
+    "classic": {
+      "internal/characters/ayato/skill.go": "c83eeba6353d0d74b59e011435f9ef17ecb47887b804f671c8e457e29d2fc42e",
+      "internal/characters/yunjin/burst.go": "54393d96f4835254a53fb792de71d042192a5a63a01ac7c2814badfceae345fa"
+    },
+    "stellar": {
+      "internal/characters/ayato/skill.go": "c83eeba6353d0d74b59e011435f9ef17ecb47887b804f671c8e457e29d2fc42e",
+      "internal/characters/yunjin/burst.go": "54393d96f4835254a53fb792de71d042192a5a63a01ac7c2814badfceae345fa"
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/117-simple-tasks/117-simple-tasks-classic.patch",
+      "sha256": "0a97bbbe64e8e8c57b0f25f18f05af688b38dd4c4204ce205dcfcc151e5a353a",
+      "bytes": 809
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/117-simple-tasks/117-simple-tasks-stellar.patch",
+      "sha256": "0a97bbbe64e8e8c57b0f25f18f05af688b38dd4c4204ce205dcfcc151e5a353a",
+      "bytes": 809
+    }
+  },
+  "validation": {
+    "classic": {
+      "gofmt": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "files": [
+          "internal/characters/ayato/skill.go",
+          "internal/characters/yunjin/burst.go"
+        ],
+        "result": "formatted; no unrelated edits"
+      },
+      "gitApplyCheck": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/build-yNtRq2/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/117-simple-tasks/117-simple-tasks-classic.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "receiptHashMatch": true,
+      "frozenTargetsUnchanged": true
+    },
+    "stellar": {
+      "gofmt": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "files": [
+          "internal/characters/ayato/skill.go",
+          "internal/characters/yunjin/burst.go"
+        ],
+        "result": "formatted; no unrelated edits"
+      },
+      "gitApplyCheck": {
+        "argv": [
+          "git",
+          "-C",
+          "/Users/evan/Library/Caches/gidps-source-host/stellar-build-lzWkaI/source",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/117-simple-tasks/117-simple-tasks-stellar.patch"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "receiptHashMatch": true,
+      "frozenTargetsUnchanged": true
+    }
+  },
+  "proposalPath": "/Users/evan/Library/Caches/gidps-source-host/117-simple-tasks/registry-plan-proposal.json",
+  "observationalChanges": [
+    {
+      "sourcePath": "internal/characters/ayato/skill.go",
+      "before": "c.Core.Tasks.Add(func() {",
+      "after": "c.Core.SourceHostQueueTask(\"ayato.skill.illusion-explosion\", c.Index(), func() {"
+    },
+    {
+      "sourcePath": "internal/characters/yunjin/burst.go",
+      "before": "c.QueueCharTask(func() {",
+      "after": "c.SourceHostQueueCharTask(\"yunjin.burst.initial-hit\", func() {"
+    }
+  ],
+  "sites": [
+    {
+      "id": "ayato-skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ayato/skill.go",
+      "methodLine": 22,
+      "siteId": "ayato.skill.illusion-explosion",
+      "producerLine": 42,
+      "queueLine": 43,
+      "nativeQueue": "Core.Tasks.Add",
+      "wrapper": "Core.SourceHostQueueTask",
+      "clock": "core",
+      "delayExpression": "min(max(p[\"illusion_delay\"], 35), 360)",
+      "minDelay": 35,
+      "maxDelay": 360,
+      "ability": "Kamisato Art: Kyouka",
+      "attackTag": "AttackTagElementalArt",
+      "element": "Hydro",
+      "snapshotDelay": 0,
+      "damageDelay": 0,
+      "attackCount": 1,
+      "callbackCount": 0,
+      "childProducerCount": 0,
+      "queuePositionSemantics": "Capture ePos := Core.Combat.Player() in Skill, then construct the circle from that same target reference at task execution; no extra position read or target selection added.",
+      "snapshotAndBuffOrder": "Skill constructs AttackInfo, captures ePos, calls a1OnSkill, registers task, installs skill status, arms C6 when applicable, sets CD. Task QueueAttack performs native snapshot/damage before a1OnExplosion sets stacks to max.",
+      "onExit": "Deleting soukaikanka and resetting stacks does not cancel the already queued illusion task; no added status gate.",
+      "constellationAudit": "C0-C6 queue exactly one illusion; C1/C2 only modifiers. C3/C5 talent adjustments via standard wrapper. C4 belongs to separate Burst buff. C6 readiness is consumed exclusively from a later SoukaiKanka hit callback.",
+      "additionalDamageExclusion": {
+        "caller": "Attack -> SoukaiKanka -> makeC6CB",
+        "sourcePath": "internal/characters/ayato/attack.go",
+        "callbackSourcePath": "internal/characters/ayato/cons.go",
+        "callerLineClassic": 122,
+        "callerLineStellar": 121,
+        "callbackMethodLine": 64,
+        "positiveBranchQueues": 2,
+        "relativeDelays": [
+          20,
+          22
+        ],
+        "ability": "Boundless Origin (C6)",
+        "attackTag": "AttackTagNormal",
+        "whyExcluded": "Different explicitly dispatched Attack invocation and its exact hit callback; arming readiness during E does not make those attacks E-owned."
+      },
+      "scopeNotes": [
+        "本规则仅汇总本次 E 方法创建的水影爆炸伤害，不代表完整站场输出循环。",
+        "瞬水剑由后续独立普攻动作产生，C6 追击只由该普攻的命中回调触发；计算瞬水剑及 C6 需使用自定义动作序列，均不并入本次 E 水影爆炸。",
+        "A1 仅调整浪闪层数；浪闪、C2 生命值、C1 普攻增伤、粒子及 A4 回能不构成本 E 的额外攻击生产任务。"
+      ]
+    },
+    {
+      "id": "yunjin-burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yunjin/burst.go",
+      "methodLine": 29,
+      "siteId": "yunjin.burst.initial-hit",
+      "producerLine": 50,
+      "queueLine": 51,
+      "nativeQueue": "CharWrapper.QueueCharTask",
+      "wrapper": "CharWrapper.SourceHostQueueCharTask",
+      "clock": "character",
+      "delay": 35,
+      "delayExpression": "burstHitmark",
+      "ability": "Cliffbreaker's Banner",
+      "attackTag": "AttackTagElementalBurst",
+      "element": "Geo",
+      "snapshotDelay": 0,
+      "damageDelay": 0,
+      "attackCount": 1,
+      "callbackCount": 0,
+      "childProducerCount": 0,
+      "snapshotAndBuffOrder": "Delete old burst/C2/C6 status first; task queues original immediate Geo attack at current player geometry before resetting each party actor tag to30, adding 720f status, and calling c2/c6. ConsumeEnergy(4), cooldown, action frames unchanged.",
+      "additionalDamageExclusion": {
+        "method": "burstProc",
+        "sourcePath": "internal/characters/yunjin/burst.go",
+        "methodLine": 72,
+        "event": "OnEnemyHit",
+        "filter": "AttackTagNormal only",
+        "queues": 0,
+        "effect": "Adds DEF-derived FlatDmg to the existing subsequent attack, consumes that actor flag count; no new queue.",
+        "whyExcluded": "Damage belongs to whichever later normal attack receives the additive contribution, not to the Burst initial-hit producer."
+      },
+      "constellationAudit": "C1 only modifies Skill cooldown; C2/C6 party modifiers and deletions; C3/C5 talent adjustment; C4 crystallize/lunar-crystallize listeners only add DEF modifier. None queues intrinsic Q follow-up damage.",
+      "scopeNotes": [
+        "本规则仅汇总本次 Q 施放的固有岩元素伤害。",
+        "飞云旗阵对后续普通攻击增加的基础伤害，以及 C2／C6 队伍增益，归入相应后续攻击的计算，不计入本次 Q 固有伤害。"
+      ]
+    }
+  ],
+  "helperAudit": {
+    "ayato": [
+      "ayato.go:Init, Snapshot, AdvanceNormalIndex; asc.go:a1OnSkill, a1OnExplosion, a4; cons.go:c1,c2,makeC6CB; attack.go:Attack,SoukaiKanka; skill.go:onExitField,particleCB,skillStacks; burst.go separate Q and C4"
+    ],
+    "yunjin": [
+      "yunjin.go:Init,NewChar; burst.go:Burst,burstProc; asc.go:a4Init,a4 and unimplemented A1 comment; cons.go:c2,deleteC2,c4,c6,deleteC6; skill.go C1 separate E cooldown"
+    ]
+  },
+  "laneDifferences": "Both patched files and all invoked helper/Init/constellation files are identical. The inspected attack.go files differ only in removal of an unrelated N5-to-Charge cancel assignment in Stellar; neither file is edited.",
+  "preservation": [
+    "Only two scheduler call names/required observation arguments change; original callbacks are not split.",
+    "No formula, snapshot, queue argument, geometry construction, getter, RNG, target selector, game state gate, status, callback order, cooldown or animation change.",
+    "No native framework, TS/core, build lists or repository file edits.",
+    "No additional tagged emit helper needed: existing ability producer receipt records original QueueAttack.",
+    "No builds or tests run."
+  ]
+}

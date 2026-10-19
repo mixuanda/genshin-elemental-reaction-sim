@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "output": "",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "wallSeconds": 0.096,
+  "scope": "Tracked diff whitespace check; new implementation was covered by targeted core, typecheck/build and E2E receipts."
+}

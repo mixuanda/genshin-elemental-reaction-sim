@@ -1,0 +1,51 @@
+[WebServer] (node:57190) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 2 tests using 1 worker
+
+(node:57199) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits (22.6s)
+(node:57232) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:141:1 › Shared stamina rejects an unfunded second actor or waits to the exact recovery frame and preserves delayed debits in records (1.5s)
+
+
+  1) [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#calc-results [data-trace-node="snapshot.atk"]').first()
+    Expected substring: "1000"
+    Received string:    "历史快照的最终数值1,000atk"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#calc-results [data-trace-node="snapshot.atk"]').first()
+        13 × locator resolved to <tr data-trace-node="snapshot.atk">…</tr>
+           - unexpected value "历史快照的最终数值1,000atk"
+
+
+      75 |   expect(complete.result.totals!.expected).toBeCloseTo(6 * (bodyNonCrit * 1.5 + screenNonCrit * 1.1), 9);
+      76 |   expect(complete.result.hits.slice(6).every(hit => hit.effectiveCritRate === 0.2)).toBe(true);
+    > 77 |   await expect(page.locator('#calc-results [data-trace-node="snapshot.atk"]').first()).toContainText("1000");
+         |                                                                                        ^
+      78 |
+      79 |   // A4 belongs to its own saved snapshot. It must not add 12% to the current Q's six gems.
+      80 |   await page.locator("#calc-ningguang-screen-a4-active").selectOption("1");
+        at /Users/evan/Documents/gidps/apps/web/e2e/snapshot-stamina.spec.ts:77:88
+
+    Error Context: test-results/snapshot-stamina-Ningguang-c2a12-rips-full-and-selected-hits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/snapshot-stamina-Ningguang-c2a12-rips-full-and-selected-hits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/snapshot-stamina-Ningguang-c2a12-rips-full-and-selected-hits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits 
+  1 passed (26.3s)

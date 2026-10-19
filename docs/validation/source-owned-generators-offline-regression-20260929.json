@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-producer-declarations.test.ts",
+    "packages/sim-core/src/source-host-producer-analysis.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 2.214
+}

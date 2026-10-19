@@ -1,0 +1,57 @@
+
+Running 3 tests using 3 workers
+
+(node:6891) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:6893) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:6892) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/3] [chromium] › apps/web/e2e/stellar-swirl-high-jump.spec.ts:8:1 › Stellar Worker consumes an actual jump, lands a declared plunge and exports its ordinary damage
+[2/3] [chromium] › apps/web/e2e/observed-entity-calculator.spec.ts:12:1 › Klee observed waves use explicit random outcomes and contacts, survive final JSON, and keep single hits independent
+[3/3] [chromium] › apps/web/e2e/player-max-hp-resource.spec.ts:18:1 › normal dynamic max-HP control preserves ratio through buff expiry and restores the live ledger
+  1) [chromium] › apps/web/e2e/stellar-swirl-high-jump.spec.ts:8:1 › Stellar Worker consumes an actual jump, lands a declared plunge and exports its ordinary damage 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('#randomSeedInput')
+    Expected: "stellar-high-jump-page"
+    Received: "legacy-default"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" with timeout 5000ms
+      - waiting for locator('#randomSeedInput')
+        14 × locator resolved to <input id="randomSeedInput"/>
+           - unexpected value "legacy-default"
+
+
+      22 |   await page.goto("/results");
+      23 |   await page.locator("#importInput").setInputFiles({ name: "stellar-high-jump.record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+    > 24 |   await expect(page.locator("#randomSeedInput")).toHaveValue("stellar-high-jump-page");
+         |                                                  ^
+      25 |   await expect(page.locator("#cancelRunButton")).toBeHidden();
+      26 |   await expect(page.locator("#simulationProgress")).toHaveText("");
+      27 |   await expect(page.locator("#exportRunButton")).toBeEnabled();
+        at /Users/evan/Documents/gidps/apps/web/e2e/stellar-swirl-high-jump.spec.ts:24:50
+
+    Error Context: test-results/stellar-swirl-high-jump-St-b39e7-exports-its-ordinary-damage-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/stellar-swirl-high-jump-St-b39e7-exports-its-ordinary-damage-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/stellar-swirl-high-jump-St-b39e7-exports-its-ordinary-damage-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/stellar-swirl-high-jump.spec.ts:8:1 › Stellar Worker consumes an actual jump, lands a declared plunge and exports its ordinary damage 
+  2 passed (6.8s)

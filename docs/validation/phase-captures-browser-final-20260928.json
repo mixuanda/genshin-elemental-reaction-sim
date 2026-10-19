@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-phase-captures.spec.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 5.899
+}

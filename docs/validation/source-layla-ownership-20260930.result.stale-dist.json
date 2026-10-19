@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "source-layla-ownership-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=30 ignore_burst_energy=true;\nchongyun char lvl=90/90 cons=2 talent=1,1,1;\nchongyun add weapon=\"wastergreatsword\" refine=1 lvl=1/20;\nlayla char lvl=90/90 cons=0 talent=1,1,1;\nlayla add weapon=\"dullblade\" refine=1 lvl=1/20;\nkaeya char lvl=90/90 cons=0 talent=1,1,1;\nkaeya add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.4,1;\nactive chongyun;\nchongyun skill;\nlayla skill;\nlayla burst;\nwait(180);\nkaeya skill;\nwait(300);\nlayla skill;\nwait(1000);",
+    "seed": "20260930126",
+    "baselinePath": "docs/validation/source-layla-ownership-20260930.baseline.json",
+    "capturePath": "docs/validation/source-layla-ownership-20260930.capture.json",
+    "runs": [],
+    "scope": "One combined C2 Chongyun cooldown-field, Layla E/Q/E refresh, and Kaeya E scene per lane. Source receipts establish native ownership and closure; this is not game verification.",
+    "nativeRunsPerformed": true
+  },
+  "pageErrors": []
+}

@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/game-data/src/runtime-workspace.test.ts (2 tests | 1 failed) 87ms
+     × selects persisted historical previews locally and compares content without changing the default 84ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/game-data/src/runtime-workspace.test.ts > isolated runtime workspaces > selects persisted historical previews locally and compares content without changing the default
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/game-data/src/runtime-workspace.test.ts:64:116
+     62|     expect(diff.from.metadata.snapshotId).toBe(previous);
+     63|     expect(diff.to.metadata.snapshotId).toBe(current);
+     64|     expect(diff.changes.some((change) => change.path.includes("sourceC…
+       |                                                                                                                    ^
+     65|     expect(diff.changes.every((change) => change.numericDelta === unde…
+     66|       || (typeof change.before === "number" && typeof change.after ===…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  16:03:17
+   Duration  1.83s (transform 1.67s, setup 0ms, import 1.65s, tests 87ms, environment 0ms)
+

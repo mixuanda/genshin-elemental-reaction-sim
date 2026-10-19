@@ -1,0 +1,415 @@
+{
+  "schemaVersion": "source-character-scalar-measurements-v1",
+  "checks": [
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.967,
+      "log": "docs/validation/source-character-scalar-classic-build-20260928.log"
+    },
+    {
+      "command": [
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-scalar.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 3.371,
+      "log": "docs/validation/source-character-scalar-e2e-20260928.log"
+    },
+    {
+      "command": [
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-scalar.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 8.012,
+      "log": "docs/validation/source-character-scalar-e2e-retry1-20260928.log"
+    },
+    {
+      "command": [
+        "GIDPS_PREBUILT=1",
+        "GIDPS_SCALAR_LANE=stellar",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-scalar.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.254,
+      "log": "docs/validation/source-character-scalar-e2e-stellar-retry2-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.196,
+      "log": "docs/validation/source-character-scalar-stellar-build-033-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.336,
+      "log": "docs/validation/source-character-scalar-stellar-build-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.729,
+      "log": "docs/validation/source-character-scalar-web-build-033-20260928.log"
+    },
+    {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.772,
+      "log": "docs/validation/source-character-scalar-web-build-20260928.log"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "wallSeconds": 0.073,
+      "stdout": "",
+      "stderr": "",
+      "scope": "tracked changes only; does not check untracked files"
+    }
+  ],
+  "runs": [
+    {
+      "lane": "classic",
+      "scenario": "field",
+      "rawFile": "docs/validation/source-character-scalar-classic-field-20260928.result.json",
+      "wasmSha256": "e287d709526eee9978281a1868e6d2f6f0e64e16f0b4a9e4fb8a6d5425185270",
+      "calculations": 252,
+      "applications": 27,
+      "healingApplications": 5,
+      "scalarRules": {
+        "char-scalar-chongyun-c2-b4": 4,
+        "char-scalar-mona-c1": 1,
+        "char-scalar-diona-c6-heal": 2
+      },
+      "firstObserved": {
+        "char-scalar-chongyun-c2-b4": {
+          "id": 47,
+          "frame": 57,
+          "value": -0.15,
+          "state": {
+            "action": 2
+          },
+          "valueSources": null
+        },
+        "char-scalar-mona-c1": {
+          "id": 188,
+          "frame": 374,
+          "value": 0.15,
+          "state": {
+            "enhanced": 0
+          },
+          "valueSources": null
+        },
+        "char-scalar-diona-c6-heal": {
+          "id": 221,
+          "frame": 553,
+          "value": 0.3,
+          "state": {},
+          "valueSources": null
+        }
+      },
+      "validationEvidence": "retry1 completed this scene before the later stellar field failure"
+    },
+    {
+      "lane": "classic",
+      "scenario": "bloom",
+      "rawFile": "docs/validation/source-character-scalar-classic-bloom-20260928.result.json",
+      "wasmSha256": "e287d709526eee9978281a1868e6d2f6f0e64e16f0b4a9e4fb8a6d5425185270",
+      "calculations": 452,
+      "applications": 51,
+      "healingApplications": 30,
+      "scalarRules": {
+        "char-scalar-furina-burst-heal-ratio": 1,
+        "char-scalar-nilou-a4-initial": 1,
+        "char-scalar-nilou-a4-update": 32,
+        "char-scalar-furina-burst-heal": 30,
+        "char-scalar-baizhu-a4-bloom-family": 1
+      },
+      "firstObserved": {
+        "char-scalar-furina-burst-heal-ratio": {
+          "id": 2,
+          "frame": 0,
+          "value": 0.0001,
+          "state": {
+            "talent": 0
+          },
+          "valueSources": null
+        },
+        "char-scalar-nilou-a4-initial": {
+          "id": 31,
+          "frame": 119,
+          "value": 0,
+          "state": {},
+          "valueSources": null
+        },
+        "char-scalar-nilou-a4-update": {
+          "id": 48,
+          "frame": 149,
+          "value": 2.101897915809985,
+          "state": {
+            "maxHP": 53354.42128677761
+          },
+          "valueSources": null
+        },
+        "char-scalar-furina-burst-heal": {
+          "id": 126,
+          "frame": 476,
+          "value": 0,
+          "state": {
+            "fanfare": 0,
+            "fanfareCap": 300,
+            "talentRatio": 0.0001
+          },
+          "valueSources": {
+            "talentRatio": 2
+          }
+        },
+        "char-scalar-baizhu-a4-bloom-family": {
+          "id": 332,
+          "frame": 800,
+          "value": 0.610585796318832,
+          "state": {
+            "maxHP": 30529.2898159416
+          },
+          "valueSources": null
+        }
+      },
+      "validationEvidence": "retry1 completed this scene before the later stellar field failure"
+    },
+    {
+      "lane": "stellar",
+      "scenario": "field",
+      "rawFile": "docs/validation/source-character-scalar-stellar-field-20260928.result.json",
+      "wasmSha256": "e2df09de713cb5dfc89f6e0013c0ec8301ff76c8cf7a456949554b8cb844fbcc",
+      "calculations": 252,
+      "applications": 27,
+      "healingApplications": 5,
+      "scalarRules": {
+        "char-scalar-chongyun-c2-a7": 4,
+        "char-scalar-mona-c1": 1,
+        "char-scalar-diona-c6-heal": 2
+      },
+      "firstObserved": {
+        "char-scalar-chongyun-c2-a7": {
+          "id": 47,
+          "frame": 57,
+          "value": -0.15,
+          "state": {
+            "action": 2
+          },
+          "valueSources": null
+        },
+        "char-scalar-mona-c1": {
+          "id": 188,
+          "frame": 374,
+          "value": 0.15,
+          "state": {
+            "enhanced": 0
+          },
+          "valueSources": null
+        },
+        "char-scalar-diona-c6-heal": {
+          "id": 221,
+          "frame": 553,
+          "value": 0.3,
+          "state": {},
+          "valueSources": null
+        }
+      },
+      "validationEvidence": "stellar-only retry2 passed after 033 bridge fix"
+    },
+    {
+      "lane": "stellar",
+      "scenario": "bloom",
+      "rawFile": "docs/validation/source-character-scalar-stellar-bloom-20260928.result.json",
+      "wasmSha256": "e2df09de713cb5dfc89f6e0013c0ec8301ff76c8cf7a456949554b8cb844fbcc",
+      "calculations": 450,
+      "applications": 51,
+      "healingApplications": 30,
+      "scalarRules": {
+        "char-scalar-furina-burst-heal-ratio": 1,
+        "char-scalar-nilou-a4-initial": 1,
+        "char-scalar-nilou-a4-update": 32,
+        "char-scalar-furina-burst-heal": 30,
+        "char-scalar-baizhu-a4-bloom-family": 2
+      },
+      "firstObserved": {
+        "char-scalar-furina-burst-heal-ratio": {
+          "id": 2,
+          "frame": 0,
+          "value": 0.0001,
+          "state": {
+            "talent": 0
+          },
+          "valueSources": null
+        },
+        "char-scalar-nilou-a4-initial": {
+          "id": 31,
+          "frame": 119,
+          "value": 0,
+          "state": {},
+          "valueSources": null
+        },
+        "char-scalar-nilou-a4-update": {
+          "id": 48,
+          "frame": 149,
+          "value": 2.101897915809985,
+          "state": {
+            "maxHP": 53354.42128677761
+          },
+          "valueSources": null
+        },
+        "char-scalar-furina-burst-heal": {
+          "id": 126,
+          "frame": 476,
+          "value": 0,
+          "state": {
+            "fanfare": 0,
+            "fanfareCap": 300,
+            "talentRatio": 0.0001
+          },
+          "valueSources": {
+            "talentRatio": 2
+          }
+        },
+        "char-scalar-baizhu-a4-bloom-family": {
+          "id": 313,
+          "frame": 770,
+          "value": 0.610585796318832,
+          "state": {
+            "maxHP": 30529.2898159416
+          },
+          "valueSources": null
+        }
+      },
+      "validationEvidence": "stellar-only retry2 passed after 033 bridge fix"
+    }
+  ],
+  "stellarAssertions": {
+    "schemaVersion": "source-character-scalar-validation-v1",
+    "laneFilter": "stellar",
+    "evidence": [
+      {
+        "lane": "stellar",
+        "scenario": "field",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "e2df09de713cb5dfc89f6e0013c0ec8301ff76c8cf7a456949554b8cb844fbcc",
+        "calculations": 252,
+        "applications": 27,
+        "healingApplications": 5,
+        "scalarRules": {
+          "char-scalar-chongyun-c2-a7": 4,
+          "char-scalar-mona-c1": 1,
+          "char-scalar-diona-c6-heal": 2
+        },
+        "consumers": {
+          "char-scalar-chongyun-c2-a7": 4,
+          "char-scalar-mona-c1": 1,
+          "char-scalar-diona-c6-heal": 2
+        },
+        "selected": {
+          "chongyun-c2": {
+            "scalarId": 47,
+            "consumerId": 48,
+            "value": -0.15,
+            "frame": 57,
+            "replayDifference": 0
+          },
+          "diona-c6": {
+            "scalarId": 221,
+            "consumerId": 222,
+            "value": 0.3,
+            "frame": 553,
+            "replayDifference": 0
+          },
+          "mona-c1": {
+            "scalarId": 188,
+            "consumerId": 189,
+            "value": 0.15,
+            "frame": 374,
+            "replayDifference": 0
+          }
+        }
+      },
+      {
+        "lane": "stellar",
+        "scenario": "bloom",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "e2df09de713cb5dfc89f6e0013c0ec8301ff76c8cf7a456949554b8cb844fbcc",
+        "calculations": 450,
+        "applications": 51,
+        "healingApplications": 30,
+        "scalarRules": {
+          "char-scalar-furina-burst-heal-ratio": 1,
+          "char-scalar-nilou-a4-initial": 1,
+          "char-scalar-nilou-a4-update": 32,
+          "char-scalar-furina-burst-heal": 30,
+          "char-scalar-baizhu-a4-bloom-family": 2
+        },
+        "consumers": {
+          "char-scalar-furina-burst-heal-ratio": 30,
+          "char-scalar-nilou-a4-initial": 0,
+          "char-scalar-nilou-a4-update": 6,
+          "char-scalar-furina-burst-heal": 30,
+          "char-scalar-baizhu-a4-bloom-family": 2
+        },
+        "selected": {
+          "furina-q-heal": {
+            "scalarId": 437,
+            "consumerId": 438,
+            "value": 0.00021015753509851589,
+            "frame": 914,
+            "replayDifference": 0
+          },
+          "nilou-a4": {
+            "scalarId": 145,
+            "consumerId": 150,
+            "value": 2.101897915809985,
+            "frame": 539,
+            "replayDifference": 0
+          },
+          "baizhu-a4": {
+            "scalarId": 313,
+            "consumerId": 314,
+            "value": 0.610585796318832,
+            "frame": 770,
+            "replayDifference": 0
+          }
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "classicBoundary": "Both classic scenarios and calculator JSON restoration completed in retry1 before the later stellar field failure. Classic Furina validated its first zero read; the positive-read selection was added before stellar-only retry2. No classic native rerun after the stellar-only 033 fix.",
+  "verifiedScope": "Pinned-source local implementation; no game-mechanic verification or full 35-rule runtime coverage."
+}

@@ -1,0 +1,24 @@
+--- a/internal/characters/escoffier/burst.go
++++ b/internal/characters/escoffier/burst.go
+@@ -34,7 +34,7 @@
+ 		Durability: 50,
+ 		Mult:       burst[c.TalentLvlBurst()],
+ 	}
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("escoffier.burst.initial-hit", func() {
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: 1}, 7), 0, 0, c.makeA4CB())
+ 	}, hitmark)
+ 
+--- a/internal/characters/ororon/skill.go
++++ b/internal/characters/ororon/skill.go
+@@ -53,6 +53,10 @@
+ 		}
+ 		enemies = append(enemies, newEnemy)
+ 	}
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact("ororon.skill.root-count", float64(len(enemies)))
++	}
++
+ 	for i, e := range enemies {
+ 		c.Core.QueueAttack(
+ 			ai,

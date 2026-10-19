@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-modifiers.spec.ts"
+  ],
+  "environment": {
+    "GIDPS_PREBUILT": "1"
+  },
+  "exitCode": 1,
+  "wallSeconds": 2.137,
+  "log": "docs/validation/source-character-modifiers-e2e-20260928.log"
+}

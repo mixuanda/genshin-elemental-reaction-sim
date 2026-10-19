@@ -1,0 +1,32 @@
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -14,6 +14,7 @@
+ type AttackEvent struct {
+ 	SourceHostOrigin *SourceHostOrigin `json:"-"`
+ 	SourceHostQueuedObservationIndex int `json:"-"`
++	SourceHostDispatchID int `json:"-"`
+ 	SourceHostAttackID int
+ 	SourceHostCalculationID int
+ 	Info    AttackInfo
+--- a/pkg/core/combat/attack.go
++++ b/pkg/core/combat/attack.go
+@@ -36,6 +36,8 @@
+ func (h *Handler) ApplyAttack(a *info.AttackEvent) float64 {
+ 	if h.SourceHost != nil {
+ 		h.SourceHost.PrepareAttack(a)
++		restoreDispatch := h.SourceHost.BeginAttackDispatch(a)
++		defer restoreDispatch()
+ 		h.SourceHost.ObserveAttackDispatch(a)
+ 		endOrigin := h.SourceHost.Origin.BeginAttack(a.SourceHostOrigin, a.SourceHostAttackID)
+ 		defer endOrigin()
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -141,7 +141,7 @@
+ 			// private gameplay state or create a numeric-clock gap.
+ 			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/info" &&
+ 				v.Type().Name() == "AttackEvent" &&
+-				(field.Name == "SourceHostOrigin" || field.Name == "SourceHostQueuedObservationIndex") {
++				(field.Name == "SourceHostOrigin" || field.Name == "SourceHostQueuedObservationIndex" || field.Name == "SourceHostDispatchID") {
+ 				continue
+ 			}
+ 			// Captured Status ownership is trace-only; duration and active

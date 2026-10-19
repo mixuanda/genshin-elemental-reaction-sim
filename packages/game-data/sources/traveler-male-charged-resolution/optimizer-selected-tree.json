@@ -1,0 +1,237 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "rootTreeResponseSha": "180a0a1015cb725c7570cd828eb086749960df98",
+  "rootTreeResponseSha256": "3fb9ff8b883c2a63c5ccb6569719795389ccd8b8f055a10d5c5af9ae77e612eb",
+  "treeUrl": "https://api.github.com/repos/frzyc/genshin-optimizer/git/trees/180a0a1015cb725c7570cd828eb086749960df98",
+  "truncated": false,
+  "selectionOnly": true,
+  "tree": [
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "size": 1071,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/ccc6a6c559f48acd605c121885cd8c37a01aaf42"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Traveler/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "41be6cdfe75a2518615a6469e94c4e40c9407d1e",
+      "size": 7936,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/41be6cdfe75a2518615a6469e94c4e40c9407d1e"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerAnemoM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cf9c197a6885408e10d0d0d022e9b90750d9dfd6",
+      "size": 5015,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/cf9c197a6885408e10d0d0d022e9b90750d9dfd6"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerAnemoM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "06b67302fbada8fde45a47ce9d4e21d3ce9c1ca0",
+      "size": 323,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/06b67302fbada8fde45a47ce9d4e21d3ce9c1ca0"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerGeoM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "94db0acdb88bc59ef8618be5c7e2633fea1b9025",
+      "size": 4247,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/94db0acdb88bc59ef8618be5c7e2633fea1b9025"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerGeoM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "cc1259df7fa0125891622a4f365d50b660828b63",
+      "size": 311,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/cc1259df7fa0125891622a4f365d50b660828b63"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerElectroM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "111b016c2972d84bac419fba2bc42a4db56ab1c5",
+      "size": 5272,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/111b016c2972d84bac419fba2bc42a4db56ab1c5"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerElectroM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b8ecbe8bc8a1524fc936f2cc79189a0832ed276e",
+      "size": 335,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/b8ecbe8bc8a1524fc936f2cc79189a0832ed276e"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerDendroM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a53530d5d0a79b4b6720762eaaad4e7bc0702e4e",
+      "size": 4825,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/a53530d5d0a79b4b6720762eaaad4e7bc0702e4e"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerDendroM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "d5c83c9bbf1bbddb87a33de2cf5e0e15dc718bb3",
+      "size": 329,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/d5c83c9bbf1bbddb87a33de2cf5e0e15dc718bb3"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerHydroM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "73e3afb76e2176f3f41249d2962d63983b362e4b",
+      "size": 5727,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/73e3afb76e2176f3f41249d2962d63983b362e4b"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerHydroM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b73ea2c6e9118023dd0251b930b7d65ed5c48bd0",
+      "size": 323,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/b73ea2c6e9118023dd0251b930b7d65ed5c48bd0"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerPyroM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8f0ef663ebd8dca060f5c88a6b380adec1fb44ee",
+      "size": 4521,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/8f0ef663ebd8dca060f5c88a6b380adec1fb44ee"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerPyroM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "13470ad0cdf84169fe7afabdd8f03302ea90c344",
+      "size": 317,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/13470ad0cdf84169fe7afabdd8f03302ea90c344"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/TravelerCryoM/skillParam.json",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "60103bb6293e9b8c5a5b2ec248e556ae0b224a62",
+      "size": 6339,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/60103bb6293e9b8c5a5b2ec248e556ae0b224a62"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerCryoM/index.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ddc620dcc7953a0d4164cd416bffc316f3e2365f",
+      "size": 317,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/ddc620dcc7953a0d4164cd416bffc316f3e2365f"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerAnemoF/anemo.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ad0dc397939e47eae5125f3e1b5a982d43e15f29",
+      "size": 13099,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/ad0dc397939e47eae5125f3e1b5a982d43e15f29"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerGeoF/geo.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e0feeeb3117babaf3307d3ac06675f467c1c934e",
+      "size": 9647,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/e0feeeb3117babaf3307d3ac06675f467c1c934e"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerElectroF/electro.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3967d7078eb204d170f0a635d3caa832f5f0ba83",
+      "size": 11081,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/3967d7078eb204d170f0a635d3caa832f5f0ba83"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerDendroF/dendro.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "26fb129aed5ce81a06e19375127e129d4f015d53",
+      "size": 10573,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/26fb129aed5ce81a06e19375127e129d4f015d53"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerHydroF/hydro.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "65cc9990a94c9dab0c7e50b8c68173931b641b96",
+      "size": 12478,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/65cc9990a94c9dab0c7e50b8c68173931b641b96"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerPyroF/pyro.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "02bde37621840865a8e44522801e7df23eba0932",
+      "size": 9520,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/02bde37621840865a8e44522801e7df23eba0932"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/TravelerCryoF/cryo.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "52e16c741c2e4a84eb13c5608bf9d5a10cfe9161",
+      "size": 19957,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/52e16c741c2e4a84eb13c5608bf9d5a10cfe9161"
+    },
+    {
+      "path": "libs/gi/stats/src/index.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "5d7371a6b63c42aee9a71484a3801b51a000ec52",
+      "size": 2024,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/5d7371a6b63c42aee9a71484a3801b51a000ec52"
+    },
+    {
+      "path": "libs/gi/stats/src/executors/gen-stats/src/characterSkillParam.ts",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f22946302a4b2c3934cea47dac935d7769115de2",
+      "size": 8534,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/f22946302a4b2c3934cea47dac935d7769115de2"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "736a1229592f4afead151920884dbccd5c5e22cb",
+      "size": 15409,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/736a1229592f4afead151920884dbccd5c5e22cb"
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/character.ts",
+      "sha": "0013c41cdd9a9c81e4f202f7f6ba1fe606cbe328",
+      "size": 4752,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/0013c41cdd9a9c81e4f202f7f6ba1fe606cbe328"
+    },
+    {
+      "path": "libs/gi/stats/src/executors/gen-stats/executor.ts",
+      "sha": "616457bbd02727e64ece29a213dc14e49d37e461",
+      "size": 3288,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/616457bbd02727e64ece29a213dc14e49d37e461"
+    },
+    {
+      "path": "libs/gi/stats/src/allStat_gen.json",
+      "sha": "2396c725aa66bdf0148bc2ec708604b972e46b1a",
+      "size": 2247823,
+      "url": "https://api.github.com/repos/frzyc/genshin-optimizer/git/blobs/2396c725aa66bdf0148bc2ec708604b972e46b1a"
+    }
+  ]
+}

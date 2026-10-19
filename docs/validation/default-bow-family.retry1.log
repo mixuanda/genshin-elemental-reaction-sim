@@ -1,0 +1,10 @@
+file:///private/tmp/gidps-bow-family-smoke.mjs:21
+  if(JSON.stringify(restored.damageEvents)!==JSON.stringify(result.damageEvents))throw new Error(slug+' JSON differs');
+                                                                                       ^
+
+Error: gorou JSON differs
+    at file:///private/tmp/gidps-bow-family-smoke.mjs:21:88
+
+Node.js v24.15.0
+
+WALL_SECONDS=1.147

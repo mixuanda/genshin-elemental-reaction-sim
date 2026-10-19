@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "shared-animation-source-audit-v1",
+  "batch": 121,
+  "asOf": "2026-09-30",
+  "lanes": {
+    "classic": {
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/build-JuB68x/source",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "preExportSha256": "49a28c344379d7cab6e9e153c8734dc4eb3a8649f00c0ec720e7aaf8d23c2db7",
+      "verifiedBaseBlobCount": 4021,
+      "coreFiles": 6,
+      "migrationFiles": 91,
+      "opaqueKeyedSourceLines": 102,
+      "constructorCharacterCallSites": {
+        "NewAbilFunc": 459,
+        "NewAbilFuncWithOffset": 3,
+        "NewAttackFunc": 110,
+        "NewAttackFuncWithOffset": 2
+      },
+      "patches": [
+        {
+          "path": "packages/source-host/patches/121-animation-core.patch",
+          "sha256": "a8450734dfc5e0fea877b4e1b25a903bbd17b7b8f0a97fe9ffb054becad29f54",
+          "bytes": 10151
+        },
+        {
+          "path": "packages/source-host/patches/121-animation-sites.patch",
+          "sha256": "171c7fcce4dab5ef73017cd89bb5a30bd136a0e196ecde7fbba2303c9a8430dc",
+          "bytes": 58115
+        }
+      ]
+    },
+    "stellar": {
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-kP5bjk/source",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "preExportSha256": "2e46dba836dfc202a8a74f261bcb18945cca0b41a7753e7b0c2fb42e6733e0cd",
+      "verifiedBaseBlobCount": 4283,
+      "coreFiles": 6,
+      "migrationFiles": 97,
+      "opaqueKeyedSourceLines": 109,
+      "constructorCharacterCallSites": {
+        "NewAbilFunc": 483,
+        "NewAbilFuncWithOffset": 3,
+        "NewAttackFunc": 116,
+        "NewAttackFuncWithOffset": 2
+      },
+      "patches": [
+        {
+          "path": "packages/source-host/stellar-overlay/patches/121-animation-core.patch",
+          "sha256": "b5d8cf11f74c5978ebb1e590cafc0d72f25c04784d8ed9bd7e514cceb00eabe2",
+          "bytes": 10206
+        },
+        {
+          "path": "packages/source-host/stellar-overlay/patches/121-animation-sites.patch",
+          "sha256": "0099095f93803715ff36ce638c4f987e9d0539be240e244f31de923f9bbc86eb",
+          "bytes": 63289
+        }
+      ]
+    }
+  },
+  "semantics": [
+    "Callback and descriptor replace together.",
+    "Four constructors retain original callback expressions and single attack-speed reads.",
+    "Observe copies current captured tables without invoking callbacks or Stat.",
+    "Default pause binding reads existing actor frozenFrames state.",
+    "Chasca keeps distinct per-lane construction timing.",
+    "Custom callbacks retain unknown gaps."
+  ],
+  "baselineDrift": "docs/validation/source-shared-animation-baseline-drift-20260930.json",
+  "assemblyRepair": "Removed only the stale formatting hunk in player/animation.go from both migration patches; fresh build source matched original frozen receipts."
+}

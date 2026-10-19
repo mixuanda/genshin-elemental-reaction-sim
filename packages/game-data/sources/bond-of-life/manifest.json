@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0",
+  "status": "source-backed-provisional",
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "archivePath": "packages/game-data/sources/bond-of-life/source.json.gz",
+  "archiveSha256": "432f0d09adcf19a1e8e1d74ebbe52b1e249a102854ad3101c8876e30f7603d59",
+  "archiveBytes": 7150,
+  "scope": "Generic default ReceiveHeal Bond of Life resource with explicit same-heal remainder assumption. Character overrides archived as exclusions, not automatically implemented. Static maximum HP only.",
+  "knownSourceAssumptions": [
+    "Same-heal remainder after clearing debt is explicitly TODO in fixed heal.go.",
+    "Default ReceiveHeal is not Arlecchino or Clorinde overridden healing."
+  ],
+  "files": [
+    {
+      "path": "internal/template/character/hp.go",
+      "bytes": 1572,
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "gitBlobSha1": "287f1dfe98e3af969e0113877ed329e52e799f38",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go"
+    },
+    {
+      "path": "internal/template/character/heal.go",
+      "bytes": 2632,
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "gitBlobSha1": "f8b39ba0edc7532e3f955520c42914baafba472a",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go"
+    },
+    {
+      "path": "pkg/core/player/heal.go",
+      "bytes": 447,
+      "sha256": "39231033df792ba3165ed9e569e9d7747a83209879b53f1e799bef9ce896eadd",
+      "gitBlobSha1": "47a3027f612b3cde7112db86ffd09792fd9589df",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/heal.go"
+    },
+    {
+      "path": "pkg/core/player/character/character.go",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlobSha1": "af46b23318605e1d47c6295428b24f9f2a1a0635",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+    },
+    {
+      "path": "pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "gitBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go"
+    },
+    {
+      "path": "internal/characters/clorinde/heal.go",
+      "bytes": 801,
+      "sha256": "18ca9f99ca45cbb035dbc0a59a9a35d1b532171c9eb6b84001dfd1d5dee1afe4",
+      "gitBlobSha1": "38df8332b73c6d0cf3217ee6738d2b9db64007b4",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/clorinde/heal.go"
+    },
+    {
+      "path": "internal/characters/arlecchino/arlecchino.go",
+      "bytes": 2098,
+      "sha256": "0736b4a3f5cb66f289b243d9ee01bf0151068476dcc32dd3e7d2777be6ccebc3",
+      "gitBlobSha1": "47790235ebc870f60777b9f1eb150b8d099b8a4a",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/arlecchino/arlecchino.go"
+    },
+    {
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "verifiedAgainstPinnedGitTree": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    }
+  ]
+}

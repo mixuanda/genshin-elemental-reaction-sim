@@ -1,0 +1,42 @@
+--- a/internal/characters/durin/asc.go
++++ b/internal/characters/durin/asc.go
+@@ -79,9 +79,13 @@
+ 		Base: modifier.NewBaseWithHitlag(a1BlackKey, burstDuration),
+ 		Amount: func(ai info.AttackInfo) float64 {
+ 			if ai.Amped {
+-				bonusFactor := c.hexereiA1Bonus()
++				bonusFactor, isHexerei, hexereiCount := c.hexereiA1BonusWithState()
+ 				if c.Core.SourceHost != nil {
+-					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-durin-a1-black", map[string]any{"bonusFactor": bonusFactor}, nil)
++					flag := 0
++					if isHexerei {
++						flag = 1
++					}
++					return c.Core.SourceHost.CharacterScalarRead(c.Index(), "char-scalar-durin-a1-black-derived", map[string]any{"isHexerei": flag, "hexereiCount": hexereiCount}, nil)
+ 				}
+ 				return 0.40 * bonusFactor
+ 			}
+@@ -140,13 +144,19 @@
+ }
+ 
+ func (c *char) hexereiA1Bonus() float64 {
++	bonus, _, _ := c.hexereiA1BonusWithState()
++	return bonus
++}
++
++func (c *char) hexereiA1BonusWithState() (float64, bool, int) {
+ 	if !c.IsHexerei {
+-		return 1
++		return 1, false, 0
+ 	}
+ 
+-	if c.Core.Player.GetHexereiCount() < 2 {
+-		return 1
++	count := c.Core.Player.GetHexereiCount()
++	if count < 2 {
++		return 1, true, count
+ 	}
+ 
+-	return 1.75
++	return 1.75, true, count
+ }

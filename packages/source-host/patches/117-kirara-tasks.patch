@@ -1,0 +1,66 @@
+--- a/internal/characters/kirara/skill.go
++++ b/internal/characters/kirara/skill.go
+@@ -64,6 +64,8 @@
+ 		shortHold = 1
+ 	}
+ 	if shortHold == 1 {
++		c.recordSkillFact("kirara.skill.resolved-mode", 1)
++		c.recordSkillFact("kirara.skill.effective-hold-frames", 0)
+ 		return c.skillShortHold(), nil
+ 	}
+ 
+@@ -72,9 +74,20 @@
+ 		if hold > 10*60 {
+ 			hold = 10 * 60
+ 		}
++		c.recordSkillFact("kirara.skill.resolved-mode", 2)
++		c.recordSkillFact("kirara.skill.effective-hold-frames", float64(hold))
+ 		return c.skillHold(hold), nil
+ 	}
++	c.recordSkillFact("kirara.skill.resolved-mode", 0)
++	c.recordSkillFact("kirara.skill.effective-hold-frames", 0)
++	c.recordSkillFact("kirara.skill.roll-task-count", 0)
+ 	return c.skillPress(), nil
++}
++
++func (c *char) recordSkillFact(name string, value float64) {
++	if c.Core.SourceHost != nil {
++		c.Core.SourceHost.RecordAbilityFact(name, value)
++	}
+ }
+ 
+ func (c *char) kickParticleCB(a info.AttackCB) {
+@@ -140,11 +153,12 @@
+ func (c *char) skillShortHold() action.Info {
+ 	// 1 tick
+ 	d := c.createSkillHoldSnapshot()
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("kirara.skill.short-hold.roll", c.Index(), func() {
+ 		// pattern shouldn't snapshot on attack event creation because the skill follows the player
+ 		d.Pattern = combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 3)
+-		c.Core.QueueAttackEvent(d, 0)
++		c.Core.SourceHostQueueAttackEventImmediateOccurrence(d)
+ 	}, 17)
++	c.recordSkillFact("kirara.skill.roll-task-count", 1)
+ 
+ 	// Flipclaw Strike DMG
+ 	ai := info.AttackInfo{
+@@ -192,13 +206,16 @@
+ 	// ticks
+ 	d := c.createSkillHoldSnapshot()
+ 
++	rollTaskCount := 0
+ 	for i := 16; i <= duration+12; i += 0.5 * 60 {
+-		c.Core.Tasks.Add(func() {
++		rollTaskCount++
++		c.Core.SourceHostQueueTask("kirara.skill.hold.roll", c.Index(), func() {
+ 			// pattern shouldn't snapshot on attack event creation because the skill follows the player
+ 			d.Pattern = combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 3)
+-			c.Core.QueueAttackEvent(d, 0)
++			c.Core.SourceHostQueueAttackEventImmediateOccurrence(d)
+ 		}, i)
+ 	}
++	c.recordSkillFact("kirara.skill.roll-task-count", float64(rollTaskCount))
+ 
+ 	// Flipclaw Strike DMG
+ 	ai := info.AttackInfo{

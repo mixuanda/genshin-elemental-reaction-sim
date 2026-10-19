@@ -1,0 +1,451 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "character:10000122:nefer-skill-rush:talent-10",
+  "label": "奈芙尔 · 战技突进（帷幕资源快照） · 有效天赋等级 10 · 所选组成",
+  "gameContext": {
+    "observedNeferLifecycle": {
+      "character": "nefer",
+      "casterId": "character:10000122",
+      "constellation": 4,
+      "ascension": 6,
+      "moonsignCount": 2,
+      "initialFrame": 0,
+      "initialOrder": 0,
+      "initialDew": 1,
+      "initialPhantasmsUsed": 0,
+      "initialVeils": [],
+      "initialShadowDanceActive": false,
+      "initialC4Targets": {},
+      "eventsObservedThroughCutoff": true,
+      "observedOrderConfirmed": true,
+      "noHitlag": true,
+      "events": [
+        {
+          "id": "cast1",
+          "frame": 1,
+          "order": 0,
+          "kind": "skill-cast",
+          "castId": "e1",
+          "actionReadyConfirmed": true
+        },
+        {
+          "id": "rush-before-c2",
+          "frame": 1,
+          "order": 1,
+          "kind": "rush-hit",
+          "castId": "e1",
+          "targetId": "enemy",
+          "contactConfirmed": true,
+          "snapshotFrame": 1,
+          "finalPanelConfirmedAtHit": true
+        },
+        {
+          "id": "c2-after-rush",
+          "frame": 1,
+          "order": 2,
+          "kind": "c2-veil-grant",
+          "castId": "e1",
+          "veilIds": [
+            "v1",
+            "v2"
+          ]
+        },
+        {
+          "id": "enter-shadow",
+          "frame": 1,
+          "order": 3,
+          "kind": "shadow-enter",
+          "castId": "e1"
+        },
+        {
+          "id": "enemy-near",
+          "frame": 1,
+          "order": 4,
+          "kind": "c4-target-near",
+          "targetId": "enemy"
+        },
+        {
+          "id": "seed-one",
+          "frame": 2,
+          "order": 0,
+          "kind": "seed-absorb",
+          "seedId": "seed1",
+          "veilId": "v3",
+          "source": "charged"
+        },
+        {
+          "id": "seed-two",
+          "frame": 3,
+          "order": 0,
+          "kind": "seed-absorb",
+          "seedId": "seed2",
+          "veilId": "v4",
+          "source": "charged"
+        },
+        {
+          "id": "seed-three",
+          "frame": 4,
+          "order": 0,
+          "kind": "seed-absorb",
+          "seedId": "seed3",
+          "veilId": "v5",
+          "source": "phantasm"
+        },
+        {
+          "id": "cast2",
+          "frame": 5,
+          "order": 0,
+          "kind": "skill-cast",
+          "castId": "e2",
+          "actionReadyConfirmed": true
+        },
+        {
+          "id": "c2-before-rush",
+          "frame": 5,
+          "order": 1,
+          "kind": "c2-veil-grant",
+          "castId": "e2",
+          "veilIds": [
+            "v6",
+            "v7"
+          ],
+          "replacedVeilIds": [
+            "v1",
+            "v2"
+          ]
+        },
+        {
+          "id": "rush-with-window",
+          "frame": 5,
+          "order": 2,
+          "kind": "rush-hit",
+          "castId": "e2",
+          "targetId": "enemy",
+          "contactConfirmed": true,
+          "snapshotFrame": 5,
+          "finalPanelConfirmedAtHit": true
+        },
+        {
+          "id": "actual-dew-gain",
+          "frame": 6,
+          "order": 0,
+          "kind": "dew-gain",
+          "dewId": "dew2"
+        },
+        {
+          "id": "first-shade",
+          "frame": 7,
+          "order": 0,
+          "kind": "first-shade-summon",
+          "phantasmId": "phantasm1"
+        },
+        {
+          "id": "leave-range",
+          "frame": 8,
+          "order": 0,
+          "kind": "c4-target-leave",
+          "targetId": "enemy"
+        }
+      ],
+      "hitBindings": {
+        "nefer-skill-rush-hit": "rush-with-window"
+      }
+    },
+    "characterId": "character:10000122",
+    "characterName": "奈芙尔",
+    "abilityId": "talent:nefer:combat2",
+    "skillId": "nefer-skill-rush",
+    "skillName": "战技突进（帷幕资源快照）",
+    "effectiveTalentLevel": 10,
+    "ascension": 6,
+    "constellation": 4,
+    "scopeCoverage": "selected-components",
+    "attributionPolicy": "仅列出的自身伤害组成；持续实体 tick、后续触发与其他动作未全部纳入，不能当作完整施放总伤。"
+  },
+  "scope": "single-hit",
+  "characterLevel": 90,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 2000,
+      "hp": 20000,
+      "def": 800,
+      "em": 300,
+      "critRate": 0.7,
+      "critDamage": 1.2
+    },
+    "source": "显式教学观察输入：示例实际命中最终面板 EM 300，假设已含本次独立 +200 EM；不是实测角色装备或游戏验证。"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "nefer-skill-rush-hit",
+      "label": "战技突进命中",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ],
+      "dependencies": [
+        "talent-set:nefer.combat2.parameters.param1[9]",
+        "talent-set:nefer.combat2.parameters.param2[9]",
+        "conditioned-action",
+        "constellation-scope:nefer-skill-rush-hit"
+      ],
+      "kind": "ordinary",
+      "element": "dendro",
+      "attackTag": "skill",
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.374912
+        },
+        {
+          "stat": "em",
+          "coefficient": 2.749824
+        }
+      ],
+      "resistanceReductionFormula": {
+        "ruleId": "nefer-c4-target-dendro-resistance-optimizer-180a0a1",
+        "label": "奈芙尔 C4：该目标实际生效的20%草抗削减（含4.5秒残留）",
+        "expression": {
+          "kind": "multiply",
+          "terms": [
+            {
+              "kind": "constant",
+              "value": 0.2
+            },
+            {
+              "kind": "variable",
+              "key": "neferC4TargetDebuffActive"
+            }
+          ]
+        },
+        "inputs": [
+          {
+            "key": "neferC4TargetDebuffActive",
+            "value": 0,
+            "unit": "boolean",
+            "meaningKey": "本段目标实际仍受C4减抗：含影舞附近状态或离开后4.5秒内残留；不由选择E推断",
+            "origin": "conditioned-user-input",
+            "allowedValues": [
+              0,
+              1
+            ]
+          }
+        ],
+        "sourceRefs": [
+          "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx#L201-L206",
+          "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+          "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json"
+        ],
+        "requirements": {
+          "minimumConstellation": 4,
+          "maximumConstellation": 6,
+          "elements": [
+            "dendro"
+          ],
+          "attackTags": [
+            "skill",
+            "burst"
+          ]
+        }
+      },
+      "elementalMasteryAdjustment": {
+        "formula": {
+          "ruleId": "nefer-full-veil-em-c2-c6-optimizer-180a0a1",
+          "label": "奈芙尔：实际仍生效的满帷幕 200 精通状态（8秒）",
+          "expression": {
+            "kind": "condition",
+            "operator": "lt",
+            "left": {
+              "kind": "variable",
+              "key": "moonsignCount"
+            },
+            "right": {
+              "kind": "constant",
+              "value": 2
+            },
+            "whenTrue": {
+              "kind": "constant",
+              "value": 0
+            },
+            "whenFalse": {
+              "kind": "multiply",
+              "terms": [
+                {
+                  "kind": "variable",
+                  "key": "neferFullVeilEmBuffActive"
+                },
+                {
+                  "kind": "constant",
+                  "value": 200
+                }
+              ]
+            }
+          },
+          "inputs": [
+            {
+              "key": "neferFullVeilEmBuffActive",
+              "value": 0,
+              "unit": "boolean",
+              "meaningKey": "本段结算时实际满层精通增益仍在8秒持续期内；与Q消耗数独立，1有效、0无效",
+              "origin": "conditioned-user-input",
+              "allowedValues": [
+                0,
+                1
+              ]
+            },
+            {
+              "key": "moonsignCount",
+              "value": 1,
+              "unit": "count",
+              "meaningKey": "队伍实际月兆角色数",
+              "origin": "conditioned-user-input",
+              "minimum": 0,
+              "maximum": 4,
+              "integer": true
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json"
+          ],
+          "requirements": {
+            "minimumAscension": 1,
+            "minimumConstellation": 2,
+            "maximumConstellation": 6,
+            "elements": [
+              "dendro"
+            ],
+            "attackTags": [
+              "skill",
+              "burst"
+            ]
+          }
+        },
+        "accounting": "already-in-final-panel"
+      },
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1
+    }
+  ],
+  "selectedHitIds": [
+    "nefer-skill-rush-hit"
+  ],
+  "assumptions": [
+    "C0–C6 的所选普通组成；恢复命中时实际 ATK、EM、增伤、双暴、突破阶段和月兆级别。C3/C5等级+3必须已包含在显式有效天赋等级中，不自动再次增加。",
+    "满层精通的8秒状态独立于当前或Q消耗帷幕：C0/C1为100，C2+为200替代100。实际最终EM模式默认已计入；若提供未包含该增益的面板，须显式选择add-to-panel，共享核心只加一次。",
+    "Q消耗域为C0/C1的0–3、C2+的0–5；瞬时消耗数不代表精通buff是否仍有效。C4减抗须明确本目标实际有效状态，包含离开影舞/范围后4.5秒残留，不从选择E推断。",
+    "来源内部冲突：生产sheet误将帷幕倍率传入E突进，但tooltip11220003把8%增幅明确限定幻戏特殊重击；本映射按明确技能文本作用域移除E突进帷幕乘区，不乘外部附加伤害，仍为provisional。范围为一次突进，不是整个影舞状态。",
+    "输入为命中时最终面板；不重复添加装备属性。",
+    "反应为逐次命中的条件假设，不证明实际附着、ICD、能量或覆盖率。",
+    "高于基础天赋上限的有效等级须由使用者另行说明合法来源；本计算不自动增加命座等级。",
+    "默认面板为教学输入；若已启用相关伤害被动或状态，必须提供命中实际适用面板与增伤，结果保持条件计算。",
+    "不自动演算种子吸收、帷幕生成/刷新/消耗和持续影舞轮转；计算时须提供这次命中实际采用的完整资源快照。",
+    "C2施E瞬得2层、C4影舞开启与初击的先后缺事件时序证明；不自动设定为命中时已触发。",
+    "C1/C6幻戏的本人重击与独立月绽放影子段不并入突进或 Q；武器/圣遗物独立触发和反应实体也各自归属。",
+    "完整角色被动/命座、装备触发与队伍时序未由此字段分类建立。",
+    "所选命中命座范围：实际 C4；有效天赋等级显式输入，命座范围按每个命中独立检查，不自动再次增加天赋等级。",
+    "奈芙尔教学观察：下列帧序、种子、露滴与面板均是显式示例输入，不表示实测回调顺序。"
+  ],
+  "dependencies": [
+    {
+      "id": "talent-set:nefer.combat2.parameters.param1[9]",
+      "status": "provisional",
+      "reason": "固定来源完整天赋向量与当前字段一致；数值证据：cross-checked。同一原始提取链的比对不等于独立机制验证：talent-set:nefer.combat2.parameters.param1[9]",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ]
+    },
+    {
+      "id": "talent-set:nefer.combat2.parameters.param2[9]",
+      "status": "provisional",
+      "reason": "固定来源完整天赋向量与当前字段一致；数值证据：cross-checked。同一原始提取链的比对不等于独立机制验证：talent-set:nefer.combat2.parameters.param2[9]",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ]
+    },
+    {
+      "id": "conditioned-action",
+      "status": "provisional",
+      "reason": "来源分类只建立所选命中表达式；命中时状态、反应和额外加成仍按显式条件输入，不证明完整实战时序。",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+      ]
+    },
+    {
+      "id": "unrelated-team-rotation",
+      "status": "missing",
+      "reason": "完整角色/队伍轮转、所有被动命座及额外触发尚未由本映射验证。此项不属于所选条件命中的依赖。",
+      "sourceRefs": []
+    },
+    {
+      "id": "constellation-scope:nefer-skill-rush-hit",
+      "status": "provisional",
+      "reason": "所选普通 E 突进/Q 两段已按 C0–C6 独立核对：C1/C6特殊增量仅属于幻戏/月绽放，不新增到本动作；C2后Q采用0–5消耗域且独立8秒精通状态为200替代100，C4需该目标实际减抗状态；C3/C5由显式有效天赋等级处理。本次E触发资源/影舞与命中的先后不自动推断。",
+      "sourceRefs": [
+        "https://github.com/theBowja/genshin-db",
+        "https://github.com/EnkaNetwork/API-docs",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/data.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx#L195-L199",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx#L221-L300",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json#L239-L247"
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "evidenceStatus": "provisional"
+  }
+}

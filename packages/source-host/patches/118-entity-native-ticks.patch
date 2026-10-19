@@ -1,0 +1,14 @@
+diff --git a/pkg/core/combat/combat.go b/pkg/core/combat/combat.go
+index aa4b76b..9b1578f 100644
+--- a/pkg/core/combat/combat.go
++++ b/pkg/core/combat/combat.go
+@@ -89,6 +89,9 @@ func (h *Handler) Tick() {
+ 	}
+ 	for _, v := range h.gadgets {
+ 		if v != nil {
++			if h.SourceHost != nil {
++				h.SourceHost.RecordOwnedEntityTick(int(v.Key()))
++			}
+ 			v.Tick()
+ 		}
+ 	}

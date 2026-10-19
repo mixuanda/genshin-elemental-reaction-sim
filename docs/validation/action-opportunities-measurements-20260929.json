@@ -1,0 +1,611 @@
+{
+  "schemaVersion": "action-opportunities-measurements-v1",
+  "date": "2026-09-29",
+  "timezone": "Asia/Hong_Kong",
+  "goalStatus": "active",
+  "checks": [
+    {
+      "name": "core-unit",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-action-collection.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.547,
+      "receipt": "docs/validation/action-origin-opportunities-core-unit-20260929.json",
+      "log": "docs/validation/action-origin-opportunities-core-unit-20260929.log"
+    },
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.519,
+      "receipt": "docs/validation/action-origin-opportunities-classic-build-20260929.json",
+      "log": "docs/validation/action-origin-opportunities-classic-build-20260929.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.94,
+      "receipt": "docs/validation/action-origin-opportunities-stellar-build-20260929.json",
+      "log": "docs/validation/action-origin-opportunities-stellar-build-20260929.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.081,
+      "receipt": "docs/validation/action-origin-opportunities-web-build-20260929.json",
+      "log": "docs/validation/action-origin-opportunities-web-build-20260929.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-action-opportunities.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 16.371,
+      "receipt": "docs/validation/action-origin-opportunities-browser-20260929.json",
+      "log": "docs/validation/action-origin-opportunities-browser-20260929.log"
+    }
+  ],
+  "browserResultPath": "docs/validation/action-opportunities-browser-20260929.result.json",
+  "browserResult": {
+    "schemaVersion": "source-action-opportunities-browser-v1",
+    "seed": "11",
+    "scripts": {
+      "xingqiu": "options iteration=1 duration=12;\nxingqiu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxingqiu add weapon=\"favoniussword\" refine=1 lvl=90/90;\nxingqiu add stats atk=200 er=0.2 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive xingqiu;\nxingqiu burst;\nxingqiu skill;\nfischl skill;\nxingqiu attack:3;\nwait(300);\n",
+      "missed": "options iteration=1 duration=1;\nventi char lvl=90/90 cons=0 talent=1,1,1;\nventi add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive venti;\nventi skill;\nset_target_pos(1,0,50);\nwait(120);\n",
+      "pending": "options iteration=1 duration=0.5;\nventi char lvl=90/90 cons=0 talent=1,1,1;\nventi add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive venti;\nventi skill;\nwait(120);\n"
+    },
+    "measurements": [
+      {
+        "lane": "classic",
+        "scenario": "xingqiu",
+        "rawPath": "/tmp/gidps-opportunities-classic-xingqiu.json",
+        "executionArtifact": {
+          "wasmSha256": "0bf16a852e3fcd2d86bb342c7844d414507decc9f4c065c6e91b5b64eae9802b",
+          "wasmBytes": 43510567
+        },
+        "actionSequence": 2,
+        "actionAcceptedFrame": 34,
+        "applicationIds": [
+          11,
+          14
+        ],
+        "attackObservations": 6,
+        "pendingStages": 0,
+        "opportunities": [
+          {
+            "id": "application-11",
+            "stage": "application",
+            "status": "calculated",
+            "attackId": 2,
+            "dispatchId": 2,
+            "targetKey": 1,
+            "applicationIds": [
+              11
+            ],
+            "value": 919.5508033975872,
+            "traceIds": [
+              "application.11.contribution"
+            ]
+          },
+          {
+            "id": "application-14",
+            "stage": "application",
+            "status": "calculated",
+            "attackId": 3,
+            "dispatchId": 3,
+            "targetKey": 1,
+            "applicationIds": [
+              14
+            ],
+            "value": 1046.5363905334443,
+            "traceIds": [
+              "application.14.contribution"
+            ]
+          },
+          {
+            "id": "observation-0",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 2,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-0.frame"
+            ]
+          },
+          {
+            "id": "observation-1",
+            "stage": "dispatched",
+            "status": "observed",
+            "attackId": 2,
+            "dispatchId": 2,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-1.frame"
+            ]
+          },
+          {
+            "id": "observation-3",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 3,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-3.frame"
+            ]
+          },
+          {
+            "id": "observation-4",
+            "stage": "dispatched",
+            "status": "observed",
+            "attackId": 3,
+            "dispatchId": 3,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-4.frame"
+            ]
+          }
+        ],
+        "knownSubtotal": 1966.0871939310314,
+        "total": 1966.0871939310314,
+        "completeCast": false,
+        "baselinePath": "docs/validation/action-origin-baseline-classic-20260929.capture.json",
+        "originalRawTotal": 1966.0871939310314,
+        "gameplayUnchanged": true,
+        "collectionRoundtrip": true
+      },
+      {
+        "lane": "classic",
+        "scenario": "missed",
+        "rawPath": "/tmp/gidps-opportunities-classic-missed.json",
+        "executionArtifact": {
+          "wasmSha256": "0bf16a852e3fcd2d86bb342c7844d414507decc9f4c065c6e91b5b64eae9802b",
+          "wasmBytes": 43510567
+        },
+        "actionSequence": 1,
+        "actionAcceptedFrame": 1,
+        "applicationIds": [],
+        "attackObservations": 3,
+        "pendingStages": 0,
+        "opportunities": [
+          {
+            "id": "observation-0",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-0.frame"
+            ]
+          },
+          {
+            "id": "observation-1",
+            "stage": "dispatched",
+            "status": "observed",
+            "attackId": 1,
+            "dispatchId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-1.frame"
+            ]
+          },
+          {
+            "id": "observation-2",
+            "stage": "missed",
+            "status": "missed",
+            "attackId": 1,
+            "dispatchId": 1,
+            "targetKey": 1,
+            "applicationIds": [],
+            "value": 0,
+            "traceIds": [
+              "observation-2.miss"
+            ]
+          }
+        ],
+        "knownSubtotal": 0,
+        "total": 0,
+        "completeCast": false,
+        "collectionRoundtrip": true
+      },
+      {
+        "lane": "classic",
+        "scenario": "pending",
+        "rawPath": "/tmp/gidps-opportunities-classic-pending.json",
+        "executionArtifact": {
+          "wasmSha256": "0bf16a852e3fcd2d86bb342c7844d414507decc9f4c065c6e91b5b64eae9802b",
+          "wasmBytes": 43510567
+        },
+        "actionSequence": 1,
+        "actionAcceptedFrame": 1,
+        "applicationIds": [],
+        "attackObservations": 1,
+        "pendingStages": 1,
+        "opportunities": [
+          {
+            "id": "observation-0",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-0.frame"
+            ]
+          },
+          {
+            "id": "pending-1",
+            "stage": "application",
+            "status": "pending",
+            "attackId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "pending-1"
+            ]
+          }
+        ],
+        "knownSubtotal": null,
+        "total": 0,
+        "completeCast": false,
+        "collectionRoundtrip": true
+      },
+      {
+        "lane": "stellar",
+        "scenario": "xingqiu",
+        "rawPath": "/tmp/gidps-opportunities-stellar-xingqiu.json",
+        "executionArtifact": {
+          "wasmSha256": "6d955562d0bc7cc80ed4adc572c694272b3ddd43fcf46558b7cc1e4e4f201bd7",
+          "wasmBytes": 65631174
+        },
+        "actionSequence": 2,
+        "actionAcceptedFrame": 34,
+        "applicationIds": [
+          11,
+          14
+        ],
+        "attackObservations": 6,
+        "pendingStages": 0,
+        "opportunities": [
+          {
+            "id": "application-11",
+            "stage": "application",
+            "status": "calculated",
+            "attackId": 2,
+            "dispatchId": 2,
+            "targetKey": 1,
+            "applicationIds": [
+              11
+            ],
+            "value": 919.5508033975872,
+            "traceIds": [
+              "application.11.contribution"
+            ]
+          },
+          {
+            "id": "application-14",
+            "stage": "application",
+            "status": "calculated",
+            "attackId": 3,
+            "dispatchId": 3,
+            "targetKey": 1,
+            "applicationIds": [
+              14
+            ],
+            "value": 1046.5363905334443,
+            "traceIds": [
+              "application.14.contribution"
+            ]
+          },
+          {
+            "id": "observation-0",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 2,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-0.frame"
+            ]
+          },
+          {
+            "id": "observation-1",
+            "stage": "dispatched",
+            "status": "observed",
+            "attackId": 2,
+            "dispatchId": 2,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-1.frame"
+            ]
+          },
+          {
+            "id": "observation-3",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 3,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-3.frame"
+            ]
+          },
+          {
+            "id": "observation-4",
+            "stage": "dispatched",
+            "status": "observed",
+            "attackId": 3,
+            "dispatchId": 3,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-4.frame"
+            ]
+          }
+        ],
+        "knownSubtotal": 1966.0871939310314,
+        "total": 1966.0871939310314,
+        "completeCast": false,
+        "baselinePath": "docs/validation/action-origin-baseline-stellar-20260929.capture.json",
+        "originalRawTotal": 1966.0871939310314,
+        "gameplayUnchanged": true,
+        "collectionRoundtrip": true
+      },
+      {
+        "lane": "stellar",
+        "scenario": "missed",
+        "rawPath": "/tmp/gidps-opportunities-stellar-missed.json",
+        "executionArtifact": {
+          "wasmSha256": "6d955562d0bc7cc80ed4adc572c694272b3ddd43fcf46558b7cc1e4e4f201bd7",
+          "wasmBytes": 65631174
+        },
+        "actionSequence": 1,
+        "actionAcceptedFrame": 1,
+        "applicationIds": [],
+        "attackObservations": 3,
+        "pendingStages": 0,
+        "opportunities": [
+          {
+            "id": "observation-0",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-0.frame"
+            ]
+          },
+          {
+            "id": "observation-1",
+            "stage": "dispatched",
+            "status": "observed",
+            "attackId": 1,
+            "dispatchId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-1.frame"
+            ]
+          },
+          {
+            "id": "observation-2",
+            "stage": "missed",
+            "status": "missed",
+            "attackId": 1,
+            "dispatchId": 1,
+            "targetKey": 1,
+            "applicationIds": [],
+            "value": 0,
+            "traceIds": [
+              "observation-2.miss"
+            ]
+          }
+        ],
+        "knownSubtotal": 0,
+        "total": 0,
+        "completeCast": false,
+        "collectionRoundtrip": true
+      },
+      {
+        "lane": "stellar",
+        "scenario": "pending",
+        "rawPath": "/tmp/gidps-opportunities-stellar-pending.json",
+        "executionArtifact": {
+          "wasmSha256": "6d955562d0bc7cc80ed4adc572c694272b3ddd43fcf46558b7cc1e4e4f201bd7",
+          "wasmBytes": 65631174
+        },
+        "actionSequence": 1,
+        "actionAcceptedFrame": 1,
+        "applicationIds": [],
+        "attackObservations": 1,
+        "pendingStages": 1,
+        "opportunities": [
+          {
+            "id": "observation-0",
+            "stage": "queued",
+            "status": "observed",
+            "attackId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "observation-0.frame"
+            ]
+          },
+          {
+            "id": "pending-1",
+            "stage": "application",
+            "status": "pending",
+            "attackId": 1,
+            "applicationIds": [],
+            "traceIds": [
+              "pending-1"
+            ]
+          }
+        ],
+        "knownSubtotal": null,
+        "total": 0,
+        "completeCast": false,
+        "collectionRoundtrip": true
+      }
+    ],
+    "pageErrors": [],
+    "scope": "Actual observed action opportunities only; no complete-cast claim or inferred zero for pending work."
+  },
+  "captures": [
+    {
+      "lane": "classic",
+      "scenario": "xingqiu",
+      "path": "docs/validation/action-opportunities-classic-xingqiu-20260929.capture.json",
+      "bytes": 525741,
+      "sha256": "54a6f62fdccaeef9a5cdacf897762d94281d7ea4152349ac6793d2333426a363",
+      "calculations": 102,
+      "applications": 38,
+      "observationFrame": 720,
+      "misses": [],
+      "pending": []
+    },
+    {
+      "lane": "classic",
+      "scenario": "missed",
+      "path": "docs/validation/action-opportunities-classic-missed-20260929.capture.json",
+      "bytes": 13458,
+      "sha256": "3c3520f36890f806ccd27e656086aa172e815aa06f5bd196cf3b41b00b29295a",
+      "calculations": 2,
+      "applications": 0,
+      "observationFrame": 60,
+      "misses": [
+        {
+          "attackId": 1,
+          "dispatchId": 1,
+          "stage": "missed",
+          "frame": 52,
+          "targetKey": 1,
+          "reason": "intersect circle",
+          "origin": {
+            "creationActionSequence": 1,
+            "triggerActionSequence": 1,
+            "via": "action"
+          }
+        }
+      ],
+      "pending": []
+    },
+    {
+      "lane": "classic",
+      "scenario": "pending",
+      "path": "docs/validation/action-opportunities-classic-pending-20260929.capture.json",
+      "bytes": 11267,
+      "sha256": "18de1404fb1c379efe0783e5d22acfc81867f2f800deb38d151a514e278b6ec4",
+      "calculations": 2,
+      "applications": 0,
+      "observationFrame": 30,
+      "misses": [],
+      "pending": [
+        {
+          "id": 1,
+          "stage": "application",
+          "queuedFrame": 1,
+          "dueFrame": 52,
+          "attackId": 1,
+          "origin": {
+            "creationActionSequence": 1,
+            "triggerActionSequence": 1,
+            "via": "action"
+          }
+        }
+      ]
+    },
+    {
+      "lane": "stellar",
+      "scenario": "xingqiu",
+      "path": "docs/validation/action-opportunities-stellar-xingqiu-20260929.capture.json",
+      "bytes": 531962,
+      "sha256": "c8a4cd3804f8f4463f1048fc5600195fd183f0664bc12cef759b4d4be42d893a",
+      "calculations": 102,
+      "applications": 38,
+      "observationFrame": 720,
+      "misses": [],
+      "pending": []
+    },
+    {
+      "lane": "stellar",
+      "scenario": "missed",
+      "path": "docs/validation/action-opportunities-stellar-missed-20260929.capture.json",
+      "bytes": 13755,
+      "sha256": "718d52e888cf510e80f4ed9d75ebbe0a22a7cfc6c4921add936a8dfa1bf945ce",
+      "calculations": 2,
+      "applications": 0,
+      "observationFrame": 60,
+      "misses": [
+        {
+          "attackId": 1,
+          "dispatchId": 1,
+          "stage": "missed",
+          "frame": 52,
+          "targetKey": 1,
+          "reason": "intersect circle",
+          "origin": {
+            "creationActionSequence": 1,
+            "triggerActionSequence": 1,
+            "via": "action"
+          }
+        }
+      ],
+      "pending": []
+    },
+    {
+      "lane": "stellar",
+      "scenario": "pending",
+      "path": "docs/validation/action-opportunities-stellar-pending-20260929.capture.json",
+      "bytes": 11564,
+      "sha256": "752fe462c433cb57e1532b2637ca615be1a0646059217ee876e0b136500f4d4b",
+      "calculations": 2,
+      "applications": 0,
+      "observationFrame": 30,
+      "misses": [],
+      "pending": [
+        {
+          "id": 1,
+          "stage": "application",
+          "queuedFrame": 1,
+          "dueFrame": 52,
+          "attackId": 1,
+          "origin": {
+            "creationActionSequence": 1,
+            "triggerActionSequence": 1,
+            "via": "action"
+          }
+        }
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "limits": [
+    "Dispatch identity links observed target outcomes to enemy applications; it does not assert full skill ownership or opportunity completeness.",
+    "Queued/dispatched rows are phases, not extra damage terms or attack counts.",
+    "Only two native core pending attack task sites are tracked.",
+    "Actual native miss uses an explicitly authored target-movement teaching script, not a game measurement.",
+    "Other target types can resolve without enemy damage applications; missing binding remains unresolved rather than zero.",
+    "No game verification, static action coverage, active or preview data promotion."
+  ]
+}

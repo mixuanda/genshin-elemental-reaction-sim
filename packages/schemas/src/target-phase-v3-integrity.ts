@@ -1,3 +1,4 @@
+import { isDeclaredTargetDefeatedMiss } from "./target-health-integrity";
 import { z, type RefinementCtx } from "zod";
 import { canonicalStringify } from "./reproducibility";
 import {
@@ -1318,7 +1319,9 @@ export function validateTargetPhaseV3Integrity(
             ? null
             : BURNING_DAMAGE_RADIUS +
               configuredAttemptTarget.hitboxRadius;
-        const expectedOutcome: TargetPhaseV3DeliveryAttempt["outcome"] =
+        const declaredDeathHit = attempt.hitResolutionLogId === null ? undefined : hitById.get(attempt.hitResolutionLogId);
+        const declaredDead = declaredDeathHit !== undefined && isDeclaredTargetDefeatedMiss(result, declaredDeathHit);
+        const expectedOutcome: TargetPhaseV3DeliveryAttempt["outcome"] = declaredDead ? "miss" :
           expectedCenterPosition === null
             ? attempt.targetId === phase.targetId
               ? "landed"
@@ -1339,7 +1342,7 @@ export function validateTargetPhaseV3Integrity(
             phase.globalFrame >= targetPhase.startFrame &&
             phase.globalFrame < targetPhase.endFrame
         );
-        const expectedReason =
+        const expectedReason = declaredDead ? "TARGET_DEFEATED" :
           expectedOutcome === "miss"
             ? "OUTSIDE_CIRCLE_GEOMETRY"
             : activeTargetPhase?.reason ?? null;

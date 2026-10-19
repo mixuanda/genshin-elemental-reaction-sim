@@ -1,0 +1,39 @@
+[WebServer] (node:80382) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:80383) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-additive.spec.ts:47:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits (11.0s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-additive.spec.ts:47:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits 
+
+    Error: classic: Kokomi normal must carry both native same-hit additions
+
+    expect(received).toBeDefined()
+
+    Received: undefined
+
+      101 |     const normal = hitsWith(rules.kokomi, rules.yunJin)
+      102 |       .find(hit => hit.calculation.request.actorKey === "kokomi");
+    > 103 |     expect(normal, `${lane}: Kokomi normal must carry both native same-hit additions`).toBeDefined();
+          |                                                                                        ^
+      104 |     const kokomi = byId.get(normal!.ids[0]!);
+      105 |     const yunJin = byId.get(normal!.ids[1]!);
+      106 |     if (kokomi?.request.kind !== "character-additive" || yunJin?.request.kind !== "character-additive")
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-additive.spec.ts:103:88
+
+    Error Context: test-results/source-character-additive--961ec-d-independent-formula-edits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-additive--961ec-d-independent-formula-edits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-additive--961ec-d-independent-formula-edits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-additive.spec.ts:47:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits 

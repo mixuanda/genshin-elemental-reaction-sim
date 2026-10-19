@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/schemas/src/result-integrity.ts(15671,77): error TS18048: 'buff.value' is possibly 'undefined'.
+packages/sim-core/src/__tests__/artifact-special-composition.test.ts(17,3): error TS18048: 'config.timeline' is possibly 'undefined'.
+packages/sim-core/src/__tests__/artifact-special-composition.test.ts(26,3): error TS18048: 'config.timeline' is possibly 'undefined'.
+packages/sim-core/src/__tests__/artifact-special-composition.test.ts(27,3): error TS18048: 'config.timeline' is possibly 'undefined'.

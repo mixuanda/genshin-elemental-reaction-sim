@@ -1,0 +1,184 @@
+--- a/internal/characters/rosaria/skill.go
++++ b/internal/characters/rosaria/skill.go
+@@ -81,7 +81,7 @@
+ 		HitlagFactor:       0.01,
+ 		CanBeDefenseHalted: true,
+ 	}
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("rosaria.skill.followup", func() {
+ 		// second hit is 14 frames after the first (if we exclude hitlag)
+ 		c.Core.QueueAttack(
+ 			ai,
+--- a/internal/characters/rosaria/burst.go
++++ b/internal/characters/rosaria/burst.go
+@@ -75,7 +75,7 @@
+ 	apTick := combat.NewCircleHitOnTarget(playerPos, gadgetOffset, 6.5)
+ 	// Handle Hit 2 and DoT
+ 	// lance lands at 56f if we exclude hitlag (60f was with hitlag)
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("rosaria.burst.lance", func() {
+ 		// Hit 2
+ 		c.Core.QueueAttack(ai, apHit2, 0, 0, c1CB, c6CB)
+ 
+--- a/internal/characters/albedo/burst.go
++++ b/internal/characters/albedo/burst.go
+@@ -69,7 +69,7 @@
+ 	// delay Fatal Blossom triggering until burstHitmark because that's when it:
+ 	// - checks whether the skill is still active
+ 	// - recalculates C2 damage
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("albedo.burst.fatal-blossoms", c.Index(), func() {
+ 		c.a4()
+ 
+ 		// Fatal Blossom
+--- a/internal/characters/raiden/burst.go
++++ b/internal/characters/raiden/burst.go
+@@ -65,7 +65,7 @@
+ 		Mult:       burstBase[c.TalentLvlBurst()],
+ 	}
+ 
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("raiden.burst.initial-strike", c.Index(), func() {
+ 		c.stacksConsumed = c.stacks
+ 		c.stacks = 0
+ 		priorMult := ai.Mult
+--- a/internal/characters/lisa/burst.go
++++ b/internal/characters/lisa/burst.go
+@@ -61,7 +61,7 @@
+ 	burstArea := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 7)
+ 	for i := 0; i < 15*60; i += 30 {
+ 		progress := i + firstTick
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("lisa.burst.discharge-tick", c.Index(), func() {
+ 			// logic below c4 is fairly simple: 1 discharge to a random enemy in the area
+ 			if c.Base.Cons < 4 {
+ 				enemy := c.Core.Combat.RandomEnemyWithinArea(burstArea, nil)
+--- a/internal/characters/diona/burst.go
++++ b/internal/characters/diona/burst.go
+@@ -66,10 +66,10 @@
+ 	// add burst status for C4 check
+ 	c.Core.Status.Add("diona-q", 750+burstStart)
+ 	// TODO: assumes that field starts when it lands (which is dynamic ingame)
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("diona.burst.schedule-ticks", c.Index(), func() {
+ 		// ticks every 2s, first tick at t=2s (relative to field start), then t=4,6,8,10,12; lasts for 12.5s from field start
+ 		for i := range 6 {
+-			c.Core.Tasks.Add(func() {
++			c.Core.SourceHostQueueTask("diona.burst.tick", c.Index(), func() {
+ 				// attack
+ 				c.Core.QueueAttackWithSnap(ai, snap, ap, 0)
+ 				// heal
+--- a/internal/characters/navia/burst.go
++++ b/internal/characters/navia/burst.go
+@@ -55,7 +55,7 @@
+ 		c.c4(),
+ 	)
+ 
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("navia.burst.schedule-cannons", func() {
+ 		c.AddStatus(burstKey, burstDuration, false)
+ 
+ 		ai.Abil = "Cannon Fire Support"
+@@ -69,7 +69,7 @@
+ 		var nextTick int
+ 		for i := 0; i <= burstDuration; i += nextTick {
+ 			tick++
+-			c.Core.Tasks.Add(func() {
++			c.Core.SourceHostQueueTask("navia.burst.cannon", c.Index(), func() {
+ 				// queue attack
+ 				c.Core.QueueAttack(
+ 					ai,
+--- a/internal/characters/kaeya/burst.go
++++ b/internal/characters/kaeya/burst.go
+@@ -64,7 +64,7 @@
+ 		// assume damage dealt every 120 (since only hitting at the front)
+ 		// on icicle collision, it'll trigger an aoe dmg with radius 2
+ 		// in effect, every target gets hit every time icicles rotate around
+-		c.Core.Tasks.Add(c.burstTickerFunc(ai, snap, c.Core.F), burstHitmark+offset*i)
++		c.Core.SourceHostQueueTask("kaeya.burst.initial-ticker", c.Index(), c.burstTickerFunc(ai, snap, c.Core.F), burstHitmark+offset*i)
+ 	}
+ 
+ 	c.ConsumeEnergy(51)
+@@ -106,6 +106,6 @@
+ 			0,
+ 		)
+ 		// queue up icicle tick
+-		c.Core.Tasks.Add(c.burstTickerFunc(ai, snap, src), 120)
++		c.Core.SourceHostQueueTask("kaeya.burst.next-ticker", c.Index(), c.burstTickerFunc(ai, snap, src), 120)
+ 	}
+ }
+--- a/internal/characters/bennett/skill.go
++++ b/internal/characters/bennett/skill.go
+@@ -174,7 +174,7 @@
+ 				skillHoldHitboxes[i][1],
+ 			)
+ 		}
+-		c.QueueCharTask(func() {
++		c.SourceHostQueueCharTask("bennett.skill.hold-hit", func() {
+ 			c.Core.QueueAttack(ax, ap, 0, 0, c.holdParticleCB)
+ 		}, skillHoldHitmarks[level-1][i])
+ 	}
+--- a/internal/characters/venti/burst.go
++++ b/internal/characters/venti/burst.go
+@@ -63,12 +63,12 @@
+ 
+ 	// starts at 106 with 24f interval between ticks. 20 total
+ 	for i := range 20 {
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("venti.burst.anemo-tick", c.Index(), func() {
+ 			c.Core.QueueAttackWithSnap(ai, snap, ap, 0, cb)
+ 		}, 106+24*i)
+ 	}
+ 	// Infusion usually occurs after 4 ticks of anemo according to KQM library
+-	c.Core.Tasks.Add(c.absorbCheckQ(c.Core.F, 0, int((480-24*4)/18)), 106+24*3)
++	c.Core.SourceHostQueueTask("venti.burst.absorb-check-initial", c.Index(), c.absorbCheckQ(c.Core.F, 0, int((480-24*4)/18)), 106+24*3)
+ 
+ 	if c.Base.Ascension >= 4 {
+ 		c.Core.Tasks.Add(c.a4, 480+burstStart)
+@@ -121,6 +121,6 @@
+ 			return
+ 		}
+ 		// otherwise queue up
+-		c.Core.Tasks.Add(c.absorbCheckQ(src, count+1, maxcount), 18)
++		c.Core.SourceHostQueueTask("venti.burst.absorb-check-next", c.Index(), c.absorbCheckQ(src, count+1, maxcount), 18)
+ 	}
+ }
+--- a/internal/characters/ganyu/burst.go
++++ b/internal/characters/ganyu/burst.go
+@@ -54,7 +54,7 @@
+ 	// tick every 0.3s from burstStart
+ 	for i := 0; i < 15*60; i += 18 {
+ 		// c4 related
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("ganyu.burst.shower-tick", c.Index(), func() {
+ 			// burst tick
+ 			enemy := c.Core.Combat.RandomEnemyWithinArea(
+ 				burstArea,
+--- a/internal/characters/sucrose/burst.go
++++ b/internal/characters/sucrose/burst.go
+@@ -84,7 +84,7 @@
+ 	for i := 137; i <= duration+5; i += 113 {
+ 		c.Core.QueueAttackWithSnap(ai, snap, ap, i, cb)
+ 
+-		c.Core.Tasks.Add(func() {
++		c.Core.SourceHostQueueTask("sucrose.burst.absorbed-tick", c.Index(), func() {
+ 			if c.qAbsorb != attributes.NoElement {
+ 				aiAbs.Element = c.qAbsorb
+ 				c.Core.QueueAttackWithSnap(aiAbs, snapAbs, ap, 0)
+@@ -93,7 +93,7 @@
+ 		}, i)
+ 	}
+ 
+-	c.Core.Tasks.Add(c.absorbCheck(c.Core.F, 0, duration/18), 136)
++	c.Core.SourceHostQueueTask("sucrose.burst.absorb-check-initial", c.Index(), c.absorbCheck(c.Core.F, 0, duration/18), 136)
+ 
+ 	c.SetCDWithDelay(action.ActionBurst, 1200, 18)
+ 	c.ConsumeEnergy(21)
+@@ -121,6 +121,6 @@
+ 			return
+ 		}
+ 		// otherwise queue up
+-		c.Core.Tasks.Add(c.absorbCheck(src, count+1, maxcount), 18)
++		c.Core.SourceHostQueueTask("sucrose.burst.absorb-check-next", c.Index(), c.absorbCheck(src, count+1, maxcount), 18)
+ 	}
+ }

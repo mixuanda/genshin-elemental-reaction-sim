@@ -1,0 +1,393 @@
+{
+  "schemaVersion": "source-character-modifiers-measurements-v1",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.739,
+      "log": "docs/validation/source-character-modifiers-classic-build-20260928.log"
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.184,
+      "log": "docs/validation/source-character-modifiers-stellar-build-20260928.log"
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.705,
+      "log": "docs/validation/source-character-modifiers-web-build-20260928.log"
+    },
+    "web-build-retry1": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.798,
+      "log": "docs/validation/source-character-modifiers-web-build-retry1-20260928.log"
+    },
+    "e2e": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-modifiers.spec.ts"
+      ],
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      },
+      "exitCode": 1,
+      "wallSeconds": 2.137,
+      "log": "docs/validation/source-character-modifiers-e2e-20260928.log"
+    },
+    "e2e-retry1": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-modifiers.spec.ts"
+      ],
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      },
+      "exitCode": 0,
+      "wallSeconds": 5.338,
+      "log": "docs/validation/source-character-modifiers-e2e-retry1-20260928.log"
+    },
+    "tracked-diff-check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.074,
+      "scope": "tracked files only",
+      "log": "docs/validation/source-character-modifiers-tracked-diff-check-20260928.log"
+    }
+  },
+  "registry": {
+    "uniqueRuleIds": 101,
+    "sharedRuleIds": 98,
+    "classicRuleIds": 99,
+    "stellarRuleIds": 100,
+    "characterKeys": [
+      "albedo",
+      "amber",
+      "arlecchino",
+      "ayaka",
+      "ayato",
+      "baizhu",
+      "beidou",
+      "bennett",
+      "candace",
+      "chongyun",
+      "citlali",
+      "clorinde",
+      "collei",
+      "cyno",
+      "dehya",
+      "diluc",
+      "diona",
+      "dori",
+      "durin",
+      "eula",
+      "faruzan",
+      "gaming",
+      "ganyu",
+      "ifa",
+      "itto",
+      "kaveh",
+      "klee",
+      "kokomi",
+      "kuki",
+      "lanyan",
+      "lauma",
+      "layla",
+      "lisa",
+      "lynette",
+      "mavuika",
+      "mona",
+      "nahida",
+      "nilou",
+      "ningguang",
+      "noelle",
+      "qiqi",
+      "raiden",
+      "rosaria",
+      "sethos",
+      "tighnari",
+      "traveler-anemo",
+      "traveler-geo",
+      "traveler-pyro",
+      "varesa",
+      "wanderer",
+      "xiangling",
+      "xiao",
+      "xingqiu",
+      "xinyan",
+      "yaoyao",
+      "yoimiya"
+    ],
+    "negativeRules": [
+      "char-kokomi-kokomi-passive-cr-neg1"
+    ]
+  },
+  "artifacts": {
+    "classic": {
+      "manifest": "packages/source-host/dist/manifest.json",
+      "wasm": {
+        "path": "source-host.wasm",
+        "sha256": "efbf66f6bbc013ffcd025886c5562e57cab91e3a03c05cf8667631b28bd4e05e",
+        "size": 42218293
+      },
+      "nativeExecutionArtifact": {
+        "wasmSha256": "efbf66f6bbc013ffcd025886c5562e57cab91e3a03c05cf8667631b28bd4e05e",
+        "wasmBytes": 42218293
+      },
+      "calculationCount": 42,
+      "outgoingApplications": 11,
+      "vectorCallSites": 94,
+      "characterSourceFiles": 72
+    },
+    "stellar": {
+      "manifest": "packages/source-host/stellar-overlay/dist/manifest.json",
+      "wasm": {
+        "path": "source-host.wasm",
+        "sha256": "01045287162a4bc67471eac89671c8ea20553547d6283b0b508021f46f298866",
+        "bytes": 63290061
+      },
+      "nativeExecutionArtifact": {
+        "wasmSha256": "01045287162a4bc67471eac89671c8ea20553547d6283b0b508021f46f298866",
+        "wasmBytes": 63290061
+      },
+      "calculationCount": 42,
+      "outgoingApplications": 11,
+      "vectorCallSites": 95,
+      "characterSourceFiles": 73
+    }
+  },
+  "measurements": {
+    "schemaVersion": "source-character-modifiers-validation-v1",
+    "startupDrift": [
+      {
+        "scenario": "zero",
+        "samples": [
+          {
+            "seed": "1",
+            "damage": 0,
+            "dps": 0,
+            "actors": [
+              {
+                "actorIndex": 0,
+                "actor": "noelle",
+                "startEnergy": 0,
+                "endEnergy": 0,
+                "gained": 0,
+                "wasted": 0,
+                "spent": 0,
+                "burstAccepted": 0,
+                "burstRejected": 0,
+                "burstInsufficientEnergy": 0
+              }
+            ]
+          },
+          {
+            "seed": "2",
+            "damage": 0,
+            "dps": 0,
+            "actors": [
+              {
+                "actorIndex": 0,
+                "actor": "noelle",
+                "startEnergy": 0,
+                "endEnergy": 0,
+                "gained": 0,
+                "wasted": 0,
+                "spent": 0,
+                "burstAccepted": 0,
+                "burstRejected": 0,
+                "burstInsufficientEnergy": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scenario": "full",
+        "samples": [
+          {
+            "seed": "1",
+            "damage": -415.1934558151957,
+            "dps": -207.59672790759785,
+            "actors": [
+              {
+                "actorIndex": 0,
+                "actor": "noelle",
+                "startEnergy": -60,
+                "endEnergy": 0,
+                "gained": 0,
+                "wasted": 0,
+                "spent": -60,
+                "burstAccepted": -1,
+                "burstRejected": 0,
+                "burstInsufficientEnergy": 0
+              }
+            ]
+          },
+          {
+            "seed": "2",
+            "damage": -788.8675660488718,
+            "dps": -394.433783024436,
+            "actors": [
+              {
+                "actorIndex": 0,
+                "actor": "noelle",
+                "startEnergy": -60,
+                "endEnergy": 9.675190812,
+                "gained": 9.675190812,
+                "wasted": 0,
+                "spent": -60,
+                "burstAccepted": -1,
+                "burstRejected": 0,
+                "burstInsufficientEnergy": 0
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "scenario": "custom",
+        "samples": [
+          {
+            "seed": "1",
+            "damage": -415.1934558151957,
+            "dps": -207.59672790759785,
+            "actors": [
+              {
+                "actorIndex": 0,
+                "actor": "noelle",
+                "startEnergy": -60,
+                "endEnergy": 0,
+                "gained": 0,
+                "wasted": 0,
+                "spent": -60,
+                "burstAccepted": -1,
+                "burstRejected": 0,
+                "burstInsufficientEnergy": 0
+              }
+            ]
+          },
+          {
+            "seed": "2",
+            "damage": -788.8675660488718,
+            "dps": -394.433783024436,
+            "actors": [
+              {
+                "actorIndex": 0,
+                "actor": "noelle",
+                "startEnergy": -60,
+                "endEnergy": 9.675190812,
+                "gained": 9.675190812,
+                "wasted": 0,
+                "spent": -60,
+                "burstAccepted": -1,
+                "burstRejected": 0,
+                "burstInsufficientEnergy": 0
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "runs": [
+      {
+        "variant": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "efbf66f6bbc013ffcd025886c5562e57cab91e3a03c05cf8667631b28bd4e05e",
+        "calculations": 42,
+        "modifierCalls": 11,
+        "observedRules": {
+          "char-xingqiu-xingqiu-a4-hydrop-0p2": 6,
+          "char-albedo-albedo-a4-em-125": 5
+        },
+        "self": {
+          "holder": 1,
+          "consumer": 1,
+          "id": 9,
+          "value": 0.2
+        },
+        "crossActor": {
+          "holder": 0,
+          "consumer": 1,
+          "id": 10,
+          "value": 125
+        },
+        "selected": {
+          "applicationId": 12,
+          "rawDamage": 1747.1465264554156,
+          "replayDifference": 0,
+          "modifierIds": [
+            9,
+            10
+          ]
+        }
+      },
+      {
+        "variant": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "01045287162a4bc67471eac89671c8ea20553547d6283b0b508021f46f298866",
+        "calculations": 42,
+        "modifierCalls": 11,
+        "observedRules": {
+          "char-xingqiu-xingqiu-a4-hydrop-0p2": 6,
+          "char-albedo-albedo-a4-em-125": 5
+        },
+        "self": {
+          "holder": 1,
+          "consumer": 1,
+          "id": 9,
+          "value": 0.2
+        },
+        "crossActor": {
+          "holder": 0,
+          "consumer": 1,
+          "id": 10,
+          "value": 125
+        },
+        "selected": {
+          "applicationId": 12,
+          "rawDamage": 1747.1465264554156,
+          "replayDifference": 0,
+          "modifierIds": [
+            9,
+            10
+          ]
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "boundaries": [
+    "Fixed third-party source, provisional; no game verification promotion.",
+    "Two native 10-second runs, one per source; only two character rule IDs observed.",
+    "Saved zero/full/custom startup runs imported and analyzed without new native startup execution.",
+    "No unit suite, whole-character matrix, preview run, arbitrary checkpoint or complete reexecution run in this batch."
+  ]
+}

@@ -1,0 +1,50 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts (3 tests | 2 failed) 125ms
+     × orders same-frame active/party healing and Burning self damage on one HP timeline 31ms
+     × rejects malformed/old or forged health state, and failed actions never enqueue healing 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > orders same-frame active/party healing and Burning self damage on one HP timeline
+AssertionError: expected 15 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 15
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:66:31
+     64|     expect(result.playerDamageEvents.length).toBeGreaterThan(0);
+     65|     const firstDamage = result.playerDamageEvents[0]!;
+     66|     expect(firstDamage.frame).toBe(0);
+       |                               ^
+     67|     expect(firstDamage.hpResolution.currentHpBefore).toBe(3500);
+     68|     expect(result.playerHpTimeline.points.filter(point => point.frame …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > rejects malformed/old or forged health state, and failed actions never enqueue healing
+TimelineLegalityError: 合法时间线失败：commands.2 [ABILITY_ON_COOLDOWN] "生命动作" 尚未完成冷却/充能，最早可在第 61 帧施放。
+ ❯ packages/sim-core/src/legal-timeline.ts:652:15
+    650|         };
+    651|         failures.push(failure);
+    652|         throw new TimelineLegalityError(failure);
+       |               ^
+    653|       }
+    654|       adjustments.push({
+ ❯ compileLegalTimeline packages/sim-core/src/legal-timeline.ts:467:21
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:18003:20
+ ❯ simulate packages/sim-core/src/simulator.ts:18052:12
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:79:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  02:29:31
+   Duration  902ms (transform 563ms, setup 0ms, import 718ms, tests 125ms, environment 0ms)
+

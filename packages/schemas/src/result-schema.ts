@@ -1,4 +1,22 @@
+import { weaponHitStackLogEntrySchema, weaponHitStackCapturedStateSchema } from "./weapon-hit-stack-model";
+import { sourceNormalChainLogEntrySchema, sourceNormalChainStateSchema } from "./source-normal-chain";
+import { playerShieldLogEntrySchema, playerShieldStateSchema } from "./player-shield-schema";
+export * from "./player-shield-schema";
+import { declaredParticleOriginSchema, targetHealthLogEntrySchema, targetHealthSummarySchema } from "./target-health-schema";
+import { enemyShieldHostLogEntrySchema, enemyShieldHostStateSchema } from "./enemy-shield-schema";
 import { z } from "zod";
+import { simulationExecutionAuditSchema } from "./execution-audit-schema";
+import { playerHealthEventSchema } from "./player-health-schema";
+import { playerMaxHpEventSchema } from "./player-max-hp-schema";
+import { periodicEntityLogEntrySchema } from "./periodic-entity-schema";
+import { actionConditionLogEntrySchema } from "./action-condition-schema";
+import { hitAttackTagSchema, weaponProcWeaponIdSchema, weaponProcLifecycleStateSchema, weaponProcLifecycleLogEntrySchema } from "./weapon-proc-schema";
+import { thrillingTalesLogEntrySchema } from "./thrilling-tales-schema";
+import { sacrificialLogEntrySchema, skillCooldownLogEntrySchema } from "./sacrificial-schema";
+import { artifactEventLogEntrySchema, nightsoulBurstLogEntrySchema } from "./artifact-event-schema";
+import { artifactDamageLogEntrySchema, artifactDamageCapturedStateSchema } from "./artifact-damage-schema";
+import { artifactBuffLogEntrySchema, artifactBuffCapturedStateSchema } from "./artifact-buff-model";
+export * from "./execution-audit-schema";
 import {
   GCSIM_BASIC_REACTION_SCHEDULER_POLICY_V2_ID,
   GCSIM_CONFIGURABLE_ELEMENTAL_APPLICATION_GROUP_IDS,
@@ -105,6 +123,9 @@ import {
   damagePluginManifestEntrySchema,
   dendroCoreContactLogSchema,
   dendroCoreLogSchema,
+  currentDendroCoreLogSchema,
+  currentDendroCoreContactLogSchema,
+  currentDendroCoreTimelineSchema,
   dendroCoreResultReferencesSchema,
   dendroCoreTimelineSchema,
   electroChargedCleanupResultReferencesSchema,
@@ -113,13 +134,17 @@ import {
   elementalApplicationIcdSelectorSchema,
   enemyTargetsResultReferencesSchema,
   playerDamageEventSchema,
+  currentPlayerDamageEventSchema,
   playerReactionSelfDamageFactorsSchema,
   playerDamageResultReferencesSchema,
   playerHitResolutionLogEntrySchema,
   playerHpSummarySchema,
   playerHpTimelineSchema,
+  currentPlayerHpSummarySchema,
+  currentPlayerHpTimelineSchema,
   playerSelfDamageStatusSchema,
   parseSimulationRunManifestForConfig,
+  projectCurrentActionExtensionsToFrozen,
   point2DSchema,
   quickenReactionAuditSchema,
   quickenStateLogEntrySchema,
@@ -130,6 +155,7 @@ import {
   rejectNonPlainJsonWire,
   resolvedEnemyTargetProfileSchema,
   resolvedSimulationRuntimeOptionsSchema,
+  currentResolvedSimulationRuntimeOptionsSchema,
   scalingStatSchema,
   simConfigV142Schema,
   simConfigV144Schema,
@@ -165,6 +191,7 @@ import {
   targetPhaseV3LogSchema,
   targetPhaseV3TargetTaskSchema,
   targetStateTimelineSchema,
+  targetStateTimelineV152Schema,
   targetTaskPhaseLogSchema,
   targetTaskPhaseResultReferencesSchema,
   transformativeReactionAuditSchema
@@ -696,6 +723,7 @@ export const reactionAuditV142Schema = z
     triggered: z.boolean(),
     reaction: reactionTypeSchema,
     reactions: z.array(reactionTypeSchema),
+    specialReactions: z.array(z.enum(["lunarCharged", "lunarCrystallize"])).max(2).optional(),
     unsupportedReactions: z.array(
       unsupportedMechanicsBranchSchema
     ),
@@ -2386,6 +2414,14 @@ export const particleTriggerLogEntryV142Schema = z
   })
   .strict();
 
+export const particleTriggerLogEntryV153Schema = particleTriggerLogEntryV142Schema.extend({
+  blockedReason: z.enum(["INTERNAL_COOLDOWN", "TARGET_MISS", "TARGET_HIT_CONFIRM_BLOCKED", "PROBABILITY_FAILED"]).nullable(),
+  probability: finiteNumberSchema.min(0).max(1).optional(),
+  roll: finiteNumberSchema.min(0).lt(1).nullable().optional(),
+  drawIndex: nonNegativeIntegerSchema.nullable().optional(),
+  rngStream: z.literal("particle-trigger-v1").optional()
+}).strict();
+
 export const energyCurvePointV142Schema = z
   .object({
     id: nonNegativeIntegerSchema,
@@ -2530,6 +2566,7 @@ export const timelineFailureV142Schema = z
       "WRONG_ACTIVE_CHARACTER",
       "ALREADY_ACTIVE",
       "MISSING_REQUIRED_STATE",
+      "INVALID_AIRBORNE_ACTION",
       "OUT_OF_DURATION"
     ]),
     frame: frameSchema,
@@ -2582,6 +2619,7 @@ export const timelineCommandResultV142Schema = z
         "WRONG_ACTIVE_CHARACTER",
         "ALREADY_ACTIVE",
         "MISSING_REQUIRED_STATE",
+        "INVALID_AIRBORNE_ACTION",
         "OUT_OF_DURATION"
       ])
       .optional(),
@@ -2712,7 +2750,7 @@ export const simulationResultV142ValueSchema = z
     perSecond: z.array(nonNegativeFiniteRecordSchema),
     damageCurve: z.array(damageCurvePointV142Schema),
     auraTimeline: z.array(auraTimelinePointV142Schema),
-    targetStateTimeline: targetStateTimelineSchema,
+    targetStateTimeline: targetStateTimelineV152Schema,
     auraInitialStates: z.array(auraEndStateV142Schema),
     auraEndStates: z.array(auraEndStateV142Schema),
     timelineExecution:
@@ -4321,6 +4359,44 @@ export const damageEventV148Schema = z
     );
   });
 
+/** Current independent weapon procs preserve the direct parent in their wire. */
+export const damageEventV153Schema = z
+  .object({
+    ...damageEventV148Schema.shape,
+    enemyShieldLogId: nonNegativeIntegerSchema.optional(),
+    weaponProcLogId: nonNegativeIntegerSchema.optional(),
+    hitWeakPoint: z.boolean().optional(),
+    sourceSnapshotLogId: nonNegativeIntegerSchema.optional(),
+    flatDetails: z.array(flatDamageDetailV142Schema.extend({
+      sourceSnapshotLogId: nonNegativeIntegerSchema.optional()
+    }))
+  })
+  .strict()
+  .superRefine((event, context) => {
+    const { enemyShieldLogId: _enemyShieldLogId, weaponProcLogId, hitWeakPoint: _hitWeakPoint, sourceSnapshotLogId, flatDetails, ...baseEvent } = event;
+    const frozenEvent = { ...baseEvent, flatDetails: flatDetails.map(({ sourceSnapshotLogId: _sourceSnapshotLogId, ...detail }) => detail) };
+    if (event.kind !== "direct" && (sourceSnapshotLogId !== undefined || flatDetails.some(detail => detail.sourceSnapshotLogId !== undefined))) {
+      context.addIssue({ code: "custom", path: ["sourceSnapshotLogId"],
+        message: "only configured direct damage may reference an explicit source snapshot" });
+    }
+    if (weaponProcLogId !== undefined && event.kind !== "direct") {
+      context.addIssue({
+        code: "custom",
+        path: ["weaponProcLogId"],
+        message: "only independent direct weapon damage may reference a weapon proc log"
+      });
+    }
+    forwardSchemaIssues(
+      "frozen 1.48 damage event",
+      damageEventV148Schema.safeParse(
+        weaponProcLogId !== undefined && event.kind === "direct"
+          ? { ...frozenEvent, parentDamageEventId: null }
+          : frozenEvent
+      ),
+      context
+    );
+  });
+
 /** 1.48 target resolution with reciprocal reaction/application links. */
 export const hitResolutionLogEntryV148Schema = z
   .object({
@@ -4806,6 +4882,18 @@ export const playerDamageEventV150Schema = z
       context
     );
   }) satisfies z.ZodType<PlayerDamageEventV150>;
+
+export const playerDamageEventV153Schema = z.object({
+  ...currentPlayerDamageEventSchema.shape,
+  damageFactors: playerReactionSelfDamageFactorsV150Schema
+}).strict().superRefine((event, context) => {
+  forwardSchemaIssues("current player damage event", currentPlayerDamageEventSchema.safeParse({
+    ...event,
+    damageFactors: { ...event.damageFactors,
+      damageGroupDecision: event.damageFactors.damageGroupDecision === null ? null
+        : projectReactionDamageGroupDecisionV150ToV149(event.damageFactors.damageGroupDecision) }
+  }), context);
+});
 
 const targetPhaseV3DeliveryAttemptBaseV148Shape = {
   order: nonNegativeSafeIntegerSchema,
@@ -5369,6 +5457,12 @@ function projectV150ResultForFrozenReferenceFacets(
 ) {
   return {
     ...result,
+    ...((result as unknown as { schemaVersion: string }).schemaVersion === CALLBACK_BUS_SCHEMA_VERSION
+      ? { config: projectCurrentActionExtensionsToFrozen(result.config as unknown as Record<string, unknown>),
+        energyLog: result.energyLog.map(entry => {
+          const { artifactEventLogId: _artifactEventLogId, ...frozenEntry } = entry as typeof entry & { artifactEventLogId?: number };
+          return frozenEntry;
+        }) } : {}),
     reactionDamageLog: result.reactionDamageLog.map((entry) => ({
       ...entry,
       damageGroupDecisions: entry.damageGroupDecisions.map(
@@ -5396,7 +5490,7 @@ function projectV150ResultForFrozenReferenceFacets(
  * explicitly reject those values.
  */
 export const targetStateTimelineV150Schema =
-  targetStateTimelineSchema.superRefine(
+  targetStateTimelineV152Schema.superRefine(
     (timeline, context) => {
       for (const [
         pointIndex,
@@ -6386,7 +6480,7 @@ export const simulationResultV151ValueSchema = z
     ),
     runManifest: simulationRunManifestV151Schema,
     config: simConfigV151Schema,
-    targetStateTimeline: targetStateTimelineSchema,
+    targetStateTimeline: targetStateTimelineV152Schema,
     basicReactionSchedulerLog: z.array(
       basicReactionSchedulerLogEntrySchema
     )
@@ -6925,13 +7019,308 @@ export type SimulationResultV152 = z.output<
 >;
 
 /** Current 1.53 result wire with strict callback registry and delivery logs. */
+export const energyCostLogEntrySchema = z.object({
+  operation: z.enum(["reserve", "debit"]),
+  actionLogIndex: nonNegativeIntegerSchema,
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeIntegerSchema,
+  energyCost: nonNegativeFiniteNumberSchema,
+  energyBefore: nonNegativeFiniteNumberSchema,
+  energyAfter: nonNegativeFiniteNumberSchema,
+  reservedBefore: nonNegativeFiniteNumberSchema,
+  reservedAfter: nonNegativeFiniteNumberSchema
+}).strict();
+
+export const summonLogEntrySchema = z.object({
+  id: nonNegativeIntegerSchema,
+  instanceId: nonEmptyStringSchema,
+  summonId: nonEmptyStringSchema,
+  actorId: nonEmptyStringSchema,
+  actionId: nonEmptyStringSchema,
+  cycle: nonNegativeIntegerSchema,
+  operation: z.enum(["spawn", "expire"]),
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeIntegerSchema,
+  spawnFrame: frameSchema,
+  expiresAtFrame: frameSchema,
+  attackFrame: frameSchema,
+  snapshotFrame: frameSchema,
+  hitIds: z.array(nonEmptyStringSchema).min(1),
+  snapshot: runtimeCharacterStatsV142Schema
+}).strict();
+
+export const sourceSnapshotLogEntrySchema = z.object({
+  id: nonNegativeIntegerSchema,
+  actionLogIndex: nonNegativeIntegerSchema,
+  actionId: nonEmptyStringSchema,
+  sourceActorId: nonEmptyStringSchema,
+  ownerId: nonEmptyStringSchema,
+  cycle: nonNegativeIntegerSchema,
+  relativeFrame: frameSchema,
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  status: z.enum(["pending", "sampled"]),
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeIntegerSchema.nullable(),
+  stats: runtimeCharacterStatsV142Schema.nullable(),
+  activeBuffs: z.array(activeStatusSnapshotV142Schema)
+}).strict().superRefine((row, context) => {
+  if (row.status === "pending" && (row.eventSequence !== null || row.stats !== null || row.activeBuffs.length > 0)) {
+    context.addIssue({ code: "custom", path: ["status"], message: "pending source snapshots cannot contain sampled state" });
+  }
+  if (row.status === "sampled" && (row.eventSequence === null || row.stats === null)) {
+    context.addIssue({ code: "custom", path: ["status"], message: "sampled source snapshots require the actual task sequence and stats" });
+  }
+});
+
+export const statConversionLogEntrySchema = z.object({
+  id: nonNegativeIntegerSchema,
+  actionLogIndex: nonNegativeIntegerSchema,
+  key: nonEmptyStringSchema,
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeIntegerSchema,
+  expiresAtFrame: frameSchema,
+  sourceValue: finiteNumberSchema,
+  appliedValue: finiteNumberSchema,
+  snapshot: runtimeCharacterStatsV142Schema
+}).strict();
+
+const normalHitEnergyWeaponSchema = z.enum(["sword", "claymore", "polearm", "bow", "catalyst"]);
+const normalHitEnergyProbabilityStateSchema = z.object({
+  actorId: nonEmptyStringSchema,
+  weaponType: normalHitEnergyWeaponSchema,
+  probability: nonNegativeFiniteNumberSchema
+}).strict();
+const normalHitEnergyLogIdentityShape = {
+  sourceProfileId: z.literal("gcsim-normal-hit-energy-reference-v1"),
+  rngStream: z.literal("normal-hit-energy-v1"),
+  sourceRef: z.literal("https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go#L30-L89"),
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeIntegerSchema,
+  globalIcdReadyFrameBefore: frameSchema,
+  globalIcdReadyFrameAfter: frameSchema,
+  drawCountBefore: nonNegativeIntegerSchema,
+  drawCountAfter: nonNegativeIntegerSchema
+};
+export const normalHitEnergyLogEntrySchema = z.discriminatedUnion("kind", [
+  z.object({
+    ...normalHitEnergyLogIdentityShape,
+    kind: z.literal("damage"),
+    actorId: nonEmptyStringSchema,
+    weaponType: normalHitEnergyWeaponSchema,
+    attackTag: z.enum(["normal", "extra"]),
+    damageEventId: nonNegativeIntegerSchema,
+    hitGroupId: nullableNonEmptyStringSchema,
+    outcome: z.enum(["gained", "failed-roll", "icd-blocked"]),
+    energyRequested: z.union([z.literal(0), z.literal(1)]),
+    baselineProbability: nonNegativeFiniteNumberSchema,
+    failureIncrement: nonNegativeFiniteNumberSchema,
+    probabilityBefore: nonNegativeFiniteNumberSchema,
+    probabilityAfter: nonNegativeFiniteNumberSchema,
+    roll: finiteNumberSchema.min(0).lt(1).nullable(),
+    drawIndex: nonNegativeIntegerSchema.nullable(),
+    icdBlocked: z.boolean(),
+    energyBefore: nonNegativeFiniteNumberSchema,
+    energyAfter: nonNegativeFiniteNumberSchema,
+    gainedEnergy: nonNegativeFiniteNumberSchema,
+    wastedEnergy: nonNegativeFiniteNumberSchema
+  }).strict(),
+  z.object({
+    ...normalHitEnergyLogIdentityShape,
+    kind: z.literal("swap"),
+    activeActorId: nonEmptyStringSchema,
+    probabilitiesBefore: z.array(normalHitEnergyProbabilityStateSchema),
+    probabilitiesAfter: z.array(normalHitEnergyProbabilityStateSchema)
+  }).strict()
+]);
+
+export const favoniusLogEntrySchema = z.object({
+  id: nonNegativeIntegerSchema,
+  sourceProfileId: z.literal("gcsim-favonius-reference-v1"),
+  sourceRef: z.literal("https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/favonius.go"),
+  rngStream: z.literal("favonius-v1"),
+  actorId: nonEmptyStringSchema,
+  weaponId: z.enum(["favoniussword", "favoniusgreatsword", "favoniuslance", "favoniuswarbow", "favoniuscodex"]),
+  refinement: z.number().int().min(1).max(5),
+  frame: nonNegativeIntegerSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: nonNegativeIntegerSchema,
+  eventSequence: nonNegativeIntegerSchema,
+  damageEventId: nonNegativeIntegerSchema,
+  activeCharacterId: nullableNonEmptyStringSchema,
+  damage: finiteNumberSchema,
+  critical: z.boolean(),
+  outcome: z.enum(["zero-damage", "noncritical", "off-field", "cooldown-blocked", "failed-roll", "triggered"]),
+  probability: finiteNumberSchema.min(0).max(1),
+  cooldownFrames: nonNegativeIntegerSchema,
+  readyFrameBefore: nonNegativeIntegerSchema,
+  readyFrameAfter: nonNegativeIntegerSchema,
+  roll: finiteNumberSchema.min(0).lt(1).nullable(),
+  drawIndex: nonNegativeIntegerSchema.nullable(),
+  drawCountBefore: nonNegativeIntegerSchema,
+  drawCountAfter: nonNegativeIntegerSchema,
+  particleEventId: nonNegativeIntegerSchema.nullable()
+}).strict();
+
+export const weaponProcLogEntrySchema = z.object({
+  id: nonNegativeIntegerSchema,
+  sourceProfileId: z.enum(["gcsim-independent-weapon-proc-v1", "gcsim-random-weapon-proc-v1", "gcsim-stateful-weapon-proc-v1", "gcsim-messenger-weapon-proc-v1", "gcsim-delayed-weapon-proc-v1", "gcsim-eye-of-perception-implementation-v1"]),
+  sourceRef: nonEmptyStringSchema,
+  weaponId: weaponProcWeaponIdSchema,
+  refinement: z.number().int().min(1).max(5),
+  actorId: nonEmptyStringSchema,
+  parentDamageEventId: nonNegativeIntegerSchema,
+  targetId: nonEmptyStringSchema,
+  frame: frameSchema,
+  timeSeconds: nonNegativeFiniteNumberSchema,
+  eventPriority: nonNegativeFiniteNumberSchema,
+  eventSequence: nonNegativeIntegerSchema,
+  attackTag: hitAttackTagSchema.nullable(),
+  activeCharacterId: nullableNonEmptyStringSchema,
+  damage: nonNegativeFiniteNumberSchema,
+  outcome: z.enum(["triggered", "wrong-attack-tag", "off-field", "cooldown-blocked", "failed-roll", "zero-damage", "note-gained", "window-inactive", "not-weak-point"]),
+  hitWeakPoint: z.boolean().optional(),
+  stateBefore: weaponProcLifecycleStateSchema.optional(),
+  stateAfter: weaponProcLifecycleStateSchema.optional(),
+  random: z.object({
+    rngStream: z.literal("independent-weapon-proc-v1"),
+    probability: finiteNumberSchema.min(0).max(1),
+    successComparison: z.enum(["<", "<="]),
+    roll: finiteNumberSchema.min(0).lt(1).nullable(),
+    drawIndex: nonNegativeIntegerSchema.nullable(),
+    drawCountBefore: nonNegativeIntegerSchema,
+    drawCountAfter: nonNegativeIntegerSchema
+  }).strict().optional(),
+  triggerAura: z.object({ cryo: z.boolean(), frozen: z.boolean() }).strict().nullable().optional(),
+  cooldownFrames: nonNegativeIntegerSchema,
+  cooldownExpiresFrameBefore: nonNegativeIntegerSchema.nullable(),
+  cooldownExpiresFrameAfter: nonNegativeIntegerSchema.nullable(),
+  coefficient: nonNegativeFiniteNumberSchema,
+  scalingStat: z.enum(["atk", "hp"]),
+  procActionId: nullableNonEmptyStringSchema,
+  procHitId: nullableNonEmptyStringSchema,
+  damageFrame: frameSchema.nullable(),
+  snapshotFrame: frameSchema.nullable().optional(),
+  snapshotEventSequence: nonNegativeIntegerSchema.nullable().optional(),
+  triggerSnapshot: runtimeCharacterStatsV142Schema.nullable(),
+  triggerBuffStatuses: z.array(activeStatusSnapshotV142Schema),
+  origin: z.object({ x: finiteNumberSchema, y: finiteNumberSchema }).strict().nullable(),
+  radius: finiteNumberSchema.positive().nullable(),
+  damageEventIds: z.array(nonNegativeIntegerSchema),
+  hitResolutionIds: z.array(nonNegativeIntegerSchema)
+}).strict();
+
+export const staminaLogEntrySchema = z.object({
+  sequence: nonNegativeIntegerSchema,
+  operation: z.enum(["spend", "recover"]),
+  frame: frameSchema,
+  startFrame: frameSchema,
+  actorId: nullableNonEmptyStringSchema,
+  commandIndex: nonNegativeIntegerSchema.nullable(),
+  amount: nonNegativeFiniteNumberSchema,
+  before: finiteNumberSchema.min(0).max(240),
+  after: finiteNumberSchema.min(0).max(240),
+  formula: nonEmptyStringSchema,
+  substitution: nonEmptyStringSchema,
+  explanation: nonEmptyStringSchema
+}).strict();
+
+export const staminaResultSchema = z.object({
+  mode: z.literal("shared-stamina-v1"),
+  profileId: z.literal("gcsim-b4ae769-stamina-v1"),
+  maximum: z.literal(240),
+  initialStamina: finiteNumberSchema.min(0).max(240),
+  finalStamina: finiteNumberSchema.min(0).max(240),
+  logs: z.array(staminaLogEntrySchema)
+}).strict();
+
+export const timelineExecutionV153Schema = timelineExecutionV142Schema.extend({
+  commandResults: z.array(timelineCommandResultV142Schema.extend({
+    commandType: z.union([timelineCommandResultV142Schema.shape.commandType, z.enum(["walk", "plunge"])]),
+    failureCode: z.union([timelineFailureV142Schema.shape.code, z.literal("INSUFFICIENT_STAMINA")]).optional()
+  })),
+  adjustments: z.array(timelineAdjustmentV142Schema.extend({
+    code: z.union([timelineAdjustmentV142Schema.shape.code, z.literal("INSUFFICIENT_STAMINA")])
+  })),
+  failures: z.array(timelineFailureV142Schema.extend({
+    code: z.union([timelineFailureV142Schema.shape.code, z.literal("INSUFFICIENT_STAMINA")])
+  }))
+});
+
 export const simulationResultV153ValueSchema = z
   .object({
     ...simulationResultV152ValueSchema.shape,
     schemaVersion: z.literal(CALLBACK_BUS_SCHEMA_VERSION),
     engineVersion: z.literal(CALLBACK_BUS_ENGINE_VERSION),
     runManifest: simulationRunManifestV153Schema,
+    resolvedRuntimeOptions: currentResolvedSimulationRuntimeOptionsSchema,
+    executionAudit: simulationExecutionAuditSchema.optional(),
+    energyCostLog: z.array(energyCostLogEntrySchema).optional(),
+    summonLog: z.array(summonLogEntrySchema).optional(),
+    statConversionLog: z.array(statConversionLogEntrySchema).optional(),
+    sourceSnapshotLog: z.array(sourceSnapshotLogEntrySchema).optional(),
+    sourceNormalChainLog: z.array(sourceNormalChainLogEntrySchema).optional(),
+    sourceNormalChainState: sourceNormalChainStateSchema.optional(),
+    normalHitEnergyLog: z.array(normalHitEnergyLogEntrySchema).optional(),
+    favoniusLog: z.array(favoniusLogEntrySchema).optional(),
+    weaponProcLog: z.array(weaponProcLogEntrySchema).optional(),
+    weaponProcLifecycleLog: z.array(weaponProcLifecycleLogEntrySchema).optional(),
+    thrillingTalesLog: z.array(thrillingTalesLogEntrySchema).optional(),
+    sacrificialLog: z.array(sacrificialLogEntrySchema).optional(),
+    skillCooldownLog: z.array(skillCooldownLogEntrySchema).optional(),
+    artifactDamageLog: z.array(artifactDamageLogEntrySchema).optional(),
+    artifactDamageState: artifactDamageCapturedStateSchema.optional(),
+    weaponHitStackLog: z.array(weaponHitStackLogEntrySchema).optional(),
+    weaponHitStackState: weaponHitStackCapturedStateSchema.optional(),
+    artifactBuffLog: z.array(artifactBuffLogEntrySchema).optional(),
+    artifactBuffState: artifactBuffCapturedStateSchema.optional(),
+    moonlightArtifactLog: z.array(z.object({
+      id: nonNegativeIntegerSchema, frame: nonNegativeIntegerSchema,
+      triggerDamageEventId: nonNegativeIntegerSchema.optional(),
+      event: z.enum(["OnLunarCharged", "OnLunarCrystallize", "OnLunarBloom", "OnEnemyDamage"]),
+      triggerActorId: z.string().min(1), wearerActorId: z.string().min(1),
+      setId: z.enum(["artifact-set:15041", "artifact-set:15042"]), sourceRef: z.string().min(1),
+      applications: z.array(z.object({ receiverActorId: z.string().min(1), key: z.string().min(1), value: z.number().finite(),
+        stat: z.enum(["critRate", "em", "reactionBonus"]), expiresAtFrame: nonNegativeIntegerSchema,
+        replacedSourceActorId: z.string().min(1).nullable() }).strict()),
+      trace: z.array(z.unknown()),
+    }).strict()).optional(),
+    artifactEventLog: z.array(artifactEventLogEntrySchema).optional(),
+    nightsoulBurstLog: z.array(nightsoulBurstLogEntrySchema).optional(),
+    energyLog: z.array(energyLogEntryV142Schema.extend({ artifactEventLogId: nonNegativeIntegerSchema.optional() })),
+    targetHealthLog: z.array(targetHealthLogEntrySchema).optional(),
+    targetHealthSummaries: z.array(targetHealthSummarySchema).optional(),
+    enemyShieldLog: z.array(enemyShieldHostLogEntrySchema).optional(),
+    enemyShieldState: enemyShieldHostStateSchema.optional(),
+    totalPotentialDamage: nonNegativeFiniteNumberSchema.optional(),
+    particleEvents: z.array(particleEventLogV142Schema.extend({ origin: declaredParticleOriginSchema.optional() })),
+    damageEvents: z.array(damageEventV153Schema),
+    hitEvents: z.array(damageEventV153Schema),
+    stamina: staminaResultSchema.optional(),
+    playerShieldLog: z.array(playerShieldLogEntrySchema).optional(),
+    playerShieldState: playerShieldStateSchema.optional(),
+    playerDamageEvents: z.array(playerDamageEventV153Schema),
+    playerHealthEvents: z.array(playerHealthEventSchema).optional(),
+    playerMaxHpEvents: z.array(playerMaxHpEventSchema).optional(),
+    periodicEntityLog: z.array(periodicEntityLogEntrySchema).optional(),
+    actionConditionLog: z.array(actionConditionLogEntrySchema).optional(),
+    particleTriggerLog: z.array(particleTriggerLogEntryV153Schema),
+    playerHpTimeline: currentPlayerHpTimelineSchema,
+    playerHpSummaries: z.array(currentPlayerHpSummarySchema),
+    timelineExecution: timelineExecutionV153Schema.optional(),
+    targetStateTimeline: targetStateTimelineSchema,
     config: simConfigV153Schema,
+    dendroCoreLog: currentDendroCoreLogSchema,
+    dendroCoreContactLog: currentDendroCoreContactLogSchema,
+    dendroCoreTimeline: currentDendroCoreTimelineSchema,
     freezeBrokenAttackLog: z.array(
       z.union([
         freezeBrokenAttackLogEntrySchema,

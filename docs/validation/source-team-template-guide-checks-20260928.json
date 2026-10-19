@@ -1,0 +1,22 @@
+[
+  {
+    "name": "source-team-template-guide-build-20260928",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.647
+  },
+  {
+    "name": "source-team-template-guide-browser-20260928",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/source-team-template-guide.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 1.768
+  }
+]

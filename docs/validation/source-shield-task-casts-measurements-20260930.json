@@ -1,0 +1,449 @@
+{
+  "schemaVersion": "source-shield-task-casts-measurements-v1",
+  "asOf": "2026-09-30",
+  "baseline": {
+    "workingTree": "/Users/evan/Documents/gidps",
+    "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+    "preservedExistingChanges": true,
+    "committedOrPublished": false,
+    "classicCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellarCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "environment": {
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "machine": "arm64",
+    "node": "v24.15.0"
+  },
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.514
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.224
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.124
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.766
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.113,
+      "viteElapsedMilliseconds": 884,
+      "warnings": [
+        "Existing ineffective dynamic import for workspace-panels.ts",
+        "Some chunks exceed 500 kB after minification"
+      ]
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shield-task-casts.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 10.742,
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      }
+    },
+    "browser-retry": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shield-task-casts.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 8.901,
+      "environment": {
+        "GIDPS_PREBUILT": "1",
+        "GIDPS_REUSE_SHIELD_TASK_CAST_CAPTURE": "1"
+      }
+    },
+    "browser-final": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-shield-task-casts.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.207,
+      "environment": {
+        "GIDPS_PREBUILT": "1",
+        "GIDPS_REUSE_SHIELD_TASK_CAST_CAPTURE": "1"
+      }
+    }
+  },
+  "browserFailures": [
+    {
+      "attempt": 1,
+      "kind": "test-callback-count-scope",
+      "reason": "Test confused eight callbacks across all slots with the two exact shield-hit callbacks.",
+      "productCodeChangedAfterFailure": false
+    },
+    {
+      "attempt": 2,
+      "kind": "test-disclosure-order",
+      "reason": "Test checked the producer summary before opening its enclosing details.",
+      "productCodeChangedAfterFailure": false
+    }
+  ],
+  "counts": {
+    "distinctFiniteSkillContracts": 63,
+    "producerPlanEntries": 54,
+    "producerSites": 70,
+    "newFiniteSkillContracts": 2,
+    "extendedFiniteSkillContracts": 1,
+    "nativeRuns": 1,
+    "browserCases": 1,
+    "browserAttempts": 3,
+    "additionalNativeRunsOnRetry": 0,
+    "offlineGapProbes": 1
+  },
+  "wasm": {
+    "classic": {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 45197266,
+      "sha256": "66066323e69688389bf30be9c4585346bd805d75c5f8d6a89ab572aa0789c84e"
+    },
+    "stellar": {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 70002974,
+      "sha256": "0ee9b8fc75924f2329f9775f4cacabe7d824e3d76915edb421552ef1ccd7b604"
+    }
+  },
+  "native": {
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "seed": "20260930116",
+    "observationWindow": {
+      "policy": "native",
+      "configuredEndFrame": 1800,
+      "actualEndFrame": 1291,
+      "endReason": "actions-exhausted"
+    },
+    "lifecycleObservationFrame": 1291,
+    "resultDurationFrames": 1291,
+    "nativeTotalDamage": 6767.254994503035,
+    "applicationDamageSum": 6767.254994503032,
+    "applicationsCount": 38,
+    "shieldInstancesCount": 4,
+    "shieldHooksCount": 4,
+    "shieldProducersCount": 8,
+    "abilityProducersCount": 8,
+    "rawPath": "docs/validation/source-shield-task-casts-team-20260930.capture.json",
+    "rawSha256": "90ee97a3aae907c83d3698915a92396e30816a9fca41b927aae3422f56d2bc99"
+  },
+  "selected": [
+    {
+      "key": "noelleE",
+      "contractId": "noelle-skill",
+      "completeCast": true,
+      "hitCount": 4,
+      "componentSubtotal": 2292.4880410260785,
+      "appliedDamageSubtotal": 2292.4880410260785,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "producerCount": 2,
+      "shieldInstanceIds": [
+        1
+      ],
+      "shieldCount": 1,
+      "endedShieldCount": 1,
+      "shieldHookCount": 1,
+      "shieldProducerCount": 0,
+      "hitCallbackCount": 0,
+      "observedRootAttackCount": 2,
+      "closed": true
+    },
+    {
+      "key": "xinyanE",
+      "contractId": "xinyan-skill",
+      "completeCast": true,
+      "hitCount": 4,
+      "componentSubtotal": 691.6303929066518,
+      "appliedDamageSubtotal": 691.6303929066518,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "producerCount": 3,
+      "shieldInstanceIds": [
+        2,
+        3
+      ],
+      "shieldCount": 2,
+      "endedShieldCount": 2,
+      "shieldHookCount": 2,
+      "shieldProducerCount": 2,
+      "hitCallbackCount": 8,
+      "observedRootAttackCount": 2,
+      "closed": true
+    },
+    {
+      "key": "xinyanQ",
+      "contractId": "xinyan-burst",
+      "completeCast": true,
+      "hitCount": 30,
+      "componentSubtotal": 3783.136560570299,
+      "appliedDamageSubtotal": 3783.136560570299,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "producerCount": 3,
+      "shieldInstanceIds": [
+        4
+      ],
+      "shieldCount": 1,
+      "endedShieldCount": 1,
+      "shieldHookCount": 1,
+      "shieldProducerCount": 6,
+      "hitCallbackCount": 0,
+      "observedRootAttackCount": 15,
+      "closed": true
+    }
+  ],
+  "noelleC4": {
+    "shieldId": 1,
+    "terminalFrame": 721,
+    "terminalReason": "expired",
+    "expiryHookId": 3,
+    "hookEmitSite": "noelle.shield.explosion",
+    "fallbackProducerId": 2,
+    "fallbackEntryFacts": {
+      "noelle.skill.c4-timer.attack-count": 0
+    },
+    "fallbackQueuedAttacks": 0
+  },
+  "xinyan": {
+    "eShieldIds": [
+      2,
+      3
+    ],
+    "qShieldIds": [
+      4
+    ],
+    "eShieldTerminals": [
+      {
+        "id": 2,
+        "reason": "overwritten",
+        "frame": 121,
+        "replacedBy": 3
+      },
+      {
+        "id": 3,
+        "reason": "overwritten",
+        "frame": 343,
+        "replacedBy": 4
+      }
+    ],
+    "qShieldTerminals": [
+      {
+        "id": 4,
+        "reason": "expired",
+        "frame": 1063
+      }
+    ],
+    "eShieldProducers": [
+      {
+        "id": 1,
+        "siteId": "xinyan.shield.dot-first-task",
+        "ownerInstanceId": 3,
+        "taskId": 22,
+        "queuedFrame": 121,
+        "runFrame": 241,
+        "completedFrame": 241,
+        "state": "completed",
+        "gateObserved": true,
+        "gateInstanceId": 3,
+        "entryFacts": {
+          "xinyan.shield.dot.attack-count": 1,
+          "xinyan.shield.dot.level": 3,
+          "xinyan.shield.dot.source-frame": 121,
+          "xinyan.shield.dot.tick-source": 121
+        },
+        "queuedAttacks": [
+          {
+            "queueId": 9,
+            "attackId": 3,
+            "ability": "Sweeping Fervor (DoT)",
+            "attackTagName": "AttackTagElementalArt",
+            "frame": 241,
+            "emitSiteId": "xinyan.shield.dot.attack"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "siteId": "xinyan.shield.dot-next-task",
+        "ownerInstanceId": 3,
+        "parentProducerId": 1,
+        "taskId": 24,
+        "queuedFrame": 241,
+        "runFrame": 361,
+        "completedFrame": 361,
+        "state": "completed",
+        "gateObserved": true,
+        "gateInstanceId": 4,
+        "entryFacts": {
+          "xinyan.shield.dot.attack-count": 0,
+          "xinyan.shield.dot.level": 3,
+          "xinyan.shield.dot.source-frame": 121,
+          "xinyan.shield.dot.tick-source": 343
+        },
+        "queuedAttacks": []
+      }
+    ],
+    "invocationHitCallbackCount": 8,
+    "eShieldHitCallbackIds": [
+      3,
+      6
+    ],
+    "eUpgradeProducerIds": [
+      4,
+      5
+    ],
+    "terminalStopProducer": 2,
+    "missingTerminalProducerClosed": false,
+    "missingTerminalProducerReasons": [
+      "护盾 DoT 任务 #1：实际零／一攻击与后续零／一子任务分支不一致。"
+    ]
+  },
+  "editedAndRoundTripped": true,
+  "pageErrors": [],
+  "runtimeResult": "docs/validation/source-shield-task-casts-team-20260930.result.json",
+  "sourceAudits": [
+    {
+      "path": "docs/validation/source-shield-producer-native-20260930.json",
+      "bytes": 7365,
+      "sha256": "c239a32e5e814028a4acab8a86f46f7fab5d957834cb4e20268c308ffc1be20f"
+    },
+    {
+      "path": "docs/validation/source-shield-task-casts-noelle-20260930.json",
+      "bytes": 18241,
+      "sha256": "a073c47d6260c67abd69e7d1f785ed6cbadd9445e0d17594454b9cfa45342c72"
+    },
+    {
+      "path": "docs/validation/source-shield-task-casts-xinyan-20260930.json",
+      "bytes": 7042,
+      "sha256": "a9e75f3c8704df602297827cacfe256039d9461d19130684612a9ff56307eae7"
+    },
+    {
+      "path": "docs/validation/source-shield-task-casts-contracts-20260930.json",
+      "bytes": 10550,
+      "sha256": "25d08aefed64fb30022800a1abee4b0b29524b315551e35763fbee7af3a3a86f"
+    }
+  ],
+  "patches": [
+    {
+      "path": "packages/source-host/patches/116-noelle-shield.patch",
+      "bytes": 1955,
+      "sha256": "02820ae8078a3b6a034458f85d45443acfceb17ed72d5a74b7638d2526d39518"
+    },
+    {
+      "path": "packages/source-host/patches/116-xinyan-shield.patch",
+      "bytes": 5711,
+      "sha256": "fb8239a435c2eebb7e416380800d43a3805dbc50cbed1c787cee0c73862ad2f1"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "matchesPre116": true
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "matchesPre116": true
+    }
+  ],
+  "dataEvidence": "docs/data-evidence-refresh-20260930.json",
+  "limitations": [
+    "One classic two-target runtime: Noelle C4 E and Xinyan C2 E/Q; Stellar compiled only. No added shield-damage-break run or full constellation matrix.",
+    "Source Xinyan Q timing and two extra C2 pulses retain upstream FPS/timing assumptions; source replay is not game verification.",
+    "Existing presets, imports, standalone formulas and worked examples remain implemented; their old browser matrix was not repeated.",
+    "Other skill/resource ownership, broader steady-state evidence, remote CI observation, verified active catalog, and immutable 7.2 V1 mapping remain incomplete.",
+    "No released/preview promotion, commit or deployment. Full master goal remains active."
+  ]
+}

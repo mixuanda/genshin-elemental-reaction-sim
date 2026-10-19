@@ -1,0 +1,114 @@
+
+Running 4 tests using 4 workers
+
+(node:59683) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59681) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59682) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  4 [chromium] › apps/web/e2e/calculator.spec.ts:72:1 › calculator independently renders fixture A arithmetic from its execution trace (840ms)
+  ✘  3 [chromium] › apps/web/e2e/yanfei-startup.spec.ts:24:1 › Yanfei charged cast conditions A4 on main critical probability and preserves independent hit context in JSON (6.7s)
+  ✓  1 [chromium] › apps/web/e2e/critical-energy-actions.spec.ts:45:1 › Keqing Q and Xingqiu E retain sourced passive accounting, single-hit access and complete context in JSON (16.2s)
+  ✘  2 [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits (34.5s)
+
+
+  1) [chromium] › apps/web/e2e/calculator.spec.ts:72:1 › calculator independently renders fixture A arithmetic from its execution trace 
+
+    Error: locator.click: Error: strict mode violation: locator('#calc-results .calculator-hit-card [data-trace-node="baseDamage"]').locator('xpath=following-sibling::tr[1]').locator('summary') resolved to 2 elements:
+        1) <summary>展开：加入附加基础伤害的计算与解释</summary> aka getByText('展开：加入附加基础伤害的计算与解释')
+        2) <summary>本步骤来源</summary> aka locator('tr:nth-child(26) > td > details > .trace-detail-content > .trace-sources > summary')
+
+    Call log:
+      - waiting for locator('#calc-results .calculator-hit-card [data-trace-node="baseDamage"]').locator('xpath=following-sibling::tr[1]').locator('summary')
+
+
+      131 |     const baseRow = page.locator('#calc-results .calculator-hit-card [data-trace-node="baseDamage"]');
+      132 |     const detail = baseRow.locator("xpath=following-sibling::tr[1]");
+    > 133 |     await detail.locator("summary").click();
+          |                                     ^
+      134 |     await expect(detail.locator(".trace-substitution")).toContainText("4000 + 300");
+      135 |     await expect(detail.locator(".trace-detail-content")).toContainText("固定攻击力");
+      136 |     await expect(detail.locator("dl")).toContainText("flatDamage");
+        at /Users/evan/Documents/gidps/apps/web/e2e/calculator.spec.ts:133:37
+
+    Error Context: test-results/calculator-calculator-inde-c9fcb-ic-from-its-execution-trace-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calculator-calculator-inde-c9fcb-ic-from-its-execution-trace-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calculator-calculator-inde-c9fcb-ic-from-its-execution-trace-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.textContent: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#calc-results .calculator-audit pre')
+
+
+       7 |
+       8 | async function audit(page: Page): Promise<{ document: CalculatorDocument; result: CalculatorResult }> {
+    >  9 |   return JSON.parse((await page.locator("#calc-results .calculator-audit pre").textContent())!);
+         |                                                                                ^
+      10 | }
+      11 |
+      12 | async function downloadJson<T>(page: Page, selector: string): Promise<T> {
+        at audit (/Users/evan/Documents/gidps/apps/web/e2e/snapshot-stamina.spec.ts:9:80)
+        at calculatorRoundTrip (/Users/evan/Documents/gidps/apps/web/e2e/snapshot-stamina.spec.ts:23:26)
+        at /Users/evan/Documents/gidps/apps/web/e2e/snapshot-stamina.spec.ts:127:3
+
+    Error Context: test-results/snapshot-stamina-Ningguang-c2a12-rips-full-and-selected-hits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/snapshot-stamina-Ningguang-c2a12-rips-full-and-selected-hits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/snapshot-stamina-Ningguang-c2a12-rips-full-and-selected-hits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [chromium] › apps/web/e2e/yanfei-startup.spec.ts:24:1 › Yanfei charged cast conditions A4 on main critical probability and preserves independent hit context in JSON 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#calc-results [data-trace-node="occurrence.expected"]')
+    Expected substring: "310.5"
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#calc-results [data-trace-node="occurrence.expected"]')
+
+
+      52 |   expect(occurrence.substitution).toContain("0.5");
+      53 |   await page.locator('#calc-results [data-detail-id="hit-card:yanfei-charged-cast-a4"] > summary').click();
+    > 54 |   await expect(page.locator('#calc-results [data-trace-node="occurrence.expected"]')).toContainText("310.5");
+         |                                                                                       ^
+      55 |   await page.locator('[data-field="build.stats.critRate"]').fill("0.25");
+      56 |   const quarter = await audit(page);
+      57 |   expect(quarter.result.totals!.nonCritical).toBeCloseTo(mainNonCrit, 9);
+        at /Users/evan/Documents/gidps/apps/web/e2e/yanfei-startup.spec.ts:54:87
+
+    Error Context: test-results/yanfei-startup-Yanfei-char-7b1ba-pendent-hit-context-in-JSON-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/yanfei-startup-Yanfei-char-7b1ba-pendent-hit-context-in-JSON-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/yanfei-startup-Yanfei-char-7b1ba-pendent-hit-context-in-JSON-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    [chromium] › apps/web/e2e/calculator.spec.ts:72:1 › calculator independently renders fixture A arithmetic from its execution trace 
+    [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits 
+    [chromium] › apps/web/e2e/yanfei-startup.spec.ts:24:1 › Yanfei charged cast conditions A4 on main critical probability and preserves independent hit context in JSON 
+  1 passed (36.0s)

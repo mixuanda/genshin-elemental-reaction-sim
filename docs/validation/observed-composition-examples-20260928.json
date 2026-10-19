@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "observed-composition-examples-validation-v1",
+  "date": "2026-09-28",
+  "command": "npx tsx -e 'import { createObservedSkillCompositionExamples } from \"./apps/web/src/calculator-observed-composition-examples.ts\"; import { calculateObservedSkillComposition } from \"./packages/sim-core/src/observed-skill-composition.ts\"; for (const doc of createObservedSkillCompositionExamples()) { const result = calculateObservedSkillComposition(doc); console.log(JSON.stringify({id:doc.id,status:result.status,coverage:result.coverage,totals:result.totals,blockers:result.blockers})); }'",
+  "durationMs": null,
+  "durationNote": "未记录脚本耗时。",
+  "results": [
+    {
+      "id": "teaching-linnea-e-summon-observation",
+      "status": "calculated",
+      "coverage": "complete-cast",
+      "totals": {
+        "nonCritical": 2126.835512195122,
+        "critical": 4679.0381268292695,
+        "expected": 3913.3773424390247
+      },
+      "blockers": []
+    },
+    {
+      "id": "teaching-sandrone-fagio-observation",
+      "status": "calculated",
+      "coverage": "complete-observed-window",
+      "totals": {
+        "nonCritical": 4197.997384615385,
+        "critical": 9235.594246153847,
+        "expected": 7724.315187692308
+      },
+      "blockers": []
+    }
+  ],
+  "initialFailure": {
+    "status": "blocked",
+    "coverage": "partial",
+    "diagnosis": "初次运行时，Linnea 两个组成因子文档角色身份与观察窗口不一致而阻塞；Linnea 教学文档保留目录生成的角色身份，但核心当时仍按旧身份值比较。随后确认目录身份为 character:10000130，并调整核心身份校验。该次 Sandrone 输出还记录了一个发生在辉映切换后的扫射落空，触发了普通扫射仅支持无辉映映射的阻塞；示例已把落空事件移至辉映切换前。",
+    "blockers": [
+      "组成 linnea-pummeler-first 的角色身份与观察窗口不一致。",
+      "组成 linnea-super-hammer 的角色身份与观察窗口不一致。",
+      "sandrone-sweep-miss：当前普通扫射来源映射只审阅无辉映状态；此观察需独立来源映射。"
+    ]
+  },
+  "identity": {
+    "linnea": "character:10000130",
+    "sandrone": "character:10000133",
+    "note": "两份示例保留真实目录身份和数据身份；计算结果是明确教学输入下的条件输出，不是游戏实测或机制验证。"
+  }
+}

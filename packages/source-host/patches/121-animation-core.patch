@@ -1,0 +1,280 @@
+diff --git a/internal/frames/frames.go b/internal/frames/frames.go
+--- a/internal/frames/frames.go
++++ b/internal/frames/frames.go
+@@ -35,30 +35,34 @@
+ 	return f - int(min(atkspd, 0.1+(atkspd-0.1)/2)*float64(f))
+ }
+ 
+-func NewAttackFunc(c *character.Character, slice [][]int) func(action.Action) int {
++func NewAttackFunc(c *character.Character, slice [][]int) action.FrameFunc {
+ 	n := c.NormalCounter
+ 	atkspd := c.Stat(attributes.AtkSpd)
+-	return func(next action.Action) int {
+-		return AtkSpdAdjust(slice[n][next], atkspd)
++	return action.FrameFunc{
++		Run:   func(next action.Action) int { return AtkSpdAdjust(slice[n][next], atkspd) },
++		Phase: sourceHostAttackFrames("NewAttackFunc", slice, n, atkspd, 0),
+ 	}
+ }
+ 
+-func NewAttackFuncWithOffset(c *character.Character, slice [][]int, offset int) func(action.Action) int {
++func NewAttackFuncWithOffset(c *character.Character, slice [][]int, offset int) action.FrameFunc {
+ 	n := c.NormalCounter
+ 	atkspd := c.Stat(attributes.AtkSpd)
+-	return func(next action.Action) int {
+-		return AtkSpdAdjust(slice[n][next], atkspd) + offset
++	return action.FrameFunc{
++		Run:   func(next action.Action) int { return AtkSpdAdjust(slice[n][next], atkspd) + offset },
++		Phase: sourceHostAttackFrames("NewAttackFuncWithOffset", slice, n, atkspd, offset),
+ 	}
+ }
+ 
+-func NewAbilFunc(slice []int) func(action.Action) int {
+-	return func(next action.Action) int {
+-		return slice[next]
++func NewAbilFunc(slice []int) action.FrameFunc {
++	return action.FrameFunc{
++		Run:   func(next action.Action) int { return slice[next] },
++		Phase: sourceHostAbilityFrames("NewAbilFunc", slice, 0),
+ 	}
+ }
+ 
+-func NewAbilFuncWithOffset(slice []int, offset int) func(action.Action) int {
+-	return func(next action.Action) int {
+-		return slice[next] + offset
++func NewAbilFuncWithOffset(slice []int, offset int) action.FrameFunc {
++	return action.FrameFunc{
++		Run:   func(next action.Action) int { return slice[next] + offset },
++		Phase: sourceHostAbilityFrames("NewAbilFuncWithOffset", slice, offset),
+ 	}
+ }
+diff --git a/internal/frames/sourcehost_phase_frames.go b/internal/frames/sourcehost_phase_frames.go
+new file mode 100644
+--- /dev/null
++++ b/internal/frames/sourcehost_phase_frames.go
+@@ -0,0 +1,27 @@
++package frames
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
++
++// Observe the table captured by the original closure; copy at observation time
++// so a later table edit cannot mutate an already-exported boundary. No Stat or
++// gameplay callback is evaluated here, and the original slice alias is retained.
++func sourceHostAbilityFrames(kind string, table []int, offset int) *phase.Descriptor {
++	return &phase.Descriptor{Source: "internal/frames/frames.go:" + kind,
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"frameTable": append([]int{}, table...), "offset": offset}, nil
++		},
++	}
++}
++
++func sourceHostAttackFrames(kind string, table [][]int, normalCounter int, attackSpeed float64, offset int) *phase.Descriptor {
++	return &phase.Descriptor{Source: "internal/frames/frames.go:" + kind,
++		Observe: func() (map[string]any, []string) {
++			copied := make([][]int, len(table))
++			for index := range table {
++				copied[index] = append([]int{}, table[index]...)
++			}
++			return map[string]any{"frameTable": copied, "normalCounter": normalCounter,
++				"attackSpeed": attackSpeed, "offset": offset}, nil
++		},
++	}
++}
+diff --git a/pkg/core/action/action.go b/pkg/core/action/action.go
+--- a/pkg/core/action/action.go
++++ b/pkg/core/action/action.go
+@@ -6,20 +6,22 @@
+ 	"errors"
+ 	"strings"
+ 
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/keys"
+-	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ // TODO: add a sync.Pool here to save some memory allocs
+ type Info struct {
+-	SourceHostOrigin *info.SourceHostOriginTracker `json:"-"`
+-	sourceHostCreation info.SourceHostOrigin
+-	Frames              func(next Action) int `json:"-"`
+-	AnimationLength     int
+-	CanQueueAfter       int
+-	State               AnimationState
+-	FramePausedOnHitlag func() bool               `json:"-"`
+-	OnRemoved           func(next AnimationState) `json:"-"`
++	SourceHostOrigin     *info.SourceHostOriginTracker `json:"-"`
++	sourceHostCreation   info.SourceHostOrigin
++	sourceHostPausePhase *phase.Descriptor
++	Frames               FrameFunc `json:"-"`
++	AnimationLength      int
++	CanQueueAfter        int
++	State                AnimationState
++	FramePausedOnHitlag  func() bool               `json:"-"`
++	OnRemoved            func(next AnimationState) `json:"-"`
+ 	// following are exposed only so we can log it properly
+ 	TimePassed           float64
+ 	NormalizedTimePassed float64
+@@ -58,27 +60,38 @@
+ }
+ 
+ type queuedAction struct {
+-	f     func()
+-	delay float64
++	f      func()
++	delay  float64
+ 	origin info.SourceHostOrigin
+ }
+ 
+ func (a *Info) QueueAction(f func(), delay int) {
+ 	var origin info.SourceHostOrigin
+-	if a.SourceHostOrigin != nil { origin = a.SourceHostOrigin.CaptureForChild() }
++	if a.SourceHostOrigin != nil {
++		origin = a.SourceHostOrigin.CaptureForChild()
++	}
+ 	a.queued = append(a.queued, queuedAction{f: f, delay: float64(delay), origin: origin})
+ }
+ 
+ func (a *Info) BindSourceHostOrigin(tracker *info.SourceHostOriginTracker) {
+ 	a.SourceHostOrigin = tracker
+-	if tracker == nil { return }
++	if tracker == nil {
++		return
++	}
+ 	a.sourceHostCreation = tracker.Snapshot()
+-	for i := range a.queued { a.queued[i].origin = a.sourceHostCreation }
++	for i := range a.queued {
++		a.queued[i].origin = a.sourceHostCreation
++	}
+ }
+ 
+ func (a *Info) RunRemoved(next AnimationState) {
+-	if a.OnRemoved == nil { return }
+-	if a.SourceHostOrigin == nil { a.OnRemoved(next); return }
++	if a.OnRemoved == nil {
++		return
++	}
++	if a.SourceHostOrigin == nil {
++		a.OnRemoved(next)
++		return
++	}
+ 	end := a.SourceHostOrigin.BeginTask(a.sourceHostCreation)
+ 	a.OnRemoved(next)
+ 	end()
+@@ -95,13 +108,13 @@
+ 
+ func (a *Info) CanUse(next Action) bool {
+ 	if a.UseNormalizedTime != nil && a.UseNormalizedTime(next) {
+-		return a.NormalizedTimePassed >= float64(a.Frames(next))
++		return a.NormalizedTimePassed >= float64(a.Frames.Run(next))
+ 	}
+ 	// can't use anything if we're frozen
+ 	if a.FramePausedOnHitlag != nil && a.FramePausedOnHitlag() {
+ 		return false
+ 	}
+-	return a.TimePassed >= float64(a.Frames(next))
++	return a.TimePassed >= float64(a.Frames.Run(next))
+ }
+ 
+ func (a *Info) AnimationState() AnimationState {
+@@ -121,7 +134,9 @@
+ 		n := 0
+ 		for i := 0; i < len(a.queued); i++ {
+ 			if a.queued[i].delay <= a.TimePassed {
+-				if a.SourceHostOrigin == nil { a.queued[i].f() } else {
++				if a.SourceHostOrigin == nil {
++					a.queued[i].f()
++				} else {
+ 					end := a.SourceHostOrigin.BeginTask(a.queued[i].origin)
+ 					a.queued[i].f()
+ 					end()
+diff --git a/pkg/core/action/sourcehost_frame_func.go b/pkg/core/action/sourcehost_frame_func.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/action/sourcehost_frame_func.go
+@@ -0,0 +1,25 @@
++package action
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
++
++// FrameFunc keeps the actual callback and its captured-state descriptor together.
++// Replacing an animation rule replaces its descriptor as well.
++type FrameFunc struct {
++	Run   func(next Action) int
++	Phase *phase.Descriptor
++}
++
++// OpaqueFrameFunc preserves custom callbacks without claiming to describe them.
++func OpaqueFrameFunc(f func(next Action) int) FrameFunc { return FrameFunc{Run: f} }
++
++// BindSourceHostDefaultPause annotates the shared native fallback at its only
++// assignment site. Custom callbacks supplied by actions never pass through here.
++func (a *Info) BindSourceHostDefaultPause(actorIndex int, paused func() bool) {
++	a.FramePausedOnHitlag = paused
++	a.sourceHostPausePhase = &phase.Descriptor{
++		Source: "pkg/core/player/character/hitlag.go:FramePausedOnHitlag",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"actorIndex": actorIndex, "predicate": "character.frozenFrames > 0"}, nil
++		},
++	}
++}
+diff --git a/pkg/core/action/sourcehost_phase_state.go b/pkg/core/action/sourcehost_phase_state.go
+--- a/pkg/core/action/sourcehost_phase_state.go
++++ b/pkg/core/action/sourcehost_phase_state.go
+@@ -1,4 +1,6 @@
+ package action
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
+ 
+ // SourceHostPhaseState copies animation progress without advancing queued work
+ // or invoking character-specific animation rules.
+@@ -16,12 +18,20 @@
+ 		"queuedActions":        queued,
+ 	}
+ 	var gaps []string
+-	if a.Frames != nil {
+-		gaps = append(gaps, "animation.Frames callback")
++	describe := func(slot, missing string, present bool, descriptor *phase.Descriptor) {
++		if !present {
++			return
++		}
++		if descriptor == nil || descriptor.Observe == nil {
++			gaps = append(gaps, missing)
++			return
++		}
++		captured, callbackGaps := descriptor.Observe()
++		state[slot] = map[string]any{"source": descriptor.Source, "captured": captured}
++		gaps = append(gaps, callbackGaps...)
+ 	}
+-	if a.FramePausedOnHitlag != nil {
+-		gaps = append(gaps, "animation.FramePausedOnHitlag callback")
+-	}
++	describe("framesCallback", "animation.Frames callback", a.Frames.Run != nil, a.Frames.Phase)
++	describe("pauseCallback", "animation.FramePausedOnHitlag callback", a.FramePausedOnHitlag != nil, a.sourceHostPausePhase)
+ 	if a.OnRemoved != nil {
+ 		gaps = append(gaps, "animation.OnRemoved callback")
+ 	}
+diff --git a/pkg/core/player/exec.go b/pkg/core/player/exec.go
+--- a/pkg/core/player/exec.go
++++ b/pkg/core/player/exec.go
+@@ -141,9 +141,9 @@
+ 		}
+ 
+ 		x := action.Info{
+-			Frames: func(action.Action) int {
++			Frames: action.OpaqueFrameFunc(func(action.Action) int {
+ 				return h.Delays.Swap
+-			},
++			}),
+ 			AnimationLength: h.Delays.Swap,
+ 			CanQueueAfter:   h.Delays.Swap,
+ 			State:           action.SwapState,
+@@ -205,7 +205,7 @@
+ 	}
+ 	h.SetActionUsed(h.active, t, &info)
+ 	if info.FramePausedOnHitlag == nil {
+-		info.FramePausedOnHitlag = h.ActiveChar().FramePausedOnHitlag
++		info.BindSourceHostDefaultPause(h.ActiveChar().Index(), h.ActiveChar().FramePausedOnHitlag)
+ 	}
+ 
+ 	h.LastAction.Type = t

@@ -1,0 +1,66 @@
+--- a/pkg/core/action/action.go
++++ b/pkg/core/action/action.go
+@@ -82,6 +82,11 @@
+ 	end := a.SourceHostOrigin.BeginTask(a.sourceHostCreation)
+ 	a.OnRemoved(next)
+ 	end()
++}
++
++// SourceHostCallbackSummary reads only the returned action's callback slots.
++func (a *Info) SourceHostCallbackSummary() (int, bool) {
++	return len(a.queued), a.OnRemoved != nil
+ }
+ 
+ func (a *Info) CanQueueNext() bool {
+--- a/pkg/core/player/exec.go
++++ b/pkg/core/player/exec.go
+@@ -189,7 +189,17 @@
+ 	if ok {
+ 		h.Events.Emit(state)
+ 	}
++	bridge := h.ActiveChar().SourceHost
++	invocationID := 0
++	if bridge != nil {
++		actor := h.ActiveChar()
++		invocationID = bridge.BeginAbilityInvocation(actor.Index(), actor.Base.Key.String(), t.String(), param, actor.Base.Cons, actor.Base.Ascension)
++	}
+ 	info, err := f(param)
++	if bridge != nil {
++		queuedCallbacks, hasOnRemoved := info.SourceHostCallbackSummary()
++		bridge.EndAbilityInvocation(invocationID, err == nil, queuedCallbacks, hasOnRemoved)
++	}
+ 	if err != nil {
+ 		return err
+ 	}
+--- a/pkg/core/combat/attack.go
++++ b/pkg/core/combat/attack.go
+@@ -34,6 +34,8 @@
+ }
+ 
+ func (h *Handler) ApplyAttack(a *info.AttackEvent) float64 {
++	checkedEnemyKeys := []int{}
++	skippedEnemyKeys := []int{}
+ 	if h.SourceHost != nil {
+ 		h.SourceHost.PrepareAttack(a)
+ 		restoreDispatch := h.SourceHost.BeginAttackDispatch(a)
+@@ -41,6 +43,9 @@
+ 		h.SourceHost.ObserveAttackDispatch(a)
+ 		endOrigin := h.SourceHost.Origin.BeginAttack(a.SourceHostOrigin, a.SourceHostAttackID)
+ 		defer endOrigin()
++		defer func() {
++			h.SourceHost.CompleteAttackDispatch(a, checkedEnemyKeys, skippedEnemyKeys, a.Pattern.SkipTargets[info.TargettableEnemy])
++		}()
+ 	}
+ 	h.Events.Emit(event.OnApplyAttack, a)
+ 	// died := false
+@@ -58,8 +63,10 @@
+ 				continue
+ 			}
+ 			if !v.IsAlive() {
++				if h.SourceHost != nil { skippedEnemyKeys = append(skippedEnemyKeys, int(v.Key())) }
+ 				continue
+ 			}
++			if h.SourceHost != nil { checkedEnemyKeys = append(checkedEnemyKeys, int(v.Key())) }
+ 			a, l := h.attack(v, a)
+ 			total += a
+ 			if l {

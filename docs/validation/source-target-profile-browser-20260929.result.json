@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "source-target-profile-browser-v1",
+  "measurements": {
+    "resistance": {
+      "rawPath": "/tmp/gidps-target-profile-resistance.json",
+      "target": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 0,
+          "y": 2.4
+        },
+        "resistanceByElement": {
+          "cryo": 0.5
+        }
+      },
+      "rawDamage": 645.4956403010146,
+      "baselineRawDamage": 1161.8921525418264,
+      "expectedRatio": 0.5555555555555556,
+      "observedRatio": 0.5555555555555556,
+      "replayDifference": 0,
+      "damageMode": false
+    },
+    "hp": {
+      "rawPath": "/tmp/gidps-target-profile-hp.json",
+      "target": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 0,
+          "y": 2.4
+        },
+        "resistanceByElement": {
+          "cryo": 0.5
+        },
+        "hp": 100
+      },
+      "rawDamage": 645.4956403010146,
+      "appliedDamage": 100,
+      "hpBefore": 100,
+      "hpAfter": 0,
+      "actualDurationFrames": 29,
+      "observationWindow": {
+        "policy": "duration-or-native",
+        "configuredEndFrame": 360,
+        "actualEndFrame": 29,
+        "endReason": "targets-dead"
+      },
+      "replayDifference": 0,
+      "screenshot": "docs/validation/source-target-profile-browser-20260929.png"
+    },
+    "team": {
+      "exportedTarget": {
+        "level": 90,
+        "resistance": 0.1,
+        "geometry": {
+          "radius": 2,
+          "x": 0,
+          "y": 2.4
+        },
+        "resistanceByElement": {
+          "cryo": 0.5
+        },
+        "hp": 100,
+        "freezeResistance": 0.25,
+        "particleDrops": {
+          "threshold": 50,
+          "count": 2,
+          "element": "cryo"
+        }
+      },
+      "generatedTarget": "target lvl=90 electro=0.1 pyro=0.1 cryo=0.5 hydro=0.1 anemo=0.1 dendro=0.1 geo=0.1 physical=0.1 radius=2 pos=0,2.4 freeze_resist=0.25 hp=100 particle_threshold=50 particle_drop_count=2 particle_element=cryo;",
+      "capRunPath": "/tmp/gidps-target-profile-team-cap.json",
+      "capObservationWindow": {
+        "policy": "duration-or-native",
+        "configuredEndFrame": 360,
+        "actualEndFrame": 360,
+        "endReason": "duration"
+      },
+      "capApplicationCount": 0
+    }
+  },
+  "pageErrors": [],
+  "scope": "Two actual classic Kaeya E runs test absolute Cryo resistance and HP damage mode; one zero-energy Kaeya Q team run verifies the finite observation cap. No new actor matrix."
+}

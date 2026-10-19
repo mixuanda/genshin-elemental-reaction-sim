@@ -1,0 +1,47 @@
+[WebServer] (node:80015) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:80020) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-additive.spec.ts:46:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits (10.5s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-additive.spec.ts:46:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#source-host-status')
+    Expected substring: "本次运行完成"
+    Received string:    "运行停止：error encountered on noelle executing high_plunge: high_plunge can only be used while airborne"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#source-host-status')
+        14 × locator resolved to <p role="status" aria-live="polite" id="source-host-status">运行停止：error encountered on noelle executing high_p…</p>
+           - unexpected value "运行停止：error encountered on noelle executing high_plunge: high_plunge can only be used while airborne"
+
+
+      67 |     await page.locator("#source-host-run").click();
+      68 |     await expect(page.locator("#source-host-status")).toContainText(/本次运行完成|运行停止|执行器错误/, { timeout: 90000 });
+    > 69 |     await expect(page.locator("#source-host-status")).toContainText("本次运行完成");
+         |                                                       ^
+      70 |     const pending = page.waitForEvent("download");
+      71 |     await page.locator("#source-host-export").click();
+      72 |     const raw = await readFile((await (await pending).path())!, "utf8");
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-additive.spec.ts:69:55
+
+    Error Context: test-results/source-character-additive--961ec-d-independent-formula-edits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-additive--961ec-d-independent-formula-edits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-additive--961ec-d-independent-formula-edits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-additive.spec.ts:46:1 › native character FlatDmg components preserve two reads, stored snapshots, and independent formula edits 

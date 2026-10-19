@@ -1,0 +1,48 @@
+
+Running 3 tests using 2 workers
+
+(node:37911) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:37912) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/noelle-actions.spec.ts:38:1 › Noelle sourced actions preserve historical Q conversion, C2 and C6 through final JSON and fresh equipment (1.4s)
+(node:37935) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/equipment-actions.spec.ts:95:1 › Amber sourced E and Q execute their delayed energy, summon lifecycle and reproducible hits from Rotation (1.9s)
+  ✓  3 [chromium] › apps/web/e2e/noelle-actions.spec.ts:117:1 › Noelle sourced Q to N rotation records actual conversion, delayed energy and complete hit replays (1.4s)
+
+
+  1) [chromium] › apps/web/e2e/noelle-actions.spec.ts:38:1 › Noelle sourced actions preserve historical Q conversion, C2 and C6 through final JSON and fresh equipment 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    -   320,
+    +   576,
+      ]
+
+      53 |   await page.locator("#calc-noelle-burst-accounting").selectOption("add-to-panel");
+      54 |   const q1 = await audit(page);
+    > 55 |   expect(perHitValues(q1.result, "sourceAttackAdjustment")).toEqual([320]); // Historical 800 DEF × Q1 source coefficient 0.4.
+         |                                                             ^
+      56 |   expect(perHitValues(q1.result, "hitAttack")).toEqual([1320]);
+      57 |   expect(q1.document.hits[0]!.kind === "ordinary" && q1.document.hits[0]!.element).toBe("geo");
+      58 |   await page.locator('[data-field="gameContext.noelleBurst.effectiveTalentLevel"]').fill("10");
+        at /Users/evan/Documents/gidps/apps/web/e2e/noelle-actions.spec.ts:55:61
+
+    Error Context: test-results/noelle-actions-Noelle-sour-c817b-al-JSON-and-fresh-equipment-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/noelle-actions-Noelle-sour-c817b-al-JSON-and-fresh-equipment-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/noelle-actions-Noelle-sour-c817b-al-JSON-and-fresh-equipment-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/noelle-actions.spec.ts:38:1 › Noelle sourced actions preserve historical Q conversion, C2 and C6 through final JSON and fresh equipment 
+  2 passed (3.6s)

@@ -1,0 +1,51 @@
+import { expect, test } from "@playwright/test";
+import { readFile } from "node:fs/promises";
+import type { SourceHostResult } from "../../../packages/sim-core/src/source-host-wire";
+
+test("source inventory and real Lunar families share editable contributor calculations", async ({ page }) => {
+  test.setTimeout(60000);
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto("/source-simulation");
+  await expect(page.locator("[data-source-inventory-count]")).toContainText("401");
+  await page.locator("[data-source-inventory-search]").fill("ayaka");
+  await page.locator("[data-source-inventory-select]").click();
+  await expect(page.locator("[data-source-inventory-snippet]")).toHaveValue("kamisatoayaka char lvl=90/90 cons=0 talent=1,1,1;");
+  await page.locator('[data-source-host-example="lunar"]').click();
+  await page.locator("#source-host-seed").fill("12345");
+  await page.locator("#source-host-run").click();
+  await expect(page.locator("#source-host-status")).toContainText(/本次运行完成|运行停止|执行器错误/, { timeout: 45000 });
+  await expect(page.locator("#source-host-status")).toContainText("本次运行完成");
+  const download = page.waitForEvent("download");
+  await page.locator("#source-host-export").click();
+  const result = JSON.parse(await readFile((await (await download).path())!, "utf8")) as SourceHostResult;
+  const branches = [...new Set(result.calculations.flatMap(row => "branch" in row.request.input ? [row.request.input.branch] : []))];
+  expect(branches).toEqual(expect.arrayContaining(["lunar-charged-reaction", "lunar-crystallize-reaction", "lunar-bloom-event", "lunar-bloom-direct", "lunar-charged-direct", "lunar-crystallize-direct"]));
+  expect(result.executionArtifact?.wasmSha256).toMatch(/^[a-f0-9]{64}$/);
+  await page.locator("#source-host-import").setInputFiles({ name: "source-host-lunar-result.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(result)) });
+  await expect(page.locator("#source-host-status")).toContainText("已导入并重算来源结果");
+  const byId = new Map(result.calculations.map(row => [row.request.id, row]));
+  const hitIndex = result.applications.findIndex(row => byId.get(row.calculationId)?.request.kind === "lunar-delivery");
+  expect(hitIndex).toBeGreaterThanOrEqual(0);
+  await page.locator("#source-host-hit-index").fill(String(hitIndex));
+  await expect(page.locator("#source-host-hit")).toContainText("差值 0");
+  await page.locator("#source-host-open-calculator").click();
+  await expect(page).toHaveURL(/\/calculator$/);
+  const value = page.locator('[data-source-host-component-field="elementalMastery"]').first();
+  await expect(value).toBeVisible();
+  const original = await page.locator("[data-source-host-calculation-result] h3").textContent();
+  await value.fill(String(Number(await value.inputValue()) + 100));
+  await expect(page.locator("[data-source-host-calculation-result] h3")).toContainText("编辑后");
+  const changed = await page.locator("[data-source-host-calculation-result] h3").textContent();
+  expect(changed).not.toEqual(original);
+  const editableDownload = page.waitForEvent("download");
+  await page.locator("[data-source-host-export]").click();
+  const editable = await readFile((await (await editableDownload).path())!, "utf8");
+  await page.locator("#calc-source-host-close").click();
+  await page.locator("#calc-import").setInputFiles({ name: "source-host-lunar-calculation.json", mimeType: "application/json", buffer: Buffer.from(editable) });
+  await expect(page.locator("[data-source-host-calculation-result] h3")).toHaveText(changed!);
+  expect(errors).toEqual([]);
+  console.log(JSON.stringify({ durationFrames: (result.result as { duration: number }).duration, hits: result.applications.length, calculations: result.calculations.length, branches,
+    totalDamage: result.applications.reduce((sum, row) => sum + row.appliedDamage, 0), hitIndex, original, changed,
+    wasmSha256: result.executionArtifact?.wasmSha256, errors }));
+});

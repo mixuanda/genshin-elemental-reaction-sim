@@ -1,0 +1,19 @@
+
+Running 3 tests using 3 workers
+
+(node:95483) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:95484) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:95482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/3] [chromium] › apps/web/e2e/held-lifecycle-calculator.spec.ts:12:1 › Hydro Traveler held cast uses observed HP and contacts, preserves final JSON, and leaves an independent hit usable
+[2/3] [chromium] › apps/web/e2e/bond-of-life-resource.spec.ts:19:1 › Team Bond of Life controls produce the actual absorbed-heal ledger and restore its JSON inputs
+[3/3] [chromium] › apps/web/e2e/random-checkpoint.spec.ts:20:1 › Random checkpoint overview shows actual boundary draw counts and restores the same JSON run
+  3 passed (2.6s)

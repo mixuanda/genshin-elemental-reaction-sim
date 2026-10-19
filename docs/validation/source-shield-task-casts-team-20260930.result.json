@@ -1,0 +1,422 @@
+{
+  "schemaVersion": "source-shield-task-casts-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": false,
+    "rawPath": "docs/validation/source-shield-task-casts-team-20260930.capture.json",
+    "nativeResultArchived": true,
+    "casts": [
+      {
+        "key": "noelleE",
+        "contractId": "noelle-skill",
+        "completeCast": true,
+        "finiteCast": {
+          "contract": {
+            "id": "noelle-skill",
+            "label": "诺艾尔 E：护心铠初击与 C4 终止爆炸",
+            "characterKey": "noelle",
+            "action": "skill",
+            "method": "Skill",
+            "sourcePath": "internal/characters/noelle/skill.go",
+            "sourceSha256": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+            "sourceHashes": {
+              "classicSha256": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+              "stellarSha256": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae"
+            },
+            "sourceEvidence": "E 同步创建精确护盾，初击由 14 本地帧角色任务发出。C4 起原生到期、覆盖或破裂钩子发出爆炸，独立 720 帧 Core 任务按实际 guard 发出零／一次爆炸。",
+            "nonDamageCallbacksAndInitAudit": "治疗及 A1 独立护盾排除；C0–C3 无后续护盾伤害，尚存非伤害护盾不阻塞本次固有伤害闭合。保留两 lane 原生护盾元素差异。",
+            "producerContract": true,
+            "ownedShieldContract": true,
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/skill.go"
+            ]
+          },
+          "expectedRootAttackCount": 2,
+          "completedRootAttackCount": 2,
+          "closed": true,
+          "rootCountKind": "runtime",
+          "observedRootAttackCount": 2,
+          "producerCount": 2,
+          "completedProducerCount": 2,
+          "pendingProducerCount": 0,
+          "generatorCount": 0,
+          "endedGeneratorCount": 0,
+          "openGeneratorCount": 0,
+          "triggerCount": 0,
+          "entityCount": 0,
+          "endedEntityCount": 0,
+          "openEntityCount": 0,
+          "entityTriggerCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "shieldInstanceIds": [
+            1
+          ],
+          "shieldCount": 1,
+          "endedShieldCount": 1,
+          "openShieldCount": 0,
+          "shieldHookCount": 1,
+          "shieldRelatedExcludedInstanceIds": [],
+          "shieldProducerIds": [],
+          "shieldProducerCount": 0,
+          "completedShieldProducerCount": 0,
+          "pendingShieldProducerCount": 0,
+          "hitCallbackBatchCount": 0,
+          "completedHitCallbackBatchCount": 0,
+          "pendingHitCallbackBatchCount": 0,
+          "hitCallbackCount": 0,
+          "reasons": [],
+          "includedComponents": [
+            "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+            "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+            "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属"
+          ],
+          "excludedComponents": [
+            "另行派发的剧变或其他反应伤害",
+            "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+            "治疗、护盾量与持续增益效果",
+            "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（34 次应用）"
+          ],
+          "scopeNotes": [
+            "E 初击通过实际 14 本地帧角色任务结算；C0–C3 没有后续护盾伤害，非伤害护盾仍存在不妨碍完整固有伤害。C4 起需观察 E 护盾真实破裂、覆盖或到期所发出的爆炸，以及独立 720 帧 Core 计时任务的实际零／一分支；计时任务未结束不能仅凭护盾已消失宣布完整。治疗、A1 独立护盾和普通／重击伤害排除。"
+          ]
+        },
+        "hitCount": 4,
+        "componentSubtotal": 2292.4880410260785,
+        "appliedDamageSubtotal": 2292.4880410260785,
+        "replayDifferences": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "key": "xinyanE",
+        "contractId": "xinyan-skill",
+        "completeCast": true,
+        "finiteCast": {
+          "contract": {
+            "id": "xinyan-skill",
+            "label": "辛焱 E：初击、护盾升级与三级盾 DoT",
+            "characterKey": "xinyan",
+            "action": "skill",
+            "method": "Skill",
+            "sourcePath": "internal/characters/xinyan/skill.go",
+            "sourceSha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79",
+            "sourceHashes": {
+              "classicSha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79",
+              "stellarSha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79"
+            },
+            "sourceEvidence": "初击的精确命中回调各创建一条 13 本地帧升级任务；无既存护盾时另有 28 本地帧初始盾任务。实际等级分支决定出生及递归 DoT，首个 Core 任务在 Add 前注册、之后绑定精确新实例。",
+            "nonDamageCallbacksAndInitAudit": "C1攻速、C4物抗变化、粒子和独立反应排除；不将角色队列的本地延迟视为全局帧延迟。",
+            "producerContract": true,
+            "ownedShieldContract": true,
+            "shieldProducerContract": true,
+            "hitCallbackContract": true,
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/xinyan/skill.go"
+            ]
+          },
+          "expectedRootAttackCount": 2,
+          "completedRootAttackCount": 2,
+          "closed": true,
+          "rootCountKind": "runtime",
+          "observedRootAttackCount": 2,
+          "producerCount": 3,
+          "completedProducerCount": 3,
+          "pendingProducerCount": 0,
+          "generatorCount": 0,
+          "endedGeneratorCount": 0,
+          "openGeneratorCount": 0,
+          "triggerCount": 0,
+          "entityCount": 0,
+          "endedEntityCount": 0,
+          "openEntityCount": 0,
+          "entityTriggerCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "shieldInstanceIds": [
+            2,
+            3
+          ],
+          "shieldCount": 2,
+          "endedShieldCount": 2,
+          "openShieldCount": 0,
+          "shieldHookCount": 2,
+          "shieldRelatedExcludedInstanceIds": [
+            4
+          ],
+          "shieldProducerIds": [
+            1,
+            2
+          ],
+          "shieldProducerCount": 2,
+          "completedShieldProducerCount": 2,
+          "pendingShieldProducerCount": 0,
+          "hitCallbackBatchCount": 4,
+          "completedHitCallbackBatchCount": 4,
+          "pendingHitCallbackBatchCount": 0,
+          "hitCallbackCount": 8,
+          "reasons": [],
+          "includedComponents": [
+            "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+            "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+            "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属",
+            "明确父攻击与目标的已审阅命中回调所产生的本技能追加攻击"
+          ],
+          "excludedComponents": [
+            "另行派发的剧变或其他反应伤害",
+            "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+            "治疗、护盾量与持续增益效果",
+            "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（34 次应用）"
+          ],
+          "scopeNotes": [
+            "E 包含初击与本次调用真正创建的三级护盾 DoT。升级按每个实际命中回调登记的 13 本地帧角色任务和真实分支；没有出生的分支不补造护盾。一级／二级盾没有后续固有攻击，其无伤害寿命不阻塞伤害范围闭合。三级盾链须观测到全部 Core 任务结束，包括最后不发出攻击的门控分支；任务原始出生归属与实际门控护盾分别保留。"
+          ]
+        },
+        "hitCount": 4,
+        "componentSubtotal": 691.6303929066518,
+        "appliedDamageSubtotal": 691.6303929066518,
+        "replayDifferences": [
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "key": "xinyanQ",
+        "contractId": "xinyan-burst",
+        "completeCast": true,
+        "finiteCast": {
+          "contract": {
+            "id": "xinyan-burst",
+            "label": "辛焱 Q：初击、火焰与 C2 护盾攻击",
+            "characterKey": "xinyan",
+            "action": "burst",
+            "method": "Burst",
+            "sourcePath": "internal/characters/xinyan/burst.go",
+            "sourceSha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7",
+            "sourceHashes": {
+              "classicSha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7",
+              "stellarSha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7"
+            },
+            "sourceEvidence": "原有初击与七段火焰保留；C2 增加两条 Q 直接脉冲和一条 43 本地帧护盾出生任务。实际三级护盾递归 Core 任务按出生实例、真实父子队列、实际门控和最终停止分支闭合。",
+            "nonDamageCallbacksAndInitAudit": "C1攻速、治疗及独立反应不计入；保留 Classic 未设元素与 Stellar Pyro 的原生盾差异。门控 Get 返回的新盾不改变旧任务链归属。",
+            "producerContract": true,
+            "ownedShieldContract": true,
+            "shieldProducerContract": true,
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/xinyan/burst.go"
+            ]
+          },
+          "expectedRootAttackCount": 15,
+          "completedRootAttackCount": 15,
+          "closed": true,
+          "rootCountKind": "runtime",
+          "observedRootAttackCount": 15,
+          "producerCount": 3,
+          "completedProducerCount": 3,
+          "pendingProducerCount": 0,
+          "generatorCount": 0,
+          "endedGeneratorCount": 0,
+          "openGeneratorCount": 0,
+          "triggerCount": 0,
+          "entityCount": 0,
+          "endedEntityCount": 0,
+          "openEntityCount": 0,
+          "entityTriggerCount": 0,
+          "entityProducerCount": 0,
+          "completedEntityProducerCount": 0,
+          "pendingEntityProducerCount": 0,
+          "shieldInstanceIds": [
+            4
+          ],
+          "shieldCount": 1,
+          "endedShieldCount": 1,
+          "openShieldCount": 0,
+          "shieldHookCount": 1,
+          "shieldRelatedExcludedInstanceIds": [
+            3
+          ],
+          "shieldProducerIds": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ],
+          "shieldProducerCount": 6,
+          "completedShieldProducerCount": 6,
+          "pendingShieldProducerCount": 0,
+          "hitCallbackBatchCount": 0,
+          "completedHitCallbackBatchCount": 0,
+          "pendingHitCallbackBatchCount": 0,
+          "hitCallbackCount": 0,
+          "reasons": [],
+          "includedComponents": [
+            "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+            "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+            "本次技能创建的明确护盾实例及其已审阅生命周期钩子／任务发出的固有攻击；其他调用或命座独立创建的护盾保留各自归属"
+          ],
+          "excludedComponents": [
+            "另行派发的剧变或其他反应伤害",
+            "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+            "治疗、护盾量与持续增益效果",
+            "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（8 次应用）"
+          ],
+          "scopeNotes": [
+            "C0–C1 为 Q 初击及七段火焰。C2 起另含两次独立施放脉冲、实际创建的三级护盾及其递归 DoT；两次 65/83 帧额外脉冲属于 Q 直接攻击，不伪装成护盾周期攻击。递归次数以实际门控和父子任务回执决定，包含最后停止任务，替换护盾不会改写旧链的出生归属。"
+          ]
+        },
+        "hitCount": 30,
+        "componentSubtotal": 3783.136560570299,
+        "appliedDamageSubtotal": 3783.136560570299,
+        "replayDifferences": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "noelleC4": {
+      "shieldId": 1,
+      "terminalFrame": 721,
+      "terminalReason": "expired",
+      "expiryHookId": 3,
+      "hookEmitSite": "noelle.shield.explosion",
+      "fallbackProducerId": 2,
+      "fallbackEntryFacts": {
+        "noelle.skill.c4-timer.attack-count": 0
+      },
+      "fallbackQueuedAttacks": 0
+    },
+    "xinyan": {
+      "eShieldIds": [
+        2,
+        3
+      ],
+      "qShieldIds": [
+        4
+      ],
+      "eShieldTerminals": [
+        {
+          "id": 2,
+          "reason": "overwritten",
+          "frame": 121,
+          "replacedBy": 3
+        },
+        {
+          "id": 3,
+          "reason": "overwritten",
+          "frame": 343,
+          "replacedBy": 4
+        }
+      ],
+      "qShieldTerminals": [
+        {
+          "id": 4,
+          "reason": "expired",
+          "frame": 1063
+        }
+      ],
+      "eShieldProducers": [
+        {
+          "id": 1,
+          "siteId": "xinyan.shield.dot-first-task",
+          "ownerInstanceId": 3,
+          "taskId": 22,
+          "queuedFrame": 121,
+          "runFrame": 241,
+          "completedFrame": 241,
+          "state": "completed",
+          "gateObserved": true,
+          "gateInstanceId": 3,
+          "entryFacts": {
+            "xinyan.shield.dot.attack-count": 1,
+            "xinyan.shield.dot.level": 3,
+            "xinyan.shield.dot.source-frame": 121,
+            "xinyan.shield.dot.tick-source": 121
+          },
+          "queuedAttacks": [
+            {
+              "queueId": 9,
+              "attackId": 3,
+              "ability": "Sweeping Fervor (DoT)",
+              "attackTagName": "AttackTagElementalArt",
+              "frame": 241,
+              "emitSiteId": "xinyan.shield.dot.attack"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "siteId": "xinyan.shield.dot-next-task",
+          "ownerInstanceId": 3,
+          "parentProducerId": 1,
+          "taskId": 24,
+          "queuedFrame": 241,
+          "runFrame": 361,
+          "completedFrame": 361,
+          "state": "completed",
+          "gateObserved": true,
+          "gateInstanceId": 4,
+          "entryFacts": {
+            "xinyan.shield.dot.attack-count": 0,
+            "xinyan.shield.dot.level": 3,
+            "xinyan.shield.dot.source-frame": 121,
+            "xinyan.shield.dot.tick-source": 343
+          },
+          "queuedAttacks": []
+        }
+      ],
+      "invocationHitCallbackCount": 8,
+      "eShieldHitCallbackIds": [
+        3,
+        6
+      ],
+      "eUpgradeProducerIds": [
+        4,
+        5
+      ],
+      "terminalStopProducer": 2,
+      "missingTerminalProducerClosed": false,
+      "missingTerminalProducerReasons": [
+        "护盾 DoT 任务 #1：实际零／一攻击与后续零／一子任务分支不一致。"
+      ]
+    },
+    "xinyanEOriginUiEditExportImport": true
+  },
+  "pageErrors": [],
+  "scope": "One classic two-target run selects Noelle C4 E, Xinyan C2 E, and Xinyan C2 Q finite captures. It observes Noelle expiry/fallback behavior and the selected Xinyan shield task chains; it does not establish other character shields or damage-break outcomes."
+}

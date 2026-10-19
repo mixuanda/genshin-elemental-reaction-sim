@@ -1,0 +1,1306 @@
+{
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sharedPatchSha256": "6cef1ddbc4cc491ff9501344881c438abeb1ec2c744b84bc0781d1f851065d26",
+  "audit": "docs/validation/source-ability-producer-sites-20260929.json",
+  "rows": [
+    {
+      "id": "rosaria-skill",
+      "label": "罗莎莉亚 E",
+      "characterKey": "rosaria",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/rosaria/skill.go",
+      "sourceSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43",
+      "sourceHashes": {
+        "classicSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43",
+        "stellarSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43"
+      },
+      "sourceEvidence": "Second E hit is queued by the one tagged character task; hit callbacks produce particles/status only.",
+      "nonDamageCallbacksAndInitAudit": "Second E hit is queued by the one tagged character task; hit callbacks produce particles/status only.",
+      "producerContract": true
+    },
+    {
+      "id": "rosaria-burst",
+      "label": "罗莎莉亚 Q",
+      "characterKey": "rosaria",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/rosaria/burst.go",
+      "sourceSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0",
+      "sourceHashes": {
+        "classicSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0",
+        "stellarSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0"
+      },
+      "sourceEvidence": "Count is initial slash plus lance callback second hit and four/six DoT queues. Burst status and A4/C6 debuffs are outside damage opportunity closure.",
+      "nonDamageCallbacksAndInitAudit": "Count is initial slash plus lance callback second hit and four/six DoT queues. Burst status and A4/C6 debuffs are outside damage opportunity closure.",
+      "producerContract": true
+    },
+    {
+      "id": "albedo-burst",
+      "label": "阿贝多 Q",
+      "characterKey": "albedo",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/albedo/burst.go",
+      "sourceSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd",
+      "sourceHashes": {
+        "classicSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd",
+        "stellarSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd"
+      },
+      "sourceEvidence": "Fatal Blossoms depend on c.skillActive at task run; no count should be predicted from cast-time state.",
+      "nonDamageCallbacksAndInitAudit": "Fatal Blossoms depend on c.skillActive at task run; no count should be predicted from cast-time state.",
+      "producerContract": true
+    },
+    {
+      "id": "raiden-burst",
+      "label": "雷电将军 Q 首击",
+      "characterKey": "raidenshogun",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/raiden/burst.go",
+      "sourceSha256": "687ee6b6163161445ad6d97f5ada1d9b4d0a90e0582c80d3fa71cb625babcbc9",
+      "sourceHashes": {
+        "classicSha256": "687ee6b6163161445ad6d97f5ada1d9b4d0a90e0582c80d3fa71cb625babcbc9",
+        "stellarSha256": "2a4291b81d07850b5b4c811e0a6f84405bf0e66cec63e2bc5a8d3a89122bfaf0"
+      },
+      "sourceEvidence": "Only initial Musou strike, excluding stance normal/charge attacks from later actions, C4 buff task, and status lifetime.",
+      "nonDamageCallbacksAndInitAudit": "Only initial Musou strike, excluding stance normal/charge attacks from later actions, C4 buff task, and status lifetime.",
+      "producerContract": true
+    },
+    {
+      "id": "lisa-burst",
+      "label": "丽莎 Q",
+      "characterKey": "lisa",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/lisa/burst.go",
+      "sourceSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c",
+      "sourceHashes": {
+        "classicSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c",
+        "stellarSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c"
+      },
+      "sourceEvidence": "Thirty discharge callbacks plus one initial low-mult hit. Snapshot and status-only tasks are excluded. Actual per-tick emissions are read from callback receipts, not inferred from target count; the first C4 tick with at least three entities can return without emitting.",
+      "nonDamageCallbacksAndInitAudit": "Thirty discharge callbacks plus one initial low-mult hit. Snapshot and status-only tasks are excluded. Actual per-tick emissions are read from callback receipts, not inferred from target count; the first C4 tick with at least three entities can return without emitting.",
+      "producerContract": true
+    },
+    {
+      "id": "diona-burst",
+      "label": "迪奥娜 Q",
+      "characterKey": "diona",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/diona/burst.go",
+      "sourceSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77",
+      "sourceHashes": {
+        "classicSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77",
+        "stellarSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77"
+      },
+      "sourceEvidence": "Parent registers six child tick tasks; C1 energy, C6 buff, heal output and burst status lifecycle are separate components.",
+      "nonDamageCallbacksAndInitAudit": "Parent registers six child tick tasks; C1 energy, C6 buff, heal output and burst status lifecycle are separate components.",
+      "producerContract": true
+    },
+    {
+      "id": "navia-burst",
+      "label": "娜维娅 Q",
+      "characterKey": "navia",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/navia/burst.go",
+      "sourceSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413",
+      "sourceHashes": {
+        "classicSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413",
+        "stellarSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413"
+      },
+      "sourceEvidence": "One direct initial hit, one character parent task, seventeen child cannon tasks. Shrapnel/status effects are excluded components.",
+      "nonDamageCallbacksAndInitAudit": "One direct initial hit, one character parent task, seventeen child cannon tasks. Shrapnel/status effects are excluded components.",
+      "producerContract": true
+    },
+    {
+      "id": "kaeya-burst",
+      "label": "凯亚 Q",
+      "characterKey": "kaeya",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/kaeya/burst.go",
+      "sourceSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce",
+      "sourceHashes": {
+        "classicSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce",
+        "stellarSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce"
+      },
+      "sourceEvidence": "C2 OnTargetDied can extend status; overlapping Burst changes burstTickSrc and kills old chain. C6 energy task excluded.",
+      "nonDamageCallbacksAndInitAudit": "C2 OnTargetDied can extend status; overlapping Burst changes burstTickSrc and kills old chain. C6 energy task excluded.",
+      "producerContract": true
+    },
+    {
+      "id": "bennett-skill",
+      "label": "班尼特 E（点按／蓄力）",
+      "characterKey": "bennett",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/bennett/skill.go",
+      "sourceSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65",
+      "sourceHashes": {
+        "classicSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65",
+        "stellarSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65"
+      },
+      "sourceEvidence": "Press (effectiveHold=0) is a separate direct-only branch and has no tagged task. hold_c4=1 with C>=4 forces hold1.",
+      "nonDamageCallbacksAndInitAudit": "Press (effectiveHold=0) is a separate direct-only branch and has no tagged task. hold_c4=1 with C>=4 forces hold1.",
+      "producerContract": true
+    },
+    {
+      "id": "venti-burst",
+      "label": "温迪 Q",
+      "characterKey": "venti",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/venti/burst.go",
+      "sourceSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895",
+      "sourceHashes": {
+        "classicSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895",
+        "stellarSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895"
+      },
+      "sourceEvidence": "Twenty eager Anemo tick tasks plus optional fifteen absorbed attacks generated once by check callback; no same-character Burst overlap before this graph closes because qAbsorb/aiAbsorb/snapAbsorb are shared mutable fields and src is not checked. Snapshot-only and A4 energy tasks excluded.",
+      "nonDamageCallbacksAndInitAudit": "Twenty eager Anemo tick tasks plus optional fifteen absorbed attacks generated once by check callback; no same-character Burst overlap before this graph closes because qAbsorb/aiAbsorb/snapAbsorb are shared mutable fields and src is not checked. Snapshot-only and A4 energy tasks excluded.",
+      "producerContract": true
+    },
+    {
+      "id": "ganyu-burst",
+      "label": "甘雨 Q",
+      "characterKey": "ganyu",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/ganyu/burst.go",
+      "sourceSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0",
+      "sourceHashes": {
+        "classicSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0",
+        "stellarSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0"
+      },
+      "sourceEvidence": "Fifty eager shower tasks, each queues one intrinsic attack after position selection; C4 debuff and A4 buff are excluded components.",
+      "nonDamageCallbacksAndInitAudit": "Fifty eager shower tasks, each queues one intrinsic attack after position selection; C4 debuff and A4 buff are excluded components.",
+      "producerContract": true
+    },
+    {
+      "id": "sucrose-burst",
+      "label": "砂糖 Q",
+      "characterKey": "sucrose",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/sucrose/burst.go",
+      "sourceSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841",
+      "sourceHashes": {
+        "classicSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841",
+        "stellarSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841"
+      },
+      "sourceEvidence": "Direct Anemo attacks are queued in Burst. Absorbed-tick callbacks conditionally queue an equal number of absorbed attacks. Check chain only changes qAbsorb. No same-character Burst overlap before closure because qAbsorb is shared and src is not checked; C6 buff excluded.",
+      "nonDamageCallbacksAndInitAudit": "Direct Anemo attacks are queued in Burst. Absorbed-tick callbacks conditionally queue an equal number of absorbed attacks. Check chain only changes qAbsorb. No same-character Burst overlap before closure because qAbsorb is shared and src is not checked; C6 buff excluded.",
+      "producerContract": true
+    },
+    {
+      "id": "aino-skill",
+      "label": "艾诺 E：两段缪斯捕手固有水伤",
+      "characterKey": "aino",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/aino/skill.go",
+      "sourceSha256": "6dfe8532415188bcfb29e79ebc382a67e47077f7069c97226a0cd1ce0363c564",
+      "sourceHashes": {
+        "classicSha256": "6dfe8532415188bcfb29e79ebc382a67e47077f7069c97226a0cd1ce0363c564",
+        "stellarSha256": "6dfe8532415188bcfb29e79ebc382a67e47077f7069c97226a0cd1ce0363c564"
+      },
+      "sourceEvidence": "skill.go:36-91 两个 talent range 行各在72注册角色任务，回调73入队一次；skill.go:95-106 粒子回调不生成伤害；cons.go: c4CB只回能；c2Init所生攻击要求艾诺不在场且Q状态，不能由当前E动作直接触发。 只计算固有E两段；反应、武器、套装和其他角色伤害独立。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:36-91 两个 talent range 行各在72注册角色任务，回调73入队一次；skill.go:95-106 粒子回调不生成伤害；cons.go: c4CB只回能；c2Init所生攻击要求艾诺不在场且Q状态，不能由当前E动作直接触发。 只计算固有E两段；反应、武器、套装和其他角色伤害独立。",
+      "producerContract": true
+    },
+    {
+      "id": "charlotte-burst",
+      "label": "夏洛蒂 Q：初击与八次留影机固有冰伤",
+      "characterKey": "charlotte",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/charlotte/burst.go",
+      "sourceSha256": "3dc1227d17c28a1a3e9e399596f709ba5af7b1b5a87058999241332c25820f2e",
+      "sourceHashes": {
+        "classicSha256": "3dc1227d17c28a1a3e9e399596f709ba5af7b1b5a87058999241332c25820f2e",
+        "stellarSha256": "3dc1227d17c28a1a3e9e399596f709ba5af7b1b5a87058999241332c25820f2e"
+      },
+      "sourceEvidence": "burst.go:41-115 初击80、场地任务88、八个burstTickFrames于100注册并在101入队；cons.go: C1为治疗；C4修改已有Q击伤害/能量；C6要求标记目标上的普通或重击，属于后续动作触发。 Q的治疗另有来源回执；本伤害范围不把C6后续普通/重击触发误归入Q固有九段。",
+      "nonDamageCallbacksAndInitAudit": "burst.go:41-115 初击80、场地任务88、八个burstTickFrames于100注册并在101入队；cons.go: C1为治疗；C4修改已有Q击伤害/能量；C6要求标记目标上的普通或重击，属于后续动作触发。 Q的治疗另有来源回执；本伤害范围不把C6后续普通/重击触发误归入Q固有九段。",
+      "producerContract": true
+    },
+    {
+      "id": "xinyan-burst",
+      "label": "辛焱 Q：初击、火焰与 C2 护盾攻击",
+      "characterKey": "xinyan",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/xinyan/burst.go",
+      "sourceSha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7",
+      "sourceHashes": {
+        "classicSha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7",
+        "stellarSha256": "a8e2c948ae3c54487d4247b0a03891d818d0180a3ba58b5739e590ce26d102a7"
+      },
+      "sourceEvidence": "原有初击与七段火焰保留；C2 增加两条 Q 直接脉冲和一条 43 本地帧护盾出生任务。实际三级护盾递归 Core 任务按出生实例、真实父子队列、实际门控和最终停止分支闭合。",
+      "nonDamageCallbacksAndInitAudit": "C1攻速、治疗及独立反应不计入；保留 Classic 未设元素与 Stellar Pyro 的原生盾差异。门控 Get 返回的新盾不改变旧任务链归属。",
+      "producerContract": true,
+      "ownedShieldContract": true,
+      "shieldProducerContract": true
+    },
+    {
+      "id": "xiangling-burst",
+      "label": "香菱 Q：三次起手与原生固定间隔旋火轮",
+      "characterKey": "xiangling",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/xiangling/burst.go",
+      "sourceSha256": "c4accc88e2b4b5333eef83293c4a927c04ad2605e3ef190c3d885089939f08af",
+      "sourceHashes": {
+        "classicSha256": "c4accc88e2b4b5333eef83293c4a927c04ad2605e3ef190c3d885089939f08af",
+        "stellarSha256": "c4accc88e2b4b5333eef83293c4a927c04ad2605e3ef190c3d885089939f08af"
+      },
+      "sourceEvidence": "burst.go:26-95 三次初击由循环注册角色任务；56帧起始任务在C4前后以600/840帧和73步长注册9/12核心任务；cons.go: C6只增火伤，不额外入队Q攻击；cons.go: C2爆炸只由普通攻击回调的敌人标记触发，不由Q方法/旋火轮任务注册；C4延长Q至14秒。 源码将旋火轮周期写为“approx 73 frames”并标注命中框近似；此处仅为该固定原生版本的执行完整性，不声称实机频率。",
+      "nonDamageCallbacksAndInitAudit": "burst.go:26-95 三次初击由循环注册角色任务；56帧起始任务在C4前后以600/840帧和73步长注册9/12核心任务；cons.go: C6只增火伤，不额外入队Q攻击；cons.go: C2爆炸只由普通攻击回调的敌人标记触发，不由Q方法/旋火轮任务注册；C4延长Q至14秒。 源码将旋火轮周期写为“approx 73 frames”并标注命中框近似；此处仅为该固定原生版本的执行完整性，不声称实机频率。",
+      "producerContract": true
+    },
+    {
+      "id": "collei-burst",
+      "label": "柯莱 Q：爆炸及状态驱动的全部跃击（无再次施放）",
+      "characterKey": "collei",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/collei/burst.go",
+      "sourceSha256": "99f41853e5a946390f0bb8c1f8d4b32abbfecd3aae7770027d0b810c5625b642",
+      "sourceHashes": {
+        "classicSha256": "99f41853e5a946390f0bb8c1f8d4b32abbfecd3aae7770027d0b810c5625b642",
+        "stellarSha256": "99f41853e5a946390f0bb8c1f8d4b32abbfecd3aae7770027d0b810c5625b642"
+      },
+      "sourceEvidence": "burst.go:29-120 爆炸46、场地任务53、第一跃击任务56、每次active状态入队一次并于101注册下一次；asc.go: A4反应可延长burstKey最多三秒；cons.go: C6只由E命中调用；cons.go: C4施放Q时只给队友元素精通；C2作用于E的Sprout延长，不添加Q攻击。 不预设跃击次数；相同Q重施会覆写共享burstPos/status，故重施前必须完成生产链。A4反应延长按原生实际状态观察。",
+      "nonDamageCallbacksAndInitAudit": "burst.go:29-120 爆炸46、场地任务53、第一跃击任务56、每次active状态入队一次并于101注册下一次；asc.go: A4反应可延长burstKey最多三秒；cons.go: C6只由E命中调用；cons.go: C4施放Q时只给队友元素精通；C2作用于E的Sprout延长，不添加Q攻击。 不预设跃击次数；相同Q重施会覆写共享burstPos/status，故重施前必须完成生产链。A4反应延长按原生实际状态观察。",
+      "producerContract": true
+    },
+    {
+      "id": "kazuha-burst",
+      "label": "枫原万叶 Q：斩击与五次领域跳（可选吸收追加击）",
+      "characterKey": "kaedeharakazuha",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/kazuha/burst.go",
+      "sourceSha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f",
+      "sourceHashes": {
+        "classicSha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f",
+        "stellarSha256": "4625a93359dba60c0be348f5773053936cfdc2ca97955f8348faaff164144e5f"
+      },
+      "sourceEvidence": "burst.go:29-115 初击50；初始化任务69；起始任务84；五个子任务89，90-94按实际qAbsorb入队1或2击；burst.go:118-133 吸收检查只改元素不直接攻击；cons.go: C2 buff、C6后续普重下落增益不添加固有Q攻击。 吸收由原生队伍/附着状态决定，不预设额外击数；重施会覆写共享qAbsorb与快照，故重施前须结束。",
+      "nonDamageCallbacksAndInitAudit": "burst.go:29-115 初击50；初始化任务69；起始任务84；五个子任务89，90-94按实际qAbsorb入队1或2击；burst.go:118-133 吸收检查只改元素不直接攻击；cons.go: C2 buff、C6后续普重下落增益不添加固有Q攻击。 吸收由原生队伍/附着状态决定，不预设额外击数；重施会覆写共享qAbsorb与快照，故重施前须结束。",
+      "producerContract": true
+    },
+    {
+      "id": "ayaka-burst",
+      "label": "神里绫华 Q：固有霜见雪关扉攻击",
+      "characterKey": "kamisatoayaka",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/ayaka/burst.go",
+      "sourceSha256": "15ae7388e38a1cf0b3190b0b93b1484165d18cc9efdb7b2e73853675bc3fdc0c",
+      "sourceHashes": {
+        "classicSha256": "15ae7388e38a1cf0b3190b0b93b1484165d18cc9efdb7b2e73853675bc3fdc0c",
+        "stellarSha256": "15ae7388e38a1cf0b3190b0b93b1484165d18cc9efdb7b2e73853675bc3fdc0c"
+      },
+      "sourceEvidence": "burst.go:39-50 bloom 1；burst.go:59-71 C2 bloom +2；burst.go:75-90 cuts 19；burst.go:92-112 C2 cuts +38；cons.go:42-59 C4 hit callback changes DEF only; Init/passives/other constellations add no Q future enemy attack。 Counts queued attack opportunities, not enemy hits or reaction damage. Other actions after Q are separate.",
+      "nonDamageCallbacksAndInitAudit": "burst.go:39-50 bloom 1；burst.go:59-71 C2 bloom +2；burst.go:75-90 cuts 19；burst.go:92-112 C2 cuts +38；cons.go:42-59 C4 hit callback changes DEF only; Init/passives/other constellations add no Q future enemy attack。 Counts queued attack opportunities, not enemy hits or reaction damage. Other actions after Q are separate.",
+      "producerContract": true
+    },
+    {
+      "id": "jean-burst",
+      "label": "琴 Q：入场、初击与退场固有伤害",
+      "characterKey": "jean",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/jean/burst.go",
+      "sourceSha256": "011322043c0d0631e05b8421273db9f5061aa1135bd64b20721615bad8f2d350",
+      "sourceHashes": {
+        "classicSha256": "011322043c0d0631e05b8421273db9f5061aa1135bd64b20721615bad8f2d350",
+        "stellarSha256": "011322043c0d0631e05b8421273db9f5061aa1135bd64b20721615bad8f2d350"
+      },
+      "sourceEvidence": "burst.go:26-31 enter=max(p[enter],1)；burst.go:47 initial 1；burst.go:57-59 enter In/Out roots；burst.go:62 expiry In/Out 1；burst.go:80-147 future tasks heal, self-swirl, C4 debuff, A4; none queues enemy AttackEvent。 Healing and self-swirl are distinct components, not enemy intrinsic damage; count all successful integer enter parameter branches.",
+      "nonDamageCallbacksAndInitAudit": "burst.go:26-31 enter=max(p[enter],1)；burst.go:47 initial 1；burst.go:57-59 enter In/Out roots；burst.go:62 expiry In/Out 1；burst.go:80-147 future tasks heal, self-swirl, C4 debuff, A4; none queues enemy AttackEvent。 Healing and self-swirl are distinct components, not enemy intrinsic damage; count all successful integer enter parameter branches.",
+      "producerContract": true
+    },
+    {
+      "id": "sayu-burst",
+      "label": "早柚 Q：初击与不定次数狸猫伤害",
+      "characterKey": "sayu",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/sayu/burst.go",
+      "sourceSha256": "5369f0e0e33c9e5c498297c229efa19cbcf9f29137eb4f6abdfa29da2163edb2",
+      "sourceHashes": {
+        "classicSha256": "5369f0e0e33c9e5c498297c229efa19cbcf9f29137eb4f6abdfa29da2163edb2",
+        "stellarSha256": "5369f0e0e33c9e5c498297c229efa19cbcf9f29137eb4f6abdfa29da2163edb2"
+      },
+      "sourceEvidence": "burst.go:46 initial queued attack；burst.go:113-153 one parent callback registers six tasks at 125,215,305,395,485,575 relative to parent; each child may queue zero or one AttackEvent based on enemy/player-HP/C1；burst.go:83-106 C6 changes snapshot flat damage, not count；Init/passives/cons do not queue additional Q enemy attacks。 Runtime root count 1..7; actual enemy/player HP determines child emission; heal/particle/Swirl and separate E excluded.",
+      "nonDamageCallbacksAndInitAudit": "burst.go:46 initial queued attack；burst.go:113-153 one parent callback registers six tasks at 125,215,305,395,485,575 relative to parent; each child may queue zero or one AttackEvent based on enemy/player-HP/C1；burst.go:83-106 C6 changes snapshot flat damage, not count；Init/passives/cons do not queue additional Q enemy attacks。 Runtime root count 1..7; actual enemy/player HP determines child emission; heal/particle/Swirl and separate E excluded.",
+      "producerContract": true
+    },
+    {
+      "id": "kokomi-skill",
+      "label": "珊瑚宫心海 E：水母实际递归伤害",
+      "characterKey": "sangonomiyakokomi",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kokomi/skill.go",
+      "sourceSha256": "40e524d760719de5398c9a5352752ccbbb97195734cf40aba0112fb5622450b2",
+      "sourceHashes": {
+        "classicSha256": "40e524d760719de5398c9a5352752ccbbb97195734cf40aba0112fb5622450b2",
+        "stellarSha256": "40e524d760719de5398c9a5352752ccbbb97195734cf40aba0112fb5622450b2"
+      },
+      "sourceEvidence": "skill.go:44 first tick task; skillTick at :124 queues exactly one attack；skill.go:45 initial recurring task; :171-189 checks status duration and newer E source, else queues one attack and one next task；burst.go:73 and asc.go:33-41 Q A1 may refresh E status, so no hard-coded 7 count；cons.go:C1 attached to normal attacks only; no E child attack。 Runtime count; no fixed seven assumption. Same-character E overlap rejected because skillLastUsed/swapEarlyF/skillFlatDmg are shared mutable state; Q status refresh may extend chain. Guard is evidence-based, not a hard depth guess.",
+      "nonDamageCallbacksAndInitAudit": "skill.go:44 first tick task; skillTick at :124 queues exactly one attack；skill.go:45 initial recurring task; :171-189 checks status duration and newer E source, else queues one attack and one next task；burst.go:73 and asc.go:33-41 Q A1 may refresh E status, so no hard-coded 7 count；cons.go:C1 attached to normal attacks only; no E child attack。 Runtime count; no fixed seven assumption. Same-character E overlap rejected because skillLastUsed/swapEarlyF/skillFlatDmg are shared mutable state; Q status refresh may extend chain. Guard is evidence-based, not a hard depth guess.",
+      "producerContract": true
+    },
+    {
+      "id": "kirara-burst",
+      "label": "绮良良 Q：箱体与实际生成的草元素种子",
+      "characterKey": "kirara",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/kirara/burst.go",
+      "sourceSha256": "9aa1c4d4a6adb4d47701d0d76d74d55dbbb4538374ba5e0ff841d15c19c641a9",
+      "sourceHashes": {
+        "classicSha256": "9aa1c4d4a6adb4d47701d0d76d74d55dbbb4538374ba5e0ff841d15c19c641a9",
+        "stellarSha256": "9aa1c4d4a6adb4d47701d0d76d74d55dbbb4538374ba5e0ff841d15c19c641a9"
+      },
+      "sourceEvidence": "burst.go:47-53 cardamoms starts 6 plus C1 HP-derived up to 4；burst.go:83-85 snapshot task；burst.go:92-95 box task emits one attack；burst.go:98-106 hit task emits clipped hits and mutates shared cardamoms；burst.go:109-114 expiry task emits remaining cardamoms and zeros field；cons.go:28-63 C4 attack is an independent OnEnemyDamage reaction to later Normal/Charge/Plunge, not an intrinsic Q spawn。 Runtime root count determined by tasks; 6..10 mines only under default ordering, but closure must not infer a fixed count from C1 HP or params. C4/later actions and unrelated deployables excluded.",
+      "nonDamageCallbacksAndInitAudit": "burst.go:47-53 cardamoms starts 6 plus C1 HP-derived up to 4；burst.go:83-85 snapshot task；burst.go:92-95 box task emits one attack；burst.go:98-106 hit task emits clipped hits and mutates shared cardamoms；burst.go:109-114 expiry task emits remaining cardamoms and zeros field；cons.go:28-63 C4 attack is an independent OnEnemyDamage reaction to later Normal/Charge/Plunge, not an intrinsic Q spawn。 Runtime root count determined by tasks; 6..10 mines only under default ordering, but closure must not infer a fixed count from C1 HP or params. C4/later actions and unrelated deployables excluded.",
+      "producerContract": true
+    },
+    {
+      "id": "xingqiu-burst",
+      "label": "行秋 Q 协同雨帘剑（不含E/Q共享剑雨轨道）",
+      "characterKey": "xingqiu",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/xingqiu/burst.go",
+      "sourceSha256": "1e0c69dc08ee45e1862184121a1be49b339e3e5b842722880d6a6ac359522fec",
+      "sourceHashes": {
+        "classicSha256": "1e0c69dc08ee45e1862184121a1be49b339e3e5b842722880d6a6ac359522fec",
+        "stellarSha256": "1e0c69dc08ee45e1862184121a1be49b339e3e5b842722880d6a6ac359522fec"
+      },
+      "sourceEvidence": "Q synchronous activation installs xingqiuburst; actual trigger contributes the source-recorded 2/3 or 2/3/5 swords.",
+      "nonDamageCallbacksAndInitAudit": "Q/E both call applyOrbital, so the shared sword orbital is not uniquely Q-owned; energy and resistance callbacks are not damage.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "thoma-burst",
+      "label": "托马 Q 首击与协同火焰崩破",
+      "characterKey": "thoma",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/thoma/burst.go",
+      "sourceSha256": "d2870868a839d76e2c92edd29a8fa9236a74b820b5b75c0fbfdf03d35a938a59",
+      "sourceHashes": {
+        "classicSha256": "d2870868a839d76e2c92edd29a8fa9236a74b820b5b75c0fbfdf03d35a938a59",
+        "stellarSha256": "d2870868a839d76e2c92edd29a8fa9236a74b820b5b75c0fbfdf03d35a938a59"
+      },
+      "sourceEvidence": "Q includes its initial hit; each successful Q-status trigger emits one Fiery Collapse attack.",
+      "nonDamageCallbacksAndInitAudit": "The shield callback, Q energy task, and C6 shield-derived attack modifier are separate components.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "yelan-burst",
+      "label": "夜兰 Q 初击与协同玄掷玲珑骰",
+      "characterKey": "yelan",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yelan/burst.go",
+      "sourceSha256": "7b80871e0081bf00b853e60c6e363f2c6a854fc7befb42ccb4f46d49ff45fd09",
+      "sourceHashes": {
+        "classicSha256": "7b80871e0081bf00b853e60c6e363f2c6a854fc7befb42ccb4f46d49ff45fd09",
+        "stellarSha256": "7b80871e0081bf00b853e60c6e363f2c6a854fc7befb42ccb4f46d49ff45fd09"
+      },
+      "sourceEvidence": "Q includes its initial hit and status-owned Exquisite Throw triggers; source records C2 conditional fourth event.",
+      "nonDamageCallbacksAndInitAudit": "Dice status is created by a later native task; E-triggered throws need explicit lineage. A4/C6 later effects are excluded.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "beidou-skill",
+      "label": "北斗 E：本次捉浪反击",
+      "characterKey": "beidou",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/beidou/skill.go",
+      "sourceSha256": "53429b8e860042cf5e2fec03c01106f07c6ce62934c0518f8e2761cc78edc832",
+      "sourceHashes": {
+        "classicSha256": "53429b8e860042cf5e2fec03c01106f07c6ce62934c0518f8e2761cc78edc832",
+        "stellarSha256": "53429b8e860042cf5e2fec03c01106f07c6ce62934c0518f8e2761cc78edc832"
+      },
+      "sourceEvidence": "skill.go:34–112 counter 限制到2并在73仅 QueueAttack一次；盾与粒子回调无伤害；asc.go A4加攻速/普攻效果，cons.go C4仅正常攻击后另生电伤。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:盾/冷却/粒子不计伤害；beidou.go Init 与 asc.go、cons.go 已审，C4后续普通攻击不是此次E固有攻击。",
+      "producerContract": true
+    },
+    {
+      "id": "cyno-skill",
+      "label": "赛诺 E：本次秘仪落击或 Q 态蜕锋",
+      "characterKey": "cyno",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/cyno/skill.go",
+      "sourceSha256": "6a59f6e9767edbe731037301177e94879850d3fa1c8fe78be5b6791e7f36b79e",
+      "sourceHashes": {
+        "classicSha256": "6a59f6e9767edbe731037301177e94879850d3fa1c8fe78be5b6791e7f36b79e",
+        "stellarSha256": "6a59f6e9767edbe731037301177e94879850d3fa1c8fe78be5b6791e7f36b79e"
+      },
+      "sourceEvidence": "skill.go:42–77 常态1根，:97–153 Q态 a1Key 未激活1根、激活时主击1+三次 bolt；burst.go 创建/延长 Q 状态及A1时序，cons.go C6由后续普通攻击触发。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:冷却 task、粒子回调非伤害；burst.go: Q状态并非本次E根；asc.go A1/A4只改变现有E伤害；cons.go C6后续普通攻击追击不计入本次E。",
+      "producerContract": true
+    },
+    {
+      "id": "diluc-skill",
+      "label": "迪卢克 E：本次逆焰之刃一段",
+      "characterKey": "diluc",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/diluc/skill.go",
+      "sourceSha256": "34570dccfe407667ac0022781a1897fa051b9c55f3d7360df5a88c11e019dfdd",
+      "sourceHashes": {
+        "classicSha256": "34570dccfe407667ac0022781a1897fa051b9c55f3d7360df5a88c11e019dfdd",
+        "stellarSha256": "34570dccfe407667ac0022781a1897fa051b9c55f3d7360df5a88c11e019dfdd"
+      },
+      "sourceEvidence": "skill.go:56–181 每次调用按 eCounter 选几何/倍率并仅在145 QueueAttack一次；C4任务149只是增益；后三段要求后续独立动作。",
+      "nonDamageCallbacksAndInitAudit": "Init/C1/C2/C4/C6修改状态/增益、普通攻击，C4延迟任务不生成伤害；粒子回调只产球。",
+      "producerContract": true
+    },
+    {
+      "id": "freminet-skill",
+      "label": "菲米尼 E：本次上挑或压力引爆",
+      "characterKey": "freminet",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/freminet/skill.go",
+      "sourceSha256": "190cd62dc98dafc0c8024a4738b89c5945d3646618a0316515c886effa5d98e7",
+      "sourceHashes": {
+        "classicSha256": "190cd62dc98dafc0c8024a4738b89c5945d3646618a0316515c886effa5d98e7",
+        "stellarSha256": "190cd62dc98dafc0c8024a4738b89c5945d3646618a0316515c886effa5d98e7"
+      },
+      "sourceEvidence": "skill.go:59–133 初次E上挑1、skillAligned仅ICD未活动再加1；:137–215 再次E依 skillStacks 在0–3入冰击、1–4入物击；burst.go 状态重置/改变E冷却，normal attack可增加压力。",
+      "nonDamageCallbacksAndInitAudit": "skill.go:粒子/冷却/状态不生额外固有根；asc/cons只改变已有攻击、能量/增益；后续佩尔普通攻击及其结果非本次E方法根。",
+      "producerContract": true
+    },
+    {
+      "id": "heizou-skill",
+      "label": "鹿野院平藏 E：本次聚气拳",
+      "characterKey": "shikanoinheizou",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/heizou/skill.go",
+      "sourceSha256": "ecae2c2fa6dd99ad83ee675aa660285ba5203f86074bf20b3d7cee3c5fb729fc",
+      "sourceHashes": {
+        "classicSha256": "ecae2c2fa6dd99ad83ee675aa660285ba5203f86074bf20b3d7cee3c5fb729fc",
+        "stellarSha256": "ecae2c2fa6dd99ad83ee675aa660285ba5203f86074bf20b3d7cee3c5fb729fc"
+      },
+      "sourceEvidence": "skill.go:48 skillRelease恰好注册1个伤害task，121在其回调中 QueueAttackWithSnap一次；hold :144–148仅注册叠层任务；cons.go C6改变该击快照，A4只增益。",
+      "nonDamageCallbacksAndInitAudit": "粒子回调只产球、hit callback 清层/A4增益；Init/asc/cons无本次额外根。",
+      "producerContract": true
+    },
+    {
+      "id": "mika-skill",
+      "label": "米卡 E：点按流霜箭／长按霜星碎片",
+      "characterKey": "mika",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/mika/skill.go",
+      "sourceSha256": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+      "sourceHashes": {
+        "classicSha256": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+        "stellarSha256": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e"
+      },
+      "sourceEvidence": "skill.go:51–104点按为一击Flowfrost Arrow；:106–139长按为一击Rimestar Flare，实际命中回调:151–220按来源选择结果另入队0–3枚Rimestar Shard。长按的命中回调链按真实父攻击、回调事实和派发记录核对。",
+      "nonDamageCallbacksAndInitAudit": "点按与长按共用本来源规则；只在非零hold分支纳入Rimestar Shards命中回调。A1/C2检测层数、粒子、能量、增益及后续动作伤害排除。负值hold同样是来源代码的非零长按分支。",
+      "producerContract": true,
+      "hitCallbackContract": true
+    },
+    {
+      "id": "sara-burst",
+      "label": "九条裟罗 Q：天狗咒雷与风暴聚集",
+      "characterKey": "kujousara",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/sara/burst.go",
+      "sourceSha256": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34",
+      "sourceHashes": {
+        "classicSha256": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34",
+        "stellarSha256": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34"
+      },
+      "sourceEvidence": "burst.go:31–97 先1根，再根据C4阈值循环4或6组，每组六次 QueueAttack；各 attackBuff task仅施加攻击增益。",
+      "nonDamageCallbacksAndInitAudit": "Init/C1/C6仅状态、冷却与伤害增益，不新增Q根；skill/aimed的 C2、后续重击不属于本次Q。",
+      "producerContract": true
+    },
+    {
+      "id": "dori-burst",
+      "label": "多莉 Q：连接伤害与C2治疗随生击",
+      "characterKey": "dori",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/dori/burst.go",
+      "sourceSha256": "daf99669fb10d405e96cccbb41a88887129fcfc76921e1a16331601ada76ca5f",
+      "sourceHashes": {
+        "classicSha256": "daf99669fb10d405e96cccbb41a88887129fcfc76921e1a16331601ada76ca5f",
+        "stellarSha256": "daf99669fb10d405e96cccbb41a88887129fcfc76921e1a16331601ada76ca5f"
+      },
+      "sourceEvidence": "burst.go:30–130 固定注册32个连接任务与6个治疗任务；连接按位置最多队列1击；C2任务按范围调用cons.go:c2至多1击；快照/角色自附着不生成攻击。",
+      "nonDamageCallbacksAndInitAudit": "Init/A1只减CD，C4治疗增益，C6普通攻击后治疗独立；32个连接的自身元素施加与6个治疗/回能另走非伤害路径。",
+      "producerContract": true
+    },
+    {
+      "id": "gorou-skill",
+      "label": "五郎 E：本次大将旗初击",
+      "characterKey": "gorou",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/gorou/skill.go",
+      "sourceSha256": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72",
+      "sourceHashes": {
+        "classicSha256": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72",
+        "stellarSha256": "fd03ca8c94c8ad0869bffa3279e07f4a4c9d84ff65ee04315f232754e959bb72"
+      },
+      "sourceEvidence": "skill.go:39–70 唯一延迟初击task在60入队一次；后续 gorouSkillBuffField 只给buff；Q场抑制E旗不抑制这次队列攻击。",
+      "nonDamageCallbacksAndInitAudit": "Init/asc/cons调整元素人数、额外防御加成、C1减冷却/C6暴伤，无E独立新击；粒子回调仅产球。",
+      "producerContract": true
+    },
+    {
+      "id": "gorou-burst",
+      "label": "五郎 Q：初击与实际结晶崩碎循环",
+      "characterKey": "gorou",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/gorou/burst.go",
+      "sourceSha256": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73",
+      "sourceHashes": {
+        "classicSha256": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73",
+        "stellarSha256": "b0c58cda83b7ecab4e7f0a542b10f52beb61551dca491f7449817b9c4c8afd73"
+      },
+      "sourceEvidence": "burst.go:27–92 初击task恰好1并注册首个collapse；:114–174 每次collapse若来源或状态失效不攻击且不重排，否则按最近敌人有无入队0/1并重排自己；cons.go C2可延长状态最多3秒。",
+      "nonDamageCallbacksAndInitAudit": "增益场、吸晶体、C4治疗字段、C6暴伤无额外Q根；Init/A1/A4是伤害修饰，不新增攻击；实际几何与晶体状态由原生任务决定。",
+      "producerContract": true
+    },
+    {
+      "id": "kuki-skill",
+      "label": "久岐忍 E：初击与实际越祓雷草循环",
+      "characterKey": "kukishinobu",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kuki/skill.go",
+      "sourceSha256": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d",
+      "sourceHashes": {
+        "classicSha256": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d",
+        "stellarSha256": "cba35d505d911a70007f228a7c63b9ab06f7afe727f2e8e5ac69db5e7226786d"
+      },
+      "sourceEvidence": "skill.go:31–112 E初击86队列1根，23帧 activation100注册首bell；:126–211 bellTick每次先队列一击，再以ringKey剩余时长决定是否注册下一tick；cons.go C2改变duration、C4由后续普攻类触发。",
+      "nonDamageCallbacksAndInitAudit": "自身耗血、每跳治疗/粒子和A1/A4/C6增益不是额外E伤害根；Init/cons C4需要后续攻击，不纳入此次E固有链。",
+      "producerContract": true
+    },
+    {
+      "id": "kuki-burst",
+      "label": "久岐忍 Q：本次雷阵实际排队段数",
+      "characterKey": "kukishinobu",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/kuki/burst.go",
+      "sourceSha256": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff",
+      "sourceHashes": {
+        "classicSha256": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff",
+        "stellarSha256": "60b46a686289768d260e8f121b2a55cf81839d751f1eb83b8eb549d085e523ff"
+      },
+      "sourceEvidence": "burst.go:23–75 count默认7，当 CurrentHPRatio<=0.5 改12，for每次 QueueAttackWithSnap一次；cons.go C1只扩大Q范围，C4依后续普通/重击/下落击。",
+      "nonDamageCallbacksAndInitAudit": "ConsumeEnergy/CD/快照和非伤害状态不计额外根；Init/A1/A4/C6调整治疗/属性，不增Q固有根。",
+      "producerContract": true
+    },
+    {
+      "id": "ayato-burst",
+      "label": "Ayato Q",
+      "characterKey": "kamisatoayato",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/ayato/burst.go",
+      "sourceSha256": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b",
+      "sourceHashes": {
+        "classicSha256": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b",
+        "stellarSha256": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b"
+      },
+      "sourceEvidence": "Snapshot task once at burstStart=101; loop i=0..1079 step30 registers 36 rain tasks, each queues exactly one attack after target/random point selection. Same callback may add normal-attack buff. C4 attack-speed buff and C6 normal attack follow-ups do not create Q attack roots. No recursion.",
+      "nonDamageCallbacksAndInitAudit": "Snapshot task is included as zero-attack audited producer; no additional method task.",
+      "producerContract": true
+    },
+    {
+      "id": "wanderer-burst",
+      "label": "Wanderer Q",
+      "characterKey": "wanderer",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/wanderer/burst.go",
+      "sourceSha256": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143",
+      "sourceHashes": {
+        "classicSha256": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143",
+        "stellarSha256": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143"
+      },
+      "sourceEvidence": "Both normal and Windfavored branches directly queue five burst attacks. Windfavored C2 changes bonus only. C6 follow-up applies to Windfavored normal attacks, not Q. Windfavored OnRemoved only calls checkForSkillEnd on SwapState; skillEndRoutine deletes statuses/mods, resets points/CD and sets plunge availability; it queues no attack.",
+      "nonDamageCallbacksAndInitAudit": "No Q method task; Windfavored OnRemoved is a returned action callback, not task queue.",
+      "producerContract": true
+    },
+    {
+      "id": "arlecchino-burst",
+      "label": "Arlecchino Q",
+      "characterKey": "arlecchino",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/arlecchino/burst.go",
+      "sourceSha256": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723",
+      "sourceHashes": {
+        "classicSha256": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723",
+        "stellarSha256": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723"
+      },
+      "sourceEvidence": "At 22f absorbDirectives loops marked enemies; C2 with A1 and level>=2 may queue Balemoon Bloodfire once because c2 ICD is set before another mark. At 110f main task reads current BoL/C6 flat bonus and queues exactly one Q attack. Cooldown-reset and heal tasks queue no damage; A1 OnTargetDied changes debt, not attack.",
+      "nonDamageCallbacksAndInitAudit": "Cooldown-reset task at 107f and heal task at 123f are excluded state/healing tasks; two damage-capable tasks are included in site graph.",
+      "producerContract": true
+    },
+    {
+      "id": "neuvillette-burst",
+      "label": "Neuvillette Q",
+      "characterKey": "neuvillette",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/neuvillette/burst.go",
+      "sourceSha256": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523",
+      "sourceHashes": {
+        "classicSha256": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523",
+        "stellarSha256": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523"
+      },
+      "sourceEvidence": "Loop i=0,1,2 registers three character tasks; each spawns 3,2,1 sourcewater droplets respectively, then queues exactly one Hydro Q attack. Droplets are later consumed by separate charged actions and do not cause Q attack damage. C4/C6 droplet and charged-attack paths are not Q-root additions. sourcewaterdroplet gadget has no OnThink/OnKill/OnExpiry attack emission; HandleAttack returns zero.",
+      "nonDamageCallbacksAndInitAudit": "Each of three damage-capable tick tasks also spawns droplets; no extra Q task.",
+      "producerContract": true
+    },
+    {
+      "id": "clorinde-burst",
+      "label": "Clorinde Q",
+      "characterKey": "clorinde",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/clorinde/burst.go",
+      "sourceSha256": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45",
+      "sourceHashes": {
+        "classicSha256": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45",
+        "stellarSha256": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45"
+      },
+      "sourceEvidence": "Five hitmarks 97/103/109/115/121 queue five direct Electro Q attacks. The 13f task changes BoL only. C1 and C6 extra attacks are Normal-tag skill-state hooks; C4 changes Q damage bonus but not count. No Q damage task recursion.",
+      "nonDamageCallbacksAndInitAudit": "All integer method params ignored for count; five direct roots only. Later normal/skill-state hits excluded.",
+      "producerContract": true
+    },
+    {
+      "id": "yaemiko-burst",
+      "label": "Yae Q",
+      "characterKey": "yaemiko",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yaemiko/burst.go",
+      "sourceSha256": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+      "sourceHashes": {
+        "classicSha256": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+        "stellarSha256": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f"
+      },
+      "sourceEvidence": "Burst queues one initial attack, then kitsuneBurst queues one thunderbolt per current totem, 0..3; C1 energy tasks and A1 cooldown do not attack. Classic consumes all totems, stellar Revelation may preserve them. Neither source reads invocation params to choose count.",
+      "nonDamageCallbacksAndInitAudit": "Record `yae.burst.kitsune-count` once at the existing synchronous kitsuneBurst branch before popAllKitsune, reusing the exact count that controls the loop. Require native fact 0..3 on this invocation; DSL direct/expected=1+fact. Never derive count from params or emitted attacks.",
+      "producerContract": true
+    },
+    {
+      "id": "tighnari-burst",
+      "label": "Tighnari Q",
+      "characterKey": "tighnari",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/tighnari/burst.go",
+      "sourceSha256": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+      "sourceHashes": {
+        "classicSha256": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+        "stellarSha256": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f"
+      },
+      "sourceEvidence": "Six Tanglevine Shaft attacks and six secondary shafts queue directly. travel integer changes delivery timing, not root count. C4 OnBurst/on-hit effects change EM, not attack count; A1/A4 and other constellations do not add Q attack callbacks.",
+      "nonDamageCallbacksAndInitAudit": "No Q method task.",
+      "producerContract": true
+    },
+    {
+      "id": "dehya-burst",
+      "label": "迪希雅 Q：自动拳链与自动终踢",
+      "characterKey": "dehya",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/dehya/burst.go",
+      "sourceSha256": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+      "sourceHashes": {
+        "classicSha256": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+        "stellarSha256": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7"
+      },
+      "sourceEvidence": "Burst schedules one initial task at 105f; it creates status and runs first punch. Successful punch queues one attack and either next auto punch (status still active) or kick (status ended); stale src or swapped actor returns with zero. Kick queues zero/one by same guards. C6 crit callback can extend burst status up to four 30f increments; no hardcoded punch count. Later N/E actions call UseBurstAction; Jump in a kick window queues a manual kick, otherwise cancels the burst and can increment burstHitSrc/queue manual Q-mode punches; these are independent action invocations and may stop the original auto chain. Dash only opens a 17f jump-to-kick window; the later Jump performs the manual kick/cancellation.",
+      "nonDamageCallbacksAndInitAudit": "If an E field was active, pickUpField registers one status-deletion task; successful automatic kick may register one field-restoration task. Neither queues a Q attack.",
+      "producerContract": true
+    },
+    {
+      "id": "amber-skill",
+      "label": "安柏 E：兔兔伯爵实体与终止爆炸",
+      "characterKey": "amber",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/amber/skill.go",
+      "sourceSha256": "513d849227f7c74411b3b4c00eca7e55ab06e1becbd5ff636d0dd32a9672c22b",
+      "sourceHashes": {
+        "classicSha256": "513d849227f7c74411b3b4c00eca7e55ab06e1becbd5ff636d0dd32a9672c22b",
+        "stellarSha256": "513d849227f7c74411b3b4c00eca7e55ab06e1becbd5ff636d0dd32a9672c22b"
+      },
+      "sourceEvidence": "E生成的兔兔伯爵绑定到原生实体；击杀或到期只触发一次已记录的OnKill/OnExpiry爆炸，C2手动和超载终止也沿同一实体回调。",
+      "nonDamageCallbacksAndInitAudit": "触发该终止回调的后续蓄力攻击/反应本身不计入E；兔兔伯爵之外的普通攻击、粒子回调不计入。",
+      "ownedEntityContract": true,
+      "producerContract": true
+    },
+    {
+      "id": "yaoyao-skill",
+      "label": "瑶瑶 E：投掷月桂实体与飞行萝卜",
+      "characterKey": "yaoyao",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yaoyao/skill.go",
+      "sourceSha256": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+      "sourceHashes": {
+        "classicSha256": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33",
+        "stellarSha256": "f57f4f6aa7702292ec0ed70eac912f2dd060cc2a83a19c49603cf4475cc48b33"
+      },
+      "sourceEvidence": "E创建投掷月桂实体；实际投掷触发登记飞行子任务，落地后按当时来源状态队列萝卜。C6只在实际第3和第6次投掷增加Mega萝卜直发。",
+      "nonDamageCallbacksAndInitAudit": "萝卜治疗、粒子及C1/C2/C4增益排除；Q创建的跳跃月桂、Q期间既存投掷月桂不归属本E。",
+      "ownedEntityContract": true,
+      "producerContract": true
+    },
+    {
+      "id": "dori-skill",
+      "label": "多莉 E：烦恼解决炮与售后服务弹",
+      "characterKey": "dori",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/dori/skill.go",
+      "sourceSha256": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+      "sourceHashes": {
+        "classicSha256": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+        "stellarSha256": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f"
+      },
+      "sourceEvidence": "一击Troubleshooter Shot；首次实际执行的售后服务回调按原生事实排入2/3枚追踪弹，其余回调不重复发射。追踪弹ID和目标通过来源回执确认。",
+      "nonDamageCallbacksAndInitAudit": "粒子、A4回能、A1冷却变化、治疗及C6后续普攻不计入；范围按实际回调及派发记录判断。",
+      "producerContract": true,
+      "hitCallbackContract": true
+    },
+    {
+      "id": "baizhu-skill",
+      "label": "白术 E：C0–C1诊疗链",
+      "characterKey": "baizhu",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/baizhu/skill.go",
+      "sourceSha256": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+      "sourceHashes": {
+        "classicSha256": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+        "stellarSha256": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb"
+      },
+      "sourceEvidence": "仅命座0–1；直接一击后，前两层每个实际解析目标回调可选择0/1个后续目标并派生一击，最多三层。随机目标、队列和派发目标以实际回执为准。",
+      "nonDamageCallbacksAndInitAudit": "避免链未结束时重叠施放E，因回调读取可变c.skillAtk。C2事件订阅、C6护盾后续攻击及治疗/粒子均在范围外。",
+      "producerContract": true,
+      "hitCallbackContract": true
+    },
+    {
+      "id": "navia-skill",
+      "label": "娜维娅 E：霰弹与浪船座",
+      "characterKey": "navia",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/navia/skill.go",
+      "sourceSha256": "fa8b519bc124b38cd62c90761ea661afec25346b3570ece1c41835d493c8f779",
+      "sourceHashes": {
+        "classicSha256": "fa8b519bc124b38cd62c90761ea661afec25346b3570ece1c41835d493c8f779",
+        "stellarSha256": "3f554782aefae16c0cfda2b421d616a73ef4635665dc2902fa9b476ae8a94889"
+      },
+      "sourceEvidence": "fire任务记录一次实际敌人筛选结果N；每名已选敌人排一枚霰弹。源内Arkhe ICD事实决定是否排入arm→release→Surging Blade；每个任务与逐目标命中回调均由原生队列、回调和派发回执核对。",
+      "nonDamageCallbacksAndInitAudit": "两版本source commit分别核对。C4抗性减益、A1/C1资源效果、C6弹片保留及结晶/反应附加状态不属于本固有伤害闭合范围。",
+      "producerContract": true,
+      "hitCallbackContract": true
+    },
+    {
+      "id": "baizhu-burst",
+      "label": "白术 Q：无郤气护盾生命周期与灵气脉",
+      "characterKey": "baizhu",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/baizhu/burst.go",
+      "sourceSha256": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+      "sourceHashes": {
+        "classicSha256": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+        "stellarSha256": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb"
+      },
+      "sourceEvidence": "Q方法注册六次固定延迟的护盾出生任务；实际实例分别绑定任务与Q调用。刷新在Add之前向旧盾登记一次灵气脉，破裂或到期由原生钩子登记一次；覆盖钩子本身不发出攻击。攻击总数按实际实例和钩子回执确认。",
+      "nonDamageCallbacksAndInitAudit": "治疗、A4增益、C4精通增益、E链、C2追击、独立C6护盾及另行派发的反应伤害排除。Q盾被C6替换时旧盾灵气脉仍属Q；Q任务刷新C6盾时该攻击不属Q。",
+      "producerContract": true,
+      "ownedShieldContract": true
+    },
+    {
+      "id": "xinyan-skill",
+      "label": "辛焱 E：初击、护盾升级与三级盾 DoT",
+      "characterKey": "xinyan",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xinyan/skill.go",
+      "sourceSha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79",
+      "sourceHashes": {
+        "classicSha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79",
+        "stellarSha256": "b2f39c4545fa48ebf17e1249189af9ac12bd205400cdc21cfed82ce18d3bdb79"
+      },
+      "sourceEvidence": "初击的精确命中回调各创建一条 13 本地帧升级任务；无既存护盾时另有 28 本地帧初始盾任务。实际等级分支决定出生及递归 DoT，首个 Core 任务在 Add 前注册、之后绑定精确新实例。",
+      "nonDamageCallbacksAndInitAudit": "C1攻速、C4物抗变化、粒子和独立反应排除；不将角色队列的本地延迟视为全局帧延迟。",
+      "producerContract": true,
+      "ownedShieldContract": true,
+      "shieldProducerContract": true,
+      "hitCallbackContract": true
+    },
+    {
+      "id": "noelle-skill",
+      "label": "诺艾尔 E：护心铠初击与 C4 终止爆炸",
+      "characterKey": "noelle",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/noelle/skill.go",
+      "sourceSha256": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+      "sourceHashes": {
+        "classicSha256": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae",
+        "stellarSha256": "f0ab5c0ccff0eb2030defcc97744132dbc958991c9203744f3274d17f59ca0ae"
+      },
+      "sourceEvidence": "E 同步创建精确护盾，初击由 14 本地帧角色任务发出。C4 起原生到期、覆盖或破裂钩子发出爆炸，独立 720 帧 Core 任务按实际 guard 发出零／一次爆炸。",
+      "nonDamageCallbacksAndInitAudit": "治疗及 A1 独立护盾排除；C0–C3 无后续护盾伤害，尚存非伤害护盾不阻塞本次固有伤害闭合。保留两 lane 原生护盾元素差异。",
+      "producerContract": true,
+      "ownedShieldContract": true
+    },
+    {
+      "id": "ayato-skill",
+      "label": "神里绫人 E（水影爆炸）",
+      "characterKey": "kamisatoayato",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ayato/skill.go",
+      "sourceSha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+      "sourceHashes": {
+        "classicSha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+        "stellarSha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d"
+      },
+      "sourceEvidence": "One native Core task at min(max(illusion_delay,35),360) queues exactly one water-illusion attack. AttackInfo and ePos target reference are captured by Skill; hitbox creation, snapshot and damage remain inside the task with original 0/0 delays. No branch, callback or descendant attack task exists in this scope.",
+      "nonDamageCallbacksAndInitAudit": "Init registers A4 energy regeneration, on-exit status cleanup and C1/C2 modifiers. a1OnSkill and a1OnExplosion only set Namisen stacks. C6 is armed by Skill but its two attacks are queued only by makeC6CB, attached exclusively to a later Attack -> SoukaiKanka action. Its particles and stack callback are likewise later-action effects. Skill water-illusion queue has no callbacks; no external event listener registered by this character adds intrinsic damage to this explosion.",
+      "producerContract": true
+    },
+    {
+      "id": "yunjin-burst",
+      "label": "云堇 Q（施放伤害）",
+      "characterKey": "yunjin",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yunjin/burst.go",
+      "sourceSha256": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0",
+      "sourceHashes": {
+        "classicSha256": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0",
+        "stellarSha256": "26d3b389c6ca02a7d74cc83217f2f008336b4a46344220f0682cd355756959b0"
+      },
+      "sourceEvidence": "One native character-clock task at burstHitmark=35 queues exactly one Geo initial hit with original snapshot/damage delays 0/0 and no callbacks, then installs the party tags/statuses and C2/C6 buffs. Character hitlag clock is retained.",
+      "nonDamageCallbacksAndInitAudit": "Init calls a4Init, burstProc and c4, and prepares C6 modifier values. burstProc handles only AttackTagNormal by modifying that existing attack FlatDmg and consuming its actor flag count; it never queues an attack and cannot run for this ElementalBurst hit. A4 returns a buff coefficient; C2/C6 add or remove modifiers; C4 reaction events add DEF modifier only. A1 is not implemented in the pinned source and has no Q damage path.",
+      "producerContract": true
+    },
+    {
+      "id": "kirara-skill",
+      "label": "绮良良 E（点按／短按／长按固有伤害）",
+      "characterKey": "kirara",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kirara/skill.go",
+      "sourceSha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2",
+      "sourceHashes": {
+        "classicSha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2",
+        "stellarSha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2"
+      },
+      "sourceEvidence": "Native dispatcher resolves short_hold first, otherwise positive hold capped at 600 frames. One direct kick is always queued. Short-hold registers one roll task at +17; hold registers actual loop tasks +16,+46,... through hold+12, then kick at hold+36. Each reused native AttackEvent queue occurrence has independent observed identity.",
+      "nonDamageCallbacksAndInitAudit": "Roll callbacks generate particles and A1 shield stacks only. A1 delayed work and generateSkillShield are non-damage. C6 changes team damage modifiers; C4 is separately captured later global event damage and is excluded from intrinsic E kick/roll scope. C2 co-op is not implemented by the pinned source.",
+      "producerContract": true
+    },
+    {
+      "id": "qiqi-skill",
+      "label": "七七 E",
+      "characterKey": "qiqi",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/qiqi/skill.go",
+      "sourceSha256": "31a74f52cd6c4ef0bccc8c0b485caecedc2b42dcbf77c85934b5ce251c36a8fd",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      ],
+      "sourceEvidence": "Classic-only. One initial Core task at +32 queues one initial attack and a first swipe task at +64. Each swipe records the exact native expired/replaced/emit branch, queues a fresh AttackEvent copy when active, and recursively schedules the next native 135/60 delay. End requires the actual zero-child terminal task; no fixed swipe count is asserted.",
+      "nonDamageCallbacksAndInitAudit": "Init A1 reaction listener grants incoming healing bonus only; talisman OnEnemyDamage hook and NA/CA hook only heal/apply status. C1 callback grants energy and C2 is a NA/CA damage modifier. C4/C6 are unimplemented in this classic source. Continuous and on-hit healing use shared skillHealSnapshot but do not queue intrinsic damage. Damage recursion retains cast-local src and original unqueued tickAE; each emission is a new tick := *ae copy.",
+      "producerContract": true
+    },
+    {
+      "id": "yaemiko-skill",
+      "label": "八重神子 E",
+      "characterKey": "yaemiko",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yaemiko/skill.go",
+      "sourceSha256": "5f701868812629d05431b9feb88ce445cb30eb3de06b2cc3b8d918f306034956",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      ],
+      "sourceEvidence": "Classic-only. Skill schedules a +34 spawn that creates one fresh *kitsune and registers first tick +86 plus native expiry +866. Every live tick selects an enemy once, or only if absent a gadget once, queues 0/1 attack and schedules next tick +176; exact deleted/no-target/enemy/gadget branch facts certify output and continuation. Full lifetime includes the expiry callback and zero-child deleted tick.",
+      "nonDamageCallbacksAndInitAudit": "Init A4 modifier, C2 detection radius/level and C4 buff data introduce no extra attack queues. Tick callbacks create particles and C4 party modifier only; C6 alters DEF ignore. Q kitsuneBurst queues its own attacks and marks all existing pointers deleted; fourth E and expiry pop oldest. A1 only resets cooldown from Q. No E damage arises outside the spawn/tick ancestry in classic.",
+      "producerContract": true
+    },
+    {
+      "id": "beidou-burst",
+      "label": "北斗 Q 闪雷全链",
+      "characterKey": "beidou",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/beidou/burst.go",
+      "sourceSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51",
+      "sourceHashes": {
+        "classicSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51",
+        "stellarSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51"
+      },
+      "sourceEvidence": "One Q initial hit plus every successful native burst listener invocation bound to that exact status instance and all actual callback-chain attacks, including in-flight children after status termination. Q buff/shield effect quantities and separately dispatched reaction/weapon/artifact damage excluded.",
+      "nonDamageCallbacksAndInitAudit": "The initial burst queues one attack. Exact 900-frame Q status owns successful OnEnemyDamage Stormbreaker triggers. Each first bounce shares an event and owned-trigger queue identity, and all intrinsic callback bounces retain the existing audited batch114 graph. C1 shield, C6 resistance debuff and Q damage reduction do not emit additional intrinsic attack queues.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "qiqi-skill-stellar",
+      "label": "七七 E（Stellar）",
+      "characterKey": "qiqi",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/qiqi/skill.go",
+      "sourceSha256": "c1f79dd0a52cdd48a14d5c038d5fb06bf593dd8941fc6dda164698699d3592d7",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "sourceEvidence": "Stellar-only. Retains the native initial and copied-snapshot recurring damage tasks, plus one exact synchronous qiqi-e status generator. Successful native OnEnemyHit listener branches emit one coordinated attack owned by the current E status instance. Both producer terminal facts and actual status lifetime must close.",
+      "nonDamageCallbacksAndInitAudit": "Stellar skillInit adds coordinated attacks only when revelation enabled. All attack callbacks on recurring/coordinated hits are particles or energy only. Other Init hooks apply healing, talisman, reaction bonuses, C2 stats, or C6 FlatDmg to an existing other-character Q-enabled reaction attack; none queues another E-owned attack. Healing recurrence and +3 character cooldown task remain untagged because they do not create damage.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "yaemiko-skill-stellar",
+      "label": "八重神子 E（Stellar）",
+      "characterKey": "yaemiko",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yaemiko/skill.go",
+      "sourceSha256": "5f701868812629d05431b9feb88ce445cb30eb3de06b2cc3b8d918f306034956",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "sourceEvidence": "Stellar-only. Retains per-pointer spawn/first/next/expiry producer graph and exact tick target branch facts. Spawn records actual0/1 A1 attack, gated natively by fourth-totem replacement, Ascension and revelation. Each emitted tick records whether native revelationEnhanceDMG returned a callback; its actual enemy callback may emit one delayed Stellar-Conduct strike. All descendants and the original expiry task must complete.",
+      "nonDamageCallbacksAndInitAudit": "Stellar Init adds revelation status via Superconduct/StellarConduct, C1 reaction buffs, C2 EM/range/level, C4 energy/buff and C6 modifier; these do not directly queue attacks. E A1 helper is called only after makeKitsune pops a fourth existing totem. Enhanced tick callback exists only after native status/ICD/revelation/Radiance gates; original once-only closure generates at most one extra strike per parent tick queue. Particle and C4 callbacks create no damage. Q thunderbolts remain Q-owned; revelation-enabled Q leaves all E pointers active.",
+      "producerContract": true,
+      "hitCallbackContract": true
+    },
+    {
+      "id": "xiangling-skill",
+      "label": "香菱 E 锅巴",
+      "characterKey": "xiangling",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xiangling/skill.go",
+      "sourceSha256": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+      "sourceHashes": {
+        "classicSha256": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+        "stellarSha256": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71"
+      },
+      "sourceEvidence": "One native Core spawn at +13 creates an owned Guoba gadget. Actual registered Tick count establishes up to four intrinsic breath opportunities at native timer 103/203/303/403; each queues its original snapshotted attack with +10 delay. Both entity termination and in-flight attacks must complete.",
+      "nonDamageCallbacksAndInitAudit": "Init and C1/particle hit callbacks do not queue intrinsic damage; A4 chili pickup adds an ATK modifier. Guoba aura and incoming-hit swirl reactions remain separate reaction applications.",
+      "producerContract": true,
+      "ownedEntityContract": true
+    },
+    {
+      "id": "yaoyao-burst",
+      "label": "瑶瑶 Q 自生月桂与行走萝卜",
+      "characterKey": "yaoyao",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yaoyao/burst.go",
+      "sourceSha256": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f",
+      "sourceHashes": {
+        "classicSha256": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f",
+        "stellarSha256": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f"
+      },
+      "sourceEvidence": "One direct initial attack at +16; three Core spawn tasks +104/+162/+221 create zero or one owned jumping Yuegui from each exact native branch. Their actual Tick and 12-character-frame flight tasks retain birth identity after removal. A1 36-character-frame ticker records inactive/no-action/no-target/flight branches and actual delayed Burst or Skill mode.",
+      "nonDamageCallbacksAndInitAudit": "The Q cleanup at +360 or swap removes owned jumping Yuegui, but launched character-clock flights still complete. C4 modifiers, healing and energy callbacks do not add intrinsic attacks; E-created Yuegui remain E-owned even when current Q modifies their actual attack formula.",
+      "producerContract": true,
+      "ownedEntityContract": true
+    },
+    {
+      "id": "shenhe-skill",
+      "label": "申鹤 E：点按与长按完整伤害",
+      "characterKey": "shenhe",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/shenhe/skill.go",
+      "sourceSha256": "63be6ee10cce2e061ef623ae1c442dcaed4a2fb109ad9aaddef36a03b8560673",
+      "sourceHashes": {
+        "classicSha256": "63be6ee10cce2e061ef623ae1c442dcaed4a2fb109ad9aaddef36a03b8560673",
+        "stellarSha256": "f819c1367dd86045caf2d492269102d9811b3cd949e1fc417dda775eb0eb9815"
+      },
+      "sourceEvidence": "skill.go:Skill按p[hold]!=0分派；skillPress/skillHold各登记一次原生伤害任务，分别4/33f快照，原c4()增伤加到快照后只排1击；无取消门、递归或子攻击任务。",
+      "nonDamageCallbacksAndInitAudit": "点按/长按命中回调仅产球；原增益任务只授予冰翎层数/状态与A4修饰器。冰翎钩子改当前击FlatDmg，C4追加回调只计层数，c4()消费层数仅修改当前技能快照DmgP。两lane授予冰翎的A4门控存在源码差异，未规范化。",
+      "producerContract": true
+    },
+    {
+      "id": "shenhe-burst",
+      "label": "申鹤 Q：初击与完整领域伤害",
+      "characterKey": "shenhe",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/shenhe/burst.go",
+      "sourceSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+      "sourceHashes": {
+        "classicSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+        "stellarSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b"
+      },
+      "sourceEvidence": "burst.go:50-55直接初击；:80-88原47f任务快照并排6或9组、每组2击。两lane源码同构，初击78f，DoT为47+82+i*117+j*(30+burstTickOffset[i])；没有状态取消、目标存在门或递归子任务。",
+      "nonDamageCallbacksAndInitAudit": "burst.go:90-128仅刷新A1/C2增益与冰/物抗减益。Init安装冰翎同击附加；quillDamageMod及C4回调只改当前击/层数、不另排伤害。CD1200f及4f耗能原位保留。",
+      "producerContract": true
+    },
+    {
+      "id": "chongyun-skill",
+      "label": "重云 E：初击、自然终结与替换终结",
+      "characterKey": "chongyun",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/chongyun/skill.go",
+      "sourceSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+      "sourceHashes": {
+        "classicSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+        "stellarSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d"
+      },
+      "sourceEvidence": "skill.go原Duration>0分支记录replaced-field，不重复状态查询；asc.go:A4解锁后按useOldSnapshot登记expiry/replacement生产者。自然655f、替换36+45f；src失配取消0击，否则原快照/区域选目标并入队1击，真实回执绑定结果。",
+      "nonDamageCallbacksAndInitAudit": "particleCB只产球；A4回调只减抗、C4只回能。领域创建/附魔/A1攻速/C2冷却减免与换人钩子不另排攻击。新E的replacement使用旧a4Snap/旧skillArea，但其原生登记归属当前E；旧计时器仍属于旧E，可被src失配取消。C1额外冰刃仅来自后续普攻，不属于E。",
+      "producerContract": true
+    },
+    {
+      "characterKey": "chasca",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/chasca/skill.go",
+      "label": "恰斯卡 E",
+      "sourceSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+      "sourceHashes": {
+        "classicSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+        "stellarSha256": "65a1694f59e5507fb6ef92f78b5f1e25c85c1e2d16ecb8b12b6c781a09549d3a"
+      },
+      "sourceEvidence": "skill.go:120-155; one direct QueueAttack at 148 on the false HasBlessing branch; true branch exits Nightsoul and returns before queueing. Hit frame 3.",
+      "nonDamageCallbacksAndInitAudit": "Skill calls HasBlessing once at entry; false queues one hit then enters Nightsoul, true exits and queues none. particleCB only sets its per-use flag and grants particles (158-167); point-reduction tasks alter Nightsoul state only (109-117). Init installs A1/A4 state/hooks (chasca.go:46-64); A4 independently reacts to OnNightsoulBurst and queues shell damage (asc.go:58-92), and C2/C4 callbacks attach to later Shadowhunt shell attacks (cons.go:40-94), not E. If recast occurs in AimState, exitNightsoul schedules fireBullets for previously charged aimed shots (skill.go:83-107; aimed.go:190-244); the pending-aim-release fact gates closure: this AimState branch remains partial until the earlier shot ownership is explicitly bound. PRE124 Stellar skill differs in animation-frame table and tag type; branch/root behavior is same.",
+      "scopeNotes": [
+        "Plan resolves only when `chasca.skill.pending-aim-release` is 0. When original exitNightsoul selects AimState, earlier charged-shot ownership is unbound and this cast remains partial. Capture blessing-at-entry from the original query once; no re-query. Hit root at3; await terminal dispatch."
+      ],
+      "id": "chasca-skill",
+      "producerContract": true
+    },
+    {
+      "characterKey": "xilonen",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xilonen/skill.go",
+      "label": "希诺宁 E",
+      "sourceSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+      "sourceHashes": {
+        "classicSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+        "stellarSha256": "f8d15f674c93727b595e843c39d7a2929937e0db8abde5eff35ce438adac073d"
+      },
+      "sourceEvidence": "skill.go:160-210; one direct QueueAttack at 192 on false HasBlessing branch; true branch exits and returns before queueing. Hit frame 6.",
+      "nonDamageCallbacksAndInitAudit": "Skill calls HasBlessing once before the branch; true exits and returns zero direct roots, false queues one root then initializes Nightsoul and constellation status. particleCB is particle-only (213-221), sampler activation tasks add resistance modifiers without attacks (102-158), and stamina restoration is non-damage. Init installs passive/constellation hooks (xilonen.go:49-75); A1 modifies later Normal/Plunge damage and points, C4 modifies later Normal/Extra/Plunge hits, and C6 applies later attack modifiers/heals (asc.go:22-89; cons.go:131-260). Stellar changes AdditionalTags Go type only; method branch/root count unchanged.",
+      "scopeNotes": [
+        "Capture `xilonen.skill.blessing-at-entry` from the one original HasBlessing() result; false=>1 root, true=>0. Observe through frame 6 for hit branch, then native terminal dispatch; zero branch closes with no attack dispatch."
+      ],
+      "id": "xilonen-skill",
+      "producerContract": true
+    },
+    {
+      "characterKey": "qiqi",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/qiqi/burst.go",
+      "label": "七七 Q",
+      "sourceSha256": "d697c809b4aa2db212787a265f1393794432f68acaf1cfa820c0507d4267d233",
+      "sourceHashes": {
+        "classicSha256": "d697c809b4aa2db212787a265f1393794432f68acaf1cfa820c0507d4267d233",
+        "stellarSha256": "c8872d218a139d9b12f0e4610a902396140d40ff2f40c7edb88d0b8986b52d40"
+      },
+      "sourceEvidence": "burst.go:28-71 Classic queues Cryo damage at frame 82 and a zero-damage talisman-application attack at frame 40. Stellar queues the same two; under `revelation && getRadiance()==radianceStellarConduct` it additionally queues a direct Stellar Conduct attack at frame 82.",
+      "nonDamageCallbacksAndInitAudit": "The cast always queues two deliveries: one Cryo damage root at 82 and one zero-damage AttackTagNone/Physical talisman-application root at 40. The talisman callback applies a 15s enemy status only if that zero-damage attack hits an enemy (Classic burst.go:53-60; Stellar burst.go:27-43). Stellar has an additional direct Q attack only in the original revelation/Stellar Conduct condition and calls c6OnBurst, which changes status/energy/heal behavior; source lane diff is semantically material and represented by branch fact `qiqi.burst.stellar-conduct-at-entry`. Init subscriptions heal on later enemy damage and process later Qiqi NA/CA hooks; they do not create another Q attack (qiqi.go:40-48; Classic burst.go:73-120; Stellar burst.go:77 onward). A1/C1/C2 are heal, energy, or later NA/CA modifier hooks (asc.go:15-45; cons.go:13-53); Stellar C4 adds healing when talisman healing occurs; C6-on-Burst sets status/stacks for later hit modifiers (cons.go:238-252), not a new Q root. Never claim talisman was applied unless the zero-damage callback actually dispatched to an enemy.",
+      "scopeNotes": [
+        "Two unconditional deliveries in both lanes: zero-damage talisman application at frame 40 and Cryo Q hit at frame 82. Stellar third direct root at 82 only when `qiqi.burst.stellar-conduct-at-entry` is 1. Close only after all observed roots finish native dispatch; talisman status application is target-hit-dependent."
+      ],
+      "id": "qiqi-burst",
+      "producerContract": true
+    },
+    {
+      "characterKey": "aloy",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/aloy/skill.go",
+      "label": "埃洛伊 E",
+      "sourceSha256": "51c55a070d25b8c54ca2a770f74b73ffe77b28030cc2c03cdd1a5f6f726fae45",
+      "sourceHashes": {
+        "classicSha256": "51c55a070d25b8c54ca2a770f74b73ffe77b28030cc2c03cdd1a5f6f726fae45",
+        "stellarSha256": "daa40f3c27371d06b5e1353142db11c1828a249b41f560d564976cb8b58e506f"
+      },
+      "sourceEvidence": "skill.go:44-114; always queues main root (72), then one direct root per loop iteration for i=0..<bomblets (96-104). Missing param defaults to 2; no artificial upper bound.",
+      "nonDamageCallbacksAndInitAudit": "Each invocation queues one Freeze Bomb root and exactly one Chillwater Bomblets root for each integer `i` with 0<=i<bomblets. Missing `bomblets` defaults to 2; zero/negative values add no roots. `travel` defaults 5 and `bomb_delay` defaults 0; both affect timing only (skill.go:45-58,72-104). Main particle callback is particle-only (116-128); bomblet coil callback advances stack/state and adds A1/A4 modifiers on reaching four stacks but queues no attack (131-183; asc.go:11-67). Init sets up those modifiers/listeners; no E child attack (aloy.go:41-55). Stellar only reorders action frame defaults for Dash/Swap; root algorithm unchanged.",
+      "scopeNotes": [
+        "Native count is 1+max(0,bomblets); omitted bomblets=2. No cap is inferred. `travel` and `bomb_delay` change dispatch timing; observe through max(main hitmark, final scheduled bomblet hitmark) plus terminal dispatch."
+      ],
+      "id": "aloy-skill",
+      "producerContract": true
+    },
+    {
+      "id": "nilou-burst",
+      "label": "妮露 Q：初击与逐目标完整第二段",
+      "characterKey": "nilou",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/nilou/burst.go",
+      "sourceSha256": "ed26e1821d68cd393edc013c3f643bc3ec008ec3256bf2a7659ef60e7fe3f8e8",
+      "sourceHashes": {
+        "classicSha256": "ed26e1821d68cd393edc013c3f643bc3ec008ec3256bf2a7659ef60e7fe3f8e8",
+        "stellarSha256": "ed26e1821d68cd393edc013c3f643bc3ec008ec3256bf2a7659ef60e7fe3f8e8"
+      },
+      "sourceEvidence": "Burst 初击91f；LingeringAeon 原敌人类型门后登记一次121敌方局部帧任务；任务执行时新读HP/天赋并向原目标 QueueAttack(0,0)。完整callback槽位清单与逐目标taskId/队列/局部时钟回执共同闭合。",
+      "nonDamageCallbacksAndInitAudit": "Init/onExitField仅E状态维护；C1/C4改同击增伤，C2只减抗，C6重复统计读取无自主伤害；A1/A4处理丰穰之核及反应增益，该独立反应按既有排除范围保留。Q只有LingeringAeon伤害回调；子攻击无hit callbacks。",
+      "producerContract": true,
+      "hitCallbackContract": true,
+      "scopeNotes": [
+        "初击在调用时读取生命值倍率，91帧后 AoE；每个实际敌人命中回调独立登记 lingering-aeon 任务，不写死两击或固定目标数。",
+        "第二段保留敌人自己的局部时钟：原 121 local frames 后任务执行时重读生命值/天赋，立刻向该父回调目标发出一次单体攻击；停帧不会被误换算为全局 +121。",
+        "完整范围包含本次初击及其所有实际敌人回调任务；初击落空、跳过或命中确认阻断不会产生任务。目标死亡后敌人队列不 tick，未执行任务继续 pending，不能宣告完整。",
+        "不伪造 Origin；原生 callback→producer→taskId→enemy queue targetKey 的明确链接建立所有权，entry Origin 仅用于隔离同步嵌套反应/独立追击。",
+        "lingeringaeon 状态只在原命中处添加；延迟任务未检查状态或新 Q，因此重叠 Q 不取消旧任务，全部按真实父回调独立追踪。",
+        "同击支持的增幅/加算反应仍进入该击；独立反应、丰穰之核、装备或其他事件追击保留独立范围。固定源码证据不是实机机制验证。"
+      ]
+    },
+    {
+      "id": "escoffier-burst",
+      "label": "爱可菲 Q",
+      "characterKey": "escoffier",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/escoffier/burst.go",
+      "sourceSha256": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca",
+      "sourceHashes": {
+        "classicSha256": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca",
+        "stellarSha256": "77d7433af87bda7a193405bacefc247b07df6dc421e62049da3a1655d03b27ca"
+      },
+      "sourceEvidence": "burst.go:25-79. The only Q damage QueueAttack is inside the character-local task scheduled at hitmark 92 (source lines 37-39); proposed SourceHostQueueCharTask wrapper records that native task as site `escoffier.burst.initial-hit` without changing its clock/delay. Q also schedules an initial heal task at frame 97 (42-65), not an attack.",
+      "nonDamageCallbacksAndInitAudit": "escoffier.go:37-43 Init installs A4/C1/C2/C6. asc.go:21-60 Q-triggered A1 schedules healing only; cons.go:52-78 C1 applies a modifier. A4 callback at asc.go:74-97 applies RES shred. C2 listener ignores Escoffier-owned hits (cons.go:80-127); C6 queues only after later qualifying NA/extra/plunge while E status is active (cons.go:168-209).",
+      "producerContract": true,
+      "scopeNotes": [
+        "Native directRootCount is 0 because Q attack creation occurs inside a delayed character-local task. Track exactly one task-root/attack at local hitmark 92 via `escoffier.burst.initial-hit`; close after native attack dispatch. Healing remains outside this damage contract."
+      ]
+    },
+    {
+      "id": "ororon-skill",
+      "label": "欧洛伦 E",
+      "characterKey": "ororon",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ororon/skill.go",
+      "sourceSha256": "8d219b1cc4b4e5a99a91bdd65e8dfaadb8a586f365df91655b5819b124de8913",
+      "sourceHashes": {
+        "classicSha256": "8d219b1cc4b4e5a99a91bdd65e8dfaadb8a586f365df91655b5819b124de8913",
+        "stellarSha256": "18056d2e29bb4b9319887f829d4c06272f7b11e665aa95c69ee8c9fbb60eb6d4"
+      },
+      "sourceEvidence": "skill.go:26-75 builds the existing enemy slice with primary target plus up to `3+c1ExtraBounce()` (lines 47-55), then the loop at 60-69 queues exactly one direct attack for each selected target. Proposed capture writes the already-computed `len(enemies)` at line 56 before the loop; there is no extra enemy/count query. Each outgoing target hit has its own damage deadline `31 + travel*(i+1)`.",
+      "nonDamageCallbacksAndInitAudit": "Native E loops over its already-selected targets and queues one Spirit Orb root per target. particleCB only creates particles; makeA4cb installs energy-restoration status; makeC1cb installs target Hypersense bonus status. Init A1 listens to ElectroCharged, LunarCharged and other actors' Nightsoul damage; these can produce independent Hypersense attacks, including reactions caused by E, and remain outside this intrinsic Spirit Orb scope. E grants a status for later allied Hydro/Electro hits to generate Nightsoul points. A4 listens to later Normal/Extra/Plunge for energy. C1 extends selection by two and modifies Hypersense; C2 modifies stats; C6's direct Hypersense belongs to Burst. See asc.go:36-164,169-215 and cons.go:19-77.",
+      "producerContract": true,
+      "scopeNotes": [
+        "Root count equals the recorded length of the exact native selected-target slice. The original code inserts its primary target and then adds enemies up to 3 + C1 extra bounces; do not replace this observation with an inferred enemy count.",
+        "Each root snapshots at frame 31; damage dispatch is scheduled at 31 + travel × (i+1), where omitted travel is 10. Preserve the source parameter.",
+        "Independent A1 Hypersense, reaction damage and later-action effects are excluded from this Spirit Orb damage scope; closure does not claim those effects cannot occur."
+      ]
+    },
+    {
+      "id": "layla-skill",
+      "label": "莱依拉 E：护盾归属与完整星矢",
+      "characterKey": "layla",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/layla/skill.go",
+      "sourceSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+      "sourceHashes": {
+        "classicSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c",
+        "stellarSha256": "926d5a1cc9299b7ef4cac8e19e803a7b02b549f5ed33d28366adca587f2fa85c"
+      },
+      "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+      "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+      "producerContract": true,
+      "scopeNotes": [
+        "完整 E 包含本次初击与本次实际创建护盾的晚星／星矢；技能事件或 Q 命中仅贡献晚星，产生的星矢始终归对应护盾出生调用。",
+        "重复 E 若找到旧盾，仅改同对象 Expires，不创建新盾或补满护盾量。该 E 的初击仍归自身，旧盾及后续星矢继续归旧出生调用；刷新前后有效期与实际任务均保留。",
+        "自然积星使用角色局部时钟90帧（C6为72）；发射使用核心任务6帧寻敌轮询、30帧锁定等待、27帧逐星间隔，以及35/33/30/28帧实际飞行。",
+        "护盾到期／破裂只在未射击时清掉晚星；已启动 shoot 链并不检查护盾存在，可以跨护盾终点完成。无敌人时可一直等待；必须等所有已登记任务及在途攻击结束，不能按护盾结束直接关闭。",
+        "最后一星重新读取原生护盾门；若已经有后来出生的盾，新自然积星任务绑定该实际对象，旧星矢不迁移归属。",
+        "每击继续使用既有伤害核心与完整上下文；C2仅回能、粒子回调仅产球，C4改其他动作同击附加，A1/C6为已有修饰器，不额外冒充独立 E 攻击。固定来源证据不是实机验证。"
+      ],
+      "ownedShieldContract": true,
+      "shieldProducerContract": true
+    },
+    {
+      "id": "layla-burst",
+      "label": "莱依拉 Q：弹体与晚星贡献归属",
+      "characterKey": "layla",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/layla/burst.go",
+      "sourceSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289",
+      "sourceHashes": {
+        "classicSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289",
+        "stellarSha256": "92c02c6b6990710e767e3f87c39a04c22f393667cc6879b273bb99984e43a289"
+      },
+      "sourceEvidence": "与 shield.go 原递归／事件／回调全路径共同审阅；详见 docs/validation/source-layla-ownership-audit-20260930.json 与双来源原文件哈希。",
+      "nonDamageCallbacksAndInitAudit": "Init安装starsSkill/A1及C4/C6；C4只给其他普攻/重击同击加FlatDmg并延迟删状态；C6只增伤和改变积星间隔；shootStars的C2回调只回能、共享particleCB只产球与粒子ICD，不另发伤害。",
+      "producerContract": true,
+      "scopeNotes": [
+        "Q 保留8个原生核心调度任务（36+90i），每个任务按实际目标选择排0或1枚 Starlight Slug；不把8次调度写死为8次伤害。",
+        "Q 弹体归 Q，在任务执行时排队、56帧后快照、再按 travel（默认22）派发；首个实际命中回调至多贡献1颗晚星，后续同弹体目标不重复贡献。",
+        "命中时存在的 E 护盾由实际对象编号记录；晚星触发的星矢归该 E 护盾，独立于 Q 弹体与 Q 的完整范围。Q 结束不伪造或截断 E 的在途星矢。",
+        "命中确认阻断、落空、无目标及不同原生回调事实均据实际回执判断；Q 的持续状态没有其他自主 Q 发射分支。"
+      ],
+      "hitCallbackContract": true
+    },
+    {
+      "id": "raiden-skill",
+      "label": "雷电将军 E 初击与各持有者状态拥有的恶曜之眼协同攻击",
+      "characterKey": "raidenshogun",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/raiden/skill.go",
+      "sourceSha256": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363",
+      "sourceHashes": {
+        "classicSha256": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363",
+        "stellarSha256": "c2e1872f174b2fd078608116cef65266ebc0474e468a83b756587f97b031b363"
+      },
+      "sourceEvidence": "Verified pinned raw skill.go:36-52 queues one initial hit at +51f; 55-73 creates one +66f task per actual party character and installs that holder's raiden-e AttackMod with 1500f hitlag-extendable lifetime. Init-installed OnEnemyDamage listener (raiden.go:43-44; skill.go:108-156) gates on the triggering attack actor's live modifier and the caster's shared 54f eyeICD, then queues one Eye strike with QueueAttack(5,5). Each successful event is bound to the holder's exact modifier instance, activation producer and current invocation, retaining its original event ancestry.",
+      "nonDamageCallbacksAndInitAudit": "The raiden-e AttackMod Amount returns only for Burst-tagged attacks and reads the holder EnergyMax using the caster's captured skillBurstBonus multiplier; its buff value is not intrinsic E damage. Particle chance/ICD/callback and energy queue do not emit damage. Recast does not reset shared eyeICD. Native modifier expiry deletion is recorded when ApplyAttackMods removes the object; no synthetic expiry task is added. StatusIsActive accepts the exact expiry frame, ApplyAttackMods removes expiry<=frame, and hitlag may extend finalExpiry. An already queued Eye strike is not cancelled or reassigned by expiry or recast.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    }
+  ]
+}

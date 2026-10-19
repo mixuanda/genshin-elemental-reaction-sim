@@ -1,0 +1,39 @@
+import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
+import { COLLEI_SKILL_SOURCE_REFS } from "./collei-charlotte-calculation-context";
+
+const esc = (value: unknown): string => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+type ColleiContext = NonNullable<NonNullable<CalculatorDocument["gameContext"]>["colleiSkill"]>;
+const fields = [
+  ["stats.atk", "历史最终攻击力", "min=\"0\""], ["stats.hp", "历史最大生命", "min=\"0\""], ["stats.def", "历史最终防御", "min=\"0\""],
+  ["stats.em", "历史元素精通", "min=\"0\""], ["stats.critRate", "历史暴击率（小数）", ""], ["stats.critDamage", "历史暴击伤害（小数）", "min=\"0\""],
+  ["stats.energyRecharge", "历史最终充能（可留空）", "min=\"0\""], ["characterLevel", "历史角色等级", 'min="1" max="100" step="1"'], ["ascension", "历史突破阶段", 'min="0" max="6" step="1"'],
+  ["damageBonus", "历史适用总增伤（小数）", ""], ["additiveBaseDamage", "历史适用固定基础加值", ""], ["reactionBonus", "历史适用反应加成（小数）", ""],
+] as const;
+
+const optionalState = (character: string, key: string, id: string, label: string, value: boolean | undefined): string => `<label>${label}<select id="calc-${character}-${id}" data-${character}-state-field="gameContext.${character}Skill.${key}"><option value="unknown"${value === undefined ? " selected" : ""}>未知</option><option value="0"${value === false ? " selected" : ""}>否</option><option value="1"${value === true ? " selected" : ""}>是</option></select></label>`;
+
+export function renderColleiCharlotteControls(document: CalculatorDocument): string {
+  const collei = document.gameContext?.colleiSkill;
+  if (collei) return `<fieldset data-collei-controls><legend>拂花偈叶：往返与新叶的独立快照</legend><div class="calculator-fields">${optionalState("collei", "reactionBeforeReturn", "reaction-before-return", "飞叶轮回收前已触发符合A1的草相关反应", collei.reactionBeforeReturn)}${optionalState("collei", "reactionDuringSprout", "reaction-during-sprout", "新叶持续期间已触发符合A1的草相关反应（C2延长）", collei.reactionDuringSprout)}${optionalState("collei", "sproutUninterrupted", "sprout-uninterrupted", "新叶未替换、中断或额外延长至新增命中", collei.sproutUninterrupted)}${optionalState("collei", "reactionStatsMatchSnapshots", "reaction-stats-match-snapshots", "所选Spread命中时的实际精通与反应加成等于该击面板", collei.reactionStatsMatchSnapshots)}</div><p class="calculator-hint">完整分支分别合计往返两击，以及条件满足时的两次或四次新叶。A1草相关反应包括符合来源机制的月绽放；这里只使用明确触发条件，不运行反应时间线。C6新增伤害尚未接入，完整C6仍阻塞。独立选择往返单击不需要未来新叶快照。</p><p class="calculator-hint">往返伤害用E释放面板；新叶在回收时另取进攻快照。Spread精通与反应加成在实际命中时读取，不能自动锁定为历史值；选择Spread时必须明确它们与该击采用面板一致。</p><details open><summary>明确填写回收时的新叶历史快照${collei.sproutSnapshot ? "（已应用）" : "（尚未提供）"}</summary><div class="calculator-fields">${fields.map(([path, label, attributes]) => {
+    let value: unknown = collei.sproutSnapshot;
+    for (const key of path.split(".")) value = (value as Record<string, unknown> | undefined)?.[key];
+    return `<label>${label}<input type="number" data-collei-snapshot="${path}" value="${value === undefined ? "" : esc(value)}"${attributes.includes("step=") ? "" : ' step="any"'} ${attributes}${path === "stats.energyRecharge" ? "" : " required"}></label>`;
+  }).join("")}</div><label>历史数值来源或记录说明<input id="calc-collei-snapshot-source" required value="${esc(collei.sproutSnapshot?.source ?? "用户明确填写的回收时新叶最终面板；机制引用不验证这些属性数值。")}"></label><p class="calculator-hint">填写新叶建立时实际适用的全部面板、增伤、暴击和基数加值；当前装备不会再叠入新叶。未知值留空，明确为零才填0；这里不会复制当前E起手属性。目标防御与抗性仍取每击实际目标输入。</p><button type="button" id="calc-collei-snapshot-apply" data-action="apply-collei-snapshot">应用明确的回收快照</button><button type="button" id="calc-collei-snapshot-clear" data-action="clear-collei-snapshot">清除回收快照</button><p data-collei-draft-status role="status">历史草稿在点击应用后参与计算。</p></details></fieldset>`;
+  const charlotte = document.gameContext?.charlotteSkill;
+  if (!charlotte) return "";
+  const c2Controls = document.gameContext!.constellation >= 2 && document.gameContext!.constellation <= 5 ? `<fieldset data-charlotte-c2-controls><legend>C2：每击实际增攻与共同面板记账</legend><div class="calculator-fields"><label>共同 ATK 面板已含的 C2 层数<input id="calc-charlotte-c2-included" type="number" data-field="gameContext.charlotteSkill.c2IncludedStacks" data-charlotte-number-field data-optional-number min="0" max="3" step="1" value="${charlotte.c2IncludedStacks ?? ""}" placeholder="未知"></label><label>${document.build.mode === "equipment-derived" ? "角色与武器基础攻击（来源配装）" : "基础攻击（角色白值＋武器白值）"}<input id="calc-charlotte-c2-base-atk" type="number" data-field="gameContext.charlotteSkill.c2BaseAttack" data-charlotte-number-field data-optional-number min="0" step="any" value="${charlotte.c2BaseAttack ?? ""}" placeholder="未知"${document.build.mode === "equipment-derived" ? ' readonly aria-readonly="true"' : ""}></label></div><p class="calculator-hint">每击 ATK 修正 = 基础攻击 × 10% ×（本击实际层数 − 共同面板已含层数）。旧增益已失效时修正可为负；两份明确层数相同则差值为0，无需反推基础攻击。每行独立填写，未知留空，明确无效果才填0。</p><div class="calculator-fields">${document.hits.filter(hit => hit.kind === "ordinary").map(hit => `<label>${esc(hit.label)} · ${document.selectedHitIds.includes(hit.id) ? "已选" : "未选"}：取样时 C2 层数<input type="number" data-charlotte-c2-hit="${esc(hit.id)}" data-field="gameContext.charlotteSkill.c2HitStacks.${esc(hit.id)}" data-charlotte-number-field data-optional-number min="0" max="3" step="1" value="${charlotte.c2HitStacks?.[hit.id] ?? ""}" placeholder="未知"></label>`).join("")}</div><p class="calculator-hint">初击取起手快照，可以包含此前已有的 C2；本次命中人数不能倒填初击。标记逐次重新取样，长按第8次不能默认增益仍有效。此处计算明确状态，不自动推演12秒期限、刷新或卡肉。只缺未选命中的状态，不阻塞独立单击。</p><p class="calculator-hint">展示柜导入不证明临时增攻份额，也不沿用旧配装的基础攻击；请补充实际记录。完整技能要求除已填写 C2 差值外的其他状态稳定。C3只影响Q等级、C4只影响Q，C5使用明确的有效E等级。</p></fieldset>` : "";
+  return `<fieldset data-charlotte-controls><legend>取景·冰点构图法：标记持续与地区队友</legend><div class="calculator-fields"><label>除夏洛蒂外的非枫丹队友人数（未知留空）<input id="calc-charlotte-non-fontaine" type="number" data-field="gameContext.charlotteSkill.nonFontaineTeammates" data-charlotte-number-field data-optional-number min="0" max="3" step="1" value="${charlotte.nonFontaineTeammates ?? ""}" placeholder="未知"></label><label>输入增伤已含实际人数对应的A4冰伤<select id="calc-charlotte-a4-included" data-charlotte-state-field="gameContext.charlotteSkill.a4IncludedInPanel"><option value="0"${charlotte.a4IncludedInPanel ? "" : " selected"}>未含；适用时由公式加入</option><option value="1"${charlotte.a4IncludedInPanel ? " selected" : ""}>已含；不重复加入</option></select></label>${optionalState("charlotte", "markUninterrupted", "mark-uninterrupted", "目标存活、标记未替换/提前删除且未额外延长至新命中", charlotte.markUninterrupted)}${optionalState("charlotte", "statsStableAcrossHits", "stats-stable-across-hits", "除逐击C2差值外，其他进攻面板、装备及目标状态稳定", charlotte.statsStableAcrossHits)}</div><p class="calculator-hint">点按合计初击及4次标记；长按合计初击及8次标记。初击与后续标记取样时点不同，完整技能需要明确持续和稳定条件；独立单击仍可使用。突破4解锁后，每名非枫丹其他队友提供5%冰伤；未知人数不会当作0。C0–5可按明确条件计算；C6额外伤害仍待接入。</p></fieldset>${c2Controls}`;
+}
+
+export function readColleiSnapshot(root: HTMLElement): NonNullable<ColleiContext["sproutSnapshot"]> {
+  const values: Record<string, number> = {};
+  for (const input of root.querySelectorAll<HTMLInputElement>("[data-collei-snapshot]")) {
+    if (!input.reportValidity()) throw new Error("回收快照尚未完整；请明确填写所有必需数值。");
+    if (input.value !== "") values[input.dataset.colleiSnapshot!] = input.valueAsNumber;
+  }
+  const source = root.querySelector<HTMLInputElement>("#calc-collei-snapshot-source")!;
+  if (!source.reportValidity()) throw new Error("请填写历史数值的来源说明。");
+  return { stats: { atk: values["stats.atk"]!, hp: values["stats.hp"]!, def: values["stats.def"]!, em: values["stats.em"]!, critRate: values["stats.critRate"]!, critDamage: values["stats.critDamage"]!, ...(values["stats.energyRecharge"] === undefined ? {} : { energyRecharge: values["stats.energyRecharge"] }) },
+    characterLevel: values.characterLevel!, ascension: values.ascension!, damageBonus: values.damageBonus!, additiveBaseDamage: values.additiveBaseDamage!, reactionBonus: values.reactionBonus!, source: source.value,
+    sourceRefs: [...COLLEI_SKILL_SOURCE_REFS] };
+}

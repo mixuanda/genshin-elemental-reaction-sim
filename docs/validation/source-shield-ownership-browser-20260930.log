@@ -1,0 +1,39 @@
+[WebServer] (node:68899) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:68900) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-shield-ownership.spec.ts:39:1 › Baizhu Q owns its six shield births and exact refresh/expiry discharges across C6 replacement (4.8s)
+
+
+  1) [chromium] › apps/web/e2e/source-shield-ownership.spec.ts:39:1 › Baizhu Q owns its six shield births and exact refresh/expiry discharges across C6 replacement 
+
+    Error: C2 shield birth must trace through the exact Splice callback batch
+
+    expect(received).toBeDefined()
+
+    Received: undefined
+
+      100 |         && parentHit?.actorKey === 'baizhu' && parentHit.ability === 'Gossamer Sprite: Splice. (C2)';
+      101 |     });
+    > 102 |     expect(c2Shield, 'C2 shield birth must trace through the exact Splice callback batch').toBeDefined();
+          |                                                                                            ^
+      103 |     const ownedShieldIds = new Set(analysis.finiteCast?.shieldInstanceIds);
+      104 |     const relatedExcludedIds = new Set(analysis.finiteCast?.shieldRelatedExcludedInstanceIds);
+      105 |     expect(qShields.every(row => ownedShieldIds.has(row.id))).toBe(true);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-shield-ownership.spec.ts:102:92
+
+    Error Context: test-results/source-shield-ownership-Ba-a1bd0-arges-across-C6-replacement-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-shield-ownership-Ba-a1bd0-arges-across-C6-replacement-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-shield-ownership-Ba-a1bd0-arges-across-C6-replacement-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-shield-ownership.spec.ts:39:1 › Baizhu Q owns its six shield births and exact refresh/expiry discharges across C6 replacement 

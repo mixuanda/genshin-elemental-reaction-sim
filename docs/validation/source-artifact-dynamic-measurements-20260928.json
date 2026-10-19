@@ -1,0 +1,153 @@
+{
+  "schemaVersion": "source-artifact-dynamic-measurements-v1",
+  "runs": [
+    {
+      "variant": "classic",
+      "scenario": "ordinary",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "fb25458eae4191ab57d0c7f450999390da42c5269f5525e229080b50d7590725",
+      "calculations": 4546,
+      "applications": 54,
+      "observedRuleCounts": {
+        "dynamic-emblem-2pc-er": 29,
+        "dynamic-huskofopulentdreams-4pc-defp": 1408,
+        "dynamic-huskofopulentdreams-4pc-geop": 1408,
+        "dynamic-gildeddreams-2pc-em": 14,
+        "dynamic-huskofopulentdreams-2pc-defp": 254,
+        "dynamic-emblem-4pc-dmgp": 10,
+        "dynamic-gildeddreams-4pc-em": 675,
+        "dynamic-gildeddreams-4pc-atkp": 675,
+        "dynamic-viridescent-4pc-b4": 1
+      },
+      "selectedApplicationId": 308,
+      "selectedHitIndex": 4,
+      "selectedDamage": 421.60871347319085,
+      "multiSlot": {
+        "gilded": [
+          2719,
+          2720,
+          2721
+        ],
+        "husk": [
+          967,
+          968,
+          969
+        ]
+      },
+      "dynamicCalls": 4474,
+      "observedRules": 9,
+      "supportCount": 3,
+      "emblemEdit": {
+        "calculationId": 303,
+        "originalER": 2.0125318020000003,
+        "editedER": 3.0125318020000003,
+        "originalValue": 0.5031329505000001,
+        "editedValue": 0.75,
+        "originalDamage": 421.60871347319085,
+        "editedDamage": 482.7203836502382,
+        "originalCaptureUnchanged": true
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "lunar",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "fb25458eae4191ab57d0c7f450999390da42c5269f5525e229080b50d7590725",
+      "calculations": 345,
+      "applications": 57,
+      "observedRuleCounts": {
+        "dynamic-flowerofparadiselost-2pc-em": 34,
+        "dynamic-silkenmoonsserenade-2pc-er": 40,
+        "dynamic-nightoftheskysunveiling-2pc-em": 24,
+        "dynamic-thunderingfury-2pc-electro": 10,
+        "dynamic-silkenmoonsserenade-4pc-em": 108,
+        "dynamic-silkenmoonsserenade-4pc-lunar": 11,
+        "dynamic-nightoftheskysunveiling-4pc-lunar": 3,
+        "dynamic-nightoftheskysunveiling-4pc-cr": 4,
+        "dynamic-thunderingfury-4pc-b4": 11
+      },
+      "selectedApplicationId": 8,
+      "selectedHitIndex": 0,
+      "selectedDamage": 2129.3429400682558,
+      "partyRecipients": [
+        "ineffa",
+        "columbina",
+        "lauma",
+        "kukishinobu"
+      ],
+      "dynamicCalls": 245,
+      "observedRules": 9,
+      "supportCount": 1
+    },
+    {
+      "variant": "stellar",
+      "scenario": "ordinary",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "395682d9e3d34d211a071f2524f939140c2cf6ed61ad572150d43e8c79dbe068",
+      "calculations": 4530,
+      "applications": 54,
+      "observedRuleCounts": {
+        "dynamic-emblem-2pc-er": 29,
+        "dynamic-huskofopulentdreams-4pc-defp": 1408,
+        "dynamic-huskofopulentdreams-4pc-geop": 1408,
+        "dynamic-gildeddreams-2pc-em": 14,
+        "dynamic-huskofopulentdreams-2pc-defp": 254,
+        "dynamic-emblem-4pc-dmgp": 10,
+        "dynamic-gildeddreams-4pc-em": 675,
+        "dynamic-gildeddreams-4pc-atkp": 675,
+        "dynamic-viridescent-4pc-a7": 1
+      },
+      "selectedApplicationId": 308,
+      "selectedHitIndex": 4,
+      "selectedDamage": 421.60871347319085,
+      "multiSlot": {
+        "gilded": [
+          2707,
+          2708,
+          2709
+        ],
+        "husk": [
+          961,
+          962,
+          963
+        ]
+      },
+      "dynamicCalls": 4474,
+      "observedRules": 9,
+      "supportCount": 3
+    },
+    {
+      "variant": "stellar",
+      "scenario": "lunar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "395682d9e3d34d211a071f2524f939140c2cf6ed61ad572150d43e8c79dbe068",
+      "calculations": 316,
+      "applications": 57,
+      "observedRuleCounts": {
+        "dynamic-flowerofparadiselost-2pc-em": 34,
+        "dynamic-silkenmoonsserenade-2pc-er": 40,
+        "dynamic-nightoftheskysunveiling-2pc-em": 24,
+        "dynamic-thunderingfury-2pc-electro": 10,
+        "dynamic-silkenmoonsserenade-4pc-em": 108,
+        "dynamic-silkenmoonsserenade-4pc-lunar": 11,
+        "dynamic-nightoftheskysunveiling-4pc-lunar": 3,
+        "dynamic-nightoftheskysunveiling-4pc-cr": 4,
+        "dynamic-thunderingfury-4pc-a7": 11
+      },
+      "selectedApplicationId": 8,
+      "selectedHitIndex": 0,
+      "selectedDamage": 2129.3429400682558,
+      "partyRecipients": [
+        "ineffa",
+        "columbina",
+        "lauma",
+        "kukishinobu"
+      ],
+      "dynamicCalls": 245,
+      "observedRules": 9,
+      "supportCount": 1
+    }
+  ],
+  "pageErrors": [],
+  "rawEvidence": "docs/validation/source-artifact-dynamic-20260928.result.json"
+}

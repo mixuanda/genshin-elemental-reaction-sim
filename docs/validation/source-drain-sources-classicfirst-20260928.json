@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 5.176,
+  "log": "docs/validation/source-drain-sources-classicfirst-20260928.log"
+}

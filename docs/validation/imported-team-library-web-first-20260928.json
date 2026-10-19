@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.794,
+  "log": "docs/validation/imported-team-library-web-first-20260928.log"
+}

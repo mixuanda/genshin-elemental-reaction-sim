@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "1.0.0",
+  "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "previousCatalogSnapshotIds": [
+    "snapshot-7a04312fe7e39be842a84b1cacdfbd5838454a92304e4f367eb852b73f30e6c0",
+    "snapshot-ac47e52c318acda87c24caadbcfd0002c6dee012e154ffc95be8bbe4ceaa2c37"
+  ],
+  "activeVerifiedSnapshotId": null,
+  "previousVerifiedSnapshotIds": [],
+  "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+  "archivedSnapshotIds": [
+    "snapshot-42fbd144ef58e11ff80f6ab8954eb642a3b200d9ee5cac2667c03cb8184b6a50",
+    "snapshot-5664d4cabbe84b86c6e473f72fc8269fcbd1bb62498567f463aaae144e4afbbc",
+    "snapshot-7a04312fe7e39be842a84b1cacdfbd5838454a92304e4f367eb852b73f30e6c0",
+    "snapshot-ac47e52c318acda87c24caadbcfd0002c6dee012e154ffc95be8bbe4ceaa2c37",
+    "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc"
+  ]
+}

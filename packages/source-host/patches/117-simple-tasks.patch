@@ -1,0 +1,22 @@
+--- a/internal/characters/ayato/skill.go
++++ b/internal/characters/ayato/skill.go
+@@ -39,7 +39,7 @@
+ 
+ 	ePos := c.Core.Combat.Player()
+ 	c.a1OnSkill()
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("ayato.skill.illusion-explosion", c.Index(), func() {
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(ePos, nil, 3.5), 0, 0)
+ 		c.a1OnExplosion()
+ 	}, delay)
+--- a/internal/characters/yunjin/burst.go
++++ b/internal/characters/yunjin/burst.go
+@@ -47,7 +47,7 @@
+ 	c.deleteC6()
+ 
+ 	// queue dmg and burst, c2 and c6 start
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("yunjin.burst.initial-hit", func() {
+ 		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 6), 0, 0)
+ 		// Reset number of burst triggers to 30
+ 		for _, char := range c.Core.Player.Chars() {

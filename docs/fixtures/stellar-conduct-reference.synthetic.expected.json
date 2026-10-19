@@ -1,0 +1,137 @@
+{
+  "description": "Synthetic reference field test. Panel and actions are authored test inputs, not a sourced complete character build.",
+  "party": [
+    {
+      "actorId": "c",
+      "characterKey": "sandrone"
+    },
+    {
+      "actorId": "e",
+      "characterKey": "lisa"
+    }
+  ],
+  "profileId": "stellar-conduct-reference-v1",
+  "totalDamage": 4469.75,
+  "totalDps": 446.975,
+  "publication": [
+    {
+      "frame": 6,
+      "count": 0
+    },
+    {
+      "frame": 246,
+      "count": 2
+    }
+  ],
+  "fieldInfluences": [
+    {
+      "snapshotFrame": 12,
+      "activeCount": 0,
+      "fieldPresent": true,
+      "buffExpiresAtFrame": 247,
+      "baseDamageBonus": 0,
+      "damageBonus": 0.2,
+      "baseResistance": 0.1,
+      "ordinaryResistanceShred": 0,
+      "physicalResistanceReduction": 0,
+      "sourceRefs": [
+        "https://keqingmains.com/misc/stellar-reaction-guide/",
+        "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+      ],
+      "eventId": 2,
+      "frame": 12,
+      "element": "electro"
+    },
+    {
+      "snapshotFrame": 18,
+      "activeCount": 0,
+      "fieldPresent": true,
+      "buffExpiresAtFrame": 247,
+      "baseDamageBonus": 0,
+      "damageBonus": 0.2,
+      "baseResistance": 0.1,
+      "ordinaryResistanceShred": 0,
+      "physicalResistanceReduction": 0,
+      "sourceRefs": [
+        "https://keqingmains.com/misc/stellar-reaction-guide/",
+        "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+      ],
+      "eventId": 3,
+      "frame": 18,
+      "element": "electro"
+    },
+    {
+      "snapshotFrame": 240,
+      "activeCount": 0,
+      "fieldPresent": true,
+      "buffExpiresAtFrame": 247,
+      "baseDamageBonus": 0,
+      "damageBonus": 0.2,
+      "baseResistance": 0.1,
+      "ordinaryResistanceShred": 0,
+      "physicalResistanceReduction": 0,
+      "sourceRefs": [
+        "https://keqingmains.com/misc/stellar-reaction-guide/",
+        "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+      ],
+      "eventId": 4,
+      "frame": 260,
+      "element": "electro"
+    },
+    {
+      "snapshotFrame": 260,
+      "activeCount": 2,
+      "fieldPresent": true,
+      "buffExpiresAtFrame": 487,
+      "baseDamageBonus": 0,
+      "damageBonus": 0.3,
+      "baseResistance": 0.1,
+      "ordinaryResistanceShred": 0,
+      "physicalResistanceReduction": 0,
+      "sourceRefs": [
+        "https://keqingmains.com/misc/stellar-reaction-guide/",
+        "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+      ],
+      "eventId": 5,
+      "frame": 260,
+      "element": "electro"
+    },
+    {
+      "snapshotFrame": 260,
+      "activeCount": 2,
+      "fieldPresent": true,
+      "buffExpiresAtFrame": 487,
+      "baseDamageBonus": 0,
+      "damageBonus": 0,
+      "baseResistance": 0.1,
+      "ordinaryResistanceShred": 0,
+      "physicalResistanceReduction": 0.4,
+      "sourceRefs": [
+        "https://keqingmains.com/misc/stellar-reaction-guide/",
+        "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+      ],
+      "eventId": 6,
+      "frame": 260,
+      "element": "physical"
+    },
+    {
+      "snapshotFrame": 400,
+      "activeCount": 2,
+      "fieldPresent": false,
+      "buffExpiresAtFrame": 487,
+      "baseDamageBonus": 0,
+      "damageBonus": 0,
+      "baseResistance": 0.1,
+      "ordinaryResistanceShred": 0,
+      "physicalResistanceReduction": 0.4,
+      "sourceRefs": [
+        "https://keqingmains.com/misc/stellar-reaction-guide/",
+        "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go"
+      ],
+      "eventId": 7,
+      "frame": 400,
+      "element": "physical"
+    }
+  ],
+  "reproducibilityKey": "gdl-v2-fnv1a32-89ab67ce"
+}

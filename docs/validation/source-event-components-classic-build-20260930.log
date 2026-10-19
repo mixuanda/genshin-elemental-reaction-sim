@@ -1,0 +1,20 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs
+
+node:fs:1702
+  const stats = binding.lstat(
+                        ^
+
+Error: ENOENT: no such file or directory, lstat '/tmp/gidps-source-host-cache/upstream/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/source/.envrc'
+    at lstatSync (node:fs:1702:25)
+    at verifySourceDirectory (file:///Users/evan/Documents/gidps/packages/source-host/scripts/prepare-source.mjs:25:10)
+    at prepareSource (file:///Users/evan/Documents/gidps/packages/source-host/scripts/prepare-source.mjs:68:31)
+    at file:///Users/evan/Documents/gidps/packages/source-host/scripts/build-source-host.mjs:12:61 {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'lstat',
+  path: '/tmp/gidps-source-host-cache/upstream/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/source/.envrc'
+}
+
+Node.js v24.15.0

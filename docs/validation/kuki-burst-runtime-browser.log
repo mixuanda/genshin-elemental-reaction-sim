@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:74532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Kuki burst runtime browser measurements {"shortQFrame":564,"shortQOwnerHp":8424.575198408174,"shortQHits":7,"shortTotalDamage":2227.183566855619,"longQFrame":563,"longQOwnerHp":7394.142141417917,"longQHits":12,"longTotalDamage":3463.1017155224545,"burstDamagePerHit":247.18362973336724,"replayDifference":0,"failedQEnergy":9,"failedTotalDamage":496.8981587220481}
+  ✓  1 [chromium] › apps/web/e2e/kuki-burst-runtime.spec.ts:29:1 › Kuki Q reads HP after same-frame healing, locks 7 or 12 hits at accepted input and preserves its real condition in calculator replay (2.3s)
+
+  1 passed (2.7s)

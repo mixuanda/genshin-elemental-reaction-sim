@@ -1,0 +1,16 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/kuki-source-action.ts(54,7): error TS2322: Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 7 more ...; poiseDamage: number; }' is not assignable to type 'FrameHitDefinition<ElementalApplication>'.
+  Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 7 more ...; poiseDamage: number; }' is not assignable to type 'Omit<HitDefinition<ElementalApplication>, "offset">'.
+    The types of 'directDamageGroup.icdGroup' are incompatible between these types.
+      Type 'string' is not assignable to type '"aino-burst-moon-hit" | "alhaitham-extra-attack" | "alhaitham-projection-attack" | "amber" | "arlecchino-elemental-art" | "ayaka-extra-attack" | "baizhu-c2" | "burning" | ... 49 more ... | "yelan-burst"'.
+packages/sim-core/src/kuki-source-action.ts(55,7): error TS2322: Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 5 more ...; scaling: number; }' is not assignable to type 'FrameHitDefinition<ElementalApplication>'.
+  Type '{ scalingStat: "atk"; element: "electro"; snapshot: "hit"; critEligible: boolean; flatSources: { ownerId: string; stat: "em"; multiplier: number; }[]; geometry: { kind: "circle"; coordinateSpace: "world"; origin: { x: number; y: number; }; radius: number; }; ... 5 more ...; scaling: number; }' is not assignable to type 'Omit<HitDefinition<ElementalApplication>, "offset">'.
+    The types of 'directDamageGroup.icdGroup' are incompatible between these types.
+      Type 'string' is not assignable to type '"aino-burst-moon-hit" | "alhaitham-extra-attack" | "alhaitham-projection-attack" | "amber" | "arlecchino-elemental-art" | "ayaka-extra-attack" | "baizhu-c2" | "burning" | ... 49 more ... | "yelan-burst"'.

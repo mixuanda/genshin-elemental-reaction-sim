@@ -1,0 +1,36 @@
+import { expect, test } from "@playwright/test";
+
+test("module controls preserve an independent complete cast and expose ordinary team editors", async ({ page }) => {
+  await page.goto("/calculator");
+  const actorId = await page.locator("#calc-character option").filter({ hasText: "迪希雅" }).getAttribute("value");
+  await page.locator("#calc-character").selectOption(actorId!);
+  await expect(page.locator("#calc-skill")).toBeEnabled();
+  const skillId = await page.locator("#calc-skill option").filter({ hasText: "不加速自动六拳" }).getAttribute("value");
+  await page.locator("#calc-skill").selectOption(skillId!);
+  await expect(page.locator('[data-source-cast-controls="finite"]')).toBeVisible();
+  await expect(page.getByTestId("calc-expected")).toHaveCount(0);
+  await page.locator('[data-source-cast-state-field="gameContext.batchFiniteCast.completeCastConfirmed"]').selectOption("1");
+  await page.locator('[data-source-cast-state-field="gameContext.batchFiniteCast.statsStableAcrossHits"]').selectOption("1");
+  await expect(page.getByTestId("calc-expected")).toBeVisible();
+  const read = async () => JSON.parse((await page.locator("#calc-results .calculator-audit pre").textContent())!).result;
+  const before = await read();
+  expect(before.hits).toHaveLength(7);
+  expect(before.totals.expected).toBeGreaterThan(0);
+  expect(await page.evaluate(() => window.GenshinDpsLab.getLastResult())).toBeNull();
+  await page.locator('[data-field="build.stats.atk"]').fill("2500");
+  const after = await read();
+  expect(after.totals.expected).toBeGreaterThan(before.totals.expected);
+  expect(after.hits.reduce((sum: number, hit: { expected: number }) => sum + hit.expected, 0)).toBeCloseTo(after.totals.expected, 8);
+  console.log(JSON.stringify({ moduleCompleteCast: { hits: after.hits.length, before: before.totals, after: after.totals } }));
+  await page.getByRole("link", { name: "队伍配置", exact: true }).click();
+  await expect(page.locator("#team-artifact-event-controls")).toContainText("流放者");
+  await expect(page.locator("#team-artifact-event-controls")).toContainText("夜魂迸发");
+  await page.locator("[data-target-health-controls] summary").click();
+  await page.locator("[data-target-health-enabled]").check();
+  await expect(page.locator("[data-target-health-toggle]").first()).toBeVisible();
+  await page.getByRole("link", { name: "模拟结果", exact: true }).click();
+  await page.locator("#presetSelect").selectOption({ label: "合法帧时间线 · 双角色结构示例" });
+  await page.getByRole("link", { name: "行动编辑", exact: true }).click();
+  await expect(page.locator("#rotation-add-walk")).toBeVisible();
+  await expect(page.locator("#rotation-add-plunge")).toBeVisible();
+});

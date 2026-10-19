@@ -1,0 +1,499 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "artifact-piece-count-source-audit",
+  "retrievedAt": "2026-09-23T09:12:38.520650+00:00",
+  "verification": "provisional",
+  "scope": "Read-only source inventory. No production rules, schemas, UI, coverage or tests changed.",
+  "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "initialInventory": {
+    "allSets": 63,
+    "onePieceOnlySets": 4,
+    "twoPieceSets": 59,
+    "existingTwoPieceRules": 50,
+    "missingOnePiece": 4,
+    "missingTwoPiece": 9
+  },
+  "sources": [
+    {
+      "id": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "id": "optimizer",
+      "repository": "frzyc/genshin-optimizer",
+      "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE"
+    },
+    {
+      "id": "genshin-db",
+      "repository": "theBowja/genshin-db",
+      "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "license": "MIT",
+      "licenseUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    }
+  ],
+  "treeAudit": {
+    "url": "https://api.github.com/repos/genshinsim/gcsim/git/trees/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541?recursive=1",
+    "sha256": "bade391438b72b2561799e38b7f282dbcc009ffb2c097880a3f002a29947253b",
+    "bytes": 1247658,
+    "entries": 4779,
+    "truncated": false,
+    "absentArtifactImplementations": [
+      "prayersforillumination",
+      "prayersfordestiny",
+      "prayersforwisdom",
+      "prayerstospringtime",
+      "tinymiracle",
+      "travelingdoctor",
+      "scarletproof",
+      "heartofthefurnace"
+    ],
+    "supportingArchivedFiles": [
+      "gcsim/pkg__catalog__artifact.dm.go.txt",
+      "gcsim/pkg__simulation__imports.artifact.dm.go.txt"
+    ]
+  },
+  "notes": [
+    "Original source bytes preserved unchanged; local inventory is an explicitly derived projection.",
+    "genshin-optimizer sheets are usable reference data. The newer formula artifact files contain TODO placeholders; a representative is archived only to document rejection.",
+    "Self resistance, incoming healing, shield strength and aura duration are not damage bonuses or enemy resistance modifiers.",
+    "Nightsoul Burst energy is an event with recipient and cap, not recharge percentage.",
+    "The 7.1 active catalog metadata lists Scarlet Proof and Heart of the Furnace releasePatch 7.0; this audit does not independently certify release timing."
+  ],
+  "files": [
+    {
+      "file": "gcsim/internal__artifacts__bolide__bolide.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/bolide/bolide.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bolide/bolide.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/bolide/bolide.go",
+      "sha256": "b8f7fc3aea507f0afc67d39e6a8d5920c04749e48c2cadd781a1f963c3d875df",
+      "bytes": 1313,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/internal__artifacts__lavawalker__lavawalker.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/lavawalker/lavawalker.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/lavawalker/lavawalker.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/lavawalker/lavawalker.go",
+      "sha256": "9e2a5a5d6ca4b782ea5aa167eba1ebf6de882508654850046804a3c8a894dff8",
+      "bytes": 1173,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/internal__artifacts__thundersoother__thundersoother.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/thundersoother/thundersoother.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thundersoother/thundersoother.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thundersoother/thundersoother.go",
+      "sha256": "2c00825d2536a415085b6f815aba1c9d9a37f4670ba47d09cef3455d65b9be7b",
+      "bytes": 1200,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/pkg__core__player__shield__bonus.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/shield/bonus.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/bonus.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/bonus.go",
+      "sha256": "b1dd22330c876b9fea5fed6911986379975ac2e60603c345ff08594865105e13",
+      "bytes": 2284,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/pkg__core__player__shield__handler.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/shield/handler.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go",
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "bytes": 3879,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/pkg__catalog__artifact.dm.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/catalog/artifact.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/artifact.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/artifact.dm.go",
+      "sha256": "8a22aef8f47a763d326c48837e85d84c6eda01d939d5dfbe62326b68c6148e2d",
+      "bytes": 17903,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/pkg__simulation__imports.artifact.dm.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/simulation/imports.artifact.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/imports.artifact.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/imports.artifact.dm.go",
+      "sha256": "d6c74c347bfb6080a92d3897958ac0025ce6970789612fb7bc562980e4f7f286",
+      "bytes": 3583,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/internal__artifacts__obsidiancodex__obsidiancodex.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/obsidiancodex/obsidiancodex.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/obsidiancodex/obsidiancodex.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/obsidiancodex/obsidiancodex.go",
+      "sha256": "ec2e882c77448f1ab0c86c58304cd786d8f8c68c009be9415133d98a19d7c779",
+      "bytes": 1919,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/internal__artifacts__scrolloftheheroofcindercity__scrolloftheheroofcindercity.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/scrolloftheheroofcindercity/scrolloftheheroofcindercity.go",
+      "sha256": "16774e7726f5270f4598ef17739225aef3a2310bda84cabdbd03a7f5abfef0cc",
+      "bytes": 6991,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/internal__template__nightsoul__nightsoul.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "internal/template/nightsoul/nightsoul.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/nightsoul/nightsoul.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/nightsoul/nightsoul.go",
+      "sha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "bytes": 5077,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/pkg__core__player__character__energy.go.txt",
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/energy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "bytes": 2327,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "gcsim/LICENSE.txt",
+      "source": "gcsim",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "evidenceRole": "license"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__PrayersForIllumination__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/PrayersForIllumination/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersForIllumination/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersForIllumination/index.tsx",
+      "sha256": "fde70a071e519db670de56520996a1f80b68a178949e2fe002068580ca8c2ef8",
+      "bytes": 589,
+      "evidenceRole": "explicit-missing-runtime-effect"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__PrayersForDestiny__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/PrayersForDestiny/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersForDestiny/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersForDestiny/index.tsx",
+      "sha256": "898a3ef945eebddd0bf03eada5fb2a1cb136c7faed89f279f7a01143ed2c19d4",
+      "bytes": 584,
+      "evidenceRole": "explicit-missing-runtime-effect"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__PrayersForWisdom__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/PrayersForWisdom/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersForWisdom/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersForWisdom/index.tsx",
+      "sha256": "e74044f8ae4b2c1d576f54590b8e4b8f5c313847b472d00acd078d1cf0f6dd75",
+      "bytes": 583,
+      "evidenceRole": "explicit-missing-runtime-effect"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__PrayersToSpringtime__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/PrayersToSpringtime/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersToSpringtime/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/PrayersToSpringtime/index.tsx",
+      "sha256": "014c31f9279f95ace4783af0715dbdab02bd9006d71122bb87388bf521f4c1a4",
+      "bytes": 586,
+      "evidenceRole": "explicit-missing-runtime-effect"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__TinyMiracle__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/TinyMiracle/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TinyMiracle/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TinyMiracle/index.tsx",
+      "sha256": "d06497d57d08ec74b650cad6472e8812ac344623e6c421b6b44dddc47290c28d",
+      "bytes": 2193,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__TravelingDoctor__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx",
+      "sha256": "71c25d9ebf94876dc713634311e41f5355cf937bd3fd0a7382ac6cf5e63649b3",
+      "bytes": 1228,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__Lavawalker__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/Lavawalker/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/Lavawalker/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/Lavawalker/index.tsx",
+      "sha256": "817704ea6e5fd8e9a137a964efb4e85b7750d67d8b1ec0bf9b172d99d055c169",
+      "bytes": 1333,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__Thundersoother__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/Thundersoother/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/Thundersoother/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/Thundersoother/index.tsx",
+      "sha256": "78aa98aee5acfff12fdeb55183f9344679bb71230ada7e57076f5a76f7f5cdb2",
+      "bytes": 1343,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__RetracingBolide__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/RetracingBolide/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/RetracingBolide/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/RetracingBolide/index.tsx",
+      "sha256": "5a06db00dec76c7387f5f7d6423104b7ae6ac0a019c5c0c6b999025602da4d17",
+      "bytes": 1539,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__ScarletProof__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/ScarletProof/index.tsx",
+      "sha256": "ab66bfad832e80e0192d9ca998f7aab4998112e4463f17c248f3384c96e06424",
+      "bytes": 1742,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__HeartOfTheFurnace__index.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/HeartOfTheFurnace/index.tsx",
+      "sha256": "a61c1c61e3362523c57479e85a1a2b65de8476b6ef56518ec852b138ec12e746",
+      "bytes": 2608,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "file": "optimizer/libs__gi__consts__src__character.ts.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/consts/src/character.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/character.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/character.ts",
+      "sha256": "1594571fb4a96c184f99e0f424313ff2c1ea8c749abd50a1b38f1dfde2962fdc",
+      "bytes": 7902,
+      "evidenceRole": "typed-key-definitions"
+    },
+    {
+      "file": "optimizer/libs__gi__consts__src__reaction.ts.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/consts/src/reaction.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/reaction.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/reaction.ts",
+      "sha256": "70f3951f2df2726c1e8332c1e1aca629534c4370405dae70d339ac44ce60732b",
+      "bytes": 1007,
+      "evidenceRole": "typed-key-definitions"
+    },
+    {
+      "file": "optimizer/libs__gi__formula__src__data__artifact__PrayersForDestiny.ts.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/formula/src/data/artifact/PrayersForDestiny.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/artifact/PrayersForDestiny.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/artifact/PrayersForDestiny.ts",
+      "sha256": "d5c5b2fea5aced69c90df2a8ca89fa42380a7807529b4003e9cea5ba54f906cb",
+      "bytes": 1173,
+      "evidenceRole": "rejected-placeholder-template"
+    },
+    {
+      "file": "optimizer/LICENSE.txt",
+      "source": "optimizer",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "bytes": 1071,
+      "evidenceRole": "license"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__tinymiracle.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "sha256": "b7c8d111d04fb0c25799fbd435f8404949992bf7b80f1ce59814eedc2e7e9e4d",
+      "bytes": 2066,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__travelingdoctor.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "sha256": "156e4606a69b00d1a161073182b6f214aac518cc84d3ebfe8e0096fb83362f39",
+      "bytes": 2447,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__thundersoother.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "sha256": "f68c3a9165e10287400dca58f9de02719ad4369e7ac7fc66445535cfaa6a0608",
+      "bytes": 3702,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__lavawalker.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "sha256": "de408e936a7c2554e42198f09b45a036ac2ec840f09cde9b1220b1a889211cda",
+      "bytes": 4193,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__prayersforillumination.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/prayersforillumination.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayersforillumination.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayersforillumination.json",
+      "sha256": "b0f0fb8078e6930a49da459b7b2ba95eda1dc3c2c74187143e925acee8c04836",
+      "bytes": 1042,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__prayersfordestiny.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/prayersfordestiny.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayersfordestiny.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayersfordestiny.json",
+      "sha256": "9c1a2b8847cec7d883c013f061ffe119d8d185b0f31d54dd2efb91a575f43701",
+      "bytes": 1054,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__prayersforwisdom.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/prayersforwisdom.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayersforwisdom.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayersforwisdom.json",
+      "sha256": "bbd88ba14687df50658ddbd4a6e19d08a34264dc939d4db5892fca4184a9d427",
+      "bytes": 1104,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__prayerstospringtime.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/prayerstospringtime.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayerstospringtime.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/prayerstospringtime.json",
+      "sha256": "fc7c98478fce64af46429e63860b8b971035335f220a4b02e2ff1a2b27e86bf2",
+      "bytes": 1189,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__retracingbolide.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "sha256": "930b480335b509826c41c25d775fcfa1c6f12b3ef38d98d1009126a85dfd496d",
+      "bytes": 4809,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__scrolloftheheroofcindercity.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "sha256": "fe3f91845f634ab87c2d5c4c4bd097b18589cc9b6bb1145ad0ff3ae262bb90b3",
+      "bytes": 10511,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__obsidiancodex.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "sha256": "77124283c25c14ad9f7736438e6c8c335bddc416b7ba128c37b50e28b5086726",
+      "bytes": 9793,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__scarletproof.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "sha256": "0a35da3e68ced583aa27953e7d5e28311414260e6ec525fb3372d687482cf3ba",
+      "bytes": 23323,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/src__data__ChineseSimplified__artifacts__heartofthefurnace.json.txt",
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "sha256": "1c4f2ea37c35cb43b67d2a160f8faa04ca0dd4ffc774ba8a73db525abeae8fe4",
+      "bytes": 10429,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "file": "genshin-db/LICENSE.txt",
+      "source": "genshin-db",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "bytes": 1065,
+      "evidenceRole": "license"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__SheetUtil.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/SheetUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/SheetUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/SheetUtil.tsx",
+      "sha256": "255efe2b37ac6282eaf3fb5ada2765414e7bc8c599b83e151c978a05a73d93b6",
+      "bytes": 2988,
+      "evidenceRole": "source-scope-helper"
+    },
+    {
+      "file": "optimizer/libs__gi__sheets__src__Artifacts__dataUtil.tsx.txt",
+      "source": "optimizer",
+      "upstreamPath": "libs/gi/sheets/src/Artifacts/dataUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/dataUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/dataUtil.tsx",
+      "sha256": "3e5f27ace101c16f8afd94f08a1824dd3c6bd62ecc06085409f2fa4860987d28",
+      "bytes": 442,
+      "evidenceRole": "source-scope-helper"
+    }
+  ]
+}

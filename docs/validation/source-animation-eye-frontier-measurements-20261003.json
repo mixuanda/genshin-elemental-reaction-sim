@@ -1,0 +1,473 @@
+{
+  "schemaVersion": "source-animation-eye-frontier-measurements-v1",
+  "executionDate": "2026-10-03",
+  "archivedOn": "2026-10-05",
+  "baseHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "seed": "20261003130",
+  "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nraiden char lvl=90/90 cons=0 talent=1,1,1;\nraiden add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"whitetassel\" refine=1 lvl=1/20;\nyanfei char lvl=90/90 cons=0 talent=1,1,1;\nyanfei add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nmika char lvl=90/90 cons=0 talent=1,1,1;\nmika add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive raiden;\nphase(\"rotation\");\nraiden skill;\nhutao skill;\nhutao attack;\nhutao charge;\nphase(\"hutao charge\");\nyanfei burst;\nphase(\"yanfei burst\");\nmika burst;\nphase(\"mika burst\");\nmika attack;\nwait(1900);\nphase(\"end\");",
+  "receipts": {
+    "baseline": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-animation-eye-frontier.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 11.711
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.881
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.384
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.119
+    },
+    "web-build.initial": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 3.139
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.376
+    },
+    "browser.initial": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-animation-eye-frontier.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 13.205
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-animation-eye-frontier.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.793
+    }
+  },
+  "nativeRunCount": 4,
+  "nativeRunBreakdown": {
+    "pre130And131Baseline": 2,
+    "post130And131InitialBrowser": 2,
+    "finalBrowserReusedCapture": 0
+  },
+  "lanes": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "e5fccf99fdf90f95689dab13f25b28597113073641f84a2d0f4ae4130be38c07",
+        "wasmBytes": 47065221
+      },
+      "observationFrame": 2178,
+      "applicationCount": 17,
+      "actionLogCount": 61,
+      "totalAppliedDamage": 13164.172125839998,
+      "baselineComparison": {
+        "applicationsEqual": true,
+        "actionLogsNonempty": true,
+        "phaseFramesEqual": true,
+        "playerStateEqual": true,
+        "actionLogsEqual": true,
+        "originScope": "All retained Origin fields equal after omitting only newly added StatusOwner; owner independently bound to exact generator status and holder."
+      },
+      "closedCasts": [
+        {
+          "character": "raidenshogun",
+          "action": "skill",
+          "hits": 6,
+          "replayCount": 6,
+          "maxAbsoluteReplayDifference": 0,
+          "completeCast": true
+        },
+        {
+          "character": "yanfeiQ",
+          "contractId": "yanfei-burst",
+          "hits": 1,
+          "expectedRootAttackCount": 1,
+          "observedRootAttackCount": 1,
+          "completeCast": true,
+          "replayCount": 1,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "character": "mikaQ",
+          "contractId": "mika-burst",
+          "hits": 0,
+          "expectedRootAttackCount": 0,
+          "observedRootAttackCount": 0,
+          "completeCast": true,
+          "replayCount": 0,
+          "maxAbsoluteReplayDifference": 0
+        }
+      ],
+      "raidenGenerators": [
+        {
+          "id": 1,
+          "casterActorIndex": 0,
+          "holderActorIndex": 0,
+          "activationProducerId": 1,
+          "activatedFrame": 67,
+          "triggerCount": 0,
+          "status": {
+            "actorIndex": 0,
+            "statusKey": "raiden-e",
+            "instanceId": 1,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1567,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        },
+        {
+          "id": 2,
+          "casterActorIndex": 0,
+          "holderActorIndex": 1,
+          "activationProducerId": 2,
+          "activatedFrame": 67,
+          "triggerCount": 3,
+          "status": {
+            "actorIndex": 1,
+            "statusKey": "raiden-e",
+            "instanceId": 2,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1572,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        },
+        {
+          "id": 3,
+          "casterActorIndex": 0,
+          "holderActorIndex": 2,
+          "activationProducerId": 3,
+          "activatedFrame": 67,
+          "triggerCount": 1,
+          "status": {
+            "actorIndex": 2,
+            "statusKey": "raiden-e",
+            "instanceId": 3,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1571,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        },
+        {
+          "id": 4,
+          "casterActorIndex": 0,
+          "holderActorIndex": 3,
+          "activationProducerId": 4,
+          "activatedFrame": 67,
+          "triggerCount": 1,
+          "status": {
+            "actorIndex": 3,
+            "statusKey": "raiden-e",
+            "instanceId": 4,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1569,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        }
+      ],
+      "raidenTriggerCount": 5,
+      "phaseObservations": 5,
+      "completePhaseObservations": 0,
+      "gapCountBefore": 47,
+      "gapCountAfter": 54,
+      "addedConcreteGaps": [
+        "player: character[1].capturedImplementation.*.burstHealAmount.Bonus: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Caller: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.SourceHostBonusID: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.SourceHostSrcID: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Src: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Target: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Type: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.ppCreationID: private numeric clock semantics have not been reviewed"
+      ],
+      "removedGaps": [
+        "player: animation.OnRemoved callback"
+      ],
+      "hutaoRemovedDescriptorCount": 1,
+      "normalizedForNextActionSampled": false
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "95e33baf8dfdb7264cea14d9b339724de41311d906df93f8d4c1f4e0c8131256",
+        "wasmBytes": 71852581
+      },
+      "observationFrame": 2178,
+      "applicationCount": 17,
+      "actionLogCount": 61,
+      "totalAppliedDamage": 13164.172125839998,
+      "baselineComparison": {
+        "applicationsEqual": true,
+        "actionLogsNonempty": true,
+        "phaseFramesEqual": true,
+        "playerStateEqual": true,
+        "actionLogsEqual": true,
+        "originScope": "All retained Origin fields equal after omitting only newly added StatusOwner; owner independently bound to exact generator status and holder."
+      },
+      "closedCasts": [
+        {
+          "character": "raidenshogun",
+          "action": "skill",
+          "hits": 6,
+          "replayCount": 6,
+          "maxAbsoluteReplayDifference": 0,
+          "completeCast": true
+        },
+        {
+          "character": "yanfeiQ",
+          "contractId": "yanfei-burst",
+          "hits": 1,
+          "expectedRootAttackCount": 1,
+          "observedRootAttackCount": 1,
+          "completeCast": true,
+          "replayCount": 1,
+          "maxAbsoluteReplayDifference": 0
+        },
+        {
+          "character": "mikaQ",
+          "contractId": "mika-burst",
+          "hits": 0,
+          "expectedRootAttackCount": 0,
+          "observedRootAttackCount": 0,
+          "completeCast": true,
+          "replayCount": 0,
+          "maxAbsoluteReplayDifference": 0
+        }
+      ],
+      "raidenGenerators": [
+        {
+          "id": 1,
+          "casterActorIndex": 0,
+          "holderActorIndex": 0,
+          "activationProducerId": 1,
+          "activatedFrame": 67,
+          "triggerCount": 0,
+          "status": {
+            "actorIndex": 0,
+            "statusKey": "raiden-e",
+            "instanceId": 1,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1567,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        },
+        {
+          "id": 2,
+          "casterActorIndex": 0,
+          "holderActorIndex": 1,
+          "activationProducerId": 2,
+          "activatedFrame": 67,
+          "triggerCount": 3,
+          "status": {
+            "actorIndex": 1,
+            "statusKey": "raiden-e",
+            "instanceId": 2,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1572,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        },
+        {
+          "id": 3,
+          "casterActorIndex": 0,
+          "holderActorIndex": 2,
+          "activationProducerId": 3,
+          "activatedFrame": 67,
+          "triggerCount": 1,
+          "status": {
+            "actorIndex": 2,
+            "statusKey": "raiden-e",
+            "instanceId": 3,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1571,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        },
+        {
+          "id": 4,
+          "casterActorIndex": 0,
+          "holderActorIndex": 3,
+          "activationProducerId": 4,
+          "activatedFrame": 67,
+          "triggerCount": 1,
+          "status": {
+            "actorIndex": 3,
+            "statusKey": "raiden-e",
+            "instanceId": 4,
+            "createdFrame": 67,
+            "creationActionSequence": 1,
+            "initialExpiryFrame": 1567,
+            "finalExpiryFrame": 1569,
+            "endState": "expired-at-end",
+            "endFrame": 2178,
+            "nativeOverwrite": false
+          }
+        }
+      ],
+      "raidenTriggerCount": 5,
+      "phaseObservations": 5,
+      "completePhaseObservations": 0,
+      "gapCountBefore": 47,
+      "gapCountAfter": 54,
+      "addedConcreteGaps": [
+        "player: character[1].capturedImplementation.*.burstHealAmount.Bonus: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Caller: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.SourceHostBonusID: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.SourceHostSrcID: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Src: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Target: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.burstHealAmount.Type: private numeric clock semantics have not been reviewed",
+        "player: character[1].capturedImplementation.*.ppCreationID: private numeric clock semantics have not been reviewed"
+      ],
+      "removedGaps": [
+        "player: animation.OnRemoved callback"
+      ],
+      "hutaoRemovedDescriptorCount": 1,
+      "normalizedForNextActionSampled": false
+    }
+  ],
+  "totalClosedCastCount": 6,
+  "totalSelectedReplayCount": 14,
+  "pageErrors": [],
+  "calculator": {
+    "classicCompleteRaidenEImportAndJsonRoundTrip": true,
+    "fourActualHolderRows": true,
+    "editingNewlySampled": false
+  },
+  "animation130": {
+    "classicActorCaptureSites": 17,
+    "stellarActorCaptureSites": 18,
+    "pureNormalizedPredicateSitesPerLane": 2,
+    "runtimeObserved": "Hu Tao charged-attack OnRemoved actual actor and implementation captured. Normalized-time predicate was not retained at any sampled phase; source/build evidence only.",
+    "unknownPhaseState": "Concrete captured implementation adds unresolved private/generation fields; all 5 boundaries per lane remain incomplete. Fischl/Klee closures remain opaque."
+  },
+  "finite129": {
+    "rules": [
+      "yanfei-burst",
+      "mika-burst"
+    ],
+    "audit": "docs/validation/source-finite-frontier-129-audit-20261003.json",
+    "scope": "One intrinsic Q root for Yanfei, zero damage roots for Mika; does not mean healing, buff or animation lifecycle is complete."
+  },
+  "ownership131": {
+    "audit": "docs/validation/source-raiden-ownership-audit-20261003.json",
+    "scope": "Initial E and all intrinsic Eye followups under actual per-holder AttackMod instances; 4 native +66f activations, 5 accepted triggers and 6 included hits per lane. Recast/+51 to +66 overlap only source/build reviewed.",
+    "excluded": "Burst buff value, particle energy, triggerer own damage and independent reaction/equipment damage."
+  },
+  "registryCounts": {
+    "directJsonRows": 32,
+    "producerJsonRows": 77,
+    "constructTypeScriptRows": 2,
+    "rawRows": 111,
+    "mergedRuntimeRows": 110,
+    "mergedIds": 110,
+    "canonicalCharacterActions": 108,
+    "jsonProducerPlans": 77,
+    "jsonProducerSiteDeclarations": 104,
+    "uniqueJsonProducerSites": 97,
+    "additionalDynamicConstructPlans": 2
+  },
+  "sourceBindingCoverage": {
+    "classic": {
+      "implementedEqBindings": 234,
+      "missingContractBindings": 126,
+      "missingUniqueSourceMethods": 114,
+      "meaning": "Fixed-source entrypoint bindings without finite skill contracts; not game readiness or complete character coverage."
+    },
+    "stellar": {
+      "implementedEqBindings": 248,
+      "missingContractBindings": 140,
+      "missingUniqueSourceMethods": 126,
+      "meaning": "Fixed-source entrypoint bindings without finite skill contracts; not game readiness or complete character coverage."
+    }
+  },
+  "character132Audit": {
+    "path": "docs/validation/source-character-formula-frontier-audit-20261003.json",
+    "result": "No new rule; candidates already wired. Shared-call presence is not full formula/mechanic/game verification."
+  },
+  "unchangedDataPointers": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "limitations": "Not overall completion; unreviewed state/ownership, whole-roster readiness, unsupported source mechanics, version mapping and remote CI still open. No game verified promotion."
+}

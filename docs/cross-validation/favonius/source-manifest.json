@@ -1,0 +1,80 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-23T16:54:39.944011+00:00",
+  "retrieval": "Local frozen checkout, common/favonius.go additionally opened on GitHub on 2026-09-24 Asia/Hong_Kong",
+  "status": "fixed-source-assumed",
+  "files": [
+    {
+      "path": "internal/weapons/common/favonius.go",
+      "sha256": "a53c8ccfea9d4ed1831b7a5b9af301155dd8254c4e255df44a6dc10d1210e569",
+      "bytes": 1536,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/favonius.go"
+    },
+    {
+      "path": "internal/weapons/sword/favonius/favonius.go",
+      "sha256": "8f2c02a05336ceb46ca158e6233e27739efe62bca14bb076b1abd53675e1df84",
+      "bytes": 391,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/favonius/favonius.go"
+    },
+    {
+      "path": "internal/weapons/claymore/favonius/favonius.go",
+      "sha256": "8f2c02a05336ceb46ca158e6233e27739efe62bca14bb076b1abd53675e1df84",
+      "bytes": 391,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/favonius/favonius.go"
+    },
+    {
+      "path": "internal/weapons/spear/favonius/favonius.go",
+      "sha256": "8f2c02a05336ceb46ca158e6233e27739efe62bca14bb076b1abd53675e1df84",
+      "bytes": 391,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/favonius/favonius.go"
+    },
+    {
+      "path": "internal/weapons/bow/favonius/favonius.go",
+      "sha256": "8f2c02a05336ceb46ca158e6233e27739efe62bca14bb076b1abd53675e1df84",
+      "bytes": 391,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/favonius/favonius.go"
+    },
+    {
+      "path": "internal/weapons/catalyst/favonius/favonius.go",
+      "sha256": "8f2c02a05336ceb46ca158e6233e27739efe62bca14bb076b1abd53675e1df84",
+      "bytes": 391,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/favonius/favonius.go"
+    },
+    {
+      "path": "pkg/core/energy.go",
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "bytes": 2639,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go"
+    },
+    {
+      "path": "pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "bytes": 6364,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "bytes": 8629,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "path": "pkg/core/player/character/hitlag.go",
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "bytes": 1566,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go"
+    }
+  ]
+}

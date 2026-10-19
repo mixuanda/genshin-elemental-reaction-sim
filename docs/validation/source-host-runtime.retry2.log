@@ -1,0 +1,11 @@
+/Users/evan/Documents/gidps/packages/sim-core/src/source-host-capture.ts:94
+	if (!application) throw new Error(`来源运行不存在实际命中 #${applicationId}。`);
+	                        ^
+
+Error: 来源运行不存在实际命中 #0。
+    at captureSourceHostHit (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-capture.ts:94:26)
+    at file:///private/tmp/gidps-source-host-smoke.mjs:15:16
+
+Node.js v24.15.0
+
+WALL_SECONDS=0.769

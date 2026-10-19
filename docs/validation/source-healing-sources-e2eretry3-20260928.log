@@ -1,0 +1,10 @@
+[WebServer] (node:33950) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:33951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-healing-sources.spec.ts:85:1 › native HealInfo producers replay their complete causal source chain and restore one edited healing calculation (33.3s)
+
+  1 passed (34.2s)

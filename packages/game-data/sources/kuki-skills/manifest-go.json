@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "files": [
+    {
+      "path": "libs/gi/sheets/src/Characters/KukiShinobu/index.tsx",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/optimizer/libs/gi/sheets/src/Characters/KukiShinobu/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/KukiShinobu/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/KukiShinobu/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T18:51:12.310757+00:00",
+      "bytes": 10468,
+      "sha256": "0b9a6eacffd7bcc5d74aaa57080d2e3546d971c40532fc1d9fece453c2070fe6",
+      "gitBlobSha": "b0e66da61c364142deec8be491c43fa06ff3bd28",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/KukiShinobu/skillParam.json",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/optimizer/libs/gi/stats/Data/Characters/KukiShinobu/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/KukiShinobu/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/KukiShinobu/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T18:51:12.932755+00:00",
+      "bytes": 5595,
+      "sha256": "778514f6350914d96a7f1106ffa06ddc886644be9b730a40dcc8710513e4416a",
+      "gitBlobSha": "d12af3f3889e3b81707c2b5e5210aa17d9e6af96",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/KukiShinobu/data.json",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/optimizer/libs/gi/stats/Data/Characters/KukiShinobu/data.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/KukiShinobu/data.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/KukiShinobu/data.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T18:51:16.598695+00:00",
+      "bytes": 960,
+      "sha256": "b8bf4adb712e1dc11dfc757483fd5e0f25cc5ffb448770f30915cf0b33402383",
+      "gitBlobSha": "79cca333abe162a03c4c3ad6388c0cc72c461af5",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/char_KukiShinobu_gen.json",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/char_KukiShinobu_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_KukiShinobu_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/char_KukiShinobu_gen.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T18:51:17.652286+00:00",
+      "bytes": 5463,
+      "sha256": "9cc98ab1588cd666d58ca3a1ab5241b6b8b122c5ee09dffdcb19cb5bb944dd2b",
+      "gitBlobSha": "894a52ca09f5fc6458972b21f3319c35ecd22ac5",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_KukiShinobu_gen.json",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/optimizer/libs/gi/dm-localization/assets/locales/en/char_KukiShinobu_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_KukiShinobu_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_KukiShinobu_gen.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T18:51:18.693331+00:00",
+      "bytes": 7441,
+      "sha256": "325330043f254904cd492268f4514e4ab0d55fac7def38ebfede82af955a9b6d",
+      "gitBlobSha": "c5a15bfae05e21047e452a4096b0e186e5128a49",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/optimizer/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T18:51:19.597513+00:00",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true
+    }
+  ],
+  "limitations": [
+    "The production sheet calculates independent damage nodes; it does not schedule E ring or Q ticks.",
+    "Character sheet, parameter table, and localization are one repository, not independent sources.",
+    "This archive does not upgrade live-game mechanics to verified status."
+  ]
+}

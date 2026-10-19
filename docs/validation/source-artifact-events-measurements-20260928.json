@@ -1,0 +1,211 @@
+{
+  "schemaVersion": "source-artifact-events-measurements-v1",
+  "runs": [
+    {
+      "variant": "classic",
+      "scenario": "healing",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "wasmSha256": "a8cfa04ac4ddeeaa1e7f54bdbe36fe65e045da2bce8bd5c8855e2577e4e44e15",
+      "calculations": 116,
+      "applications": 50,
+      "ruleCounts": {
+        "dynamic-songofdayspast-2pc-heal": 2,
+        "const-oceanhuedclam-2pc-heal": 2,
+        "dynamic-echoes-2pc-atkp": 43,
+        "oceanhuedclam": 4,
+        "echoes": 10,
+        "songofdayspast": 5
+      },
+      "echoesPaths": {
+        "rolled-proc": 5,
+        "active-window": 5
+      },
+      "songRemaining": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "ohcQueue": {
+        "id": 14,
+        "sourceFrame": 205,
+        "consumerFrames": [
+          206,
+          206
+        ],
+        "targetKeys": [
+          1,
+          2
+        ],
+        "queueDelayFrames": 1
+      },
+      "additiveCounts": {
+        "echoes": 10,
+        "songofdayspast": 5,
+        "oceanhuedclam": 4
+      },
+      "editedHit": {
+        "applicationId": 26,
+        "calculationId": 21,
+        "originalValue": 782.011775503,
+        "editedValue": 852.011775503,
+        "originalDamage": 558.1318586136048,
+        "editedDamage": 589.6318586136048
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "healing",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "0bc341a5252657a1ece650cc959016db6828ed0a54894a3b3afb38a6ec7c7d82",
+      "calculations": 116,
+      "applications": 50,
+      "ruleCounts": {
+        "dynamic-songofdayspast-2pc-heal": 2,
+        "const-oceanhuedclam-2pc-heal": 2,
+        "dynamic-echoes-2pc-atkp": 43,
+        "oceanhuedclam": 4,
+        "echoes": 10,
+        "songofdayspast": 5
+      },
+      "echoesPaths": {
+        "rolled-proc": 5,
+        "active-window": 5
+      },
+      "songRemaining": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "ohcQueue": {
+        "id": 14,
+        "sourceFrame": 205,
+        "consumerFrames": [
+          206,
+          206
+        ],
+        "targetKeys": [
+          1,
+          2
+        ],
+        "queueDelayFrames": 1
+      },
+      "additiveCounts": {
+        "echoes": 10,
+        "songofdayspast": 5,
+        "oceanhuedclam": 4
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "wasmSha256": "0bc341a5252657a1ece650cc959016db6828ed0a54894a3b3afb38a6ec7c7d82",
+      "calculations": 523,
+      "applications": 100,
+      "ruleCounts": {
+        "dynamic-heart-of-the-furnace-2pc-atkp": 93,
+        "dynamic-scarletproof-2pc-atkp": 17,
+        "const-blizzard-2pc-cryo-p": 14,
+        "dynamic-disenchantmentindeepshadow-2pc-atkp": 3,
+        "const-blizzard-4pc-cryo-cr": 38,
+        "dynamic-scarletproof-4pc-cr": 15,
+        "dynamic-scarletproof-4pc-stellar-swirl": 24,
+        "dynamic-heart-of-the-furnace-4pc-atkp": 66,
+        "dynamic-heart-of-the-furnace-4pc-stellar-react": 60,
+        "dynamic-disenchantmentindeepshadow-4pc-cr-a7": 33
+      },
+      "snapshot": {
+        "effectSourceActorIndex": 2,
+        "beneficiaryActorIndex": 0,
+        "targetKey": 1,
+        "calculationId": 21,
+        "terminalCalculationId": 86,
+        "terminalApplicationId": 90,
+        "scalarIds": [
+          19
+        ],
+        "statStepKeys": [
+          "bs-4pc-lunarcharge"
+        ],
+        "replayDifference": 0
+      },
+      "disenchantmentSnapshotCount": 0
+    }
+  ],
+  "pageErrors": [],
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.733,
+      "log": "docs/validation/source-artifact-events-classic-build-20260928.log"
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.112,
+      "log": "docs/validation/source-artifact-events-stellar-build-20260928.log"
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.609,
+      "log": "docs/validation/source-artifact-events-web-build-20260928.log"
+    },
+    "web-build-retry1": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.689,
+      "log": "docs/validation/source-artifact-events-web-build-retry1-20260928.log"
+    },
+    "e2e": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-artifact-events.spec.ts"
+      ],
+      "env": {
+        "GIDPS_PREBUILT": "1"
+      },
+      "exitCode": 1,
+      "wallSeconds": 8.713,
+      "log": "docs/validation/source-artifact-events-e2e-20260928.log"
+    },
+    "e2e-retry1": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-artifact-events.spec.ts"
+      ],
+      "env": {
+        "GIDPS_PREBUILT": "1"
+      },
+      "exitCode": 0,
+      "wallSeconds": 8.305,
+      "log": "docs/validation/source-artifact-events-e2e-retry1-20260928.log"
+    }
+  }
+}

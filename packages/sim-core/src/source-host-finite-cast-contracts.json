@@ -1,0 +1,645 @@
+{
+  "schemaVersion": 1,
+  "scope": "intrinsic ability-method root attacks only; excludes independent weapons/artifacts, later player actions, unrelated team damage, continued healing/buffs, and source unverified reactions beyond these root attack deliveries",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "coordinateSystem": "patched fixed source files; line references are current cache, not upstream original",
+  "rows": [
+    {
+      "characterKey": "kaeya",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/kaeya/skill.go",
+      "sourceSha256": "38e49bdcc8582d35307e237a9c413c6edc3ed3d564e52526cf8765f8b90eb2db",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:30-94 QueueAttack at 76; hitmark 28",
+      "nonDamageCallbacksAndInitAudit": "particleCB and A1 heal only; C1/C2/C4 Init hooks do not add this cast attack",
+      "id": "kaeya-skill",
+      "label": "凯亚 E"
+    },
+    {
+      "characterKey": "sucrose",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/sucrose/skill.go",
+      "sourceSha256": "49aa36142ecfe3cec3ec442147203dfc71f2f723cd47216e55ff3d6fa7103d14",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:28-72 QueueAttack at 56, delay 42",
+      "nonDamageCallbacksAndInitAudit": "A4 callback and hexOnSkill add buffs; Init A1 Swirl hooks add buffs, not cast attack",
+      "id": "sucrose-skill",
+      "label": "砂糖 E"
+    },
+    {
+      "characterKey": "kamisatoayaka",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ayaka/skill.go",
+      "sourceSha256": "1fd0598d5729f29623c5d5c5242b59f5a9afe8b624f3e71575ab20c6ecaa63fd",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:28-63 QueueAttack at 46, hitmark 33",
+      "nonDamageCallbacksAndInitAudit": "A1 modifier and particleCB do not queue another attack",
+      "id": "ayaka-skill",
+      "label": "神里绫华 E"
+    },
+    {
+      "characterKey": "bennett",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/bennett/skill.go",
+      "sourceSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1,
+        "condition": "effective hold level == 0 after hold and hold_c4 resolution"
+      },
+      "sourceEvidence": "skill.go:65-106 -> skillPress at 87-120 QueueAttack at 102",
+      "nonDamageCallbacksAndInitAudit": "pressParticleCB queues particle only; hold branches excluded",
+      "id": "bennett-skill",
+      "label": "班尼特 E"
+    },
+    {
+      "characterKey": "diona",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/diona/skill.go",
+      "sourceSha256": "3e629a8e0b86e04f4a2de0ee23e99f2d15addbcfb5ad01613daea90aa7d5cda5",
+      "expectedRootAttackCount": {
+        "kind": "paramEquals",
+        "param": "hold",
+        "value": 1,
+        "whenEqual": 5,
+        "otherwise": 2
+      },
+      "sourceEvidence": "skill.go:40-75 -> skillPress/skillHold -> pawsPewPew 96-190; direct for i range pawCount QueueAttack at 178",
+      "nonDamageCallbacksAndInitAudit": "pawCB creates or refreshes shield; makeParticleCB queues particle; travel changes delays only",
+      "id": "diona-skill",
+      "label": "迪奥娜 E"
+    },
+    {
+      "characterKey": "amber",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/amber/burst.go",
+      "sourceSha256": "d1372bde47b18bb8065a96583bcbce234b8a474b00c12aee8ee87cb0a3991c0c",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 18
+      },
+      "sourceEvidence": "burst.go:27-78: loops 24..120 step24 (5), 36..120 step36 (3), 12..120 step12 (10), all direct QueueAttackWithSnap",
+      "nonDamageCallbacksAndInitAudit": "C6 adds stat modifier; Init A1 changes radius/crit; no cast-created attack callbacks",
+      "id": "amber-burst",
+      "label": "安柏 Q"
+    },
+    {
+      "characterKey": "chongyun",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/chongyun/burst.go",
+      "sourceSha256": "9109b4719e1a02a381210e070412add325a73ac09b605d22602bfbe4df281d64",
+      "expectedRootAttackCount": {
+        "kind": "constellationThreshold",
+        "threshold": 6,
+        "below": 3,
+        "atOrAbove": 4
+      },
+      "sourceEvidence": "burst.go:27-68: burstHitmarks {50,59,67}; C6 fourth at 77",
+      "nonDamageCallbacksAndInitAudit": "C4 callback grants energy; C6 Init modifier affects damage, no additional cast queue",
+      "id": "chongyun-burst",
+      "label": "重云 Q"
+    },
+    {
+      "characterKey": "keqing",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/keqing/burst.go",
+      "sourceSha256": "8002f360da1a93ceed52b83a0cd077b1895222316b306d045f57f4ce031eee4a",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 10
+      },
+      "sourceEvidence": "burst.go:23-61: initial at 56, range 82..<162 step11 (8), final at 197",
+      "nonDamageCallbacksAndInitAudit": "A4/C6 add modifiers; Init C4 reaction hooks add modifiers, not extra intrinsic Q attacks",
+      "id": "keqing-burst",
+      "label": "刻晴 Q"
+    },
+    {
+      "characterKey": "zhongli",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/zhongli/burst.go",
+      "sourceSha256": "55ccc89c549d4386d4bed607fcedf693983be1fb0c3097c5c580f3541f162b19",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "burst.go:23-57 QueueAttack at 47, hitmark 101",
+      "nonDamageCallbacksAndInitAudit": "C2 addJadeShield creates non-damage RES tasks; no additional Q attack",
+      "id": "zhongli-burst",
+      "label": "钟离 Q"
+    },
+    {
+      "characterKey": "bennett",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/bennett/burst.go",
+      "sourceSha256": "c11659ebc302f01ac4323f743d7a0922708f1fe3629b14a56bfd22714145290e",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "burst.go:33-78 QueueAttack at 55, snapshot and damage delay 37",
+      "nonDamageCallbacksAndInitAudit": "field status and finite tasks heal/buff only; no additional intrinsic Q attack",
+      "id": "bennett-burst",
+      "label": "班尼特 Q"
+    },
+    {
+      "characterKey": "ganyu",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/ganyu/skill.go",
+      "sourceSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+      "sourceHashes": {
+        "classicSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+        "stellarSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 2
+      },
+      "sourceEvidence": "skill.go:19-50 direct QueueAttackWithSnap calls at 35 (delay 13) and 37 (delay 373).",
+      "nonDamageCallbacksAndInitAudit": "skill.go:53-65 callback queues particles only. ganyu.go:42-49 Init installs C1/C4 only; cons.go:20-42 C1 callback is for Frostflake Arrow/Bloom and is not attached by E; cons.go:44-68 C4 is a damage modifier, not another attack. Skill line 39-41 grants C6 status consumed by a later aimed shot (aimed.go:78-85), which is a later player action and excluded.",
+      "id": "ganyu-skill",
+      "label": "甘雨 E"
+    },
+    {
+      "characterKey": "yanfei",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yanfei/skill.go",
+      "sourceSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+      "sourceHashes": {
+        "classicSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+        "stellarSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:31-85 one direct QueueAttack at 63.",
+      "nonDamageCallbacksAndInitAudit": "skill.go:32-48 addSeal and 87-96 particleCB update seals/particles only. yanfei.go:47-59 Init initializes modifiers and C2; cons.go:15-39 C2 applies only to AttackTagExtra, while E is AttackTagElementalArt. asc.go:38-76 A4 queues Blazing Eye only from a later charged-attack crit; burst.go:90 calls c4 from Q (shield only).",
+      "id": "yanfei-skill",
+      "label": "烟绯 E"
+    },
+    {
+      "characterKey": "xiao",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xiao/skill.go",
+      "sourceSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+      "sourceHashes": {
+        "classicSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+        "stellarSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:31-83 one direct QueueAttack at 50, hitmark 4.",
+      "nonDamageCallbacksAndInitAudit": "skill.go:44-48 / 85-96 particle callback queues particles only. skill.go:63-66 schedules A4; asc.go:40-68 creates a 420-frame modifier for subsequent Elemental Art-tagged attacks, no attack. xiao.go:46-55 Init adds no cast attack; cons.go:61-88 C6 resets E cooldown after qualifying plunge hits, and plunge.go:168-174,251-257 attach it to later plunge attacks, not E.",
+      "id": "xiao-skill",
+      "label": "魈 E"
+    },
+    {
+      "id": "thoma-skill",
+      "label": "托马 E（固定来源施放伤害）",
+      "characterKey": "thoma",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/thoma/skill.go",
+      "sourceSha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a",
+      "sourceHashes": {
+        "classicSha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a",
+        "stellarSha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "Skill queues one Blazing Blessing directly with snapshot/damage delay 11; native shield creation at +9/+1 and self-infusion at +9 do not emit skill damage.",
+      "nonDamageCallbacksAndInitAudit": "particleCB generates particles only; shield refresh has no terminal damage; A1/C6 modify shield strength or later attack tags. Init burst watcher emits only on later normals under its Q status. C1 cooldown, snapshot and damage comments remain source limitations.",
+      "scopeNotes": [
+        "本规则汇总固定来源的托马 E 施放伤害；护盾量、自附火、粒子及后续 Q 协同攻击分别处理。",
+        "来源仍标注快照时点未知、伤害组件未最终确认，且 C1 冷却按无条件 12 秒简化；本结果复现该来源，不宣称游戏机制已核验。"
+      ]
+    },
+    {
+      "characterKey": "mona",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/mona/skill.go",
+      "label": "莫娜 E",
+      "sourceEvidence": "skill.go:38-86; 4 direct DoT queues in the loop at 60-63 plus one direct explosion at 77. hold=0/1 changes timing only; last explosion is frame 329/344.",
+      "id": "mona-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 5
+      },
+      "sourceSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+      "sourceHashes": {
+        "classicSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c",
+        "stellarSha256": "a40769dd6bf443c2ab23b72fc370c383f2a0cf495764b32adb614b2ab518985c"
+      },
+      "nonDamageCallbacksAndInitAudit": "The method queues exactly four tick attacks and one explosion. particleCB at skill.go:89-103 adds particles only. Init at mona.go:51-63 installs A4 and constellation hooks; asc.go:21-63 A1 phantom damage is created by later dash actions. C2 follow-up CA listens only to later Normal hits (cons.go:104-140); C1/reaction and omen detonation effects are separate reaction or later-action scope. E contributes no extra callback-generated attack.",
+      "scopeNotes": [
+        "hold=0: ticks 86,145,204,263; explosion 329. hold!=0: ticks 101,160,219,278; explosion 344. Constant total 5; observe through frame 344 and terminal dispatch."
+      ]
+    },
+    {
+      "characterKey": "venti",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/venti/skill.go",
+      "label": "温迪 E",
+      "sourceEvidence": "skill.go:32-80; one QueueAttack at 76. hold==0 hits at frame 51; hold!=0 at frame 74.",
+      "id": "venti-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6",
+      "sourceHashes": {
+        "classicSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6",
+        "stellarSha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6"
+      },
+      "nonDamageCallbacksAndInitAudit": "Press/hold changes attack multiplier, area, target center, hitmark, and cooldown, but both branches converge to one QueueAttack (skill.go:53-76). c2 callback changes target RES only (cons.go:38-57); makeParticleCB queues particles (skill.go:83-95). Init and C4 add only modifiers. C1 extra arrows are attached to Aimed attacks, not E (cons.go:13-31).",
+      "scopeNotes": [
+        "hold==0 or nonzero; direct root count always 1; hitmark 51/74; observe through branch hitmark and terminal dispatch."
+      ]
+    },
+    {
+      "characterKey": "sethos",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/sethos/skill.go",
+      "label": "赛索斯 E",
+      "sourceEvidence": "skill.go:61-85; one QueueAttack at 75, due at frame 13.",
+      "id": "sethos-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "142d65db6ae5027928ae803082a30a8face72c5291be77d2e19c02089037a64b",
+      "sourceHashes": {
+        "classicSha256": "142d65db6ae5027928ae803082a30a8face72c5291be77d2e19c02089037a64b",
+        "stellarSha256": "cf0f885f875541ce63913ba5772226d322e41f63b1baa1b0ac7ff248c70d4411"
+      },
+      "nonDamageCallbacksAndInitAudit": "E queues one attack and attaches particleCB only (skill.go:87-96). Init calls skillRefundHook, whose elemental-reaction listeners restore Energy/add a stack and do not queue damage (sethos.go:36-43; skill.go:35-59). Constellation/passive code changes charge/aimed-attack behavior or stats, outside this E root.",
+      "scopeNotes": [
+        "No method params select a root-count branch. Constant 1; attack due at frame 13; Stellar adds an OnStellarConduct energy-refund subscription only, with no attack-count effect."
+      ]
+    },
+    {
+      "characterKey": "candace",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/candace/skill.go",
+      "label": "坎蒂丝 E",
+      "sourceEvidence": "skill.go:38-149; one QueueAttack at 97. hitmark is 16 for chargeLevel 0, 91 for chargeLevel 1, or 36 for perfect (91-55).",
+      "id": "candace-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d",
+      "sourceHashes": {
+        "classicSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d",
+        "stellarSha256": "3e43739f4942ea56201a1e8cf15aab36537b1db552db4c9349c309ba1673409d"
+      },
+      "nonDamageCallbacksAndInitAudit": "hold is clamped to 0/1 and perfect forces chargeLevel 1; branches change attack data, radius, shield, particle count, and timing but all converge on one QueueAttack. Callback grants C2 state/particles only (skill.go:97-108); created shield lasts through the hitmark and has no damage hook (skill.go:110-135). C6 follow-up damage belongs to later normal hits during Burst, not E (cons.go:38 onward).",
+      "scopeNotes": [
+        "constant direct count 1 for hold=0/1 and perfect=0/1. Effective hitmark 16, 91, or 36 for perfect level 1; close after hitmark and terminal dispatch."
+      ]
+    },
+    {
+      "characterKey": "dahlia",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/dahlia/skill.go",
+      "label": "达莉亚 E",
+      "sourceEvidence": "skill.go:44-78; short_hold selects hitmark 27/28, one QueueAttack at 62.",
+      "id": "dahlia-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791",
+      "sourceHashes": {
+        "classicSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791",
+        "stellarSha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791"
+      },
+      "nonDamageCallbacksAndInitAudit": "The only attack callback is particleCB (skill.go:80 onward), which queues particles. Init sets up stats/shield and constellation helpers; c1 energy, c2 shield strength, c4 Burst duration, and c6 revival/ATK SPD do not create an E attack (dahlia.go:36-43; cons.go:15-94).",
+      "scopeNotes": [
+        "short_hold==0 or nonzero maps to hitmark 27/28; constant direct count 1; observe through selected hitmark and terminal dispatch."
+      ]
+    },
+    {
+      "characterKey": "varesa",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/varesa/skill.go",
+      "label": "瓦雷莎 E",
+      "sourceEvidence": "skill.go:43-100; one QueueAttack at 80. Blessing selects hitmark 5 vs 2 but does not change root count.",
+      "id": "varesa-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "ba4168c0cedd9af450cd9b55ef922db0b2a553cce2597bd771b5528a066b638d",
+      "sourceHashes": {
+        "classicSha256": "ba4168c0cedd9af450cd9b55ef922db0b2a553cce2597bd771b5528a066b638d",
+        "stellarSha256": "b20cd7b1a3b013db37485144ebd1daca056b7ae4b75545cce62adeb7a6d4e4a2"
+      },
+      "nonDamageCallbacksAndInitAudit": "Blessing alters attack label/multiplier/hitmark only; freeSkill disables particles and cooldown but still queues the attack (skill.go:62-86). particleCB is particle-only (skill.go:103 onward). E applies A1 status for a later Plunge bonus and queues a 5-frame Nightsoul-points task, not damage (skill.go:88-90; asc.go:34-64). Init/constellations add modifiers or affect later Burst/Plunge; no child E attack (varesa.go:46-53; cons.go:14-115).",
+      "scopeNotes": [
+        "Constant direct count 1; HasBlessing chooses frame 5 or 2. freeSkill does not skip queue. Stellar source changes AdditionalTags field type at line 50 only; attack count/data are equivalent."
+      ]
+    },
+    {
+      "characterKey": "aloy",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/aloy/burst.go",
+      "label": "埃洛伊 Q",
+      "sourceEvidence": "burst.go:26-57; one QueueAttackWithSnap at 41, hitmark 100.",
+      "id": "aloy-burst",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150",
+      "sourceHashes": {
+        "classicSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150",
+        "stellarSha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150"
+      },
+      "nonDamageCallbacksAndInitAudit": "Burst has one snapshotted direct root and no hit callback. Init and ascension helpers manage Coil/atk buffs, not Q-created attacks (aloy.go:41-50; asc.go:11-85). A1/A4 state applies to Coil/NAs and other later actions; no constellations add a Q child.",
+      "scopeNotes": [
+        "No method count branch; constant 1; hitmark 100; terminal dispatch required."
+      ]
+    },
+    {
+      "characterKey": "freminet",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/freminet/burst.go",
+      "label": "菲米尼 Q",
+      "sourceEvidence": "burst.go:29-62; one QueueAttack at 46, hitmark 44.",
+      "id": "freminet-burst",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb",
+      "sourceHashes": {
+        "classicSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb",
+        "stellarSha256": "535fd26ae53b093769467b78ed1e15c9276265ce7264ab4784a8d1a96c647ddb"
+      },
+      "nonDamageCallbacksAndInitAudit": "Q starts a 10s status and resets E cooldown, then queues one hit without callbacks (burst.go:29-51); status impacts later E actions, which are excluded. Init and A1/C4/C6 provide modifiers/reaction effects only (freminet.go:33-41; asc.go:20-61; cons.go:23-140). Stellar adds an OnStellarConduct modifier listener in cons.go; it does not queue attacks.",
+      "scopeNotes": [
+        "No method count branch; constant 1; hitmark 44; terminal dispatch required."
+      ]
+    },
+    {
+      "characterKey": "furina",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/furina/burst.go",
+      "label": "芙宁娜 Q",
+      "sourceEvidence": "burst.go:166-205; one QueueAttack at 195, hitmark 98. A C1 setup task at 188-193 establishes Burst state at frame 95 before that hit.",
+      "id": "furina-burst",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd",
+      "sourceHashes": {
+        "classicSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd",
+        "stellarSha256": "a6d56ce7ad3e8d8521d46c71ee362484773ff95cdc145df2b539278ba22921dd"
+      },
+      "nonDamageCallbacksAndInitAudit": "The method task sets initial fanfare/status only; the direct Q attack is queued once without callback (burst.go:188-198). Init A1 heals and A4 tracks fanfare; C6 callback is attached to later Normal/Charged attack paths, not Q (furina.go:61-76; asc.go:19-123; cons.go:71-155). Summon attacks are from Skill and are excluded.",
+      "scopeNotes": [
+        "No count branch; constant 1; include the pre-hit C1/status task at frame 95 in the observation, then close after hitmark 98 and terminal dispatch."
+      ]
+    },
+    {
+      "characterKey": "yunjin",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yunjin/skill.go",
+      "label": "云堇 E",
+      "sourceEvidence": "skill.go:49-145; one QueueAttack at 98. Tap, hold levels 1/2, and perfect counter change data/timing but each call emits one root.",
+      "id": "yunjin-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+      "sourceHashes": {
+        "classicSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07",
+        "stellarSha256": "e57392046817cfefe0b371d810679b902b44b92991376e5c7e607271508b9d07"
+      },
+      "nonDamageCallbacksAndInitAudit": "Branches choose charge level, radius and skill hitmark (13/50/93); perfect forces level 2 but all branches converge to one QueueAttack. Callback queues particles only (skill.go:148-158); transient counter shield ends at selected hitmark and creates no attack (skill.go:106-131). Init C2/C4/C6 set team buffs only, and burstProc supports later Normal damage (yunjin.go:36-49; cons.go:18-117).",
+      "scopeNotes": [
+        "constant direct count 1 for hold levels 0/1/2 and perfect; hitmark 13/50/93 based on animIdx. Close after selected hitmark and terminal dispatch."
+      ]
+    },
+    {
+      "characterKey": "jean",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/jean/skill.go",
+      "label": "琴 E",
+      "sourceSha256": "946858a956e042012e2fa1ff5d4bc3d2f3b869ea1329e7ebff4eb7ead7111072",
+      "sourceHashes": {
+        "classicSha256": "946858a956e042012e2fa1ff5d4bc3d2f3b869ea1329e7ebff4eb7ead7111072",
+        "stellarSha256": "946858a956e042012e2fa1ff5d4bc3d2f3b869ea1329e7ebff4eb7ead7111072"
+      },
+      "sourceEvidence": "skill.go:27-65; one QueueAttackWithSnap at 49. hitmark 21+min(hold,300); hold changes duration only.",
+      "nonDamageCallbacksAndInitAudit": "Tap/hold converge on one QueueAttackWithSnap; C1 modifies snapshot damage when hold>=60 and does not add an attack (skill.go:27-56; cons.go:14-19). baseParticleCB and extraParticleCB create particles only; the second callback is random particle count and does not alter root count (skill.go:68-90). Init C2 subscribes to particle receipt for team ATK SPD; C6 is explicitly unimplemented (jean.go:31-39; cons.go:23-50,68-73). A4/field effects concern Burst or later damage, not E. Both lanes identical for reviewed skill, Init, passive and constellation files.",
+      "scopeNotes": [
+        "For nonnegative hold input, hitmark is 21+min(hold,300); the root count is always 1. Observe through selected hitmark and terminal dispatch."
+      ],
+      "id": "jean-skill",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      }
+    },
+    {
+      "characterKey": "lanyan",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/lanyan/burst.go",
+      "label": "蓝砚 Q",
+      "sourceSha256": "c5a72b1e8aeaa0afeeecde53bc37ca582a4163b0accff8ef092ac8ece8495843",
+      "sourceHashes": {
+        "classicSha256": "c5a72b1e8aeaa0afeeecde53bc37ca582a4163b0accff8ef092ac8ece8495843",
+        "stellarSha256": "c5a72b1e8aeaa0afeeecde53bc37ca582a4163b0accff8ef092ac8ece8495843"
+      },
+      "sourceEvidence": "burst.go:26-68; direct loop queues exactly three roots with hitmarks 30, 46, 51.",
+      "nonDamageCallbacksAndInitAudit": "Three direct Burst attacks are queued in fixed hitmark order 30,46,51. C4 applies a team EM status at cast (burst.go:60; cons.go:43-61) but no attack; Init C2 shield refresh and C6 E charges are unrelated (lanyan.go:33-41; cons.go:16-40). A4 shield absorption changes later Anemo hits only; no cast callback generates another Q root. Both lanes byte-identical for audited source files.",
+      "scopeNotes": [
+        "Observe through third hitmark at frame 51 and native terminal dispatch."
+      ],
+      "id": "lanyan-burst",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 3
+      }
+    },
+    {
+      "characterKey": "varka",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/varka/burst.go",
+      "label": "瓦尔卡 Q",
+      "sourceSha256": "85b3a4f50d103b41eb89153bd512ee64f1f9a8c7e640a6cc7be355cda5ab091c",
+      "sourceHashes": {
+        "classicSha256": "85b3a4f50d103b41eb89153bd512ee64f1f9a8c7e640a6cc7be355cda5ab091c",
+        "stellarSha256": "85b3a4f50d103b41eb89153bd512ee64f1f9a8c7e640a6cc7be355cda5ab091c"
+      },
+      "sourceEvidence": "burst.go:29-69; loop queues two roots at frames 112 and 131.",
+      "nonDamageCallbacksAndInitAudit": "Burst loops over two fixed hitmarks [112,131], no callbacks. It extends E status by 138 frames but creates no child attack (burst.go:57-58). Init determines conversion element and attaches A1/A4/C4/C6 hooks (varka.go:53-60); these modify damage/status or later special-skill actions. C2 direct QueueAttack is in c2OnSpecialSkill (cons.go:41-61) and that helper is called from the special charged skill, not Burst. Stellar changes conversion/skill machinery and C2 tag type, not the Burst queue loop/count.",
+      "scopeNotes": [
+        "Observe through second hitmark at frame 131 and native terminal dispatch; Burst E extension is state only."
+      ],
+      "id": "varka-burst",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 2
+      }
+    },
+    {
+      "id": "tighnari-skill",
+      "label": "提纳里 E",
+      "characterKey": "tighnari",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/tighnari/skill.go",
+      "sourceSha256": "7f4c8c220f95201571a69bd16a82ec43eba67c4d9bf19a3758c6510fac0e6311",
+      "sourceHashes": {
+        "classicSha256": "7f4c8c220f95201571a69bd16a82ec43eba67c4d9bf19a3758c6510fac0e6311",
+        "stellarSha256": "7f4c8c220f95201571a69bd16a82ec43eba67c4d9bf19a3758c6510fac0e6311"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "skill.go:31-68; direct QueueAttack at line 49 has snapshot frame 15 and damage window frame 15+travel.",
+      "nonDamageCallbacksAndInitAudit": "skill.go:32-35 uses travel parameter with native default 5; no imposed bounds. skill.go:51-60 schedules cooldown, 3 Wreath Arrow charges, status, and optional C2 only; particleCB lines 70-84 queues particles. tighnari.go:29-38 Init installs A1/C1/C4. asc.go:11-28 A1 is a modifier for later Wreath Arrow attacks; asc.go:30-56 A4 modifies Extra and Burst only. cons.go:34-55 C2 adds a field-bound Dendro modifier; cons.go:60-117 C4 adds only team EM when Q/reaction events occur.",
+      "scopeNotes": [
+        "One E root. Preserve source timing: snapshot at frame 15; damage at 15+travel, with omitted travel defaulting to 5. No assumed range cap. Future charged shots using Wreath Arrow charges are later actions."
+      ]
+    },
+    {
+      "id": "xiao-burst",
+      "label": "魈 Q（启动阶段无直接伤害）",
+      "characterKey": "xiao",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/xiao/burst.go",
+      "sourceSha256": "f80b8ad62edc2bacd25f5b21ea2c5109af09da02592a00d736e5856361a311c0",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 0
+      },
+      "sourceEvidence": "burst.go:25-69 has no attack queue. It installs the burst state and schedules HP drain only; plunge damage is a later player action.",
+      "nonDamageCallbacksAndInitAudit": "Xiao Init installs onExitField and C2/C4 handlers only; Burst calls A1 state logic and schedules HP drain. No direct QueueAttack site exists in Burst. C6 can affect later plunges/skill casts, not add a Burst root.",
+      "scopeNotes": [
+        "Q 启动阶段不产生固有直接伤害，根攻击数为 0。持续扣血和增益状态不计作敌方伤害；后续普攻、下落攻击及 E 属于各自的动作，并在各自完整上下文中读取 Q 的增益。",
+        "本规则不证明持续状态结束、扣血时序或稳态；固定源码对持续时间与卡肉仍有未确认注释。"
+      ],
+      "sourceHashes": {
+        "classicSha256": "f80b8ad62edc2bacd25f5b21ea2c5109af09da02592a00d736e5856361a311c0",
+        "stellarSha256": "f80b8ad62edc2bacd25f5b21ea2c5109af09da02592a00d736e5856361a311c0"
+      }
+    },
+    {
+      "id": "chevreuse-burst",
+      "label": "夏沃蕾 Q",
+      "characterKey": "chevreuse",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/chevreuse/burst.go",
+      "sourceSha256": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de",
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 9
+      },
+      "sourceEvidence": "burst.go:29-105; direct QueueAttack at 62-67 plus the fixed 5-group loop at 78-93 (1+2+2+2+1 secondary shells = 8), for 9 roots total. No target-count inference.",
+      "nonDamageCallbacksAndInitAudit": "Init installs overload/passive/event handlers; A1 changes resistance and A4 grants a modifier, not additional Q roots. Burst directly queues the initial shell and all eight secondary shells. Its C4 helper only sets state for a later E hold; C2 explosions attach to E Skill hits, not Burst. C6 heal handler is tied to E healing. See docs/validation/source-finite-frontier-128-audit-20260930.json.",
+      "scopeNotes": [
+        "包含原生 Q 在本次调用中排队的 1 枚初始榴弹与 8 枚二重毁伤弹，共 9 个攻击根；实际命中与未命中按派发回执判定。",
+        "独立超载反应和 C4 解锁的后续长按 E 不计入本次 Q。"
+      ],
+      "sourceHashes": {
+        "classicSha256": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de",
+        "stellarSha256": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de"
+      }
+    },
+    {
+      "id": "yanfei-burst",
+      "label": "烟绯 Q（初击与绯印状态）",
+      "characterKey": "yanfei",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yanfei/burst.go",
+      "sourceSha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+      "sourceHashes": {
+        "classicSha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90",
+        "stellarSha256": "69d948e17998488462f63b2832e257f970c25452add5f50e098dbec9db368f90"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 1
+      },
+      "sourceEvidence": "Burst queues exactly one direct root at burst.go:77-83. The hit callback grants seals only; the repeated burstAddSealHook adds seals/status only. c.c4() creates a shield, and Init/C2 adjusts charge-attack modifiers. Later charge attacks are player actions outside the cast root. No helper, callback, or Init path adds another Q-owned attack.",
+      "nonDamageCallbacksAndInitAudit": "Burst queues exactly one direct root at burst.go:77-83. The hit callback grants seals only; the repeated burstAddSealHook adds seals/status only. c.c4() creates a shield, and Init/C2 adjusts charge-attack modifiers. Later charge attacks are player actions outside the cast root. No helper, callback, or Init path adds another Q-owned attack.",
+      "scopeNotes": [
+        "仅统计本次 Q 的初始固有攻击；后续绯印补充、护盾与加成不是伤害，后续玩家重击及其 A4 攻击归相应动作，不归本次 Q。"
+      ]
+    },
+    {
+      "id": "mika-burst",
+      "label": "米卡 Q（无固有伤害的治疗启动）",
+      "characterKey": "mika",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/mika/burst.go",
+      "sourceSha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed",
+      "sourceHashes": {
+        "classicSha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed",
+        "stellarSha256": "cfd341460de29dec89d6e5991e78ed87ae52526c64aed4994fc1811f73688fed"
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 0
+      },
+      "sourceEvidence": "Burst queues a delayed character task for an initial party heal and Eagleplume status, but no attack. Init installs OnEnemyDamage handling that heals on qualifying normal hits and may grant C4 energy; it never queues attack damage. C6 adds a physical-crit modifier only. Exact direct root count is zero; heal events and later normal attacks are outside this burst root count.",
+      "nonDamageCallbacksAndInitAudit": "Burst queues a delayed character task for an initial party heal and Eagleplume status, but no attack. Init installs OnEnemyDamage handling that heals on qualifying normal hits and may grant C4 energy; it never queues attack damage. C6 adds a physical-crit modifier only. Exact direct root count is zero; heal events and later normal attacks are outside this burst root count.",
+      "scopeNotes": [
+        "本次 Q 及其治疗回调不会产生敌方伤害；0 表示完整固有伤害范围，不表示治疗、鹰翎状态、回能或动画已全部结束。"
+      ]
+    }
+  ]
+}

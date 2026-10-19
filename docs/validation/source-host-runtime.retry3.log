@@ -1,0 +1,3 @@
+{"status":"PASS","elapsedMs":91.202167,"hits":5,"calculations":5,"damage":[213.07426053403904,213.07426053403904,273.9526206866216,530.1490529954066,350.05057087734986],"native":{"duration":480,"totalDamage":1580.3007656274563,"dps":197.53759570343203},"replayDifferences":[0,0,0,0,0],"original":213.07426053403904,"edited":426.1485210680781,"resultJson":true,"capabilities":{"checkpoint":false,"formulaFamilies":["ordinary","amplifying","additive","transformative"],"fullModifierDerivation":false,"playerIncomingDamageSharedFormula":false,"specialFormulas":false}}
+
+WALL_SECONDS=0.898

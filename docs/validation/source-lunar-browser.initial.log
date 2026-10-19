@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:84633) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"durationFrames":3600,"hits":172,"calculations":261,"branches":["lunar-crystallize-reaction","lunar-crystallize-direct","lunar-charged-reaction","lunar-charged-direct","lunar-bloom-event","lunar-bloom-direct"],"totalDamage":408385.34443141945,"hitIndex":11,"original":"捕获时公式伤害：3440.839616994448","changed":"编辑后公式伤害：3728.2198397710567","wasmSha256":"70c4f7c8087a1889b8a22f54d0911f7510a786c3b0fa98eefd4fe4fe33926f8f","errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-host-lunar.spec.ts:5:1 › source inventory and real Lunar families share editable contributor calculations (2.8s)
+
+  1 passed (3.1s)
+
+WALL_SECONDS=3.651

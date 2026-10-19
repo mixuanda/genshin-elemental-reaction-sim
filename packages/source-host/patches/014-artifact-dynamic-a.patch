@@ -1,0 +1,267 @@
+--- a/internal/artifacts/emblem/emblem.go
++++ b/internal/artifacts/emblem/emblem.go
+@@ -28,6 +28,9 @@
+ 			Base:         modifier.NewBase("emblem-2pc", -1),
+ 			AffectedStat: attributes.ER,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ER] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-emblem-2pc-er", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -54,6 +57,9 @@
+ 					amt = 0.75
+ 				}
+ 				m[attributes.DmgP] = amt
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-emblem-4pc-dmgp", map[string]any{"state": map[string]any{"er": er}}, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/huskofopulentdreams/huskofopulentdreams.go
++++ b/internal/artifacts/huskofopulentdreams/huskofopulentdreams.go
+@@ -70,6 +70,9 @@
+ 			Base:         modifier.NewBase("husk-2pc", -1),
+ 			AffectedStat: attributes.DEFP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.DEFP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-huskofopulentdreams-2pc-defp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -126,7 +129,13 @@
+ 		AffectedStat: attributes.NoStat,
+ 		Amount: func() []float64 {
+ 			m[attributes.DEFP] = 0.06 * float64(s.stacks)
++			if c.SourceHost != nil {
++				m[attributes.DEFP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-huskofopulentdreams-4pc-defp", map[string]any{"state": map[string]any{"stacks": s.stacks}}, nil, 0)
++			}
+ 			m[attributes.GeoP] = 0.06 * float64(s.stacks)
++			if c.SourceHost != nil {
++				m[attributes.GeoP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-huskofopulentdreams-4pc-geop", map[string]any{"state": map[string]any{"stacks": s.stacks}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/artifacts/gildeddreams/gildeddreams.go
++++ b/internal/artifacts/gildeddreams/gildeddreams.go
+@@ -13,8 +13,10 @@
+ )
+ 
+ type Set struct {
+-	buff  []float64
+-	c     *core.Core
++	buff     []float64
++	emCount  int
++	atkCount int
++	c        *core.Core
+ 	char  *character.CharWrapper
+ 	Index int
+ 	Count int
+@@ -23,30 +25,30 @@
+ func (s *Set) SetIndex(idx int) { s.Index = idx }
+ func (s *Set) GetCount() int    { return s.Count }
+ func (s *Set) Init() error {
+-	emCount := 0
+-	atkCount := 0
++	s.emCount = 0
++	s.atkCount = 0
+ 
+ 	for _, this := range s.c.Player.Chars() {
+ 		if s.char.Index() == this.Index() {
+ 			continue
+ 		}
+ 		if this.Base.Element != s.char.Base.Element {
+-			emCount++
++			s.emCount++
+ 		} else {
+-			atkCount++
++			s.atkCount++
+ 		}
+ 	}
+ 
+-	if emCount > 3 {
+-		emCount = 3
++	if s.emCount > 3 {
++		s.emCount = 3
+ 	}
+-	if atkCount > 3 {
+-		atkCount = 3
++	if s.atkCount > 3 {
++		s.atkCount = 3
+ 	}
+ 
+ 	s.buff = make([]float64, attributes.EndStatType)
+-	s.buff[attributes.EM] = 50 * float64(emCount)
+-	s.buff[attributes.ATKP] = 0.14 * float64(atkCount)
++	s.buff[attributes.EM] = 50 * float64(s.emCount)
++	s.buff[attributes.ATKP] = 0.14 * float64(s.atkCount)
+ 
+ 	return nil
+ }
+@@ -71,6 +73,9 @@
+ 			Base:         modifier.NewBase("gd-2pc", -1),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.EM] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-gildeddreams-2pc-em", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -91,6 +96,12 @@
+ 				Base:         modifier.NewBaseWithHitlag("gd-4pc", 8*60),
+ 				AffectedStat: attributes.NoStat,
+ 				Amount: func() []float64 {
++					if c.SourceHost != nil {
++						s.buff[attributes.EM] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-gildeddreams-4pc-em", map[string]any{"state": map[string]any{"emCount": s.emCount}}, nil, 0)
++					}
++					if c.SourceHost != nil {
++						s.buff[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-gildeddreams-4pc-atkp", map[string]any{"state": map[string]any{"atkCount": s.atkCount}}, nil, 0)
++					}
+ 					return s.buff
+ 				},
+ 			})
+--- a/internal/artifacts/vermillion/vermillion.go
++++ b/internal/artifacts/vermillion/vermillion.go
+@@ -45,6 +45,9 @@
+ 			Base:         modifier.NewBase("verm-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-vermillion-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -79,6 +82,9 @@
+ 			Base:         modifier.NewBaseWithHitlag(verm4pckey, 16*60),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					s.buff[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-vermillion-4pc-atkp", map[string]any{"state": map[string]any{"stacks": s.stacks}}, nil, 0)
++				}
+ 				return s.buff
+ 			},
+ 		})
+--- a/internal/artifacts/obsidiancodex/obsidiancodex.go
++++ b/internal/artifacts/obsidiancodex/obsidiancodex.go
+@@ -37,6 +37,9 @@
+ 				if c.Player.Active() != char.Index() {
+ 					return nil
+ 				}
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-obsidiancodex-2pc-dmgp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -65,6 +68,9 @@
+ 				char.AddStatMod(character.StatMod{
+ 					Base: modifier.NewBaseWithHitlag("obsidiancodex-4pc", 6*60),
+ 					Amount: func() []float64 {
++						if c.SourceHost != nil {
++							m[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-obsidiancodex-4pc-cr", map[string]any{"state": map[string]any{}}, nil, 0)
++						}
+ 						return m
+ 					},
+ 				})
+--- a/internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go
++++ b/internal/artifacts/fragmentofharmonicwhimsy/fragmentofharmonicwhimsy.go
+@@ -36,6 +36,9 @@
+ 			Base:         modifier.NewBase(fohw2pc, -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-fragmentofharmonicwhimsy-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -63,6 +66,9 @@
+ 			char.AddStatMod(character.StatMod{
+ 				Base: modifier.NewBaseWithHitlag(fohw4pc, 6*60),
+ 				Amount: func() []float64 {
++					if c.SourceHost != nil {
++						m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-fragmentofharmonicwhimsy-4pc-dmgp", map[string]any{"state": map[string]any{"stacks": s.stacks}}, nil, 0)
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/artifacts/unfinishedreverie/unfinishedreverie.go
++++ b/internal/artifacts/unfinishedreverie/unfinishedreverie.go
+@@ -49,6 +49,9 @@
+ 			Base:         modifier.NewBase(unfinishedreverie2pc, -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-unfinishedreverie-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -61,6 +64,9 @@
+ 			Base: modifier.NewBase(unfinishedreverie4pc, -1),
+ 			Amount: func() []float64 {
+ 				m[attributes.DmgP] = 0.1 * float64(s.stacks)
++				if c.SourceHost != nil {
++					m[attributes.DmgP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-unfinishedreverie-4pc-dmgp", map[string]any{"state": map[string]any{"stacks": s.stacks}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/longnightsoath/longnightsoath.go
++++ b/internal/artifacts/longnightsoath/longnightsoath.go
+@@ -66,6 +66,9 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagPlunge {
+ 				return nil
+ 			}
++			if s.c.SourceHost != nil {
++				m[attributes.DmgP] = s.c.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-longnightsoath-2pc-dmgp", map[string]any{"state": map[string]any{}}, &atk.Info, atk.SourceHostAttackID, t.Key())
++			}
+ 			return m
+ 		},
+ 	})
+@@ -111,7 +114,11 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagPlunge {
+ 				return nil
+ 			}
+-			m[attributes.DmgP] = 0.15 * float64(s.stacks.Count())
++			stacks := s.stacks.Count()
++			m[attributes.DmgP] = 0.15 * float64(stacks)
++			if s.c.SourceHost != nil {
++				m[attributes.DmgP] = s.c.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-longnightsoath-4pc-dmgp", map[string]any{"state": map[string]any{"stacks": stacks}}, &atk.Info, atk.SourceHostAttackID, t.Key())
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/artifacts/nighttimewhispersintheechoingwoods/nighttimewhispersintheechoingwoods.go
++++ b/internal/artifacts/nighttimewhispersintheechoingwoods/nighttimewhispersintheechoingwoods.go
+@@ -41,6 +41,9 @@
+ 			Base:         modifier.NewBase("nighttimewhispers-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-nighttimewhispersintheechoingwoods-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -115,8 +118,14 @@
+ 			Amount: func() []float64 {
+ 				if s.core.F <= s.lastF {
+ 					m[attributes.GeoP] = 0.2 * 2.5
++					if s.core.SourceHost != nil {
++						m[attributes.GeoP] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-nighttimewhispersintheechoingwoods-4pc-geop", map[string]any{"state": map[string]any{"tier": 1}}, nil, 0)
++					}
+ 				} else {
+ 					m[attributes.GeoP] = 0.20
++					if s.core.SourceHost != nil {
++						m[attributes.GeoP] = s.core.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-nighttimewhispersintheechoingwoods-4pc-geop", map[string]any{"state": map[string]any{"tier": 0}}, nil, 0)
++					}
+ 				}
+ 				return m
+ 			},

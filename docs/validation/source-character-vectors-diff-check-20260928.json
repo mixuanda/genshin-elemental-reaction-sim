@@ -1,0 +1,11 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.088,
+  "log": "docs/validation/source-character-vectors-diff-check-20260928.log",
+  "scope": "Tracked changes only; untracked files are not checked by git diff --check."
+}

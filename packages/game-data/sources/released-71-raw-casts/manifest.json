@@ -1,0 +1,291 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "repository": "Dimbreath/AnimeGameData2",
+  "sourceHost": "gitlab",
+  "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+  "revisionMeaning": "固定发行版数据；不冒充 gcsim 或官方伤害验证",
+  "checkedAt": "2026-09-25T05:23:57.734054+00:00",
+  "scope": "7.1已发布Vodyanitsa/Vesna：16个C0基础完整伤害动作；E/Q精确component参数仅供后续typed状态公式。无帧模拟、无队伍可用承诺。",
+  "releaseEvidence": {
+    "officialPost": "https://www.hoyolab.com/article/46791577",
+    "officialAuthor": "Genshin Impact Official",
+    "officialAuthorId": "1015537",
+    "officialPostCreatedAt": "2026-09-22T23:00:02+00:00",
+    "announcementArchiveRevision": "aa559020c349f14666f85f8b802f99995a78d517",
+    "wishAnnouncements": [
+      "archive/21876.md",
+      "archive/21877.md"
+    ],
+    "wishEndServerTime": "2026-10-13 17:59",
+    "releaseStatusDoesNotPromoteBehaviorVerification": true
+  },
+  "definitions": {
+    "path": "definitions.json",
+    "sha256": "a00184606021b405fa5c9fb7865642fc672352b83f62a19bb572b31429d5c489",
+    "completeActions": 16,
+    "hitMappings": 17,
+    "coefficientVectors": 51,
+    "valuesPerVector": 15,
+    "exactComparedValues": 765,
+    "coefficientTolerance": 0,
+    "crossCheck": [
+      "active runtime catalog snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+      "theBowja/genshin-db 49a6544a6c6ae36089cb42fa591fc46f01de8bcf src/data/stats/talents.json",
+      "Dimbreath/AnimeGameData2 b061b403c8afc7bca633cf4f201edc4a3baa75fe ProudSkillExcelConfigData.json"
+    ]
+  },
+  "archive": {
+    "path": "packages/game-data/sources/released-71-raw-casts/source.json.gz",
+    "bytes": 1648269,
+    "sha256": "b6ed944e58a967057f21318a63b350195b0f6937664133c2cbaf29cbe6e5a844",
+    "files": 22,
+    "encoding": "gzip JSON UTF-8; files object contains repository-qualified original paths and exact original text"
+  },
+  "licenseNotes": [
+    "Dimbreath根目录只有README，未发现独立LICENSE；原文README和维护者归属一并保存，不宣称MIT授权。",
+    "genshin-db LICENSE原文随包保存。"
+  ],
+  "files": [
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "README.md",
+      "archiveKey": "Dimbreath/AnimeGameData2/README.md",
+      "bytes": 866,
+      "sha256": "b93c289ab7489ceea3444bf1b422557a59aafa52b7d6e2e5a8e71fe4b82258c6",
+      "gitBlobSha1": "c00840742e1979ca9c3739d4f3560d84ae55aaa7",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/README.md"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "ExcelBinOutput/AvatarSkillExcelConfigData.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/ExcelBinOutput/AvatarSkillExcelConfigData.json",
+      "bytes": 502318,
+      "sha256": "4505c55534b71dfd8551011e0229ff8f0fb737da924ffbe558a50b18221a9575",
+      "gitBlobSha1": "57cb186b308e13b90590964b479673472f3df5cb",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarSkillExcelConfigData.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "ExcelBinOutput/ProudSkillExcelConfigData.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/ExcelBinOutput/ProudSkillExcelConfigData.json",
+      "bytes": 8158447,
+      "sha256": "381b70963eb3ede60de040b8da6f167c77c5065a613adeaf99121f1358294fe5",
+      "gitBlobSha1": "53672a02a4946794765abc3f321228eaf21038ea",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/ProudSkillExcelConfigData.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/ExcelBinOutput/AvatarSkillDepotExcelConfigData.json",
+      "bytes": 119963,
+      "sha256": "bdaf9a832ebfee3fa85f60ee8c09a0af77f1b257018d5f802324a9700eb731c2",
+      "gitBlobSha1": "7298f4de70991ed117a6e1d6d34a032ca509ba2a",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarSkillDepotExcelConfigData.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "ExcelBinOutput/AvatarExcelConfigData.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/ExcelBinOutput/AvatarExcelConfigData.json",
+      "bytes": 351799,
+      "sha256": "a0ac92f1abb48e2ef6552cae2fefad95d51973dec9632f15dc51d85594efcfaf",
+      "gitBlobSha1": "b9376cd637d59deb46fd0e7d6dc29c10c1eb3685",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/ExcelBinOutput/AvatarExcelConfigData.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Talent/AvatarTalents/ConfigTalent_Vodyanitsa.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Talent/AvatarTalents/ConfigTalent_Vodyanitsa.json",
+      "bytes": 9243,
+      "sha256": "f83f4c2582cd60873ce2217a4df806a57083edfe7d761f8d03c8a6015e760124",
+      "gitBlobSha1": "ed5c4c735b0aa12039dbe9770afb00a538006e89",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Talent/AvatarTalents/ConfigTalent_Vodyanitsa.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_Vodyanitsa.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_Vodyanitsa.json",
+      "bytes": 191135,
+      "sha256": "cc699f4efa30697c59af21450222ca51e238d6b04f380c31a4721bb17298b3d0",
+      "gitBlobSha1": "fe0c8288699fe8943b7e8b321c7bf564a883a379",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_Vodyanitsa.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Effect.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Effect.json",
+      "bytes": 1050,
+      "sha256": "632760af5322b991b63aad6398b327ef22179b4b5cf7b1118f3e130389509fc7",
+      "gitBlobSha1": "8e250b934cbab6441bfe2cee2f61baf7ee40fff1",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Effect.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_Vesna.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_Vesna.json",
+      "bytes": 326363,
+      "sha256": "07e6b40bfe8e5b549ed9b4035118307e1e1acfb22ab2ea7448383583503a6dcd",
+      "gitBlobSha1": "9bb773ac4336c7376aed0956521b65710d8d7a1a",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAbilities/ConfigAbility_Avatar_Vesna.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Avatar/ConfigAvatar_Vodyanitsa.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Avatar/ConfigAvatar_Vodyanitsa.json",
+      "bytes": 87039,
+      "sha256": "38f68eb29601797b27b3d8604d7e992841b707f903b1aac7419bfe4d490718e1",
+      "gitBlobSha1": "3ff6af5bc05f23c57643c5cc2bc8e493b525cbb7",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Avatar/ConfigAvatar_Vodyanitsa.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Attack.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Attack.json",
+      "bytes": 104802,
+      "sha256": "a31c493002e2280b1b068f951192a579048f274ee9bbb13f92276399960e736b",
+      "gitBlobSha1": "0d30a57ce11709824636b6be6aa7b978628415db",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Attack.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Avatar/ConfigAvatar_Vesna.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Avatar/ConfigAvatar_Vesna.json",
+      "bytes": 111116,
+      "sha256": "d422ef62349558d09491827f98d74c08a94bb412ba376e8e64ee1bc8e1b2884c",
+      "gitBlobSha1": "246cce0424fd66954d4aadce5e6851ab88568378",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Avatar/ConfigAvatar_Vesna.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Talent/AvatarTalents/ConfigTalent_Vesna.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Talent/AvatarTalents/ConfigTalent_Vesna.json",
+      "bytes": 10383,
+      "sha256": "4d32e4f8bf1a85cad2c5fccb7394e6baa8e09bd3c085218a08d6e55b96f0cb96",
+      "gitBlobSha1": "0499a94eafab7e315d1793b2793b1667552923a5",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Talent/AvatarTalents/ConfigTalent_Vesna.json"
+    },
+    {
+      "repository": "Dimbreath/AnimeGameData2",
+      "revision": "b061b403c8afc7bca633cf4f201edc4a3baa75fe",
+      "path": "BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Camera.json",
+      "archiveKey": "Dimbreath/AnimeGameData2/BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Camera.json",
+      "bytes": 60905,
+      "sha256": "96857f9978e43f7c61c3f63973269b6b3713f4546ce02eef29f2ab29e689238f",
+      "gitBlobSha1": "e4ecbf4d88472688014fa3cc880616f911b21e15",
+      "pinnedGitBlobVerified": true,
+      "url": "https://gitlab.com/Dimbreath/AnimeGameData2/-/blob/b061b403c8afc7bca633cf4f201edc4a3baa75fe/BinOutput/Ability/Temp/AvatarAniEventAbilities/ConfigAbility_Avatar_Vesna_AniEvent_Camera.json"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "LICENSE",
+      "archiveKey": "theBowja/genshin-db/LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "gitBlobSha1": "5335086ba177d823d802d64e7a255e0256258099",
+      "pinnedGitBlobVerified": true,
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/stats/talents.json",
+      "archiveKey": "theBowja/genshin-db/src/data/stats/talents.json",
+      "bytes": 566511,
+      "sha256": "a6e87c30c325f6dd5f7441cbeded21b329175286c92bfd9757ce9be2680048d7",
+      "gitBlobSha1": "36ed6ee699d7ed2c80a5cc29d61685b3c9441e95",
+      "pinnedGitBlobVerified": true,
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/stats/talents.json"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/characters/vodyanitsa.json",
+      "archiveKey": "theBowja/genshin-db/src/data/ChineseSimplified/characters/vodyanitsa.json",
+      "bytes": 2957,
+      "sha256": "343a7cb8b62a5e3a3700f2cddde405475facaa84a54eae44735ea644b274c2e8",
+      "gitBlobSha1": "c54d219d71e136dd5cc6345766670d0cd086261f",
+      "pinnedGitBlobVerified": true,
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/characters/vodyanitsa.json"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/characters/vesna.json",
+      "archiveKey": "theBowja/genshin-db/src/data/ChineseSimplified/characters/vesna.json",
+      "bytes": 2914,
+      "sha256": "dc54badc20793ba7eb271e3fb818b15010e90df51b7afb404278ad7ad7669418",
+      "gitBlobSha1": "e25f5bee820037986d2068731ba6322488955c6d",
+      "pinnedGitBlobVerified": true,
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/characters/vesna.json"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/vodyanitsa.json",
+      "archiveKey": "theBowja/genshin-db/src/data/ChineseSimplified/talents/vodyanitsa.json",
+      "bytes": 9280,
+      "sha256": "3c4193852def96b5209763ed0b73d98a6cb84249c23e399e7d40657af84fcdbe",
+      "gitBlobSha1": "8deb87afed7f09106fa67281922e8d95b8483cdc",
+      "pinnedGitBlobVerified": true,
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/vodyanitsa.json"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/vesna.json",
+      "archiveKey": "theBowja/genshin-db/src/data/ChineseSimplified/talents/vesna.json",
+      "bytes": 12226,
+      "sha256": "ba621237701584370e1145d288204d8fa697f9897e5bfa4e751fc54fc6f7cae4",
+      "gitBlobSha1": "66991e0e83d96aca8f11250676a47607169c2c02",
+      "pinnedGitBlobVerified": true,
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/talents/vesna.json"
+    },
+    {
+      "repository": "KQM-git/GINews",
+      "revision": "aa559020c349f14666f85f8b802f99995a78d517",
+      "path": "readme.md",
+      "archiveKey": "KQM-git/GINews/readme.md",
+      "bytes": 97477,
+      "sha256": "4044ce2b94416524b30136469202871e0a758a1676c9930b2b547a1ab4f8120b",
+      "gitBlobSha1": "b4dea4d2d16aa545d0f285e0afb6e08ed0966b63",
+      "url": "https://github.com/KQM-git/GINews/blob/aa559020c349f14666f85f8b802f99995a78d517/readme.md"
+    },
+    {
+      "repository": "HoYoLAB",
+      "revision": "post:46791577",
+      "path": "official-hoyolab-46791577.json",
+      "archiveKey": "HoYoLAB/official-hoyolab-46791577.json",
+      "bytes": 112511,
+      "sha256": "d75dcfd73d8d26fe213bd09697bf7f289f90d6a4e6c693c982b678c2dfd68675",
+      "gitBlobSha1": "faeb41cb907208751d161b87fd9869ac66a4f3ba",
+      "url": "https://www.hoyolab.com/article/46791577"
+    }
+  ]
+}

@@ -1,0 +1,496 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "revisions": [
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+  ],
+  "retrievals": [
+    {
+      "url": "https://codeload.github.com/genshinsim/gcsim/tar.gz/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "sha256": "c0484e23afda76d7b38bb4fb49c2592b4b7bdccc8d549eaf8a4848e37aa55165",
+      "bytes": 64166679,
+      "retrievedAt": "2026-09-23T07:12:17.138350+00:00",
+      "localExtracted": "/tmp/gidps-gcsim-a7dc4bf"
+    },
+    {
+      "url": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+      "bytes": 56440121,
+      "retrievedAt": "2026-09-23T06:21:35.667874+00:00",
+      "localExtracted": "/tmp/gidps-gcsim-b4ae769"
+    }
+  ],
+  "scope": "四个新生C0实体完整观察协议，保留雅珂达伤害乘数初始化冲突和尼可突破门控冲突；不认证游戏内机制或被排除的重施／升级分支。",
+  "definitions": {
+    "sha256": "d956b6b2f165c2601b1442b7353f19d17a09e0413d953ba101a7a409b8ffd253",
+    "templates": 4,
+    "roleVectors": 11,
+    "valuesPerVector": 15,
+    "coefficientTolerance": 0
+  },
+  "archive": {
+    "path": "packages/game-data/sources/entity-followup-casts/source.json.gz",
+    "sha256": "486d43d644f7e8a5d7061cdc51a729584c1b0b86c98b1b64627391215291ab55",
+    "bytes": 69513,
+    "files": 54
+  },
+  "files": [
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "LICENSE",
+      "bytes": 35211,
+      "sha256": "bdef457104e8696158ed0f1bf4c165602b8f5db72d6c2f9bf564f21ee90a1906",
+      "gitBlobSha1": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/aimed.go",
+      "bytes": 2153,
+      "sha256": "9ab4220c0a9b3e1b9fd1cd04bb43f859c255fc42091d49b0c4801f7232685619",
+      "gitBlobSha1": "4b2a4f74b26870b77a248862e33b88520234bb74",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/asc.go",
+      "bytes": 1786,
+      "sha256": "ed1f58de5e9d8a45e0b86ffd1d9f63d17cb2874de93a3ccbb5b4da3127563577",
+      "gitBlobSha1": "38f5a42bc07abe0b578f467bd4052db5c64e1e8a",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/attack.go",
+      "bytes": 2169,
+      "sha256": "a240752fd8b5c99db79d0e06b8a7c336b2f1cac949d9dda021c502fbfdd435d0",
+      "gitBlobSha1": "43718da474f96662f2a6d23425421a791fc61397",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/burst.go",
+      "bytes": 6585,
+      "sha256": "4fd96bc2063dd37415ef4a3940eaaaebb7d6ca71a84c4868db303a7824234232",
+      "gitBlobSha1": "54be53e4ab6b979457874bd412b6ad392f4aa2b4",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/cons.go",
+      "bytes": 2813,
+      "sha256": "9e76fca90f7ecca4efcffe357d7e1314dd064c8a5c9a86d627cc44182141023b",
+      "gitBlobSha1": "91f10bd6d32e5db50c96c22b856aab6dd92cf085",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/jahoda.go",
+      "bytes": 2255,
+      "sha256": "04b639a924ad26d50ba2c68ab5257c1c8afcd354206d73680f008605e39f2a32",
+      "gitBlobSha1": "ddab7840392c72183f0f75693eb9f5f934e81c69",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/skill.go",
+      "bytes": 9348,
+      "sha256": "b7181dbc2a6fa7b3a7bc00a5e91b1e3e0362fa8640af2450f020e284c3780835",
+      "gitBlobSha1": "550f37c56e2e24d7b96e291467817fe374a7bcc1",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/jahoda/zz_jahoda.dm.go",
+      "bytes": 4835,
+      "sha256": "7a3dcf3579777279ddb03d7008f74fbc5d31eda9ccaa5fa606629fada639013a",
+      "gitBlobSha1": "cdc2f6e8547c57485c6719c3d2eb5d0411f72c98",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/asc.go",
+      "bytes": 3413,
+      "sha256": "0b029beaf4b02ff4fef779524829c811dc0cbc706f27a29a5c43f78138d2416e",
+      "gitBlobSha1": "250e13ea25056e81061cc098015adc6842801553",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/attack.go",
+      "bytes": 3604,
+      "sha256": "6fd582fcf80943f93981e181047ccdc3316bf51a73c379fd56f07e2221f13928",
+      "gitBlobSha1": "35e96b9c34a725bebc6f664f8abde73d51aa1ec5",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/burst.go",
+      "bytes": 3992,
+      "sha256": "cc9fc9a93ebe9dee85f66d60958e07c0db265dab2b8063049ec0660ded7f9a6b",
+      "gitBlobSha1": "d1abfc7029ffb0a2c822ca35907133cec8082ed7",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/charge.go",
+      "bytes": 1542,
+      "sha256": "e3c5f73f2280be30c62e3d28a600be46a8fb2690af8360bdb2ca7a4641390305",
+      "gitBlobSha1": "533a4c2fee36322854aac10a043d35b909de08f5",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/cons.go",
+      "bytes": 8797,
+      "sha256": "ca8d6ad5be5371e50c42bf718384db51fd39204659efc4404e6cd4f6c3917420",
+      "gitBlobSha1": "7e07b106988c95d7fb615b3e1d2dc5e5c11f40af",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/odette.go",
+      "bytes": 2703,
+      "sha256": "4a05abf00902fe0d6280d7a12900bf4324e78b84eac1f552ee4d6eb8b3884cdc",
+      "gitBlobSha1": "fed407e3f9d764dbe7d683f91db5c07fe1807a80",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/skill.go",
+      "bytes": 8447,
+      "sha256": "86286fa2364c4abfacba5b142c1576508f6b353b4b42ab96fe3be922417954b4",
+      "gitBlobSha1": "529790fc004e1ac60a22969fe7e7a5107e970a7a",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/stellar.go",
+      "bytes": 2636,
+      "sha256": "063da35c708feaa39877bfc4c8195106a71443a3916a4688959df2b13e032256",
+      "gitBlobSha1": "6975ad96e171dfdec075429997f4c3e1e608eef4",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/characters/odette/zz_odette.dm.go",
+      "bytes": 6789,
+      "sha256": "0cff04e5f3cffa217872a8ad16d72ddaf9bf383bfd1e55e91fc2e2e105402262",
+      "gitBlobSha1": "e5202f2662ed6ee9146ee87ecb7722c7e1f78bfc",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "internal/template/character/character.go",
+      "bytes": 5080,
+      "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8",
+      "gitBlobSha1": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4235,
+      "sha256": "11b602a5eae58d0ec943e16e851effe00eee66ee03f86b4460f44d99e7794ac5",
+      "gitBlobSha1": "4458ad623098f3921a48267d061050e6d2932262",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9924,
+      "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4",
+      "gitBlobSha1": "27082c672e80ca4f2d170b924fc3d0aa29d7c23c",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/player/player.go",
+      "bytes": 8881,
+      "sha256": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46",
+      "gitBlobSha1": "e0d2ec53cc57341da1a8b33064ce3f0f553d307e",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11119,
+      "sha256": "444bdc0a1578fcdf2b7371e48aa767138975903fb4ee8d956722f6c4f56b22ae",
+      "gitBlobSha1": "6e45b47df855bde0f798600edeed00a44c8d8e1d",
+      "identityEvidence": "fixed-retrieved-tar-extraction",
+      "priorManifestSha256Matched": true
+    },
+    {
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "identityEvidence": "fixed-retrieved-tar-extraction"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/asc.go",
+      "bytes": 2540,
+      "sha256": "addec82b9cf47764c411981e1d6798d63f891c5ddc025987173474d0a02faf2a",
+      "gitBlobSha1": "e08aab99b3b4cd6f61e523fb987f62b27a61c0ca",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/attack.go",
+      "bytes": 3006,
+      "sha256": "7a692a80dc8fde0c871dda3d8ed982bae0c873a04489dc93f4c94d3293e0e2eb",
+      "gitBlobSha1": "47b0b851d6953d8abaa89541b5d35d0706dbe3e1",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/burst.go",
+      "bytes": 5248,
+      "sha256": "4c23d0f594b2309677629233fbe99ab1d3365899ba277aa472a2ef34fd67bf72",
+      "gitBlobSha1": "6f27ad88ff02547334f7e550658d83d673b7ec62",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/charge.go",
+      "bytes": 1707,
+      "sha256": "28f13911673401a7b91db3b2a3f30a186d201fec8644242c8f47ccc6b4d3dc56",
+      "gitBlobSha1": "623231713767b0e264aee3dc233a58daa0916bd4",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/cons.go",
+      "bytes": 4923,
+      "sha256": "b2e16ca7ada85446c2c37eead77aad0190a19e786302d5058a25366b576293ff",
+      "gitBlobSha1": "ae44f334a2bb1b7848b5ce314836f0a98a49c891",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/nicole.go",
+      "bytes": 1366,
+      "sha256": "a2eb948317a88d27579832a4e8f4ae3613811cd676f5fec92a33fc460acb9dde",
+      "gitBlobSha1": "399f0327bb618f965d0876613bb1c85d76989579",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/shield.go",
+      "bytes": 666,
+      "sha256": "b3a23c733c677e729d1dc05d000392cffdfe061827eec881f7c508b1ba1bf3e6",
+      "gitBlobSha1": "b51d9fe5c5a4919f74a52f39bdf6af8e07332689",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/skill.go",
+      "bytes": 2922,
+      "sha256": "1d8a9dc47fa15ae4ca87e6f90c8cd3188d9c33684f5511c22570d3bfb0e91823",
+      "gitBlobSha1": "30937d393aa544ec7cbbbaec2db6e8dab7693a3b",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/characters/nicole/zz_nicole.dm.go",
+      "bytes": 3435,
+      "sha256": "62a3d0e1acef859e3bd6f18e3cedb7c3723c17c0fb2d347db4cc9489198cdb0d",
+      "gitBlobSha1": "831580d8223431fb391ca85d17b55c2c518c67b1",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlobSha1": "8446a3de64aa409a414bbad9897c7fd3d690457c",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "gitBlobSha1": "c2e89e614a2513d00c710478f8dc55f2773d2ead",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+      "identityEvidence": "fixed-full-tree-match"
+    },
+    {
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11",
+      "identityEvidence": "fixed-full-tree-match"
+    }
+  ],
+  "priorSourceManifest": {
+    "path": "packages/game-data/src/character-mappings/current-skill-source-manifest.json",
+    "matchedFiles": 18,
+    "archiveSha256": "c0484e23afda76d7b38bb4fb49c2592b4b7bdccc8d549eaf8a4848e37aa55165"
+  }
+}

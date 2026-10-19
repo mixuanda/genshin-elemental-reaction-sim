@@ -1,0 +1,81 @@
+package noelle
+
+import (
+	"github.com/genshinsim/gcsim/pkg/core/action"
+	"github.com/genshinsim/gcsim/pkg/core/attacks"
+	"github.com/genshinsim/gcsim/pkg/core/attributes"
+	"github.com/genshinsim/gcsim/pkg/core/event"
+	"github.com/genshinsim/gcsim/pkg/core/info"
+	"github.com/genshinsim/gcsim/pkg/core/player/shield"
+)
+
+const a1IcdKey = "noelle-a1-icd"
+
+// When Noelle is in the party but not on the field,
+// this ability triggers automatically when your active character's HP falls below 30%:
+// Creates a shield for your active character that lasts for 20s and absorbs DMG equal to 400% of Noelle's DEF.
+// The shield has a 150% DMG Absorption effectiveness against all Elemental and Physical DMG.
+// This effect can only occur once every 60s.
+func (c *char) a1() {
+	if c.Base.Ascension < 1 {
+		return
+	}
+	c.Core.Events.Subscribe(event.OnPlayerHPDrain, func(args ...any) {
+		di := args[0].(*info.DrainInfo)
+		if di.Amount <= 0 {
+			return
+		}
+		if c.StatusIsActive(a1IcdKey) {
+			return
+		}
+		active := c.Core.Player.ActiveChar()
+		if active.CurrentHPRatio() >= 0.3 {
+			return
+		}
+		c.AddStatus(a1IcdKey, 3600, false)
+		ai := info.AttackInfo{
+			ActorIndex: c.Index(),
+			Abil:       "Devotion (A1)",
+			AttackTag:  attacks.AttackTagNone,
+		}
+		snap := c.Snapshot(&ai)
+
+		// add shield
+		c.Core.Player.Shields.Add(&shield.Tmpl{
+			ActorIndex: c.Index(),
+			Target:     active.Index(),
+			Src:        c.Core.F,
+			ShieldType: shield.NoelleA1,
+			Name:       "Devotion (Shield)",
+			HP:         snap.Stats.TotalDEF() * 4,
+			Ele:        attributes.Cryo,
+			Expires:    c.Core.F + 1200, // 20 sec
+		})
+	}, "noelle-a1")
+}
+
+// Noelle will decrease the CD of Breastplate by 1s for every 4 Normal or Charged Attack hits she scores on opponents.
+// One hit may be counted every 0.1s.
+func (c *char) makeA4CB() info.AttackCBFunc {
+	if c.Base.Ascension < 4 {
+		return nil
+	}
+	done := false
+	return func(a info.AttackCB) {
+		if a.Target.Type() != info.TargettableEnemy {
+			return
+		}
+		if done {
+			return
+		}
+		done = true
+
+		c.a4Counter++
+		if c.a4Counter == 4 {
+			c.a4Counter = 0
+			if c.Cooldown(action.ActionSkill) > 0 {
+				c.ReduceActionCooldown(action.ActionSkill, 60)
+			}
+		}
+	}
+}

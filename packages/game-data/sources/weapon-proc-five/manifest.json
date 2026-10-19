@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "commits": {
+    "gcsim": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "genshin-db": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf"
+  },
+  "archivePath": "packages/game-data/sources/weapon-proc-five/source.json.gz",
+  "archiveSha256": "994420b82da7377e3612039c26d588b53257182c4fc8b9e83f8d0811d9a06d1a",
+  "archivedFrom": "existing fixed local source trees; 13 gcsim hashes additionally match the independent external sample source review",
+  "optimizerManifestPath": "packages/game-data/sources/weapon-proc-five-optimizer/manifest.json",
+  "scope": "Five ordinary independent physical procs, fixed callback-time coefficient selection and source RNG gate semantics; not current-game landing or character-hitlag certification.",
+  "files": [
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/sword/filletblade/filletblade.go",
+      "archiveEntry": "gcsim/internal/weapons/sword/filletblade/filletblade.go",
+      "bytes": 1840,
+      "sha256": "7137fb3445f71d5cbedf5409bce213e4d3ea232062f2b784aba4ea371f43b605",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/filletblade/filletblade.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/claymore/prototype/prototype.go",
+      "archiveEntry": "gcsim/internal/weapons/claymore/prototype/prototype.go",
+      "bytes": 1691,
+      "sha256": "9b3a1f00837a8c4c51bf3c32e4e00fa322e611d57b61562f6aa414810b0f3ad5",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/prototype/prototype.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/claymore/starsilver/starsilver.go",
+      "archiveEntry": "gcsim/internal/weapons/claymore/starsilver/starsilver.go",
+      "bytes": 1878,
+      "sha256": "8341659abdacac223206e4ea259db477342850ee608961885b368ee49bdb2612",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/starsilver/starsilver.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/spear/dragonspine/dragonspine.go",
+      "archiveEntry": "gcsim/internal/weapons/spear/dragonspine/dragonspine.go",
+      "bytes": 1915,
+      "sha256": "df925ae15e322890016b9cdb215494038bd5e2f3ec738932260d7d0afe9ba8b1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/dragonspine/dragonspine.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/catalyst/frostbearer/frostbearer.go",
+      "archiveEntry": "gcsim/internal/weapons/catalyst/frostbearer/frostbearer.go",
+      "bytes": 1920,
+      "sha256": "a16a34b02f58d6580c8c21d9f33b86c962673aa8d90b3c5e3e5f73ee2b111393",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/frostbearer/frostbearer.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/charlotte/attack.go",
+      "archiveEntry": "gcsim/internal/characters/charlotte/attack.go",
+      "bytes": 2666,
+      "sha256": "5321b2c2a599fddadcc51d8f58d99f6a7364660afa5b74792f510d927256b31f",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/charlotte/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/charlotte/zz_charlotte.dm.go",
+      "archiveEntry": "gcsim/internal/characters/charlotte/zz_charlotte.dm.go",
+      "bytes": 5597,
+      "sha256": "127b9b806a2716a0a7e0c9af640da17840b1c9041b36775907b992c22f001826",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/charlotte/zz_charlotte.dm.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/enemy/attack.go",
+      "archiveEntry": "gcsim/pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/enemy/enemy.go",
+      "archiveEntry": "gcsim/pkg/enemy/enemy.go",
+      "bytes": 2280,
+      "sha256": "fcaf7992ff86ef7d24aac62822ec07b331b967799fcc25bebe246f6ae07c252d",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/enemy.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/reactable/reactable.go",
+      "archiveEntry": "gcsim/pkg/reactable/reactable.go",
+      "bytes": 11418,
+      "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/attack.go",
+      "archiveEntry": "gcsim/pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/combat/hitbox.go",
+      "archiveEntry": "gcsim/pkg/core/combat/hitbox.go",
+      "bytes": 2372,
+      "sha256": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/hitbox.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/info/circle.go",
+      "archiveEntry": "gcsim/pkg/core/info/circle.go",
+      "bytes": 3746,
+      "sha256": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/circle.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "LICENSE",
+      "archiveEntry": "gcsim/LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "archiveEntry": "gcsim/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/template/character/character.go",
+      "archiveEntry": "gcsim/internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/attacks/attack.go",
+      "archiveEntry": "gcsim/pkg/core/attacks/attack.go",
+      "bytes": 1484,
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go"
+    },
+    {
+      "source": "genshin-db",
+      "path": "LICENSE",
+      "archiveEntry": "genshin-db/LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/filletblade.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/filletblade.json",
+      "bytes": 3697,
+      "sha256": "0bb135be5707616260e584d0ec1e1774f93b26c8cfbee12ce383ba16a1c0155e",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/filletblade.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/prototypearchaic.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/prototypearchaic.json",
+      "bytes": 4608,
+      "sha256": "e7ff59647c8d5f04d6a2718fd529b0ea4dcdf4accde3d4f8b3c4d46eb6e425c0",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototypearchaic.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/snowtombedstarsilver.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/snowtombedstarsilver.json",
+      "bytes": 5977,
+      "sha256": "4836a177f443a5bb37d16b148bf6c51253b74359106f8b4045184066bc0fa8ac",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/snowtombedstarsilver.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/dragonspinespear.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/dragonspinespear.json",
+      "bytes": 5209,
+      "sha256": "357c08380a75551a06ce5a03926fe4171949502d1aba488f90af7912d0eecfd9",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/dragonspinespear.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/frostbearer.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/frostbearer.json",
+      "bytes": 5690,
+      "sha256": "f6dd8067e0d3f2cd65116c09537fb71d27b9d587a3c2df24bf0e9772928cfc3e",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/frostbearer.json"
+    }
+  ]
+}

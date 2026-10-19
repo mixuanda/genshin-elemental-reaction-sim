@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-reaction-em.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 1.295
+}

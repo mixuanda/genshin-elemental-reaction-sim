@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:6428) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/incoming-ttds-calculator.spec.ts:20:1 › Incoming TTDS keeps support ownership and per-hit final-panel differences alongside Charlotte C2 without a team
+[chromium] › apps/web/e2e/incoming-ttds-calculator.spec.ts:20:1 › Incoming TTDS keeps support ownership and per-hit final-panel differences alongside Charlotte C2 without a team
+Incoming TTDS browser measurements {"sameIncludedWithoutBase":{"nonCritical":203.74200000000002,"critical":407.48400000000004,"expected":305.61300000000006},"buffedInitial":{"nonCritical":429.1056000000001,"critical":858.2112000000002,"expected":643.6584000000001},"complete":{"nonCritical":1244.0736000000002,"critical":2488.1472000000003,"expected":1866.1104000000003},"expiredOldR1":{"nonCritical":180.4572,"critical":360.9144,"expected":270.6858},"json":{"nonCritical":1244.0736000000002,"critical":2488.1472000000003,"expected":1866.1104000000003}}
+
+  1 passed (1.5s)

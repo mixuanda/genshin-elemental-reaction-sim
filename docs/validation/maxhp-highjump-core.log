@@ -1,0 +1,47 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts (3 tests | 2 failed) 23ms
+     × consumes the team buff on an executed jump and counts one ordinary plunge with JSON replay 20ms
+     × does not accept invented lift, non-plunge airborne actions, or a second plunge 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts > Stellar-Swirl actual jump consumption and declared plunge > consumes the team buff on an executed jump and counts one ordinary plunge with JSON replay
+ConfigMigrationError: 配置校验失败：
+- timeline.legalityMode: Invalid option: expected one of "strict"|"wait"
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33948:11
+    33946|   if (!parsed.success) {
+    33947|     const issues = formatZodError(parsed.error);
+    33948|     throw new ConfigMigrationError(
+       |           ^
+    33949|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33950|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35416:12
+ ❯ simulateStellarSwirlProfile packages/sim-core/src/simulator.ts:18925:18
+ ❯ packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts:24:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts > Stellar-Swirl actual jump consumption and declared plunge > does not accept invented lift, non-plunge airborne actions, or a second plunge
+ConfigMigrationError: 配置校验失败：
+- timeline.legalityMode: Invalid option: expected one of "strict"|"wait"
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33948:11
+    33946|   if (!parsed.success) {
+    33947|     const issues = formatZodError(parsed.error);
+    33948|     throw new ConfigMigrationError(
+       |           ^
+    33949|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33950|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35416:12
+ ❯ simulateStellarSwirlProfile packages/sim-core/src/simulator.ts:18925:18
+ ❯ packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts:47:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 4 passed (6)
+   Start at  00:46:37
+   Duration  1.42s (transform 720ms, setup 0ms, import 1.10s, tests 199ms, environment 0ms)
+

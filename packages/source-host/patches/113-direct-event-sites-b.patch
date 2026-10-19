@@ -1,0 +1,87 @@
+--- a/internal/characters/candace/cons.go
++++ b/internal/characters/candace/cons.go
+@@ -37,6 +37,8 @@
+ // every 2.3s and is considered Elemental Burst DMG.
+ func (c *char) c6() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("candace.c6.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("candace.c6.enemy-damage.attack-count", 0)
+ 		atk := args[1].(*info.AttackEvent)
+ 		dmg := args[2].(float64)
+ 		if atk.Info.AttackTag != attacks.AttackTagNormal {
+@@ -84,7 +86,9 @@
+ 		if c.Core.SourceHost != nil && flatID > 0 {
+ 			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, ai.FlatDmg)
+ 		}
+-		c.Core.QueueAttack(
++		c.Core.SourceHostEventListenerFact("candace.c6.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttack(
++			"candace.c6.overflow-wave",
+ 			ai,
+ 			combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 3.5),
+ 			waveHitmark,
+--- a/internal/characters/kirara/cons.go
++++ b/internal/characters/kirara/cons.go
+@@ -27,6 +27,8 @@
+ // considered Elemental Burst DMG. This effect can be triggered once every 3.8s. This CD is shared between all party members.
+ func (c *char) c4() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("kirara.c4.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("kirara.c4.enemy-damage.attack-count", 0)
+ 		if c.StatusIsActive(c4IcdStatus) {
+ 			return
+ 		}
+@@ -58,7 +60,8 @@
+ 			Mult:               2,
+ 			CanBeDefenseHalted: true,
+ 		}
+-		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(t, nil, 2), 0, 0)
++		c.Core.SourceHostEventListenerFact("kirara.c4.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttack("kirara.c4.cardamom", ai, combat.NewCircleHitOnTarget(t, nil, 2), 0, 0)
+ 		c.AddStatus(c4IcdStatus, 3.8*60, true)
+ 	}, "kirara-c4")
+ }
+--- a/internal/characters/kuki/cons.go
++++ b/internal/characters/kuki/cons.go
+@@ -20,6 +20,8 @@
+ 	// TODO: idk if the damage is instant or not
+ 	const c4IcdKey = "kuki-c4-icd"
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("kuki.c4.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("kuki.c4.enemy-damage.attack-count", 0)
+ 		ae := args[1].(*info.AttackEvent)
+ 		trg := args[0].(info.Target)
+ 		// ignore if C4 on icd
+@@ -63,7 +65,8 @@
+ 		if c.Core.SourceHost != nil && flatID > 0 {
+ 			c.Core.SourceHost.CharacterFlatAttach(&ai, nil, flatID, ai.FlatDmg)
+ 		}
+-		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(trg, nil, 2), 5, 5, c.particleCB)
++		c.Core.SourceHostEventListenerFact("kuki.c4.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttack("kuki.c4.thundergrass-mark", ai, combat.NewCircleHitOnTarget(trg, nil, 2), 5, 5, c.particleCB)
+ 	}, "kuki-c4")
+ }
+ 
+--- a/internal/characters/clorinde/cons.go
++++ b/internal/characters/clorinde/cons.go
+@@ -37,6 +37,8 @@
+ 	}
+ 
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("clorinde.c1.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("clorinde.c1.enemy-damage.attack-count", 0)
+ 		if !c.StatusIsActive(skillStateKey) {
+ 			return
+ 		}
+@@ -67,8 +69,10 @@
+ 			HitlagFactor:   0.01,
+ 			IgnoreInfusion: true,
+ 		}
++		c.Core.SourceHostEventListenerFact("clorinde.c1.enemy-damage.attack-count", float64(len(c1Hitmarks)))
+ 		for _, hitmark := range c1Hitmarks {
+-			c.Core.QueueAttack(
++			c.Core.SourceHostQueueEventAttack(
++				"clorinde.c1.nightwatch-shade",
+ 				c1AI,
+ 				combat.NewCircleHitOnTarget(c.Core.Combat.Player(), info.Point{Y: -3}, 4),
+ 				hitmark,

@@ -1,0 +1,95 @@
+[
+  {
+    "name": "moonlight-equipment-core-20260928",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "packages/sim-core/src/__tests__/moonlight-artifact-composition.test.ts",
+      "packages/sim-core/src/__tests__/equipment-team-handoff.test.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 3.257
+  },
+  {
+    "name": "moonlight-equipment-core-20260928.retry1",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "packages/sim-core/src/__tests__/moonlight-artifact-composition.test.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 2.109
+  },
+  {
+    "name": "moonlight-equipment-core-20260928.retry2",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "packages/sim-core/src/__tests__/moonlight-artifact-composition.test.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 2.21
+  },
+  {
+    "name": "moonlight-equipment-build-20260928",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 2.416
+  },
+  {
+    "name": "moonlight-equipment-build-20260928.retry1",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.45
+  },
+  {
+    "name": "moonlight-equipment-browser-20260928",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/moonlight-artifact-runtime.spec.ts",
+      "apps/web/e2e/equipment-team-handoff.spec.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 0.693
+  },
+  {
+    "name": "moonlight-equipment-browser-20260928.retry1",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/moonlight-artifact-runtime.spec.ts",
+      "apps/web/e2e/equipment-team-handoff.spec.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 7.515
+  },
+  {
+    "name": "moonlight-equipment-browser-20260928.retry2",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/equipment-team-handoff.spec.ts"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 2.514
+  },
+  {
+    "name": "moonlight-equipment-browser-20260928.retry3",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/equipment-team-handoff.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 2.313
+  }
+]

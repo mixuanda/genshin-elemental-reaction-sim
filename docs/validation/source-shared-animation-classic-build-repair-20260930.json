@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build",
+    "--",
+    "--cache-dir",
+    "/Users/evan/Library/Caches/gidps-source-host"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 6.758
+}

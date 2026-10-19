@@ -1,0 +1,32 @@
+--- a/pkg/core/info/sourcehost_stat_provenance.go
++++ b/pkg/core/info/sourcehost_stat_provenance.go
+@@ -33,6 +33,7 @@
+ 	AttackChanges []SourceHostNumericChange `json:"attackChanges"`
+ 	Dependencies []*SourceHostStatRead `json:"dependencies"`
+ 	FormulaCalculationIDs []int `json:"formulaCalculationIds,omitempty"`
++	CreationFormulaCalculationIDs []int `json:"creationFormulaCalculationIds,omitempty"`
+ }
+ 
+ type SourceHostNumericChange struct {
+--- a/pkg/core/player/character/stats.go
++++ b/pkg/core/player/character/stats.go
+@@ -126,7 +126,12 @@
+ func (c *CharWrapper) NonExtraStat(s attributes.Stat) float64 {
++	value, _ := c.NonExtraStatWithProvenance(s)
++	return value
++}
++
++func (c *CharWrapper) NonExtraStatWithProvenance(s attributes.Stat) (float64, *info.SourceHostStatRead) {
+ 	val := c.BaseStats[s]
+ 	var observed attributes.Stats
+ 	observed[s] = val
+ 	read := c.beginSourceHostStatRead("non-extra-stat", observed, []attributes.Stat{s}, true)
+ 	defer c.endSourceHostStatRead(read)
+ 	for _, v := range c.mods {
+@@ -159,5 +164,5 @@
+ 	}
+ 
+ 	if read != nil { read.Result = observed }
+-	return val
++	return val, read
+ }

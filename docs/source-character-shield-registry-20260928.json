@@ -1,0 +1,1138 @@
+{
+  "schema": "source-character-shield-registry-inventory/v1",
+  "date": "2026-09-28",
+  "sourceCommits": [
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  ],
+  "method": "Static inventory of A-E sim-core descriptor files and 053-058 patch call IDs; no test/build executed.",
+  "status": "implemented-not-game-verified",
+  "statusBoundary": "Descriptor and pinned Go bridge calls are present in both lanes; this does not certify game mechanics, native trigger truth, source TODOs, or runtime verification.",
+  "counts": {
+    "descriptorKeys": 42,
+    "classicUniqueCalledRuleIDs": 42,
+    "stellarUniqueCalledRuleIDs": 42,
+    "classicOnly": [],
+    "stellarOnly": [],
+    "groupCounts": {
+      "a": 6,
+      "b": 14,
+      "c": 9,
+      "d": 9,
+      "e": 4
+    },
+    "byUnit": {
+      "*": 4,
+      "baizhu": 1,
+      "beidou": 2,
+      "candace": 1,
+      "citlali": 1,
+      "columbina": 1,
+      "dahlia": 1,
+      "diona": 1,
+      "hydro-traveler": 2,
+      "ineffa": 1,
+      "kaeya": 1,
+      "kirara": 5,
+      "lanyan": 3,
+      "layla": 1,
+      "nicole": 1,
+      "noelle": 2,
+      "sigewinne": 1,
+      "thoma": 5,
+      "xinyan": 5,
+      "yanfei": 1,
+      "yunjin": 1,
+      "zhongli": 1
+    }
+  },
+  "groups": {
+    "a": {
+      "descriptorFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "descriptorCount": 6,
+      "keys": [
+        "char-shield-baizhu-burst",
+        "char-shield-beidou-c1-burst",
+        "char-shield-beidou-skill",
+        "char-shield-candace-skill",
+        "char-shield-layla-skill",
+        "char-shield-yunjin-skill"
+      ]
+    },
+    "b": {
+      "descriptorFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "descriptorCount": 14,
+      "keys": [
+        "char-shield-dahlia-burst",
+        "char-shield-kirara-a1",
+        "char-shield-kirara-base",
+        "char-shield-kirara-create",
+        "char-shield-kirara-max",
+        "char-shield-kirara-refresh",
+        "char-shield-lanyan-base",
+        "char-shield-lanyan-restore",
+        "char-shield-lanyan-restore-fraction",
+        "char-shield-thoma-burst-base",
+        "char-shield-thoma-max",
+        "char-shield-thoma-refresh",
+        "char-shield-thoma-skill-base",
+        "char-shield-thoma-stack"
+      ]
+    },
+    "c": {
+      "descriptorFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "descriptorCount": 9,
+      "keys": [
+        "char-shield-diona-paws",
+        "char-shield-noelle-a1",
+        "char-shield-noelle-skill",
+        "char-shield-xinyan-burst-def",
+        "char-shield-xinyan-burst-level-3",
+        "char-shield-xinyan-skill-level-1",
+        "char-shield-xinyan-skill-level-2",
+        "char-shield-xinyan-skill-level-3",
+        "char-shield-zhongli-jade"
+      ]
+    },
+    "d": {
+      "descriptorFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "descriptorCount": 9,
+      "keys": [
+        "char-shield-citlali-skill",
+        "char-shield-columbina-c1",
+        "char-shield-ineffa-skill",
+        "char-shield-kaeya-c4",
+        "char-shield-nicole-skill",
+        "char-shield-sigewinne-c2",
+        "char-shield-traveler-hydro-c4-create",
+        "char-shield-traveler-hydro-c4-refresh",
+        "char-shield-yanfei-c4"
+      ]
+    },
+    "e": {
+      "descriptorFile": "packages/sim-core/src/source-host-character-shield-group-e.ts",
+      "descriptorCount": 4,
+      "keys": [
+        "char-shield-bell",
+        "char-shield-crystallize-base",
+        "char-shield-crystallize-bonus-total",
+        "char-shield-crystallize-em"
+      ]
+    }
+  },
+  "rules": {
+    "char-shield-beidou-skill": {
+      "unit": "beidou",
+      "sourcePath": "internal/characters/beidou/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/beidou/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/054-character-shield-a.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/054-character-shield-a.patch"
+        ]
+      }
+    },
+    "char-shield-beidou-c1-burst": {
+      "unit": "beidou",
+      "sourcePath": "internal/characters/beidou/burst.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/beidou/burst.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/054-character-shield-a.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/054-character-shield-a.patch"
+        ]
+      }
+    },
+    "char-shield-candace-skill": {
+      "unit": "candace",
+      "sourcePath": "internal/characters/candace/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/candace/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/054-character-shield-a.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/054-character-shield-a.patch"
+        ]
+      }
+    },
+    "char-shield-yunjin-skill": {
+      "unit": "yunjin",
+      "sourcePath": "internal/characters/yunjin/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/yunjin/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/054-character-shield-a.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/054-character-shield-a.patch"
+        ]
+      }
+    },
+    "char-shield-layla-skill": {
+      "unit": "layla",
+      "sourcePath": "internal/characters/layla/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/layla/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/054-character-shield-a.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/054-character-shield-a.patch"
+        ]
+      }
+    },
+    "char-shield-baizhu-burst": {
+      "unit": "baizhu",
+      "sourcePath": "internal/characters/baizhu/burst.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-a.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/baizhu/burst.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/054-character-shield-a.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/054-character-shield-a.patch"
+        ]
+      }
+    },
+    "char-shield-thoma-skill-base": {
+      "unit": "thoma",
+      "sourcePath": "internal/characters/thoma/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/thoma/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-thoma-burst-base": {
+      "unit": "thoma",
+      "sourcePath": "internal/characters/thoma/burst.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/thoma/burst.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-thoma-max": {
+      "unit": "thoma",
+      "sourcePath": "internal/characters/thoma/thoma.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/thoma/thoma.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-thoma-stack": {
+      "unit": "thoma",
+      "sourcePath": "internal/characters/thoma/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/thoma/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-thoma-refresh": {
+      "unit": "thoma",
+      "sourcePath": "internal/characters/thoma/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/thoma/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-kirara-base": {
+      "unit": "kirara",
+      "sourcePath": "internal/characters/kirara/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/kirara/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-kirara-a1": {
+      "unit": "kirara",
+      "sourcePath": "internal/characters/kirara/asc.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/kirara/asc.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-kirara-max": {
+      "unit": "kirara",
+      "sourcePath": "internal/characters/kirara/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/kirara/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-kirara-create": {
+      "unit": "kirara",
+      "sourcePath": "internal/characters/kirara/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/kirara/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-kirara-refresh": {
+      "unit": "kirara",
+      "sourcePath": "internal/characters/kirara/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/kirara/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-lanyan-base": {
+      "unit": "lanyan",
+      "sourcePath": "internal/characters/lanyan/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/lanyan/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-lanyan-restore-fraction": {
+      "unit": "lanyan",
+      "sourcePath": "internal/characters/lanyan/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/lanyan/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-lanyan-restore": {
+      "unit": "lanyan",
+      "sourcePath": "internal/characters/lanyan/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/lanyan/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-dahlia-burst": {
+      "unit": "dahlia",
+      "sourcePath": "internal/characters/dahlia/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-b.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/dahlia/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/055-character-shield-b.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/055-character-shield-b.patch"
+        ]
+      }
+    },
+    "char-shield-noelle-skill": {
+      "unit": "noelle",
+      "sourcePath": "internal/characters/noelle/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/noelle/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-noelle-a1": {
+      "unit": "noelle",
+      "sourcePath": "internal/characters/noelle/asc.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/noelle/asc.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-xinyan-skill-level-1": {
+      "unit": "xinyan",
+      "sourcePath": "internal/characters/xinyan/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/xinyan/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-xinyan-skill-level-2": {
+      "unit": "xinyan",
+      "sourcePath": "internal/characters/xinyan/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/xinyan/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-xinyan-skill-level-3": {
+      "unit": "xinyan",
+      "sourcePath": "internal/characters/xinyan/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/xinyan/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-xinyan-burst-def": {
+      "unit": "xinyan",
+      "sourcePath": "internal/characters/xinyan/burst.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/xinyan/burst.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-xinyan-burst-level-3": {
+      "unit": "xinyan",
+      "sourcePath": "internal/characters/xinyan/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/xinyan/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-diona-paws": {
+      "unit": "diona",
+      "sourcePath": "internal/characters/diona/skill.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/diona/skill.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-zhongli-jade": {
+      "unit": "zhongli",
+      "sourcePath": "internal/characters/zhongli/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-c.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/zhongli/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/056-character-shield-c.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/056-character-shield-c.patch"
+        ]
+      }
+    },
+    "char-shield-nicole-skill": {
+      "unit": "nicole",
+      "sourcePath": "internal/characters/nicole/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/nicole/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-citlali-skill": {
+      "unit": "citlali",
+      "sourcePath": "internal/characters/citlali/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/citlali/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-ineffa-skill": {
+      "unit": "ineffa",
+      "sourcePath": "internal/characters/ineffa/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/ineffa/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-sigewinne-c2": {
+      "unit": "sigewinne",
+      "sourcePath": "internal/characters/sigewinne/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/sigewinne/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-yanfei-c4": {
+      "unit": "yanfei",
+      "sourcePath": "internal/characters/yanfei/cons.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/yanfei/cons.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-columbina-c1": {
+      "unit": "columbina",
+      "sourcePath": "internal/characters/columbina/cons.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/columbina/cons.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-kaeya-c4": {
+      "unit": "kaeya",
+      "sourcePath": "internal/characters/kaeya/cons.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/kaeya/cons.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-traveler-hydro-c4-refresh": {
+      "unit": "hydro-traveler",
+      "sourcePath": "internal/characters/traveler/common/hydro/cons.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/traveler/common/hydro/cons.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-traveler-hydro-c4-create": {
+      "unit": "hydro-traveler",
+      "sourcePath": "internal/characters/traveler/common/hydro/cons.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-d.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/characters/traveler/common/hydro/cons.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/057-character-shield-d.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/057-character-shield-d.patch"
+        ]
+      }
+    },
+    "char-shield-bell": {
+      "unit": "*",
+      "sourcePath": "internal/weapons/claymore/bell/bell.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-e.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/weapons/claymore/bell/bell.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/058-shield-weapon-crystallize.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/058-shield-weapon-crystallize.patch"
+        ]
+      }
+    },
+    "char-shield-crystallize-base": {
+      "unit": "*",
+      "sourcePath": "internal/template/crystallize/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-e.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/template/crystallize/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/058-shield-weapon-crystallize.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/058-shield-weapon-crystallize.patch"
+        ]
+      }
+    },
+    "char-shield-crystallize-em": {
+      "unit": "*",
+      "sourcePath": "internal/template/crystallize/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-e.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/template/crystallize/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/058-shield-weapon-crystallize.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/058-shield-weapon-crystallize.patch"
+        ]
+      }
+    },
+    "char-shield-crystallize-bonus-total": {
+      "unit": "*",
+      "sourcePath": "internal/template/crystallize/shield.go",
+      "registryFile": "packages/sim-core/src/source-host-character-shield-group-e.ts",
+      "lanes": {
+        "classic": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        },
+        "stellar": {
+          "present": true,
+          "literalOccurrencesAcross053058Patches": 1
+        }
+      },
+      "sourceWrites": {
+        "pinnedGoPath": "internal/template/crystallize/shield.go",
+        "classicPatchFiles": [
+          "packages/source-host/patches/058-shield-weapon-crystallize.patch"
+        ],
+        "stellarPatchFiles": [
+          "packages/source-host/stellar-overlay/patches/058-shield-weapon-crystallize.patch"
+        ]
+      }
+    }
+  },
+  "notes": [
+    "Exact count: 42 descriptor keys and 42 unique Go call rule IDs in each lane.",
+    "Patch literal occurrence counts include branch assignments and are not runtime invocation counts.",
+    "sourcePath identifies pinned Go formula/state write location; sourceWrites also records overlay patch files that add bridge calls. Shared reaction rules use unit \"*\"."
+  ]
+}

@@ -1,0 +1,79 @@
+
+> genshin-dps-lab@1.0.0 test
+> npm run test:unit && npm run test:performance
+
+
+> genshin-dps-lab@1.0.0 test:unit
+> vitest run --exclude packages/sim-core/src/__tests__/performance.test.ts
+
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/mechanics/src/characters/durin.test.ts (14 tests | 2 failed) 152ms
+     × keeps the compact browser projection equivalent to the authoring vector 19ms
+     × keeps the compact white branch equivalent to the authoring vector 14ms
+ ❯ packages/schemas/src/elemental-application-icd-result-schema.test.ts (6 tests | 1 failed) 7ms
+     × keeps the 1.46-1.51 application field sets frozen while CURRENT advances 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/schemas/src/elemental-application-icd-result-schema.test.ts > elemental-application ICD result leaf schema > keeps the 1.46-1.51 application field sets frozen while CURRENT advances
+AssertionError: expected [ 'executionAudit', …(2) ] to deeply equal [ 'callbackRegistrationLog', …(1) ]
+
+- Expected
++ Received
+
+  [
++   "executionAudit",
+    "callbackRegistrationLog",
+    "callbackDeliveryLog",
+  ]
+
+ ❯ packages/schemas/src/elemental-application-icd-result-schema.test.ts:333:7
+    331|         (field) => !v152TopLevelFields.includes(field)
+    332|       )
+    333|     ).toEqual(["callbackRegistrationLog", "callbackDeliveryLog"]);
+       |       ^
+    334|     expect(
+    335|       v152TopLevelFields.filter(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/mechanics/src/characters/durin.test.ts > Durin black E partial mechanics audit vector > keeps the compact browser projection equivalent to the authoring vector
+AssertionError: expected 'gdl-v2-fnv1a32-ee839dc6' to be 'gdl-v2-fnv1a32-092a54de' // Object.is equality
+
+Expected: "gdl-v2-fnv1a32-092a54de"
+Received: "gdl-v2-fnv1a32-ee839dc6"
+
+ ❯ packages/mechanics/src/characters/durin.test.ts:524:40
+    522|     });
+    523|
+    524|     expect(browser.reproducibilityKey).toBe(authoring.reproducibilityK…
+       |                                        ^
+    525|     expect(browser.damageEvents).toEqual(authoring.damageEvents);
+    526|     expect(browser.energyLog).toEqual(authoring.energyLog);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/mechanics/src/characters/durin.test.ts > Durin white E partial mechanics audit vector > keeps the compact white branch equivalent to the authoring vector
+AssertionError: expected 'gdl-v2-fnv1a32-29861286' to be 'gdl-v2-fnv1a32-282e575f' // Object.is equality
+
+Expected: "gdl-v2-fnv1a32-282e575f"
+Received: "gdl-v2-fnv1a32-29861286"
+
+ ❯ packages/mechanics/src/characters/durin.test.ts:878:40
+    876|     });
+    877|
+    878|     expect(browser.reproducibilityKey).toBe(authoring.reproducibilityK…
+       |                                        ^
+    879|     expect(browser.timelineExecution).toEqual(authoring.timelineExecut…
+    880|     expect(browser.damageEvents).toEqual(authoring.damageEvents);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  2 failed | 189 passed (191)
+      Tests  3 failed | 2164 passed (2167)
+   Start at  15:51:24
+   Duration  93.88s (transform 2.13s, setup 0ms, import 23.02s, tests 61.28s, environment 6ms)
+

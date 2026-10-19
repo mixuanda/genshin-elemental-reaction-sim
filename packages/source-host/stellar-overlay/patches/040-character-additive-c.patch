@@ -1,0 +1,178 @@
+--- a/internal/characters/nicole/cons.go
++++ b/internal/characters/nicole/cons.go
+@@ -147,7 +147,8 @@
+ 		return
+ 	}
+ 	c.Core.Events.Subscribe(event.OnEnemyHit, func(args ...any) {
+-		if _, ok := args[0].(*enemy.Enemy); !ok {
++		target, ok := args[0].(*enemy.Enemy)
++		if !ok {
+ 			return
+ 		}
+ 
+@@ -174,7 +175,11 @@
+ 			return
+ 		}
+ 
+-		amt := 0.7 * c.TotalAtk()
++		totalAtk, statRead := c.TotalAtkWithProvenance()
++		amt := 0.7 * totalAtk
++		if c.Core.SourceHost != nil {
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, target.Key(), "char-add-nicole-c4", c.Index(), map[string]any{"totalAtk": totalAtk}, statRead)
++		}
+ 		char.Tags[c4Key]--
+ 
+ 		if c.Core.Flags.LogDebug {
+--- a/internal/characters/qiqi/cons.go
++++ b/internal/characters/qiqi/cons.go
+@@ -207,7 +207,12 @@
+ 		}
+ 
+ 		c.c6Stacks -= 1
+-		amt := 6 * c.TotalAtk()
++		totalAtk, statRead := c.TotalAtkWithProvenance()
++		amt := 6 * totalAtk
++		if c.Core.SourceHost != nil {
++			target := args[0].(info.Target)
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, target.Key(), "char-add-qiqi-c6", c.Index(), map[string]any{"totalAtk": totalAtk}, statRead)
++		}
+ 		if c.Core.Flags.LogDebug {
+ 			c.Core.Log.NewEvent("Qiqi C6 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+ 				Write("before", atk.Info.FlatDmg).
+--- a/internal/characters/shenhe/skill.go
++++ b/internal/characters/shenhe/skill.go
+@@ -201,7 +201,14 @@
+ 		}
+ 
+ 		if char.Tags[quillKey] > 0 {
+-			amt := skillpp[c.TalentLvlSkill()] * c.TotalAtk()
++			talentLevel := c.TalentLvlSkill()
++			ratio := skillpp[talentLevel]
++			totalAtk, statRead := c.TotalAtkWithProvenance()
++			amt := ratio * totalAtk
++			if c.Core.SourceHost != nil {
++				target := args[0].(info.Target)
++				amt = c.Core.SourceHost.CharacterAdditiveHit(atk, target.Key(), "char-add-shenhe-quill", c.Index(), map[string]any{"talentLevel": talentLevel, "totalAtk": totalAtk}, statRead)
++			}
+ 			if consumeStack { // c6
+ 				char.Tags[quillKey]--
+ 			}
+--- a/internal/characters/sigewinne/asc.go
++++ b/internal/characters/sigewinne/asc.go
+@@ -44,12 +44,22 @@
+ 		}
+ 		c.SetTag(convalescenceKey, c.Tag(convalescenceKey)-1)
+ 
+-		hp := max(c.MaxHP()-baseConvalescenceHP, 0)
++		maxHP, statRead := c.MaxHPWithProvenance()
++		hp := max(maxHP-baseConvalescenceHP, 0)
+ 		var amt float64
+ 		if c.Base.Cons >= 1 {
+ 			amt = min(c1FlatConvalescenceCap, hp*c1FlatConvalescenceIncrease)
+ 		} else {
+ 			amt = min(flatConvalescenceCap, hp*flatConvalescenceIncrease)
++		}
++
++		if c.Core.SourceHost != nil {
++			c1 := 0
++			if c.Base.Cons >= 1 {
++				c1 = 1
++			}
++			target := args[0].(info.Target)
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, target.Key(), "char-add-sigewinne-a1", c.Index(), map[string]any{"maxHp": maxHP, "c1": c1}, statRead)
+ 		}
+ 
+ 		if c.Core.Flags.LogDebug {
+--- a/internal/characters/xianyun/asc.go
++++ b/internal/characters/xianyun/asc.go
+@@ -86,7 +86,12 @@
+ 		if c.a4src != src {
+ 			return
+ 		}
+-		c.a4Atk = c.TotalAtk()
++		atk, statRead := c.TotalAtkWithProvenance()
++		if c.Core.SourceHost != nil {
++			c.a4Atk, c.a4AtkCreationID = c.Core.SourceHost.CharacterAdditiveCreate(c.Index(), "char-add-xianyun-a4-atk-snapshot", map[string]any{"totalAtk": atk}, statRead)
++		} else {
++			c.a4Atk = atk
++		}
+ 		c.Core.Tasks.Add(c.a4AtkUpdate(src), 0.5*60)
+ 	}
+ }
+@@ -123,6 +128,14 @@
+ 
+ 		// A4 cap
+ 		amt := min(c.a4Max, c.a4Ratio*c.a4Atk)
++		if c.Core.SourceHost != nil {
++			c2 := 0
++			if c.Base.Cons >= 2 {
++				c2 = 1
++			}
++			target := args[0].(info.Target)
++			amt = c.Core.SourceHost.CharacterAdditiveHit(ae, target.Key(), "char-add-xianyun-a4", c.Index(), map[string]any{"atkSnapshot": c.a4Atk, "c2": c2}, nil, map[string]int{"atkSnapshot": c.a4AtkCreationID})
++		}
+ 
+ 		c.Core.Log.NewEvent("Xianyun A4 proc dmg add", glog.LogPreDamageMod, ae.Info.ActorIndex).
+ 			Write("atk", c.a4Atk).
+--- a/internal/characters/xianyun/xianyun.go
++++ b/internal/characters/xianyun/xianyun.go
+@@ -18,6 +18,7 @@
+ 	skillEnemiesHit     []info.TargetKey
+ 	a1Buffer            []int
+ 	a4Atk               float64
++	a4AtkCreationID     int
+ 	a4src               int
+ 	a4Max               float64
+ 	a4Ratio             float64
+--- a/internal/characters/xilonen/cons.go
++++ b/internal/characters/xilonen/cons.go
+@@ -158,7 +158,12 @@
+ 			return
+ 		}
+ 
+-		amt := 0.65 * c.TotalDef(false)
++		totalDef, statRead := c.TotalDefWithProvenance(false)
++		amt := 0.65 * totalDef
++		if c.Core.SourceHost != nil {
++			target := args[0].(info.Target)
++			amt = c.Core.SourceHost.CharacterAdditiveHit(atk, target.Key(), "char-add-xilonen-c4", c.Index(), map[string]any{"totalDef": totalDef}, statRead)
++		}
+ 		char.SetTag(c4key, char.Tag(c4key)-1)
+ 
+ 		c.Core.Log.NewEvent("xilonen c4 proc dmg add", glog.LogPreDamageMod, atk.Info.ActorIndex).
+@@ -229,7 +234,11 @@
+ 				return nil
+ 			}
+ 
+-			amt := c.TotalDef(false) * 3.0
++			totalDef, statRead := c.TotalDefWithProvenance(false)
++			amt := totalDef * 3.0
++			if c.Core.SourceHost != nil {
++				amt = c.Core.SourceHost.CharacterAdditiveHit(atk, t.Key(), "char-add-xilonen-c6", c.Index(), map[string]any{"totalDef": totalDef}, statRead)
++			}
+ 			c.Core.Log.NewEvent("c6 proc dmg add", glog.LogPreDamageMod, c.Index()).
+ 				Write("amt", amt)
+ 
+--- a/internal/characters/yunjin/burst.go
++++ b/internal/characters/yunjin/burst.go
+@@ -86,8 +86,18 @@
+ 			return
+ 		}
+ 
+-		finalBurstBuff := burstBuff[c.TalentLvlBurst()] + c.a4()
+-		dmgAdded := c.TotalDef(false) * finalBurstBuff
++		talentLevel := c.TalentLvlBurst()
++		finalBurstBuff := burstBuff[talentLevel] + c.a4()
++		totalDef, statRead := c.TotalDefWithProvenance(false)
++		dmgAdded := totalDef * finalBurstBuff
++		if c.Core.SourceHost != nil {
++			ascension := 0
++			if c.Base.Ascension >= 4 {
++				ascension = 1
++			}
++			target := args[0].(info.Target)
++			dmgAdded = c.Core.SourceHost.CharacterAdditiveHit(ae, target.Key(), "char-add-yunjin-burst", c.Index(), map[string]any{"talentLevel": talentLevel, "teamElements": c.partyElementalTypes, "ascension": ascension, "totalDef": totalDef}, statRead)
++		}
+ 		ae.Info.FlatDmg += dmgAdded
+ 
+ 		char.Tags[burstBuffKey] -= 1

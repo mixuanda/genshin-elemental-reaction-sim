@@ -1,0 +1,74 @@
+{
+  "providerVersion": "7.1.51",
+  "gameVersionMapping": "unknown",
+  "requested72V1MappingConfirmed": false,
+  "retrievedAt": "2026-09-28T12:39:13.440Z",
+  "records": [
+    {
+      "file": "version.json",
+      "url": "https://api.lunaris.moe/data/version.json",
+      "retrievedAt": "2026-09-28T12:39:03.568Z",
+      "httpStatus": 200,
+      "bytes": 988,
+      "sha256": "e749c84a53bc1ecda55ca42aec8e732a43c3021e167ed782b455032e2e6d635f",
+      "contentType": "application/json",
+      "lastModified": "Mon, 28 Sep 2026 10:15:46 GMT"
+    },
+    {
+      "file": "charlist.json",
+      "url": "https://api.lunaris.moe/data/7.1.51/charlist.json",
+      "retrievedAt": "2026-09-28T12:39:05.251Z",
+      "httpStatus": 200,
+      "bytes": 73817,
+      "sha256": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc",
+      "contentType": "application/json",
+      "lastModified": "Mon, 28 Sep 2026 01:11:19 GMT"
+    },
+    {
+      "file": "mitya.en.json",
+      "url": "https://api.lunaris.moe/data/7.1.51/en/char/10000136.json",
+      "retrievedAt": "2026-09-28T12:39:06.871Z",
+      "httpStatus": 200,
+      "bytes": 67063,
+      "sha256": "d2a4847b10e6f2ec564f938d342a94e187ef30c1d42f1a0885e7d512db951eee",
+      "contentType": "application/json",
+      "lastModified": "Mon, 28 Sep 2026 10:15:59 GMT"
+    },
+    {
+      "file": "valeriy.en.json",
+      "url": "https://api.lunaris.moe/data/7.1.51/en/char/10000137.json",
+      "retrievedAt": "2026-09-28T12:39:08.900Z",
+      "httpStatus": 200,
+      "bytes": 63641,
+      "sha256": "8ec673ee3565491781ecdba004b146d1e18a4d28cf559b6a686040f824255f8a",
+      "contentType": "application/json",
+      "lastModified": "Mon, 28 Sep 2026 10:15:59 GMT"
+    },
+    {
+      "file": "mitya.chs.json",
+      "url": "https://api.lunaris.moe/data/7.1.51/chs/char/10000136.json",
+      "retrievedAt": "2026-09-28T12:39:10.787Z",
+      "httpStatus": 200,
+      "bytes": 68242,
+      "sha256": "0f022833965ec620b62efa4531b5180af839278dd548cfeef83de28a4077b3b7",
+      "contentType": "application/json",
+      "lastModified": "Mon, 28 Sep 2026 10:15:55 GMT"
+    },
+    {
+      "file": "valeriy.chs.json",
+      "url": "https://api.lunaris.moe/data/7.1.51/chs/char/10000137.json",
+      "retrievedAt": "2026-09-28T12:39:13.422Z",
+      "httpStatus": 200,
+      "bytes": 65028,
+      "sha256": "68d0699b13bffb81fef576bc445d5b02961ae8064478eae58042b11297fabf24",
+      "contentType": "application/json",
+      "lastModified": "Mon, 28 Sep 2026 10:15:55 GMT"
+    }
+  ],
+  "archive": {
+    "file": "source.json.gz",
+    "bytes": 39159,
+    "sha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf"
+  },
+  "commandWallSeconds": 11.174622
+}

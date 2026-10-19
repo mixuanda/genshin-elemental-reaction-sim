@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-startup-sensitivity.spec.ts"
+  ],
+  "environment": {
+    "GIDPS_PREBUILT": "1"
+  },
+  "exitCode": 0,
+  "wallSeconds": 4.098,
+  "log": "docs/validation/source-startup-browser-20260928.log"
+}

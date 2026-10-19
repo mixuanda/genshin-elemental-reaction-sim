@@ -1,0 +1,14 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "GIDPS_CAPTURE_BASELINE=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-talent-expression.spec.ts",
+    "--workers=1"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 5.458
+}

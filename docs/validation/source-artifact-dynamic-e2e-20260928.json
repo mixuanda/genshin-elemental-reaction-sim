@@ -1,0 +1,12 @@
+{
+  "command": [
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-artifact-dynamic.spec.ts"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 4.98,
+  "log": "docs/validation/source-artifact-dynamic-e2e-20260928.log"
+}

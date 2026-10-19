@@ -1,0 +1,48 @@
+{
+  "scope": "Source-reviewed shared callback migration; no native execution yet.",
+  "sourceFile": "/tmp/gidps-130-phase-frontier/summary.json",
+  "data": {
+    "classic": {
+      "patches": {
+        "130-animation-callback-core.patch": {
+          "files": 6,
+          "bytes": 6850,
+          "sha256": "e38c9d8049a5b3661e9240fa45068880e4e87467d24737b5e89b6232724120d5"
+        },
+        "130-animation-callback-sites.patch": {
+          "files": 17,
+          "bytes": 12421,
+          "sha256": "e7f63f14a1e548749186c1048afd73d259877da16b8501624d3da47a6788114d"
+        }
+      },
+      "actorCaptureSites": 17,
+      "opaqueSites": 2,
+      "purePredicateSites": 2,
+      "patchCheck": "passed in temporary base copy",
+      "patchRoundTrip": "applied bytes match temporary source copy",
+      "gofmtParse": "passed for all changed Go files",
+      "nativeBuildOrSimulation": "not run; root performs necessary representative checks"
+    },
+    "stellar": {
+      "patches": {
+        "130-animation-callback-core.patch": {
+          "files": 6,
+          "bytes": 6851,
+          "sha256": "23f014f74a5922782f9341f96f7ec65748a381bafb0150d8d2ba9caa53bd6643"
+        },
+        "130-animation-callback-sites.patch": {
+          "files": 18,
+          "bytes": 13083,
+          "sha256": "77f151b2eff9bb85f76f51268931b5c4d84c4e7ec166fb7cc72d8ab314898a0c"
+        }
+      },
+      "actorCaptureSites": 18,
+      "opaqueSites": 2,
+      "purePredicateSites": 2,
+      "patchCheck": "passed in temporary base copy",
+      "patchRoundTrip": "applied bytes match temporary source copy",
+      "gofmtParse": "passed for all changed Go files",
+      "nativeBuildOrSimulation": "not run; root performs necessary representative checks"
+    }
+  }
+}

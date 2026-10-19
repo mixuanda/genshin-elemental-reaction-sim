@@ -1,0 +1,6 @@
+{
+  "command": "GIDPS_PREBUILT=1 npx playwright test apps/web/e2e/source-artifact-constants.spec.ts",
+  "exitCode": 0,
+  "wallSeconds": 7.507,
+  "log": "docs/validation/source-artifact-constants-e2e-20260928.log"
+}

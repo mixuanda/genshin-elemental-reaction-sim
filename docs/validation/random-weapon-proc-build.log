@@ -1,0 +1,25 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/random-weapon-proc-runtime.spec.ts(35,30): error TS2322: Type '{ targetId: string; }' is not assignable to type 'HitTargetingConfig'.
+  Property 'outcome' is missing in type '{ targetId: string; }' but required in type 'HitTargeting'.
+apps/web/e2e/random-weapon-proc-runtime.spec.ts(37,46): error TS2322: Type '{ targetId: string; }' is not assignable to type 'HitTargetingConfig'.
+  Property 'outcome' is missing in type '{ targetId: string; }' but required in type 'HitTargeting'.
+apps/web/src/calculator-ui.ts(620,54): error TS2379: Argument of type '{ weaponId: WeaponProcId; refinement: number; characterLevel: number; build: { mode: "equipment-derived"; characterBaseAtk: number; weaponBaseAtk: number; atkPercent: number; ... 11 more ...; equipment?: { ...; } | undefined; } | { ...; } | { ...; }; enemy: { ...; }; damageBonus: number; triggeringTargetCryoOrFrozen...' is not assignable to parameter of type 'WeaponProcCalculatorInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'triggeringTargetCryoOrFrozen' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/schemas/src/weapon-proc-integrity.ts(85,67): error TS18048: 'hit.eventSequence' is possibly 'undefined'.
+packages/schemas/src/weapon-proc-replay.ts(154,7): error TS2345: Argument of type 'number | undefined' is not assignable to parameter of type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/__tests__/weapon-proc-calculator-expansion.test.ts(20,59): error TS2379: Argument of type '{ characterLevel: number; build: { mode: "manual-final"; stats: { atk: number; hp: number; def: number; em: number; critRate: number; critDamage: number; }; source: string; }; enemy: { level: number; resistance: number; defenseAdjustment: number; defenseIgnore: number; }; damageBonus: number; weaponId: WeaponProcId;...' is not assignable to parameter of type 'WeaponProcCalculatorInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'triggeringTargetCryoOrFrozen' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/__tests__/weapon-proc-calculator.test.ts(40,25): error TS7053: Element implicitly has an 'any' type because expression of type 'WeaponProcId' can't be used to index type '{ halberd: number[]; ashgravendrinkinghorn: number[]; sequenceofsolitude: number[]; }'.
+  Property 'dragonspinespear' does not exist on type '{ halberd: number[]; ashgravendrinkinghorn: number[]; sequenceofsolitude: number[]; }'.

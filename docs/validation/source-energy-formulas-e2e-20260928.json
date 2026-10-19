@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-energy-formulas.spec.ts"
+  ],
+  "env": {
+    "GIDPS_PREBUILT": "1"
+  },
+  "exitCode": 0,
+  "wallSeconds": 5.205,
+  "log": "docs/validation/source-energy-formulas-e2e-20260928.log"
+}

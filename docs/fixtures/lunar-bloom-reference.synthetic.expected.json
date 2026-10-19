@@ -1,0 +1,88 @@
+{
+  "description": "Import this input, then explicitly append the source ability using the regular profile UI. The panel is a synthetic 35000 HP test input, not a sourced complete character build.",
+  "party": [
+    {
+      "actorId": "c",
+      "characterKey": "columbina"
+    },
+    {
+      "actorId": "d",
+      "characterKey": "nahida"
+    }
+  ],
+  "sourceAbilityRequest": {
+    "actorId": "c",
+    "sourceAbilityId": "moon",
+    "requestedFrame": 160,
+    "talentLevel": 10,
+    "ascension": 6,
+    "constellation": 0,
+    "abilityKey": "columbina-moondew-cleanse-idle-v1"
+  },
+  "profileId": "lunar-bloom-reference-v1",
+  "totalDamage": 6209.86653,
+  "totalDps": 620.986653,
+  "classicDamage": 3459.3363,
+  "lunarBloomDamage": 2750.5302300000003,
+  "events": [
+    {
+      "id": 0,
+      "frame": 222,
+      "damage": 916.8434100000001,
+      "resourceConsumption": {
+        "frame": 215,
+        "sourceEventId": "action:moon#4:0:4",
+        "consumed": 1
+      }
+    },
+    {
+      "id": 1,
+      "frame": 230,
+      "damage": 916.8434100000001,
+      "resourceConsumption": {
+        "frame": 215,
+        "sourceEventId": "action:moon#4:0:4",
+        "consumed": 1
+      }
+    },
+    {
+      "id": 2,
+      "frame": 252,
+      "damage": 916.8434100000001,
+      "resourceConsumption": {
+        "frame": 215,
+        "sourceEventId": "action:moon#4:0:4",
+        "consumed": 1
+      }
+    }
+  ],
+  "resourceGains": [
+    153
+  ],
+  "resourceConsumptionFrames": [
+    215
+  ],
+  "ordinaryCore": [
+    {
+      "operation": "spawn-scheduled",
+      "frame": 6
+    },
+    {
+      "operation": "spawn",
+      "frame": 36
+    },
+    {
+      "operation": "expire",
+      "frame": 336
+    }
+  ],
+  "verdantDew": {
+    "ruleId": "verdant-dew-fixed-core-order-v2",
+    "full": 0,
+    "partialFrames": 2,
+    "activeFrom": 8,
+    "activeUntil": 155,
+    "frame": 600
+  },
+  "reproducibilityKey": "gdl-v2-fnv1a32-7d303c18"
+}

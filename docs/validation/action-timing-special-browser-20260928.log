@@ -1,0 +1,13 @@
+
+Running 2 tests using 2 workers
+
+  ✓  2 [chromium] › apps/web/e2e/lunar-special-capture.spec.ts:22:1 › special result capture roundtrips through the normal page and rejects a changed complete result (2.3s)
+  ✓  1 [chromium] › apps/web/e2e/source-action-timing.spec.ts:6:1 › 来源严格停止保留失败账本，自动等待提供真实动作实例与输入窗口 (2.9s)
+
+  2 passed (3.7s)
+[WebServer] (node:90005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:90006) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:90007) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)

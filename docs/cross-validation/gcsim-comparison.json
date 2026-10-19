@@ -1,0 +1,258 @@
+{
+  "reportVersion": 1,
+  "capturedAt": "2026-09-23T06:27:27.756Z",
+  "status": "passed-single-controlled-ordinary-hit",
+  "command": "node docs/cross-validation/run-gcsim-comparison.mjs [verified-binary-path]",
+  "environment": {
+    "node": "v24.15.0",
+    "platform": "darwin",
+    "release": "27.0.0",
+    "architecture": "arm64",
+    "processor": "Apple M5 Max"
+  },
+  "provenance": {
+    "repository": "https://github.com/genshinsim/gcsim",
+    "release": "v2.44.1",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "tagVerificationUrl": "https://api.github.com/repos/genshinsim/gcsim/commits/v2.44.1",
+    "binaryUrl": "https://github.com/genshinsim/gcsim/releases/download/v2.44.1/gcsim_darwin_arm64",
+    "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+    "binaryBytes": 33775666,
+    "versionInvocation": {
+      "executable": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+      "args": [
+        "-version"
+      ],
+      "workingDirectory": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-comparison-YZZL4b",
+      "exitCode": 0,
+      "stdout": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541\n",
+      "stderr": ""
+    },
+    "license": {
+      "type": "MIT at pinned v2.44.1",
+      "url": "https://github.com/genshinsim/gcsim/releases/download/v2.44.1/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "savedPath": "docs/cross-validation/gcsim-LICENSE-MIT.txt"
+    }
+  },
+  "scope": "Independent official gcsim executable vs local simulator, shared formula, trace and standalone calculator for one physical normal hit. Not a source-table substitution for running the external program. Not proof of complete Amber/weapon/passive implementation, rotations, reactions, RNG, energy, or full database coverage.",
+  "sourceFingerprints": {
+    "packages/sim-core/src/simulator.ts": "ce98fc62771f17d01fd78639d73b6a93577285431697396f2f2e67263c7af742",
+    "packages/sim-core/src/formulas.ts": "b881c399fd02404e22f3cf94405e7ec86c393d3c44e5889896a2de9c91ec3d4b",
+    "packages/sim-core/src/calculator-formula.ts": "6488c8095cce998fa248ebdd77937391347ed90674e520141610646d51f924b3",
+    "packages/sim-core/src/calculation-trace.ts": "9172a9ef67a1ec13c4ea6d08e105fae7d4e18ddbe709c0dc8d7e9acbe9076ad3",
+    "packages/sim-core/src/calculator-bridge.ts": "b715ab4bdf6a62082b42f9707c00eaf9d93d833d5e5eb422964a2031abdc19bc",
+    "packages/sim-core/src/calculator.ts": "017cd2d0851bd82b570297f06c7fe7c8db142b22ef9f139378a5326eab5d8fe8",
+    "packages/sim-core/src/calculator-model.ts": "18961f6e12715bfd19aea56b95d371ad333d4b951394536001d1ea1feaf38c1a",
+    "packages/schemas/src/types.ts": "5a0192a9b0f0e08fec1551f91b01e7d47f4a4b8995fd9a3b8723d3e879845dff",
+    "packages/game-data/src/presets.ts": "476ef551caaccec0a83b137252838ff0729e1a9eac9242519cd3c8794541c7dd",
+    "packages/reaction-formulas/src/profile.ts": "692b46a18c306dca72a31a890052478ae11fe5c32c622afad05450375b88b249",
+    "package-lock.json": "b97c103f860bf0e1cc5a4c2169eb49dfc39222e45c70c2398657a3369d3e6fef"
+  },
+  "initialDiagnostic": {
+    "status": "corrected-before-final-run",
+    "problem": "Initial probe used hitlag=0; pinned gcsim parser expects a boolean and exited 1 with expecting 32, got token 0. Correct config uses hitlag=false."
+  },
+  "externalInvocation": {
+    "executable": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "args": [
+      "-c",
+      "/Users/evan/Documents/gidps/docs/cross-validation/gcsim-ordinary.gcsl",
+      "-out",
+      "/Users/evan/Documents/gidps/docs/cross-validation/gcsim-ordinary.result.json",
+      "-sample",
+      "/Users/evan/Documents/gidps/docs/cross-validation/gcsim-ordinary.sample.json"
+    ],
+    "workingDirectory": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-comparison-YZZL4b",
+    "exitCode": 0,
+    "stdout": "Average duration of 2.00 seconds (min: 2.00 max: 2.00 std: 0.00)\nAverage 4.73 damage over 2.00 seconds, resulting in 2 dps (min: 2.37 max: 2.37 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 7952381641395137346 to /Users/evan/Documents/gidps/docs/cross-validation/gcsim-ordinary.sample.json\n",
+    "stderr": ""
+  },
+  "alignment": {
+    "durationSeconds": 2,
+    "character": "amber",
+    "level": "1/20",
+    "constellation": 0,
+    "talents": [
+      1,
+      1,
+      1
+    ],
+    "weapon": "huntersbow",
+    "weaponLevel": "1/20",
+    "refinement": 1,
+    "artifactSets": [],
+    "statsOverride": "cr=-0.05 offsets native 5% CR to 0%",
+    "enemyLevel": 90,
+    "resistance": 0.1,
+    "targetCount": 1,
+    "actionCount": 1,
+    "hitCount": 1,
+    "hitFrame": 25,
+    "hitlag": false,
+    "reaction": "none",
+    "resolvedContext": {
+      "abil": "Normal 0",
+      "base_atk": 41.9434,
+      "total_scaling": 41.9434,
+      "talent": 0.3612,
+      "char_lvl": 1,
+      "target_lvl": 90,
+      "res": 0.1,
+      "flat_atk": 0,
+      "atk_per": 0,
+      "flat_dmg": 0,
+      "bonus_dmg": 0,
+      "ele_per": 0,
+      "ignore_def": 0,
+      "def_adj": 0,
+      "cr": 0,
+      "cd": 0.5,
+      "damage_grp_mult": 1,
+      "melt_vape": false,
+      "catalyzed": false,
+      "reaction_type": "",
+      "is_crit": false
+    },
+    "localBuildPolicy": "Explicit resolved stats; do not reapply character/weapon/ascension additions."
+  },
+  "externalExecution": {
+    "aggregateIterations": 1,
+    "separateSampleIterations": 1,
+    "sampleSeed": "7952381641395137346",
+    "aggregateSeed": "17736188118917689198",
+    "seedScope": "Upstream CLI selected seeds are preserved verbatim as strings. This controlled outcome is seed-independent because CR=0 and there are no sampled particle counts, entities, effects or reactions; external metadata is not asserted byte-identical across reruns.",
+    "sampleDamage": 4.732408961072165,
+    "aggregateMeanDamage": 4.732408961072165,
+    "standardDeviation": 0,
+    "sampleCalculationRecord": {
+      "abil": "Normal 0",
+      "amp_mult_total": 0,
+      "atk_per": 0,
+      "avg_crit_dmg": 4.732408961072165,
+      "avg_crit_dmg_react": 0,
+      "base_atk": 41.9434,
+      "base_def": 50.358,
+      "base_dmg": 15.149956079999999,
+      "base_hp": 793.2582,
+      "bonus_dmg": 0,
+      "catalyzed": false,
+      "cd": 0.5,
+      "char_lvl": 1,
+      "cr": 0,
+      "damage": 4.732408961072165,
+      "damage_grp_mult": 1,
+      "def_adj": 0,
+      "def_mod": 0.3470790378006873,
+      "def_per": 0,
+      "dmg_if_crit": 7.098613441608248,
+      "dmg_if_crit_react": 0,
+      "ele": 19,
+      "ele_per": 0,
+      "elevation_bonus": 0,
+      "em": 0,
+      "em_bonus": 0,
+      "flat_atk": 0,
+      "flat_def": 0,
+      "flat_dmg": 0,
+      "flat_hp": 0,
+      "hp_per": 0,
+      "ignore_def": 0,
+      "is_crit": false,
+      "melt_vape": false,
+      "pre_amp_dmg": 4.732408961072165,
+      "pre_crit_dmg": 4.732408961072165,
+      "pre_crit_dmg_react": 0,
+      "react_base_dmg_bonus": 0,
+      "react_bonus": 0,
+      "react_mult": 0,
+      "reaction_type": "",
+      "res": 0.1,
+      "res_mod": 0.9,
+      "src_frame": 1,
+      "talent": 0.3612,
+      "target": 1,
+      "target_lvl": 90,
+      "total_scaling": 41.9434,
+      "use_def": false,
+      "use_em": false,
+      "use_hp": false
+    }
+  },
+  "comparison": {
+    "absoluteTolerance": 1e-12,
+    "tolerancePurpose": "IEEE-754 arithmetic alignment tolerance; not uncertainty about game mechanics",
+    "equation": "41.9434 × 0.3612 × 1 × (101 / 291) × 0.9 × 1 × 1 × 1",
+    "intermediateResults": {
+      "scalingValue": 41.9434,
+      "talentDamage": 15.149956079999999,
+      "damageBonusMultiplier": 1,
+      "defenseMultiplier": 0.3470790378006873,
+      "resistanceMultiplier": 0.9,
+      "critMultiplier": 1,
+      "reactionMultiplier": 1,
+      "groupMultiplier": 1
+    },
+    "residuals": {
+      "localSimulation": {
+        "value": 4.732408961072165,
+        "absoluteResidual": 0,
+        "relativeResidual": 0
+      },
+      "ordinaryFormula": {
+        "value": 4.732408961072165,
+        "absoluteResidual": 0,
+        "relativeResidual": 0
+      },
+      "structuredTrace": {
+        "value": 4.732408961072165,
+        "absoluteResidual": 0,
+        "relativeResidual": 0
+      },
+      "capturedHitReplay": {
+        "value": 4.732408961072165,
+        "absoluteResidual": 0,
+        "relativeResidual": 0
+      },
+      "standaloneCalculator": {
+        "value": 4.732408961072165,
+        "absoluteResidual": 0,
+        "relativeResidual": 0
+      },
+      "expectedCalculator": {
+        "value": 4.732408961072165,
+        "absoluteResidual": 0,
+        "relativeResidual": 0
+      }
+    },
+    "replayDifference": 0
+  },
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/gcsim-ordinary.gcsl",
+      "sha256": "6dd9438d27c44eb57809f46281a9a30d4e5fde9c0ef157b6320ece96746ee52c"
+    },
+    {
+      "path": "docs/cross-validation/gcsim-ordinary.result.json",
+      "sha256": "5673a34c0be2be5566492065110d3c57fc50febedb4c0665bfce80a150f7b773"
+    },
+    {
+      "path": "docs/cross-validation/gcsim-ordinary.sample.json",
+      "sha256": "2054cd1aaf54136f2085e5ffd35a2957bcd04f673f57103067f674746cc4d64a"
+    },
+    {
+      "path": "docs/cross-validation/gcsim-ordinary.local-result.json",
+      "sha256": "f4a1cc5a00d03d0bf4cb2b8a27d3c1356e5d0116caa061bfc15dea9c52389ab8"
+    },
+    {
+      "path": "docs/cross-validation/gcsim-ordinary.calculator.json",
+      "sha256": "27c56834bdabd1781248e3d2c4a17d1f1bc6923abf44531534e207c2bf677016"
+    }
+  ],
+  "primarySources": [
+    "https://github.com/genshinsim/gcsim/releases/tag/v2.44.1",
+    "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/cmd/gcsim/main.go",
+    "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/ui/packages/docs/docs/reference/config.md",
+    "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/attack.go"
+  ]
+}

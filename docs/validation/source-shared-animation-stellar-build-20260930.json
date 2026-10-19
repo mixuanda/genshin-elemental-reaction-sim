@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar",
+    "--",
+    "--cache-dir",
+    "/Users/evan/Library/Caches/gidps-source-host"
+  ],
+  "exitCode": 1,
+  "elapsedSeconds": 1.923
+}

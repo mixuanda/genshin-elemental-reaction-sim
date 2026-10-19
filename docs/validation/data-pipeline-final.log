@@ -1,0 +1,23 @@
+Captured from executed command/tool results on 2026-09-22 (not a new test run).
+
+COMMAND: npx vitest run packages/game-data/src/update-pipeline.test.ts packages/game-data/src/catalog.test.ts
+EXIT: 0
+Test Files 2 passed (2)
+Tests 13 passed (13)
+Start at 22:55:47
+Duration 2.74s (transform 622ms, setup 0ms, import 1.03s, tests 1.59s, environment 0ms)
+
+COMMAND: npm run data:check
+EXIT: 0
+Wall time: 1.483954958 seconds
+Catalog is reproducible: 120 characters, 125 talent sets, 762 abilities, 237 weapons.
+61 artifact sets, 122 constellation sets, 100 character curve levels, 100 weapon curve levels; parsed only, no semantic promotion.
+
+COMMAND: node packages/game-data/scripts/update-data.mjs validate --id snapshot-5664d4cabbe84b86c6e473f72fc8269fcbd1bb62498567f463aaae144e4afbbc
+EXIT: 0
+errors: []
+schemaValid: true
+inventory.status: unknown
+readiness: []
+
+Earlier failed schema/generator attempts are retained in source investigation and root validation logs. The final normalization preserves default catalog bytes exactly.

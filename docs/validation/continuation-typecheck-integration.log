@@ -1,0 +1,5 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/special-reaction-state.test.ts(18,87): error TS2353: Object literal may only specify known properties, and 'actualIcdAllowed' does not exist in type '{ kind: "advance"; frame: number; }'.

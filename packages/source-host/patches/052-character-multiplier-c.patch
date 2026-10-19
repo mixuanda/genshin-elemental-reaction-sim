@@ -1,0 +1,44 @@
+--- a/internal/characters/navia/skill.go
++++ b/internal/characters/navia/skill.go
+@@ -179,7 +179,18 @@
+ 				}
+ 				c.Core.Log.NewEvent(fmt.Sprintf("target %v hit %v times", t.Key(), hits), glog.LogCharacterEvent, c.Index())
+ 				// Applies damage based on the hits
+-				ai.Mult = skillshotgun[c.TalentLvlSkill()] * skillMultiplier[hits]
++				base := skillshotgun[c.TalentLvlSkill()]
++				var mult float64
++				multID := 0
++				if c.Core.SourceHost != nil {
++					mult, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-navia-shotgun", ai.Mult, map[string]any{"base": base, "hits": hits}, nil, ai.SourceHostMultiplierID)
++				} else {
++					mult = base * skillMultiplier[hits]
++				}
++				ai.Mult = mult
++				if multID > 0 {
++					c.Core.SourceHost.CharacterMultiplierAttach(&ai, multID)
++				}
+ 				c.Core.QueueAttackWithSnap(
+ 					ai,
+ 					snap,
+--- a/internal/characters/lauma/skill.go
++++ b/internal/characters/lauma/skill.go
+@@ -153,7 +153,18 @@
+ 		dewCount := min(c.Core.Player.Dew(), 3)
+ 		c.Core.Player.ConsumeDew(dewCount)
+ 
+-		aiDirectLB.Mult = skillHold2[c.TalentLvlSkill()] * float64(dewCount)
++		base := skillHold2[c.TalentLvlSkill()]
++		var mult float64
++		multID := 0
++		if c.Core.SourceHost != nil {
++			mult, multID = c.Core.SourceHost.CharacterMultiplierCompute(c.Index(), "char-mult-lauma-dew", aiDirectLB.Mult, map[string]any{"base": base, "dewCount": dewCount}, nil, aiDirectLB.SourceHostMultiplierID)
++		} else {
++			mult = base * float64(dewCount)
++		}
++		aiDirectLB.Mult = mult
++		if multID > 0 {
++			c.Core.SourceHost.CharacterMultiplierAttach(&aiDirectLB, multID)
++		}
+ 		c.addMoonSong(dewCount)
+ 
+ 		c.Core.QueueAttack(

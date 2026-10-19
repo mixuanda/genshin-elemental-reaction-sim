@@ -1,0 +1,126 @@
+{
+  "scope": "Static read-only audit of the latest supplied patched-source trees for numeric character modifier Amount callbacks; no builds, tests, native simulations, or edits to the primary tree.",
+  "classic": {
+    "manifest": "/Users/evan/Library/Caches/gidps-source-host/build-voBklW/dist/manifest.json",
+    "manifestSha256": "49555918b7489dbb45f0dc222a88f79a5f2629cdffaebe61a3f54568f8148a0a",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "verifiedBlobCount": 4021,
+    "registeredSourcePackages": {
+      "character": 117,
+      "weapon": 231,
+      "artifact": 53
+    },
+    "patches": [
+      "122-movement-stam.patch",
+      "123-producer-fields.patch",
+      "124-conditional-entry-facts.patch",
+      "124-hit-callback-enemy-task.patch",
+      "125-finite-frontier.patch",
+      "125-private-numeric-state.patch",
+      "126-layla-ownership.patch",
+      "127-owned-constructs.patch"
+    ]
+  },
+  "stellar": {
+    "manifest": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-F7xhXt/dist/manifest.json",
+    "manifestSha256": "629175fdbc74ecdec84735bfef6e2264b07d7d31e361e80736d0d5abd723f0b1",
+    "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+    "verifiedBlobCount": 4283,
+    "registeredSourcePackages": {
+      "character": 124,
+      "weapon": 241,
+      "artifact": 55
+    },
+    "patches": null
+  },
+  "previousCandidateRulesAlreadyBridged": {
+    "char-vector-kaeya-c1-cr": {
+      "file": "packages/sim-core/src/source-host-character-vector-group-b.ts",
+      "statIndex": 9,
+      "sourceFile": "internal/characters/kaeya/cons.go",
+      "bridgePatch": "packages/source-host/patches/035-character-vector-b.patch"
+    },
+    "char-vector-kinich-c1-cd": {
+      "file": "packages/sim-core/src/source-host-character-vector-group-b.ts",
+      "statIndex": 10,
+      "sourceFile": "internal/characters/kinich/cons.go",
+      "bridgePatch": "packages/source-host/patches/035-character-vector-b.patch"
+    },
+    "char-vector-kinich-c4-dmgp": {
+      "file": "packages/sim-core/src/source-host-character-vector-group-b.ts",
+      "statIndex": 21,
+      "sourceFile": "internal/characters/kinich/cons.go",
+      "bridgePatch": "packages/source-host/patches/035-character-vector-b.patch"
+    },
+    "char-vector-navia-a1-dmgp": {
+      "file": "packages/sim-core/src/source-host-character-vector-group-b.ts",
+      "statIndex": 21,
+      "sourceFile": "internal/characters/navia/asc.go",
+      "bridgePatch": "packages/source-host/patches/035-character-vector-b.patch"
+    },
+    "char-vec-yanfei-c2": {
+      "file": "packages/sim-core/src/source-host-character-vector-group-d.ts",
+      "statIndex": 9,
+      "sourceFile": "internal/characters/yanfei/cons.go",
+      "bridgePatch": "packages/source-host/patches/037-character-vector-d.patch"
+    }
+  },
+  "existingPatchHashes": {
+    "/Users/evan/Documents/gidps/packages/source-host/patches/035-character-vector-b.patch": "c80bbe8aebaaf0fc205c842f7a7b28c50d98fa4912492fdaaccc3edfffb5d38a",
+    "/Users/evan/Documents/gidps/packages/source-host/patches/036-character-vector-c.patch": "416a747f8bd2597a56194d0f9b78df408ecc6a8f8abd015824b74fafea5cea41",
+    "/Users/evan/Documents/gidps/packages/source-host/patches/037-character-vector-d.patch": "102d5959aad5440184c18ef81bf0dc6ce1a8f3fbb7f0fda1a56622122d41734d",
+    "/Users/evan/Documents/gidps/packages/source-host/patches/038-character-additive-a.patch": "a150bfe74ca9305610093ffba6e8d18dfa2c0f3a403a9addbfdcdb4845a0affb",
+    "/Users/evan/Documents/gidps/packages/source-host/patches/040-character-additive-c.patch": "e89f8bd6204e07b62e5c781c8e67a7400e13aeaf9f71b1776d856e16fa07c95b"
+  },
+  "existingRegistryHashes": {
+    "/Users/evan/Documents/gidps/packages/sim-core/src/source-host-character-vector-group-b.ts": "2f76697f4805737595ed44297c9272efdb22b92718dcb745fff85791f0e10005",
+    "/Users/evan/Documents/gidps/packages/sim-core/src/source-host-character-vector-group-c.ts": "5dc5a8b3617087a6e1f86d8aa6883dcd9ab84972438c45ec3e52ccb0ddcf806d",
+    "/Users/evan/Documents/gidps/packages/sim-core/src/source-host-character-vector-group-d.ts": "bd90be2c19b1769a6c8b2c10566309a69d364ae48098f950607c24bc5a32345f",
+    "/Users/evan/Documents/gidps/packages/sim-core/src/source-host-character-additive-group-a.ts": "befba935f6c445ef580c158be917ba90b9e9cfab12ac32c938e1ce92334020da",
+    "/Users/evan/Documents/gidps/packages/sim-core/src/source-host-character-additive-group-c.ts": "2af99a565035035c648288f13054f3de176fea1c1ed67f0d99a5fad791c09688"
+  },
+  "stellarPatchRegistration": {
+    "file": "/Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs",
+    "sha256": "6f4b420d1ffff724394904ef4124afc20cf3364b00f3e9ebbc87a107fcae3c31",
+    "explicitRegistrationLines": {
+      "characterVectorAPatchFile": 61,
+      "characterVectorBPatchFile": 62,
+      "characterVectorCPatchFile": 63,
+      "characterVectorDPatchFile": 64
+    }
+  },
+  "callbackInventory": {
+    "classic": {
+      "vectorAmountCallbacks": 302,
+      "callbacksWithDynamicVectorOrSnapshotCall": 300,
+      "nilOnlyCallbacksWithAdditiveHit": [
+        "internal/characters/clorinde/asc.go:59",
+        "internal/characters/xilonen/cons.go:238"
+      ],
+      "scalarFloat64AmountCallbacks": 18,
+      "allHaveSharedScalarHealDrainOrSnapshotCall": true
+    },
+    "stellar": {
+      "vectorAmountCallbacks": 326,
+      "callbacksWithDynamicVectorOrSnapshotCall": 324,
+      "nilOnlyCallbacksWithAdditiveHit": [
+        "internal/characters/clorinde/asc.go:60",
+        "internal/characters/xilonen/cons.go:238"
+      ],
+      "scalarFloat64AmountCallbacks": 27,
+      "allHaveSharedScalarHealDrainOrSnapshotCall": true
+    }
+  },
+  "nilOnlyCallbackBodySha256": {
+    "classic": {
+      "clorindeA1": "0eca8f68b98dfcaa27e1f7eca7bd3a6d2339ff21313be5291d52d0906c615c5e",
+      "xilonenC6": "c6a8afd1b103bd2400ccbba971bc773a327957603a56ae965265a99af7eb6db9"
+    },
+    "stellar": {
+      "clorindeA1": "0eca8f68b98dfcaa27e1f7eca7bd3a6d2339ff21313be5291d52d0906c615c5e",
+      "xilonenC6": "1b43fd96836886fe5233a06e3e86ccecc54c524dcacdd7b3476a0ab21c5d9bade"
+    }
+  }
+}

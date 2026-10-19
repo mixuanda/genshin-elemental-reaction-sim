@@ -1,0 +1,891 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "weapon-additional-conditions",
+  "retrievedAt": "2026-09-23T10:33:44.419004+00:00",
+  "verification": "provisional",
+  "gcsimCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "reviewedCandidates": 35,
+  "supportedConditionedNumericRules": 33,
+  "excludedRules": {
+    "prototypestarglitter": "当前目录为普攻/重击伤害加成，固定gcsim写入ATKP；数值乘区冲突，未启用。",
+    "kagurasverity": "当前目录24秒并含星超导，固定gcsim16秒、无星超导且满层误加PhyP；未启用。"
+  },
+  "notes": [
+    "Named rules only. reviewed-catalog.json is a derived immutable projection used for exact active description and refinement guards.",
+    "Explicit conditions restore known effective state; no automatic trigger, uptime, random feedback, party inference or animation simulation.",
+    "Raw original bytes and both MIT licenses are preserved."
+  ],
+  "files": [
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__bow__aqua__aqua.go.txt",
+      "upstreamPath": "internal/weapons/bow/aqua/aqua.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/aqua/aqua.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/aqua/aqua.go",
+      "sha256": "3911ea77fb7010854a621cf89f7b4e679337e0557f403584d37afa4ac300bf35",
+      "bytes": 1571,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__bow__firstgreatmagic__firstgreatmagic.go.txt",
+      "upstreamPath": "internal/weapons/bow/firstgreatmagic/firstgreatmagic.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/firstgreatmagic/firstgreatmagic.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/firstgreatmagic/firstgreatmagic.go",
+      "sha256": "18af68fc00629a6d03e87d058870f60162a347d112ef7fd6b6c82243530a82c4",
+      "bytes": 2539,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__bow__mouunsmoon__mouunsmoon.go.txt",
+      "upstreamPath": "internal/weapons/bow/mouunsmoon/mouunsmoon.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/mouunsmoon/mouunsmoon.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/mouunsmoon/mouunsmoon.go",
+      "sha256": "c45ab0efb9aae19e1be41d5c66aeb44334c55f8aac23911c4c9c37ad7767151a",
+      "bytes": 396,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__bow__polarstar__polarstar.go.txt",
+      "upstreamPath": "internal/weapons/bow/polarstar/polarstar.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/polarstar/polarstar.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/polarstar/polarstar.go",
+      "sha256": "9269dc0c58c714008da370c74f89fd58c2aad1173a19fc933488676be9ce08ec",
+      "bytes": 3094,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__bow__songofstillness__songofstillness.go.txt",
+      "upstreamPath": "internal/weapons/bow/songofstillness/songofstillness.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/songofstillness/songofstillness.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/songofstillness/songofstillness.go",
+      "sha256": "56bdc293634ce417c70cd2f2ae5f002e9f330f841639eb8a8a8514766137d91d",
+      "bytes": 1292,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__bow__windblume__windblume.go.txt",
+      "upstreamPath": "internal/weapons/bow/windblume/windblume.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/windblume/windblume.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/windblume/windblume.go",
+      "sha256": "7f4b41ba0dabef314f00be56cac9fa3c1916982bcd8fb987eec784001775248c",
+      "bytes": 1063,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__balladoftheboundlessblue__balladoftheboundlessblue.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/balladoftheboundlessblue/balladoftheboundlessblue.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/balladoftheboundlessblue/balladoftheboundlessblue.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/balladoftheboundlessblue/balladoftheboundlessblue.go",
+      "sha256": "0a6f0678f0adf79fbfae00ef3ec09f63530eeeaf09913ea801adba268f628075",
+      "bytes": 2200,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__emeraldorb__emeraldorb.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/emeraldorb/emeraldorb.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/emeraldorb/emeraldorb.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/emeraldorb/emeraldorb.go",
+      "sha256": "46dd49f7ab20cb9f0ff7d89cf4da115a98a83b15ade0a3702d974466594fefcd",
+      "bytes": 1840,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__kagura__kagura.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/kagura/kagura.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/kagura/kagura.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/kagura/kagura.go",
+      "sha256": "79ab05ebd991e4272277d0ebb4b024d6495c25eb66cb48f1f9956852de56d978",
+      "bytes": 2642,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__magicguide__magicguide.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/magicguide/magicguide.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/magicguide/magicguide.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/magicguide/magicguide.go",
+      "sha256": "dc3691f1c7200c5f32a5faed6ea1185f2dbc4c6ee9ac99857e400891d59802e8",
+      "bytes": 1025,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__mappa__mappa.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/mappa/mappa.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/mappa/mappa.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/mappa/mappa.go",
+      "sha256": "2c793fa4a19c761a4507b10ee27a98a6a7adffb1385fd273d8c94626b519912f",
+      "bytes": 1893,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__oathsworneye__oathsworneye.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/oathsworneye/oathsworneye.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/oathsworneye/oathsworneye.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/oathsworneye/oathsworneye.go",
+      "sha256": "cbd15b9db0698eb3673e712dea159c6586c598b7306e9f3e0725d7edea7b9053",
+      "bytes": 1070,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__prayer__prayer.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/prayer/prayer.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/prayer/prayer.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/prayer/prayer.go",
+      "sha256": "9ffff3e403f5b0c0ee3c2243616a869f3cef41891286dffc7079b15c0f60509b",
+      "bytes": 2209,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__catalyst__solar__solar.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/solar/solar.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/solar/solar.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/solar/solar.go",
+      "sha256": "e74248673b99eb1aa79a45d1bf81ce89fc3d97a7bf6d932e8a42918121f4efd7",
+      "bytes": 1865,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__akuoumaru__akuoumaru.go.txt",
+      "upstreamPath": "internal/weapons/claymore/akuoumaru/akuoumaru.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/akuoumaru/akuoumaru.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/akuoumaru/akuoumaru.go",
+      "sha256": "17e77d34bab0c02b7e4e948964a56f65cdab7c65f8101b10d4e4c088d1bbd5ec",
+      "bytes": 395,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__earthshaker__earthshaker.go.txt",
+      "upstreamPath": "internal/weapons/claymore/earthshaker/earthshaker.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/earthshaker/earthshaker.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/earthshaker/earthshaker.go",
+      "sha256": "7856e07bcea696a4d6de8dbcbbd7838bb9f23567aaf7ddb2f4ba094d9cbb6661",
+      "bytes": 2296,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__lithic__lithic.go.txt",
+      "upstreamPath": "internal/weapons/claymore/lithic/lithic.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/lithic/lithic.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/lithic/lithic.go",
+      "sha256": "0c01d0b422cfb78bab0b120445ec38566ceb4136917c7d8f82b7324a40c4bda9",
+      "bytes": 387,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__mailedflower__mailedflower.go.txt",
+      "upstreamPath": "internal/weapons/claymore/mailedflower/mailedflower.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/mailedflower/mailedflower.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/mailedflower/mailedflower.go",
+      "sha256": "1c1d7d7a9c93e82085d77fd2728bd1de2a5c3e7e6fca443531808f46cd3e6cd3",
+      "bytes": 2008,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__skyrider__skyrider.go.txt",
+      "upstreamPath": "internal/weapons/claymore/skyrider/skyrider.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/skyrider/skyrider.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/skyrider/skyrider.go",
+      "sha256": "20a61e4e8987065c79d67d8b58a795724a5f6c61bbaefa1cb26e957cef4f50e1",
+      "bytes": 1938,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__spine__spine.go.txt",
+      "upstreamPath": "internal/weapons/claymore/spine/spine.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/spine/spine.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/spine/spine.go",
+      "sha256": "420907f57e8b314a382693451d79dd83bdc7c5150f010497bacaef200e3e0711",
+      "bytes": 2879,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__tidalshadow__tidalshadow.go.txt",
+      "upstreamPath": "internal/weapons/claymore/tidalshadow/tidalshadow.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/tidalshadow/tidalshadow.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/tidalshadow/tidalshadow.go",
+      "sha256": "8fd4a64ee5fbe8419ad3f9da4ea14390e0d55dabc96e28095daf2c7f23777a16",
+      "bytes": 1282,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__claymore__whiteblind__whiteblind.go.txt",
+      "upstreamPath": "internal/weapons/claymore/whiteblind/whiteblind.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/whiteblind/whiteblind.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/whiteblind/whiteblind.go",
+      "sha256": "75eac82a7af89167cb3cd1ceef338ad99927e27df6db1910dc8cd894c8fc9b63",
+      "bytes": 1855,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__common__lithic.go.txt",
+      "upstreamPath": "internal/weapons/common/lithic.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/lithic.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/lithic.go",
+      "sha256": "1424740a4af553e1b6547e7cdf1c2aa70dd1533dbbe454302f704a5e44870465",
+      "bytes": 1233,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__common__wavebreaker.go.txt",
+      "upstreamPath": "internal/weapons/common/wavebreaker.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/wavebreaker.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/wavebreaker.go",
+      "sha256": "abb10077fb7f3edf29682fd8cca5077db3c24f008b76da2f2fd12b32948ad8ea",
+      "bytes": 1658,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__spear__deathmatch__deathmatch.go.txt",
+      "upstreamPath": "internal/weapons/spear/deathmatch/deathmatch.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/deathmatch/deathmatch.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/deathmatch/deathmatch.go",
+      "sha256": "7ff205c50c7791c8a65465c281fa97fb97d25243fed8c99a9e8301730df906ea",
+      "bytes": 2174,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__spear__footprint__footprint.go.txt",
+      "upstreamPath": "internal/weapons/spear/footprint/footprint.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/footprint/footprint.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/footprint/footprint.go",
+      "sha256": "c2bb329db308764c0b09dba4a183565eddd3e88a7356e0cf7355d63ab060fb18",
+      "bytes": 1133,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__spear__lithic__lithic.go.txt",
+      "upstreamPath": "internal/weapons/spear/lithic/lithic.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/lithic/lithic.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/lithic/lithic.go",
+      "sha256": "0c01d0b422cfb78bab0b120445ec38566ceb4136917c7d8f82b7324a40c4bda9",
+      "bytes": 387,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__spear__missive__missive.go.txt",
+      "upstreamPath": "internal/weapons/spear/missive/missive.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/missive/missive.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/missive/missive.go",
+      "sha256": "aa52a4c81b8808e038ad58d66c4cfdcbfb31ed05eccb5dcffcd9a215c5c4bd17",
+      "bytes": 1276,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__spear__prototype__prototype.go.txt",
+      "upstreamPath": "internal/weapons/spear/prototype/prototype.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prototype/prototype.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/prototype/prototype.go",
+      "sha256": "032fe2ff1d5a46a35bd068ac9950ea5e6bb74728fd19a9e5348bbe280a62b1bb",
+      "bytes": 1602,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__spear__wavebreaker__wavebreaker.go.txt",
+      "upstreamPath": "internal/weapons/spear/wavebreaker/wavebreaker.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/wavebreaker/wavebreaker.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/wavebreaker/wavebreaker.go",
+      "sha256": "52656a5ce0be76083f32d2e70947179c5ca0171af226aa976ad4c6d81fb15e5e",
+      "bytes": 397,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__darkironsword__darkironsword.go.txt",
+      "upstreamPath": "internal/weapons/sword/darkironsword/darkironsword.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/darkironsword/darkironsword.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/darkironsword/darkironsword.go",
+      "sha256": "0ac48d1a6b53058249f79b699a462e45ce76880be37713d845f4f8e6fc12d14b",
+      "bytes": 2286,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__fluteofezpitzal__fluteofezpitzal.go.txt",
+      "upstreamPath": "internal/weapons/sword/fluteofezpitzal/fluteofezpitzal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fluteofezpitzal/fluteofezpitzal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fluteofezpitzal/fluteofezpitzal.go",
+      "sha256": "9693f8e94c69ee2d5fab61a5ede595d46249e8d4ee53cba2abe5b9b01dddbc0c",
+      "bytes": 1207,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__haran__haran.go.txt",
+      "upstreamPath": "internal/weapons/sword/haran/haran.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/haran/haran.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/haran/haran.go",
+      "sha256": "5d3be4ea8da6a0dddf59e1e90948719ec35290af80772997ceaa4040c27c7cd1",
+      "bytes": 2824,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__ironsting__ironsting.go.txt",
+      "upstreamPath": "internal/weapons/sword/ironsting/ironsting.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/ironsting/ironsting.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/ironsting/ironsting.go",
+      "sha256": "e5f103259e4b5bfe06e1966ab14a8675df6cf16ecc102d9fdcc7861864985e0c",
+      "bytes": 1667,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__prototype__prototype.go.txt",
+      "upstreamPath": "internal/weapons/sword/prototype/prototype.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/prototype/prototype.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/prototype/prototype.go",
+      "sha256": "c3e031203cd50665357bf03cdae45c17a489e8dc5789cb919c74767ad054895d",
+      "bytes": 1867,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__toukaboushigure__toukaboushigure.go.txt",
+      "upstreamPath": "internal/weapons/sword/toukaboushigure/toukaboushigure.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/toukaboushigure/toukaboushigure.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/toukaboushigure/toukaboushigure.go",
+      "sha256": "e390773006edcb40008a373a86ca0c4567586407350a137775d46544435f26e5",
+      "bytes": 2244,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/internal__weapons__sword__urakumisugiri__urakumisugiri.go.txt",
+      "upstreamPath": "internal/weapons/sword/urakumisugiri/urakumisugiri.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/urakumisugiri/urakumisugiri.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/urakumisugiri/urakumisugiri.go",
+      "sha256": "7cc8dd6c98acb79a86a929044dad2e91d6464bbdf341178a14268fc7f5f6364d",
+      "bytes": 2547,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__attributes__stats.go.txt",
+      "upstreamPath": "pkg/core/attributes/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "bytes": 1677,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__combat__attack.go.txt",
+      "upstreamPath": "pkg/core/combat/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go",
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "bytes": 2494,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__combat__reaction.dm.go.txt",
+      "upstreamPath": "pkg/core/combat/reaction.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.dm.go",
+      "sha256": "b3b8b2f16ffd32e6a133ffd6770889ea257dfae52ed35156e6e26bd2c1e9b9e9",
+      "bytes": 2431,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__combat__reaction.go.txt",
+      "upstreamPath": "pkg/core/combat/reaction.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "sha256": "f0acf39365cfd8d751a2a70c4b7fcc7e97f479fe6b9eadb0b56194360089d334",
+      "bytes": 1301,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__player__character__mods.go.txt",
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__player__character__stats.go.txt",
+      "upstreamPath": "pkg/core/player/character/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__player__exec.go.txt",
+      "upstreamPath": "pkg/core/player/exec.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "bytes": 7052,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__core__player__player.go.txt",
+      "upstreamPath": "pkg/core/player/player.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "bytes": 8629,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__enemy__attack.go.txt",
+      "upstreamPath": "pkg/enemy/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__enemy__damage.go.txt",
+      "upstreamPath": "pkg/enemy/damage.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__reactable__catalyze.go.txt",
+      "upstreamPath": "pkg/reactable/catalyze.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/catalyze.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/catalyze.go",
+      "sha256": "173d03c99b157deb55d6afd11b37d570c1c8e72a6c6b1510388afa3f7ec503b5",
+      "bytes": 2229,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__reactable__reactable.go.txt",
+      "upstreamPath": "pkg/reactable/reactable.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go",
+      "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307",
+      "bytes": 11418,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/pkg__reactable__vaporize.go.txt",
+      "upstreamPath": "pkg/reactable/vaporize.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/vaporize.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/vaporize.go",
+      "sha256": "8bc0a58caa4257bdd772dece3efb0f21f30bd8d19c6cd54aa347893aef0b46bb",
+      "bytes": 1448,
+      "evidenceRole": "reference-implementation"
+    },
+    {
+      "source": "gcsim",
+      "file": "gcsim/LICENSE.txt",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "evidenceRole": "license"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__darkironsword.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/darkironsword.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/darkironsword.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/darkironsword.json",
+      "sha256": "f8242224165dac9ee6eddf734358205d6ff6dab1cdd765c97c51c945c302a020",
+      "bytes": 4160,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__prototyperancour.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/prototyperancour.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototyperancour.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototyperancour.json",
+      "sha256": "3e7b95aebc28710d446cc177420fb16ff6667b25891c9b430d0eb264eea7f46b",
+      "bytes": 4338,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__ironsting.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/ironsting.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/ironsting.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/ironsting.json",
+      "sha256": "2fbe9427bbbd2f87d461a7aa82f500ec00451e373960d8b1f12be9946fcaff80",
+      "bytes": 4455,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__toukaboushigure.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/toukaboushigure.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/toukaboushigure.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/toukaboushigure.json",
+      "sha256": "b0d69d13b4e1a8208fd06878edcbe557deca799c4ef9b2bb4a8b3daba7644c6b",
+      "bytes": 7482,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__fluteofezpitzal.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/fluteofezpitzal.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fluteofezpitzal.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fluteofezpitzal.json",
+      "sha256": "6273469fdc4dc2a84782c0bf9b1a79e73f46f00be408eec8d1316b6d53430897",
+      "bytes": 3175,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__harangeppakufutsu.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/harangeppakufutsu.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/harangeppakufutsu.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/harangeppakufutsu.json",
+      "sha256": "bf18186e305ddb997cd188593cc6a53f8484cd6918cb457b66bd994171cea415",
+      "bytes": 8627,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__urakumisugiri.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/urakumisugiri.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/urakumisugiri.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/urakumisugiri.json",
+      "sha256": "0679cbb26f13d1421547c7e2aa90f1b6ee08788e3eeafefbefe3c2daef1471a2",
+      "bytes": 8731,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__skyridergreatsword.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/skyridergreatsword.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/skyridergreatsword.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/skyridergreatsword.json",
+      "sha256": "f5ffee6adcd62f9de390bc8764da2a003831b1ad8d04fb23bd8d655ba000b4b4",
+      "bytes": 3847,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__whiteblind.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/whiteblind.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/whiteblind.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/whiteblind.json",
+      "sha256": "6bc5dd8a989a6f9360a252b9c625bb86346fa56ba60b53e7e0212ca033454b97",
+      "bytes": 5138,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__serpentspine.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/serpentspine.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/serpentspine.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/serpentspine.json",
+      "sha256": "d2031e977bf6fb018589b1ea45d30520989f06561b2285e973879fed383e4a2c",
+      "bytes": 5209,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__lithicblade.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/lithicblade.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lithicblade.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lithicblade.json",
+      "sha256": "b42211e8759c8a1952bef60db0ed4e36f5c478a59da8c230792a8ff3cf937d73",
+      "bytes": 4629,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__akuoumaru.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/akuoumaru.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/akuoumaru.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/akuoumaru.json",
+      "sha256": "a3627c082b94d9bce2db748999508dbe86e03d793e854a0d01906e078a84f9f9",
+      "bytes": 5325,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__mailedflower.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/mailedflower.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mailedflower.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mailedflower.json",
+      "sha256": "4e85d9983fee0d89de169b46b0a8aa5441a8895d83b1b9013fcabaeaaf77484c",
+      "bytes": 4851,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__tidalshadow.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/tidalshadow.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/tidalshadow.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/tidalshadow.json",
+      "sha256": "c37dcd4300a4f0ea7f37fc27cb157f5a23c4c2c935bc1470d155b72b6f39f5d0",
+      "bytes": 5587,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__earthshaker.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/earthshaker.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/earthshaker.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/earthshaker.json",
+      "sha256": "12930f6ad89f6f97e80200c4cb1779c13b04f20534def86e925c5de5d8ed83ff",
+      "bytes": 3890,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__prototypestarglitter.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "sha256": "5fd934fed372da615380659ff9fc9b9924721041b7886dcbca886dc86a273e83",
+      "bytes": 4458,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__deathmatch.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/deathmatch.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/deathmatch.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/deathmatch.json",
+      "sha256": "8fa38f4c21b850b66a015cc0f441117074d4ddba94bcb47470fd18523eda3db4",
+      "bytes": 5314,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__lithicspear.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/lithicspear.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lithicspear.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lithicspear.json",
+      "sha256": "164e69d26499f4b7738e0c303468c495d34e1cc1fbae8800b2027b1360375f9b",
+      "bytes": 4646,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__wavebreakersfin.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/wavebreakersfin.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/wavebreakersfin.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/wavebreakersfin.json",
+      "sha256": "a31b0a1a7c5bbc570e08511661bbd8705cc77f86753911a6da9d06b9441f421d",
+      "bytes": 5138,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__missivewindspear.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/missivewindspear.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/missivewindspear.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/missivewindspear.json",
+      "sha256": "4b53bae08c819ef51806fe53ddab6d00eeb2eef488acbaddc7b76a83d0942090",
+      "bytes": 5375,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__footprintoftherainbow.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/footprintoftherainbow.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/footprintoftherainbow.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/footprintoftherainbow.json",
+      "sha256": "0f021c109aa93c2e5826ce5e6fc4297c99d71c563dde5688286d0ccbfe55ca2b",
+      "bytes": 3115,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__magicguide.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/magicguide.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/magicguide.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/magicguide.json",
+      "sha256": "fa0d46eab5f9b05d23e7ff85d501981a7002f6fb6e58bddbe8db24a84e624f9f",
+      "bytes": 3572,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__emeraldorb.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/emeraldorb.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/emeraldorb.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/emeraldorb.json",
+      "sha256": "27e65c18c4166084cfee1d5da5c3d7b5e457dc651f6a1e5bcdf45f1c61435592",
+      "bytes": 3790,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__solarpearl.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/solarpearl.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/solarpearl.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/solarpearl.json",
+      "sha256": "65eecb39b8b053a90d7851aeb0a169db2cc4baf8a04d043ffb3ea0c142c1da67",
+      "bytes": 4653,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__mappamare.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/mappamare.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mappamare.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mappamare.json",
+      "sha256": "385a2c8da136905b129dc2fd143ea1d39344f5666da04c5e218492e4025f62ec",
+      "bytes": 4499,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__oathsworneye.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/oathsworneye.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/oathsworneye.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/oathsworneye.json",
+      "sha256": "4fe059e07483215229354fd71e57e26d3daf26a46a3eb029fab1c872f66df4a9",
+      "bytes": 4575,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__balladoftheboundlessblue.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/balladoftheboundlessblue.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/balladoftheboundlessblue.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/balladoftheboundlessblue.json",
+      "sha256": "192fc7ef2850abf2467dffbb8d3974ca66ec91a5dc66af535610a7bc3752da38",
+      "bytes": 4780,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__lostprayertothesacredwinds.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/lostprayertothesacredwinds.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lostprayertothesacredwinds.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/lostprayertothesacredwinds.json",
+      "sha256": "f2d933f7bec38eb467cb589f9ba36ec2e371a487006c442d04f4245f31d4237a",
+      "bytes": 4851,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__kagurasverity.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/kagurasverity.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/kagurasverity.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/kagurasverity.json",
+      "sha256": "03fc2332859e31a5375cbe7a36efc1c316470a37efb9ad5d38ec82b66dd34ec6",
+      "bytes": 7612,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__windblumeode.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/windblumeode.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/windblumeode.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/windblumeode.json",
+      "sha256": "ff4ae8f5f6260300021b14baba78e907e13e87463ce1b72dcde139b6059b3798",
+      "bytes": 5449,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__mouunsmoon.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/mouunsmoon.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mouunsmoon.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mouunsmoon.json",
+      "sha256": "e248a50e2ec7cec81c3706852de45bfe4502057b4b8f26745cc6b6f1d98813a8",
+      "bytes": 5318,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__songofstillness.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/songofstillness.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/songofstillness.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/songofstillness.json",
+      "sha256": "6acfcedf73062a8c8cc39f7bf379c558c80fc0a4b43a4868726ec496da124def",
+      "bytes": 4796,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__polarstar.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/polarstar.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/polarstar.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/polarstar.json",
+      "sha256": "68dba7c2e32dc2bb0844652e807327fa679b1a59ce907272185457d97f17c29d",
+      "bytes": 6086,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__aquasimulacra.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/aquasimulacra.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/aquasimulacra.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/aquasimulacra.json",
+      "sha256": "e3c8f0ea8834a78d23f03e405ae5115feed416116cb5f8399be83d7ae9bea2cd",
+      "bytes": 5205,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/src__data__ChineseSimplified__weapons__thefirstgreatmagic.json.txt",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/thefirstgreatmagic.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thefirstgreatmagic.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thefirstgreatmagic.json",
+      "sha256": "b925df09fa4d8882598d0ee1fdba3456386dadfb04d73c95714ab56d4a474f0e",
+      "bytes": 8075,
+      "evidenceRole": "catalog-description"
+    },
+    {
+      "source": "genshin-db",
+      "file": "genshin-db/LICENSE.txt",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "bytes": 1065,
+      "evidenceRole": "license"
+    }
+  ]
+}

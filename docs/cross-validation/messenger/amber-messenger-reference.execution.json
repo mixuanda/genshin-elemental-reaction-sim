@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/messenger/amber-messenger-reference.gcsl",
+    "-out",
+    "docs/cross-validation/messenger/amber-messenger-reference.result.json",
+    "-sample",
+    "docs/cross-validation/messenger/amber-messenger-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-24T04:22:49.232826+00:00",
+  "elapsedSeconds": 0.027003458002582192,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 15.00 seconds (min: 15.00 max: 15.00 std: 0.00)\nAverage 160.53 damage over 15.00 seconds, resulting in 11 dps (min: 10.70 max: 10.70 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 11399344348390296731 to docs/cross-validation/messenger/amber-messenger-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/messenger/amber-messenger-reference.gcsl",
+      "bytes": 675,
+      "sha256": "c4398a704bc55360cd716d104dc64afd1b6634d752be23d99feeacc6a422f3ae"
+    },
+    {
+      "path": "docs/cross-validation/messenger/amber-messenger-reference.result.json",
+      "bytes": 11981,
+      "sha256": "d9daf260400159b676d528b4a2d18390bf359f35b78a71c668d0e24eca2b3d63"
+    },
+    {
+      "path": "docs/cross-validation/messenger/amber-messenger-reference.sample.json",
+      "bytes": 27246,
+      "sha256": "80c9eb6e8e00195c739530bf016bb11cc3a237f9e92cf67c86ce16e669fbd3ec"
+    }
+  ]
+}

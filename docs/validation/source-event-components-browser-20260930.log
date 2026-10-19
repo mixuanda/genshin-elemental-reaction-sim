@@ -1,0 +1,54 @@
+[WebServer] (node:31873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:31874) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-event-components.spec.ts:33:1 › audited global event calls export independent, replayable event components (8.7s)
+
+
+  1) [chromium] › apps/web/e2e/source-event-components.spec.ts:33:1 › audited global event calls export independent, replayable event components 
+
+    ZodError: [
+      {
+        "code": "unrecognized_keys",
+        "keys": [
+          "schemaVersion",
+          "formulaVersion",
+          "application",
+          "calculation",
+          "components",
+          "supportingCalculations"
+        ],
+        "path": [],
+        "message": "Unrecognized keys: \"schemaVersion\", \"formulaVersion\", \"application\", \"calculation\", \"components\", \"supportingCalculations\""
+      }
+    ]
+
+       at ../../../packages/sim-core/src/source-host-event-collection.ts:345
+
+      343 |     if (capturedIds.has(application.id)) throw new Error(`事件应用 #${application.id} 重复。`);
+      344 |     capturedIds.add(application.id);
+    > 345 |     const identity = sourceContextSchema.parse(capture);
+          |                                          ^
+      346 |     if (JSON.stringify(identity) !== expectedIdentity)
+      347 |       throw new Error(`事件应用 #${application.id} 混入不同来源、脚本或初始状态。`);
+      348 |     const original = document.nativeEvidence.applications.find(row => row.id === application.id);
+        at map (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-event-collection.ts:345:42)
+        at calculateSourceHostEventCollection (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-event-collection.ts:340:62)
+        at closedCall (/Users/evan/Documents/gidps/apps/web/e2e/source-event-components.spec.ts:66:26)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-event-components.spec.ts:71:20
+
+    Error Context: test-results/source-event-components-au-5e7a8-replayable-event-components-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-event-components-au-5e7a8-replayable-event-components-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-event-components-au-5e7a8-replayable-event-components-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-event-components.spec.ts:33:1 › audited global event calls export independent, replayable event components 

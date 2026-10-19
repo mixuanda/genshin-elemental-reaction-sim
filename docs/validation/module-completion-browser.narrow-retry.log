@@ -1,0 +1,12 @@
+
+Running 2 tests using 2 workers
+
+(node:78058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78057) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/calculator.spec.ts:351:1 › mobile examples preserve special-reaction readiness and preview identity (1.3s)
+{"moduleCompleteCast":{"hits":7,"before":{"nonCritical":13881.779999999999,"critical":30539.915999999997,"expected":25542.475199999997},"after":{"nonCritical":16844.355,"critical":37057.581,"expected":30993.613199999996}}}
+  ✓  1 [chromium] › apps/web/e2e/module-completion.spec.ts:3:1 › module controls preserve an independent complete cast and expose ordinary team editors (3.3s)
+
+  2 passed (3.9s)

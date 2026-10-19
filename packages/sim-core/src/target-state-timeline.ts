@@ -305,6 +305,13 @@ export class TargetStateTimelineRecorder {
     return this.latestFrameByTarget.get(targetId) ?? 0;
   }
 
+  /** These cursors drive natural-expiry materialization; point IDs do not. */
+  captureObservationState() {
+    return [...this.latestAuraByTarget].map(([targetId, aura]) => ({
+      targetId, frame: this.latestFrame(targetId), aura: cloneAuraStates(aura),
+    }));
+  }
+
   synchronize(
     targetId: string,
     frame: number,

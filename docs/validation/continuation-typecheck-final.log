@@ -1,0 +1,20 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/classified-hits.ts(84,61): error TS2379: Argument of type '{ stat: "atk" | "def" | "em" | "hp"; coefficient: number; minimumAscension: number | undefined; coefficientField: string; }' is not assignable to parameter of type '{ stat: "atk" | "def" | "em" | "hp"; coefficient: number; coefficientField: string; minimumAscension?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'minimumAscension' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/game-data/src/classified-hits.ts(86,21): error TS2379: Argument of type '{ variantId: string | undefined; variantName: string | undefined; id: string; characterId: string; characterName: string; skillId: string; skillName: string; talentSetId: string; abilityId: string; ... 4 more ...; completeAction: boolean; }' is not assignable to parameter of type 'ClassifiedHitBlocker' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'variantId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/game-data/src/classified-hits.ts(90,59): error TS2379: Argument of type '{ id: string; characterId: string; characterName: string; talentSetId: string; abilityId: string; abilityKey: "combat1" | "combat2" | "combat3"; variantId: string | undefined; variantName: string | undefined; ... 22 more ...; unrelatedBlockers: string[]; }' is not assignable to parameter of type 'ClassifiedCharacterHit' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'variantId' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.
+packages/sim-core/src/__tests__/calculator-equipment.test.ts(65,257): error TS2322: Type '{ slot: "circlet" | "flower" | "goblet" | "plume" | "sands"; level: number; mainStat: string; initialSubstats: number; substats: { stat: string; rolls: number[]; }[]; rarity: 5; setId: string; }[]' is not assignable to type 'ArtifactPieceInput[]'.
+  Type '{ slot: "circlet" | "flower" | "goblet" | "plume" | "sands"; level: number; mainStat: string; initialSubstats: number; substats: { stat: string; rolls: number[]; }[]; rarity: 5; setId: string; }' is not assignable to type 'ArtifactPieceInput'.
+    Types of property 'mainStat' are incompatible.
+      Type 'string' is not assignable to type '"anemo_dmg_" | "atk" | "atk_" | "critDMG_" | "critRate_" | "cryo_dmg_" | "def" | "def_" | "dendro_dmg_" | "eleMas" | "electro_dmg_" | "enerRech_" | "geo_dmg_" | "heal_" | "hp" | "hp_" | "hydro_dmg_" | "physical_dmg_" | "pyro_dmg_"'.

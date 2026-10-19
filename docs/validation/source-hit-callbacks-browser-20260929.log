@@ -1,0 +1,40 @@
+[WebServer] (node:19459) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:19461) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-hit-callbacks.spec.ts:35:1 › four audited hit-callback skills close only their reachable intrinsic children (7.9s)
+
+
+  1) [chromium] › apps/web/e2e/source-hit-callbacks.spec.ts:35:1 › four audited hit-callback skills close only their reachable intrinsic children 
+
+    Error: 实际命中 #40 没有所选动作的原生关联，不能按名称或相邻帧补齐。
+
+       at ../../../packages/sim-core/src/source-host-action-collection.ts:242
+
+      240 |       ? !sourceHostFiniteSkillOwnsApplication(document.finiteCastEvidence!, capture.application)
+      241 |       : associationSequence(capture.application.origin, observedAssociation(document.association)) !== document.action.sequence)
+    > 242 |       throw new Error(`实际命中 #${id} 没有所选动作的原生关联，不能按名称或相邻帧补齐。`);
+          |             ^
+      243 |     const result = calculateSourceHostEditableCalculation(hit.calculation);
+      244 |     return { applicationId: id, included: hit.included, value: result.applicationValue ?? result.value,
+      245 |       rawFormulaValue: result.value,
+        at map (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-action-collection.ts:242:13)
+        at calculateSourceHostActionCollection (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-action-collection.ts:234:30)
+        at capture (/Users/evan/Documents/gidps/apps/web/e2e/source-hit-callbacks.spec.ts:67:24)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-hit-callbacks.spec.ts:80:13
+
+    Error Context: test-results/source-hit-callbacks-four--1bdff-eachable-intrinsic-children-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-hit-callbacks-four--1bdff-eachable-intrinsic-children-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-hit-callbacks-four--1bdff-eachable-intrinsic-children-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-hit-callbacks.spec.ts:35:1 › four audited hit-callback skills close only their reachable intrinsic children 

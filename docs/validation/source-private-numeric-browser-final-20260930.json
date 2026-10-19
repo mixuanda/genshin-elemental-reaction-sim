@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-private-numeric-state.spec.ts",
+    "--workers=1",
+    "--retries=0"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 3.911
+}

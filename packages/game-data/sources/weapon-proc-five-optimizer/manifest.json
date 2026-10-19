@@ -1,0 +1,511 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "pinnedTreeSha": "180a0a1015cb725c7570cd828eb086749960df98",
+  "pinnedTreeTruncated": false,
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "archivedAt": "2026-09-24T01:54:15.557955+00:00",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-procs/raw/optimizer/LICENSE"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivedAt": "2026-09-24T01:54:15.558637+00:00",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "gitBlobSha": "736a1229592f4afead151920884dbccd5c5e22cb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/sheets/src/Characters/dataUtil.tsx"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/wr/src/formula.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "archivedAt": "2026-09-24T01:54:15.558714+00:00",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "gitBlobSha": "7a066de7a030ed2dd05b5184703bb955f6331961",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/wr/src/formula.ts"
+    },
+    {
+      "path": "libs/gi/dm/src/mapping/weapon.ts",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/mapping/weapon.ts",
+      "archivedAt": "2026-09-24T01:54:15.558773+00:00",
+      "sha256": "a24041ebb6383632d69dfbe2322775dea4ba45dd9273a93de2fee2de2d1b0982",
+      "gitBlobSha": "33edfa77556a7bb7dc1ef771f1194a57df306df5",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm/src/mapping/weapon.ts"
+    },
+    {
+      "path": "libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json",
+      "archivedAt": "2026-09-24T01:54:15.558838+00:00",
+      "sha256": "b0b4c34dacbf97b1a5e58e523361e86d629b146f43a2110b9094bf69ad2cb551",
+      "gitBlobSha": "e11e04044b2b4e50ca7a798c6384dccf47bd373c",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "existing-pinned-local-archive",
+      "copiedFrom": "packages/game-data/sources/weapon-procs/raw/optimizer/libs/gi/dm/src/dm/weapon/WeaponExcelConfigData_idmap_gen.json"
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Sword/FilletBlade/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Sword/FilletBlade/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/FilletBlade/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Sword/FilletBlade/index.tsx",
+      "archivedAt": "2026-09-24T01:54:17.019147+00:00",
+      "sha256": "bb6dda55ee8d7a30c21987f7563f7e65182e26c3aabaaa78c9343ad0ddf5187a",
+      "gitBlobSha": "480c8f6e5fb015432898b041ed5d07ded4324d2c",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_FilletBlade_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_FilletBlade_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_FilletBlade_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_FilletBlade_gen.json",
+      "archivedAt": "2026-09-24T01:54:19.815654+00:00",
+      "sha256": "bba54388d7e2913eb7d71b7b38bc5ff74d65e4e2ac9dacca5f812d93c145d0ec",
+      "gitBlobSha": "0dc6fd3755618aef71adfe1ac4cf374a186c6889",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Claymore/PrototypeArchaic/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Claymore/PrototypeArchaic/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/PrototypeArchaic/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/PrototypeArchaic/index.tsx",
+      "archivedAt": "2026-09-24T01:54:19.687635+00:00",
+      "sha256": "bec57dbcc96a1e64026eecf667a3ed3e60755ce1c509a7cbf625eede1d784826",
+      "gitBlobSha": "2e2475d824e05ce290a0b894d85854916ad86dee",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_PrototypeArchaic_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_PrototypeArchaic_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_PrototypeArchaic_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_PrototypeArchaic_gen.json",
+      "archivedAt": "2026-09-24T01:54:19.792394+00:00",
+      "sha256": "ea0914e231ebf05071a2c2e9d8eaab3335d99ce20a3f92a60ff462ce06b9bf7b",
+      "gitBlobSha": "2edb991e4dbd3422bf559035f0129e9c2684ff37",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Claymore/SnowTombedStarsilver/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Claymore/SnowTombedStarsilver/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/SnowTombedStarsilver/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Claymore/SnowTombedStarsilver/index.tsx",
+      "archivedAt": "2026-09-24T01:54:17.018235+00:00",
+      "sha256": "bfe8dcc0d950e82c69fe8a5d60e6218ce3863cdb8a4fc630c9f53fe2d5e362b8",
+      "gitBlobSha": "1666b5c89a23569100bbabd0e4f57c07825a0270",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_SnowTombedStarsilver_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_SnowTombedStarsilver_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_SnowTombedStarsilver_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_SnowTombedStarsilver_gen.json",
+      "archivedAt": "2026-09-24T01:54:18.115292+00:00",
+      "sha256": "b56f0a2e5358821d994cb153e12132d5a33ca79a73ce37a28dd8f26cff55c532",
+      "gitBlobSha": "8141b7a12cac536ebdfa447f0f9356b0884a5eb4",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Polearm/DragonspineSpear/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Polearm/DragonspineSpear/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/DragonspineSpear/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Polearm/DragonspineSpear/index.tsx",
+      "archivedAt": "2026-09-24T01:54:18.009892+00:00",
+      "sha256": "eee7f5127e5398c28e2cd54e32e377d2185d27e5a78d14281d972215f81461f6",
+      "gitBlobSha": "b22c8f6b1404276fb59d1e72e540fe5389dee7eb",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_DragonspineSpear_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_DragonspineSpear_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_DragonspineSpear_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_DragonspineSpear_gen.json",
+      "archivedAt": "2026-09-24T01:54:18.831169+00:00",
+      "sha256": "64c363548895a585c4cbeb204c2983cd500a6f147e6b8bf5e2839a1fcf9b719f",
+      "gitBlobSha": "9b8766fbbc5763a65db85cb0610bc9e2d3bdd0d7",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+      "archivedAt": "2026-09-24T01:54:19.324537+00:00",
+      "sha256": "b79fa8ba4e617ecf8752fcabbeec37f074d4617737f62a93f17ea57d4cf20212",
+      "gitBlobSha": "8248f0a896fd09128bb1df1ab3e7d367c9ceb798",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/chs/weapon_Frostbearer_gen.json",
+      "archivedPath": "packages/game-data/sources/weapon-proc-five-optimizer/raw/optimizer/libs/gi/dm-localization/assets/locales/chs/weapon_Frostbearer_gen.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_Frostbearer_gen.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/chs/weapon_Frostbearer_gen.json",
+      "archivedAt": "2026-09-24T01:54:19.654301+00:00",
+      "sha256": "2fe49f6856984f726ae4956d23d0fd1219643745945cdce8d6b1e7c238cf4663",
+      "gitBlobSha": "2a3ce4f0b94b4f3f2d0e2e0956cdd3ab9f4821a5",
+      "matchesPinnedTree": true,
+      "retrievalMethod": "https",
+      "httpStatus": 200
+    }
+  ],
+  "sourceReview": {
+    "reviewedAt": "2026-09-24T01:56:44.882360+00:00",
+    "method": "Static source inspection and archive integrity verification only. Production weapon sheet arrays compared with pinned generated Chinese descriptions.",
+    "weaponFindings": [
+      {
+        "weaponId": 11305,
+        "optimizerKey": "FilletBlade",
+        "nameZh": "吃虎鱼刀",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Sword/FilletBlade/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_FilletBlade_gen.json",
+        "damageCoefficientByRefinement": [
+          2.4,
+          2.8,
+          3.2,
+          3.6,
+          4.0
+        ],
+        "cryoAffectedCoefficientByRefinement": null,
+        "probabilityByRefinementFromDescription": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "cooldownSecondsByRefinementFromDescription": [
+          15,
+          14,
+          13,
+          12,
+          11
+        ],
+        "cooldownSecondsByRefinementFromSheet": [
+          15,
+          14,
+          13,
+          12,
+          11
+        ],
+        "probabilityImplementedInSheet": false,
+        "cooldownSchedulerImplementedInSheet": false,
+        "attackStatInput": "input.premod.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "triggerFromDescription": "attack-hit",
+        "targetScopeFromDescription": "single-enemy",
+        "cryoConditionSelectionImplementedInSheet": null,
+        "sourceLineEvidence": {
+          "baseCoefficient": [
+            18
+          ],
+          "cryoCoefficient": [],
+          "cooldown": [
+            19,
+            48
+          ],
+          "attackStatInput": [
+            26
+          ],
+          "physical": [
+            30
+          ]
+        }
+      },
+      {
+        "weaponId": 12406,
+        "optimizerKey": "PrototypeArchaic",
+        "nameZh": "试作古华",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Claymore/PrototypeArchaic/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_PrototypeArchaic_gen.json",
+        "damageCoefficientByRefinement": [
+          2.4,
+          3.0,
+          3.6,
+          4.2,
+          4.8
+        ],
+        "cryoAffectedCoefficientByRefinement": null,
+        "probabilityByRefinementFromDescription": [
+          0.5,
+          0.5,
+          0.5,
+          0.5,
+          0.5
+        ],
+        "cooldownSecondsByRefinementFromDescription": [
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "cooldownSecondsByRefinementFromSheet": null,
+        "probabilityImplementedInSheet": false,
+        "cooldownSchedulerImplementedInSheet": false,
+        "attackStatInput": "input.premod.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "triggerFromDescription": "normal-or-charged-attack-hit",
+        "targetScopeFromDescription": "small-area",
+        "cryoConditionSelectionImplementedInSheet": null,
+        "sourceLineEvidence": {
+          "baseCoefficient": [
+            18
+          ],
+          "cryoCoefficient": [],
+          "cooldown": [],
+          "attackStatInput": [
+            25
+          ],
+          "physical": [
+            29
+          ]
+        }
+      },
+      {
+        "weaponId": 12411,
+        "optimizerKey": "SnowTombedStarsilver",
+        "nameZh": "雪葬的星银",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Claymore/SnowTombedStarsilver/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_SnowTombedStarsilver_gen.json",
+        "damageCoefficientByRefinement": [
+          0.8,
+          0.95,
+          1.1,
+          1.25,
+          1.4
+        ],
+        "cryoAffectedCoefficientByRefinement": [
+          2.0,
+          2.4,
+          2.8,
+          3.2,
+          3.6
+        ],
+        "probabilityByRefinementFromDescription": [
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "cooldownSecondsByRefinementFromDescription": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "cooldownSecondsByRefinementFromSheet": null,
+        "probabilityImplementedInSheet": false,
+        "cooldownSchedulerImplementedInSheet": false,
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "triggerFromDescription": "normal-or-charged-attack-hit",
+        "targetScopeFromDescription": "falling-icicle-area",
+        "cryoConditionSelectionImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "baseCoefficient": [
+            18
+          ],
+          "cryoCoefficient": [
+            19
+          ],
+          "cooldown": [],
+          "attackStatInput": [
+            26,
+            40
+          ],
+          "physical": [
+            30,
+            44
+          ]
+        }
+      },
+      {
+        "weaponId": 13409,
+        "optimizerKey": "DragonspineSpear",
+        "nameZh": "龙脊长枪",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Polearm/DragonspineSpear/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_DragonspineSpear_gen.json",
+        "damageCoefficientByRefinement": [
+          0.8,
+          0.95,
+          1.1,
+          1.25,
+          1.4
+        ],
+        "cryoAffectedCoefficientByRefinement": [
+          2.0,
+          2.4,
+          2.8,
+          3.2,
+          3.6
+        ],
+        "probabilityByRefinementFromDescription": [
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "cooldownSecondsByRefinementFromDescription": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "cooldownSecondsByRefinementFromSheet": null,
+        "probabilityImplementedInSheet": false,
+        "cooldownSchedulerImplementedInSheet": false,
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "triggerFromDescription": "normal-or-charged-attack-hit",
+        "targetScopeFromDescription": "falling-icicle-area",
+        "cryoConditionSelectionImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "baseCoefficient": [
+            18
+          ],
+          "cryoCoefficient": [
+            19
+          ],
+          "cooldown": [],
+          "attackStatInput": [
+            26,
+            40
+          ],
+          "physical": [
+            30,
+            44
+          ]
+        }
+      },
+      {
+        "weaponId": 14412,
+        "optimizerKey": "Frostbearer",
+        "nameZh": "忍冬之果",
+        "sheetPath": "libs/gi/sheets/src/Weapons/Catalyst/Frostbearer/index.tsx",
+        "descriptionPath": "libs/gi/dm-localization/assets/locales/chs/weapon_Frostbearer_gen.json",
+        "damageCoefficientByRefinement": [
+          0.8,
+          0.95,
+          1.1,
+          1.25,
+          1.4
+        ],
+        "cryoAffectedCoefficientByRefinement": [
+          2.0,
+          2.4,
+          2.8,
+          3.2,
+          3.6
+        ],
+        "probabilityByRefinementFromDescription": [
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ],
+        "cooldownSecondsByRefinementFromDescription": [
+          10,
+          10,
+          10,
+          10,
+          10
+        ],
+        "cooldownSecondsByRefinementFromSheet": null,
+        "probabilityImplementedInSheet": false,
+        "cooldownSchedulerImplementedInSheet": false,
+        "attackStatInput": "input.total.atk",
+        "damageCategory": "elemental",
+        "damageElement": "physical",
+        "critMode": "shared hit / critHit / avgHit",
+        "triggerFromDescription": "normal-or-charged-attack-hit",
+        "targetScopeFromDescription": "falling-icicle-area",
+        "cryoConditionSelectionImplementedInSheet": false,
+        "sourceLineEvidence": {
+          "baseCoefficient": [
+            19
+          ],
+          "cryoCoefficient": [
+            20
+          ],
+          "cooldown": [],
+          "attackStatInput": [
+            27,
+            41
+          ],
+          "physical": [
+            31,
+            45
+          ]
+        }
+      }
+    ],
+    "damageCoefficientPositionsMatched": 40,
+    "sheetCooldownPositionsMatched": 5,
+    "maxNumericDifference": 0,
+    "descriptionOnlyProbabilityPositions": 25,
+    "descriptionOnlyCooldownPositions": 20,
+    "all15ArchivedGitBlobsMatchPinnedTree": true,
+    "calculatorTestsExecuted": 0,
+    "upstreamApplicationExecutions": 0,
+    "buildsExecuted": 0,
+    "scopeLimitations": [
+      "Probability is description evidence only: none of these five production sheets implements a random trigger.",
+      "Only FilletBlade exposes the R1-R5 cooldown as a sheet field. No weapon sheet implements a cooldown scheduler.",
+      "The icicle sheets expose separate ordinary and Cryo-affected damage values but do not choose them from a modeled aura state. Cryo-affected is a replacement branch, not additive damage.",
+      "FilletBlade and PrototypeArchaic use input.premod.atk; the icicle sheets use input.total.atk. The common formula aliases total stats to premod by default, but this review does not prove equality under every post-modifier or conversion buff.",
+      "Proc delay, snapshot timing, aura timing, number of targets, hit versus miss behavior, off-field rules, and rotation proc counts are not validated by this static review.",
+      "No empty refinementBonus data or TODO formula stub was used as numerical evidence. Source agreement does not constitute independent in-game testing."
+    ]
+  }
+}

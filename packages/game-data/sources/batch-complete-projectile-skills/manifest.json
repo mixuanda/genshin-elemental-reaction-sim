@@ -1,0 +1,271 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "source-backed-provisional",
+  "recordedAt": "2026-09-24T05:44:30.487625+00:00",
+  "localArchivePath": "packages/game-data/sources/batch-complete-projectile-skills/source.json.gz",
+  "localArchiveSha256": "215c8e1ee2175db859496a68fa236b731bc09174500a22a845d55d13b6a54b8d",
+  "localArchiveBytes": 40597,
+  "sourceFileCount": 35,
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "pkg/core/attack.go": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+    "pkg/enemy/damage.go": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+    "internal/template/character/character.go": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+    "internal/characters/aloy/aloy.go": "3f180094807cf4f4521344ed0fa5ffb020bd28420cfec775feb17c5484049114",
+    "internal/characters/aloy/skill.go": "6ec3725a7d9ee820ea3391a5a795808c3bb0b36b43ca31d280e22086fa96eaf1",
+    "internal/characters/aloy/asc.go": "19d7fbd66fcc04bdce6c1bec0b3be8ecc971bd05d2fba51c75f6d25cf37503e7",
+    "internal/characters/aloy/zz_aloy.dm.go": "ab3c6083d86cade56a703879e707da7d33f58e67fec32dfe1acc589db5c42eeb",
+    "internal/characters/klee/klee.go": "6e2bd123b09e98fdac774b687d5f5c101285c22c8d6ea496c6be87673b5805a2",
+    "internal/characters/klee/skill.go": "500d62bad258d3c12550df6be4ee6dbf9913abf64bab5f031ae5001ba4f907be",
+    "internal/characters/klee/asc.go": "b54118b5edc5df216e1f192ca0a5dd3073c96f9fe3627c329c04c827d173a759",
+    "internal/characters/klee/cons.go": "1f00616bc5b2ac3c2345dcfb1aa7294ffd2705501d94f7fee6304002d1166f9b",
+    "internal/characters/klee/zz_klee.dm.go": "ecda0e70cc7bcd07f8db7b2423487ed9baee2f00f15905aad7fcfde93de0a79c",
+    "internal/characters/chevreuse/chevreuse.go": "842513e3f5c97c452305477f0b8d0c36857f576e2783e07a9d07d3c7aa9c52b1",
+    "internal/characters/chevreuse/skill.go": "8648c94f0c923f4e1ef0256bd44ec4f29d2c3bbacc60f0ea2c800f4e139b4ca5",
+    "internal/characters/chevreuse/asc.go": "53928ee3c40ae9922c3bf3ab1b63914c8efc106948c5f38677bfaf4361113b06",
+    "internal/characters/chevreuse/cons.go": "3d38ca2dc680cc745586d1342eb3074f025cc5e0e6e0f4e8045e4eee5301bf53",
+    "internal/characters/chevreuse/zz_chevreuse.dm.go": "556d98d40b231673c53fb606ae1fa2c68968dbf127d9783e596b867346c3b57b",
+    "internal/characters/neuvillette/neuvillette.go": "407e6741796dbe4b3ab571ec632482535ec403b70a1e9cee7cb58ace7ff7ba6e",
+    "internal/characters/neuvillette/skill.go": "e213bc83ca4f0f82d790dcf66fa41ed65fea0d49efa3efa156321159e6ebacdb",
+    "internal/characters/neuvillette/asc.go": "23daf9e2487324bb77a0aed478b17af87c1fe977a76f7de1a85bc67fb5958fc3",
+    "internal/characters/neuvillette/cons.go": "adb6824fe31e81e119123710b0b3fe7882b4783d95bd17cda38fae20183c1bd2",
+    "internal/characters/neuvillette/zz_neuvillette.dm.go": "ff69094d9354cd5291116e5efd3e1cb9424de2497d223757dc24dbfdd57f77ab",
+    "internal/characters/freminet/freminet.go": "bfa738211dc9583690ea9f92a8678b17a1e7d4c3da152c07dcf1aa7633178db6",
+    "internal/characters/freminet/skill.go": "6d7bdcb2bc21d590576a0318aa317d946a07fb5103e4f83f1df4f916e50fdbe4",
+    "internal/characters/freminet/asc.go": "2fef86cf65c460a171151a071bc750f07c7abeed9a99a55d0ded118bfd929378",
+    "internal/characters/freminet/cons.go": "a7982a1448b3b4aa00d47260b7a496e72db864c0d194641ab849325b730b7cb6",
+    "internal/characters/freminet/zz_freminet.dm.go": "398cc511dd13d0f2f92cb4036ec39d9e951fc2372252bcf9b4dde09532749b0e",
+    "internal/characters/chevreuse/burst.go": "75a945197dc4290abc203f280729451197dbb26fc81c8f9da3772a8b94e8813a",
+    "pkg/core/player/character/stats.go": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+    "pkg/core/player/character/mods.go": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+    "pkg/enemy/attack.go": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b"
+  },
+  "additionalRepositories": {
+    "KQM-git/TCL": {
+      "revision": "3262850bd2fb4cef9c6c138431e79a8beba06ff2",
+      "sourceSha256": {
+        "docs/characters/pyro/klee.md": "bab6d95bd7d5d7d6a5a5b684db46a8de889ead4b912001ad34436d6f9f0974bf",
+        "docs/evidence/characters/pyro/klee.md": "13a0c3f5a37a570f9ed909e1d873eba420772ebdf055d351eb25f34bf231c422"
+      },
+      "sourceUrls": {
+        "docs/characters/pyro/klee.md": "https://raw.githubusercontent.com/KQM-git/TCL/3262850bd2fb4cef9c6c138431e79a8beba06ff2/docs/characters/pyro/klee.md",
+        "docs/evidence/characters/pyro/klee.md": "https://raw.githubusercontent.com/KQM-git/TCL/3262850bd2fb4cef9c6c138431e79a8beba06ff2/docs/evidence/characters/pyro/klee.md"
+      },
+      "licenseNote": "No root LICENSE/COPYING file is present in the pinned GitHub repository root listing; archived documents retain their original attribution and evidence links."
+    },
+    "frzyc/genshin-optimizer": {
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "sourceSha256": {
+        "libs/gi/sheets/src/Characters/Klee/index.tsx": "43d495018541ebd614cc1e9132504ee8dbae898cd596106b90c6ab3b49edd1f7"
+      },
+      "sourceUrls": {
+        "libs/gi/sheets/src/Characters/Klee/index.tsx": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Klee/index.tsx"
+      },
+      "scope": "Klee C0 E Hexerei applicability inspection only; no new coefficient comparison or runtime validation."
+    }
+  },
+  "coefficientProvenance": {
+    "reusedFrom": "packages/game-data/src/character-mappings/skill-mappings-reviewed.ts",
+    "uniqueExactVectors": 12,
+    "effectiveTalentLevels": 15,
+    "sourceTables": {
+      "klee": [
+        "jumpy",
+        "mine"
+      ],
+      "chevreuse": [
+        "burst",
+        "burstSecondary",
+        "skillPress",
+        "skillHold",
+        "skillOvercharged",
+        "arkhe"
+      ],
+      "neuvillette": [
+        "skill",
+        "thorn"
+      ],
+      "freminet": [
+        "skillThrust",
+        "skillBreath"
+      ]
+    },
+    "note": "Existing exact reviewed vectors are reused by source mapping ID; this batch does not introduce rounded or inferred coefficients, and does not claim a newly executed numerical comparison."
+  },
+  "actions": [
+    {
+      "skillId": "klee-skill-complete-cast-c0",
+      "damageInstances": 11,
+      "groups": [
+        3,
+        8
+      ],
+      "countEvidence": [
+        "internal/characters/klee/skill.go:bounceHitmarks",
+        "KQM-git/TCL/docs/characters/pyro/klee.md:Splits into 8 mines",
+        "KQM-git/TCL/docs/evidence/characters/pyro/klee.md:Klee Mine ICD and Klee Mines ICD Update"
+      ],
+      "snapshot": "Each bounce and mine reads the cast-time stats; source uses QueueAttackWithSnap after release."
+    },
+    {
+      "skillId": "chevreuse-burst-complete-cast-c0",
+      "damageInstances": 9,
+      "groups": [
+        1,
+        8
+      ],
+      "countEvidence": [
+        "internal/characters/chevreuse/burst.go:mineCounts = []int{1,2,2,2,1}"
+      ],
+      "snapshot": "All snapshots at relative frame 43; initial damage at 59, mine groups at 83/92/101/110/119."
+    },
+    {
+      "skillId": "neuvillette-skill-complete-cast-c0-arkhe-ready",
+      "damageInstances": 2,
+      "groups": [
+        1,
+        1
+      ],
+      "countEvidence": [
+        "internal/characters/neuvillette/skill.go:Skill"
+      ],
+      "snapshot": "Waterfall reads MaxHP at action start; snapshot/damage at 23; ATK-scaled thorn snapshot/damage at 60 if Arkhe ICD inactive. Source snapshot-delay TODO retained."
+    },
+    {
+      "skillId": "freminet-skill-initial-complete-cast-c0-arkhe-ready",
+      "damageInstances": 2,
+      "groups": [
+        1,
+        1
+      ],
+      "countEvidence": [
+        "internal/characters/freminet/skill.go:Skill and skillAligned"
+      ],
+      "snapshot": "Initial upward thrust snapshots at action start and hits at 29; thorn snapshots and hits at 62. Pers Time absent at start; later pressure detonation is a separate action."
+    },
+    {
+      "skillId": "chevreuse-skill-press-complete-cast-c0-arkhe-ready",
+      "damageInstances": 2,
+      "groups": [
+        1,
+        1
+      ],
+      "countEvidence": [
+        "internal/characters/chevreuse/skill.go:skillPress, skillHold and arkhe"
+      ],
+      "snapshot": "Press snapshots/hits at 25 and 59; minimum hold at 19 and 55. Overcharged A4 is applied six frames before the main hit snapshot; final ATK must already include it."
+    },
+    {
+      "skillId": "chevreuse-skill-hold-complete-cast-c0-arkhe-ready",
+      "damageInstances": 2,
+      "groups": [
+        1,
+        1
+      ],
+      "countEvidence": [
+        "internal/characters/chevreuse/skill.go:skillPress, skillHold and arkhe"
+      ],
+      "snapshot": "Press snapshots/hits at 25 and 59; minimum hold at 19 and 55. Overcharged A4 is applied six frames before the main hit snapshot; final ATK must already include it."
+    },
+    {
+      "skillId": "chevreuse-skill-overcharged-complete-cast-c0-arkhe-ready",
+      "damageInstances": 2,
+      "groups": [
+        1,
+        1
+      ],
+      "countEvidence": [
+        "internal/characters/chevreuse/skill.go:skillPress, skillHold and arkhe"
+      ],
+      "snapshot": "Press snapshots/hits at 25 and 59; minimum hold at 19 and 55. Overcharged A4 is applied six frames before the main hit snapshot; final ATK must already include it."
+    }
+  ],
+  "unverified": [
+    "No tests, build, generator, external simulator run or live-game measurement executed for this batch.",
+    "C0 conditional self-damage actions only; all stated hits must actually connect and all stated stats/target conditions must hold.",
+    "Aloy was not promoted: pinned gcsim accepts an arbitrary bomblets count (default 2), does not establish a four-bomblet complete cast, and explicitly marks main snapshot timing TODO. Existing single-hit mappings remain usable.",
+    "KQM provides an independent documented eight-mine observation for Klee; this is not a new measurement by this project. KQM and gcsim third-bounce frame values differ (145 vs 140); the conditional total uses stable damage context and does not certify precise frame timings.",
+    "Chevreuse A1 is now accounted per hit from an explicit prior target debuff and party eligibility; no automatic Overload timing. Overcharged A4 must actually be active before its own damage snapshots when unlocked.",
+    "Neuvillette A4 must be included from the actual stable HP ratio; no default full-HP assumption or inferred dynamic HP.",
+    "Arkhe readiness is a named precondition. Opposite-alignment annihilation, automatic reactions/ICD, target geometry, particle/energy and rotation validation remain separate."
+  ],
+  "passiveAccounting": {
+    "neuvilletteA4": {
+      "formula": "hydroDamageBonus = ascension >= 4 ? min(0.30,max(0,(actualHpRatio-0.30)*0.60)) : 0",
+      "neededActualInputs": [
+        "ascension",
+        "actualHpRatio at each relevant snapshot",
+        "amount already included in the supplied Hydro damage bonus"
+      ],
+      "application": "Apply actual A4 minus explicitly included share through the typed AST. Each hit can restore its actual HP ratio; a shared ratio is available only under an explicit stable-context declaration. Historical hits require own inputs.",
+      "sourceFields": [
+        "internal/characters/neuvillette/asc.go:updateA4",
+        "internal/characters/neuvillette/skill.go:Skill",
+        "pkg/core/player/character/stats.go:Stats"
+      ],
+      "timing": "Waterfall MaxHP scalar at cast, damage stats snapshot at 23f; thorn snapshot at 60f. A4 Extra:true does not bypass Stats() snapshot. Source snapshot-delay TODO remains."
+    },
+    "chevreuseA4": {
+      "formula": "attackPercent = ascension >= 4 && actualBuffActive ? min(actualMaxHpAtOverchargedShot/100000,0.40) : 0; flatAttackContribution = actorBaseAttack * attackPercent",
+      "neededActualInputs": [
+        "ascension",
+        "actual buff active at each snapshot",
+        "actual Chevreuse MaxHP when the relevant Overcharged Ball was fired",
+        "actor base attack",
+        "attack contribution already included in supplied final ATK"
+      ],
+      "application": "Apply actual percentage minus explicitly included percentage, then multiply corresponding base ATK through the typed AST; exact equal shares require no unknown base. Ordinary press/hold and Q may only inherit a prior active buff.",
+      "sourceFields": [
+        "internal/characters/chevreuse/asc.go:a4",
+        "internal/characters/chevreuse/skill.go:skillHold"
+      ],
+      "timing": "New Overcharged Ball buff applies at hold+13f, six frames before main damage snapshot at hold+19f; blade snapshot at hold+55f. Lasts 30s with hitlag extension. This branch requires stable final stats at both snapshots."
+    },
+    "chevreuseA1": {
+      "formula": "pyroResistanceReduction = ascension >= 1 && actualPartyEligible && actualTargetDebuffActiveAtHit ? 0.40 : 0",
+      "neededActualInputs": [
+        "ascension",
+        "actual party has only Pyro/Electro and at least one of each",
+        "actual target debuff active at each hit",
+        "resistance reduction already included in input target resistance/reduction"
+      ],
+      "application": "Apply actual reduction minus explicitly included reduction through the typed AST for each hit. Do not infer an earlier debuff from the current hit being selected to Overload. A pre-finalized effectiveResistance with a nonzero remaining difference is blocked until its accounting is restored.",
+      "sourceFields": [
+        "internal/characters/chevreuse/asc.go:a1",
+        "pkg/enemy/attack.go:OnEnemyDamage event after damage"
+      ],
+      "timing": "Debuff starts only from actual Overload-damage OnEnemyDamage on that enemy; lasts 6s with hitlag extension. The hit preceding the first Overload damage cannot automatically receive this new debuff. This branch requires the resistance state to hold for all hits or be absent for all hits."
+    }
+  },
+  "productionAccounting": {
+    "helper": "packages/sim-core/src/batch-projectile-formulas.ts",
+    "context": "gameContext.batchProjectileCast",
+    "rules": [
+      "batch-projectile-neuvillette-a4-accounting-b4ae769",
+      "batch-projectile-chevreuse-a4-atk-accounting-b4ae769",
+      "batch-projectile-chevreuse-a1-resistance-accounting-b4ae769"
+    ],
+    "unknownPolicy": "Missing actual states or included shares block only their dependent selected hits. No default full HP, inactive buff or zero included share. Fresh-equipment construction alone can establish a new offensive panel has zero prior source share.",
+    "historicalPolicy": "Historical finalSnapshot hits require own hit state and own base ATK. Normal hits use equipment-derived base ATK, otherwise explicit shared base ATK. Exact zero ATK percentage difference requires no unknown base ATK.",
+    "resetPolicy": "Replacing offensive panels preserves historical hit state and enemy A1 resistance accounting. Imported final offensive panels require newly explicit included shares.",
+    "validation": "No tests, build or generator executed for this increment.",
+    "materializationApi": "finalizeBatchProjectilePanelAccounting(document): void; called only after successful core final-resistance materialization. Updates known nonhistorical Chevreuse hits to the actual A1 share and rebuilds their zero-difference formula; never called for ordinary character-panel import.",
+    "emptyContainers": "prepare creates sharedState={} and hitStates[id]={}; all actual values remain absent/unknown."
+  },
+  "kleeHexereiReview": {
+    "sourcePath": "frzyc/genshin-optimizer/libs/gi/sheets/src/Characters/Klee/index.tsx",
+    "result": "C0 skill bounces and mines have no new Klee-owned Hexerei damage modifier in this pinned implementation. No kleeHexereiInactive condition is required.",
+    "evidence": [
+      "Lines 181-184: skill damage nodes use the normal ATK-scaled skill vectors without the lockBadge multiplier.",
+      "Lines 188-203: lockBadge_mult_ is supplied only to the passive1 charged damage node.",
+      "Lines 149-153: global lockC1_atk_ requires constellation >= 1.",
+      "Lines 164-172 and 237-243: global lockC6_pyro_dmg_ requires constellation >= 6."
+    ],
+    "limits": [
+      "This is an inspection of the fixed Optimizer production sheet, not a new in-game experiment.",
+      "Normal/charged extensions and C1+ Hexerei mechanics are outside this C0 complete-E action. External teammate buffs still need their actual supplied panel context."
+    ]
+  }
+}

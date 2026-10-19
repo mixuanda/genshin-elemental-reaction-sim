@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/delayed-energy-summon.test.ts (2 tests | 1 failed) 159ms
+     × keeps actual energy capped until debit, does not reuse a reservation, and clips future debit 79ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/delayed-energy-summon.test.ts > declared delayed energy and fixed-lifetime summons > keeps actual energy capped until debit, does not reuse a reservation, and clips future debit
+ConfigMigrationError: 配置校验失败：
+- duration: Too small: expected number to be >=1
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33333:11
+    33331|   if (!parsed.success) {
+    33332|     const issues = formatZodError(parsed.error);
+    33333|     throw new ConfigMigrationError(
+       |           ^
+    33334|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33335|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34728:12
+ ❯ simulate packages/sim-core/src/simulator.ts:17899:18
+ ❯ packages/sim-core/src/__tests__/delayed-energy-summon.test.ts:35:21
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  20:23:52
+   Duration  949ms (transform 556ms, setup 0ms, import 717ms, tests 159ms, environment 0ms)
+

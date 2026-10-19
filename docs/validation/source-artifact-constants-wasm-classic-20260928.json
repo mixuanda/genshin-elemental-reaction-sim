@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 1.793,
+  "log": "docs/validation/source-artifact-constants-wasm-classic-20260928.log"
+}

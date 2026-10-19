@@ -1,0 +1,422 @@
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -66,6 +66,7 @@
+ }
+ 
+ type Snapshot struct {
++	SourceHostStatProvenance *SourceHostStatProvenance `json:"-"`
+ 	SourceHostComponents []SourceHostComponent `json:"-"`
+ 	Stats   attributes.Stats // total character stats including from artifact, bonuses, etc...
+ 	CharLvl int
+--- a/pkg/core/player/character/character.go
++++ b/pkg/core/player/character/character.go
+@@ -74,6 +74,8 @@
+ }
+ 
+ type CharWrapper struct {
++	sourceHostStatSequence int
++	sourceHostStatStack []*info.SourceHostStatRead
+ 	SourceHost *sourcehost.Bridge
+ 	index int
+ 	f     *int // current frame
+--- a/pkg/core/player/character/stats.go
++++ b/pkg/core/player/character/stats.go
+@@ -6,9 +6,18 @@
+ 	"strings"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ func (c *CharWrapper) Stats() ([attributes.EndStatType]float64, []any) {
++	stats, debug, _ := c.StatsWithProvenance()
++	return stats, debug
++}
++
++// StatsWithProvenance evaluates the original modifier loop exactly once and
++// returns this particular read, not a later/global "last stats" observation.
++func (c *CharWrapper) StatsWithProvenance() ([attributes.EndStatType]float64, []any, *info.SourceHostStatRead) {
+ 	var sb strings.Builder
+ 	var debugDetails []any
+ 
+@@ -16,6 +25,8 @@
+ 
+ 	var stats [attributes.EndStatType]float64
+ 	copy(stats[:], c.BaseStats[:attributes.EndStatType])
++	read := c.beginSourceHostStatRead("stats", attributes.Stats(stats), nil, false)
++	defer c.endSourceHostStatRead(read)
+ 
+ 	if c.debug {
+ 		debugDetails = make([]any, 0, 2*len(c.mods))
+@@ -29,15 +40,21 @@
+ 			n++
+ 			continue
+ 		}
++		step := c.beginSourceHostStatStep(read, m, attributes.Stats(stats))
+ 		if m.Expiry() <= *c.f && m.Expiry() != -1 {
++			c.finishSourceHostStatStep(step, "expired", nil, attributes.Stats(stats), m.Expiry())
+ 			continue
+ 		}
+ 
+ 		amt := m.Amount()
+ 		reject := amt == nil
++		returned := sourcehost.CopyStats(amt)
+ 		for k, v := range amt {
+ 			stats[k] += v
+ 		}
++		outcome := "applied"
++		if reject { outcome = "returned-nil" }
++		c.finishSourceHostStatStep(step, outcome, returned, attributes.Stats(stats), m.Expiry())
+ 		c.mods[n] = m
+ 		n++
+ 
+@@ -68,54 +85,80 @@
+ 	}
+ 	c.mods = c.mods[:n]
+ 
+-	return stats, debugDetails
++	if read != nil { read.Result = attributes.Stats(stats) }
++	return stats, debugDetails, read
+ }
+ 
+ func (c *CharWrapper) Stat(s attributes.Stat) float64 {
+ 	val := c.BaseStats[s]
+-	for _, v := range c.mods {
+-		m, ok := v.(*StatMod)
+-		if !ok {
+-			continue
+-		}
++	var observed attributes.Stats
++	observed[s] = val
++	read := c.beginSourceHostStatRead("stat", observed, []attributes.Stat{s}, false)
++	defer c.endSourceHostStatRead(read)
++	for _, v := range c.mods {
++		m, ok := v.(*StatMod)
++		if !ok {
++			continue
++		}
++		step := c.beginSourceHostStatStep(read, m, observed)
+ 		// ignore this mod if stat type doesnt match
+ 		if m.AffectedStat != attributes.NoStat && m.AffectedStat != s {
++			c.finishSourceHostStatStep(step, "stat-filtered", nil, observed, m.Expiry())
+ 			continue
+ 		}
+ 		// check expiry
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			if amt := m.Amount(); amt != nil {
+-				val += amt[s]
+-			}
+-		}
+-	}
+-
++			amt := m.Amount()
++			returned := sourcehost.CopyStats(amt)
++			outcome := "returned-nil"
++			if amt != nil { val += amt[s]; outcome = "applied" }
++			observed[s] = val
++			c.finishSourceHostStatStep(step, outcome, returned, observed, m.Expiry())
++		} else {
++			c.finishSourceHostStatStep(step, "expired", nil, observed, m.Expiry())
++		}
++	}
++
++	if read != nil { read.Result = observed }
+ 	return val
+ }
+ 
+ func (c *CharWrapper) NonExtraStat(s attributes.Stat) float64 {
+ 	val := c.BaseStats[s]
+-	for _, v := range c.mods {
+-		m, ok := v.(*StatMod)
+-		if !ok {
+-			continue
+-		}
++	var observed attributes.Stats
++	observed[s] = val
++	read := c.beginSourceHostStatRead("non-extra-stat", observed, []attributes.Stat{s}, true)
++	defer c.endSourceHostStatRead(read)
++	for _, v := range c.mods {
++		m, ok := v.(*StatMod)
++		if !ok {
++			continue
++		}
++		step := c.beginSourceHostStatStep(read, m, observed)
+ 		// ignore this mod if stat type doesnt match
+ 		if m.AffectedStat != attributes.NoStat && m.AffectedStat != s {
++			c.finishSourceHostStatStep(step, "stat-filtered", nil, observed, m.Expiry())
+ 			continue
+ 		}
+ 		// is extra stat
+ 		if m.Extra {
++			c.finishSourceHostStatStep(step, "extra-excluded", nil, observed, m.Expiry())
+ 			continue
+ 		}
+ 		// check expiry
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			if amt := m.Amount(); amt != nil {
+-				val += amt[s]
+-			}
+-		}
+-	}
+-
++			amt := m.Amount()
++			returned := sourcehost.CopyStats(amt)
++			outcome := "returned-nil"
++			if amt != nil { val += amt[s]; outcome = "applied" }
++			observed[s] = val
++			c.finishSourceHostStatStep(step, outcome, returned, observed, m.Expiry())
++		} else {
++			c.finishSourceHostStatStep(step, "expired", nil, observed, m.Expiry())
++		}
++	}
++
++	if read != nil { read.Result = observed }
+ 	return val
+ }
+ 
+@@ -125,29 +168,40 @@
+ 		stats[k] += c.BaseStats[k]
+ 	}
+ 
+-	for _, v := range c.mods {
+-		m, ok := v.(*StatMod)
+-		if !ok {
+-			continue
+-		}
++	read := c.beginSourceHostStatRead("select-stat", stats, stat, nonExtra)
++	defer c.endSourceHostStatRead(read)
++	for _, v := range c.mods {
++		m, ok := v.(*StatMod)
++		if !ok {
++			continue
++		}
++		step := c.beginSourceHostStatStep(read, m, stats)
+ 		// ignore this mod if stat type doesnt match
+ 		if m.AffectedStat != attributes.NoStat && !slices.Contains(stat, m.AffectedStat) {
++			c.finishSourceHostStatStep(step, "stat-filtered", nil, stats, m.Expiry())
+ 			continue
+ 		}
+ 		// skip if extra stat
+ 		if nonExtra && m.Extra {
++			c.finishSourceHostStatStep(step, "extra-excluded", nil, stats, m.Expiry())
+ 			continue
+ 		}
+ 		// check expiry
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			if amt := m.Amount(); amt != nil {
+-				for _, k := range stat {
+-					stats[k] += amt[k]
+-				}
++			amt := m.Amount()
++			returned := sourcehost.CopyStats(amt)
++			outcome := "returned-nil"
++			if amt != nil {
++				for _, k := range stat { stats[k] += amt[k] }
++				outcome = "applied"
+ 			}
+-		}
+-	}
+-
++			c.finishSourceHostStatStep(step, outcome, returned, stats, m.Expiry())
++		} else {
++			c.finishSourceHostStatStep(step, "expired", nil, stats, m.Expiry())
++		}
++	}
++
++	if read != nil { read.Result = stats }
+ 	return stats
+ }
+ 
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -9,6 +9,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+ )
+ 
+@@ -242,6 +243,9 @@
+ 		return nil
+ 	}
+ 
++	read := c.beginSourceHostStatRead("attack-mods", a.Snapshot.Stats, nil, false)
++	if read != nil { target := int(t.Key()); read.TargetKey = &target }
++	defer c.endSourceHostStatRead(read)
+ 	var sb strings.Builder
+ 	var logDetails []any
+ 
+@@ -257,15 +261,26 @@
+ 			n++
+ 			continue
+ 		}
++		step := c.beginSourceHostAttackStatStep(read, m, a.Snapshot.Stats)
+ 		if m.Expiry() <= *c.f && m.Expiry() != -1 {
+-			continue
+-		}
+-
++			c.finishSourceHostStatStep(step, "expired", nil, a.Snapshot.Stats, m.Expiry())
++			continue
++		}
++
++		beforeInfo := a.Info
+ 		amt := m.Amount(a, t)
+ 		reject := amt == nil
++		returned := sourcehost.CopyStats(amt)
++		if step != nil {
++			step.AfterAmount = a.Snapshot.Stats
++			step.AttackChanges = sourcehost.AttackNumericChanges(beforeInfo, a.Info)
++		}
+ 		for k, v := range amt {
+ 			a.Snapshot.Stats[k] += v
+ 		}
++		outcome := "applied"
++		if reject { outcome = "returned-nil" }
++		c.finishSourceHostStatStep(step, outcome, returned, a.Snapshot.Stats, m.Expiry())
+ 		c.mods[n] = v
+ 		n++
+ 
+@@ -295,6 +310,8 @@
+ 		sb.Reset()
+ 	}
+ 	c.mods = c.mods[:n]
++	if read != nil { read.Result = a.Snapshot.Stats }
++	sourcehost.AppendAttackStatRead(&a.Snapshot, read)
+ 	return logDetails
+ }
+ 
+--- a/internal/template/character/character.go
++++ b/internal/template/character/character.go
+@@ -11,6 +11,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/keys"
+ 	"github.com/genshinsim/gcsim/pkg/core/player"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
++	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+ )
+ 
+ type Character struct {
+@@ -73,7 +74,9 @@
+ 	}
+ 
+ 	// snapshot the stats
+-	s.Stats, debug = c.Stats()
++	var statRead *info.SourceHostStatRead
++	s.Stats, debug, statRead = c.StatsWithProvenance()
++	s.SourceHostStatProvenance = sourcehost.NewStatProvenance(statRead)
+ 
+ 	// check infusion
+ 	var inf attributes.Element
+--- /dev/null
++++ b/pkg/core/info/sourcehost_stat_provenance.go
+@@ -0,0 +1,47 @@
++package info
++
++import "github.com/genshinsim/gcsim/pkg/core/attributes"
++
++// This is a numerical execution receipt, not a serialized modifier closure.
++type SourceHostStatRead struct {
++	ID string `json:"id"`
++	Kind string `json:"kind"`
++	Frame int `json:"frame"`
++	ActorIndex int `json:"actorIndex"`
++	TargetKey *int `json:"targetKey,omitempty"`
++	Selector []attributes.Stat `json:"selector"`
++	NonExtra bool `json:"nonExtra"`
++	Base attributes.Stats `json:"base"`
++	Steps []*SourceHostStatStep `json:"steps"`
++	Result attributes.Stats `json:"result"`
++}
++
++type SourceHostStatStep struct {
++	Index int `json:"index"`
++	Key string `json:"key"`
++	ExpiryBefore int `json:"expiryBefore"`
++	ExpiryAfter int `json:"expiryAfter"`
++	AffectedStat int `json:"affectedStat"`
++	Extra bool `json:"extra"`
++	AffectedByHitlag bool `json:"affectedByHitlag"`
++	Outcome string `json:"outcome"`
++	Before attributes.Stats `json:"before"`
++	AfterAmount attributes.Stats `json:"afterAmount"`
++	Returned []float64 `json:"returned"`
++	After attributes.Stats `json:"after"`
++	AttackChanges []SourceHostNumericChange `json:"attackChanges"`
++	Dependencies []*SourceHostStatRead `json:"dependencies"`
++}
++
++type SourceHostNumericChange struct {
++	Field string `json:"field"`
++	Before float64 `json:"before"`
++	After float64 `json:"after"`
++}
++
++type SourceHostStatProvenance struct {
++	Version string `json:"version"`
++	SnapshotRead *SourceHostStatRead `json:"snapshotRead"`
++	AttackReads []*SourceHostStatRead `json:"attackReads"`
++	FinalStats attributes.Stats `json:"finalStats"`
++}
+--- /dev/null
++++ b/pkg/core/player/character/sourcehost_stat_provenance.go
+@@ -0,0 +1,59 @@
++package character
++
++import (
++	"fmt"
++	"github.com/genshinsim/gcsim/pkg/core/attributes"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++)
++
++func (c *CharWrapper) beginSourceHostStatRead(kind string, base attributes.Stats, selector []attributes.Stat, nonExtra bool) *info.SourceHostStatRead {
++	if c.SourceHost == nil { return nil }
++	c.sourceHostStatSequence++
++	read := &info.SourceHostStatRead{
++		ID: fmt.Sprintf("actor-%d-read-%d", c.index, c.sourceHostStatSequence), Kind: kind,
++		Frame: *c.f, ActorIndex: c.index, Selector: append([]attributes.Stat{}, selector...), NonExtra: nonExtra,
++		Base: base, Result: base, Steps: []*info.SourceHostStatStep{},
++	}
++	if len(c.sourceHostStatStack) > 0 {
++		parent := c.sourceHostStatStack[len(c.sourceHostStatStack)-1]
++		if len(parent.Steps) > 0 {
++			step := parent.Steps[len(parent.Steps)-1]
++			step.Dependencies = append(step.Dependencies, read)
++		}
++	}
++	c.sourceHostStatStack = append(c.sourceHostStatStack, read)
++	return read
++}
++
++func (c *CharWrapper) endSourceHostStatRead(read *info.SourceHostStatRead) {
++	if read != nil { c.sourceHostStatStack = c.sourceHostStatStack[:len(c.sourceHostStatStack)-1] }
++}
++
++func (c *CharWrapper) beginSourceHostStatStep(read *info.SourceHostStatRead, mod *StatMod, before attributes.Stats) *info.SourceHostStatStep {
++	if read == nil { return nil }
++	step := &info.SourceHostStatStep{
++		Index: len(read.Steps), Key: mod.Key(), ExpiryBefore: mod.Expiry(), ExpiryAfter: mod.Expiry(),
++		AffectedStat: int(mod.AffectedStat), Extra: mod.Extra, AffectedByHitlag: mod.AffectedByHitlag(),
++		Before: before, AfterAmount: before, After: before,
++		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
++	}
++	read.Steps = append(read.Steps, step)
++	return step
++}
++
++func (c *CharWrapper) beginSourceHostAttackStatStep(read *info.SourceHostStatRead, mod *AttackMod, before attributes.Stats) *info.SourceHostStatStep {
++	if read == nil { return nil }
++	step := &info.SourceHostStatStep{
++		Index: len(read.Steps), Key: mod.Key(), ExpiryBefore: mod.Expiry(), ExpiryAfter: mod.Expiry(),
++		AffectedStat: int(attributes.NoStat), AffectedByHitlag: mod.AffectedByHitlag(),
++		Before: before, AfterAmount: before, After: before,
++		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
++	}
++	read.Steps = append(read.Steps, step)
++	return step
++}
++
++func (c *CharWrapper) finishSourceHostStatStep(step *info.SourceHostStatStep, outcome string, returned []float64, after attributes.Stats, expiry int) {
++	if step == nil { return }
++	step.Outcome, step.Returned, step.After, step.ExpiryAfter = outcome, returned, after, expiry
++}

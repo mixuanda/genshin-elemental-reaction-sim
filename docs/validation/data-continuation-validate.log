@@ -1,0 +1,68 @@
+
+> genshin-dps-lab@1.0.0 data:validate
+> node packages/game-data/scripts/update-data.mjs validate
+
+{
+  "snapshot": {
+    "snapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "gameVersion": "7.1",
+    "label": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "releaseStatus": "released",
+    "createdAt": "2026-09-23T06:58:41.574Z"
+  },
+  "errors": [],
+  "inventory": {
+    "status": "partial",
+    "missing": [],
+    "unexpected": [
+      "weapon:11419",
+      "weapon:11420",
+      "weapon:11421"
+    ],
+    "categories": {
+      "characters": {
+        "status": "matched",
+        "completeness": "complete",
+        "expectedCount": 124,
+        "observedCount": 124,
+        "missing": [],
+        "unexpected": []
+      },
+      "weapons": {
+        "status": "partial",
+        "completeness": "partial",
+        "expectedCount": 252,
+        "observedCount": 255,
+        "missing": [],
+        "unexpected": [
+          "weapon:11419",
+          "weapon:11420",
+          "weapon:11421"
+        ]
+      },
+      "artifactSets": {
+        "status": "matched",
+        "completeness": "complete",
+        "expectedCount": 63,
+        "observedCount": 63,
+        "missing": [],
+        "unexpected": []
+      }
+    }
+  },
+  "readiness": [],
+  "schemaValid": true,
+  "supplementalSources": [
+    {
+      "id": "artifact-stats-go-180a0a1",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "retrievedAt": "2026-09-23T06:25:48.778084+00:00",
+      "gameVersion": "not-certified",
+      "releaseStatus": "unknown",
+      "numericEvidenceStatus": "unchecked",
+      "files": 5,
+      "hashesValid": true,
+      "errors": []
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "source-finite-expansion-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=40 ignore_burst_energy=true;\nshenhe char lvl=90/90 cons=2 talent=1,1,1;\nshenhe add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nchongyun char lvl=90/90 cons=0 talent=1,1,1;\nchongyun add weapon=\"sacrificialgreatsword\" refine=5 lvl=90/90;\nmona char lvl=90/90 cons=0 talent=1,1,1;\nmona add weapon=\"apprenticesnotes\" refine=1 lvl=90/90;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.5,2.4;\nactive chongyun;\nchongyun skill;\nwait(30);\nchongyun skill;\nshenhe skill;\nshenhe burst;\nmona skill[hold=1];\nwait(1400);",
+    "seed": "1",
+    "baselinePath": "docs/validation/source-finite-expansion-20260930.baseline.json",
+    "capturePath": "docs/validation/source-finite-expansion-20260930.capture.json",
+    "runs": [],
+    "scope": "One classic pre-expansion baseline, then one classic and one stellar aggregate native run. Finite captures stay scoped to each selected action invocation.",
+    "mode": "classic-pre-expansion-baseline",
+    "baselineSourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "baselineArtifact": {
+      "wasmSha256": "ea360612f5d3f12677b5399cb3aca61cea03681ce38499f9519460af19274f86",
+      "wasmBytes": 46732192
+    }
+  },
+  "pageErrors": []
+}

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:talent-registry"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.224
+}

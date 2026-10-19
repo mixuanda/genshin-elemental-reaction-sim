@@ -1,0 +1,745 @@
+{
+  "schemaVersion": "source-recurring-skill-ownership-contracts-v1",
+  "asOf": "2026-09-30",
+  "counts": {
+    "distinctSourceContracts": 77,
+    "distinctCharacterActions": 75,
+    "producerPlans": 64,
+    "producerSites": 94
+  },
+  "newContractIds": [
+    "qiqi-skill",
+    "yaemiko-skill",
+    "xiangling-skill",
+    "yaoyao-burst",
+    "beidou-burst",
+    "qiqi-skill-stellar",
+    "yaemiko-skill-stellar"
+  ],
+  "rows": [
+    {
+      "id": "qiqi-skill",
+      "label": "七七 E",
+      "characterKey": "qiqi",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/qiqi/skill.go",
+      "sourceSha256": "31a74f52cd6c4ef0bccc8c0b485caecedc2b42dcbf77c85934b5ce251c36a8fd",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      ],
+      "sourceEvidence": "Classic-only. One initial Core task at +32 queues one initial attack and a first swipe task at +64. Each swipe records the exact native expired/replaced/emit branch, queues a fresh AttackEvent copy when active, and recursively schedules the next native 135/60 delay. End requires the actual zero-child terminal task; no fixed swipe count is asserted.",
+      "nonDamageCallbacksAndInitAudit": "Init A1 reaction listener grants incoming healing bonus only; talisman OnEnemyDamage hook and NA/CA hook only heal/apply status. C1 callback grants energy and C2 is a NA/CA damage modifier. C4/C6 are unimplemented in this classic source. Continuous and on-hit healing use shared skillHealSnapshot but do not queue intrinsic damage. Damage recursion retains cast-local src and original unqueued tickAE; each emission is a new tick := *ae copy.",
+      "producerContract": true
+    },
+    {
+      "id": "yaemiko-skill",
+      "label": "八重神子 E",
+      "characterKey": "yaemiko",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yaemiko/skill.go",
+      "sourceSha256": "5f701868812629d05431b9feb88ce445cb30eb3de06b2cc3b8d918f306034956",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+      ],
+      "sourceEvidence": "Classic-only. Skill schedules a +34 spawn that creates one fresh *kitsune and registers first tick +86 plus native expiry +866. Every live tick selects an enemy once, or only if absent a gadget once, queues 0/1 attack and schedules next tick +176; exact deleted/no-target/enemy/gadget branch facts certify output and continuation. Full lifetime includes the expiry callback and zero-child deleted tick.",
+      "nonDamageCallbacksAndInitAudit": "Init A4 modifier, C2 detection radius/level and C4 buff data introduce no extra attack queues. Tick callbacks create particles and C4 party modifier only; C6 alters DEF ignore. Q kitsuneBurst queues its own attacks and marks all existing pointers deleted; fourth E and expiry pop oldest. A1 only resets cooldown from Q. No E damage arises outside the spawn/tick ancestry in classic.",
+      "producerContract": true
+    },
+    {
+      "id": "xiangling-skill",
+      "label": "香菱 E 锅巴",
+      "characterKey": "xiangling",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xiangling/skill.go",
+      "sourceSha256": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+      "sourceHashes": {
+        "classicSha256": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71",
+        "stellarSha256": "0a8514a0f22fb03cafdbbdafa476cb66a0404da889045d3aba863dd30139aa71"
+      },
+      "sourceEvidence": "One native Core spawn at +13 creates an owned Guoba gadget. Actual registered Tick count establishes up to four intrinsic breath opportunities at native timer 103/203/303/403; each queues its original snapshotted attack with +10 delay. Both entity termination and in-flight attacks must complete.",
+      "nonDamageCallbacksAndInitAudit": "Init and C1/particle hit callbacks do not queue intrinsic damage; A4 chili pickup adds an ATK modifier. Guoba aura and incoming-hit swirl reactions remain separate reaction applications.",
+      "producerContract": true,
+      "ownedEntityContract": true
+    },
+    {
+      "id": "yaoyao-burst",
+      "label": "瑶瑶 Q 自生月桂与行走萝卜",
+      "characterKey": "yaoyao",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/yaoyao/burst.go",
+      "sourceSha256": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f",
+      "sourceHashes": {
+        "classicSha256": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f",
+        "stellarSha256": "c1aa4406723561094eb526fcb096a97bc35ad44f974b79def40177f5f9c5348f"
+      },
+      "sourceEvidence": "One direct initial attack at +16; three Core spawn tasks +104/+162/+221 create zero or one owned jumping Yuegui from each exact native branch. Their actual Tick and 12-character-frame flight tasks retain birth identity after removal. A1 36-character-frame ticker records inactive/no-action/no-target/flight branches and actual delayed Burst or Skill mode.",
+      "nonDamageCallbacksAndInitAudit": "The Q cleanup at +360 or swap removes owned jumping Yuegui, but launched character-clock flights still complete. C4 modifiers, healing and energy callbacks do not add intrinsic attacks; E-created Yuegui remain E-owned even when current Q modifies their actual attack formula.",
+      "producerContract": true,
+      "ownedEntityContract": true
+    },
+    {
+      "id": "beidou-burst",
+      "label": "北斗 Q 闪雷全链",
+      "characterKey": "beidou",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/beidou/burst.go",
+      "sourceSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51",
+      "sourceHashes": {
+        "classicSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51",
+        "stellarSha256": "6160973623ceb4fe04e80a75e68db0ab639d7f9dccf23804c9c46594f2ce3d51"
+      },
+      "sourceEvidence": "One Q initial hit plus every successful native burst listener invocation bound to that exact status instance and all actual callback-chain attacks, including in-flight children after status termination. Q buff/shield effect quantities and separately dispatched reaction/weapon/artifact damage excluded.",
+      "nonDamageCallbacksAndInitAudit": "The initial burst queues one attack. Exact 900-frame Q status owns successful OnEnemyDamage Stormbreaker triggers. Each first bounce shares an event and owned-trigger queue identity, and all intrinsic callback bounces retain the existing audited batch114 graph. C1 shield, C6 resistance debuff and Q damage reduction do not emit additional intrinsic attack queues.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "qiqi-skill-stellar",
+      "label": "七七 E（Stellar）",
+      "characterKey": "qiqi",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/qiqi/skill.go",
+      "sourceSha256": "c1f79dd0a52cdd48a14d5c038d5fb06bf593dd8941fc6dda164698699d3592d7",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "sourceEvidence": "Stellar-only. Retains the native initial and copied-snapshot recurring damage tasks, plus one exact synchronous qiqi-e status generator. Successful native OnEnemyHit listener branches emit one coordinated attack owned by the current E status instance. Both producer terminal facts and actual status lifetime must close.",
+      "nonDamageCallbacksAndInitAudit": "Stellar skillInit adds coordinated attacks only when revelation enabled. All attack callbacks on recurring/coordinated hits are particles or energy only. Other Init hooks apply healing, talisman, reaction bonuses, C2 stats, or C6 FlatDmg to an existing other-character Q-enabled reaction attack; none queues another E-owned attack. Healing recurrence and +3 character cooldown task remain untagged because they do not create damage.",
+      "producerContract": true,
+      "ownedGeneratorContract": true
+    },
+    {
+      "id": "yaemiko-skill-stellar",
+      "label": "八重神子 E（Stellar）",
+      "characterKey": "yaemiko",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/yaemiko/skill.go",
+      "sourceSha256": "5f701868812629d05431b9feb88ce445cb30eb3de06b2cc3b8d918f306034956",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "sourceEvidence": "Stellar-only. Retains per-pointer spawn/first/next/expiry producer graph and exact tick target branch facts. Spawn records actual0/1 A1 attack, gated natively by fourth-totem replacement, Ascension and revelation. Each emitted tick records whether native revelationEnhanceDMG returned a callback; its actual enemy callback may emit one delayed Stellar-Conduct strike. All descendants and the original expiry task must complete.",
+      "nonDamageCallbacksAndInitAudit": "Stellar Init adds revelation status via Superconduct/StellarConduct, C1 reaction buffs, C2 EM/range/level, C4 energy/buff and C6 modifier; these do not directly queue attacks. E A1 helper is called only after makeKitsune pops a fourth existing totem. Enhanced tick callback exists only after native status/ICD/revelation/Radiance gates; original once-only closure generates at most one extra strike per parent tick queue. Particle and C4 callbacks create no damage. Q thunderbolts remain Q-owned; revelation-enabled Q leaves all E pointers active.",
+      "producerContract": true,
+      "hitCallbackContract": true
+    }
+  ],
+  "plans": {
+    "qiqi-skill": {
+      "directRootCount": 0,
+      "sites": [
+        {
+          "siteId": "qiqi.skill.initial",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {
+                "qiqi.skill.first-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "qiqi.skill.first-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "qiqi.skill.initial"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "qiqi.skill.next-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "qiqi.skill.next-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "qiqi.skill.first-tick",
+            "qiqi.skill.next-tick"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "qiqi.skill.next-tick": 1
+              }
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "覆盖该次 E 的初始伤害及完整轮转伤害任务链；实际次数来自任务、分支事实与最终零子任务，不能按源码注释固定为九次轮转。",
+        "固定源码明确注明伤害／治疗帧数为近似估计，并将祭礼剑重放暂按仅一个实例处理；这里复现该版本模拟实现，不代表已验证游戏实测。",
+        "治疗任务、C1 回能、A1 受治疗加成、A4 符箓及独立普通／重击、Q、反应、武器／圣遗物伤害另计。"
+      ]
+    },
+    "yaemiko-skill": {
+      "directRootCount": 0,
+      "sites": [
+        {
+          "siteId": "yaemiko.skill.spawn",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {
+                "yaemiko.skill.first-tick": 1,
+                "yaemiko.skill.expire": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaemiko.skill.first-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "yaemiko.skill.spawn"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 1
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 3
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaemiko.skill.next-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "yaemiko.skill.first-tick",
+            "yaemiko.skill.next-tick"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 1
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 3
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaemiko.skill.expire",
+          "rootCount": 0,
+          "parentSites": [
+            "yaemiko.skill.spawn"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "覆盖本次 E 新建杀生樱的完整原生任务链；允许多次 E 重叠，每条链沿原闭包持有同一图腾指针并归属于创建它的 E。",
+        "任务如实区分已删除、无可选目标、选中敌人和选中机关；无目标仍会继续排下一次任务，已删除才以零攻击、零子任务结束。",
+        "第四柱替换、原生到期任务和经典 Q 消耗仍按源代码删除图腾；Q 的天狐霆雷归于 Q，不并入 E。到期任务本身不产生伤害，但必须取得执行回执。",
+        "本契约用于 classic 固定来源；Stellar 的启示、额外攻击与寿命差异使用独立规则，不套用本规则。"
+      ]
+    },
+    "xiangling-skill": {
+      "directRootCount": 0,
+      "sites": [
+        {
+          "siteId": "xiangling.skill.spawn-guoba",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "锅巴实际出生、Tick 分支与移除记录确定本次 E 的攻击次数；已发出的喷火必须继续结算。",
+        "锅巴引发的独立反应及 A4 辣椒攻击力增益另计；复现固定源码不表示游戏实测已核验。"
+      ]
+    },
+    "yaoyao-burst": {
+      "directRootCount": 1,
+      "sites": [
+        {
+          "siteId": "yaoyao.burst.jump-yuegui-1",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0
+            }
+          ]
+        },
+        {
+          "siteId": "yaoyao.burst.jump-yuegui-2",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0
+            }
+          ]
+        },
+        {
+          "siteId": "yaoyao.burst.jump-yuegui-3",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0
+            }
+          ]
+        },
+        {
+          "siteId": "yaoyao.burst.a1-ticker",
+          "rootCount": {
+            "op": "if",
+            "test": {
+              "op": "compare",
+              "cmp": "gte",
+              "left": {
+                "op": "ascension"
+              },
+              "right": 1
+            },
+            "then": 1,
+            "else": 0
+          },
+          "parentSites": [
+            "yaoyao.burst.a1-ticker"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaoyao.burst.a1-ticker.branch",
+                "equals": 0
+              },
+              "children": {}
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaoyao.burst.a1-ticker.branch",
+                "equals": 1
+              },
+              "children": {
+                "yaoyao.burst.a1-ticker": 1
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaoyao.burst.a1-ticker.branch",
+                "equals": 2
+              },
+              "children": {
+                "yaoyao.burst.a1-ticker": 1
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaoyao.burst.a1-ticker.branch",
+                "equals": 3
+              },
+              "children": {
+                "yaoyao.burst.a1-ticker": 1,
+                "yaoyao.burst.a1-radish-flight": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaoyao.burst.a1-radish-flight",
+          "rootCount": 0,
+          "parentSites": [
+            "yaoyao.burst.a1-ticker"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaoyao.burst.a1-radish.burst-mode",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaoyao.burst.a1-radish.burst-mode",
+                "equals": 1
+              }
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "包含本次 Q 首击、实际创建的零至三个月桂及 A1 冲刺／跳跃萝卜任务；已发出萝卜在月桂移除后仍按出生实体归属。",
+        "A1 仅在原生状态与选敌分支实际产生飞行任务时计入；延迟攻击按执行时状态使用实际技能或爆发倍率。",
+        "E 创建的月桂始终保留 E 出生归属，其在 Q 期间转换的实际倍率保存在对应命中公式中，不在 Q 自生伤害总额中重复计算。治疗、回能与增益数值另计。"
+      ]
+    },
+    "beidou-burst": {
+      "directRootCount": 1,
+      "sites": [],
+      "scopeNotes": [
+        "本次 Q 首击及该次 900 帧状态实际触发的闪雷连锁归属于本技能；后续普攻／重击自身伤害不计入。",
+        "每条闪雷沿原生首击、目标命中回调与弹跳身份追踪；状态结束后仍在途的已发出攻击也需要结算。",
+        "固定来源行为复现不代表游戏实测核验；独立反应、装备伤害和护盾／减伤数值另计。"
+      ]
+    },
+    "qiqi-skill-stellar": {
+      "directRootCount": 0,
+      "sites": [
+        {
+          "siteId": "qiqi.skill.initial",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {
+                "qiqi.skill.first-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "qiqi.skill.first-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "qiqi.skill.initial"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "qiqi.skill.next-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "qiqi.skill.next-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "qiqi.skill.first-tick",
+            "qiqi.skill.next-tick"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "qiqi.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "qiqi.skill.next-tick": 1
+              }
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "覆盖该次 E 的初始伤害、完整轮转伤害任务链，以及属于其实际寒病鬼差状态实例的协同攻击；revelation=0 时协同监听器未注册，零次触发合法。",
+        "轮转链依据实际 expired／replaced／emit 分支闭合；协同攻击依据实际 E 状态替换、移除或到期闭合。不同 E 的实际状态实例与任务归属分别核对。",
+        "Stellar 原源码仍注明轮转／治疗帧数为近似估计，以及祭礼剑重放按仅一个实例处理的 TODO；本契约复现固定源码，不代表游戏实测。",
+        "治疗、粒子、C1 回能、受治疗加成、反应增益、Q 与 C6 对其他角色反应追加基础伤害另计。"
+      ]
+    },
+    "yaemiko-skill-stellar": {
+      "directRootCount": 0,
+      "sites": [
+        {
+          "siteId": "yaemiko.skill.spawn",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.spawn.attack-count",
+                "equals": 0
+              },
+              "children": {
+                "yaemiko.skill.first-tick": 1,
+                "yaemiko.skill.expire": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.spawn.attack-count",
+                "equals": 1
+              },
+              "children": {
+                "yaemiko.skill.first-tick": 1,
+                "yaemiko.skill.expire": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaemiko.skill.first-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "yaemiko.skill.spawn"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 1
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 3
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaemiko.skill.next-tick",
+          "rootCount": 0,
+          "parentSites": [
+            "yaemiko.skill.first-tick",
+            "yaemiko.skill.next-tick"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 0
+              }
+            },
+            {
+              "attackCount": 0,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 1
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 2
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "whenProducerFact": {
+                "name": "yaemiko.skill.tick.branch",
+                "equals": 3
+              },
+              "children": {
+                "yaemiko.skill.next-tick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "yaemiko.skill.expire",
+          "rootCount": 0,
+          "parentSites": [
+            "yaemiko.skill.spawn"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0
+            }
+          ]
+        }
+      ],
+      "scopeNotes": [
+        "覆盖该次 E 新建杀生樱的完整原生任务链、替换第四柱时本次施放产生的 A1 雷击，以及该图腾强化雷击的实际命中追击。",
+        "每个 E 的任务沿创建时原生图腾指针继承；任务区分已删除、无目标、敌人、机关，必须观察到期任务和最终零子任务后才闭合。",
+        "revelation 默认开启，原生图腾寿命增加600帧，Q不销毁图腾；revelation关闭时保留原生Q销毁行为，不强行套用经典生命周期。",
+        "强化追击要求原生revelationEnhanceDMG实际返回回调；每个父雷击队列至多由一次成功敌人命中回调追加一击。槽位存在性使用返回值事实，不重读启示或Radiance条件。",
+        "额外天狐霆雷属于Q；独立普攻、反应、武器／圣遗物伤害及粒子、能量、队伍增益另计。"
+      ]
+    }
+  },
+  "lanePolicy": "Rows with sourceCommits restrict eligibility to their exact reviewed source; classic and Stellar Qiqi/Yae have different contracts. Source lane names do not prove a game release mapping."
+}

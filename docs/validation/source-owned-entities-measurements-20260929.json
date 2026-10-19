@@ -1,0 +1,309 @@
+{
+  "schemaVersion": "source-owned-entities-measurements-v1",
+  "asOf": "2026-09-29",
+  "scope": "110 fixed-source entity ownership, actual ability entry facts and 20 finite source-audited skill families; bounded intrinsic damage scopes, not in-game verification.",
+  "commands": [
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.368,
+      "log": "docs/validation/source-owned-entities-classic-build-20260929.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.916,
+      "log": "docs/validation/source-owned-entities-stellar-build-20260929.log"
+    },
+    {
+      "name": "registry",
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.161,
+      "log": "docs/validation/source-owned-entities-registry-20260929.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.794,
+      "log": "docs/validation/source-owned-entities-typecheck-20260929.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.248,
+      "log": "docs/validation/source-owned-entities-web-build-20260929.log"
+    },
+    {
+      "name": "offline-regression",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-producer-facts.test.ts",
+        "packages/sim-core/src/source-host-producer-declarations.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.842,
+      "log": "docs/validation/source-owned-entities-offline-regression-20260929.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-owned-entities.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 49.733,
+      "log": "docs/validation/source-owned-entities-browser-20260929.log"
+    }
+  ],
+  "counts": {
+    "distinctSkillContracts": 57,
+    "producerPlanEntries": 48,
+    "producerSiteIds": 60,
+    "newFiniteFamilies": 20,
+    "newOwnedEntityFamilies": 2,
+    "nativeRunsThisBatch": 1,
+    "browserCases": 1,
+    "offlineTests": 2
+  },
+  "runtime": {
+    "schemaVersion": "source-owned-entities-browser-v1",
+    "measurements": {
+      "rawPath": "docs/validation/source-owned-entities-team-20260929.capture.json",
+      "nativeResultArchived": true,
+      "entities": [
+        {
+          "id": 1,
+          "siteId": "amber.skill.bunny",
+          "triggerCount": 1,
+          "producerCount": 0,
+          "endedFrame": 530,
+          "endReason": "expired"
+        },
+        {
+          "id": 2,
+          "siteId": "yaoyao.skill.yuegui",
+          "triggerCount": 10,
+          "producerCount": 10,
+          "endedFrame": 688,
+          "endReason": "expired"
+        }
+      ],
+      "yaoyao": {
+        "thinkCount": 10,
+        "megaThinkIndexes": [
+          2,
+          5
+        ],
+        "flightCount": 10,
+        "applications": 12,
+        "sharedTotal": 4277.550401222926
+      },
+      "amber": {
+        "applications": 1,
+        "sharedTotal": 738.3152411002368,
+        "explosionAttackId": 14
+      },
+      "yae": {
+        "entryKitsuneCount": 3,
+        "applications": 4,
+        "sharedTotal": 7015.053499813503,
+        "roots": 4
+      },
+      "combinedOwnedSubtotal": 12030.919142136665,
+      "nativeTotalDamage": 18546.079767718868,
+      "collectionImportExportSame": true,
+      "missingProducerCloses": false,
+      "missingExplosionDispatchCloses": false,
+      "missingYaeEntryFactCapturable": false
+    },
+    "pageErrors": [],
+    "scope": "One classic three-character native run. Finite sums follow exact Amber and Yaoyao gadget roots plus Yae Q roots, excluding unrelated applications."
+  },
+  "runtimeDetails": {
+    "lifecycleObservationFrame": 1440,
+    "teamApplicationCount": 32,
+    "selectedApplicationCount": 17,
+    "maxReplayDifference": 0,
+    "replayEvidence": "Browser case asserts exact zero for each of the 17 selected applications; no additional native run.",
+    "entities": [
+      {
+        "id": 1,
+        "kind": "gadget",
+        "siteId": "amber.skill.bunny",
+        "invocationId": 1,
+        "spawnProducerId": 1,
+        "actorIndex": 0,
+        "targetKey": 2,
+        "createdFrame": 46,
+        "endedFrame": 530,
+        "endReason": "expired",
+        "triggerIds": [
+          8
+        ],
+        "producerIds": []
+      },
+      {
+        "id": 2,
+        "kind": "gadget",
+        "siteId": "yaoyao.skill.yuegui",
+        "invocationId": 2,
+        "spawnProducerId": 2,
+        "actorIndex": 1,
+        "targetKey": 3,
+        "createdFrame": 88,
+        "endedFrame": 688,
+        "endReason": "expired",
+        "triggerIds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          9,
+          10,
+          11
+        ],
+        "producerIds": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10
+        ]
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 44945158,
+      "sha256": "14170f8ad8295a941d4b1b63c9ca0014670b7b3df1c45f5f0ae1fed44eef3117"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 69498016,
+      "sha256": "bcf08ee20f3896ae878cc07f995b56a95ad9da1ab3ac4fd5be78d01a5ae6fb8a"
+    },
+    {
+      "path": "packages/source-host/patches/110-owned-entities.patch",
+      "bytes": 4406,
+      "sha256": "d918c89550c517a3f9842e46dfa9a59fd5cd6397727b232bac32915fc4b1ac08"
+    },
+    {
+      "path": "packages/source-host/patches/110-finite-producer-sites.patch",
+      "bytes": 8453,
+      "sha256": "068cebde95de4ac355055500712f750131423b1ff043d931e3068a6582b5f0fb"
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/patches/110-finite-producer-sites.patch",
+      "bytes": 8445,
+      "sha256": "85f4cb7f2615a1c75059529a012297ef2aaa161708dc1b4d1318aff88824e4d7"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-producer-plans.json",
+      "bytes": 53488,
+      "sha256": "bc9e933cf06e0b1c133c27ce320b1b10d0ceb9ece7ae6091a8e6bf67b69ceaff"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-producer-contracts.json",
+      "bytes": 53118,
+      "sha256": "f34e536661e5851eb2468a4b799f6c4c71183f7bc91e3485114187943707608f"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-owned-entity-analysis.ts",
+      "bytes": 12197,
+      "sha256": "ed3167848a5a8b1b6873877f351ffeec453c57f70f3b223a02508de35733fbca"
+    },
+    {
+      "path": "docs/validation/source-owned-entities-team-20260929.capture.json",
+      "bytes": 1652477,
+      "sha256": "db6872eabac0863ff55191c7fdbd1509e3a05f73e3149a901c9c8398aeb8e8a7"
+    },
+    {
+      "path": "docs/validation/source-finite-batch-c-20260929.json",
+      "bytes": 43552,
+      "sha256": "5d2e7993449a0954e651a9d398f7bc416bada4da3a7d54713ecbc98eb2afbbd2"
+    },
+    {
+      "path": "docs/validation/source-finite-batch-d-20260929.json",
+      "bytes": 50309,
+      "sha256": "22d8f1672314b4d7f1c6c738ee00c314475d6b8b5530ec448c83072414318f7b"
+    },
+    {
+      "path": "docs/validation/source-owned-entities-audit-20260929.json",
+      "bytes": 21119,
+      "sha256": "0ed918ddef2bb673d241039a5c0533fd7223184ffa53728625b5f1d848dc2094"
+    },
+    {
+      "path": "docs/validation/source-entity-entry-inventory-20260929.json",
+      "bytes": 14581,
+      "sha256": "98a0531cbe69e27a25536793835758c55f675199516a0fb23f0c0412fd59b808"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "repairs": [
+    {
+      "discovery": "Pre-test source review found Yae invalid fact sentinel was added to 1 and became valid zero.",
+      "repair": "Require kitsune count in [0,3] before adding; the focused fact test includes the observed invalid branch."
+    }
+  ],
+  "limits": [
+    "Only one classic native runtime covers Amber C2 E, Yaoyao C6 E and Yae C0 Q with three actual turrets; stellar has build evidence only.",
+    "The other 19 new finite families have fixed-source audit/declaration/build evidence, not new individual runtime samples.",
+    "Missing entity producer, missing explosion dispatch and missing entry fact negatives modify archived output offline.",
+    "The entity sample exercises natural expiry, not manual kill, entity replacement or a separately truncated native window.",
+    "Two focused offline tests cover branch facts and reuse four prior captured outputs; no full suite or per-character matrix.",
+    "Released/preview pointers are unchanged; no data promotion, game verification, commit, push or deployment.",
+    "Master goal stays active with the five implementation/source/external evidence categories in remaining-product-implementation-20260928.json."
+  ]
+}

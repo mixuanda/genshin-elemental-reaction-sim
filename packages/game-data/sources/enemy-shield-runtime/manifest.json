@@ -1,0 +1,57 @@
+{
+  "id": "kqm-enemy-shield-formulas-20260925-v1",
+  "status": "provisional",
+  "retrievedAt": "2026-09-25T04:04:50.142259+00:00",
+  "kqmRevision": "a64fcd604ee0d7ee3ebbb93024b49d3311e65521",
+  "sources": [
+    {
+      "path": "kqm-enemy-shields-armor.md",
+      "url": "https://raw.githubusercontent.com/KQM-git/TCL/a64fcd604ee0d7ee3ebbb93024b49d3311e65521/docs/combat-mechanics/enemy-mechanics/enemy-shields-armor.md",
+      "sha256": "0853863ee5c47f67eb86d735a9a05ab9f83325189f648de8716fd85a12268cbf",
+      "bytes": 16068
+    },
+    {
+      "path": "kqm-enemy-shields-evidence.md",
+      "url": "https://raw.githubusercontent.com/KQM-git/TCL/a64fcd604ee0d7ee3ebbb93024b49d3311e65521/docs/evidence/combat-mechanics/enemy-mechanics/enemy-shields.md",
+      "sha256": "ab613d3636589921e59ae23c79848ccccc9db55e808e41cb59e6ca81f234bc92",
+      "bytes": 23075
+    },
+    {
+      "path": "shield-damage-source.txt",
+      "url": "https://docs.google.com/document/d/1SUc9A7O5C7CX0qYHmCqB44uhpHYY-Txgv6rdibM8Jw4/export?format=txt",
+      "sha256": "b507afbe37a7b03184be9852d86973c4cfc106434fa3023a90f1a5d9df70f560",
+      "bytes": 23884,
+      "documentLastUpdated": "2022-09-11; changelog includes 2022-09-18"
+    },
+    {
+      "path": "gcsim/pkg__enemy__enemy.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/enemy.go",
+      "sha256": "fcaf7992ff86ef7d24aac62822ec07b331b967799fcc25bebe246f6ae07c252d",
+      "gitBlobSha": "b65ed03359dd9c47c77811b8d34fbda3ba520377",
+      "bytes": 2280,
+      "purpose": "Fixed gcsim absence boundary: direct HP path, no enemy shield implementation."
+    },
+    {
+      "path": "gcsim/pkg__core__info__enemy.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/enemy.go",
+      "sha256": "534ca2155dd1fc81305879d2a1269cada2f6de5bcf23d4ec91eef696ac32ad87",
+      "gitBlobSha": "11961fe115168b2ab698b6d7d45f106eb7e5bf47",
+      "bytes": 1774,
+      "purpose": "Fixed gcsim absence boundary: direct HP path, no enemy shield implementation."
+    },
+    {
+      "path": "gcsim/pkg__enemy__attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha": "e362d4c75594496770fe52d0b4447e2a446601cd",
+      "bytes": 7607,
+      "purpose": "Fixed gcsim absence boundary: direct HP path, no enemy shield implementation."
+    }
+  ],
+  "limitations": [
+    "Fixed historical theorycrafting scope; not current per-enemy verification.",
+    "Exact generation times, per-enemy parameters and foreign-aura handling are not inferred.",
+    "Google export preserves original bytes; formula images require the textual examples and source page alongside it."
+  ],
+  "gcsimRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+}

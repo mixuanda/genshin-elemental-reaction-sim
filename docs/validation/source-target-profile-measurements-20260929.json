@@ -1,0 +1,346 @@
+{
+  "schemaVersion": "source-target-profile-measurements-v1",
+  "batch": "103",
+  "date": "2026-09-29",
+  "commands": {
+    "focused-unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "apps/web/src/source-target-profile.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.713
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.381
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 8.764
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.223
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 4.884
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.316
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-profile.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.674
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-target-profile-browser-v1",
+    "measurements": {
+      "resistance": {
+        "rawPath": "/tmp/gidps-target-profile-resistance.json",
+        "target": {
+          "level": 90,
+          "resistance": 0.1,
+          "geometry": {
+            "radius": 2,
+            "x": 0,
+            "y": 2.4
+          },
+          "resistanceByElement": {
+            "cryo": 0.5
+          }
+        },
+        "rawDamage": 645.4956403010146,
+        "baselineRawDamage": 1161.8921525418264,
+        "expectedRatio": 0.5555555555555556,
+        "observedRatio": 0.5555555555555556,
+        "replayDifference": 0,
+        "damageMode": false
+      },
+      "hp": {
+        "rawPath": "/tmp/gidps-target-profile-hp.json",
+        "target": {
+          "level": 90,
+          "resistance": 0.1,
+          "geometry": {
+            "radius": 2,
+            "x": 0,
+            "y": 2.4
+          },
+          "resistanceByElement": {
+            "cryo": 0.5
+          },
+          "hp": 100
+        },
+        "rawDamage": 645.4956403010146,
+        "appliedDamage": 100,
+        "hpBefore": 100,
+        "hpAfter": 0,
+        "actualDurationFrames": 29,
+        "observationWindow": {
+          "policy": "duration-or-native",
+          "configuredEndFrame": 360,
+          "actualEndFrame": 29,
+          "endReason": "targets-dead"
+        },
+        "replayDifference": 0,
+        "screenshot": "docs/validation/source-target-profile-browser-20260929.png"
+      },
+      "team": {
+        "exportedTarget": {
+          "level": 90,
+          "resistance": 0.1,
+          "geometry": {
+            "radius": 2,
+            "x": 0,
+            "y": 2.4
+          },
+          "resistanceByElement": {
+            "cryo": 0.5
+          },
+          "hp": 100,
+          "freezeResistance": 0.25,
+          "particleDrops": {
+            "threshold": 50,
+            "count": 2,
+            "element": "cryo"
+          }
+        },
+        "generatedTarget": "target lvl=90 electro=0.1 pyro=0.1 cryo=0.5 hydro=0.1 anemo=0.1 dendro=0.1 geo=0.1 physical=0.1 radius=2 pos=0,2.4 freeze_resist=0.25 hp=100 particle_threshold=50 particle_drop_count=2 particle_element=cryo;",
+        "capRunPath": "/tmp/gidps-target-profile-team-cap.json",
+        "capObservationWindow": {
+          "policy": "duration-or-native",
+          "configuredEndFrame": 360,
+          "actualEndFrame": 360,
+          "endReason": "duration"
+        },
+        "capApplicationCount": 0
+      }
+    },
+    "pageErrors": [],
+    "scope": "Two actual classic Kaeya E runs test absolute Cryo resistance and HP damage mode; one zero-energy Kaeya Q team run verifies the finite observation cap. No new actor matrix."
+  },
+  "archives": [
+    {
+      "path": "docs/validation/source-target-profile-resistance-20260929.capture.json",
+      "sha256": "adf88a0a01ae7aa456e35dec2d1e4b8d4ca307eee998d3b54462e6ba7f1841b3",
+      "bytes": 62714
+    },
+    {
+      "path": "docs/validation/source-target-profile-hp-20260929.capture.json",
+      "sha256": "2b4fe97e7eff9b31e2d0b9476b4cfaa3bb71c4055346d0994628664b5886bf99",
+      "bytes": 44030
+    },
+    {
+      "path": "docs/validation/source-target-profile-team-cap-20260929.capture.json",
+      "sha256": "30584f7214c6d506bc18d9db20d3fb190641278a88128edf2ccb7605330e7cdc",
+      "bytes": 132249
+    }
+  ],
+  "implementationFiles": [
+    {
+      "path": "apps/web/src/source-target-profile.ts",
+      "sha256": "886e9db77639ec30861118c9a5c46e9257dd83cda5e364a961f4d3c4a2e6286f",
+      "bytes": 4335
+    },
+    {
+      "path": "apps/web/src/source-target-profile-controls.ts",
+      "sha256": "ae3ed8a88f97fd66287df02f96ff8f230d96ddb0d3475066f1cda7607d866d1f",
+      "bytes": 7321
+    },
+    {
+      "path": "apps/web/src/source-target-geometry.ts",
+      "sha256": "f349bab0cbc51875ea0c9d3e1cf5a82bd9188554bfea233f4c54ceff93a7c0f6",
+      "bytes": 1946
+    },
+    {
+      "path": "apps/web/src/source-team-builder.ts",
+      "sha256": "f583c46bc08cb06c335b86f77c536dce75e44e458adf1aa4fa5c57de8eeaedf2",
+      "bytes": 75799
+    },
+    {
+      "path": "apps/web/src/source-single-skill.ts",
+      "sha256": "e9bac7c7c5082e18eab83f11d287e566f6b3deccddbec9112fce8fbfe65d3570",
+      "bytes": 7495
+    },
+    {
+      "path": "apps/web/src/source-single-skill-panel.ts",
+      "sha256": "f3118c93c7517f849adcf26dd35ec6367b5fb97f53e7484ba5779f16581f7f4f",
+      "bytes": 37323
+    },
+    {
+      "path": "apps/web/src/source-host-panel.ts",
+      "sha256": "a4048d1f4afb8d1a7c0ec8688a022f7ceadc2ad52513ac5fedeb01977b48fcf9",
+      "bytes": 39547
+    },
+    {
+      "path": "apps/web/src/source-host-worker.ts",
+      "sha256": "91ba951eb31acd2bdb1ffe3c7320a0107b5b03e449af8811c2b47e8d6f42f80f",
+      "bytes": 8310
+    },
+    {
+      "path": "apps/web/src/source-host-batch.ts",
+      "sha256": "b6105c1aa17c9b25311c483986f964a018ba822923274e27c001f9b60d6d2af4",
+      "bytes": 17879
+    },
+    {
+      "path": "apps/web/src/source-host-startup-analysis.ts",
+      "sha256": "6eb7860983f5cec0142fe4be8af4b7d62422139578b6306d09f691d4715ac21f",
+      "bytes": 13980
+    },
+    {
+      "path": "apps/web/src/source-host-energy-analysis.ts",
+      "sha256": "5fb20f105252311b3bd4e7f05f5f5b5883c3a00e713f4c56ff08d7a49989db78",
+      "bytes": 17935
+    },
+    {
+      "path": "packages/sim-core/src/source-host-wire.ts",
+      "sha256": "252eaf403dff91a92464d94feee9e69292cf41f5c0ca8fb25d514647ef50f89b",
+      "bytes": 31594
+    },
+    {
+      "path": "packages/sim-core/src/source-host-reexecution.ts",
+      "sha256": "5945ce5715320e95638240ad5c2e772805e80fb46b9781e76e69b4a23b382d44",
+      "bytes": 6233
+    },
+    {
+      "path": "packages/source-host/patches/103-stop-at-duration.patch",
+      "sha256": "8bdda8bde82c88ed08b46a88fe5d609f19168dc113b2d43286433624369d8067",
+      "bytes": 1174
+    },
+    {
+      "path": "packages/source-host/go/cmd/sourcehost/main.go",
+      "sha256": "aa4dfce8a247e01d847811615ab3081b1e36d8a49c8edf13d8abb2e4cfbb2ff9",
+      "bytes": 8256
+    },
+    {
+      "path": "packages/source-host/go/pkg/core/sourcehost/bridge.go",
+      "sha256": "70fcd1830058bd2abb22ff3c75247b2ce76943ea7a3a8960d54b70f71875f997",
+      "bytes": 23176
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/cmd/sourcehost/main.go",
+      "sha256": "93b398f8b33f67901fbac797331ced2ab5eaf1a63ebae8f5c085008adb31c71b",
+      "bytes": 8694
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/bridge.go",
+      "sha256": "4a67d95e40abc7c4246ffc620956f7693acaeb08e1e349088a5cae7ba760e34a",
+      "bytes": 23293
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/build.mjs",
+      "sha256": "0e104998b773b4eb06d0c7c931c530b071522862ab416d30867acae06c6382e3",
+      "bytes": 37144
+    }
+  ],
+  "executionArtifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "sha256": "6ef2631dfdc8ed39a429c540fbd412f71f950bfdb8aa610538d5c204628aed1e",
+      "bytes": 44571344
+    },
+    {
+      "path": "apps/web/public/source-host/manifest.json",
+      "sha256": "e7edaabae57818e403ea643dd7704612d4891c2aedd17227618300269f7ecfe3",
+      "bytes": 146745
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "sha256": "855e911bc42e604cbcefa56de5676151c125ca9cbd727b4d2a78b39523c0f138",
+      "bytes": 68404308
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/manifest.json",
+      "sha256": "0e63ff3f3238ff1ec3728431aabf821bbef2e1408446e9999a49679f01bb578e",
+      "bytes": 149091
+    },
+    {
+      "path": "apps/web/dist/source-host/source-host.wasm",
+      "sha256": "6ef2631dfdc8ed39a429c540fbd412f71f950bfdb8aa610538d5c204628aed1e",
+      "bytes": 44571344
+    },
+    {
+      "path": "apps/web/dist/source-host-stellar/source-host.wasm",
+      "sha256": "855e911bc42e604cbcefa56de5676151c125ca9cbd727b4d2a78b39523c0f138",
+      "bytes": 68404308
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "c5dcac6ff25bb50570fc00f906f52b547000a7471ee9fe10a3743b7ce58bc6f7",
+      "bytes": 817351
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "bytes": 955
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "bytes": 6035
+    }
+  ],
+  "sourceEvidence": {
+    "classicPre103Root": "/tmp/gidps-source-host-cache/build-AdoyVi/source",
+    "stellarPre103Root": "/tmp/gidps-source-host-cache/stellar-build-knpD0p/source",
+    "files": [
+      "pkg/gcs/parser/parseTarget.go",
+      "pkg/gcs/ast/keys.go",
+      "pkg/enemy/enemy.go",
+      "pkg/enemy/attack.go",
+      "pkg/reactable/freeze.go",
+      "pkg/reactable/reactable.go",
+      "pkg/simulation/run.go"
+    ],
+    "newDeadlinePatch": "packages/source-host/patches/103-stop-at-duration.patch"
+  },
+  "limits": [
+    "Three native runs, all classic; stellar compiled only.",
+    "Freeze and custom particle fields imported/exported/compiled but not runtime-triggered in this batch.",
+    "No full replay execution or batch/startup runs repeated; policy restoration and matching changed and typechecked.",
+    "Deadline runs after native tick and bounds readiness waits; pure non-yielding handwritten evaluator loops cannot be interrupted by a frame check.",
+    "No verified promotion or complete-cast claim."
+  ]
+}

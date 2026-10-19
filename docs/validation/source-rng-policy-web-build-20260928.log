@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-energy-analysis.ts(234,52): error TS2345: Argument of type 'readonly { [x: string]: unknown; protocol: "gidps-source-host-v1"; sourceCommit: "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"; randomness?: { schemaVersion: "source-host-randomness-v1"; ... 8 more ...; goVersion: string; } | undefined; ... 21 more ...; explanationGaps: stri...' is not assignable to parameter of type 'readonly { seed: string; randomness?: { schemaVersion: "source-host-randomness-v1"; algorithm: "go-math-rand-rngSource-v1"; seedNormalization: "uint64-int64-mod2147483647-zero89482311-v1"; ... 6 more ...; goVersion: string; }; }[]'.
+  Type '{ [x: string]: unknown; protocol: "gidps-source-host-v1"; sourceCommit: "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd" | "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"; randomness?: { schemaVersion: "source-host-randomness-v1"; ... 8 more ...; goVersion: string; } | undefined; ... 21 more ...; explanationGaps: string[]; }' is not assignable to type '{ seed: string; randomness?: { schemaVersion: "source-host-randomness-v1"; algorithm: "go-math-rand-rngSource-v1"; seedNormalization: "uint64-int64-mod2147483647-zero89482311-v1"; ... 6 more ...; goVersion: string; }; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'randomness' are incompatible.
+      Type '{ schemaVersion: "source-host-randomness-v1"; algorithm: "go-math-rand-rngSource-v1"; seedNormalization: "uint64-int64-mod2147483647-zero89482311-v1"; seed: string; signedSeed: string; ... 4 more ...; goVersion: string; } | undefined' is not assignable to type '{ schemaVersion: "source-host-randomness-v1"; algorithm: "go-math-rand-rngSource-v1"; seedNormalization: "uint64-int64-mod2147483647-zero89482311-v1"; seed: string; signedSeed: string; ... 4 more ...; goVersion: string; }'.
+        Type 'undefined' is not assignable to type '{ schemaVersion: "source-host-randomness-v1"; algorithm: "go-math-rand-rngSource-v1"; seedNormalization: "uint64-int64-mod2147483647-zero89482311-v1"; seed: string; signedSeed: string; ... 4 more ...; goVersion: string; }'.

@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "scope": "C0 single-target observed Spirit Steed recast pair or burst pair. Explicit per-hit observed times and snapshots; no automatic animation, ICD, energy or stance lifecycle certification.",
+  "definitions": {
+    "sha256": "9b8fe191c399e077cc303fae13442d598460f4bd630236ccbd4f6d0e97b486eb",
+    "templates": 2,
+    "uniqueCoefficientVectors": 4,
+    "valuesPerVector": 15,
+    "coefficientTolerance": 0
+  },
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivePath": "raw/LICENSE",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+      "bytes": 13924,
+      "sha256": "6fc2d03f10a4fe14cb41827fc5d9d824c1a17dfd2ea72517cf891d884830f45f",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Zibai/skillParam.json",
+      "bytes": 6724,
+      "sha256": "4cbbaf9bc4b972fc25c370f142aacae1b7bd23370177b26293adca3ec967a4e5",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+      "bytes": 10271,
+      "sha256": "04fd74ff89092d8618bae7851fcf40fc7e8e6d69bf8e2f8b183d756998d0b7ca",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/lunar.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/lunar.ts",
+      "bytes": 885,
+      "sha256": "cc179b5b81e5707300bf2cf7cf9f092f466f438a1f4df43dce78699e38844d01",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/special.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/special.ts",
+      "bytes": 2810,
+      "sha256": "152819697395a9f7a5ca4f10948c96ae9655cb0ebfe592065056deb4f9f8a0aa",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "bytes": 15409,
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivePath": "raw/libs/gi/wr/src/formula.ts",
+      "bytes": 15340,
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts"
+    }
+  ],
+  "adjudication": [
+    {
+      "sourceField": "Zibai/index.tsx strideAddl + wr/reaction/special.ts directDmgInc",
+      "meaning": "A1 .6 DEF applies only to Spirit Steed lunar second hit, after direct multiplier/base-bonus/EM/reaction scaling and before crit/elevation/resistance; never burst or ordinary first hit."
+    },
+    {
+      "sourceField": "Zibai/index.tsx a4Geo_def_, a4Hydro_eleMas",
+      "meaning": "At asc4, other Geo teammates *.15 DEF ratio and Hydro teammates *60 EM. Explicit shares prevent repeat additions."
+    },
+    {
+      "sourceField": "Zibai/index.tsx a0_lunarcrystallize_baseDmg_",
+      "meaning": "min(total DEF /100 *.007,.14), separate from ordinary damage bonus and already included special base bonus."
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "source-field-producer-audit-v1",
+  "batch": 123,
+  "sourceCommits": [
+    "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  ],
+  "scope": "Source-pinned intrinsic damage ownership for Shenhe E/Q and Chongyun E; no claim of game verification.",
+  "lanes": {
+    "classic": {
+      "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/build-KDmNJx/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch123/classic/receipt.json",
+      "receiptSha256": "eb36fd27c4a113339c03fcab84c6a13a72d49113999c335118cc8deb70cc9791",
+      "files": [
+        {
+          "path": "internal/characters/shenhe/burst.go",
+          "beforeSha256": "f9ad6d8c32645a27f7f8c433aaa1bf42bfa0662a991b283852ffb81e3d7987a1",
+          "afterSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/classic/internal/characters/shenhe/burst.go",
+          "frozenSourceUnchanged": true
+        },
+        {
+          "path": "internal/characters/chongyun/skill.go",
+          "beforeSha256": "a9a557e2d8efa81b8c35f006f01809ff142fff5fcb0a0c4ae1ed4319f47199b6",
+          "afterSha256": "e741eaa4a261b85ea4c7c680179b5e1461267611cb58fb508048a617c5172f67",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/classic/internal/characters/chongyun/skill.go",
+          "frozenSourceUnchanged": true
+        },
+        {
+          "path": "internal/characters/chongyun/asc.go",
+          "beforeSha256": "ac83ad54aac50812a13d9385a0921c196e17b21a03ae8603028dda06bfe6a2ac",
+          "afterSha256": "c0ab0ad0c0bc7698c5b330f27b42e587375a7ad7e253afa21eb7120df80e87bb",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/classic/internal/characters/chongyun/asc.go",
+          "frozenSourceUnchanged": true
+        },
+        {
+          "path": "internal/characters/shenhe/skill.go",
+          "beforeSha256": "49b87937ececa23299422e17075b1af468b57b3acca16709cca5894ebddd57d9",
+          "afterSha256": "63be6ee10cce2e061ef623ae1c442dcaed4a2fb109ad9aaddef36a03b8560673",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/classic/internal/characters/shenhe/skill.go",
+          "frozenSourceUnchanged": true
+        }
+      ],
+      "patch": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/classic/123-producer-fields.patch",
+      "patchSha256": "2eff9945f63345e5c188640680ef7c0e0bb338d80aa72a823036431f975ac0ea",
+      "patchBytes": 2529,
+      "gitApplyCheckExitCode": 0
+    },
+    "stellar": {
+      "sourceRoot": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Ue6iOx/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch123/stellar/receipt.json",
+      "receiptSha256": "64156f9facac58b441ff8b7827db58a0195387a283a84b4ef2336e350f07c8f0",
+      "files": [
+        {
+          "path": "internal/characters/shenhe/burst.go",
+          "beforeSha256": "f9ad6d8c32645a27f7f8c433aaa1bf42bfa0662a991b283852ffb81e3d7987a1",
+          "afterSha256": "1812c6baa638899b3b9fc19b35d725d260a0dcffa03570c829470e9b150f421b",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/stellar/internal/characters/shenhe/burst.go",
+          "frozenSourceUnchanged": true
+        },
+        {
+          "path": "internal/characters/chongyun/skill.go",
+          "beforeSha256": "95c99064150b89e4f0475751d3dc25aa06940a5424f69e6bbb95bfdae3570b10",
+          "afterSha256": "063d738c87cbc763308887927afde863702c3585f5614ec3c3289f4be425641d",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/stellar/internal/characters/chongyun/skill.go",
+          "frozenSourceUnchanged": true
+        },
+        {
+          "path": "internal/characters/chongyun/asc.go",
+          "beforeSha256": "ac83ad54aac50812a13d9385a0921c196e17b21a03ae8603028dda06bfe6a2ac",
+          "afterSha256": "c0ab0ad0c0bc7698c5b330f27b42e587375a7ad7e253afa21eb7120df80e87bb",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/stellar/internal/characters/chongyun/asc.go",
+          "frozenSourceUnchanged": true
+        },
+        {
+          "path": "internal/characters/shenhe/skill.go",
+          "beforeSha256": "13df3a1f0de3a6dd1a9c46e62fd2847f0f976c059857c2067f8ecbe0efdf3099",
+          "afterSha256": "f819c1367dd86045caf2d492269102d9811b3cd949e1fc417dda775eb0eb9815",
+          "privateFile": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/stellar/internal/characters/shenhe/skill.go",
+          "frozenSourceUnchanged": true
+        }
+      ],
+      "patch": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/stellar/123-producer-fields.patch",
+      "patchSha256": "34db9f28e64c0311772f87530bb00316fbb2fb1f8db11d3b0d0695a568ce2ac4",
+      "patchBytes": 2529,
+      "gitApplyCheckExitCode": 0
+    }
+  },
+  "fragments": {
+    "contracts": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/contracts.fragment.json",
+    "plans": "/Users/evan/Library/Caches/gidps-source-host/123-producer-fields/plans.fragment.json"
+  },
+  "nativeSites": {
+    "shenhe.skill.press-hit": {
+      "registrationDelay": 4,
+      "rootGate": "hold == 0, including missing parameter",
+      "damageCount": 1,
+      "cancellation": "None in original callback.",
+      "state": "Original ai captured; live Snapshot, c4 consumption and player/primary-target selection remain at task execution. Particle callback has no damage spawn."
+    },
+    "shenhe.skill.hold-hit": {
+      "registrationDelay": 33,
+      "rootGate": "hold != 0, including negative nonzero values",
+      "damageCount": 1,
+      "cancellation": "None in original callback.",
+      "state": "Original ai captured; live Snapshot, c4 consumption and player-centered area remain at task execution. Particle callback has no damage spawn."
+    },
+    "shenhe.burst.snapshot-and-dots": {
+      "registrationDelay": 47,
+      "roots": 1,
+      "damageCount": "12 before C2;18 at C2+",
+      "directInitial": 1,
+      "initialSnapshotAndDamageDelay": 78,
+      "dotDamageDelayFromInvocation": "47 + 82 + i*117 + j*(30 + burstTickOffset[i]), i=0..count-1, j=0,1",
+      "lastDotDelayFromInvocation": {
+        "beforeC2": 748,
+        "C2OrHigher": 1099
+      },
+      "cancellation": "None in original producer or queued attacks; status expiry does not cancel them.",
+      "state": "Local ai/count/ap are captured. Snapshot stays inside original47f callback before same-frame buff refresh; fixed burst position, original FIFO ordering retained."
+    },
+    "chongyun.skill.a4-expiry": {
+      "registrationDelay": 655,
+      "rootGate": "ascension>=4",
+      "capturedState": [
+        "ai",
+        "snap",
+        "skillPattern",
+        "src"
+      ],
+      "cancellation": "src != c.fieldSrc yields fact attack-count=0; otherwise queue once and fact1."
+    },
+    "chongyun.skill.a4-replacement": {
+      "registrationDelay": 81,
+      "rootGate": "ascension>=4 and original existing field branch",
+      "capturedState": [
+        "ai",
+        "old c.a4Snap copied into snap",
+        "old c.skillArea copied into skillPattern",
+        "new invocation frame src"
+      ],
+      "ownership": "Registered by the new invocation before resnapshotting/replacing the area; producer retains that exact invocation while formula snapshot retains old values.",
+      "cancellation": "Same original src gate as natural timer; later recast can cancel either task."
+    }
+  },
+  "facts": {
+    "chongyun.skill.replaced-field": "Invocation fact initialized0; recorded1 only inside original Duration>0 branch, no extra query.",
+    "chongyun.skill.a4.attack-count": "Producer fact0 immediately before original src-mismatch return; fact1 immediately before the sole actual attack queue."
+  },
+  "nativeOwnership": "Existing Core.SourceHostQueueTask -> RegisterAbilityProducer -> BindAbilityProducerTask retains actual invocation/action sequence and task origin. Each producer contains only attacks it queues. No frame/ability-name inference or new ownership primitive.",
+  "nonDamageAudit": [
+    "点按/长按命中回调仅产球；原增益任务只授予冰翎层数/状态与A4修饰器。冰翎钩子改当前击FlatDmg，C4追加回调只计层数，c4()消费层数仅修改当前技能快照DmgP。两lane授予冰翎的A4门控存在源码差异，未规范化。",
+    "burst.go:90-128仅刷新A1/C2增益与冰/物抗减益。Init安装冰翎同击附加；quillDamageMod及C4回调只改当前击/层数、不另排伤害。CD1200f及4f耗能原位保留。",
+    "particleCB只产球；A4回调只减抗、C4只回能。领域创建/附魔/A1攻速/C2冷却减免与换人钩子不另排攻击。新E的replacement使用旧a4Snap/旧skillArea，但其原生登记归属当前E；旧计时器仍属于旧E，可被src失配取消。C1额外冰刃仅来自后续普攻，不属于E。"
+  ],
+  "laneDifferences": [
+    "Shenhe burst.go and Chongyun asc.go are identical between PRE123 lanes.",
+    "Shenhe skill.go differs: Classic queues skillPressBuff/skillHoldBuff only at ascension>=4 and those functions grant quills plus A4 buffs. Stellar queues quill grants unconditionally and separately calls a4PressBuff/a4HoldBuff with their own ascension gate. Both damage callbacks queue exactly one intrinsic hit; wrappers preserve all original lane-specific non-damage semantics.",
+    "Chongyun skill.go C2 scalar branch differs: Stellar includes ActionSpecialSkill and char-scalar-chongyun-c2-a7; Classic uses skill/burst and b4. Separate copies preserve this difference untouched."
+  ],
+  "unchangedMechanics": [
+    "All original callbacks, scheduling delays, snapshot calls, target selection, status and modifier writes are retained at original execution sites.",
+    "No hard-coded total for Chongyun cancellation/replacement. No overlap prohibition or unsupported-state gate.",
+    "Zero-output cancellation producers must still finish; pending timers remain unresolved, and each queued attack needs native dispatch completion.",
+    "Other characters, event-triggered damage components, healing/energy components and team reaction ownership are not reclassified."
+  ],
+  "integrationConcern": "Latest built122 Shenhe second assignment ai=AttackInfo had uninstrumented burstdot talent read; parent notified to check generic talent-instrumenter support. These source-only ownership patches do not replace formula provenance.",
+  "validation": {
+    "gofmt": "private copies only",
+    "gitApplyCheck": "passed both frozen PRE123 roots",
+    "buildsExecuted": 0,
+    "testsExecuted": 0,
+    "runtimeScenariosExecuted": 0,
+    "repoRegistryEdited": false
+  }
+}

@@ -1,0 +1,16 @@
+import type { CalculatorDocument } from "@genshin-dps-lab/sim-core";
+
+const esc = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!);
+
+/** Explicit incoming state; equipping the recipient with TTDS cannot grant this buff. */
+export function renderIncomingThrillingTalesControls(document: CalculatorDocument): string {
+  const hits = document.hits.filter(hit => hit.kind === "ordinary");
+  if (!hits.length) return "";
+  const context = document.incomingThrillingTales;
+  const enabled = `<label><input id="calc-ttds-enabled" type="checkbox"${context ? " checked" : ""}>恢复其他角色提供的讨龙增攻</label>`;
+  if (!context) return `<fieldset data-ttds-controls><legend>外部讨龙增益</legend>${enabled}<p class="calculator-hint">可独立恢复每击实际收到的增益，无需创建队伍。只有明确启用后才参与计算；不会因当前角色自己装备讨龙而给自己加攻。</p></fieldset>`;
+  return `<fieldset data-ttds-controls><legend>外部讨龙增益：逐击状态与已含份额</legend>${enabled}<div class="calculator-fields"><label>提供者标识<input id="calc-ttds-owner-id" data-ttds-text="ownerId" value="${esc(context.ownerId)}" required></label><label>提供者说明<input id="calc-ttds-owner-label" data-ttds-text="ownerLabel" value="${esc(context.ownerLabel)}" required></label><label>实际来源精炼<select id="calc-ttds-refinement">${[1, 2, 3, 4, 5].map(r => `<option value="${r}"${context.refinement === r ? " selected" : ""}>R${r}</option>`).join("")}</select></label><label>${document.build.mode === "equipment-derived" ? "接收者基础攻击（来源配装）" : "接收者基础攻击（角色白值＋武器白值）"}<input id="calc-ttds-base-atk" type="number" data-field="incomingThrillingTales.baseAttack" data-ttds-number-field data-optional-number min="0" step="any" value="${context.baseAttack ?? ""}" placeholder="未知"${document.build.mode === "equipment-derived" ? ' readonly aria-readonly="true"' : ""}></label></div><p class="calculator-hint">每击ATK差 = 接收者基础攻击 ×（实际生效精炼的比例 − 面板已含精炼的比例）。R1–5为24%、30%、36%、42%、48%。旧增益失效或精炼不同可以扣除差额；两份明确比例相同则差0，不要求未知白值。不修改其他角色或叠加两把讨龙。</p>${hits.map(hit => {
+    const state = context.hitStates[hit.id] ?? {}, path = `incomingThrillingTales.hitStates.${hit.id}`;
+    return `<div class="calculator-fields"><label>${esc(hit.label)} · ${document.selectedHitIds.includes(hit.id) ? "已选" : "未选"}：取样时讨龙有效<select data-ttds-active="${esc(hit.id)}"><option value="unknown"${state.active === undefined ? " selected" : ""}>未知</option><option value="0"${state.active === false ? " selected" : ""}>无有效增益</option><option value="1"${state.active === true ? " selected" : ""}>来源增益有效</option></select></label><label>本击输入ATK已含的讨龙精炼（0表示未含）<input type="number" data-ttds-included="${esc(hit.id)}" data-field="${esc(path)}.includedRefinement" data-ttds-number-field data-optional-number min="0" max="5" step="1" value="${state.includedRefinement ?? ""}" placeholder="未知"></label>${hit.finalSnapshot ? `<label>本击历史快照的接收者基础攻击<input type="number" data-ttds-base="${esc(hit.id)}" data-field="${esc(path)}.baseAttack" data-ttds-number-field data-optional-number min="0" step="any" value="${state.baseAttack ?? ""}" placeholder="未知；不复制当前配装"></label>` : ""}</div>`;
+  }).join("")}<p class="calculator-hint">这里只恢复实际领取与取样状态，不自动推演切人、20秒冷却、10秒期限或卡肉。初击和后续命中分别填写；未选命中的未知状态不阻塞单击。历史快照只用它自己的白值；新展示柜只重置当前面板的已含份额与白值；已有历史快照的独立记账保持。</p></fieldset>`;
+}

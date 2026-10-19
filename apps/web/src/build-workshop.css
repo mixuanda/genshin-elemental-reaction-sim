@@ -1,0 +1,11 @@
+.build-workshop { max-width: 1100px; margin-inline: auto; }
+.build-workshop > details { margin-block: 1rem; }
+.build-workshop #build-equipment { margin: 1.25rem 0; }
+.build-stat-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(115px,1fr)); gap: 1rem; }
+.build-stat-grid dt { font-size: .8rem; color: var(--muted, #78849a); }
+.build-stat-grid dd { margin: .3rem 0; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.build-workshop #build-import-list { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,260px),1fr)); gap: 1rem; }
+.build-workshop #build-import-list > .build-import-roster { grid-column: 1 / -1; }
+.build-workshop [data-imported-roster] [data-roster-entry] { margin-block: .75rem; }
+.build-workshop [data-imported-roster] [data-roster-entry] > label { display: flex; align-items: center; gap: .5rem; }
+.build-workshop :is(input,select) { max-width: 100%; }

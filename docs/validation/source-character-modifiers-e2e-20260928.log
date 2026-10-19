@@ -1,0 +1,38 @@
+[WebServer] (node:47433) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:47434) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-modifiers.spec.ts:49:1 › native character modifiers retain source-holder identity in actual hits and startup drift uses saved paired runs (676ms)
+
+
+  1) [chromium] › apps/web/e2e/source-character-modifiers.spec.ts:49:1 › native character modifiers retain source-holder identity in actual hits and startup drift uses saved paired runs 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: -394.4337830244359
+    Received: -394.433783024436
+
+      81 |         - windowDamage(run.result, 0, startup.observationPolicy);
+      82 |       expect(sample?.damage).toBe(delta);
+    > 83 |       expect(sample?.dps).toBe(delta * 60 / startup.observationPolicy.windowFrames);
+         |                           ^
+      84 |     }
+      85 |     await expect(page.locator(`[data-source-startup-window-drift="${scenario}"]`)).toContainText("全队 DPS");
+      86 |     await expect(page.locator(`[data-source-startup-window-drift="${scenario}"]`)).toContainText("2组");
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-modifiers.spec.ts:83:27
+
+    Error Context: test-results/source-character-modifiers-b5fb1-rift-uses-saved-paired-runs-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-modifiers-b5fb1-rift-uses-saved-paired-runs-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-modifiers-b5fb1-rift-uses-saved-paired-runs-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-modifiers.spec.ts:49:1 › native character modifiers retain source-holder identity in actual hits and startup drift uses saved paired runs 

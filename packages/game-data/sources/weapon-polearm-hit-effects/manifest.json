@@ -1,0 +1,18 @@
+{
+  "verification": "provisional",
+  "gcsimCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "files": [
+    {
+      "file": "../weapon-polearm-effects/raw/genshin-db/src/data/ChineseSimplified/weapons/thecatch.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thecatch.json",
+      "sha256": "285c554976185c23c884c815d40666ee907d14af5d0085a9c39002bb05609225"
+    },
+    {
+      "file": "../weapon-polearm-effects/raw/gcsim/internal/weapons/spear/catch/catch.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/catch/catch.go",
+      "sha256": "93df55104e76e45ec1a96d8cd4cf6adc37f853d8129d2441963edcdd5f2901fe"
+    }
+  ],
+  "rule": "burst-only CR by rank: 0.06,0.075,0.09,0.105,0.12; no shared global CR"
+}

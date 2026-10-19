@@ -1,0 +1,10 @@
+[WebServer] (node:12414) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:12415) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-owned-entities.spec.ts:34:1 › audited Amber and Yaoyao gadgets close with their own hits while Yae Q uses its entry fact (47.7s)
+
+  1 passed (49.2s)

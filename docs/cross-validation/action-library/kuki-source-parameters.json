@@ -1,0 +1,458 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "source-backed-provisional",
+  "characters": [
+    {
+      "level": 90,
+      "maxLevel": 90,
+      "constellation": 0,
+      "talents": [
+        1,
+        1,
+        1
+      ],
+      "ascension": 6,
+      "baseHP": 12288.654441100001,
+      "hpPercent": 0.24,
+      "maxHP": 15237.931506964002,
+      "baseATKCharacter": 212.397192,
+      "baseATKWeapon": 23.245,
+      "atk": 235.642192,
+      "def": 750.7736775,
+      "em": 200,
+      "critRate": 0.0,
+      "critDamage": 0.5,
+      "energyRecharge": 1,
+      "initialHPRatio": 0.5,
+      "initialHP": 7618.965753482001,
+      "initialEnergy": 0,
+      "weapon": {
+        "key": "DullBlade",
+        "level": 1,
+        "maxLevel": 20,
+        "refinement": 1,
+        "passive": "NoEffect"
+      },
+      "artifacts": [],
+      "syntheticAdditions": {
+        "em": 200,
+        "critRate": -0.05
+      },
+      "sourceInputs": {
+        "levelOneHP": 1030.3239,
+        "levelOneATK": 17.808,
+        "levelOneDEF": 62.9475,
+        "hpCurve": "GROW_CURVE_HP_S4",
+        "hpCurveValue": 8.349,
+        "atkCurve": "GROW_CURVE_ATTACK_S4",
+        "atkCurveValue": 8.349,
+        "promotionAdditions": {
+          "FIGHT_PROP_BASE_HP": 3686.4802,
+          "FIGHT_PROP_BASE_DEFENSE": 225.225,
+          "FIGHT_PROP_BASE_ATTACK": 63.7182,
+          "FIGHT_PROP_HP_PERCENT": 0.24
+        }
+      }
+    },
+    {
+      "level": 1,
+      "maxLevel": 20,
+      "constellation": 0,
+      "talents": [
+        1,
+        1,
+        1
+      ],
+      "ascension": 0,
+      "baseHP": 793.2582,
+      "hpPercent": 0,
+      "maxHP": 793.2582,
+      "baseATKCharacter": 18.6984,
+      "baseATKWeapon": 23.245,
+      "atk": 41.9434,
+      "def": 50.358,
+      "em": 0,
+      "critRate": 0.05,
+      "critDamage": 0.5,
+      "energyRecharge": 1,
+      "initialHPRatio": 0.5,
+      "initialHP": 396.6291,
+      "initialEnergy": 0,
+      "weapon": {
+        "key": "HuntersBow",
+        "level": 1,
+        "maxLevel": 20,
+        "refinement": 1,
+        "passive": "NoEffect"
+      },
+      "artifacts": [],
+      "syntheticAdditions": {
+        "em": 0,
+        "critRate": 0
+      },
+      "sourceInputs": {
+        "levelOneHP": 793.2582,
+        "levelOneATK": 18.6984,
+        "levelOneDEF": 50.358,
+        "hpCurve": "GROW_CURVE_HP_S4",
+        "hpCurveValue": 1.0,
+        "atkCurve": "GROW_CURVE_ATTACK_S4",
+        "atkCurveValue": 1.0,
+        "promotionAdditions": {}
+      }
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "LICENSE",
+      "archivedPath": "docs/cross-validation/action-library/source/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "path": "pkg/catalog/character.dm.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/catalog/character.dm.go",
+      "sha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+      "bytes": 436821,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/character.dm.go"
+    },
+    {
+      "path": "pkg/catalog/weapon.dm.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/catalog/weapon.dm.go",
+      "sha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+      "bytes": 410160,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/weapon.dm.go"
+    },
+    {
+      "path": "pkg/catalog/curve.dm.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/catalog/curve.dm.go",
+      "sha256": "54f079977f076b11d30dda01616be38816c7ec9e4ea98fef6ecbdbf5aeff54a6",
+      "bytes": 24758,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/curve.dm.go"
+    },
+    {
+      "path": "pkg/core/player/character/basestat.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/character/basestat.go",
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+      "bytes": 3278,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/basestat.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/core.go",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "bytes": 5508,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/player.go",
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "bytes": 8629,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/exec.go",
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "bytes": 7052,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go"
+    },
+    {
+      "path": "pkg/core/player/character/energy.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/player/character/energy.go",
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "bytes": 2327,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "bytes": 2255,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "path": "pkg/simulation/run.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/simulation/run.go",
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "bytes": 9886,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/run.go"
+    },
+    {
+      "path": "pkg/core/action/action.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/core/action/action.go",
+      "sha256": "5074744fa1f71db33c1d13230b3b929fe0df3b87f26fc84a70693ace1cc2ab69",
+      "bytes": 4043,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/action/action.go"
+    },
+    {
+      "path": "internal/frames/frames.go",
+      "archivedPath": "docs/cross-validation/action-library/source/internal/frames/frames.go",
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "bytes": 1589,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/frames/frames.go"
+    },
+    {
+      "path": "internal/template/character/cooldown.go",
+      "archivedPath": "docs/cross-validation/action-library/source/internal/template/character/cooldown.go",
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "bytes": 7269,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/cooldown.go"
+    },
+    {
+      "path": "internal/weapons/bow/huntersbow/hunter.go",
+      "archivedPath": "docs/cross-validation/action-library/source/internal/weapons/bow/huntersbow/hunter.go",
+      "sha256": "90803f21d27e3cfd98f5684a979905f7cce6a186e5690aa3c8c521e5eeffc92b",
+      "bytes": 393,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/huntersbow/hunter.go"
+    },
+    {
+      "path": "internal/weapons/bow/huntersbow/zz_huntersbow.dm.go",
+      "archivedPath": "docs/cross-validation/action-library/source/internal/weapons/bow/huntersbow/zz_huntersbow.dm.go",
+      "sha256": "7c803e2953d599faeaac4bd9b358d47b9d11672a13ea7540ac1a06b4533598cc",
+      "bytes": 233,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/huntersbow/zz_huntersbow.dm.go"
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "archivedPath": "docs/cross-validation/action-library/source/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+    },
+    {
+      "path": "internal/characters/kuki/skill.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/skill.go",
+      "sha256": "7d14fab1e06c4dad5179a2a09c612f61080ccfd0d0aee58b21e665e533273782",
+      "bytes": 4293,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go"
+    },
+    {
+      "path": "internal/characters/kuki/asc.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/asc.go",
+      "sha256": "523efefcd5fdf9957631a5efe7cbf7d05992b123351683edca5c4792b9dd16b8",
+      "bytes": 1153,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/asc.go"
+    },
+    {
+      "path": "internal/characters/kuki/kuki.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/kuki.go",
+      "sha256": "f5e8707a463edfadbf6404fe052395b0c09e1e18befb97821a3793b6bc9696b4",
+      "bytes": 836,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/kuki.go"
+    },
+    {
+      "path": "internal/characters/kuki/zz_kukishinobu.dm.go",
+      "archivedPath": "packages/game-data/sources/kuki-skills/raw/gcsim/internal/characters/kuki/zz_kukishinobu.dm.go",
+      "sha256": "a33b132e2e2e3e3d00a30e704f71e68e74d91f1e3343f7cd677cd4f19fb30c87",
+      "bytes": 3497,
+      "reusedExistingArchive": true,
+      "matchesFixedLocalCheckout": true,
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/zz_kukishinobu.dm.go"
+    },
+    {
+      "path": "internal/weapons/sword/dullblade/dullblade.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/weapons/sword/dullblade/dullblade.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dullblade/dullblade.go",
+      "httpStatus": 200,
+      "sha256": "2b877396304d4f3a9a246b96f00d88b0c01e4763c911718c86306068de04630c",
+      "bytes": 392,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.406954+00:00"
+    },
+    {
+      "path": "internal/weapons/sword/dullblade/zz_dullblade.dm.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/weapons/sword/dullblade/zz_dullblade.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dullblade/zz_dullblade.dm.go",
+      "httpStatus": 200,
+      "sha256": "0c2d351759b345d979fe4bef294914facc75cf0ffa181c9682270a845020d204",
+      "bytes": 231,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.409259+00:00"
+    },
+    {
+      "path": "internal/template/character/heal.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/template/character/heal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+      "httpStatus": 200,
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "bytes": 2632,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.417611+00:00"
+    },
+    {
+      "path": "internal/template/character/hp.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/template/character/hp.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+      "httpStatus": 200,
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "bytes": 1572,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.397935+00:00"
+    },
+    {
+      "path": "pkg/core/attributes/stats.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/core/attributes/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "httpStatus": 200,
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "bytes": 1677,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:48.176039+00:00"
+    },
+    {
+      "path": "pkg/core/player/heal.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/core/player/heal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/heal.go",
+      "httpStatus": 200,
+      "sha256": "39231033df792ba3165ed9e569e9d7747a83209879b53f1e799bef9ce896eadd",
+      "bytes": 447,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:48.201866+00:00"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "httpStatus": 200,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:49.613377+00:00"
+    },
+    {
+      "path": "pkg/gcs/parser/parser.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/gcs/parser/parser.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/parser/parser.go",
+      "httpStatus": 200,
+      "sha256": "fc24279e9a247739273140c6f41bb1a636ba738b12b050b39d769f036c6cb35f",
+      "bytes": 4670,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:49.413938+00:00"
+    },
+    {
+      "path": "pkg/gcs/eval/sysfunc.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/gcs/eval/sysfunc.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/eval/sysfunc.go",
+      "httpStatus": 200,
+      "sha256": "0e5352aafe132b4a20d79bfbad30a0c0b932d7e421d7e3f132dd15434e2010ae",
+      "bytes": 12654,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:49.488865+00:00"
+    }
+  ],
+  "target": {
+    "level": 90,
+    "electroResistance": 0.1,
+    "position": [
+      0,
+      2
+    ],
+    "radius": 2,
+    "initialAura": null
+  },
+  "timeUnit": "60fps frame",
+  "durationFrames": 960,
+  "hitlag": false,
+  "actions": [
+    {
+      "actor": "kukishinobu",
+      "action": "skill",
+      "startFrame": 1
+    },
+    {
+      "actor": "amber",
+      "action": "swap",
+      "startFrame": 51,
+      "becomesActiveFrame": 52
+    },
+    {
+      "actor": "kukishinobu",
+      "action": "swap",
+      "startFrame": 300,
+      "becomesActiveFrame": 301
+    }
+  ],
+  "swap": {
+    "delayFrames": 1,
+    "cooldownFrames": 60,
+    "cooldownStarts": "when queued swap callback changes active character",
+    "skillToSwapCancelFrames": 50,
+    "absoluteTimeSyntax": "wait(300 - f());",
+    "waitSemantics": "f() returns current Core.F; wait is special-cased to advance exactly that many frames, not a character animation."
+  },
+  "skill": {
+    "initialHitOffset": 11,
+    "ringActivationOffset": 23,
+    "ringIntervalFrames": 90,
+    "ringDurationFrames": 720,
+    "ringTickCount": 8,
+    "ringTickDamageDelayFrames": 2,
+    "cooldownFrames": 900,
+    "cooldownStartOffset": 7,
+    "readyAgainFrame": 908,
+    "initialMultiplier": 0.75712,
+    "ringMultiplier": 0.2524,
+    "a4DamagePerEM": 0.25,
+    "healingHP": 0.03,
+    "healingFlat": 288.8908,
+    "a4HealingPerEM": 0.75,
+    "a1": "At each heal, owner Kuki HP <= 0.5 maxHP gives +0.15 outgoing healing bonus; receiver may be Amber.",
+    "hpCost": "min(0.3 * currentHP, currentHP - 0.2 * maxHP), only while currentHP > 0.2 maxHP"
+  },
+  "particles": {
+    "delayFrames": 100,
+    "chancePerEligibleRingEnemyHit": 0.45,
+    "icdFrames": 12,
+    "gcsl": "set_particle_delay(\"kuki\", 100);",
+    "initialHitGeneratesParticles": false
+  },
+  "limitations": [
+    "Static source scenario only; no artifacts, weapon passive, team effects, aura reactions, burst, C2/C4/C6, or hitlag.",
+    "Gcsim initial E applies 0.25 EM unconditionally, unlike its ascension-gated ring helper; A6 makes that source discrepancy inert here.",
+    "C0 eighth heal occurs at ring-expiry frame, then its queued hit lands two frames later.",
+    "Neither archived source nor this single external trajectory establishes official live-game truth."
+  ]
+}

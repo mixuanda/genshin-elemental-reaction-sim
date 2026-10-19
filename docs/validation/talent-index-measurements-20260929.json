@@ -1,0 +1,649 @@
+{
+  "schemaVersion": "source-talent-index-measurements-v1",
+  "batch": "097",
+  "date": "2026-09-29",
+  "commands": {
+    "core": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/source-host-talent-index.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.599
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 10.098
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.128
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.15
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.26
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-talent-index.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.673
+    }
+  },
+  "inventory": {
+    "classic": {
+      "instrumentedSites": 514,
+      "skippedSites": 224,
+      "talentGetterSites": 507,
+      "talentGetterExpressions": 507,
+      "byKind": {
+        "burst": 88,
+        "attack": 277,
+        "skill": 142
+      },
+      "talentTablesIdenticalTo096": true,
+      "siteMetadataIdenticalExceptTalentLevelIndices": true,
+      "skippedIdenticalTo096": true,
+      "runtimeCalculations": 102,
+      "runtimeApplications": 38
+    },
+    "stellar": {
+      "instrumentedSites": 543,
+      "skippedSites": 242,
+      "talentGetterSites": 535,
+      "talentGetterExpressions": 535,
+      "byKind": {
+        "burst": 94,
+        "attack": 286,
+        "skill": 155
+      },
+      "talentTablesIdenticalTo096": true,
+      "siteMetadataIdenticalExceptTalentLevelIndices": true,
+      "skippedIdenticalTo096": true,
+      "runtimeCalculations": 102,
+      "runtimeApplications": 38
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-talent-index-browser-v1",
+    "seed": "11",
+    "script": "options iteration=1 duration=12;\nxingqiu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxingqiu add weapon=\"favoniussword\" refine=1 lvl=90/90;\nxingqiu add stats atk=200 er=0.2 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive xingqiu;\nxingqiu burst;\nxingqiu skill;\nfischl skill;\nxingqiu attack:3;\nwait(300);\n",
+    "measurements": [
+      {
+        "lane": "classic",
+        "rawPath": "/tmp/gidps-talent-index-classic.json",
+        "baselinePath": "docs/validation/talent-table-classic-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "63a00b02f6a5fd6af45189718e05f27c74e66a8758d4fe7c8e1ed9dcc66d2acc",
+          "wasmBytes": 44316502
+        },
+        "receiptHitCount": 14,
+        "distinctTableCount": 2,
+        "distinctSiteCount": 2,
+        "indexSourceKinds": [
+          "burst",
+          "skill"
+        ],
+        "indexSources": [
+          {
+            "calculationId": 37,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 38,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 42,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 58,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 63,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 64,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 65,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 77,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 85,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 92,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 106,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 111,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 127,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 135,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          }
+        ],
+        "selectedApplicationId": 39,
+        "selectedCalculationId": 37,
+        "selectedActorKey": "xingqiu",
+        "selectedFrame": 200,
+        "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+        "siteId": "internal/characters/xingqiu/burst.go:83:15",
+        "indices": [
+          0
+        ],
+        "tableValue": 0.54272,
+        "originalScaling": 0.54272,
+        "lookupFormula": "burst[index0]",
+        "lookupSubstitution": "burst[0]",
+        "lookupNodeId": "sourceTalentTable.37",
+        "indexNodeId": "sourceTalentTable.37.index0.nativeIndex",
+        "indexFormula": "(baseTalent + cappedOffset)",
+        "indexSubstitution": "(1 + (-1))",
+        "replayDifference": 0,
+        "editedScaling": 0.64272,
+        "editedDamageDifference": 54.735166868903946,
+        "nativeGameplayUnchanged": true,
+        "originalReceiptPreserved": true,
+        "calculatorRoundtrip": true
+      },
+      {
+        "lane": "stellar",
+        "rawPath": "/tmp/gidps-talent-index-stellar.json",
+        "baselinePath": "docs/validation/talent-table-stellar-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "b2aa5a14fc3d7b6768af1e667d4982c1fdb4bc0d11404c7ab220d53b0501db0c",
+          "wasmBytes": 67147434
+        },
+        "receiptHitCount": 14,
+        "distinctTableCount": 2,
+        "distinctSiteCount": 2,
+        "indexSourceKinds": [
+          "burst",
+          "skill"
+        ],
+        "indexSources": [
+          {
+            "calculationId": 37,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 38,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 42,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 58,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 63,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 64,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 65,
+            "siteId": "internal/characters/xingqiu/burst.go:83:15",
+            "values": [
+              {
+                "position": 0,
+                "kind": "burst",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 77,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 85,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 92,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 106,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 111,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 127,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          },
+          {
+            "calculationId": 135,
+            "siteId": "internal/characters/fischl/skill.go:149:16",
+            "values": [
+              {
+                "position": 0,
+                "kind": "skill",
+                "baseTalent": 1,
+                "constellation": 0,
+                "constellationUnlock": 3,
+                "passiveTagValue": 0,
+                "value": 0
+              }
+            ]
+          }
+        ],
+        "selectedApplicationId": 39,
+        "selectedCalculationId": 37,
+        "selectedActorKey": "xingqiu",
+        "selectedFrame": 200,
+        "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+        "siteId": "internal/characters/xingqiu/burst.go:83:15",
+        "indices": [
+          0
+        ],
+        "tableValue": 0.54272,
+        "originalScaling": 0.54272,
+        "lookupFormula": "burst[index0]",
+        "lookupSubstitution": "burst[0]",
+        "lookupNodeId": "sourceTalentTable.37",
+        "indexNodeId": "sourceTalentTable.37.index0.nativeIndex",
+        "indexFormula": "(baseTalent + cappedOffset)",
+        "indexSubstitution": "(1 + (-1))",
+        "replayDifference": 0,
+        "editedScaling": 0.64272,
+        "editedDamageDifference": 54.735166868903946,
+        "nativeGameplayUnchanged": true,
+        "originalReceiptPreserved": true,
+        "calculatorRoundtrip": true
+      }
+    ],
+    "pageErrors": [],
+    "scope": "One native XQ/Fischl run per pinned source; real talent-index source leaves, preserved lookup and independent scaling edit."
+  },
+  "artifacts": {
+    "classic.capture": {
+      "path": "docs/validation/talent-index-classic-20260929.capture.json",
+      "sha256": "9f6648ae367d83f523b237579289f9348cde8c63578abfa5c736cc7445e84018"
+    },
+    "classic.manifest": {
+      "path": "docs/validation/talent-index-classic-20260929.manifest.json",
+      "sha256": "81267fbd4028687bfd72c2aa2c7427737f412d6cb6a2d9051f7d2eb062fc1d09"
+    },
+    "classic.instrumentation": {
+      "path": "docs/validation/talent-index-classic-20260929.instrumentation.json",
+      "sha256": "25e72f01876c420aff8fb315fb4c12f9bff94fd61922d48349ed6bd9cc47e8df"
+    },
+    "stellar.capture": {
+      "path": "docs/validation/talent-index-stellar-20260929.capture.json",
+      "sha256": "576ef8e35c4b02153169e337ac605c4a328c1142d2a30aab5672551743f21a43"
+    },
+    "stellar.manifest": {
+      "path": "docs/validation/talent-index-stellar-20260929.manifest.json",
+      "sha256": "a3066d6463ac05c53ae78724b80b394a410a3e7174fd1d99e965ada9d92c476e"
+    },
+    "stellar.instrumentation": {
+      "path": "docs/validation/talent-index-stellar-20260929.instrumentation.json",
+      "sha256": "80cd6872486466a209a6a9629b785bd7e5564b9d9f97de85f7447a55c6ad6ca3"
+    },
+    "generatedRegistry": {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "cc4ecb7db6a732d13d17564f7fe3421cf2709572da3597d6b4a707c1f3183142"
+    }
+  },
+  "scope": {
+    "gameplayBaseline": "096; comparison removes only optional indexSources",
+    "core": "Two focused synthetic getter tests; no in-game verification claim",
+    "runtime": "One identical 12-second seed-11 scenario per source lane; 14 receipts and two actual sites each",
+    "unchanged": [
+      "talent table values",
+      "site identities and original index expressions",
+      "coverage classifications",
+      "verified status",
+      "released and preview activation pointers"
+    ],
+    "remaining": [
+      "untraced dynamic indices",
+      "passive tag activation and lifecycle",
+      "later Mult modifications",
+      "other complete skill scopes and external evidence"
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/source-host-artifact-constants.test.ts"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 0.741,
+  "log": "docs/validation/source-artifact-constants-core-20260928.log"
+}

@@ -1,0 +1,220 @@
+{
+  "schemaVersion": "source-single-skill-measurements-v1",
+  "batch": "101",
+  "date": "2026-09-29",
+  "commands": {
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.72
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.552
+    },
+    "web-build-visual-fix": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.83
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-single-skill.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 1.371
+    },
+    "browser-retry1": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-single-skill.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.543
+    },
+    "browser-classic-final": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "GIDPS_SINGLE_SKILL_LANE=classic",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-single-skill.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.979
+    }
+  },
+  "bothLanesBeforeLabelFix": {
+    "schemaVersion": "source-single-skill-browser-v1",
+    "measurements": [
+      {
+        "lane": "classic",
+        "rawPath": "/tmp/gidps-single-skill-classic.json",
+        "executionArtifact": {
+          "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+          "wasmBytes": 44567991
+        },
+        "sourceMember": "kaeya",
+        "importedSyntheticGood": true,
+        "artifactOnlyStats": {},
+        "weapon": {
+          "key": "coolsteel",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 2
+        },
+        "constellation": 1,
+        "talentSkill": 8,
+        "durationSeconds": 6,
+        "acceptedActionSequence": 1,
+        "observedHitCount": 1,
+        "selectedAssociation": "creation",
+        "knownSubtotal": 1161.8921525418264,
+        "completeCast": false,
+        "firstHitReplayDifference": 0,
+        "editedScaling": 3.1592000000000002,
+        "editedHitDifference": 37.980261262481235,
+        "collectionRoundtrip": true,
+        "oldResultRetainedAfterInputChange": true
+      },
+      {
+        "lane": "stellar",
+        "rawPath": "/tmp/gidps-single-skill-stellar.json",
+        "executionArtifact": {
+          "wasmSha256": "80ae51913ec43ab1f319135dc2ff1bd6034ebce63d93089b3dc6d95cb1620ae5",
+          "wasmBytes": 68401439
+        },
+        "sourceMember": "kaeya",
+        "importedSyntheticGood": false,
+        "artifactOnlyStats": {
+          "hp": 3967,
+          "cr": 0.5224,
+          "cd": 0.645,
+          "atk%": 0.7950999999999999,
+          "er": 0.38860000000000006,
+          "atk": 258,
+          "hp%": 0.1049,
+          "cryo%": 0.387
+        },
+        "weapon": {
+          "key": "prototyperancour",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 2
+        },
+        "constellation": 1,
+        "talentSkill": 8,
+        "durationSeconds": 6,
+        "acceptedActionSequence": 1,
+        "observedHitCount": 1,
+        "selectedAssociation": "creation",
+        "knownSubtotal": 7429.471282557559,
+        "completeCast": false,
+        "firstHitReplayDifference": 0,
+        "editedScaling": 3.1592000000000002,
+        "editedHitDifference": 242.85667110870781,
+        "collectionRoundtrip": true,
+        "oldResultRetainedAfterInputChange": true
+      }
+    ],
+    "pageErrors": [],
+    "scope": "One actual Kaeya skill per pinned source from the independent calculator; finite observed collection, no team script entry or complete-cast inference."
+  },
+  "classicFinalUi": {
+    "schemaVersion": "source-single-skill-browser-v1",
+    "measurements": [
+      {
+        "lane": "classic",
+        "rawPath": "/tmp/gidps-single-skill-classic.json",
+        "executionArtifact": {
+          "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+          "wasmBytes": 44567991
+        },
+        "sourceMember": "kaeya",
+        "importedSyntheticGood": true,
+        "artifactOnlyStats": {},
+        "weapon": {
+          "key": "coolsteel",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 2
+        },
+        "constellation": 1,
+        "talentSkill": 8,
+        "durationSeconds": 6,
+        "acceptedActionSequence": 1,
+        "observedHitCount": 1,
+        "selectedAssociation": "creation",
+        "knownSubtotal": 1161.8921525418264,
+        "completeCast": false,
+        "firstHitReplayDifference": 0,
+        "editedScaling": 3.1592000000000002,
+        "editedHitDifference": 37.980261262481235,
+        "collectionRoundtrip": true,
+        "oldResultRetainedAfterInputChange": true
+      }
+    ],
+    "pageErrors": [],
+    "scope": "One actual Kaeya skill per pinned source from the independent calculator; finite observed collection, no team script entry or complete-cast inference."
+  },
+  "artifacts": {
+    "classic": {
+      "capture": "docs/validation/source-single-skill-classic-20260929.capture.json",
+      "sha256": "92b15649fe21f468708521c56c9226de9cdf79bcedf8be5628fe9bd3fcc19c42",
+      "applications": 1,
+      "calculations": 12,
+      "executionArtifact": {
+        "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+        "wasmBytes": 44567991
+      }
+    },
+    "stellar": {
+      "capture": "docs/validation/source-single-skill-stellar-20260929.capture.json",
+      "sha256": "a98a9d452fec37d5d06f7cf202af796a9053626b22244c2d95f916fa78eb9a4e",
+      "applications": 1,
+      "calculations": 14,
+      "executionArtifact": {
+        "wasmSha256": "80ae51913ec43ab1f319135dc2ff1bd6034ebce63d93089b3dc6d95cb1620ae5",
+        "wasmBytes": 68401439
+      }
+    }
+  },
+  "dataHashesUnchangedFrom100": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "verificationScope": [
+    "Independent calculator -> preset or synthetic GOOD -> one native action -> explicit action association -> shared hit/collection editing and JSON roundtrip.",
+    "Classic final UI recheck after hit-name lookup and auxiliary-panel visibility fixes; stellar mathematical/runtime evidence retained from earlier combined run.",
+    "No native build, new unit suite, character matrix, live account response or game validation."
+  ],
+  "completeCast": false,
+  "goalStatus": "active"
+}

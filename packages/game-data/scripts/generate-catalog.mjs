@@ -12,27 +12,30 @@ import { fileURLToPath } from "node:url";
 const SCRIPT_DIR = fileURLToPath(new URL(".", import.meta.url));
 const PACKAGE_DIR = resolve(SCRIPT_DIR, "..");
 const REPO_DIR = resolve(PACKAGE_DIR, "../..");
-const GENSHIN_DB_DIR = resolve(REPO_DIR, "node_modules/genshin-db");
+const argument = (name) => { const index = process.argv.indexOf(`--${name}`); return index === -1 ? null : process.argv[index + 1]; };
+const GENSHIN_DB_DIR = resolve(argument("source-dir") ?? resolve(REPO_DIR, "node_modules/genshin-db"));
 const DATA_PATH = resolve(GENSHIN_DB_DIR, "src/min/data.min.json");
 const ENKA_MAP_PATH = resolve(
   PACKAGE_DIR,
   "vendor/enka-avatar-skill-map.json"
 );
 const OUTPUT_PATH = resolve(
-  PACKAGE_DIR,
-  "src/generated/catalog.zh-CN.json"
+  argument("output-dir") ?? resolve(PACKAGE_DIR, "src/generated"),
+  "catalog.zh-CN.json"
 );
 const RUNTIME_INDEX_PATH = resolve(
-  PACKAGE_DIR,
-  "src/generated/catalog-index.zh-CN.json"
+  argument("output-dir") ?? resolve(PACKAGE_DIR, "src/generated"),
+  "catalog-index.zh-CN.json"
 );
 
-const GAME_PATCH = "6.7";
-const GENSHIN_DB_VERSION = "5.2.12";
-const GENSHIN_DB_COMMIT = "1bab2cdba4d218fd5caa46b5f54e7884ee8359a2";
-const VERIFIED_AT = "2026-07-26T00:00:00.000Z";
-const CATALOG_VERSION =
-  "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1";
+// A source manifest pins this reproducible catalog. It does not assert the live version.
+const SOURCE_MANIFEST = readJson(resolve(argument("source-manifest") ?? resolve(PACKAGE_DIR, "manifests/catalog-source.json")));
+const GAME_PATCH = SOURCE_MANIFEST.gameVersion;
+const GENSHIN_DB_VERSION = SOURCE_MANIFEST.sourceVersion;
+const GENSHIN_DB_COMMIT = SOURCE_MANIFEST.sourceCommit;
+const VERIFIED_AT = SOURCE_MANIFEST.retrievedAt;
+const CATALOG_VERSION = SOURCE_MANIFEST.catalogVersion;
+const FIELD_RESOLUTIONS = readJson(resolve(PACKAGE_DIR, "manifests/field-resolutions.json"));
 
 const ELEMENTS = {
   ELEMENT_PYRO: "pyro",
@@ -141,6 +144,9 @@ if (packageMetadata.version !== GENSHIN_DB_VERSION) {
   );
 }
 
+if (createHash("sha256").update(readFileSync(DATA_PATH)).digest("hex") !== SOURCE_MANIFEST.sourceSha256) {
+  throw new Error("Pinned source SHA-256 mismatch; refusing to normalize different bytes under this manifest.");
+}
 const combinedData = readJson(DATA_PATH);
 const characterStats = combinedData.stats.characters;
 const talentStats = combinedData.stats.talents;
@@ -260,6 +266,15 @@ const weapons = Object.entries(localizedData.weapons)
           : null;
       })
       .filter(Boolean);
+    if (!Number.isFinite(weapon.baseAtkValue)) {
+      throw new Error(`Missing required base ATK for weapon ${slug}; unknown cannot become zero.`);
+    }
+    let statType = weapon.mainStatType ?? weaponStats[slug]?.specialized;
+    const resolvedNoSecondary = !statType && GENSHIN_DB_COMMIT === FIELD_RESOLUTIONS.sourceCommit && FIELD_RESOLUTIONS.weaponIds.includes(weapon.id);
+    if (resolvedNoSecondary) {
+      if (weaponStats[slug]?.base?.specialized !== 0) throw new Error(`Reviewed no-secondary source changed: ${slug}`);
+      statType = FIELD_RESOLUTIONS.value;
+    }
     return {
       id: `weapon:${weapon.id}`,
       itemId: weapon.id,
@@ -268,15 +283,17 @@ const weapons = Object.entries(localizedData.weapons)
       weaponType: WEAPON_TYPES[weapon.weaponType],
       rarity: weapon.rarity,
       releasePatch: patch,
-      baseAtkValue: weapon.baseAtkValue ?? 0,
-      mainStatType: weapon.mainStatType ?? "FIGHT_PROP_NONE",
+      baseAtkValue: weapon.baseAtkValue,
+      mainStatType: statType ?? "FIGHT_PROP_UNKNOWN",
       baseStatText: weapon.baseStatText ?? "",
       effectName: weapon.effectName ?? "",
       refinements,
-      stats: weaponStats[slug],
+      // Source tree records may omit this duplicated property. Use the weapon's
+      // explicit stat identifier (including FIGHT_PROP_NONE), never invent one.
+      stats: { ...weaponStats[slug], specialized: statType ?? "FIGHT_PROP_UNKNOWN" },
       provenance: provenance(
         patch,
-        "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified."
+        "Community/datamined weapon stats and refinement text; passive trigger behavior is not independently verified." + (resolvedNoSecondary ? ` No-secondary field resolved from exact reviewed weapon list: ${FIELD_RESOLUTIONS.id}; ${FIELD_RESOLUTIONS.sourceUrl}.` : "")
       ),
       simulationStatus: "metadata-only",
       unmappedMechanics: [
@@ -316,7 +333,7 @@ const catalog = {
         .update(readFileSync(DATA_PATH))
         .digest("hex"),
       notes:
-        "Generated from the exact npm package pinned in package-lock.json; upstream data is community/datamined and remains provisional."
+        SOURCE_MANIFEST.notes ?? "Generated from the exact npm package pinned in package-lock.json; upstream data is community/datamined and remains provisional."
     },
     {
       id: "enka-api-docs-identifiers",
@@ -406,7 +423,7 @@ if (process.argv.includes("--check")) {
     );
   }
   console.log(
-    `Catalog is reproducible: ${catalog.counts.characters} characters, ${catalog.counts.talentSets} talent sets, ${runtimeIndex.counts.abilities} abilities, ${catalog.counts.weapons} weapons.`
+    `Legacy baseline catalog is reproducible: ${catalog.counts.characters} characters, ${catalog.counts.talentSets} talent sets, ${runtimeIndex.counts.abilities} abilities, ${catalog.counts.weapons} weapons (not active runtime coverage).`
   );
 } else {
   writeFileSync(OUTPUT_PATH, serialized);

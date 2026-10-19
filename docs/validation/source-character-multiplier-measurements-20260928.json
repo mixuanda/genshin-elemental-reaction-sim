@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "source-character-multiplier-measurements-v1",
+  "date": "2026-09-28",
+  "registry": "docs/source-character-multiplier-registry-20260928.json",
+  "summaryResult": "docs/validation/source-character-multiplier-20260928.result.json",
+  "calculatorCapture": "docs/validation/source-character-multiplier-calculator-20260928.result.json",
+  "builds": {
+    "classic": {
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "first": {"exitCode": 1, "wallSeconds": 1.73, "receipt": "docs/validation/source-character-multiplier-classic-first-20260928.json", "failure": "049 patch ran before the persistent overlay file-copy step, so pkg/enemy/sourcehost.go did not exist yet"},
+      "retry1": {"exitCode": 0, "wallSeconds": 6.077, "receipt": "docs/validation/source-character-multiplier-classic-retry1-20260928.json", "wasmSha256": "36b665b3d3c19ae08e81f100d0b9bf165bb3d9170be0755a9a4ce60042489daa", "wasmBytes": 43090050}
+    },
+    "stellar": {
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "first": {"exitCode": 1, "wallSeconds": 1.855, "receipt": "docs/validation/source-character-multiplier-stellar-first-20260928.json", "failure": "049 patch ran before the persistent overlay file-copy step, so pkg/enemy/sourcehost.go did not exist yet"},
+      "retry1": {"exitCode": 0, "wallSeconds": 6.58, "receipt": "docs/validation/source-character-multiplier-stellar-retry1-20260928.json", "wasmSha256": "a39b750c5c6c19dea9a8bf0aab228f66ba32bdd5b751c8a69719cfcf8c140dbc", "wasmBytes": 64672670}
+    }
+  },
+  "webBuilds": [
+    {"attempt": "first", "exitCode": 1, "wallSeconds": 2.715, "receipt": "docs/validation/source-character-multiplier-web-first-20260928.json", "failure": "TypeScript union narrowing did not expose child ruleId fields"},
+    {"attempt": "retry1", "exitCode": 0, "wallSeconds": 3.818, "receipt": "docs/validation/source-character-multiplier-web-retry1-20260928.json"},
+    {"attempt": "retry2-final", "exitCode": 0, "wallSeconds": 3.728, "receipt": "docs/validation/source-character-multiplier-web-retry2-20260928.json", "modules": 735, "viteMilliseconds": 852}
+  ],
+  "e2e": {
+    "first": {"exitCode": 1, "wallSeconds": 7.627, "receipt": "docs/validation/source-character-multiplier-e2e-first-20260928.json", "failure": "Varka dynamic consumerSlots omitted physical-source fallback; corrected using source fallback Physical -> PhyP19"},
+    "retry1": {"exitCode": 0, "wallSeconds": 6.017, "testSeconds": 4.6, "runnerSeconds": 5.5, "receipt": "docs/validation/source-character-multiplier-e2e-retry1-20260928.json", "pageErrors": []}
+  },
+  "runtimeSample": {
+    "scenario": "one fixed short rotation per source lane",
+    "classic": {"applications": 7, "calculations": 70, "observedRuleCount": 5, "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "wasmSha256": "36b665b3d3c19ae08e81f100d0b9bf165bb3d9170be0755a9a4ce60042489daa"},
+    "stellar": {"applications": 7, "calculations": 71, "observedRuleCount": 5, "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd", "wasmSha256": "a39b750c5c6c19dea9a8bf0aab228f66ba32bdd5b751c8a69719cfcf8c140dbc"},
+    "observedRules": ["char-mult-varka-a1-cache", "char-mult-heizou-skill-declension", "char-mult-heizou-skill-conviction", "char-mult-varka-skill-normal", "char-mult-navia-shotgun"],
+    "replayDifference": {"heizou": 0, "varka": 0, "navia": 0},
+    "heizou": {"baseAndAdd": [4.5504, 1.1376], "originalMultiplier": 5.688, "formulaOnlyEditedMultiplier": 5.837999999999999, "originalCaptureUnchanged": true, "jsonRestore": true},
+    "varka": {"cachedFactor": 1.4, "producerFrame": 0, "consumerFrame": 278},
+    "navia": {"hitCount": 5, "multiplier": 4.737600011765957}
+  },
+  "trackedDiffCheck": {"exitCode": 0, "wallSeconds": 0.057, "receipt": "docs/validation/source-character-multiplier-diff-check-20260928.json", "scope": "tracked differences only; untracked files are outside this check"},
+  "coverageBoundary": {"registryRules": 41, "characters": 11, "rulesObservedInThisE2E": 5, "rulesNotSampledByThisE2E": 36, "allRulesRun": false, "gameVerified": false, "dataPointersChanged": false}
+}

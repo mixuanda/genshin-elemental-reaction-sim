@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/weapon-procs/three-procs-reference.gcsl",
+    "-out",
+    "docs/cross-validation/weapon-procs/three-procs-reference.result.json",
+    "-sample",
+    "docs/cross-validation/weapon-procs/three-procs-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-23T22:42:10.372297+00:00",
+  "elapsedSeconds": 0.05100025003775954,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 12.00 seconds (min: 12.00 max: 12.00 std: 0.00)\nAverage 282.59 damage over 12.00 seconds, resulting in 24 dps (min: 23.55 max: 23.55 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 10341522489272686395 to docs/cross-validation/weapon-procs/three-procs-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.gcsl",
+      "sha256": "cc05b3bac2bd4774fc3a4ad8fa1e57c72b6586851acf42b569507d379494626f",
+      "bytes": 690
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.result.json",
+      "sha256": "a979dee82da0725c1d8729b2474c68b0d727a354ada3ca096194d18485793fbf",
+      "bytes": 18434
+    },
+    {
+      "path": "docs/cross-validation/weapon-procs/three-procs-reference.sample.json",
+      "sha256": "3504e09525e2120c2595678d545f63f3d747b466774cc7d0c716fa927529b862",
+      "bytes": 39119
+    }
+  ]
+}

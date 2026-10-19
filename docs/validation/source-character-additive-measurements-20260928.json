@@ -1,0 +1,378 @@
+{
+  "schemaVersion": "source-character-additive-measurements-v1",
+  "date": "2026-09-28",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "goalStatus": "active",
+  "checks": [
+    {
+      "name": "classic-first",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.005,
+      "log": "docs/validation/source-character-additive-classic-first-20260928.log"
+    },
+    {
+      "name": "stellar-first",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 6.385,
+      "log": "docs/validation/source-character-additive-stellar-first-20260928.log"
+    },
+    {
+      "name": "web-first",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 7.684,
+      "log": "docs/validation/source-character-additive-web-first-20260928.log"
+    },
+    {
+      "name": "web-retry1",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 29.315,
+      "log": "docs/validation/source-character-additive-web-retry1-20260928.log"
+    },
+    {
+      "name": "web-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 19.908,
+      "log": "docs/validation/source-character-additive-web-final-20260928.log"
+    },
+    {
+      "name": "e2e-first",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-additive.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 16.177,
+      "log": "docs/validation/source-character-additive-e2e-first-20260928.log"
+    },
+    {
+      "name": "e2e-retry1",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-additive.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 16.054,
+      "log": "docs/validation/source-character-additive-e2e-retry1-20260928.log"
+    },
+    {
+      "name": "e2e-retry2",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-additive.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 45.365,
+      "log": "docs/validation/source-character-additive-e2e-retry2-20260928.log"
+    },
+    {
+      "name": "diff-final",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.201,
+      "log": "docs/validation/source-character-additive-diff-final-20260928.log"
+    }
+  ],
+  "rules": [
+    {
+      "rule": "char-add-citlali-c1",
+      "group": "a",
+      "character": "citlali",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-clorinde-a1",
+      "group": "a",
+      "character": "clorinde",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-durin-c1-white",
+      "group": "a",
+      "character": "durin",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-durin-c1-black",
+      "group": "a",
+      "character": "durin",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-escoffier-c2",
+      "group": "a",
+      "character": "escoffier",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-faruzan-a4",
+      "group": "a",
+      "character": "faruzan",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-kokomi-a4",
+      "group": "b",
+      "character": "kokomi",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-lauma-bloom-base",
+      "group": "b",
+      "character": "lauma",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-lauma-bloom-c2",
+      "group": "b",
+      "character": "lauma",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-lauma-lunar-bloom-base",
+      "group": "b",
+      "character": "lauma",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-lauma-lunar-bloom-c2",
+      "group": "b",
+      "character": "lauma",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-layla-c4",
+      "group": "b",
+      "character": "layla",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-mizuki-c1-em",
+      "group": "b",
+      "character": "mizuki",
+      "phase": "creation"
+    },
+    {
+      "rule": "char-add-mizuki-c1",
+      "group": "b",
+      "character": "mizuki",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-nicole-c4",
+      "group": "c",
+      "character": "nicole",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-qiqi-c6",
+      "group": "c",
+      "character": "qiqi",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-shenhe-quill",
+      "group": "c",
+      "character": "shenhe",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-sigewinne-a1",
+      "group": "c",
+      "character": "sigewinne",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-xianyun-a4-atk-snapshot",
+      "group": "c",
+      "character": "xianyun",
+      "phase": "creation"
+    },
+    {
+      "rule": "char-add-xianyun-a4",
+      "group": "c",
+      "character": "xianyun",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-xilonen-c4",
+      "group": "c",
+      "character": "xilonen",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-xilonen-c6",
+      "group": "c",
+      "character": "xilonen",
+      "phase": "hit"
+    },
+    {
+      "rule": "char-add-yunjin-burst",
+      "group": "c",
+      "character": "yunjin",
+      "phase": "hit"
+    }
+  ],
+  "counts": {
+    "rules": 23,
+    "characters": 16,
+    "creationRules": 2,
+    "hitRules": 21,
+    "classicApplicableRules": 22,
+    "stellarApplicableRules": 23,
+    "runtimeSampledNewRules": 4,
+    "notRuntimeSampledNewRules": 19
+  },
+  "runtime": {
+    "schemaVersion": "source-character-additive-validation-v1",
+    "laneFilter": "both",
+    "measurements": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "wasmSha256": "be81467f8dc8c2aa0fcb626c685c7ab2191065b6cd6669fe2fbbc6f1ca69f8e1",
+        "applications": 10,
+        "calculations": 2594,
+        "observedRules": {
+          "char-add-yunjin-burst": 3,
+          "char-add-kokomi-a4": 2,
+          "char-add-xianyun-a4-atk-snapshot": 23,
+          "char-add-xianyun-a4": 1
+        },
+        "normal": {
+          "applicationId": 520,
+          "frame": 148,
+          "kokomiId": 518,
+          "yunJinId": 513,
+          "kokomiValue": 1246.7588733900002,
+          "yunJinValue": 291.26032761294005,
+          "replayDifference": 0
+        },
+        "plunge": {
+          "applicationId": 1243,
+          "frame": 357,
+          "hitId": 1241,
+          "creationId": 1210,
+          "creationFrame": 342,
+          "hitValue": 2375.454244032,
+          "snapshotValue": 1187.727122016,
+          "replayDifference": 0
+        },
+        "edit": {
+          "calculationId": 518,
+          "originalValue": 1246.7588733900002,
+          "editedValue": 1584.2588733900002,
+          "originalCaptureUnchanged": true,
+          "restoredValue": 1584.2588733900002,
+          "scope": "formula-only"
+        }
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "wasmSha256": "d9a59c26391b36eee390f36799aca9e254d43a75f6cc85b84d46e5f9dab2387f",
+        "applications": 10,
+        "calculations": 2590,
+        "observedRules": {
+          "char-add-yunjin-burst": 3,
+          "char-add-kokomi-a4": 2,
+          "char-add-xianyun-a4-atk-snapshot": 23,
+          "char-add-xianyun-a4": 1
+        },
+        "normal": {
+          "applicationId": 512,
+          "frame": 146,
+          "kokomiId": 510,
+          "yunJinId": 505,
+          "kokomiValue": 1246.7588733900002,
+          "yunJinValue": 291.26032761294005,
+          "replayDifference": 0
+        },
+        "plunge": {
+          "applicationId": 1235,
+          "frame": 355,
+          "hitId": 1233,
+          "creationId": 1202,
+          "creationFrame": 340,
+          "hitValue": 2375.454244032,
+          "snapshotValue": 1187.727122016,
+          "replayDifference": 0
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "finalArtifacts": [
+    {
+      "lane": "classic",
+      "manifest": "packages/source-host/dist/manifest.json",
+      "path": "source-host.wasm",
+      "sha256": "be81467f8dc8c2aa0fcb626c685c7ab2191065b6cd6669fe2fbbc6f1ca69f8e1",
+      "size": 42677856,
+      "sha256MatchesMeasured": true
+    },
+    {
+      "lane": "stellar",
+      "manifest": "packages/source-host/stellar-overlay/dist/manifest.json",
+      "path": "source-host.wasm",
+      "sha256": "d9a59c26391b36eee390f36799aca9e254d43a75f6cc85b84d46e5f9dab2387f",
+      "bytes": 64243954,
+      "sha256MatchesMeasured": true
+    }
+  ],
+  "sourceTrees": {
+    "classic": "/tmp/gidps-source-host-cache/build-G1NhgO/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-pu4iUi/source"
+  },
+  "inventory": "docs/source-character-flat-damage-inventory-20260928.json",
+  "remainingLocator": "docs/source-character-flat-damage-remaining-20260928.json",
+  "remainingLocatorBoundary": "124 grouped bodies and 252 lane write locations are a heuristic carried forward from the prior AST inventory; not a new AST scan or complete mechanics denominator.",
+  "workspace": {
+    "trackedModifiedEntries": 51,
+    "untrackedEntries": 692,
+    "committed": false,
+    "pushed": false,
+    "deployed": false
+  },
+  "verification": "provisional-source-only; no new game evidence; released/preview/verified pointers unchanged"
+}

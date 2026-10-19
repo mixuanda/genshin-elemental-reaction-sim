@@ -1,5 +1,24 @@
+import { weaponHitStackModelSchema, weaponHitStackWeaponType } from "./weapon-hit-stack-model";
+import { playerShieldModelSchema, playerShieldLogEntrySchema, playerShieldStateSchema } from "./player-shield-schema";
+import { ARTIFACT_BUFF_SOURCE, artifactBuffModelSchema, artifactBuffConfigurationIssues } from "./artifact-buff-model";
+import { targetHealthModelSchema } from "./target-health-schema";
+import { enemyShieldModelSchema } from "./enemy-shield-schema";
 import { z } from "zod";
+import { SOURCE_NORMAL_ACTION_IDS, getSourceNormalChainMetadata } from "./source-normal-family";
+import { healthChangeDefinitionSchema, playerHealthEventSchema } from "./player-health-schema";
+import { bondOfLifeModelSchema } from "./bond-of-life-schema";
+import { playerMaxHpEventSchema, playerMaxHpModelSchema } from "./player-max-hp-schema";
+import { periodicEntityDefinitionSchema } from "./periodic-entity-schema";
+import { conditionalHitGroupDefinitionSchema } from "./action-condition-schema";
+import { hitAttackTagSchema, weaponProcModelSchema } from "./weapon-proc-schema";
+import { thrillingTalesModelSchema } from "./thrilling-tales-schema";
+import { sacrificialModelSchema } from "./sacrificial-schema";
+import { artifactEventModelSchema, nightsoulBurstModelSchema } from "./artifact-event-schema";
+import { artifactDamageModelSchema } from "./artifact-damage-schema";
+import { getRuntimeSkillCooldownActors } from "./skill-cooldown-model";
 import {
+  getWeaponProcDefinition,
+  type WeaponProcId,
   CLASSIC_REACTION_FORMULA_PROFILE_ID,
   CLASSIC_REACTION_FORMULA_ROOT
 } from "@genshin-dps-lab/reaction-formulas";
@@ -158,6 +177,32 @@ import {
   createSimulationReproducibilityKey,
   createVersionedContentHash
 } from "./reproducibility";
+
+const stellarArtifactModelSchema = z.object({
+  mode: z.literal("fixed-a7-stellar-artifact-4pc-v1"),
+  baselineIncludesStaticTwoPiece: z.literal(true),
+  allowGuideSourceConflict: z.literal(true).optional(),
+  actors: z.array(z.object({ actorId: z.string().trim().min(1), setId: z.enum(["artifact-set:15047", "artifact-set:15048"]) }).strict()).min(1).max(4),
+}).strict().superRefine((model, context) => {
+  const holders = new Set<string>();
+  model.actors.forEach((actor, index) => {
+    if (holders.has(actor.actorId)) context.addIssue({ code: "custom", path: ["actors", index, "actorId"], message: "one actor cannot equip two stellar four-piece sets" });
+    holders.add(actor.actorId);
+  });
+});
+
+const moonlightArtifactModelSchema = z.object({
+  mode: z.literal("fixed-a7-moonlight-artifact-4pc-v1"),
+  baselineIncludesStaticTwoPiece: z.literal(true),
+  moonsignLevel: z.union([z.literal(0), z.literal(1), z.literal(2)]),
+  actors: z.array(z.object({ actorId: z.string().trim().min(1), setId: z.enum(["artifact-set:15041", "artifact-set:15042"]) }).strict()).min(1).max(4),
+}).strict().superRefine((model, context) => {
+  const holders = new Set<string>();
+  model.actors.forEach((actor, index) => {
+    if (holders.has(actor.actorId)) context.addIssue({ code: "custom", path: ["actors", index, "actorId"], message: "one actor cannot equip two Lunar four-piece sets" });
+    holders.add(actor.actorId);
+  });
+});
 
 const idSchema = z.string().trim().min(1);
 const wireNonEmptyStringSchema = z
@@ -657,6 +702,131 @@ const rejectInheritedVersionedResultIdentity = (
   return input;
 };
 
+export const lunarExecutionPartySchema = z.array(z.object({
+      actorId: wireNonEmptyStringSchema,
+      characterKey: wireNonEmptyStringSchema
+    }).strict()).min(1).max(4)
+  .superRefine((party, context) => {
+    const actors = new Set<string>();
+    for (const [index, member] of party.entries()) {
+      if (actors.has(member.actorId)) context.addIssue({ code: "custom", path: [index, "actorId"], message: "party actor IDs must be unique" });
+      actors.add(member.actorId);
+    }
+  });
+
+export const lunarExecutionArtifactsSchema = z.array(z.object({
+  actorId: wireNonEmptyStringSchema,
+  kind: z.enum([
+    "thundering-fury-4pc",
+    "flower-of-paradise-lost-4pc",
+    "aubade-4pc"
+  ])
+}).strict()).max(4).superRefine((artifacts, context) => {
+  const actors = new Set<string>();
+  for (const [index, artifact] of artifacts.entries()) {
+    if (actors.has(artifact.actorId)) context.addIssue({ code: "custom", path: [index, "actorId"], message: "each actor may declare only one four-piece artifact set" });
+    actors.add(artifact.actorId);
+  }
+});
+
+const lunarArtifactExecutionOptionsShape = {
+  artifacts: lunarExecutionArtifactsSchema.optional(),
+  moonsignLevel: z.union([z.literal(0), z.literal(1), z.literal(2)]).optional()
+};
+
+const validateLunarArtifactExecutionOptions = (
+  options: {
+    party: z.infer<typeof lunarExecutionPartySchema>;
+    artifacts?: z.infer<typeof lunarExecutionArtifactsSchema> | undefined;
+    moonsignLevel?: 0 | 1 | 2 | undefined;
+  },
+  context: z.RefinementCtx
+): void => {
+  const actors = new Set(options.party.map(member => member.actorId));
+  options.artifacts?.forEach((artifact, index) => {
+    if (!actors.has(artifact.actorId)) context.addIssue({ code: "custom", path: ["artifacts", index, "actorId"], message: "artifact actor must belong to the execution party" });
+  });
+  if (options.moonsignLevel === undefined && options.artifacts?.some(artifact => artifact.kind === "aubade-4pc")) {
+    context.addIssue({ code: "custom", path: ["moonsignLevel"], message: "Aubade requires an explicit moonsignLevel" });
+  }
+};
+
+export const lunarChargedExecutionOptionsSchema = z.object({
+  profileId: z.literal("lunar-charged-reference-v1"),
+  party: lunarExecutionPartySchema,
+  ...lunarArtifactExecutionOptionsShape
+}).strict().superRefine(validateLunarArtifactExecutionOptions);
+
+export const lunarCrystallizeExecutionOptionsSchema = z.object({
+  profileId: z.literal("lunar-crystallize-reference-v1"),
+  party: lunarExecutionPartySchema,
+  ...lunarArtifactExecutionOptionsShape
+}).strict().superRefine(validateLunarArtifactExecutionOptions);
+
+export const lunarMixedExecutionOptionsSchema = z.object({
+  profileId: z.literal("lunar-mixed-reference-v1"),
+  party: lunarExecutionPartySchema,
+  ...lunarArtifactExecutionOptionsShape
+}).strict().superRefine(validateLunarArtifactExecutionOptions);
+
+export const stellarConductExecutionOptionsSchema = z.object({
+  profileId: z.literal("stellar-conduct-reference-v1"),
+  party: lunarExecutionPartySchema
+}).strict();
+
+export const stellarSwirlExecutionOptionsSchema = z.object({
+  profileId: z.literal("stellar-swirl-guide-reference-v1"),
+  party: lunarExecutionPartySchema
+}).strict();
+
+export const lunarBloomExecutionAbilitiesSchema = z.array(z.object({
+  sourceAbilityId: z.string().min(1),
+  actorId: z.string().min(1),
+  abilityKey: z.literal("columbina-moondew-cleanse-idle-v1"),
+  talentLevel: z.number().int().min(1).max(15),
+  ascension: z.number().int().min(0).max(6),
+  constellation: z.literal(0)
+}).strict()).superRefine((abilities, context) => {
+    if (new Set(abilities.map(ability => ability.sourceAbilityId)).size !== abilities.length) context.addIssue({ code: "custom", message: "Source ability declarations must have unique sourceAbilityId" });
+  });
+
+export const lunarBloomExecutionOptionsSchema = z.object({
+  profileId: z.literal("lunar-bloom-reference-v1"),
+  party: lunarExecutionPartySchema,
+  abilities: lunarBloomExecutionAbilitiesSchema.optional(),
+  ...lunarArtifactExecutionOptionsShape
+}).strict().superRefine(validateLunarArtifactExecutionOptions);
+
+export const lunarMixedV2ExecutionOptionsSchema = z.object({
+  profileId: z.literal("lunar-mixed-reference-v2"),
+  party: lunarExecutionPartySchema,
+  abilities: lunarBloomExecutionAbilitiesSchema.optional(),
+  ...lunarArtifactExecutionOptionsShape
+}).strict().superRefine(validateLunarArtifactExecutionOptions);
+
+export const simulationExecutionOptionsSchema = z
+  .object({
+    captureHits: z.boolean().optional(),
+    detailedTraces: z.boolean().optional(),
+    criticalSampling: z.literal("seeded-random-v1").optional(),
+    checkpointFrames: z.array(z.number().int().nonnegative()).optional(),
+    lunarCharged: lunarChargedExecutionOptionsSchema.optional(),
+    lunarCrystallize: lunarCrystallizeExecutionOptionsSchema.optional(),
+    lunarMixed: lunarMixedExecutionOptionsSchema.optional(),
+    lunarMixedV2: lunarMixedV2ExecutionOptionsSchema.optional(),
+    stellarConduct: stellarConductExecutionOptionsSchema.optional(),
+    stellarSwirl: stellarSwirlExecutionOptionsSchema.optional(),
+    lunarBloom: lunarBloomExecutionOptionsSchema.optional()
+  })
+  .strict()
+  .superRefine((options, context) => {
+    const frames = options.checkpointFrames;
+    if (frames !== undefined && frames.some((frame, index) => index > 0 && frame <= frames[index - 1]!)) {
+      context.addIssue({ code: "custom", path: ["checkpointFrames"], message: "must be strictly increasing unique frame numbers" });
+    }
+  });
+
+/** Frozen runtime options; historical manifest wires reject execution extensions. */
 export const resolvedSimulationRuntimeOptionsSchema = z
   .object({
     energyMode: z.enum(["configured", "zero", "full"]),
@@ -668,6 +838,16 @@ export const resolvedSimulationRuntimeOptionsSchema = z
     randomSeed: wireNonEmptyStringSchema
   })
   .strict();
+
+export const currentResolvedSimulationRuntimeOptionsSchema =
+  resolvedSimulationRuntimeOptionsSchema.extend({
+    execution: simulationExecutionOptionsSchema.optional(),
+    flatStatBuffSemantics: z.literal("canonical-v1").optional()
+  }).superRefine((options, context) => {
+    if (options.flatStatBuffSemantics !== undefined && options.compatibilityMode !== "legal-frame-v1") {
+      context.addIssue({ code: "custom", path: ["flatStatBuffSemantics"], message: "canonical flat-stat buffs require the legal-frame runtime" });
+    }
+  });
 
 export const damagePluginManifestEntrySchema = z
   .object({
@@ -2233,7 +2413,7 @@ const simulationRunManifestV153ValueSchema = z
     engineVersion: z.literal(CALLBACK_BUS_ENGINE_VERSION),
     dataVersion: wireNonEmptyStringSchema,
     configHash: fnv1a32ContentHashSchema,
-    resolvedRuntimeOptions: resolvedSimulationRuntimeOptionsSchema,
+    resolvedRuntimeOptions: currentResolvedSimulationRuntimeOptionsSchema,
     plugins: z.array(damagePluginManifestEntrySchema),
     pluginCapabilities: z.array(
       z.enum(["damage-modifier", "callback-subscriber"])
@@ -3841,7 +4021,8 @@ export const targetStateTimelinePointKindSchema = z.enum([
   "mutation"
 ]);
 
-export const targetStateTimelineCauseSchema = z.enum([
+/** Frozen cause vocabulary through 1.52. */
+export const targetStateTimelineCauseV152Schema = z.enum([
   "simulation-start",
   "simulation-end",
   "aura-natural-expiry",
@@ -3862,6 +4043,12 @@ export const targetStateTimelineCauseSchema = z.enum([
   "burning-tick",
   "reaction-aura-attachment",
   "target-mechanics-truncation"
+]);
+
+export const targetStateTimelineCauseSchema = z.enum([
+  ...targetStateTimelineCauseV152Schema.options,
+  "lunar-charged-consumption",
+  "stellar-swirl-attachment"
 ]);
 
 export const targetStateTimelinePointSchema = z.preprocess(
@@ -3901,7 +4088,7 @@ export const targetStateTimelinePointSchema = z.preprocess(
     pointKind: targetStateTimelinePointKindSchema,
     cause: targetStateTimelineCauseSchema,
     eventType: simulationEventTypeSchema.nullable(),
-    eventPriority: finiteNumber.nonnegative().nullable(),
+    eventPriority: finiteNumber.nullable(),
     eventSequence: z.number().int().nonnegative().nullable(),
     intraEventSequence: z.number().int().nonnegative().nullable(),
     reaction: reactionTypeSchema,
@@ -3924,6 +4111,10 @@ export const targetStateTimelinePointSchema = z.preprocess(
       point.eventSequence,
       point.intraEventSequence
     ];
+    if (point.eventPriority !== null && point.eventPriority < 0 &&
+      !(point.cause === "lunar-charged-consumption" && point.eventPriority === -1)) {
+      issue("eventPriority", "negative priority is reserved for the current Lunar-Charged pre-event consumption at -1");
+    }
     const boundaryCause =
       point.cause === "simulation-start" ||
       point.cause === "simulation-end";
@@ -4163,7 +4354,9 @@ export const targetStateTimelinePointSchema = z.preprocess(
         "reactionDamage",
       "burning-fuel-expiry": "burningFuelExpiry",
       "burning-tick": "burningTick",
-      "reaction-aura-attachment": "reactionAuraAttachment"
+      "reaction-aura-attachment": "reactionAuraAttachment",
+      "lunar-charged-consumption": "hit",
+      "stellar-swirl-attachment": "hit"
     } as const;
     if (
       point.cause in requiredEventTypeByCause &&
@@ -4248,6 +4441,37 @@ export const targetStateTimelinePointSchema = z.preprocess(
           "auraApplied",
           "reaction Aura attachment witnesses require a non-reacted application without Aura consumption"
         );
+      }
+    }
+
+    if (point.cause === "lunar-charged-consumption") {
+      if (point.pointKind !== "mutation" || point.eventType !== "hit") {
+        issue("pointKind", "Lunar-Charged consumption requires a mutation with an explicit hit event tuple");
+      }
+      if (point.reaction !== "none" || point.reactions.length !== 0 || point.auraApplied.length !== 0) {
+        issue("reaction", "Lunar-Charged consumption is a special-event mutation and cannot claim ordinary reactions or applications");
+      }
+      if (point.primaryDamageEventId !== null || point.links.length !== 0) {
+        issue("links", "Lunar-Charged consumption links belong to the special result envelope; ordinary damage/log links must be absent");
+      }
+      if (!electroChargedWaneAuditMatches(point.auraBefore, point.auraConsumed, point.auraAfter, 0.4)) {
+        issue("auraConsumed", "Lunar-Charged consumption must deduct up to 0.4U from every Hydro and Electro personal Aura slot and preserve unrelated Aura");
+      }
+    }
+
+    if (point.cause === "stellar-swirl-attachment") {
+      if (point.pointKind !== "mutation" || point.eventPriority !== 3) {
+        issue("pointKind", "Stellar-Swirl attachment requires a mutation from a queued hit at priority 3");
+      }
+      const applied = point.auraApplied[0];
+      if (point.auraApplied.length !== 1 || applied?.element !== "cryo" || applied.gaugeUnits !== 1 || applied.sourceActorId === undefined || applied.sourceMutations !== undefined) {
+        issue("auraApplied", "Stellar-Swirl attachment requires one source-owned nominal 1U Cryo application");
+      }
+      if (point.reaction !== "none" || point.reactions.length !== 0 || point.auraConsumed.length !== 0) {
+        issue("reaction", "Stellar-Swirl attachment cannot consume Aura or claim ordinary reactions");
+      }
+      if (point.primaryDamageEventId !== null || point.links.length !== 0) {
+        issue("links", "Stellar-Swirl attachment links belong to the special result envelope; ordinary damage/log links must be absent");
       }
     }
 
@@ -4478,6 +4702,17 @@ export const targetStateTimelineSchema = z.preprocess(
       }
     }
   })
+);
+
+/** Historical result wires retain the exact cause vocabulary through 1.52. */
+export const targetStateTimelineV152Schema = targetStateTimelineSchema.superRefine(
+  (timeline, context) => {
+    for (const [index, point] of timeline.points.entries()) {
+      if (!targetStateTimelineCauseV152Schema.safeParse(point.cause).success) {
+        context.addIssue({ code: "custom", path: ["points", index, "cause"], message: `${point.cause} is a current execution-only cause` });
+      }
+    }
+  }
 );
 
 export const targetClockSummarySchema = z
@@ -9542,7 +9777,7 @@ const validateDendroCoreClockModel = (
   }
 };
 
-export const dendroCoreSpawnScheduledLogEntrySchema = z
+const createDendroCoreSpawnScheduledLogEntrySchema = (current: boolean) => z
   .object({
     ...dendroCoreLogBaseShape,
     operation: z.literal("spawn-scheduled"),
@@ -9580,7 +9815,7 @@ export const dendroCoreSpawnScheduledLogEntrySchema = z
             entry.eventPriority <= 5
           : entry.eventPriority >= 3 &&
             entry.eventPriority <= 5;
-    if (!validPriority) {
+    if (!current && !validPriority) {
       context.addIssue({
         code: "custom",
         path: ["eventPriority"],
@@ -9618,6 +9853,9 @@ export const dendroCoreSpawnScheduledLogEntrySchema = z
       });
     }
   });
+
+export const dendroCoreSpawnScheduledLogEntrySchema = createDendroCoreSpawnScheduledLogEntrySchema(false);
+const currentDendroCoreSpawnScheduledLogEntrySchema = createDendroCoreSpawnScheduledLogEntrySchema(true);
 
 export const dendroCoreSpawnLogEntrySchema = z
   .object({
@@ -9749,7 +9987,7 @@ export const dendroCoreEvictionLogEntrySchema = z
     }
   });
 
-export const dendroCoreConsumeLogEntrySchema = z
+const createDendroCoreConsumeLogEntrySchema = (current: boolean) => z
   .object({
     ...dendroCoreRemovalBaseShape,
     operation: z.literal("consume"),
@@ -9765,13 +10003,13 @@ export const dendroCoreConsumeLogEntrySchema = z
   .superRefine((entry, context) => {
     validateLogTime(entry, context);
     validateDendroCoreClockModel(entry, context);
-    if (
+    if (!current && (
       (entry.eventType === "hit" &&
         entry.eventPriority !== 3) ||
       (entry.eventType === "reactionDamage" &&
         (entry.eventPriority <= 4 ||
           entry.eventPriority > 5))
-    ) {
+    )) {
       context.addIssue({
         code: "custom",
         path: ["eventPriority"],
@@ -9799,6 +10037,9 @@ export const dendroCoreConsumeLogEntrySchema = z
       });
     }
   });
+
+export const dendroCoreConsumeLogEntrySchema = createDendroCoreConsumeLogEntrySchema(false);
+const currentDendroCoreConsumeLogEntrySchema = createDendroCoreConsumeLogEntrySchema(true);
 
 export const dendroCoreRemovalLogEntrySchema = z.union([
   dendroCoreExpiryLogEntrySchema,
@@ -9832,8 +10073,8 @@ const addDuplicateIdIssues = (
   });
 };
 
-export const dendroCoreLogSchema = z
-  .array(dendroCoreLogEntrySchema)
+const createDendroCoreLogSchema = (current: boolean) => z
+  .array(current ? z.union([currentDendroCoreSpawnScheduledLogEntrySchema, dendroCoreSpawnLogEntrySchema, dendroCoreExpiryLogEntrySchema, dendroCoreEvictionLogEntrySchema, currentDendroCoreConsumeLogEntrySchema]) : dendroCoreLogEntrySchema)
   .superRefine((entries, context) => {
     const histories = new Map<
       number,
@@ -10002,7 +10243,10 @@ export const dendroCoreLogSchema = z
     }
   });
 
-export const dendroCoreContactLogEntrySchema = z
+export const dendroCoreLogSchema = createDendroCoreLogSchema(false);
+export const currentDendroCoreLogSchema = createDendroCoreLogSchema(true);
+
+const createDendroCoreContactLogEntrySchema = (current: boolean) => z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
@@ -10056,13 +10300,13 @@ export const dendroCoreContactLogEntrySchema = z
           "direct-hit core contact requires null and reactionDamage contact requires its triggering reaction-damage log id"
       });
     }
-    if (
+    if (!current && (
       (entry.eventType === "hit" &&
         entry.eventPriority !== 3) ||
       (entry.eventType === "reactionDamage" &&
         (entry.eventPriority <= 4 ||
           entry.eventPriority > 5))
-    ) {
+    )) {
       context.addIssue({
         code: "custom",
         path: ["eventPriority"],
@@ -10162,8 +10406,11 @@ export const dendroCoreContactLogEntrySchema = z
     }
   });
 
-export const dendroCoreContactLogSchema = z
-  .array(dendroCoreContactLogEntrySchema)
+export const dendroCoreContactLogEntrySchema = createDendroCoreContactLogEntrySchema(false);
+const currentDendroCoreContactLogEntrySchema = createDendroCoreContactLogEntrySchema(true);
+
+const createDendroCoreContactLogSchema = (current: boolean) => z
+  .array(current ? currentDendroCoreContactLogEntrySchema : dendroCoreContactLogEntrySchema)
   .superRefine((entries, context) => {
     const hitGroups = new Set<string>();
     entries.forEach((entry, index) => {
@@ -10184,6 +10431,9 @@ export const dendroCoreContactLogSchema = z
       hitGroups.add(entry.hitGroupId);
     });
   });
+
+export const dendroCoreContactLogSchema = createDendroCoreContactLogSchema(false);
+export const currentDendroCoreContactLogSchema = createDendroCoreContactLogSchema(true);
 
 export const dendroCoreSnapshotSchema = z
   .object({
@@ -10209,7 +10459,7 @@ export const dendroCoreSnapshotSchema = z
     }
   });
 
-export const dendroCoreTimelinePointSchema = z
+const createDendroCoreTimelinePointSchema = (current: boolean) => z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
@@ -10264,13 +10514,13 @@ export const dendroCoreTimelinePointSchema = z
       });
     }
     if (point.operation === "consume") {
-      if (
+      if (!current && (
         (point.eventType === "hit" &&
           point.eventPriority !== 3) ||
         (point.eventType === "reactionDamage" &&
           (point.eventPriority <= 4 ||
             point.eventPriority > 5))
-      ) {
+      )) {
         context.addIssue({
           code: "custom",
           path: ["eventPriority"],
@@ -10287,10 +10537,13 @@ export const dendroCoreTimelinePointSchema = z
     }
   });
 
-export const dendroCoreTimelineSchema = z
+export const dendroCoreTimelinePointSchema = createDendroCoreTimelinePointSchema(false);
+const currentDendroCoreTimelinePointSchema = createDendroCoreTimelinePointSchema(true);
+
+const createDendroCoreTimelineSchema = (current: boolean) => z
   .object({
     version: z.literal("1.0.0"),
-    points: z.array(dendroCoreTimelinePointSchema)
+    points: z.array(current ? currentDendroCoreTimelinePointSchema : dendroCoreTimelinePointSchema)
   })
   .strict()
   .superRefine((timeline, context) => {
@@ -10513,6 +10766,9 @@ export const dendroCoreTimelineSchema = z
     });
   });
 
+export const dendroCoreTimelineSchema = createDendroCoreTimelineSchema(false);
+export const currentDendroCoreTimelineSchema = createDendroCoreTimelineSchema(true);
+
 const dendroCoreDamageEventReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
@@ -10578,6 +10834,8 @@ const dendroCoreHitResolutionReferenceSchema = z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
+    eventPriority: finiteNumber.nonnegative().optional(),
+    eventSequence: z.number().int().nonnegative().optional(),
     sourceActorId: wireNonEmptyStringSchema,
     sourceActionId: wireNonEmptyStringSchema,
     hitId: wireNonEmptyStringSchema,
@@ -11116,7 +11374,9 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       .object({
         schemaVersion: z.string(),
         engineVersion: z.string(),
+        rotation: z.lazy(() => z.array(reactionDeliveryActionSourceReferenceSchema)).optional(),
         reactionEngine: auraReactionEngineConfigSchema.optional(),
+        enemy: z.object({ targets: z.array(z.object({ id: wireNonEmptyStringSchema }).passthrough()).optional() }).passthrough().optional(),
         targetTaskModel: targetTaskModelSchema.optional(),
         targetClockModel: targetClockModelSchema.optional(),
         electroChargedPropagationModel:
@@ -11124,15 +11384,17 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
         timeline: z
           .object({
             mode: z.literal("legal-frame-v1"),
-            fps: z.literal(60)
+            fps: z.literal(60),
+            abilities: z.lazy(() => z.array(reactionDeliveryActionSourceReferenceSchema)).optional()
           })
           .passthrough()
           .optional()
       })
       .passthrough(),
-    dendroCoreLog: dendroCoreLogSchema,
-    dendroCoreContactLog: dendroCoreContactLogSchema,
-    dendroCoreTimeline: dendroCoreTimelineSchema,
+    actionLog: z.lazy(() => z.array(reactionDeliveryAcceptedActionReferenceSchema)).optional(),
+    dendroCoreLog: currentDendroCoreLogSchema,
+    dendroCoreContactLog: currentDendroCoreContactLogSchema,
+    dendroCoreTimeline: currentDendroCoreTimelineSchema,
     reactionTaskLog: reactionTaskLogSchema.optional().default([]),
     quickenStateLog: z
       .array(quickenStateLogEntrySchema)
@@ -11151,6 +11413,14 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
   })
   .passthrough()
   .superRefine((result, context) => {
+    const current = result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION && result.engineVersion === CALLBACK_BUS_ENGINE_VERSION &&
+      result.config.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION && result.config.engineVersion === CALLBACK_BUS_ENGINE_VERSION;
+    if (!current) {
+      for (const [field, schema] of [["dendroCoreLog", dendroCoreLogSchema], ["dendroCoreContactLog", dendroCoreContactLogSchema], ["dendroCoreTimeline", dendroCoreTimelineSchema]] as const) {
+        const parsed = schema.safeParse(result[field]);
+        if (!parsed.success) for (const issue of parsed.error.issues) context.addIssue({ code: "custom", path: [field, ...issue.path], message: issue.message });
+      }
+    }
     const identityContract =
       DENDRO_CORE_RESULT_IDENTITY_CONTRACTS[
         result.schemaVersion
@@ -11625,6 +11895,10 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
       }
 
       if (entry.operation === "spawn-scheduled") {
+        const schedulingOwner = owningTask ?? origin;
+        if (current && (schedulingOwner === undefined || entry.eventPriority !== schedulingOwner.eventPriority || entry.eventSequence !== schedulingOwner.eventSequence)) {
+          addMissingReferenceIssue(context, ["dendroCoreLog", index, "eventPriority"], "current Bloom scheduling must inherit the actual origin damage/task queue tuple");
+        }
         const bloomAudit =
           owningTask?.bloomReaction ??
           origin?.reactionAudit.bloomReactions[
@@ -11853,7 +12127,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
                 entry.reactionDamageLogId ||
               contact.frame !== entry.frame ||
               contact.eventType !== entry.eventType ||
-              contact.reaction !== entry.reaction
+              contact.reaction !== entry.reaction ||
+              (current && (contact.eventPriority !== entry.eventPriority || contact.eventSequence !== entry.eventSequence || entry.intraEventSequence >= contact.intraEventSequence))
             ) {
               addMissingReferenceIssue(
                 context,
@@ -12283,7 +12558,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
               contact.hitGroupId ||
             hitResolution.element !== contact.triggerElement ||
             hitResolution.resolutionKind !==
-              expectedResolutionKind
+              expectedResolutionKind ||
+            (current && (hitResolution.eventPriority !== contact.eventPriority || hitResolution.eventSequence !== contact.eventSequence))
           ) {
             addMissingReferenceIssue(
               context,
@@ -12328,6 +12604,37 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
           : reactionDamageById.get(
               contact.triggerReactionDamageLogId
             );
+      if (current) {
+        let expectedPriority: number | undefined;
+        if (contact.eventType === "hit") {
+          // Complete direct-hit source verification also runs in the shared
+          // delivery facet; this row must retain that exact resolved hit tuple.
+          expectedPriority = result.hitResolutionLog.find(row => contact.hitResolutionLogIds.includes(row.id))?.eventPriority;
+          if (expectedPriority !== 3 && expectedPriority !== 13) expectedPriority = undefined;
+          if (expectedPriority === 13 && !hasAcceptedAfterFrameHitSource(result.config, result.actionLog ?? [], {
+            frame: contact.frame, sourceActorId: contact.sourceActorId, actionId: contact.sourceActionId,
+            hitId: contact.hitId, hitGroupId: contact.hitGroupId,
+          })) expectedPriority = undefined;
+        } else if (triggeringReactionDamage !== undefined) {
+          if (triggeringReactionDamage.scheduleKind === "burning-tick") {
+            const targets = result.config.enemy?.targets ?? [{ id: "enemy-0" }];
+            const targetOrder = targets.findIndex(target => target.id === triggeringReactionDamage.sourceTargetId);
+            const stride = 0.5 / (targets.length + 1);
+            const atomicStride = 1 / (targets.length * 2 + 1);
+            const mode = result.config.targetTaskModel?.mode;
+            if (targetOrder >= 0) expectedPriority = mode === "target-phase-v3"
+              ? 0.5 + targetOrder * stride + stride * 0.25
+              : mode === "target-phase-v1" || mode === "target-phase-v2"
+                ? 5 + targetOrder * stride
+                : 4 + targetOrder * 2 * atomicStride + atomicStride;
+          } else {
+            const parent = triggeringReactionDamage.triggerDamageEventId === null ? undefined : damageEventById.get(triggeringReactionDamage.triggerDamageEventId);
+            expectedPriority = parent !== undefined && parent.frame === contact.frame && (parent.eventPriority ?? 0) >= 8 ? 15 : 5;
+          }
+        }
+        if (expectedPriority === undefined || contact.eventPriority !== expectedPriority) addMissingReferenceIssue(context,
+          ["dendroCoreContactLog", index, "eventPriority"], "current core contact must use its actual direct-hit or source-owned reaction delivery phase");
+      }
       if (contact.eventType === "reactionDamage") {
         if (triggeringReactionDamage === undefined) {
           addMissingReferenceIssue(
@@ -12392,7 +12699,8 @@ export const dendroCoreResultReferencesSchema = z.preprocess(
             triggerDamageEvent.kind !==
               (contact.eventType === "hit"
                 ? "direct"
-                : "transformative-reaction")
+                : "transformative-reaction") ||
+            (current && (triggerDamageEvent.eventPriority !== contact.eventPriority || triggerDamageEvent.eventSequence !== contact.eventSequence))
           ) {
             addMissingReferenceIssue(
               context,
@@ -13740,8 +14048,9 @@ export const playerHpDamageResolutionSchema = z
     }
   });
 
-export const playerDamageEventSchema = z
+const makePlayerDamageEventSchema = (current: boolean) => z
   .object({
+    ...(current ? { playerShieldLogId: z.number().int().nonnegative().optional() } : {}),
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
     timeSeconds: finiteNumber.nonnegative(),
@@ -13803,7 +14112,7 @@ export const playerDamageEventSchema = z
       });
     }
     if (
-      !approximatelyEqual(
+      event.playerShieldLogId === undefined && !approximatelyEqual(
         event.hpResolution.attemptedLoss,
         event.shieldResolution.damageAfterShield
       ) ||
@@ -13857,6 +14166,9 @@ export const playerDamageEventSchema = z
       });
     }
   });
+
+export const playerDamageEventSchema = makePlayerDamageEventSchema(false);
+export const currentPlayerDamageEventSchema = makePlayerDamageEventSchema(true);
 
 export const crystallizeShieldLogEntrySchema = z
   .object({
@@ -14027,20 +14339,22 @@ export const crystallizeShieldTimelinePointSchema = z
     }
   });
 
-export const playerHpTimelinePointSchema = z
+const makePlayerHpTimelinePointSchema = (current: boolean) => z
   .object({
     id: z.number().int().nonnegative(),
     frame: z.number().int().nonnegative(),
     timeSeconds: finiteNumber.nonnegative(),
-    eventPriority: finiteNumber.nonnegative().nullable(),
+    eventPriority: (current ? finiteNumber.min(-1) : finiteNumber.nonnegative()).nullable(),
     eventSequence: z.number().int().nonnegative().nullable(),
     intraEventSequence: z.number().int().nonnegative().nullable(),
     operation: z.enum([
       "initial",
       "damage",
+      ...(current ? ["heal", "consume", "bond-add", "bond-remove", "max-hp-change", "shield-hit"] as const : []),
       "simulation-end"
     ]),
     actorId: wireNonEmptyStringSchema,
+    ...(current ? { playerShieldLogId: z.number().int().nonnegative().optional(), playerHealthEventId: z.number().int().nonnegative().optional(), playerMaxHpEventId: z.number().int().nonnegative().optional() } : {}),
     playerDamageEventId: z.number().int().nonnegative().nullable(),
     maxHp: finiteNumber.positive(),
     hpBefore: finiteNumber.nonnegative(),
@@ -14050,6 +14364,15 @@ export const playerHpTimelinePointSchema = z
   .strict()
   .superRefine((point, context) => {
     validateLogTime(point, context);
+    if ((point.operation === "shield-hit") !== (point.playerShieldLogId !== undefined) || point.operation === "shield-hit" && point.playerDamageEventId !== null) context.addIssue({ code: "custom", path: ["playerShieldLogId"], message: "explicit incoming shield HP points require their unique shield log link" });
+    const isHealthChange = point.operation === "heal" || point.operation === "consume" || point.operation === "bond-add" || point.operation === "bond-remove";
+    if ((point.operation === "max-hp-change") !== (point.playerMaxHpEventId !== undefined) || point.operation === "max-hp-change" && point.playerDamageEventId !== null) {
+      context.addIssue({ code: "custom", path: ["playerMaxHpEventId"], message: "max-HP transitions require their unique max-HP event link and no damage link" });
+    }
+    if (isHealthChange !== (point.playerHealthEventId !== undefined) ||
+        isHealthChange && point.playerDamageEventId !== null) {
+      context.addIssue({ code: "custom", path: ["playerHealthEventId"], message: "health-operation HP points require exactly one health-event link and no damage-event link" });
+    }
     if (
       !approximatelyEqual(
         point.hpRatioAfter,
@@ -14073,7 +14396,7 @@ export const playerHpTimelinePointSchema = z
       });
     }
     if (
-      point.operation !== "damage" &&
+      (point.operation === "initial" || point.operation === "simulation-end") &&
       (point.playerDamageEventId !== null ||
         point.eventPriority !== null ||
         point.eventSequence !== null ||
@@ -14087,7 +14410,7 @@ export const playerHpTimelinePointSchema = z
           "boundary HP points cannot link damage or mutate current HP"
       });
     } else if (
-      point.operation === "damage" &&
+      (point.operation === "damage" || isHealthChange || point.operation === "max-hp-change" || point.operation === "shield-hit") &&
       (point.eventPriority === null ||
         point.eventSequence === null ||
         point.intraEventSequence === null)
@@ -14100,10 +14423,13 @@ export const playerHpTimelinePointSchema = z
     }
   });
 
-export const playerHpTimelineSchema = z
+export const playerHpTimelinePointSchema = makePlayerHpTimelinePointSchema(false);
+export const currentPlayerHpTimelinePointSchema = makePlayerHpTimelinePointSchema(true);
+
+const makePlayerHpTimelineSchema = (current: boolean) => z
   .object({
     version: z.literal("1.0.0"),
-    points: z.array(playerHpTimelinePointSchema)
+    points: z.array(current ? currentPlayerHpTimelinePointSchema : playerHpTimelinePointSchema)
   })
   .strict()
   .superRefine((timeline, context) => {
@@ -14114,6 +14440,12 @@ export const playerHpTimelineSchema = z
     let previousOperation:
       | "initial"
       | "damage"
+      | "heal"
+      | "consume"
+      | "bond-add"
+      | "bond-remove"
+      | "max-hp-change"
+      | "shield-hit"
       | "simulation-end"
       | null = null;
     timeline.points.forEach((point, index) => {
@@ -14151,7 +14483,7 @@ export const playerHpTimelineSchema = z
         tuple[2] === previousTuple[2];
       const repeatedBoundary =
         sameTuple &&
-        point.operation !== "damage" &&
+        (point.operation === "initial" || point.operation === "simulation-end") &&
         previousOperation === point.operation;
       if (
         previousTuple !== null &&
@@ -14176,7 +14508,10 @@ export const playerHpTimelineSchema = z
     });
   });
 
-export const playerHpSummarySchema = z
+export const playerHpTimelineSchema = makePlayerHpTimelineSchema(false);
+export const currentPlayerHpTimelineSchema = makePlayerHpTimelineSchema(true);
+
+const makePlayerHpSummarySchema = (current: boolean) => z
   .object({
     actorId: wireNonEmptyStringSchema,
     maxHp: finiteNumber.positive(),
@@ -14185,6 +14520,15 @@ export const playerHpSummarySchema = z
     totalIncomingDamage: finiteNumber.nonnegative(),
     totalAbsorbedDamage: finiteNumber.nonnegative(),
     totalHpDamage: finiteNumber.nonnegative(),
+    ...(current ? {
+      totalHealing: finiteNumber.nonnegative().optional(),
+      totalOverheal: finiteNumber.nonnegative().optional(),
+      totalHpConsumed: finiteNumber.nonnegative().optional(),
+      initialBondOfLife: finiteNumber.nonnegative().optional(),
+      finalBondOfLife: finiteNumber.nonnegative().optional(),
+      finalMaxHp: finiteNumber.positive().optional(),
+      totalMaxHpAdjustment: finiteNumber.optional()
+    } : {}),
     hitCount: z.number().int().nonnegative(),
     zeroHpReached: z.boolean()
   })
@@ -14192,10 +14536,10 @@ export const playerHpSummarySchema = z
   .superRefine((summary, context) => {
     if (
       summary.initialHp > summary.maxHp + 1e-9 ||
-      summary.finalHp > summary.maxHp + 1e-9 ||
+      summary.finalHp > ((summary.finalMaxHp as number | undefined) ?? summary.maxHp) + 1e-9 ||
       !approximatelyEqual(
         summary.totalHpDamage,
-        summary.initialHp - summary.finalHp
+        summary.initialHp + ((summary.totalHealing as number | undefined) ?? 0) - ((summary.totalHpConsumed as number | undefined) ?? 0) + ((summary.totalMaxHpAdjustment as number | undefined) ?? 0) - summary.finalHp
       )
     ) {
       context.addIssue({
@@ -14216,6 +14560,9 @@ export const playerHpSummarySchema = z
       });
     }
   });
+
+export const playerHpSummarySchema = makePlayerHpSummarySchema(false);
+export const currentPlayerHpSummarySchema = makePlayerHpSummarySchema(true);
 
 export const characterStatsSchema = z
   .object({
@@ -14647,6 +14994,7 @@ const hitDefinitionObjectSchema = z
     resShred: finiteNumber.optional(),
     critRate: finiteNumber.optional(),
     critDmg: finiteNumber.optional(),
+    critEligible: z.boolean().optional(),
     reactionBonus: finiteNumber.optional(),
     ampBase: finiteNumber.positive().optional(),
     groupMultiplier: finiteNumber.optional()
@@ -14734,14 +15082,10 @@ export const energyEventSchema = z
   })
   .strict();
 
-export const particleCountRangeSchema = z
-  .object({
-    min: finiteNumber.positive(),
-    max: finiteNumber.positive(),
-    step: finiteNumber.positive().optional()
-  })
-  .strict()
-  .superRefine((range, context) => {
+const validateParticleCountRange = (
+  range: { min: number; max: number; step?: number | undefined },
+  context: z.RefinementCtx
+): void => {
     if (range.max < range.min) {
       context.addIssue({
         code: "custom",
@@ -14770,7 +15114,22 @@ export const particleCountRangeSchema = z
         });
       }
     }
-  });
+};
+
+export const particleCountRangeSchema = z.object({
+  min: finiteNumber.positive(),
+  max: finiteNumber.positive(),
+  step: finiteNumber.positive().optional()
+}).strict().superRefine(validateParticleCountRange);
+
+const currentParticleCountSchema = z.union([
+  finiteNumber.nonnegative(),
+  z.object({
+    min: finiteNumber.nonnegative(),
+    max: finiteNumber.nonnegative(),
+    step: finiteNumber.positive().optional()
+  }).strict().superRefine(validateParticleCountRange)
+]);
 
 const particleDefinitionObjectSchema = z
   .object({
@@ -17797,6 +18156,167 @@ export const simConfigV152Schema = z.preprocess(
   simConfigV152ValueSchema
 );
 
+export const summonDefinitionSchema = z.object({
+  id: idSchema,
+  label: idSchema,
+  spawnFrame: frameSchema,
+  lifetimeFrames: z.number().int().positive(),
+  expiryAttackDelayFrames: frameSchema,
+  hitIds: z.array(idSchema).min(1)
+}).strict().superRefine((summon, context) => {
+  if (new Set(summon.hitIds).size !== summon.hitIds.length) {
+    context.addIssue({ code: "custom", path: ["hitIds"], message: "summon hit IDs must be unique" });
+  }
+});
+
+export const statConversionDefinitionSchema = z.object({
+  key: idSchema,
+  label: idSchema,
+  sourceStat: z.literal("def"),
+  targetStat: z.literal("flatAtk"),
+  coefficient: finiteNumber.nonnegative(),
+  durationFrames: z.number().int().positive(),
+  snapshotFrame: z.literal(0),
+  evidenceStatus: z.literal("fixed-source-assumed"),
+  sourceRefs: z.array(wireNonEmptyStringSchema).min(1)
+}).strict();
+
+export const hitInfusionDefinitionSchema = z.object({
+  statusKey: idSchema,
+  element: z.literal("geo"),
+  application: elementalApplicationV147Schema
+}).strict();
+
+export const normalHitEnergyModelSchema = z.object({
+  mode: z.literal("fixed-source-independent-stream-v1"),
+  actors: z.array(z.object({ actorId: idSchema, weaponType: z.enum(["sword", "claymore", "polearm", "bow", "catalyst"]) }).strict()).min(1).max(4)
+}).strict();
+
+export const favoniusWeaponIdSchema = z.enum(["favoniussword", "favoniusgreatsword", "favoniuslance", "favoniuswarbow", "favoniuscodex"]);
+export const favoniusModelSchema = z.object({
+  mode: z.literal("fixed-source-independent-stream-v1"),
+  actors: z.array(z.object({
+    actorId: idSchema,
+    weaponId: favoniusWeaponIdSchema,
+    refinement: z.number().int().min(1).max(5),
+    particleDelayFrames: frameSchema
+  }).strict()).min(1).max(4)
+}).strict();
+
+export const staminaModelSchema = z.object({
+  mode: z.literal("shared-stamina-v1"),
+  profileId: z.literal("gcsim-b4ae769-stamina-v1"),
+  initialStamina: finiteNumber.min(0).max(240)
+}).strict();
+
+export const staminaCostSchema = z.object({
+  amount: finiteNumber.min(0),
+  consumeFrame: frameSchema,
+  consumeWhenZero: z.boolean().optional(),
+  source: z.discriminatedUnion("kind", [
+    z.object({ kind: z.literal("custom"), note: wireNonEmptyStringSchema }).strict(),
+    z.object({ kind: z.literal("source"), refs: z.array(wireNonEmptyStringSchema).min(1) }).strict()
+  ])
+}).strict();
+
+export const sourceAbilityBindingSchema = z.object({
+  abilityId: wireNonEmptyStringSchema,
+  actorId: wireNonEmptyStringSchema,
+  sourceActionId: z.enum(["amber-q", "chongyun-q", "keqing-q", "aloy-q", "zhongli-q", ...SOURCE_NORMAL_ACTION_IDS]),
+  talentLevel: finiteNumber.int().min(1).max(15),
+  ascension: finiteNumber.int().min(0).max(6),
+  constellation: z.literal(0),
+  registryVersion: z.literal("gcsim-b4ae769-composable-abilities-v1"),
+  stateScope: z.enum(["fischl-no-oz-v1", "yelan-no-burst-v1"]).optional()
+}).strict().superRefine((binding, context) => {
+  const chain = getSourceNormalChainMetadata(binding.sourceActionId);
+  const requiredScope = chain?.id === "fischl-normal-default-v1" ? "fischl-no-oz-v1"
+    : chain?.id === "yelan-normal-default-v1" ? "yelan-no-burst-v1" : undefined;
+  if (binding.stateScope !== requiredScope) context.addIssue({ code: "custom", path: ["stateScope"],
+    message: requiredScope === undefined ? "this source ability does not accept another character's state scope" : `this source normal requires an explicit ${requiredScope} declaration; missing state is unknown` });
+});
+
+const currentHitExtensionsSchema = z.object({
+  snapshotFrame: frameSchema.optional(),
+  flatSources: z.array(z.object({ ownerId: wireNonEmptyStringSchema.optional(), stat: z.enum(["atk", "hp", "def", "em"]).optional(), multiplier: finiteNumber, snapshotFrame: frameSchema.optional() }).strict()).optional(),
+  infusion: hitInfusionDefinitionSchema.optional(),
+  normalHitEnergyTag: z.enum(["normal", "extra"]).optional(),
+  attackTag: hitAttackTagSchema.optional(),
+  hitWeakPoint: z.boolean().optional()
+}).strict();
+
+const currentActionExtensionsSchema = z.object({
+  actionPhase: z.literal("after-frame-tasks-v1").optional(),
+  conditionalHitGroups: z.array(conditionalHitGroupDefinitionSchema).optional(),
+  periodicEntities: z.array(periodicEntityDefinitionSchema).optional(),
+  healthChanges: z.array(healthChangeDefinitionSchema).optional(),
+  staminaCost: staminaCostSchema.optional(),
+  energyCostFrame: frameSchema.optional(),
+  summons: z.array(summonDefinitionSchema).optional(),
+  statConversions: z.array(statConversionDefinitionSchema).optional()
+}).strict();
+
+const currentAbilityExtensionsSchema = currentActionExtensionsSchema.extend({
+  cooldownStartFrame: frameSchema.optional(),
+  kind: z.literal("plunge").optional(),
+  cancelFrames: z.object({ walk: frameSchema.optional(), plunge: frameSchema.optional() }).strict().optional()
+}).strict();
+
+const stripCurrentActionExtensions = (value: unknown): unknown => {
+  if (!isRecord(value)) return value;
+  const { actionPhase: _actionPhase, conditionalHitGroups: _conditionalHitGroups, periodicEntities: _periodicEntities, healthChanges: _healthChanges, staminaCost: _staminaCost, energyCostFrame: _energyCostFrame, summons: _summons, statConversions: _statConversions, ...frozen } = value;
+  return { ...frozen, ...(Array.isArray(frozen.particles) ? { particles: frozen.particles.map(particle => {
+    if (!isRecord(particle)) return particle;
+    // Current zero counts are validated separately and restored after this projection.
+    const countProjection = particle.count === 0 || (isRecord(particle.count) && particle.count.min === 0) ? { count: 1 } : {};
+    if (!isRecord(particle.trigger)) return { ...particle, ...countProjection };
+    const { probability: _probability, ...trigger } = particle.trigger;
+    return { ...particle, ...countProjection, trigger };
+  }) } : {}), ...(Array.isArray(frozen.hits) ? { hits: frozen.hits.map(hit => {
+    if (!isRecord(hit)) return hit;
+    const { infusion: _infusion, normalHitEnergyTag: _normalHitEnergyTag, attackTag: _attackTag, hitWeakPoint: _hitWeakPoint, snapshotFrame: _snapshotFrame, ...frozenHit } = hit;
+    return { ...frozenHit, ...(Array.isArray(frozenHit.flatSources) ? { flatSources: frozenHit.flatSources.map(source => {
+      if (!isRecord(source)) return source;
+      const { snapshotFrame: _snapshotFrame, ...frozenSource } = source;
+      return frozenSource;
+    }) } : {}) };
+  }) } : {}) };
+};
+
+const stripCurrentAbilityExtensions = (value: unknown): unknown => {
+  if (!isRecord(value)) return value;
+  const { cooldownStartFrame: _cooldownStartFrame, ...action } = value;
+  const cancelFrames = isRecord(value.cancelFrames)
+    ? Object.fromEntries(Object.entries(value.cancelFrames).filter(([kind]) => kind !== "walk" && kind !== "plunge"))
+    : value.cancelFrames;
+  return stripCurrentActionExtensions({
+    ...action,
+    ...(value.kind === "plunge" ? { kind: "normal" } : {}),
+    ...(value.cancelFrames === undefined ? {} : { cancelFrames })
+  });
+};
+
+/** Ephemeral reference projection; the validated current config retains extensions. */
+export function projectCurrentActionExtensionsToFrozen(
+  wire: Record<string, unknown>
+): Record<string, unknown> {
+  const { weaponHitStackModel: _weaponHitStackModel, artifactBuffModel: _artifactBuffModel, stellarArtifactModel: _stellarArtifactModel, moonlightArtifactModel: _moonlightArtifactModel, playerShieldModel: _playerShieldModel, sourceAbilityBindings: _sourceAbilityBindings, artifactDamageModel: _artifactDamageModel, playerMaxHpModel: _playerMaxHpModel, bondOfLifeModel: _bondOfLifeModel, artifactEventModel: _artifactEventModel, nightsoulBurstModel: _nightsoulBurstModel, targetHealthModel: _targetHealthModel, enemyShieldModel: _enemyShieldModel, normalHitEnergyModel: _normalHitEnergyModel, favoniusModel: _favoniusModel, weaponProcModel: _weaponProcModel, thrillingTalesModel: _thrillingTalesModel, sacrificialModel: _sacrificialModel, staminaModel: _staminaModel, ...frozenRoot } = wire;
+  return {
+    ...frozenRoot,
+    ...(Array.isArray(wire.rotation)
+      ? { rotation: wire.rotation.map(stripCurrentActionExtensions) } : {}),
+    ...(isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities)
+      ? { timeline: { ...wire.timeline, abilities: wire.timeline.abilities.map(stripCurrentAbilityExtensions), ...(Array.isArray(wire.timeline.commands) ? { commands: wire.timeline.commands.map(command => {
+          if (!isRecord(command)) return command;
+          if ("sourceNormalChain" in command) { const { sourceNormalChain: _sourceNormalChain, ...frozenCommand } = command; return frozenCommand; }
+          if (command.type === "plunge") return { ...command, type: "normal" };
+          if (command.type !== "dash" && command.type !== "jump" && command.type !== "walk") return command;
+          const { staminaCost: _staminaCost, ...frozenCommand } = command;
+          return { ...frozenCommand, ...(command.type === "walk" ? { type: "jump" } : {}) };
+        }) } : {}) } } : {})
+  };
+}
+
 /** Project the 1.53 callback-bus identity onto frozen 1.52 for common checks. */
 const projectSimConfigV153ToV152 = (
   wire: Record<string, unknown>
@@ -17805,7 +18325,7 @@ const projectSimConfigV153ToV152 = (
     callbackBusModel: _callbackBusModel,
     freezeBrokenAttackModel,
     ...frozenWire
-  } = wire;
+  } = projectCurrentActionExtensionsToFrozen(wire);
   const projectedFreezeBrokenAttackModel =
     isRecord(freezeBrokenAttackModel) &&
     freezeBrokenAttackModel.policyId ===
@@ -17829,6 +18349,499 @@ const simConfigV153ValueSchema = z
   })
   .transform((config, context) => {
     const wire = config as unknown as Record<string, unknown>;
+    const playerMaxHpModel = wire.playerMaxHpModel === undefined ? undefined : playerMaxHpModelSchema.safeParse(wire.playerMaxHpModel);
+    if (playerMaxHpModel?.success === false) for (const issue of playerMaxHpModel.error.issues) context.addIssue({ ...issue, path: ["playerMaxHpModel", ...issue.path] });
+    if (playerMaxHpModel?.success === true && (!isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1" || !isRecord(wire.timeline))) context.addIssue({
+      code: "custom", path: ["playerMaxHpModel"], message: "dynamic max HP requires enabled player HP state and an explicit legal-frame timeline"
+    });
+    const bondOfLifeModel = wire.bondOfLifeModel === undefined ? undefined : bondOfLifeModelSchema.safeParse(wire.bondOfLifeModel);
+    if (bondOfLifeModel?.success === false) for (const issue of bondOfLifeModel.error.issues) context.addIssue({ ...issue, path: ["bondOfLifeModel", ...issue.path] });
+    if (bondOfLifeModel?.success === true) {
+      if (!isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1") context.addIssue({
+        code: "custom", path: ["bondOfLifeModel"], message: "Bond of Life requires reaction-self-v1 player HP state"
+      });
+      if (!isRecord(wire.timeline)) context.addIssue({ code: "custom", path: ["timeline"], message: "Bond of Life requires an explicit frame-native legal timeline" });
+      const actors = new Set<string>();
+      for (const [index, actor] of bondOfLifeModel.data.characters.entries()) {
+        if (actors.has(actor.actorId) || !Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({
+          code: "custom", path: ["bondOfLifeModel", "characters", index, "actorId"], message: "Bond of Life actors must be distinct configured characters"
+        });
+        actors.add(actor.actorId);
+      }
+      if (!Array.isArray(wire.characters) || actors.size !== wire.characters.length) context.addIssue({
+        code: "custom", path: ["bondOfLifeModel", "characters"], message: "Bond of Life requires an explicit initial ratio for every configured character"
+      });
+    }
+    type CurrentActionExtensions = z.output<typeof currentActionExtensionsSchema>;
+    const parseExtensions = (raw: unknown, path: Array<string | number>, ability: boolean): z.output<typeof currentAbilityExtensionsSchema> => {
+      if (!isRecord(raw)) return {};
+      const extensions = Object.fromEntries(["energyCostFrame", "staminaCost", "actionPhase", "conditionalHitGroups", "healthChanges", "periodicEntities", "summons", "statConversions", ...(ability ? ["cooldownStartFrame"] : [])]
+        .filter(field => Object.prototype.hasOwnProperty.call(raw, field))
+        .map(field => [field, raw[field]]));
+      if (ability && raw.kind === "plunge") extensions.kind = "plunge";
+      if (ability && isRecord(raw.cancelFrames) && ("walk" in raw.cancelFrames || "plunge" in raw.cancelFrames)) {
+        extensions.cancelFrames = Object.fromEntries(Object.entries(raw.cancelFrames).filter(([kind]) => kind === "walk" || kind === "plunge"));
+      }
+      const parsedExtensions = (ability ? currentAbilityExtensionsSchema : currentActionExtensionsSchema).safeParse(extensions);
+      if (!parsedExtensions.success) {
+        for (const issue of parsedExtensions.error.issues) {
+          context.addIssue({ ...issue, path: [...path, ...issue.path] });
+        }
+        return {};
+      }
+      if (ability && raw.kind === "plunge") {
+        for (const field of ["requires", "consumes"] as const) {
+          if (!isRecord(raw.timelineState) || !Array.isArray(raw.timelineState[field]) || !raw.timelineState[field].includes("airborne")) context.addIssue({ code: "custom", path: [...path, "timelineState", field], message: "plunge abilities must explicitly require and consume the airborne state" });
+        }
+      }
+      if (ability && isRecord(extensions.cancelFrames)) for (const [kind, cancelFrame] of Object.entries(extensions.cancelFrames)) {
+        if (typeof cancelFrame === "number" && typeof raw.animationEndFrame === "number" && cancelFrame > raw.animationEndFrame) context.addIssue({ code: "custom", path: [...path, "cancelFrames", kind], message: "must not exceed animationEndFrame" });
+      }
+      const healthIds = new Set<string>();
+      for (const [index, change] of (parsedExtensions.data.healthChanges ?? []).entries()) {
+        if (!isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1") {
+          context.addIssue({ code: "custom", path: [...path, "healthChanges", index], message: "explicit health changes require reaction-self-v1 player HP state" });
+        }
+        if ((change.operation === "bond-add" || change.operation === "bond-remove") && bondOfLifeModel?.success !== true) context.addIssue({
+          code: "custom", path: [...path, "healthChanges", index, "operation"], message: "Bond of Life operations require the explicit source-profile model"
+        });
+        if (healthIds.has(change.id)) context.addIssue({ code: "custom", path: [...path, "healthChanges", index, "id"], message: "health change IDs must be unique within one action" });
+        healthIds.add(change.id);
+        const healthTarget = change.target;
+        if (healthTarget.kind === "actor" && (!Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === healthTarget.actorId))) {
+          context.addIssue({ code: "custom", path: [...path, "healthChanges", index, "target", "actorId"], message: "health change target must be a configured actor" });
+        }
+      }
+      const summonIds = new Set<string>();
+      const boundHitIds = new Set<string>();
+      const entityIds = new Set<string>();
+      for (const [entityIndex, entity] of (parsedExtensions.data.periodicEntities ?? []).entries()) {
+        const entityPath = [...path, "periodicEntities", entityIndex];
+        if (entityIds.has(entity.id)) context.addIssue({ code: "custom", path: [...entityPath, "id"], message: "periodic entity IDs must be unique within one action" });
+        entityIds.add(entity.id);
+        if (!isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1") context.addIssue({ code: "custom", path: entityPath, message: "periodic healing entities require enabled player HP state" });
+        for (const [hitIndex, hitId] of entity.hitIds.entries()) {
+          const hit = Array.isArray(raw.hits) ? raw.hits.find(candidate => isRecord(candidate) && candidate.id === hitId) : undefined;
+          if (!isRecord(hit) || boundHitIds.has(hitId)) context.addIssue({ code: "custom", path: [...entityPath, "hitIds", hitIndex], message: "periodic entity hits must reference existing IDs bound to exactly one entity" });
+          else if ((ability ? hit.frame : hit.offset) !== 0 || hit.snapshot !== "hit") context.addIssue({
+            code: "custom", path: [...entityPath, "hitIds", hitIndex], message: "periodic entity hit templates require zero offset and explicit hit snapshot mode; timing comes from the entity"
+          });
+          boundHitIds.add(hitId);
+        }
+      }
+      const conversionKeys = new Set<string>();
+      for (const [index, conversion] of (parsedExtensions.data.statConversions ?? []).entries()) {
+        if (conversionKeys.has(conversion.key)) context.addIssue({ code: "custom", path: [...path, "statConversions", index, "key"], message: "stat conversion keys must be unique within one action" });
+        conversionKeys.add(conversion.key);
+      }
+      for (const [summonIndex, summon] of (parsedExtensions.data.summons ?? []).entries()) {
+        const summonPath = [...path, "summons", summonIndex];
+        if (summonIds.has(summon.id)) context.addIssue({ code: "custom", path: [...summonPath, "id"], message: "summon IDs must be unique within one action" });
+        summonIds.add(summon.id);
+        for (const [hitIndex, hitId] of summon.hitIds.entries()) {
+          const hit = Array.isArray(raw.hits) ? raw.hits.find(candidate => isRecord(candidate) && candidate.id === hitId) : undefined;
+          if (!isRecord(hit) || boundHitIds.has(hitId)) {
+            context.addIssue({ code: "custom", path: [...summonPath, "hitIds", hitIndex], message: "summon hits must reference existing IDs bound to exactly one summon" });
+          } else {
+            const hitFrame = ability ? hit.frame : typeof hit.offset === "number" ? hit.offset * 60 : undefined;
+            const expectedFrame = summon.spawnFrame + summon.lifetimeFrames + summon.expiryAttackDelayFrames;
+            if (typeof hitFrame !== "number" || Math.abs(hitFrame - expectedFrame) > 1e-9) context.addIssue({ code: "custom", path: [...summonPath, "hitIds", hitIndex], message: "summon hit timing must equal spawnFrame + lifetimeFrames + expiryAttackDelayFrames" });
+            if (hit.snapshot !== "action") context.addIssue({ code: "custom", path: [...summonPath, "hitIds", hitIndex], message: "summon hits require explicit action snapshot mode" });
+          }
+          boundHitIds.add(hitId);
+        }
+      }
+      const conditionIds = new Set<string>();
+      for (const [groupIndex, group] of (parsedExtensions.data.conditionalHitGroups ?? []).entries()) {
+        const groupPath = [...path, "conditionalHitGroups", groupIndex];
+        if (conditionIds.has(group.id)) context.addIssue({ code: "custom", path: [...groupPath, "id"], message: "conditional hit group IDs must be unique within one action" });
+        conditionIds.add(group.id);
+        if (!isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1") context.addIssue({ code: "custom", path: groupPath, message: "conditional hit groups require reaction-self-v1 player HP state" });
+        for (const [hitIndex, hitId] of group.hitIds.entries()) {
+          const hit = Array.isArray(raw.hits) ? raw.hits.find(candidate => isRecord(candidate) && candidate.id === hitId) : undefined;
+          if (!isRecord(hit) || boundHitIds.has(hitId)) context.addIssue({ code: "custom", path: [...groupPath, "hitIds", hitIndex], message: "conditional hits must reference existing IDs bound to one group with no entity or summon overlap" });
+          else if (hit.snapshot !== "action") context.addIssue({ code: "custom", path: [...groupPath, "hitIds", hitIndex], message: "conditional hits require explicit action snapshot mode" });
+          boundHitIds.add(hitId);
+        }
+      }
+      return parsedExtensions.data;
+    };
+    const rotationExtensions = Array.isArray(wire.rotation)
+      ? wire.rotation.map((action, index) => parseExtensions(action, ["rotation", index], false)) : [];
+    const abilityExtensions = isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities)
+      ? wire.timeline.abilities.map((ability, index) => parseExtensions(ability, ["timeline", "abilities", index], true)) : [];
+    const currentCommandTypes = isRecord(wire.timeline) && Array.isArray(wire.timeline.commands)
+      ? wire.timeline.commands.map(command => isRecord(command) && (command.type === "walk" || command.type === "plunge") ? command.type : undefined) : [];
+    const normalCommandModes = isRecord(wire.timeline) && Array.isArray(wire.timeline.commands)
+      ? wire.timeline.commands.map((command, index) => {
+          if (!isRecord(command) || command.sourceNormalChain === undefined) return undefined;
+          const parsedMode = z.literal("next-v1").safeParse(command.sourceNormalChain);
+          if (!parsedMode.success || command.type !== "normal") {
+            context.addIssue({ code: "custom", path: ["timeline", "commands", index, "sourceNormalChain"], message: "sourceNormalChain next-v1 is only valid on current normal inputs" });
+            return undefined;
+          }
+          if (!Array.isArray(wire.sourceAbilityBindings) || !wire.sourceAbilityBindings.some(binding => isRecord(binding) && binding.actorId === command.actorId && binding.abilityId === command.abilityId && typeof binding.sourceActionId === "string" && getSourceNormalChainMetadata(binding.sourceActionId) !== undefined)) context.addIssue({ code: "custom", path: ["timeline", "commands", index, "sourceNormalChain"], message: "generic normal input must anchor a source normal-chain ability belonging to its actor" });
+          return parsedMode.data;
+        }) : [];
+    if (playerMaxHpModel?.success === true || bondOfLifeModel?.success === true || [...rotationExtensions, ...abilityExtensions].some(extension => (extension.healthChanges?.length ?? 0) > 0 || (extension.periodicEntities?.length ?? 0) > 0 || (extension.conditionalHitGroups?.length ?? 0) > 0 || extension.actionPhase !== undefined)) {
+      const requireWholeFrame = (value: unknown, path: Array<string | number>): void => {
+        if (typeof value === "number" && Math.abs(value * 60 - Math.round(value * 60)) > 1e-8) context.addIssue({
+          code: "custom", path, message: "action health changes require timing aligned to whole 60 FPS frames"
+        });
+      };
+      requireWholeFrame(wire.duration, ["duration"]);
+      requireWholeFrame(wire.cycleLength, ["cycleLength"]);
+      if (Array.isArray(wire.rotation)) wire.rotation.forEach((action, index) => {
+        if (isRecord(action)) requireWholeFrame(action.at, ["rotation", index, "at"]);
+      });
+      const rejectDynamicHpBuffs = (raw: unknown, path: Array<string | number>): void => {
+        if (!isRecord(raw) || !Array.isArray(raw.buffs)) return;
+        raw.buffs.forEach((buff, index) => {
+          if (playerMaxHpModel?.success !== true && isRecord(buff) && (buff.stat === "hpPct" || buff.stat === "hpFlat")) context.addIssue({
+            code: "custom", path: [...path, "buffs", index, "stat"],
+            message: "dynamic HP buffs with health state require explicit playerMaxHpModel source semantics"
+          });
+        });
+      };
+      if (bondOfLifeModel?.success === true || [...rotationExtensions, ...abilityExtensions].some(extension => (extension.healthChanges?.length ?? 0) > 0 || (extension.periodicEntities?.length ?? 0) > 0 || (extension.conditionalHitGroups?.length ?? 0) > 0)) {
+        if (Array.isArray(wire.rotation)) wire.rotation.forEach((action, index) => rejectDynamicHpBuffs(action, ["rotation", index]));
+        if (isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities)) wire.timeline.abilities.forEach((ability, index) => rejectDynamicHpBuffs(ability, ["timeline", "abilities", index]));
+      }
+    }
+    const parseParticleCounts = (raw: unknown, path: Array<string | number>): Array<z.output<typeof currentParticleCountSchema> | undefined> => {
+      if (!isRecord(raw) || !Array.isArray(raw.particles)) return [];
+      return raw.particles.map((particle, index) => {
+        if (!isRecord(particle)) return undefined;
+        const count = currentParticleCountSchema.safeParse(particle.count);
+        if (count.success) return count.data;
+        for (const issue of count.error.issues) context.addIssue({ ...issue, path: [...path, "particles", index, "count", ...issue.path] });
+        return undefined;
+      });
+    };
+    const rotationParticleCounts = Array.isArray(wire.rotation) ? wire.rotation.map((action, index) => parseParticleCounts(action, ["rotation", index])) : [];
+    const abilityParticleCounts = isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities) ? wire.timeline.abilities.map((ability, index) => parseParticleCounts(ability, ["timeline", "abilities", index])) : [];
+    const parseParticleProbabilities = (raw: unknown, path: Array<string | number>): Array<number | undefined> => {
+      if (!isRecord(raw) || !Array.isArray(raw.particles)) return [];
+      return raw.particles.map((particle, index) => {
+        if (!isRecord(particle) || !isRecord(particle.trigger) || particle.trigger.probability === undefined) return undefined;
+        const probability = finiteNumber.min(0).max(1).safeParse(particle.trigger.probability);
+        if (probability.success) return probability.data;
+        for (const issue of probability.error.issues) context.addIssue({ ...issue, path: [...path, "particles", index, "trigger", "probability", ...issue.path] });
+        return undefined;
+      });
+    };
+    const rotationParticleProbabilities = Array.isArray(wire.rotation) ? wire.rotation.map((action, index) => parseParticleProbabilities(action, ["rotation", index])) : [];
+    const abilityParticleProbabilities = isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities) ? wire.timeline.abilities.map((ability, index) => parseParticleProbabilities(ability, ["timeline", "abilities", index])) : [];
+    const movementCosts = isRecord(wire.timeline) && Array.isArray(wire.timeline.commands)
+      ? wire.timeline.commands.map((command, index) => {
+        if (!isRecord(command) || (command.type !== "dash" && command.type !== "jump" && command.type !== "walk") || command.staminaCost === undefined) return undefined;
+        const cost = staminaCostSchema.safeParse(command.staminaCost);
+        if (!cost.success) {
+          for (const issue of cost.error.issues) context.addIssue({ ...issue, path: ["timeline", "commands", index, "staminaCost", ...issue.path] });
+          return undefined;
+        }
+        return cost.data;
+      }) : [];
+    const targetHealthModel = wire.targetHealthModel === undefined ? undefined : targetHealthModelSchema.safeParse(wire.targetHealthModel);
+    if (targetHealthModel?.success === false) for (const issue of targetHealthModel.error.issues) context.addIssue({ ...issue, path: ["targetHealthModel", ...issue.path] });
+    if (targetHealthModel?.success) {
+      const targetIds = new Set(isRecord(wire.enemy) && Array.isArray(wire.enemy.targets)
+        ? wire.enemy.targets.filter(isRecord).map(target => target.id) : ["enemy-0"]);
+      targetHealthModel.data.targets.forEach((target, index) => {
+        if (!targetIds.has(target.targetId)) context.addIssue({ code: "custom", path: ["targetHealthModel", "targets", index, "targetId"], message: "target HP must reference a configured enemy target" });
+      });
+      const sourceIds = new Set([
+        ...targetHealthModel.data.targets.map(target => `enemy:${target.targetId}`),
+        ...targetHealthModel.data.externalDrops.map(drop => `external:${drop.id}`)
+      ]);
+      if (Array.isArray(wire.characters)) wire.characters.forEach((actor, index) => {
+        if (isRecord(actor) && sourceIds.has(String(actor.id))) context.addIssue({ code: "custom", path: ["characters", index, "id"], message: "character IDs cannot collide with declared particle source namespaces" });
+      });
+    }
+    const enemyShieldModel = wire.enemyShieldModel === undefined ? undefined : enemyShieldModelSchema.safeParse(wire.enemyShieldModel);
+    if (enemyShieldModel?.success === false) for (const issue of enemyShieldModel.error.issues) context.addIssue({ ...issue, path: ["enemyShieldModel", ...issue.path] });
+    if (enemyShieldModel?.success) {
+      if (isRecord(wire.meta) && wire.meta.verificationStatus === "verified") context.addIssue({ code: "custom", path: ["meta", "verificationStatus"], message: "enemy shield formulas use archived provisional KQM evidence; configurations using this model cannot be marked verified" });
+      if (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60) context.addIssue({ code: "custom", path: ["enemyShieldModel"], message: "enemy shields require a legal-frame-v1 timeline at 60 fps" });
+      if (!isRecord(wire.reactionEngine) || wire.reactionEngine.mode !== "aura-v9") context.addIssue({ code: "custom", path: ["enemyShieldModel"], message: "enemy shields require aura-v9 for the shared elemental-application ICD" });
+      if (!isRecord(wire.targetTaskModel) || wire.targetTaskModel.mode !== "target-phase-v2") context.addIssue({ code: "custom", path: ["enemyShieldModel"], message: "enemy shields require target-phase-v2 execution ordering" });
+      if (!isRecord(wire.targetClockModel) || wire.targetClockModel.mode !== "disabled") context.addIssue({ code: "custom", path: ["enemyShieldModel"], message: "enemy shield phase inputs currently require the disabled target clock model" });
+      const targetIds = new Set(isRecord(wire.enemy) && Array.isArray(wire.enemy.targets)
+        ? wire.enemy.targets.filter(isRecord).map(target => target.id) : ["enemy-0"]);
+      enemyShieldModel.data.definitions.forEach((definition, index) => {
+        if (!targetIds.has(definition.targetId)) context.addIssue({ code: "custom", path: ["enemyShieldModel", "definitions", index, "targetId"], message: "enemy shields must reference a configured enemy target" });
+        const health = targetHealthModel?.success ? targetHealthModel.data.targets.find(target => target.targetId === definition.targetId) : undefined;
+        if (health !== undefined && health.maxHp !== definition.targetMaxHp) context.addIssue({ code: "custom", path: ["enemyShieldModel", "definitions", index, "targetMaxHp"], message: "enemy shield maximum HP must equal the declared target health maximum" });
+      });
+    }
+    const staminaModel = wire.staminaModel === undefined ? undefined : staminaModelSchema.safeParse(wire.staminaModel);
+    if (staminaModel?.success === false) for (const issue of staminaModel.error.issues) context.addIssue({ ...issue, path: ["staminaModel", ...issue.path] });
+    if (staminaModel?.success && (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60)) {
+      context.addIssue({ code: "custom", path: ["staminaModel"], message: "shared stamina requires a legal-frame-v1 timeline at 60 fps" });
+    }
+    if (wire.staminaModel === undefined && (rotationExtensions.some(extension => extension.staminaCost !== undefined) || abilityExtensions.some(extension => extension.staminaCost !== undefined) || movementCosts.some(cost => cost !== undefined))) {
+      context.addIssue({ code: "custom", path: ["staminaModel"], message: "explicit stamina costs require the shared stamina model" });
+    }
+    if (staminaModel?.success && isRecord(wire.timeline)) {
+      if (Array.isArray(wire.timeline.abilities)) wire.timeline.abilities.forEach((ability, index) => {
+        if (isRecord(ability) && ability.staminaCost === undefined) context.addIssue({ code: "custom", path: ["timeline", "abilities", index, "staminaCost"], message: "shared stamina requires an explicit cost for every ability, including zero-cost actions" });
+      });
+      if (Array.isArray(wire.timeline.commands)) wire.timeline.commands.forEach((command, index) => {
+        if (isRecord(command) && (command.type === "dash" || command.type === "jump" || command.type === "walk") && command.staminaCost === undefined) context.addIssue({ code: "custom", path: ["timeline", "commands", index, "staminaCost"], message: "shared stamina requires an explicit movement cost, including zero-cost movements" });
+      });
+    }
+    const conversionKeysByActor = new Map<string, Set<string>>();
+    const recordConversionKeys = (raw: unknown, extensions: CurrentActionExtensions | undefined): void => {
+      if (!isRecord(raw) || typeof raw.actorId !== "string") return;
+      const keys = conversionKeysByActor.get(raw.actorId) ?? new Set<string>();
+      for (const conversion of extensions?.statConversions ?? []) keys.add(conversion.key);
+      conversionKeysByActor.set(raw.actorId, keys);
+    };
+    if (Array.isArray(wire.rotation)) wire.rotation.forEach((action, index) => recordConversionKeys(action, rotationExtensions[index]));
+    if (isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities)) wire.timeline.abilities.forEach((ability, index) => recordConversionKeys(ability, abilityExtensions[index]));
+    const parseHitExtensions = (raw: unknown, path: Array<string | number>) => {
+      if (!isRecord(raw) || !Array.isArray(raw.hits)) return [];
+      return raw.hits.map((hit, index) => {
+        if (!isRecord(hit)) return {};
+        const extension = Object.fromEntries(["infusion", "normalHitEnergyTag", "attackTag", "hitWeakPoint", "snapshotFrame", "flatSources"].filter(field => Object.prototype.hasOwnProperty.call(hit, field)).map(field => [field, hit[field]]));
+        const parsedHit = currentHitExtensionsSchema.safeParse(extension);
+        if (!parsedHit.success) {
+          for (const issue of parsedHit.error.issues) context.addIssue({ ...issue, path: [...path, "hits", index, ...issue.path] });
+          return {};
+        }
+        const sampleFrames = [parsedHit.data.snapshotFrame, ...(parsedHit.data.flatSources ?? []).map(source => source.snapshotFrame)].filter((frame): frame is number => frame !== undefined);
+        if (sampleFrames.length > 0) {
+          const hitFrame = typeof hit.frame === "number" ? hit.frame : typeof hit.offset === "number" ? Math.round(hit.offset * 60) : -1;
+          if (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60) context.addIssue({ code: "custom", path: [...path, "hits", index, "snapshotFrame"], message: "explicit source sampling requires a 60 fps legal-frame timeline" });
+          if (sampleFrames.some(frame => frame > hitFrame)) context.addIssue({ code: "custom", path: [...path, "hits", index, "snapshotFrame"], message: "source sampling must occur no later than delivery" });
+          if ([...(Array.isArray(raw.summons) ? raw.summons : []), ...(Array.isArray(raw.periodicEntities) ? raw.periodicEntities : [])].some(entity => isRecord(entity) && Array.isArray(entity.hitIds) && entity.hitIds.includes(hit.id))) context.addIssue({ code: "custom", path: [...path, "hits", index, "snapshotFrame"], message: "explicit source samples are supported on ordinary action hits; summoned and periodic entities keep their declared sampling lifecycle" });
+        }
+        if (parsedHit.data.hitWeakPoint === true && hit.critEligible === false) context.addIssue({ code: "custom", path: [...path, "hits", index, "critEligible"], message: "a weak-point hit cannot disable critical damage" });
+        const infusion = parsedHit.data.infusion;
+        if (infusion !== undefined) {
+          if (typeof raw.actorId !== "string" || !conversionKeysByActor.get(raw.actorId)?.has(infusion.statusKey)) context.addIssue({ code: "custom", path: [...path, "hits", index, "infusion", "statusKey"], message: "infusion must reference a stat conversion declared for the source actor" });
+          const selector = infusion.application.icd;
+          if (selector.mode === "legacy-boolean-profile-v1") {
+            const engine = isRecord(wire.reactionEngine) ? wire.reactionEngine : undefined;
+            if (selector.profileId === "burning" && engine !== undefined && ["aura-v4", "aura-v5", "aura-v6", "aura-v7", "aura-v8", "aura-v9"].includes(String(engine.mode))) context.addIssue({ code: "custom", path: [...path, "hits", index, "infusion", "application", "icd", "profileId"], message: "configured infusion cannot share the reaction-owned Burning application stream" });
+            if (selector.profileId !== "default" && selector.profileId !== "burning" && !(engine !== undefined && isRecord(engine.icdProfiles) && Object.prototype.hasOwnProperty.call(engine.icdProfiles, selector.profileId))) context.addIssue({ code: "custom", path: [...path, "hits", index, "infusion", "application", "icd", "profileId"], message: `unknown legacy boolean ICD profile "${selector.profileId}"` });
+          }
+        }
+        return parsedHit.data;
+      });
+    };
+    const rotationHitExtensions = Array.isArray(wire.rotation) ? wire.rotation.map((action, index) => parseHitExtensions(action, ["rotation", index])) : [];
+    const abilityHitExtensions = isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities) ? wire.timeline.abilities.map((ability, index) => parseHitExtensions(ability, ["timeline", "abilities", index])) : [];
+    const favoniusModel = wire.favoniusModel === undefined ? undefined : favoniusModelSchema.safeParse(wire.favoniusModel);
+    if (favoniusModel?.success === false) for (const issue of favoniusModel.error.issues) context.addIssue({ ...issue, path: ["favoniusModel", ...issue.path] });
+    if (favoniusModel?.success) {
+      const actors = new Set<string>();
+      for (const [index, actor] of favoniusModel.data.actors.entries()) {
+        if (actors.has(actor.actorId) || !Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({ code: "custom", path: ["favoniusModel", "actors", index, "actorId"], message: "Favonius actors must be distinct configured characters" });
+        actors.add(actor.actorId);
+      }
+    }
+    const normalHitModel = wire.normalHitEnergyModel === undefined ? undefined : normalHitEnergyModelSchema.safeParse(wire.normalHitEnergyModel);
+    if (normalHitModel?.success === false) for (const issue of normalHitModel.error.issues) context.addIssue({ ...issue, path: ["normalHitEnergyModel", ...issue.path] });
+    if (normalHitModel?.success === true) {
+      const actors = new Set<string>();
+      for (const [index, actor] of normalHitModel.data.actors.entries()) {
+        if (actors.has(actor.actorId) || !Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({ code: "custom", path: ["normalHitEnergyModel", "actors", index, "actorId"], message: "normal-hit energy actors must be distinct configured characters" });
+        actors.add(actor.actorId);
+      }
+      if (Array.isArray(wire.characters) && actors.size !== wire.characters.length) context.addIssue({ code: "custom", path: ["normalHitEnergyModel", "actors"], message: "normal-hit energy model must declare the weapon type of every configured character" });
+    }
+    const weaponProcModel = wire.weaponProcModel === undefined ? undefined : weaponProcModelSchema.safeParse(wire.weaponProcModel);
+    if (weaponProcModel?.success === false) for (const issue of weaponProcModel.error.issues) context.addIssue({ ...issue, path: ["weaponProcModel", ...issue.path] });
+    if (weaponProcModel?.success === true) {
+      if (!isRecord(wire.timeline) && weaponProcModel.data.actors.some(actor => ["flute", "debateclub", "crescentpike", "endoftheline", "theviridescenthunt", "swordofnarzissenkreuz", "eyeofperception"].includes(actor.weaponId))) {
+        context.addIssue({ code: "custom", path: ["weaponProcModel"], message: "stateful, delayed, and multi-hit weapon procs require an explicit legal timeline" });
+      }
+      if (wire.reactionEngine === undefined && weaponProcModel.data.actors.some(actor => ["snowtombedstarsilver", "dragonspinespear", "frostbearer"].includes(actor.weaponId))) {
+        context.addIssue({ code: "custom", path: ["reactionEngine"], message: "frost weapon procs require an explicit Aura reaction engine to read Cryo and Frozen state" });
+      }
+      if (weaponProcModel.data.actors.some(actor => actor.weaponId !== "halberd" && actor.weaponId !== "filletblade" && actor.weaponId !== "crescentpike" && actor.weaponId !== "messenger") &&
+          (!isRecord(wire.enemy) || !Array.isArray(wire.enemy.targets) || wire.enemy.targets.length === 0 ||
+            wire.enemy.targets.some(target => !isRecord(target) || !isRecord(target.position)))) {
+        context.addIssue({ code: "custom", path: ["enemy", "targets"], message: "independent weapon circle attacks require every enemy target's explicit position" });
+      }
+      if (weaponProcModel.data.actors.some(actor => actor.weaponId === "eyeofperception") &&
+          (!Array.isArray(wire.actorPoses) || !Array.isArray(wire.characters) || wire.characters.some(character => !isRecord(character) ||
+            !(Array.isArray(wire.actorPoses) && wire.actorPoses.some(pose => isRecord(pose) && pose.actorId === character.id && isRecord(pose.position)))))) {
+        context.addIssue({ code: "custom", path: ["actorPoses"], message: "Eye of Perception initial target selection requires every possible active player's explicit position" });
+      }
+      const actors = new Set<string>();
+      const weaponTypes = {
+        halberd: "polearm", ashgravendrinkinghorn: "catalyst", sequenceofsolitude: "bow",
+        filletblade: "sword", prototypearchaic: "claymore", snowtombedstarsilver: "claymore",
+        dragonspinespear: "polearm", frostbearer: "catalyst",
+        flute: "sword", debateclub: "claymore", crescentpike: "polearm", endoftheline: "bow", messenger: "bow",
+        theviridescenthunt: "bow", swordofnarzissenkreuz: "sword", eyeofperception: "catalyst"
+      } as const;
+      for (const [index, actor] of weaponProcModel.data.actors.entries()) {
+        if (actors.has(actor.actorId) || !Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({ code: "custom", path: ["weaponProcModel", "actors", index, "actorId"], message: "weapon proc actors must be distinct configured characters" });
+        actors.add(actor.actorId);
+        if (favoniusModel?.success && favoniusModel.data.actors.some(favoniusActor => favoniusActor.actorId === actor.actorId)) context.addIssue({ code: "custom", path: ["weaponProcModel", "actors", index, "actorId"], message: "an actor cannot equip both a Favonius weapon and an independent proc weapon" });
+        const declaredWeaponType = normalHitModel?.success ? normalHitModel.data.actors.find(normalHitActor => normalHitActor.actorId === actor.actorId)?.weaponType : undefined;
+        if (declaredWeaponType !== undefined && declaredWeaponType !== weaponTypes[actor.weaponId]) context.addIssue({ code: "custom", path: ["weaponProcModel", "actors", index, "weaponId"], message: "proc weapon must match the actor's explicitly declared normal-hit energy weapon type" });
+      }
+    }
+    const thrillingTalesModel = wire.thrillingTalesModel === undefined ? undefined : thrillingTalesModelSchema.safeParse(wire.thrillingTalesModel);
+    if (thrillingTalesModel?.success === false) for (const issue of thrillingTalesModel.error.issues) context.addIssue({ ...issue, path: ["thrillingTalesModel", ...issue.path] });
+    if (thrillingTalesModel?.success === true) {
+      const actors = new Set<string>();
+      for (const [index, actor] of thrillingTalesModel.data.actors.entries()) {
+        if (actors.has(actor.actorId) || !Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({ code: "custom", path: ["thrillingTalesModel", "actors", index, "actorId"], message: "Thrilling Tales actors must be distinct configured characters" });
+        actors.add(actor.actorId);
+        if ((favoniusModel?.success && favoniusModel.data.actors.some(favoniusActor => favoniusActor.actorId === actor.actorId)) || (weaponProcModel?.success && weaponProcModel.data.actors.some(procActor => procActor.actorId === actor.actorId))) context.addIssue({ code: "custom", path: ["thrillingTalesModel", "actors", index, "actorId"], message: "an actor cannot equip Thrilling Tales together with another modeled weapon" });
+        const declaredWeaponType = normalHitModel?.success ? normalHitModel.data.actors.find(normalHitActor => normalHitActor.actorId === actor.actorId)?.weaponType : undefined;
+        if (declaredWeaponType !== undefined && declaredWeaponType !== "catalyst") context.addIssue({ code: "custom", path: ["thrillingTalesModel", "actors", index, "actorId"], message: "Thrilling Tales requires the actor's explicitly declared normal-hit energy weapon type to be catalyst" });
+      }
+    }
+    const sacrificialModel = wire.sacrificialModel === undefined ? undefined : sacrificialModelSchema.safeParse(wire.sacrificialModel);
+    if (sacrificialModel?.success === false) for (const issue of sacrificialModel.error.issues) context.addIssue({ ...issue, path: ["sacrificialModel", ...issue.path] });
+    if (sacrificialModel?.success === true) {
+      if (!isRecord(wire.timeline)) context.addIssue({ code: "custom", path: ["sacrificialModel"], message: "Sacrificial weapons require an explicit legal timeline" });
+      const actors = new Set<string>();
+      const weaponTypes = { sacrificialsword: "sword", sacrificialgreatsword: "claymore", sacrificialbow: "bow", sacrificialfragments: "catalyst" } as const;
+      for (const [index, actor] of sacrificialModel.data.actors.entries()) {
+        if (actors.has(actor.actorId) || !Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({ code: "custom", path: ["sacrificialModel", "actors", index, "actorId"], message: "Sacrificial actors must be distinct configured characters" });
+        actors.add(actor.actorId);
+        if ((favoniusModel?.success && favoniusModel.data.actors.some(otherActor => otherActor.actorId === actor.actorId)) || (weaponProcModel?.success && weaponProcModel.data.actors.some(otherActor => otherActor.actorId === actor.actorId)) || (thrillingTalesModel?.success && thrillingTalesModel.data.actors.some(otherActor => otherActor.actorId === actor.actorId))) context.addIssue({ code: "custom", path: ["sacrificialModel", "actors", index, "actorId"], message: "an actor cannot equip a Sacrificial weapon together with another modeled weapon" });
+        const declaredWeaponType = normalHitModel?.success ? normalHitModel.data.actors.find(normalHitActor => normalHitActor.actorId === actor.actorId)?.weaponType : undefined;
+        if (declaredWeaponType !== undefined && declaredWeaponType !== weaponTypes[actor.weaponId]) context.addIssue({ code: "custom", path: ["sacrificialModel", "actors", index, "weaponId"], message: "Sacrificial weapon must match the actor's explicitly declared normal-hit energy weapon type" });
+      }
+    }
+    const weaponHitStackModel = wire.weaponHitStackModel === undefined ? undefined : weaponHitStackModelSchema.safeParse(wire.weaponHitStackModel);
+    if (weaponHitStackModel?.success === false) for (const issue of weaponHitStackModel.error.issues) context.addIssue({ ...issue, path: ["weaponHitStackModel", ...issue.path] });
+    if (weaponHitStackModel?.success) {
+      if (isRecord(wire.meta) && wire.meta.verificationStatus === "verified") context.addIssue({ code: "custom", path: ["meta", "verificationStatus"], message: "fixed-source weapon stack mechanics are provisional, not verified current-game mechanics" });
+      if (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60) context.addIssue({ code: "custom", path: ["weaponHitStackModel"], message: "weapon stack lifecycles require a 60 fps legal timeline" });
+      for (const [index, actor] of weaponHitStackModel.data.actors.entries()) {
+        if (!Array.isArray(wire.characters) || !wire.characters.some(character => isRecord(character) && character.id === actor.actorId)) context.addIssue({ code: "custom", path: ["weaponHitStackModel", "actors", index, "actorId"], message: "weapon stack holder must be a configured character" });
+        if ([favoniusModel, weaponProcModel, thrillingTalesModel, sacrificialModel].some(other => other?.success && other.data.actors.some(holder => holder.actorId === actor.actorId))) context.addIssue({ code: "custom", path: ["weaponHitStackModel", "actors", index], message: "an actor cannot equip a stack weapon and another modeled weapon" });
+        const declaredType = normalHitModel?.success ? normalHitModel.data.actors.find(holder => holder.actorId === actor.actorId)?.weaponType : undefined;
+        if (actor.weaponId === "weapon:11406" || actor.weaponId === "weapon:12407") {
+          const owners = [...(Array.isArray(wire.rotation) ? wire.rotation : []), ...(isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities) ? wire.timeline.abilities : [])];
+          if (owners.some(owner => isRecord(owner) && owner.actorId === actor.actorId && Array.isArray(owner.hits) && owner.hits.some(hit => isRecord(hit) && hit.attackTag === undefined))) context.addIssue({ code: "custom", path: ["weaponHitStackModel", "actors", index], message: "Rancour/Whiteblind require explicit attackTag on every holder hit; unknown must not silently mean ineligible" });
+        }
+        if (declaredType !== undefined && declaredType !== weaponHitStackWeaponType(actor.weaponId)) context.addIssue({ code: "custom", path: ["weaponHitStackModel", "actors", index, "weaponId"], message: "stack weapon must match the declared weapon type" });
+      }
+    }
+    const artifactEventModel = wire.artifactEventModel === undefined ? undefined : artifactEventModelSchema.safeParse(wire.artifactEventModel);
+    if (artifactEventModel?.success === false) for (const issue of artifactEventModel.error.issues) context.addIssue({ ...issue, path: ["artifactEventModel", ...issue.path] });
+    const nightsoulBurstModel = wire.nightsoulBurstModel === undefined ? undefined : nightsoulBurstModelSchema.safeParse(wire.nightsoulBurstModel);
+    if (nightsoulBurstModel?.success === false) for (const issue of nightsoulBurstModel.error.issues) context.addIssue({ ...issue, path: ["nightsoulBurstModel", ...issue.path] });
+    const artifactPartyIds = new Set(Array.isArray(wire.characters) ? wire.characters.filter(isRecord).map(character => character.id) : []);
+    const playerShieldModel = wire.playerShieldModel === undefined ? undefined : playerShieldModelSchema.safeParse(wire.playerShieldModel);
+    if (playerShieldModel?.success === false) for (const issue of playerShieldModel.error.issues) context.addIssue({ ...issue, path: ["playerShieldModel", ...issue.path] });
+    if (playerShieldModel?.success) {
+      if (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60 || !isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1") context.addIssue({ code: "custom", path: ["playerShieldModel"], message: "player shields require a 60 fps legal timeline and enabled player HP state" });
+      const actors = new Set(Array.isArray(wire.characters) ? wire.characters.filter(isRecord).map(actor => actor.id) : []);
+      playerShieldModel.data.events.forEach((event, index) => {
+        if (event.kind === "grant" && !actors.has(event.ownerId) || "target" in event && event.target.kind === "actor" && !actors.has(event.target.actorId)) context.addIssue({ code: "custom", path: ["playerShieldModel", "events", index], message: "shield owners and designated targets must be configured characters" });
+      });
+      if (playerShieldModel.data.events.some(event => event.kind === "incoming-hit") && isRecord(wire.timeline) && Array.isArray(wire.timeline.commands) && wire.timeline.commands.some(command => isRecord(command) && command.type === "pickUpCrystallize")) context.addIssue({ code: "custom", path: ["playerShieldModel", "events"], message: "explicit incoming hits and Crystallize pickup currently lack a shared crystal damage-event link; reaction self-damage still supports parallel shields" });
+    }
+    const sourceAbilityBindings = wire.sourceAbilityBindings === undefined ? undefined : z.array(sourceAbilityBindingSchema).min(1).safeParse(wire.sourceAbilityBindings);
+    if (sourceAbilityBindings?.success === false) for (const issue of sourceAbilityBindings.error.issues) context.addIssue({ ...issue, path: ["sourceAbilityBindings", ...issue.path] });
+    if (sourceAbilityBindings?.success) {
+      const boundAbilities = new Set<string>();
+      const abilities = isRecord(wire.timeline) && Array.isArray(wire.timeline.abilities) ? wire.timeline.abilities : [];
+      sourceAbilityBindings.data.forEach((binding, index) => {
+        if (boundAbilities.has(binding.abilityId) || !abilities.some(ability => isRecord(ability) && ability.id === binding.abilityId && ability.actorId === binding.actorId)) context.addIssue({ code: "custom", path: ["sourceAbilityBindings", index], message: "source bindings must identify distinct configured abilities and their actual actors" });
+        boundAbilities.add(binding.abilityId);
+      });
+    }
+    const artifactBuffModel = wire.artifactBuffModel === undefined ? undefined : artifactBuffModelSchema.safeParse(wire.artifactBuffModel);
+    if (artifactBuffModel?.success === false) for (const issue of artifactBuffModel.error.issues) context.addIssue({ ...issue, path: ["artifactBuffModel", ...issue.path] });
+    if (artifactBuffModel?.success) {
+      const timeline = isRecord(wire.timeline) ? wire.timeline : undefined;
+      const otherArtifacts = [wire.artifactEventModel, wire.artifactDamageModel].filter(isRecord).flatMap(model => Array.isArray(model.actors) ? model.actors.filter(isRecord).map(actor => String(actor.actorId)) : []);
+      const sources = [...(Array.isArray(wire.rotation) ? wire.rotation : []), ...(Array.isArray(timeline?.abilities) ? timeline.abilities : [])].filter(isRecord);
+      const reasons = artifactBuffConfigurationIssues(artifactBuffModel.data, {
+        characterIds: [...artifactPartyIds].filter((id): id is string => typeof id === "string"),
+        hasLegalTimeline: timeline?.mode === "legal-frame-v1" && timeline.fps === 60,
+        hasOrdinaryAura: isRecord(wire.reactionEngine) && typeof wire.reactionEngine.mode === "string" && wire.reactionEngine.mode.startsWith("aura-v") && wire.reactionEngine.debugAllowReactionOverride !== true,
+        hasBondOfLife: wire.bondOfLifeModel !== undefined,
+        hasPlayerHealth: isRecord(wire.playerDamageModel) && wire.playerDamageModel.mode === "reaction-self-v1",
+        otherArtifactHolderIds: otherArtifacts,
+        manuallyDeclaredBuffKeys: sources.flatMap(source => Array.isArray(source.buffs) ? source.buffs.filter(isRecord).map(buff => String(buff.key)) : []),
+      });
+      for (const message of reasons) context.addIssue({ code: "custom", path: ["artifactBuffModel"], message });
+      for (const actor of artifactBuffModel.data.actors) {
+        if (actor.effectId !== "noblesse-4pc") continue;
+        const binding = sourceAbilityBindings?.success ? sourceAbilityBindings.data.find(row => row.actorId === actor.actorId) : undefined;
+        if (binding === undefined) continue;
+        const characterKey = binding.sourceActionId.split("-")[0]!;
+        const sourceDelay = (ARTIFACT_BUFF_SOURCE.noblesseDelayedCharacterKeys as readonly string[]).includes(characterKey) ? 1 : 0;
+        if (actor.noblesseSelfDelayFrames !== sourceDelay) context.addIssue({ code: "custom", path: ["artifactBuffModel", "actors"], message: `${actor.actorId}: 已绑定来源能力的宗室自身延迟必须为 ${sourceDelay} 帧` });
+      }
+    }
+    const moonlightArtifactModel = wire.moonlightArtifactModel === undefined ? undefined : moonlightArtifactModelSchema.safeParse(wire.moonlightArtifactModel);
+    if (moonlightArtifactModel?.success === false) for (const issue of moonlightArtifactModel.error.issues) context.addIssue({ ...issue, path: ["moonlightArtifactModel", ...issue.path] });
+    if (moonlightArtifactModel?.success) {
+      if (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60) context.addIssue({ code: "custom", path: ["moonlightArtifactModel"], message: "Moonlight artifact callbacks require a 60 fps legal timeline" });
+      if (isRecord(wire.meta) && wire.meta.verificationStatus === "verified") context.addIssue({ code: "custom", path: ["meta", "verificationStatus"], message: "fixed-source Moonlight artifact mechanics remain provisional" });
+      const otherArtifacts = [wire.artifactBuffModel, wire.artifactDamageModel, wire.artifactEventModel, wire.stellarArtifactModel].filter(isRecord).flatMap(model => Array.isArray(model.actors) ? model.actors.filter(isRecord).map(actor => actor.actorId) : []);
+      moonlightArtifactModel.data.actors.forEach((actor, index) => {
+        if (!artifactPartyIds.has(actor.actorId)) context.addIssue({ code: "custom", path: ["moonlightArtifactModel", "actors", index, "actorId"], message: "Moonlight artifact holder must be a configured character" });
+        if (otherArtifacts.includes(actor.actorId)) context.addIssue({ code: "custom", path: ["moonlightArtifactModel", "actors", index, "actorId"], message: "one actor cannot equip another modeled artifact set" });
+      });
+    }
+    const stellarArtifactModel = wire.stellarArtifactModel === undefined ? undefined : stellarArtifactModelSchema.safeParse(wire.stellarArtifactModel);
+    if (stellarArtifactModel?.success === false) for (const issue of stellarArtifactModel.error.issues) context.addIssue({ ...issue, path: ["stellarArtifactModel", ...issue.path] });
+    if (stellarArtifactModel?.success) {
+      if (!isRecord(wire.timeline) || wire.timeline.mode !== "legal-frame-v1" || wire.timeline.fps !== 60) context.addIssue({ code: "custom", path: ["stellarArtifactModel"], message: "stellar artifact callbacks require a 60 fps legal timeline" });
+      if (isRecord(wire.meta) && wire.meta.verificationStatus === "verified") context.addIssue({ code: "custom", path: ["meta", "verificationStatus"], message: "fixed-source stellar artifact mechanics are provisional" });
+      const otherArtifacts = [wire.artifactBuffModel, wire.artifactDamageModel, wire.artifactEventModel].filter(isRecord).flatMap(model => Array.isArray(model.actors) ? model.actors.filter(isRecord).map(actor => actor.actorId) : []);
+      stellarArtifactModel.data.actors.forEach((actor, index) => {
+        if (!artifactPartyIds.has(actor.actorId)) context.addIssue({ code: "custom", path: ["stellarArtifactModel", "actors", index, "actorId"], message: "stellar artifact holder must be a configured character" });
+        if (otherArtifacts.includes(actor.actorId)) context.addIssue({ code: "custom", path: ["stellarArtifactModel", "actors", index, "actorId"], message: "one actor cannot equip another modeled artifact set" });
+      });
+    }
+    const artifactDamageModel = wire.artifactDamageModel === undefined ? undefined : artifactDamageModelSchema.safeParse(wire.artifactDamageModel);
+    if (artifactDamageModel?.success === false) for (const issue of artifactDamageModel.error.issues) context.addIssue({ ...issue, path: ["artifactDamageModel", ...issue.path] });
+    if (artifactDamageModel?.success) {
+      if (!isRecord(wire.timeline)) context.addIssue({ code: "custom", path: ["artifactDamageModel"], message: "artifact damage effects require an explicit legal timeline" });
+      const holders = new Set<string>();
+      artifactDamageModel.data.actors.forEach((actor, index) => {
+        if (holders.has(actor.actorId) || !artifactPartyIds.has(actor.actorId)) context.addIssue({ code: "custom", path: ["artifactDamageModel", "actors", index, "actorId"], message: "artifact damage holders must be distinct configured characters" });
+        if (actor.effectId === "song-of-days-past-4pc" && (!isRecord(wire.playerDamageModel) || wire.playerDamageModel.mode !== "reaction-self-v1")) context.addIssue({
+          code: "custom", path: ["artifactDamageModel", "actors", index, "effectId"], message: "Song of Days Past requires an explicit reaction-self-v1 healing ledger"
+        });
+        if (artifactEventModel?.success && artifactEventModel.data.actors.some(other => other.actorId === actor.actorId)) context.addIssue({
+          code: "custom", path: ["artifactDamageModel", "actors", index, "actorId"], message: "one actor cannot equip this four-piece set together with another modeled artifact set"
+        });
+        holders.add(actor.actorId);
+      });
+    }
+    if (artifactEventModel?.success) {
+      if (!isRecord(wire.timeline)) context.addIssue({ code: "custom", path: ["artifactEventModel"], message: "artifact event effects require an explicit legal timeline" });
+      const holders = new Set<string>();
+      artifactEventModel.data.actors.forEach((actor, index) => {
+        if (holders.has(actor.actorId) || !artifactPartyIds.has(actor.actorId)) context.addIssue({ code: "custom", path: ["artifactEventModel", "actors", index, "actorId"], message: "artifact event holders must be distinct configured characters" });
+        holders.add(actor.actorId);
+        if (actor.effectId === "gambler-4pc" && (!targetHealthModel?.success || targetHealthModel.data.targets.length === 0)) context.addIssue({ code: "custom", path: ["artifactEventModel", "actors", index, "effectId"], message: "Gambler requires declared target HP to establish actual kills" });
+        if (actor.effectId === "scroll-2pc" && !nightsoulBurstModel?.success) context.addIssue({ code: "custom", path: ["artifactEventModel", "actors", index, "effectId"], message: "Scroll requires an explicit Nightsoul Burst model" });
+      });
+      const recipients = new Set<string>();
+      artifactEventModel.data.partyWeaponTypes?.forEach((recipient, index) => {
+        if (recipients.has(recipient.actorId) || !artifactPartyIds.has(recipient.actorId)) context.addIssue({ code: "custom", path: ["artifactEventModel", "partyWeaponTypes", index, "actorId"], message: "artifact weapon declarations must reference distinct configured characters" });
+        recipients.add(recipient.actorId);
+        const declaredType = normalHitModel?.success ? normalHitModel.data.actors.find(actor => actor.actorId === recipient.actorId)?.weaponType : undefined;
+        if (declaredType !== undefined && declaredType !== recipient.weaponType) context.addIssue({ code: "custom", path: ["artifactEventModel", "partyWeaponTypes", index, "weaponType"], message: "artifact and normal-hit energy models must agree on each character's weapon type" });
+      });
+      if ((artifactEventModel.data.partyWeaponTypes !== undefined || artifactEventModel.data.actors.some(actor => actor.effectId === "scholar-4pc")) && recipients.size !== artifactPartyIds.size) context.addIssue({ code: "custom", path: ["artifactEventModel", "partyWeaponTypes"], message: "Scholar must explicitly declare the weapon type of every party member" });
+    }
+    if (nightsoulBurstModel?.success) {
+      if (!isRecord(wire.timeline)) context.addIssue({ code: "custom", path: ["nightsoulBurstModel"], message: "Nightsoul Burst requires an explicit legal timeline" });
+      const participants = new Set<string>();
+      nightsoulBurstModel.data.natlanActorIds.forEach((actorId, index) => {
+        if (participants.has(actorId) || !artifactPartyIds.has(actorId)) context.addIssue({ code: "custom", path: ["nightsoulBurstModel", "natlanActorIds", index], message: "Natlan participants must be distinct configured characters" });
+        participants.add(actorId);
+      });
+    }
     if (wire.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION) {
       context.addIssue({
         code: "custom",
@@ -17914,6 +18927,64 @@ const simConfigV153ValueSchema = z
         context.addIssue({ ...issue, path: issue.path });
       }
     }
+    if (parsed.success) {
+      const abilitiesById = new Map(parsed.data.timeline?.abilities.map((ability, index) => [ability.id, { ability, kind: abilityExtensions[index]?.kind ?? ability.kind }]));
+      parsed.data.timeline?.commands.forEach((command, index) => {
+        if (!("abilityId" in command)) return;
+        const ability = abilitiesById.get(command.abilityId);
+        const commandType = currentCommandTypes[index] ?? command.type;
+        if (ability !== undefined && (ability.kind === "plunge" || commandType === "plunge") && ability.kind !== commandType) context.addIssue({ code: "custom", path: ["timeline", "commands", index, "type"], message: `ability "${command.abilityId}" is kind "${ability.kind}"` });
+      });
+      const messengerActors = new Set(weaponProcModel?.success ? weaponProcModel.data.actors.filter(actor => actor.weaponId === "messenger").map(actor => actor.actorId) : []);
+      const requireMessengerWeakPoint = (action: { actorId: string; hits?: unknown[] | undefined }, extensions: Array<{ hitWeakPoint?: boolean | undefined }> | undefined, path: Array<string | number>): void => {
+        if (!messengerActors.has(action.actorId)) return;
+        action.hits?.forEach((_hit, index) => {
+          if (extensions?.[index]?.hitWeakPoint === undefined) context.addIssue({ code: "custom", path: [...path, "hits", index, "hitWeakPoint"], message: "every configured hit of a Messenger holder must explicitly declare hitWeakPoint" });
+        });
+      };
+      parsed.data.rotation.forEach((action, index) => requireMessengerWeakPoint(action, rotationHitExtensions[index], ["rotation", index]));
+      parsed.data.timeline?.abilities.forEach((ability, index) => requireMessengerWeakPoint(ability, abilityHitExtensions[index], ["timeline", "abilities", index]));
+      const runtimeCooldownActors = getRuntimeSkillCooldownActors({
+        ...(parsed.data.timeline === undefined ? {} : { timeline: {
+          ...parsed.data.timeline,
+          abilities: parsed.data.timeline.abilities.map((ability, index) => {
+            const cooldownStartFrame = abilityExtensions[index]?.cooldownStartFrame;
+            return { ...ability, ...(cooldownStartFrame === undefined ? {} : { cooldownStartFrame }) };
+          })
+        } }),
+        ...(sacrificialModel?.success ? { sacrificialModel: sacrificialModel.data } : {}),
+        ...(artifactEventModel?.success ? { artifactEventModel: artifactEventModel.data } : {})
+      });
+      parsed.data.timeline?.abilities.forEach((ability, index) => {
+        if (abilityExtensions[index]?.cooldownStartFrame !== undefined && ability.kind !== "skill") context.addIssue({ code: "custom", path: ["timeline", "abilities", index, "cooldownStartFrame"], message: "cooldownStartFrame is supported only for a skill ability" });
+        if (ability.kind === "skill" && runtimeCooldownActors.has(ability.actorId)) {
+          if ((ability.chargeRecoveryFrames ?? ability.cooldownFrames) <= 0) context.addIssue({ code: "custom", path: ["timeline", "abilities", index, ability.chargeRecoveryFrames === undefined ? "cooldownFrames" : "chargeRecoveryFrames"], message: "a runtime skill cooldown must have a positive charge recovery duration" });
+        }
+      });
+      for (const actorId of runtimeCooldownActors) {
+        const skills = parsed.data.timeline?.abilities.filter(ability => ability.actorId === actorId && ability.kind === "skill") ?? [];
+        const sacrificialActorIndex = sacrificialModel?.success ? sacrificialModel.data.actors.findIndex(actor => actor.actorId === actorId) : -1;
+        const gamblerActorIndex = artifactEventModel?.success ? artifactEventModel.data.actors.findIndex(actor => actor.actorId === actorId && actor.effectId === "gambler-4pc") : -1;
+        const path: Array<string | number> = sacrificialActorIndex >= 0
+          ? ["sacrificialModel", "actors", sacrificialActorIndex, "actorId"]
+          : gamblerActorIndex >= 0 ? ["artifactEventModel", "actors", gamblerActorIndex, "actorId"]
+          : ["timeline", "abilities", parsed.data.timeline!.abilities.findIndex(ability => ability.actorId === actorId && ability.kind === "skill"), "maxCharges"];
+        if (skills.length === 0) context.addIssue({ code: "custom", path, message: "each runtime skill cooldown holder must declare at least one skill ability" });
+        else if (skills.some(skill => (skill.maxCharges ?? 1) !== (skills[0]!.maxCharges ?? 1))) context.addIssue({ code: "custom", path, message: "all skill abilities sharing an actor's runtime E slot must declare the same maxCharges, defaulting to one" });
+      }
+    }
+    if (parsed.success && thrillingTalesModel?.success) {
+      const rejectManualThrillingTalesBuffs = (buffs: Array<{ key?: string }> | undefined, path: Array<string | number>): void => {
+        buffs?.forEach((buff, index) => {
+          if (buff.key === "ttds") context.addIssue({
+            code: "custom", path: [...path, "buffs", index, "key"],
+            message: "the ttds buff key is owned by thrillingTalesModel; use its automatic swap buff instead of a manual buff"
+          });
+        });
+      };
+      parsed.data.rotation.forEach((action, index) => rejectManualThrillingTalesBuffs(action.buffs, ["rotation", index]));
+      parsed.data.timeline?.abilities.forEach((ability, index) => rejectManualThrillingTalesBuffs(ability.buffs, ["timeline", "abilities", index]));
+    }
 
     if (
       !parsed.success ||
@@ -17926,6 +18997,29 @@ const simConfigV153ValueSchema = z
 
     return {
       ...parsed.data,
+      rotation: parsed.data.rotation.map((action, index) => ({ ...action, ...rotationExtensions[index], ...(action.particles === undefined ? {} : { particles: action.particles.map((particle, particleIndex) => ({ ...particle, count: rotationParticleCounts[index]![particleIndex]!, ...(rotationParticleProbabilities[index]?.[particleIndex] === undefined ? {} : { trigger: { ...particle.trigger!, probability: rotationParticleProbabilities[index]![particleIndex] } }) })) }), ...(action.hits === undefined ? {} : { hits: action.hits.map((hit, hitIndex) => ({ ...hit, ...rotationHitExtensions[index]?.[hitIndex] })) }) })),
+      ...(parsed.data.timeline === undefined ? {} : {
+        timeline: { ...parsed.data.timeline, commands: parsed.data.timeline.commands.map((command, index) => ({ ...command, ...(currentCommandTypes[index] === undefined ? {} : { type: currentCommandTypes[index] }), ...(normalCommandModes[index] === undefined ? {} : { sourceNormalChain: normalCommandModes[index] }), ...(movementCosts[index] === undefined ? {} : { staminaCost: movementCosts[index] }) })), abilities: parsed.data.timeline.abilities.map((ability, index) => ({ ...ability, ...abilityExtensions[index], ...(abilityExtensions[index]?.cancelFrames === undefined ? {} : { cancelFrames: { ...ability.cancelFrames, ...abilityExtensions[index]!.cancelFrames } }), ...(ability.particles === undefined ? {} : { particles: ability.particles.map((particle, particleIndex) => ({ ...particle, count: abilityParticleCounts[index]![particleIndex]!, ...(abilityParticleProbabilities[index]?.[particleIndex] === undefined ? {} : { trigger: { ...particle.trigger!, probability: abilityParticleProbabilities[index]![particleIndex] } }) })) }), ...(ability.hits === undefined ? {} : { hits: ability.hits.map((hit, hitIndex) => ({ ...hit, ...abilityHitExtensions[index]?.[hitIndex] })) }) })) }
+      }),
+      ...(bondOfLifeModel?.success === true ? { bondOfLifeModel: bondOfLifeModel.data } : {}),
+      ...(playerMaxHpModel?.success === true ? { playerMaxHpModel: playerMaxHpModel.data } : {}),
+      ...(normalHitModel?.success === true ? { normalHitEnergyModel: normalHitModel.data } : {}),
+      ...(favoniusModel?.success === true ? { favoniusModel: favoniusModel.data } : {}),
+      ...(weaponProcModel?.success === true ? { weaponProcModel: weaponProcModel.data } : {}),
+      ...(thrillingTalesModel?.success === true ? { thrillingTalesModel: thrillingTalesModel.data } : {}),
+      ...(sacrificialModel?.success === true ? { sacrificialModel: sacrificialModel.data } : {}),
+      ...(playerShieldModel?.success === true ? { playerShieldModel: playerShieldModel.data } : {}),
+      ...(sourceAbilityBindings?.success === true ? { sourceAbilityBindings: sourceAbilityBindings.data } : {}),
+      ...(artifactDamageModel?.success === true ? { artifactDamageModel: artifactDamageModel.data } : {}),
+      ...(weaponHitStackModel?.success === true ? { weaponHitStackModel: weaponHitStackModel.data } : {}),
+      ...(artifactBuffModel?.success === true ? { artifactBuffModel: artifactBuffModel.data } : {}),
+      ...(stellarArtifactModel?.success === true ? { stellarArtifactModel: stellarArtifactModel.data } : {}),
+      ...(moonlightArtifactModel?.success === true ? { moonlightArtifactModel: moonlightArtifactModel.data } : {}),
+      ...(artifactEventModel?.success === true ? { artifactEventModel: artifactEventModel.data } : {}),
+      ...(nightsoulBurstModel?.success === true ? { nightsoulBurstModel: nightsoulBurstModel.data } : {}),
+      ...(targetHealthModel?.success === true ? { targetHealthModel: targetHealthModel.data } : {}),
+      ...(enemyShieldModel?.success === true ? { enemyShieldModel: enemyShieldModel.data } : {}),
+      ...(staminaModel?.success === true ? { staminaModel: staminaModel.data } : {}),
       schemaVersion: CALLBACK_BUS_SCHEMA_VERSION,
       engineVersion: CALLBACK_BUS_ENGINE_VERSION,
       freezeBrokenAttackModel: freezeBrokenModel.data,
@@ -25136,6 +26230,7 @@ const reactionDeliveryDamageEventReferenceSchema = z
         triggered: z.boolean().optional(),
         reaction: reactionTypeSchema.optional(),
         reactions: z.array(reactionTypeSchema),
+        specialReactions: z.array(z.enum(["lunarCharged", "lunarCrystallize"])).max(2).optional(),
         auraBefore: z
           .array(auraStateEntrySchema)
           .nullable()
@@ -25387,6 +26482,38 @@ const shatterGaugeMatches = (
 ): boolean =>
   Math.abs(left - right) <= shatterGaugeTolerance;
 
+const reactionDeliveryActionSourceReferenceSchema = z.object({
+  id: wireNonEmptyStringSchema,
+  actorId: wireNonEmptyStringSchema,
+  actionPhase: z.literal("after-frame-tasks-v1").optional(),
+  hits: z.array(z.object({
+    id: wireNonEmptyStringSchema.optional(),
+    offset: finiteNumber.nonnegative().optional(),
+    frame: z.number().int().nonnegative().optional()
+  }).passthrough()).optional(),
+  periodicEntities: z.array(z.object({
+    spawnFrame: z.number().int().nonnegative(),
+    firstTickDelayFrames: z.number().int().nonnegative(),
+    hitDelayFrames: z.number().int().nonnegative(),
+    hitIds: z.array(wireNonEmptyStringSchema)
+  }).passthrough()).optional(),
+  summons: z.array(z.object({
+    spawnFrame: z.number().int().nonnegative(),
+    lifetimeFrames: z.number().int().nonnegative(),
+    expiryAttackDelayFrames: z.number().int().nonnegative(),
+    hitIds: z.array(wireNonEmptyStringSchema)
+  }).passthrough()).optional()
+}).passthrough();
+
+const reactionDeliveryAcceptedActionReferenceSchema = z.object({
+  frame: z.number().int().nonnegative(),
+  actorId: wireNonEmptyStringSchema,
+  actionId: wireNonEmptyStringSchema,
+  cycle: z.number().int().nonnegative(),
+  timelineCommandIndex: z.number().int().nonnegative().optional(),
+  sourceAbilityId: wireNonEmptyStringSchema.optional()
+}).passthrough();
+
 /**
  * Cross-log proof for the 1.39+ zero-delay Shatter delivery boundary.
  *
@@ -25402,6 +26529,7 @@ const reactionDeliveryResultReferencesValueSchema = z.object({
         schemaVersion: z.string(),
         engineVersion: z.string(),
         duration: finiteNumber.positive(),
+        rotation: z.array(reactionDeliveryActionSourceReferenceSchema).optional(),
         enemy: z
           .object({
             targets: z
@@ -25430,7 +26558,8 @@ const reactionDeliveryResultReferencesValueSchema = z.object({
         timeline: z
           .object({
             mode: z.literal("legal-frame-v1"),
-            fps: z.literal(60)
+            fps: z.literal(60),
+            abilities: z.array(reactionDeliveryActionSourceReferenceSchema).optional()
           })
           .passthrough()
           .optional(),
@@ -25445,6 +26574,7 @@ const reactionDeliveryResultReferencesValueSchema = z.object({
     reactionDamageLog: z.array(
       reactionDeliveryLogReferenceSchema
     ),
+    actionLog: z.array(reactionDeliveryAcceptedActionReferenceSchema).optional(),
     hitResolutionLog: z
       .array(targetTaskPhaseHitReferenceSchema)
       .optional(),
@@ -25459,6 +26589,39 @@ const reactionDeliveryResultReferencesValueSchema = z.object({
 type ReactionDeliveryResultReferencesValue = z.infer<
   typeof reactionDeliveryResultReferencesValueSchema
 >;
+
+/** Source proof shared by settled damage and landed/missed direct-hit contacts. */
+export function hasAcceptedAfterFrameHitSource(
+  config: Pick<ReactionDeliveryResultReferencesValue["config"], "rotation" | "timeline">,
+  actionLog: readonly z.infer<typeof reactionDeliveryAcceptedActionReferenceSchema>[],
+  source: Pick<ReactionDeliveryResultReferencesValue["damageEvents"][number],
+    "frame" | "sourceActorId" | "actionId" | "hitId" | "hitGroupId" | "cycle" | "sourceAbilityId" | "timelineCommandIndex">
+): boolean {
+  const accepted = actionLog.filter(action =>
+    action.frame === source.frame && action.actorId === source.sourceActorId && action.actionId === source.actionId &&
+    (source.cycle === undefined || action.cycle === source.cycle) &&
+    (source.sourceAbilityId === undefined || action.sourceAbilityId === source.sourceAbilityId) &&
+    (source.timelineCommandIndex === undefined || action.timelineCommandIndex === source.timelineCommandIndex)
+  );
+  if (accepted.length !== 1) return false;
+  const action = accepted[0]!;
+  const owners = action.sourceAbilityId === undefined
+    ? (config.rotation ?? []).filter(owner => owner.id === action.actionId && owner.actorId === action.actorId)
+    : (config.timeline?.abilities ?? []).filter(owner => owner.id === action.sourceAbilityId && owner.actorId === action.actorId);
+  const owner = owners.length === 1 ? owners[0] : undefined;
+  if (owner?.actionPhase !== "after-frame-tasks-v1") return false;
+  const hits = (owner.hits ?? []).map((hit, index) => ({ hit, index })).filter(({ hit, index }) =>
+    (hit.id ?? `${action.actionId}:hit-${index}`) === source.hitId
+  );
+  if (hits.length !== 1) return false;
+  const { hit, index } = hits[0]!;
+  const hitDelayFrames = action.sourceAbilityId === undefined ? Math.round((hit.offset ?? 0) * 60) : hit.frame;
+  if (hitDelayFrames !== 0 || (source.hitGroupId !== undefined && source.hitGroupId !== `${action.actionId}:${action.cycle}:${index}:${source.frame}`)) return false;
+  const periodicOwners = (owner.periodicEntities ?? []).filter(entity => entity.hitIds.includes(source.hitId!));
+  if (periodicOwners.some(entity => entity.spawnFrame + entity.firstTickDelayFrames + entity.hitDelayFrames !== 0)) return false;
+  const summonOwners = (owner.summons ?? []).filter(summon => summon.hitIds.includes(source.hitId!));
+  return !summonOwners.some(summon => summon.spawnFrame + summon.lifetimeFrames + summon.expiryAttackDelayFrames !== 0);
+}
 
 export function validateReactionDeliveryResultReferences(
   result: ReactionDeliveryResultReferencesValue,
@@ -30003,6 +31166,30 @@ export function validateReactionDeliveryResultReferences(
       }
     });
 
+    const currentActionPhaseIdentity =
+      result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION &&
+      result.engineVersion === CALLBACK_BUS_ENGINE_VERSION &&
+      result.config.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION &&
+      result.config.engineVersion === CALLBACK_BUS_ENGINE_VERSION;
+    // A late phase belongs to an accepted source action and only propagates
+    // through its same-frame descendants. A priority number is not proof.
+    const hasAfterFrameActionSource = (
+      event: ReactionDeliveryResultReferencesValue["damageEvents"][number]
+    ): boolean => {
+      if (!currentActionPhaseIdentity) return false;
+      let root = event;
+      const seen = new Set<number>();
+      while (root.parentDamageEventId !== null) {
+        if (seen.has(root.id)) return false;
+        seen.add(root.id);
+        const parent = damageById.get(root.parentDamageEventId);
+        if (parent === undefined || parent.frame !== event.frame || root.eventPriority < 8 || parent.eventPriority < 8) return false;
+        root = parent;
+      }
+      if (root.kind !== "direct" || root.eventPriority !== 13) return false;
+      return hasAcceptedAfterFrameHitSource(result.config, result.actionLog ?? [], root);
+    };
+
     let previousDamageTuple:
       | readonly [number, number, number]
       | null = null;
@@ -30013,10 +31200,13 @@ export function validateReactionDeliveryResultReferences(
           `damageEvents requires contiguous id ${eventIndex}`
         );
       }
-      if (event.kind === "direct" && event.eventPriority !== 3) {
+      const afterFrameActionSource = hasAfterFrameActionSource(event);
+      if (event.kind === "direct" && event.eventPriority !== 3 && !(event.eventPriority === 13 && afterFrameActionSource)) {
         issue(
           ["damageEvents", eventIndex, "eventPriority"],
-          "direct damage events require EVENT_PRIORITY.hit = 3"
+          currentActionPhaseIdentity
+            ? "direct damage requires priority 3, or priority 13 backed by an accepted same-frame after-frame-tasks action and its declared zero-delay hit"
+            : "direct damage events require EVENT_PRIORITY.hit = 3"
         );
       }
       if (!configuredTargetIndexById.has(event.targetId)) {
@@ -30072,18 +31262,57 @@ export function validateReactionDeliveryResultReferences(
         !recursiveForwardShatterCandidate &&
         soleOwner !== undefined &&
         soleOwner.scheduleKind !== "burning-tick" &&
-        event.eventPriority !== 5
+        event.eventPriority !== 5 &&
+        !(event.eventPriority === 15 && afterFrameActionSource)
       ) {
         issue(
           ["damageEvents", eventIndex, "eventPriority"],
-          "queued non-Burning transformative reaction damage requires eventPriority 5"
+          currentActionPhaseIdentity
+            ? "queued non-Burning reaction damage requires priority 5, or priority 15 with a same-frame parent chain to an accepted after-frame-tasks source hit"
+            : "queued non-Burning transformative reaction damage requires eventPriority 5"
+        );
+      }
+      if (currentActionPhaseIdentity && soleOwner?.scheduleKind === "burning-tick") {
+        const targetOrder = configuredTargetIndexById.get(soleOwner.sourceTargetId);
+        const targetCount = configuredTargets.length;
+        const stride = 0.5 / (targetCount + 1);
+        const atomicStride = 1 / (targetCount * 2 + 1);
+        const expectedBurningPriority = targetOrder === undefined ? undefined
+          : (configTargetTaskModel?.mode === "target-phase-v3"
+            ? 0.5 + targetOrder * stride + 0.25 * stride
+            : configTargetTaskModel?.mode === "target-phase-v1" || configTargetTaskModel?.mode === "target-phase-v2"
+              ? 5 + targetOrder * stride
+              : 4 + targetOrder * 2 * atomicStride + atomicStride) + (afterFrameActionSource ? 10 : 0);
+        if (event.eventPriority !== expectedBurningPriority) issue(
+          ["damageEvents", eventIndex, "eventPriority"],
+          "Burning damage priority must equal the exact source-target order and target-task mode phase, with late-phase inheritance only from a proven same-frame action source"
         );
       }
       if (parentId === null) return;
       if (event.kind === "direct") {
-        issue(
+        const procId = event.weaponProcLogId;
+        const proc = Number.isSafeInteger(procId) && typeof procId === "number" && Array.isArray(result.weaponProcLog)
+          ? result.weaponProcLog[procId] : undefined;
+        const parent = damageById.get(parentId);
+        // The current independent-weapon facet additionally replays source
+        // conditions, snapshots and complete children. This shared delivery
+        // facet authenticates its exact backlink, retaining the frozen rule.
+        const definition = isRecord(proc) ? getWeaponProcDefinition(proc.weaponId as WeaponProcId) : undefined;
+        const eyeBounceIndex = parent === undefined || !isRecord(proc) || proc.weaponId !== "eyeofperception" ? -1
+          : (event.frame - parent.frame) / 10 - 1;
+        const tickIndex = parent === undefined || definition === undefined ? -1 : proc?.weaponId === "eyeofperception"
+          ? Number.isInteger(eyeBounceIndex) && eyeBounceIndex >= 0 && eyeBounceIndex <= 4 ? eyeBounceIndex : -1
+          : (definition.damageOffsetsFrames ?? [definition.damageDelayFrames]).indexOf(event.frame - parent.frame);
+        const procActionId = isRecord(proc) && typeof proc.procActionId === "string" && tickIndex >= 0
+          ? `${proc.procActionId}${tickIndex === 0 ? "" : proc.weaponId === "eyeofperception" ? `:bounce-${tickIndex}` : `:tick-${tickIndex}`}` : null;
+        const independentProc = result.schemaVersion === CALLBACK_BUS_SCHEMA_VERSION && isRecord(proc) &&
+          proc.outcome === "triggered" && proc.id === procId && proc.parentDamageEventId === parentId &&
+          proc.actorId === event.sourceActorId && procActionId === event.actionId && `${procActionId}:hit` === event.hitId &&
+          Array.isArray(proc.damageEventIds) && proc.damageEventIds.includes(event.id) &&
+          parent?.kind === "direct" && parentId < event.id && tickIndex >= 0 && event.eventSequence > parent.eventSequence;
+        if (!independentProc) issue(
           ["damageEvents", eventIndex, "parentDamageEventId"],
-          "direct damage events must have a null parentDamageEventId"
+          "direct damage requires a null parent or an exact current independent-weapon callback backlink"
         );
       }
       const parent = damageById.get(parentId);
@@ -31754,13 +32983,17 @@ export const playerDamageResultReferencesSchema = z
     reactionTaskLog: reactionTaskLogSchema.optional().default([]),
     targetStateTimeline: targetStateTimelineSchema.optional(),
     burningStateLog: z.array(burningStateLogEntrySchema),
-    dendroCoreLog: dendroCoreLogSchema,
+    dendroCoreLog: currentDendroCoreLogSchema,
     playerHitResolutionLog: z.array(
       playerHitResolutionLogEntrySchema
     ),
-    playerDamageEvents: z.array(playerDamageEventSchema),
-    playerHpTimeline: playerHpTimelineSchema,
-    playerHpSummaries: z.array(playerHpSummarySchema),
+    playerDamageEvents: z.array(currentPlayerDamageEventSchema),
+    playerShieldLog: z.array(playerShieldLogEntrySchema).optional(),
+    playerShieldState: playerShieldStateSchema.optional(),
+    playerHealthEvents: z.array(playerHealthEventSchema).optional(),
+    playerMaxHpEvents: z.array(playerMaxHpEventSchema).optional(),
+    playerHpTimeline: currentPlayerHpTimelineSchema,
+    playerHpSummaries: z.array(currentPlayerHpSummarySchema),
     crystallizeShieldLog: z.array(
       crystallizeShieldLogEntrySchema
     ),
@@ -31773,6 +33006,14 @@ export const playerDamageResultReferencesSchema = z
   })
   .passthrough()
   .superRefine((result, context) => {
+    if (result.config.schemaVersion !== CALLBACK_BUS_SCHEMA_VERSION) {
+      const cores = dendroCoreLogSchema.safeParse(result.dendroCoreLog);
+      if (!cores.success) for (const issue of cores.error.issues) context.addIssue({ code: "custom", path: ["dendroCoreLog", ...issue.path], message: issue.message });
+      if (result.playerShieldLog !== undefined || result.playerShieldState !== undefined || result.playerDamageEvents.some(event => event.playerShieldLogId !== undefined) || result.playerMaxHpEvents !== undefined || result.playerHealthEvents !== undefined || !playerHpTimelineSchema.safeParse(result.playerHpTimeline).success ||
+          !z.array(playerHpSummarySchema).safeParse(result.playerHpSummaries).success) {
+        addMissingReferenceIssue(context, ["playerHealthEvents"], "action health events and extended HP timelines/summaries are current-only");
+      }
+    }
     const exactReactionDamageGroupV150Identity =
       hasReactionDamageGroupTaskOrderIdentity({
         schemaVersion: result.config.schemaVersion,
@@ -32598,7 +33839,7 @@ export const playerDamageResultReferencesSchema = z
       ) ||
       !approximatelyEqual(
         result.totalPlayerDamageTaken,
-        expectedReactionDamageTaken
+        expectedReactionDamageTaken + (result.playerShieldLog ?? []).reduce((sum, row) => sum + (row.operation === "incoming-hit" ? row.hpResolution?.actualLoss ?? 0 : 0), 0)
       )
     ) {
       issue(
@@ -32754,20 +33995,10 @@ export const playerDamageResultReferencesSchema = z
       const end = points.find(
         (point) => point.operation === "simulation-end"
       );
-      const totalIncoming = actorEvents.reduce(
-        (sum, event) =>
-          sum + event.damageFactors.finalDamage,
-        0
-      );
-      const totalAbsorbed = actorEvents.reduce(
-        (sum, event) =>
-          sum + event.shieldResolution.absorbedDamage,
-        0
-      );
-      const totalHpDamage = actorEvents.reduce(
-        (sum, event) => sum + event.finalDamage,
-        0
-      );
+      const explicitHits = (result.playerShieldLog ?? []).filter(row => row.operation === "incoming-hit" && row.targetActorId === character.id);
+      const totalIncoming = actorEvents.reduce((sum, event) => sum + event.damageFactors.finalDamage, 0) + explicitHits.reduce((sum, row) => sum + row.incomingDamage!, 0);
+      const totalAbsorbed = actorEvents.reduce((sum, event) => sum + (typeof event.playerShieldLogId === "number" ? result.playerShieldLog?.[event.playerShieldLogId]?.absorbedDamage ?? 0 : event.shieldResolution.absorbedDamage), 0) + explicitHits.reduce((sum, row) => sum + row.absorbedDamage!, 0);
+      const totalHpDamage = actorEvents.reduce((sum, event) => sum + event.finalDamage, 0) + explicitHits.reduce((sum, row) => sum + row.hpResolution!.actualLoss, 0);
       if (
         summary === undefined ||
         initial === undefined ||
@@ -32787,7 +34018,7 @@ export const playerDamageResultReferencesSchema = z
           summary.totalHpDamage,
           totalHpDamage
         ) ||
-        summary.hitCount !== actorEvents.length
+        summary.hitCount !== actorEvents.length + explicitHits.length
       ) {
         issue(
           ["playerHpSummaries"],
@@ -33509,6 +34740,127 @@ export function migrateConfig(rawInput: unknown): SimConfig {
   }
   const version = input.schemaVersion;
   const isCallbackBusIdentity = version === CALLBACK_BUS_SCHEMA_VERSION;
+  if (!isCallbackBusIdentity) {
+    const rejectCurrentExtensions = (value: unknown, path: string): void => {
+      if (!isRecord(value)) return;
+      if (value.kind === "plunge") {
+        const issue = `${path}.kind: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports plunge abilities`;
+        throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+      }
+      if (isRecord(value.cancelFrames) && ("walk" in value.cancelFrames || "plunge" in value.cancelFrames)) {
+        const issue = `${path}.cancelFrames: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports walk and plunge followups`;
+        throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+      }
+      for (const field of ["energyCostFrame", "cooldownStartFrame", "staminaCost", "actionPhase", "conditionalHitGroups", "healthChanges", "periodicEntities", "summons", "statConversions"]) {
+        if (!(field in value)) continue;
+        const issue = `${path}.${field}: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports current action resource and summon declarations`;
+        throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+      }
+      if (Array.isArray(value.particles)) value.particles.forEach((particle, index) => {
+        if (isRecord(particle) && isRecord(particle.trigger) && "probability" in particle.trigger) {
+          const issue = `${path}.particles.${index}.trigger.probability: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports particle trigger probability`;
+          throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+        }
+      });
+      if (Array.isArray(value.hits)) value.hits.forEach((hit, index) => {
+        if (!isRecord(hit)) return;
+        if (Array.isArray(hit.flatSources) && hit.flatSources.some(source => isRecord(source) && "snapshotFrame" in source)) {
+          const issue = `${path}.hits.${index}.flatSources: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports explicit source sampling`;
+          throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+        }
+        for (const field of ["infusion", "normalHitEnergyTag", "attackTag", "hitWeakPoint", "snapshotFrame"]) {
+          if (!(field in hit)) continue;
+          const issue = `${path}.hits.${index}.${field}: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports current hit extensions`;
+          throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+        }
+      });
+    };
+    if (Array.isArray(input.rotation)) input.rotation.forEach((action, index) => rejectCurrentExtensions(action, `rotation.${index}`));
+    if (isRecord(input.timeline) && Array.isArray(input.timeline.abilities)) input.timeline.abilities.forEach((ability, index) => rejectCurrentExtensions(ability, `timeline.abilities.${index}`));
+    if (isRecord(input.timeline) && Array.isArray(input.timeline.commands)) input.timeline.commands.forEach((command, index) => {
+      if (isRecord(command) && (command.type === "walk" || command.type === "plunge")) {
+        const issue = `timeline.commands.${index}.type: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports walk and plunge commands`;
+        throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+      }
+      if (isRecord(command) && "staminaCost" in command) {
+        const issue = `timeline.commands.${index}.staminaCost: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports shared stamina`;
+        throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+      }
+    });
+    if ("bondOfLifeModel" in input) {
+      const issue = `bondOfLifeModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports the source-profile debt pool`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("playerMaxHpModel" in input) {
+      const issue = `playerMaxHpModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports the explicit dynamic max-HP model`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("staminaModel" in input) {
+      const issue = `staminaModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports shared stamina`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("favoniusModel" in input) {
+      const issue = `favoniusModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports the independent Favonius stream`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("weaponProcModel" in input) {
+      const issue = `weaponProcModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports independent weapon procs`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("thrillingTalesModel" in input) {
+      const issue = `thrillingTalesModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports Thrilling Tales swap buffs`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("enemyShieldModel" in input) {
+      const issue = `enemyShieldModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports source-backed enemy shields`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("targetHealthModel" in input) {
+      const issue = `targetHealthModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports declared enemy HP and external drops`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("sacrificialModel" in input) {
+      const issue = `sacrificialModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports Sacrificial cooldown resets`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("playerShieldModel" in input) {
+      const issue = `playerShieldModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports generic player shields`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("sourceAbilityBindings" in input) {
+      const issue = `sourceAbilityBindings: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports composable source abilities`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("weaponHitStackModel" in input) {
+      const issue = `weaponHitStackModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports source-owned weapon stack lifecycles`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("artifactBuffModel" in input) {
+      const issue = `artifactBuffModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports source-owned artifact buff lifecycles`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("stellarArtifactModel" in input) {
+      const issue = `stellarArtifactModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports fixed-source stellar artifact callbacks`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("moonlightArtifactModel" in input) {
+      const issue = `moonlightArtifactModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports fixed-source Moonlight artifact callbacks`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("artifactDamageModel" in input) {
+      const issue = `artifactDamageModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports source-owned artifact flat damage`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("artifactEventModel" in input || "nightsoulBurstModel" in input) {
+      const field = "artifactEventModel" in input ? "artifactEventModel" : "nightsoulBurstModel";
+      const issue = `${field}: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports artifact event and Nightsoul Burst models`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+    if ("normalHitEnergyModel" in input) {
+      const issue = `normalHitEnergyModel: only schemaVersion ${CALLBACK_BUS_SCHEMA_VERSION} supports the independent normal-hit energy stream`;
+      throw new ConfigMigrationError(`配置校验失败：\n- ${issue}`, [issue]);
+    }
+  }
   if (!isCallbackBusIdentity && "callbackBusModel" in input) {
     const historicalVersion =
       version === undefined ? LEGACY_SCHEMA_VERSION : String(version);

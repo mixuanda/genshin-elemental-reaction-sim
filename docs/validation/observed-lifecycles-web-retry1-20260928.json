@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "startedAt": "2026-09-28T12:44:04.620764+00:00",
+  "finishedAt": "2026-09-28T12:44:08.941339+00:00",
+  "wallSeconds": 4.32,
+  "exitCode": 0,
+  "log": "docs/validation/observed-lifecycles-web-retry1-20260928.log"
+}

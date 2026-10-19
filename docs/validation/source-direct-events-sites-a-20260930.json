@@ -1,0 +1,302 @@
+{
+  "schemaVersion": 1,
+  "round": 113,
+  "batch": "A",
+  "status": "private patch and source audit; default git apply --check passed on both pre-instrument lanes; no build or tests",
+  "sourceStage": "verified PRE-talent-instrument source exports; original roots read only",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-yCxalk/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Jtv5GK/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/albedo/skill.go": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+      "internal/characters/albedo/albedo.go": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+      "internal/characters/dehya/skill.go": "d79583d0adc72345c62685587510a0b3368f6241aa8ec69bc4c41b74f3868493",
+      "internal/characters/dehya/dehya.go": "0ba3d2bc7e87c695265106ab4f7876545d9460b4f1ce77ea7b752ae016a5d895",
+      "internal/characters/raiden/skill.go": "5286cf4c1e2cec0bb7aef1cbb952c5238b7a2b946dc138cd783e48a59ede659c",
+      "internal/characters/raiden/raiden.go": "e992003d310842cb513aeeff812a13c9849f086c9d2e1c31f15675822b6e0f35"
+    },
+    "stellar": {
+      "internal/characters/albedo/skill.go": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+      "internal/characters/albedo/albedo.go": "246344baac47ee891e305ef95198dbe2d4451a7cb97f7ebbc514ff935f62a695",
+      "internal/characters/dehya/skill.go": "d79583d0adc72345c62685587510a0b3368f6241aa8ec69bc4c41b74f3868493",
+      "internal/characters/dehya/dehya.go": "df64e45a5baf2e632ea52fda6fef1ceff47ed09c702544810286b81b6c2cfa92",
+      "internal/characters/raiden/skill.go": "5286cf4c1e2cec0bb7aef1cbb952c5238b7a2b946dc138cd783e48a59ede659c",
+      "internal/characters/raiden/raiden.go": "e992003d310842cb513aeeff812a13c9849f086c9d2e1c31f15675822b6e0f35"
+    }
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/classic/receipt.json",
+      "sha256": "f6c21971d0fe14d8eb4c537cf5d00d24e9d340daadf00b29a670c516c748cfb9",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "078ce39b48b1a21407d54dca0045c8376ecabf18b3f9d8924771bbdc4f8d728c"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/stellar/receipt.json",
+      "sha256": "9dbb9ee80a41e61b8c0eb903a6d04c629e0be7707c3762145a17521e496df8bb",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "f326f8a4d08884439eaedc0c183d5f5d25c6772bb650eaecf7130e38a71057e4"
+    }
+  },
+  "components": [
+    {
+      "id": "albedo-skill-proc",
+      "kind": "direct",
+      "character": "albedo",
+      "listenerSiteId": "albedo.skill.enemy-damage",
+      "registerKey": "albedo-skill",
+      "emitSiteId": "albedo.skill.proc-attack",
+      "ability": "Abiogenesis: Solar Isotoma (Tick)",
+      "sourcePath": "internal/characters/albedo/skill.go",
+      "listenerFunction": "skillHook",
+      "queueOperation": "QueueAttackWithSnap",
+      "nativeHelper": "SourceHostQueueEventAttackWithSnap",
+      "damageDelay": 1,
+      "snapshotMode": "existing c.skillSnapshot; no snapshot recomputation",
+      "registrationSourceRefs": [
+        "internal/characters/albedo/albedo.go:37-41",
+        "internal/characters/albedo/skill.go:105-106"
+      ],
+      "sourceRefs": [
+        "internal/characters/albedo/skill.go:27-30",
+        "internal/characters/albedo/skill.go:33-63",
+        "internal/characters/albedo/skill.go:92-103",
+        "internal/characters/albedo/skill.go:105-157"
+      ],
+      "gateEvidence": [
+        "skillActive",
+        "skill ICD inactive",
+        "trigger ability not skillAbilInitial",
+        "nonzero damage",
+        "trigger target within existing skillArea"
+      ],
+      "queueArguments": [
+        "c.skillAttackInfo",
+        "c.skillSnapshot",
+        "combat.NewCircleHitOnTarget(trg, nil, 3.4)",
+        "1",
+        "c.particleCB"
+      ],
+      "callbackAudit": [
+        "particleCB returns for non-enemy target or active particle ICD; otherwise sets particle ICD and consumes the existing single RNG read for a possible particle queue. It does not enqueue damage.",
+        "The listener grants C1 energy and C2 stacks after attack enqueue; neither directly queues damage."
+      ],
+      "scopeNotes": [
+        "One completed skillHook listener call and its single direct tick attack only.",
+        "The initial skill attack, construct creation/destruction, skillActive lifetime, C4/C6 polling, future ticks, C2 stacks and later burst effects are excluded from full-skill closure.",
+        "No earlier cast ownership is inferred from the existing skillAttackInfo or skillSnapshot."
+      ],
+      "eventType": "OnEnemyDamage",
+      "attackTagName": "AttackTagElementalArt",
+      "fullAttackTagName": "AttackTagElementalArt",
+      "attackCountFact": "albedo.skill.enemy-damage.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceSha256": {
+        "classic": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+        "stellar": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825"
+      },
+      "patchedSourceSha256": {
+        "classic": "062688aff486126b50eb1510d164f17024114b591476b638f80607b22ac4c59d",
+        "stellar": "062688aff486126b50eb1510d164f17024114b591476b638f80607b22ac4c59d"
+      },
+      "countFactSemantics": "Initialize 0 at listener entry; set 1 only at original direct queue branch. On completed listener, final fact is source-known direct attack count; no repeated getter, RNG draw or target selector.",
+      "registrationCreated": "Init, independently of any cast"
+    },
+    {
+      "id": "dehya-skill-followup",
+      "kind": "direct",
+      "character": "dehya",
+      "listenerSiteId": "dehya.skill.enemy-damage",
+      "registerKey": "dehya-skill",
+      "emitSiteId": "dehya.skill.followup-attack",
+      "ability": "Molten Inferno (DoT)",
+      "sourcePath": "internal/characters/dehya/skill.go",
+      "listenerFunction": "skillDmgHook",
+      "queueOperation": "QueueAttackWithSnap",
+      "nativeHelper": "SourceHostQueueEventAttackWithSnap",
+      "damageDelay": 2,
+      "snapshotMode": "existing c.skillSnapshot; no snapshot recomputation",
+      "registrationSourceRefs": [
+        "internal/characters/dehya/dehya.go:48-52",
+        "internal/characters/dehya/skill.go:125-126"
+      ],
+      "sourceRefs": [
+        "internal/characters/dehya/skill.go:19-35",
+        "internal/characters/dehya/skill.go:125-161",
+        "internal/characters/dehya/skill.go:238-278"
+      ],
+      "gateEvidence": [
+        "dehyaFieldKey active",
+        "skill ICD inactive",
+        "nonzero damage",
+        "trigger target within existing skillArea"
+      ],
+      "queueArguments": [
+        "c.skillAttackInfo",
+        "c.skillSnapshot",
+        "combat.NewCircleHitOnTarget(trg, nil, 4.5)",
+        "2"
+      ],
+      "callbackAudit": [
+        "Direct follow-up attack has no callbacks.",
+        "Conditional Core.Tasks.Add at +3 frames only sets hasC2DamageBuff=false; it enqueues no damage. The subsequent QueueParticle enqueues a particle."
+      ],
+      "scopeNotes": [
+        "One completed skillDmgHook listener call and its single direct follow-up attack only.",
+        "The non-damage C2 flag-clear task is outside the damage-queue contract; its presence does not make the direct attack count incomplete.",
+        "Initial/recast attacks, field creation/pickup/extension/expiry, burst restoration, the separate skillHurtHook and Redmane self-drain lifecycle, future field procs and full skill closure are excluded.",
+        "No earlier cast ownership is inferred from the existing skillAttackInfo or skillSnapshot."
+      ],
+      "eventType": "OnEnemyDamage",
+      "attackTagName": "AttackTagElementalArt",
+      "fullAttackTagName": "AttackTagElementalArt",
+      "attackCountFact": "dehya.skill.enemy-damage.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceSha256": {
+        "classic": "d79583d0adc72345c62685587510a0b3368f6241aa8ec69bc4c41b74f3868493",
+        "stellar": "d79583d0adc72345c62685587510a0b3368f6241aa8ec69bc4c41b74f3868493"
+      },
+      "patchedSourceSha256": {
+        "classic": "0feeb5c0a383fa45921b3069b8bde9e6f00802da5d2f64ed8693e439713f4132",
+        "stellar": "0feeb5c0a383fa45921b3069b8bde9e6f00802da5d2f64ed8693e439713f4132"
+      },
+      "countFactSemantics": "Initialize 0 at listener entry; set 1 only at original direct queue branch. On completed listener, final fact is source-known direct attack count; no repeated getter, RNG draw or target selector.",
+      "registrationCreated": "Init, independently of any cast"
+    },
+    {
+      "id": "raiden-eye-followup",
+      "kind": "direct",
+      "character": "raiden",
+      "listenerSiteId": "raiden.eye.enemy-damage",
+      "registerKey": "raiden-eye",
+      "emitSiteId": "raiden.eye.followup-attack",
+      "ability": "Eye of Stormy Judgement (Strike)",
+      "sourcePath": "internal/characters/raiden/skill.go",
+      "listenerFunction": "eyeOnDamage",
+      "queueOperation": "QueueAttack",
+      "nativeHelper": "SourceHostQueueEventAttack",
+      "snapshotDelay": 5,
+      "damageDelay": 5,
+      "registrationSourceRefs": [
+        "internal/characters/raiden/raiden.go:43-44",
+        "internal/characters/raiden/skill.go:108-109"
+      ],
+      "sourceRefs": [
+        "internal/characters/raiden/skill.go:89-100",
+        "internal/characters/raiden/skill.go:108-156"
+      ],
+      "gateEvidence": [
+        "eyeICD <= current frame",
+        "triggering actor has skillKey active",
+        "exclude EC/Burning/Hydro Swirl tags",
+        "exclude own ElementalArt Slash",
+        "nonzero damage"
+      ],
+      "queueArguments": [
+        "ai",
+        "combat.NewCircleHitOnTarget(trg, nil, 4)",
+        "5",
+        "5",
+        "c.particleCB"
+      ],
+      "callbackAudit": [
+        "particleCB returns for non-enemy target or active particle ICD; otherwise sets particle ICD and consumes the existing single RNG read for a possible particle queue. It does not enqueue damage.",
+        "The listener sets eyeICD after queueing; no additional direct or delayed damage producer is created in the listener."
+      ],
+      "scopeNotes": [
+        "One completed eyeOnDamage listener call and its single direct coordinated strike only.",
+        "The initial skill attack, per-character Eye status/damage-bonus lifetime, future coordinated strikes, particle lifecycle and full skill closure are excluded.",
+        "Trigger attack identity is observed without changing original attack origin or assigning ownership of pre-existing Eye status."
+      ],
+      "eventType": "OnEnemyDamage",
+      "attackTagName": "AttackTagElementalArt",
+      "fullAttackTagName": "AttackTagElementalArt",
+      "attackCountFact": "raiden.eye.enemy-damage.attack-count",
+      "allowedAttackCounts": [
+        0,
+        1
+      ],
+      "sourceCommits": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "sourceSha256": {
+        "classic": "5286cf4c1e2cec0bb7aef1cbb952c5238b7a2b946dc138cd783e48a59ede659c",
+        "stellar": "5286cf4c1e2cec0bb7aef1cbb952c5238b7a2b946dc138cd783e48a59ede659c"
+      },
+      "patchedSourceSha256": {
+        "classic": "90099bf6e5e6586f7500b84cb8ee1b67f522ca4997b93a2b3c1c7203c4ee504d",
+        "stellar": "90099bf6e5e6586f7500b84cb8ee1b67f522ca4997b93a2b3c1c7203c4ee504d"
+      },
+      "countFactSemantics": "Initialize 0 at listener entry; set 1 only at original direct queue branch. On completed listener, final fact is source-known direct attack count; no repeated getter, RNG draw or target selector.",
+      "registrationCreated": "Init, independently of any cast"
+    }
+  ],
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-a/113-event-sites-a-classic.patch",
+      "sha256": "c9fab68d34cd0638163e0be6fd8fea17b747d046b96dd72ace69a3123425deb3",
+      "bytes": 2963,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-a/113-event-sites-a-classic.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/build-yCxalk/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-a/113-event-sites-a-stellar.patch",
+      "sha256": "c9fab68d34cd0638163e0be6fd8fea17b747d046b96dd72ace69a3123425deb3",
+      "bytes": 2963,
+      "applyCheck": {
+        "command": [
+          "git",
+          "apply",
+          "--check",
+          "/Users/evan/Library/Caches/gidps-source-host/113-event-sites-a/113-event-sites-a-stellar.patch"
+        ],
+        "cwd": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Jtv5GK/source",
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "defaultContext": true
+      }
+    }
+  },
+  "verificationBoundary": [
+    "Only the selected listener component direct damage queues are certified; full persistent skill/status lifetime is excluded.",
+    "Queued attack count is distinct from target hit count; AoE target geometry is unchanged.",
+    "Every original gameplay call retains order, arguments and original origin; label/fact calls are sidecars, and queue helper replacement delegates to the original queue exactly once.",
+    "No repeated status getter, RNG draw, target selector, callback wrapper or new gameplay branch is introduced.",
+    "No source build, runtime replay or game-correctness claim is made in this audit."
+  ],
+  "inventoryReference": "/Users/evan/Documents/gidps/docs/validation/source-event-damage-inventory-20260930.json",
+  "inventoryHashNote": "Inventory source hashes may describe post-talent-instrument caches; all patch refs and recorded hashes here identify actual pre-instrument exports."
+}

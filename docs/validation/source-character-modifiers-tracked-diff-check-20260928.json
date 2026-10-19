@@ -1,0 +1,11 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.074,
+  "scope": "tracked files only",
+  "log": "docs/validation/source-character-modifiers-tracked-diff-check-20260928.log"
+}

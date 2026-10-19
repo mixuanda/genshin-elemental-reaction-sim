@@ -1,0 +1,16 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-capture.ts(277,21): error TS2339: Property 'levelBaseDamage' does not exist on type '{ rawDamage: number; } | { characterLevel: number; elementalMastery: number; reactionBonus: number; levelBaseDamage: number; baseMultiplier: number; } | { ruleId: "drain-source-dehya-after-mitigation" | ... 17 more ... | "drain-source-xiao-burst"; sourceHolderIndex: number; state: Record<...>; }'.
+  Property 'levelBaseDamage' does not exist on type '{ rawDamage: number; }'.
+packages/sim-core/src/source-host-capture.ts(277,77): error TS2339: Property 'characterLevel' does not exist on type '{ rawDamage: number; } | { characterLevel: number; elementalMastery: number; reactionBonus: number; levelBaseDamage: number; baseMultiplier: number; } | { ruleId: "drain-source-dehya-after-mitigation" | ... 17 more ... | "drain-source-xiao-burst"; sourceHolderIndex: number; state: Record<...>; }'.
+  Property 'characterLevel' does not exist on type '{ rawDamage: number; }'.
+packages/sim-core/src/source-host-drain-capture.ts(146,53): error TS2339: Property 'ruleId' does not exist on type '{ ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ruleId: "nd-2pc"; } | { ruleId: "pf-2pc"; } | { ruleId: "cw-2pc"; } | { ruleId: "vg-2pc"; } | { ruleId: "vg-4pc-base"; } | ... 60 more ... | { ...; }'.
+  Property 'ruleId' does not exist on type '{ energyBefore: number; energyMax: number; amount: number; operation: "flat-change"; artifactRule?: "exile" | "reminiscence" | "scholar" | "scroll" | undefined; }'.
+packages/sim-core/src/source-host-drain-capture.ts(146,102): error TS2339: Property 'state' does not exist on type '{ ruleId: "mh-2pc"; } | { ruleId: "gt-2pc"; } | { ruleId: "hod-2pc"; } | { ruleId: "hod-4pc"; } | { ruleId: "nd-2pc"; } | { ruleId: "pf-2pc"; } | { ruleId: "cw-2pc"; } | { ruleId: "vg-2pc"; } | { ruleId: "vg-4pc-base"; } | ... 60 more ... | { ...; }'.
+  Property 'state' does not exist on type '{ ruleId: "mh-2pc"; }'.

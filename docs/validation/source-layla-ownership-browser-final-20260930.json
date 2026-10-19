@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-layla-ownership.spec.ts",
+    "--workers=1",
+    "--retries=0"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 27.064
+}

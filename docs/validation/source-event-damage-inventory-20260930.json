@@ -1,0 +1,1098 @@
+{
+  "schemaVersion": 1,
+  "kind": "static-source-candidate-inventory",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-Jv0OeE/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-pasFAn/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "scope": "Character event subscriptions for OnEnemyDamage or OnTargetDied that directly enqueue damage or call an immediate helper/entity path that enqueues damage. This static inventory does not establish runtime occurrence, game correctness, cast completion, or full source closure.",
+  "summary": {
+    "entryCount": 23,
+    "eventCounts": {
+      "OnEnemyDamage": 22,
+      "OnTargetDied": 1
+    },
+    "bothLaneCount": 22,
+    "stellarOnlyCount": 1,
+    "assignedToCurrentSourceAgent": [
+      "baizhu-c2",
+      "tartaglia-riptide-death"
+    ],
+    "suggestedNextSharedBeneficiaries": [
+      "raiden-eye-followup",
+      "dehya-skill-followup",
+      "mona-burst-bubble",
+      "mona-c2-followup",
+      "beidou-burst-proc",
+      "traveler-electro-bellowing-thunder",
+      "nahida-trikarma-bloom",
+      "ororon-a1-hypersense",
+      "chiori-c4-kinu"
+    ]
+  },
+  "exclusionNote": "Excluded hooks whose observed immediate behavior only modifies stats/reaction bonuses, updates state, or heals without an immediate damage-queue path (for example Mona C1, Charlotte and Anemo Traveler death heals, and Kinich/Heizou modifier hooks). The recorded queue path is static source evidence, not evidence of execution in a simulation.",
+  "entries": [
+    {
+      "id": "albedo-skill-proc",
+      "character": "albedo",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/albedo/skill.go",
+      "registerKey": "albedo-skill",
+      "queueMode": "immediate snapshotted attack enqueue, hitmark delay 1",
+      "gateEvidence": "skillActive; skill ICD inactive; not self-refresh; nonzero damage within skill area",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825",
+        "stellar": "dd0df91ea54c9ef5a9ea3a620cf7cc606ab20ba7f22ea008f5b8212c44d57825"
+      },
+      "registration": {
+        "classic": {
+          "line": 106,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 106,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/albedo/skill.go",
+          "line": 131,
+          "operation": "QueueAttackWithSnap"
+        }
+      ],
+      "family": "albedo-skill-proc",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "baizhu-c2",
+      "character": "baizhu",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/baizhu/cons.go",
+      "registerKey": "baizhu-c2",
+      "queueMode": "attack enqueued with skillFirstHitmark",
+      "gateEvidence": "active triggering actor; C2 ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+        "stellar": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72"
+      },
+      "registration": {
+        "classic": {
+          "line": 26,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 26,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/baizhu/cons.go",
+          "line": 53,
+          "operation": "QueueAttack"
+        }
+      ],
+      "assignment": "assigned to current source agent",
+      "family": "baizhu-c2",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "beidou-burst-proc",
+      "character": "beidou",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/beidou/burst.go",
+      "registerKey": "beidou-burst",
+      "queueMode": "queues AttackEvent with 1-frame delay; chain callbacks may add follow-on work",
+      "gateEvidence": "Normal/Extra tag; active actor; burst active; burst ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "860fb78a894041848f5dd208404e656ba87f5f80a2ccba82328a34561cba55c2",
+        "stellar": "860fb78a894041848f5dd208404e656ba87f5f80a2ccba82328a34561cba55c2"
+      },
+      "registration": {
+        "classic": {
+          "line": 137,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 137,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/beidou/burst.go",
+          "line": 163,
+          "operation": "QueueAttackEvent"
+        }
+      ],
+      "family": "beidou-burst-proc",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "candace-c6-wave",
+      "character": "candace",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/candace/cons.go",
+      "registerKey": "candace-c6",
+      "queueMode": "queues attack with waveHitmark delay",
+      "gateEvidence": "active character other than Candace; nonphysical Normal hit; burst active; C6 ICD inactive; damage nonzero",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "10c9994290c3e250b62a46947e482b35e58fa3c84d0d7f16d76e172ab1943d27",
+        "stellar": "10c9994290c3e250b62a46947e482b35e58fa3c84d0d7f16d76e172ab1943d27"
+      },
+      "registration": {
+        "classic": {
+          "line": 39,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 39,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/candace/cons.go",
+          "line": 87,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "candace-c6-wave",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "charlotte-c6",
+      "character": "charlotte",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/charlotte/cons.go",
+      "registerKey": "charlotte-c6",
+      "queueMode": "Core.Tasks.Add then attack enqueue inside task",
+      "gateEvidence": "target has hold-skill mark; active actor; Normal/Extra; ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a",
+        "stellar": "440d4978bf373e407ec17f4f01bfbf5ebce8eb0a944a33177d082f1c07cfe98a"
+      },
+      "registration": {
+        "classic": {
+          "line": 136,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 136,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/charlotte/cons.go",
+          "line": 170,
+          "operation": "Tasks.Add"
+        },
+        {
+          "path": "internal/characters/charlotte/cons.go",
+          "line": 171,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "charlotte-c6",
+      "category": [
+        "delayed",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "chiori-a1-seize",
+      "character": "chiori",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/chiori/asc.go",
+      "registerKey": "a1SeizeTheMomentKey",
+      "queueMode": "snapshotted attack enqueue with 1-frame delay",
+      "gateEvidence": "A1 status active and ICD inactive; active actor Normal/Extra/Plunge; target within 30 of player",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "0e39e3229243464700b54c7b1777f746124195db794778877f1ef88970c36c85",
+        "stellar": "0e39e3229243464700b54c7b1777f746124195db794778877f1ef88970c36c85"
+      },
+      "registration": {
+        "classic": {
+          "line": 60,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 60,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/chiori/asc.go",
+          "line": 131,
+          "operation": "QueueAttackWithSnap"
+        }
+      ],
+      "family": "chiori-a1-seize",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "chiori-c4-kinu",
+      "character": "chiori",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/chiori/cons.go",
+      "registerKey": "chiori-c4",
+      "queueMode": "event handler creates Kinu entity; ticker schedules later task/attack",
+      "gateEvidence": "C4 status active; C4 ICD inactive; active actor Normal/Extra/Plunge; entity attack count/expiry bound",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "5184e50555dcfa0338039c9d926fbd4d85f93721ee3a1857f90dc192cd39122f",
+        "stellar": "5184e50555dcfa0338039c9d926fbd4d85f93721ee3a1857f90dc192cd39122f"
+      },
+      "registration": {
+        "classic": {
+          "line": 120,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 120,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/chiori/kinu.go",
+          "line": 41,
+          "operation": "Tasks.Add ticker start"
+        },
+        {
+          "path": "internal/characters/chiori/kinu.go",
+          "line": 48,
+          "operation": "Tasks.Add attack tick"
+        },
+        {
+          "path": "internal/characters/chiori/kinu.go",
+          "line": 96,
+          "operation": "QueueAttackWithSnap"
+        }
+      ],
+      "family": "chiori-c4-kinu",
+      "category": [
+        "delayed",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "clorinde-c1-shade",
+      "character": "clorinde",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/clorinde/cons.go",
+      "registerKey": "clorinde-c1",
+      "queueMode": "loops c1Hitmarks and enqueues attacks for each",
+      "gateEvidence": "skill state active; C1 ICD inactive; own Electro Normal hit",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "c6222607c0c38cd696ccb0fc98d2470c71547669584242c6dea8b5d9ef47d6f2",
+        "stellar": "c6222607c0c38cd696ccb0fc98d2470c71547669584242c6dea8b5d9ef47d6f2"
+      },
+      "registration": {
+        "classic": {
+          "line": 39,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 39,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/clorinde/cons.go",
+          "line": 71,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "clorinde-c1-shade",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "columbina-gravity-trigger",
+      "character": "columbina",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/columbina/skill.go",
+      "registerKey": "columbina-gravity-on-dmg",
+      "queueMode": "Lunar hit updates gravity; accumulator recurrence may cross threshold; gravityTick queues attacks at configured hitmarks",
+      "gateEvidence": "Lunar attack tag; skill active; gravity threshold reached",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "55da46d8655d3763e9f4c80b11eb9129a1ecd51b971e324ce904677cfb4e63b0",
+        "stellar": "42faeffb8be13e50ece34d0d6f6103b9cf080d9927aafe6c2440dd317d2e4765"
+      },
+      "registration": {
+        "classic": {
+          "line": 77,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 77,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/columbina/skill.go",
+          "line": 124,
+          "operation": "QueueCharTask accumulator recurrence"
+        },
+        {
+          "path": "internal/characters/columbina/skill.go",
+          "line": 242,
+          "operation": "QueueCharTask attack hitmark"
+        },
+        {
+          "path": "internal/characters/columbina/skill.go",
+          "line": 260,
+          "operation": "QueueAttack"
+        },
+        {
+          "path": "internal/characters/columbina/skill.go",
+          "line": 266,
+          "operation": "QueueCharTask attack hitmark"
+        },
+        {
+          "path": "internal/characters/columbina/skill.go",
+          "line": 283,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "columbina-gravity-trigger",
+      "category": [
+        "delayed",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "dehya-skill-followup",
+      "character": "dehya",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/dehya/skill.go",
+      "registerKey": "dehya-skill",
+      "queueMode": "snapshotted follow-up attack with delay 2; separately schedules C2 flag clear",
+      "gateEvidence": "field active; ICD inactive; nonzero damage within skill area",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b",
+        "stellar": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b"
+      },
+      "registration": {
+        "classic": {
+          "line": 130,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 130,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/dehya/skill.go",
+          "line": 151,
+          "operation": "QueueAttackWithSnap"
+        },
+        {
+          "path": "internal/characters/dehya/skill.go",
+          "line": 160,
+          "operation": "Tasks.Add flag clear"
+        }
+      ],
+      "family": "dehya-skill-followup",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "faruzan-c6-collapse",
+      "character": "faruzan",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/faruzan/cons.go",
+      "registerKey": "faruzan-c6-hook",
+      "queueMode": "callback invokes pressurizedCollapse; task waits vortexHitmark then queues snapshotted attack",
+      "gateEvidence": "nonzero damage by active character; burst buff active; C6 ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "9bc6e92b476328268deffda19ac068256746a3b710588390cb75697dac24a2fd",
+        "stellar": "9bc6e92b476328268deffda19ac068256746a3b710588390cb75697dac24a2fd"
+      },
+      "registration": {
+        "classic": {
+          "line": 61,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 61,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/faruzan/skill.go",
+          "line": 124,
+          "operation": "Tasks.Add"
+        },
+        {
+          "path": "internal/characters/faruzan/skill.go",
+          "line": 125,
+          "operation": "QueueAttackWithSnap"
+        }
+      ],
+      "family": "faruzan-c6-collapse",
+      "category": [
+        "delayed",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "kirara-c4-cardamom",
+      "character": "kirara",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/kirara/cons.go",
+      "registerKey": "kirara-c4",
+      "queueMode": "attack enqueue with zero delays",
+      "gateEvidence": "C4 ICD inactive; Kirara shield exists; Normal/Extra/Plunge trigger",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "e4f6666f2905b05db1d100f3d04792faf5422d861e78dd159c5693102c9c1028",
+        "stellar": "e4f6666f2905b05db1d100f3d04792faf5422d861e78dd159c5693102c9c1028"
+      },
+      "registration": {
+        "classic": {
+          "line": 29,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 29,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/kirara/cons.go",
+          "line": 61,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "kirara-c4-cardamom",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "kuki-c4-thundergrass",
+      "character": "kuki",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/kuki/cons.go",
+      "registerKey": "kuki-c4",
+      "queueMode": "attack enqueue with 5-frame delay",
+      "gateEvidence": "C4 ICD inactive; active Normal/Extra/Plunge; ring active",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9",
+        "stellar": "9ad2b1e7eef798ca0551558c5602a51e60e317dea1194a5dd9681ffa1403edc9"
+      },
+      "registration": {
+        "classic": {
+          "line": 22,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 22,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/kuki/cons.go",
+          "line": 66,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "kuki-c4-thundergrass",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "mona-burst-bubble",
+      "character": "mona",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/mona/burst.go",
+      "registerKey": "mona-bubble-check",
+      "queueMode": "handler calls triggerBubbleBurst helper; helper queues single-target attack with 1-frame delay",
+      "gateEvidence": "bubble status active; bubble-break tag or impulse allowed",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "ee5fab64267927a9c5e08c598ab106356941bd07a43091b7fd8ef3f87ba2e74d",
+        "stellar": "dd377166253cf17a8f6acc8b04f85729d1f7aa523f38e2ceb536161cbc84f386"
+      },
+      "registration": {
+        "classic": {
+          "line": 128,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 130,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/mona/burst.go",
+          "line": 176,
+          "operation": "QueueAttack in triggerBubbleBurst"
+        }
+      ],
+      "family": "mona-burst-bubble",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "mona-c2-followup",
+      "character": "mona",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/mona/cons.go",
+      "registerKey": "mona-c2-followup",
+      "queueMode": "handler calls doCA helper, which queues Charged Attack with delay 53",
+      "gateEvidence": "Mona own Normal hit; random 20% or Hexerei post-burst state; ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "100c2a1d5ed3d3dd85d54c51c775c0c149a87a152a378134976c18b57acd3f1a",
+        "stellar": "7925726690cfdd9d9f4bcf906f0c0dd9de318a2d51e3c95908496a3088087c5f"
+      },
+      "registration": {
+        "classic": {
+          "line": 115,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 115,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/mona/charge.go",
+          "line": 60,
+          "operation": "QueueAttack in doCA"
+        }
+      ],
+      "family": "mona-c2-followup",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "nahida-trikarma-bloom",
+      "character": "nahida",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/nahida/nahida.go",
+      "registerKey": "nahida-tri-karma",
+      "queueMode": "method handler dispatches through triKarmaOnBloomDamage to triggerTriKarmaDamageIfAvail, which queues snapshotted attacks",
+      "gateEvidence": "enemy target; Bloom/Burgeon/Hyperbloom; skill mark active; ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "deba042f5f68a238aecb3bbe1d31b311acabb45bfb7845c177eb99951261c29a",
+        "stellar": "deba042f5f68a238aecb3bbe1d31b311acabb45bfb7845c177eb99951261c29a"
+      },
+      "registration": {
+        "classic": {
+          "line": 49,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, c.triKarmaOnBloomDamage, \"nahida-tri-karma\")"
+        },
+        "stellar": {
+          "line": 49,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, c.triKarmaOnBloomDamage, \"nahida-tri-karma\")"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/nahida/skill.go",
+          "line": 170,
+          "operation": "triKarmaOnBloomDamage"
+        },
+        {
+          "path": "internal/characters/nahida/skill.go",
+          "line": 191,
+          "operation": "triggerTriKarmaDamageIfAvail"
+        },
+        {
+          "path": "internal/characters/nahida/skill.go",
+          "line": 240,
+          "operation": "QueueAttackWithSnap"
+        }
+      ],
+      "family": "nahida-trikarma-bloom",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "ororon-a1-hypersense",
+      "character": "ororon",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/ororon/asc.go",
+      "registerKey": "a1NSTriggerKey",
+      "queueMode": "handler calls a1NightSoulAttack then hypersense, which queues area attacks",
+      "gateEvidence": "other actor with Nightsoul tag; >=10 points; ICD inactive",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "9b3f8641a552247caefe42e786a076b0d612e8769f685550642d6b992d64e2ae",
+        "stellar": "a905749b14cd91d807d810b7c43fea2063fecc0136fccbc857c2fec7bda40f7b"
+      },
+      "registration": {
+        "classic": {
+          "line": 88,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 88,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/ororon/asc.go",
+          "line": 97,
+          "operation": "a1NightSoulAttack"
+        },
+        {
+          "path": "internal/characters/ororon/asc.go",
+          "line": 116,
+          "operation": "hypersense"
+        },
+        {
+          "path": "internal/characters/ororon/asc.go",
+          "line": 134,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "ororon-a1-hypersense",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "raiden-eye-followup",
+      "character": "raiden",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/raiden/skill.go",
+      "registerKey": "raiden-eye",
+      "queueMode": "attack enqueue at 5-frame delay",
+      "gateEvidence": "Eye ICD; attacking actor skill status active; exclude reaction/self damage; damage nonzero",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "4715bf2f4a3dfff1b83a8f341b15a7065e6473e0dda135246fcc83e22b239d03",
+        "stellar": "4715bf2f4a3dfff1b83a8f341b15a7065e6473e0dda135246fcc83e22b239d03"
+      },
+      "registration": {
+        "classic": {
+          "line": 113,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 113,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/raiden/skill.go",
+          "line": 159,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "raiden-eye-followup",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "tartaglia-riptide-death",
+      "character": "tartaglia",
+      "eventType": "OnTargetDied",
+      "sourcePath": "internal/characters/tartaglia/riptide.go",
+      "registerKey": "tartaglia-on-enemy-death",
+      "queueMode": "Core.Tasks.Add after 5 frames then attack enqueue",
+      "gateEvidence": "dead target is enemy and has Riptide status",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+        "stellar": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f"
+      },
+      "registration": {
+        "classic": {
+          "line": 252,
+          "expression": "c.Core.Events.Subscribe(event.OnTargetDied, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 252,
+          "expression": "c.Core.Events.Subscribe(event.OnTargetDied, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/tartaglia/riptide.go",
+          "line": 262,
+          "operation": "Tasks.Add"
+        },
+        {
+          "path": "internal/characters/tartaglia/riptide.go",
+          "line": 277,
+          "operation": "QueueAttack"
+        }
+      ],
+      "assignment": "assigned to current source agent",
+      "family": "tartaglia-riptide-death",
+      "category": [
+        "delayed",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "traveler-electro-bellowing-thunder",
+      "character": "traveler-electro",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/traveler/common/electro/burst.go",
+      "registerKey": "travelerelectro-bellowingthunder",
+      "queueMode": "queues burst AttackEvent with 1-frame delay",
+      "gateEvidence": "active actor Normal/Extra; Electro Traveler burst active; 30-frame ICD",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56",
+        "stellar": "a25732d15f266240f05c058b9310ee35152ee0f180f2cb1f5771699c9474fc56"
+      },
+      "registration": {
+        "classic": {
+          "line": 95,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 95,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/traveler/common/electro/burst.go",
+          "line": 139,
+          "operation": "QueueAttackEvent"
+        }
+      ],
+      "family": "traveler-electro-bellowing-thunder",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "traveler-pyro-scorching-threshold",
+      "character": "traveler-pyro",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/traveler/common/pyro/skill.go",
+      "registerKey": "travelerpyro-scorching-threshold",
+      "queueMode": "attack enqueue with scorchingThresholdHitmarkDelay",
+      "gateEvidence": "enemy target; Scorching Threshold active; ICD inactive; eligible nonzero damage",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "d7613291c372fa97fc93a67d2642ef88c65317f4331b01dd9d531ef4612b8416",
+        "stellar": "e60e46b54d91ba9ef3661c1d46267e00bd4f0dea87a07880df99fa214a52948c"
+      },
+      "registration": {
+        "classic": {
+          "line": 194,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 194,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/traveler/common/pyro/skill.go",
+          "line": 233,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "traveler-pyro-scorching-threshold",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "yoimiya-aurous-blaze-explosion",
+      "character": "yoimiya",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/yoimiya/burst.go",
+      "registerKey": "yoimiya-burst-check",
+      "queueMode": "attack enqueue with delay 0 / hitmark 1",
+      "gateEvidence": "target has Aurous Blaze; actor is not Yoimiya; target ICD inactive; allowed attack tags",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": true,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": "3526cf3ba995ac97069953c5e25bcddb2a2622a00765b0ed30b58e2ce7549b50",
+        "stellar": "3526cf3ba995ac97069953c5e25bcddb2a2622a00765b0ed30b58e2ce7549b50"
+      },
+      "registration": {
+        "classic": {
+          "line": 104,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        },
+        "stellar": {
+          "line": 104,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/yoimiya/burst.go",
+          "line": 150,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "yoimiya-aurous-blaze-explosion",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    },
+    {
+      "id": "odette-c4",
+      "character": "odette",
+      "eventType": "OnEnemyDamage",
+      "sourcePath": "internal/characters/odette/cons.go",
+      "registerKey": "c4Key",
+      "queueMode": "attack enqueue with 5-frame delay",
+      "gateEvidence": "enemy target; eligible Stellar-Conduct/Stellar-Swirl tag; C4 ICD inactive; stellar source only",
+      "sourceCommit": {
+        "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      },
+      "lanePresence": {
+        "classic": false,
+        "stellar": true
+      },
+      "sourceSha256": {
+        "classic": null,
+        "stellar": "736ee8fc6822b1ac484321075d54b13989f4d858c1094f1dc6a4333845850bab"
+      },
+      "registration": {
+        "classic": null,
+        "stellar": {
+          "line": 235,
+          "expression": "c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {"
+        }
+      },
+      "queueEvidence": [
+        {
+          "path": "internal/characters/odette/cons.go",
+          "line": 288,
+          "operation": "QueueAttack"
+        }
+      ],
+      "family": "odette-c4",
+      "category": [
+        "direct",
+        "status-gated"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,210 @@
+diff --git a/internal/characters/furina/cons.go b/internal/characters/furina/cons.go
+--- a/internal/characters/furina/cons.go
++++ b/internal/characters/furina/cons.go
+@@ -98,11 +98,17 @@
+ 
+ 	case pneuma:
+ 		for _, char := range c.Core.Player.Chars() {
+-			hpDrain := char.CurrentHP() * 0.01
++			currentHP := char.CurrentHP()
++			hpDrain := currentHP * 0.01
++			sourceAmountID := 0
++			if c.Core.SourceHost != nil {
++				hpDrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-furina-c6-pneuma", map[string]any{"currentHp": currentHP}, nil)
++			}
+ 			c.Core.Player.Drain(info.DrainInfo{
+-				ActorIndex: char.Index(),
+-				Abil:       "Furina C6 Pneuma Drain",
+-				Amount:     hpDrain,
++				ActorIndex:         char.Index(),
++				Abil:               "Furina C6 Pneuma Drain",
++				Amount:             hpDrain,
++				SourceHostAmountID: sourceAmountID,
+ 			})
+ 		}
+ 	}
+diff --git a/internal/characters/furina/skill.go b/internal/characters/furina/skill.go
+--- a/internal/characters/furina/skill.go
++++ b/internal/characters/furina/skill.go
+@@ -402,12 +402,24 @@
+ 			// her skill does not drain the HP of active characters that are in burst iframes
+ 			continue
+ 		}
+-		hpDrain := char.MaxHP() * hpDrainRatio
++		var maxHP float64
++		var maxHPRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHP, maxHPRead = char.MaxHPWithProvenance()
++		} else {
++			maxHP = char.MaxHP()
++		}
++		hpDrain := maxHP * hpDrainRatio
++		sourceAmountID := 0
++		if c.Core.SourceHost != nil {
++			hpDrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-furina-skill", map[string]any{"maxHp": maxHP, "ratio": hpDrainRatio}, []*info.SourceHostStatRead{maxHPRead})
++		}
+ 
+ 		c.Core.Player.Drain(info.DrainInfo{
+-			ActorIndex: char.Index(),
+-			Abil:       "Salon Solitaire",
+-			Amount:     hpDrain,
++			ActorIndex:         char.Index(),
++			Abil:               "Salon Solitaire",
++			Amount:             hpDrain,
++			SourceHostAmountID: sourceAmountID,
+ 		})
+ 	}
+ 
+diff --git a/internal/characters/gaming/plunge.go b/internal/characters/gaming/plunge.go
+--- a/internal/characters/gaming/plunge.go
++++ b/internal/characters/gaming/plunge.go
+@@ -234,16 +234,27 @@
+ 		// only drain HP when above 10% HP
+ 		if c.CurrentHPRatio() > hpDrainThreshold {
+ 			currentHP := c.CurrentHP()
+-			maxHP := c.MaxHP()
++			var maxHP float64
++			var maxHPRead *info.SourceHostStatRead
++			if c.Core.SourceHost != nil {
++				maxHP, maxHPRead = c.MaxHPWithProvenance()
++			} else {
++				maxHP = c.MaxHP()
++			}
+ 			hpdrain := 0.15 * maxHP
+ 			// The HP consumption from using this skill can only bring him to 10% HP.
+ 			if (currentHP-hpdrain)/maxHP <= hpDrainThreshold {
+ 				hpdrain = currentHP - hpDrainThreshold*maxHP
+ 			}
++			sourceAmountID := 0
++			if c.Core.SourceHost != nil {
++				hpdrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-gaming-plunge", map[string]any{"currentHp": currentHP, "maxHp": maxHP}, []*info.SourceHostStatRead{maxHPRead})
++			}
+ 			c.Core.Player.Drain(info.DrainInfo{
+-				ActorIndex: c.Index(),
+-				Abil:       specialPlungeKey,
+-				Amount:     hpdrain,
++				ActorIndex:         c.Index(),
++				Abil:               specialPlungeKey,
++				Amount:             hpdrain,
++				SourceHostAmountID: sourceAmountID,
+ 			})
+ 		}
+ 	}, specialPlungeHitmark+1)
+diff --git a/internal/characters/hutao/skill.go b/internal/characters/hutao/skill.go
+--- a/internal/characters/hutao/skill.go
++++ b/internal/characters/hutao/skill.go
+@@ -60,10 +60,17 @@
+ 	c.QueueCharTask(c.a1, 540+skillStart)
+ 
+ 	// remove some hp
++	currentHP := c.CurrentHP()
++	hpDrain := 0.30 * currentHP
++	sourceAmountID := 0
++	if c.Core.SourceHost != nil {
++		hpDrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-hutao-skill", map[string]any{"currentHp": currentHP}, nil)
++	}
+ 	c.Core.Player.Drain(info.DrainInfo{
+-		ActorIndex: c.Index(),
+-		Abil:       "Paramita Papilio",
+-		Amount:     0.30 * c.CurrentHP(),
++		ActorIndex:         c.Index(),
++		Abil:               "Paramita Papilio",
++		Amount:             hpDrain,
++		SourceHostAmountID: sourceAmountID,
+ 	})
+ 
+ 	// trigger 0 damage attack; matters because this breaks freeze
+diff --git a/internal/characters/kuki/skill.go b/internal/characters/kuki/skill.go
+--- a/internal/characters/kuki/skill.go
++++ b/internal/characters/kuki/skill.go
+@@ -31,16 +31,27 @@
+ 	// only drain HP when above 20% HP
+ 	if c.CurrentHPRatio() > hpDrainThreshold {
+ 		currentHP := c.CurrentHP()
+-		maxHP := c.MaxHP()
++		var maxHP float64
++		var maxHPRead *info.SourceHostStatRead
++		if c.Core.SourceHost != nil {
++			maxHP, maxHPRead = c.MaxHPWithProvenance()
++		} else {
++			maxHP = c.MaxHP()
++		}
+ 		hpdrain := 0.3 * currentHP
+ 		// The HP consumption from using this skill can only bring her to 20% HP.
+ 		if (currentHP-hpdrain)/maxHP <= hpDrainThreshold {
+ 			hpdrain = currentHP - hpDrainThreshold*maxHP
+ 		}
++		sourceAmountID := 0
++		if c.Core.SourceHost != nil {
++			hpdrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-kuki-skill", map[string]any{"currentHp": currentHP, "maxHp": maxHP}, []*info.SourceHostStatRead{maxHPRead})
++		}
+ 		c.Core.Player.Drain(info.DrainInfo{
+-			ActorIndex: c.Index(),
+-			Abil:       "Sanctifying Ring",
+-			Amount:     hpdrain,
++			ActorIndex:         c.Index(),
++			Abil:               "Sanctifying Ring",
++			Amount:             hpdrain,
++			SourceHostAmountID: sourceAmountID,
+ 		})
+ 	}
+ 
+diff --git a/internal/characters/lynette/skill.go b/internal/characters/lynette/skill.go
+--- a/internal/characters/lynette/skill.go
++++ b/internal/characters/lynette/skill.go
+@@ -241,10 +241,17 @@
+ 		if count == 4 {
+ 			return
+ 		}
++		currentHP := c.CurrentHP()
++		hpDrain := 0.06 * currentHP
++		sourceAmountID := 0
++		if c.Core.SourceHost != nil {
++			hpDrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-lynette-skill", map[string]any{"currentHp": currentHP}, nil)
++		}
+ 		c.Core.Player.Drain(info.DrainInfo{
+-			ActorIndex: c.Index(),
+-			Abil:       "Enigmatic Feint",
+-			Amount:     0.06 * c.CurrentHP(),
++			ActorIndex:         c.Index(),
++			Abil:               "Enigmatic Feint",
++			Amount:             hpDrain,
++			SourceHostAmountID: sourceAmountID,
+ 		})
+ 		c.QueueCharTask(c.skillDrain(count), 1*60)
+ 	}
+diff --git a/internal/characters/lyney/aimed.go b/internal/characters/lyney/aimed.go
+--- a/internal/characters/lyney/aimed.go
++++ b/internal/characters/lyney/aimed.go
+@@ -189,16 +189,27 @@
+ 	}
+ 
+ 	currentHP := c.CurrentHP()
+-	maxHP := c.MaxHP()
++	var maxHP float64
++	var maxHPRead *info.SourceHostStatRead
++	if c.Core.SourceHost != nil {
++		maxHP, maxHPRead = c.MaxHPWithProvenance()
++	} else {
++		maxHP = c.MaxHP()
++	}
+ 	hpdrain := propSurplusHPDrainRatio * maxHP
+ 	// The lowest Lyney can drop to through this method is 60% of his Max HP.
+ 	if (currentHP-hpdrain)/maxHP <= propSurplusHPDrainThreshold {
+ 		hpdrain = currentHP - propSurplusHPDrainThreshold*maxHP
+ 	}
++	sourceAmountID := 0
++	if c.Core.SourceHost != nil {
++		hpdrain, sourceAmountID = c.Core.SourceHost.DrainSourceCompute(c.Index(), "drain-source-lyney-prop-surplus", map[string]any{"currentHp": currentHP, "maxHp": maxHP}, []*info.SourceHostStatRead{maxHPRead})
++	}
+ 	c.Core.Player.Drain(info.DrainInfo{
+-		ActorIndex: c.Index(),
+-		Abil:       "Prop Surplus",
+-		Amount:     hpdrain,
++		ActorIndex:         c.Index(),
++		Abil:               "Prop Surplus",
++		Amount:             hpdrain,
++		SourceHostAmountID: sourceAmountID,
+ 	})
+ 
+ 	c.increasePropSurplusStacks()

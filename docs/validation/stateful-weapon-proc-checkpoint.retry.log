@@ -1,0 +1,32 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ × packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts > actual deterministic stateful weapon checkpoints > establishes all four live state machines, retains boundary snapshots and distinguishes unfinished Flute notes 14ms
+   → 配置校验失败：
+- timeline.abilities.1.hits.0.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks: expected 'blocked' to be 'steady-state-established' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts > actual deterministic stateful weapon checkpoints > establishes all four live state machines, retains boundary snapshots and distinguishes unfinished Flute notes
+AssertionError: 配置校验失败：
+- timeline.abilities.1.hits.0.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks: expected 'blocked' to be 'steady-state-established' // Object.is equality
+
+Expected: "steady-state-established"
+Received: "blocked"
+
+ ❯ packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts:65:54
+     63|     const config = fixture();
+     64|     const result = simulateWithStartup(config, { mode: "steady-state",…
+     65|     expect(result.status, result.reasons.join("; ")).toBe("steady-stat…
+       |                                                      ^
+     66|     expect(result.result!.executionAudit!.checkpointCoverage).toMatchO…
+     67|     expect(result.steadyState!.periodCycles).toBe(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  11:36:38
+   Duration  894ms (transform 649ms, setup 0ms, import 824ms, tests 14ms, environment 0ms)
+

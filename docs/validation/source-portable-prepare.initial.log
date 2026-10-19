@@ -1,0 +1,19 @@
+
+> genshin-dps-lab@1.0.0 source:prepare
+> node packages/source-host/scripts/prepare-source.mjs
+
+Downloading pinned source https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541
+{
+  "sourceDir": "/tmp/gidps-source-host-cache/upstream/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/source",
+  "treeFile": "/Users/evan/Documents/gidps/packages/source-host/sources/gcsim-b4ae769-tree.json",
+  "receipt": {
+    "sourceUrl": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "archiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+    "archiveBytes": 56440121,
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+    "verifiedBlobCount": 4021
+  }
+}
+
+WALL_SECONDS=8.634

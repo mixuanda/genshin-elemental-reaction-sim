@@ -1,0 +1,130 @@
+--- a/pkg/reactable/lunarcharged.go
++++ b/pkg/reactable/lunarcharged.go
+@@ -105,6 +105,9 @@
+ 
+ func (r *Reactable) doSingleLCAttack(contribMap [info.MaxChars]bool, consumeAura bool) {
+ 	contributions := []lcContribution{}
++	sourceHostOriginalIDs := []int{}
++	sourceHostIDsByActor := map[int]int{}
++	sourceHostRanked := []info.SourceHostComponent{}
+ 
+ 	ap := combat.NewSingleTargetHit(r.self.Key())
+ 
+@@ -141,12 +144,22 @@
+ 		cr := ae.Snapshot.Stats[attributes.CR]
+ 		cd := ae.Snapshot.Stats[attributes.CD]
+ 		react := char.ReactBonus(ae.Info)
+-		totalDmg := combat.CalcLunarReactionDmg(char.Base.Level, react, ae.Info, em)
++		totalDmg := 0.0
+ 		isCrit := false
+-
+-		if r.core.Rand.Float64() <= cr {
+-			totalDmg *= (1 + cd)
+-			isCrit = true
++		if r.core.SourceHost != nil {
++			// Preserve the one source draw at its original position after ReactBonus.
++			roll := r.core.Rand.Float64()
++			isCrit = roll <= cr
++			var calculationID int
++			totalDmg, calculationID = r.core.SourceHost.LunarContributor(&ae, r.self.Key(), char.Base.Level, combat.CalcReactionBaseDmg(char.Base.Level), react, roll, isCrit)
++			sourceHostOriginalIDs = append(sourceHostOriginalIDs, calculationID)
++			sourceHostIDsByActor[charInd] = calculationID
++		} else {
++			totalDmg = combat.CalcLunarReactionDmg(char.Base.Level, react, ae.Info, em)
++			if r.core.Rand.Float64() <= cr {
++				totalDmg *= (1 + cd)
++				isCrit = true
++			}
+ 		}
+ 
+ 		contributions = append(contributions, lcContribution{totalDmg, isCrit, charInd, cr, cd, em, react, ae.Info.Elevation, ae.Info.BaseDmgBonus})
+@@ -181,11 +194,21 @@
+ 			Write("elevation", &contr.elev).
+ 			Write("base damage bonus", &contr.baseDmgBonus)
+ 
+-		ai.FlatDmg += contr.dmg * lcContributorMult[i]
++		if r.core.SourceHost != nil {
++			// Receipt only: the weighted amount actually used below comes from TS.
++			sourceHostRanked = append(sourceHostRanked, info.SourceHostComponent{ID: sourceHostIDsByActor[contr.charInd], Multiplier: lcContributorMult[i], Amount: contr.dmg * lcContributorMult[i]})
++		} else {
++			ai.FlatDmg += contr.dmg * lcContributorMult[i]
++		}
+ 	}
+ 
+ 	// LC is owned by the character that last triggered Lunar Charged
+ 	ai.ActorIndex = r.lcAtkOwner
++	if r.core.SourceHost != nil {
++		var calculationID int
++		ai.FlatDmg, calculationID = r.core.SourceHost.LunarRanked(ai, r.self.Key(), sourceHostOriginalIDs, sourceHostRanked, lcContributorMult, contributions[0].isCrit)
++		ai.SourceHostComponents = []info.SourceHostComponent{{ID: calculationID, Multiplier: 1, Amount: ai.FlatDmg}}
++	}
+ 	snap := info.Snapshot{}
+ 	if contributions[0].isCrit {
+ 		snap.Stats[attributes.CR] = 1.0
+--- a/pkg/reactable/lunarcrystallize.go
++++ b/pkg/reactable/lunarcrystallize.go
+@@ -148,6 +148,9 @@
+ 
+ func doSingleLCrAttack(contribMap [info.MaxChars]bool, target info.Target, core *core.Core, owner int) {
+ 	contributions := []lcrContribution{}
++	sourceHostOriginalIDs := []int{}
++	sourceHostIDsByActor := map[int]int{}
++	sourceHostRanked := []info.SourceHostComponent{}
+ 
+ 	ap := combat.NewSingleTargetHit(target.Key())
+ 
+@@ -184,12 +187,23 @@
+ 		cr := ae.Snapshot.Stats[attributes.CR]
+ 		cd := ae.Snapshot.Stats[attributes.CD]
+ 
+-		flatdmg := combat.CalcLunarReactionDmg(char.Base.Level, char.ReactBonus(ae.Info), ae.Info, em)
++		sourceHostReactionBonus := char.ReactBonus(ae.Info)
++		flatdmg := 0.0
+ 		isCrit := false
+-
+-		if core.Rand.Float64() <= cr {
+-			flatdmg *= (1 + cd)
+-			isCrit = true
++		if core.SourceHost != nil {
++			// Preserve the one source draw at its original position after ReactBonus.
++			roll := core.Rand.Float64()
++			isCrit = roll <= cr
++			var calculationID int
++			flatdmg, calculationID = core.SourceHost.LunarContributor(&ae, target.Key(), char.Base.Level, combat.CalcReactionBaseDmg(char.Base.Level), sourceHostReactionBonus, roll, isCrit)
++			sourceHostOriginalIDs = append(sourceHostOriginalIDs, calculationID)
++			sourceHostIDsByActor[charInd] = calculationID
++		} else {
++			flatdmg = combat.CalcLunarReactionDmg(char.Base.Level, sourceHostReactionBonus, ae.Info, em)
++			if core.Rand.Float64() <= cr {
++				flatdmg *= (1 + cd)
++				isCrit = true
++			}
+ 		}
+ 
+ 		contributions = append(contributions, lcrContribution{flatdmg, isCrit, charInd, ae})
+@@ -227,7 +241,12 @@
+ 			Write("flat_dmg", &contr.ae.Info.FlatDmg).
+ 			Write("elevation", &contr.ae.Info.Elevation)
+ 
+-		ai.FlatDmg += contr.dmg * lcrContributorMult[i]
++		if core.SourceHost != nil {
++			// Receipt only: the weighted amount actually used below comes from TS.
++			sourceHostRanked = append(sourceHostRanked, info.SourceHostComponent{ID: sourceHostIDsByActor[contr.charInd], Multiplier: lcrContributorMult[i], Amount: contr.dmg * lcrContributorMult[i]})
++		} else {
++			ai.FlatDmg += contr.dmg * lcrContributorMult[i]
++		}
+ 	}
+ 
+ 	snap := info.Snapshot{}
+@@ -236,6 +255,11 @@
+ 	}
+ 	// LCr is owned by the character that last triggered Lunar Crystallize for this instance of Lunar Crystallize
+ 	ai.ActorIndex = owner
++	if core.SourceHost != nil {
++		var calculationID int
++		ai.FlatDmg, calculationID = core.SourceHost.LunarRanked(ai, target.Key(), sourceHostOriginalIDs, sourceHostRanked, lcrContributorMult, contributions[0].isCrit)
++		ai.SourceHostComponents = []info.SourceHostComponent{{ID: calculationID, Multiplier: 1, Amount: ai.FlatDmg}}
++	}
+ 	core.QueueAttackWithSnap(
+ 		ai,
+ 		snap,

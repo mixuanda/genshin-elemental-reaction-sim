@@ -1,0 +1,83 @@
+diff --git a/internal/characters/arlecchino/arlecchino.go b/internal/characters/arlecchino/arlecchino.go
+--- a/internal/characters/arlecchino/arlecchino.go
++++ b/internal/characters/arlecchino/arlecchino.go
+@@ -79,7 +79,21 @@
+ func (c *char) ReceiveHeal(hi *info.HealInfo, healAmt float64) float64 {
+ 	// ignore all healing except hers
+ 	if hi.Caller == c.Index() && hi.Message == balemoonRisingHealAbil {
++		if c.Core.SourceHost != nil {
++			delegated, id := c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++				map[string]any{"operation": "receive-delegation", "branch": "arlecchino-own-burst", "finalAmount": healAmt},
++				nil, nil, []int{c.Core.SourceHost.CurrentHealingAmountID()})
++			c.Core.SourceHost.RecordHealingDelegation(id)
++			healAmt = delegated
++		}
+ 		return c.Character.ReceiveHeal(hi, healAmt)
++	}
++	if c.Core.SourceHost != nil {
++		received, id := c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "receive-override", "branch": "arlecchino-rejected", "finalAmount": healAmt},
++			nil, nil, []int{c.Core.SourceHost.CurrentHealingAmountID()})
++		c.Core.SourceHost.RecordHealingReceive(id)
++		return received
+ 	}
+ 	return 0
+ }
+diff --git a/internal/characters/clorinde/heal.go b/internal/characters/clorinde/heal.go
+--- a/internal/characters/clorinde/heal.go
++++ b/internal/characters/clorinde/heal.go
+@@ -10,24 +10,52 @@
+ func (c *char) ReceiveHeal(hi *info.HealInfo, healAmt float64) float64 {
+ 	// no healing if in skill state; otherwise behave as normal
+ 	if !c.StatusIsActive(skillStateKey) {
++		if c.Core.SourceHost != nil {
++			delegated, id := c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++				map[string]any{"operation": "receive-delegation", "branch": "clorinde-outside-skill", "finalAmount": healAmt},
++				nil, nil, []int{c.Core.SourceHost.CurrentHealingAmountID()})
++			c.Core.SourceHost.RecordHealingDelegation(id)
++			healAmt = delegated
++		}
+ 		return c.Character.ReceiveHeal(hi, healAmt)
+ 	}
+ 
+ 	// keep heal by clorinde by default
+ 	if hi.Caller == c.Index() && strings.HasPrefix(hi.Message, "Impale the Night") {
++		if c.Core.SourceHost != nil {
++			delegated, id := c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++				map[string]any{"operation": "receive-delegation", "branch": "clorinde-own-impale", "finalAmount": healAmt},
++				nil, nil, []int{c.Core.SourceHost.CurrentHealingAmountID()})
++			c.Core.SourceHost.RecordHealingDelegation(id)
++			healAmt = delegated
++		}
+ 		return c.Character.ReceiveHeal(hi, healAmt)
+ 	}
+ 
+ 	// amount is converted into bol
+ 	factor := healingBOL
+-	if c.Base.Ascension >= 4 {
++	ascension := c.Base.Ascension
++	if ascension >= 4 {
+ 		factor = 1
+ 	}
+ 
+ 	amt := healAmt * factor
++	received := 0.0
++	if c.Core.SourceHost != nil {
++		amountID := c.Core.SourceHost.CurrentHealingAmountID()
++		conversionID := 0
++		amt, conversionID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "receive-conversion", "finalAmount": healAmt, "ascension": ascension},
++			nil, nil, []int{amountID})
++		var receiveID int
++		received, receiveID = c.Core.SourceHost.CharacterHealing(c.Index(), hi.Message,
++			map[string]any{"operation": "receive-override", "branch": "clorinde-converted", "finalAmount": healAmt, "convertedAmount": amt},
++			nil, nil, []int{amountID, conversionID})
++		c.Core.SourceHost.RecordHealingReceive(receiveID)
++	}
+ 	c.Core.Log.NewEvent("clorinde healing surpressed", glog.LogHealEvent, c.Index()).
+ 		Write("bol_amount", amt)
+ 	c.ModifyHPDebtByAmount(amt)
+ 
+-	return 0
++	return received
+ }

@@ -1,0 +1,13 @@
+command: node packages/source-host/stellar-overlay/build.mjs
+exit_code: 0
+wall_seconds: 4.566
+{
+  "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "verifiedBlobCount": 4283,
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "89ae6d954ae5149fbcc65121ab1f3485c2192066774f77c8b334ba81c1447d91",
+    "bytes": 61525725
+  },
+  "manifest": "/Users/evan/Documents/gidps/packages/source-host/stellar-overlay/dist/manifest.json"
+}

@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "1.0.0",
+  "catalogVersion": "gi-6.7-zh-CN.genshin-db-5.2.12.enka-2b9d23b.1",
+  "gameVersion": "6.7",
+  "sourceVersion": "5.2.12",
+  "sourceCommit": "1bab2cdba4d218fd5caa46b5f54e7884ee8359a2",
+  "retrievedAt": "2026-07-26T00:00:00.000Z",
+  "releaseStatus": "unknown",
+  "sourceSha256": "ed67decfbb3785be5c62b0eda1ed5433cae210fa98e107641defa2fb576488e0",
+  "notes": "Generated from the exact npm package pinned in package-lock.json; upstream data is community/datamined and remains provisional.",
+  "historicalLabelNote": "Historical supplied catalog label; this label is not proof of the current official release or full verified coverage."
+}

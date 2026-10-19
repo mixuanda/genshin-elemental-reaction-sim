@@ -1,0 +1,26 @@
+
+> genshin-dps-lab@1.0.0 source:build
+> node packages/source-host/scripts/build-source-host.mjs --cache-dir /Users/evan/Library/Caches/gidps-source-host
+
+Exporting verified source into /Users/evan/Library/Caches/gidps-source-host/build-Az9yM4/source
+Downloading https://go.dev/dl/go1.25.0.darwin-arm64.tar.gz
+go version go1.25.0 darwin/arm64; building ./cmd/sourcehost once
+go: downloading google.golang.org/protobuf v1.34.2
+go: downloading github.com/mailru/easyjson v0.7.7
+go: downloading github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794
+go: downloading github.com/tinylib/msgp v1.1.9
+go: downloading github.com/josharian/intern v1.0.0
+go: downloading github.com/philhofer/fwd v1.1.2
+{"output":"/Users/evan/Library/Caches/gidps-source-host/build-Az9yM4/dist/inventory-metadata.json","packages":401,"resolvedKeys":401,"todoPackages":182,"todoMarkers":493,"sourceFiles":1607}
+{
+  "outputDir": "/Users/evan/Documents/gidps/packages/source-host/dist",
+  "publicDir": "/Users/evan/Documents/gidps/apps/web/public/source-host",
+  "workspace": "/Users/evan/Library/Caches/gidps-source-host/build-Az9yM4",
+  "wasm": {
+    "path": "source-host.wasm",
+    "sha256": "433270171c366d68ab3b46a720ac84965b244bfd2a5ff1ee412f1a4d43fbcec6",
+    "size": 45053407
+  },
+  "linkedDependencyCount": 6,
+  "missingDependencyLicenses": []
+}

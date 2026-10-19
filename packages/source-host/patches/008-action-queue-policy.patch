@@ -1,0 +1,57 @@
+diff --git a/pkg/simulation/run.go b/pkg/simulation/run.go
+--- a/pkg/simulation/run.go
++++ b/pkg/simulation/run.go
+@@ -156,6 +156,14 @@
+ 	}
+ 	// TODO: consider changing queue to single item. no need for slice without swap in here
+ 	s.queue = append(s.queue, next)
++	if s.C.SourceHost != nil {
++		// This local observation records the actual source queue frame, not execution.
++		// For implicit swaps next.Char is the requested destination character.
++		s.C.SourceHost.ActionSequence++
++		s.C.Log.NewEvent("source-host action queued", glog.LogActionEvent, s.C.Player.Active()).
++			Write("sequence", s.C.SourceHost.ActionSequence).
++			Write("action", next.Action.String()).Write("characterKey", next.Char.String())
++	}
+ 	return actionReadyCheckPhase, nil
+ }
+ 
+@@ -184,8 +192,14 @@
+ 		switch {
+ 		case errors.Is(err, player.ErrActionNotReady):
+ 			s.C.Log.NewEvent(fmt.Sprintf("could not execute %v; action not ready", q.Action), glog.LogSimEvent, s.C.Player.Active())
++			if s.C.SourceHost != nil && s.C.SourceHost.StrictActions {
++				return nil, fmt.Errorf("source-host strict action not ready at frame %d for %s %s: %w", s.C.F, q.Char, q.Action, err)
++			}
+ 			return s.advanceFrames(1, actionReadyCheckPhase)
+ 		case errors.Is(err, player.ErrPlayerNotReady):
++			if s.C.SourceHost != nil && s.C.SourceHost.StrictActions {
++				return nil, fmt.Errorf("source-host strict player not ready at frame %d for %s %s: %w", s.C.F, q.Char, q.Action, err)
++			}
+ 			return s.advanceFrames(1, actionReadyCheckPhase)
+ 		case errors.Is(err, player.ErrActionNoOp):
+ 			// don't do anything here
+@@ -253,6 +267,11 @@
+ 		// wrap the error for more context
+ 		return nil, fmt.Errorf("error encountered on %v executing %v: %w", q.Char.String(), q.Action.String(), err)
+ 	}
++	if s.C.SourceHost != nil {
++		s.C.Log.NewEvent("source-host action accepted", glog.LogActionEvent, s.C.Player.Active()).
++			Write("sequence", s.C.SourceHost.ActionSequence).
++			Write("action", q.Action.String()).Write("characterKey", q.Char.String())
++	}
+ 	// TODO: this check here is probably unnecessary
+ 	if l := s.popQueue(); l > 0 {
+ 		// don't go back to queue if there are more actions already queued
+@@ -265,6 +284,11 @@
+ func skipUntilCanQueue(s *Simulation) (stateFn, error) {
+ 	if !s.C.Player.CanQueueNextAction() {
+ 		return s.advanceFrames(1, skipUntilCanQueue)
++	}
++	if s.C.SourceHost != nil {
++		// This is the source's first legal next-input frame, after CanQueueNextAction.
++		s.C.Log.NewEvent("source-host input window opened", glog.LogActionEvent, s.C.Player.Active()).
++			Write("sequence", s.C.SourceHost.ActionSequence)
+ 	}
+ 	return queuePhase, nil
+ }

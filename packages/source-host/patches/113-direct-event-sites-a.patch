@@ -1,0 +1,68 @@
+diff --git a/internal/characters/albedo/skill.go b/internal/characters/albedo/skill.go
+--- a/internal/characters/albedo/skill.go
++++ b/internal/characters/albedo/skill.go
+@@ -104,6 +104,8 @@
+ 
+ func (c *char) skillHook() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("albedo.skill.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("albedo.skill.enemy-damage.attack-count", 0)
+ 		trg := args[0].(info.Target)
+ 		atk := args[1].(*info.AttackEvent)
+ 		dmg := args[2].(float64)
+@@ -128,7 +130,9 @@
+ 		// this ICD is most likely tied to the construct, so it's not hitlag extendable
+ 		c.AddStatus(skillICDKey, 120, false) // proc every 2s
+ 
+-		c.Core.QueueAttackWithSnap(
++		c.Core.SourceHostEventListenerFact("albedo.skill.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttackWithSnap(
++			"albedo.skill.proc-attack",
+ 			c.skillAttackInfo,
+ 			c.skillSnapshot,
+ 			combat.NewCircleHitOnTarget(trg, nil, 3.4),
+diff --git a/internal/characters/dehya/skill.go b/internal/characters/dehya/skill.go
+--- a/internal/characters/dehya/skill.go
++++ b/internal/characters/dehya/skill.go
+@@ -124,6 +124,8 @@
+ 
+ func (c *char) skillDmgHook() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("dehya.skill.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("dehya.skill.enemy-damage.attack-count", 0)
+ 		trg := args[0].(info.Target)
+ 		// atk := args[1].(*info.AttackEvent)
+ 		dmg := args[2].(float64)
+@@ -144,7 +146,9 @@
+ 		// this ICD is most likely tied to the construct, so it's not hitlag extendable
+ 		c.AddStatus(skillICDKey, 2.5*60, false)
+ 
+-		c.Core.QueueAttackWithSnap(
++		c.Core.SourceHostEventListenerFact("dehya.skill.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttackWithSnap(
++			"dehya.skill.followup-attack",
+ 			c.skillAttackInfo,
+ 			c.skillSnapshot,
+ 			combat.NewCircleHitOnTarget(trg, nil, 4.5),
+diff --git a/internal/characters/raiden/skill.go b/internal/characters/raiden/skill.go
+--- a/internal/characters/raiden/skill.go
++++ b/internal/characters/raiden/skill.go
+@@ -107,6 +107,8 @@
+ */
+ func (c *char) eyeOnDamage() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("raiden.eye.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("raiden.eye.enemy-damage.attack-count", 0)
+ 		trg := args[0].(info.Target)
+ 		ae := args[1].(*info.AttackEvent)
+ 		dmg := args[2].(float64)
+@@ -149,7 +151,8 @@
+ 			Mult:       skillTick[c.TalentLvlSkill()],
+ 		}
+ 
+-		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(trg, nil, 4), 5, 5, c.particleCB)
++		c.Core.SourceHostEventListenerFact("raiden.eye.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttack("raiden.eye.followup-attack", ai, combat.NewCircleHitOnTarget(trg, nil, 4), 5, 5, c.particleCB)
+ 
+ 		c.eyeICD = c.Core.F + 54 // 0.9 sec icd
+ 	}, "raiden-eye")

@@ -1,0 +1,56 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts (2 tests | 1 failed | 1 skipped) 165ms
+     × applies Noblesse delay, Instructor and Gilded without rewriting snapshots, and Paradise only to an actual Bloom 165ms
+ ❯ packages/sim-core/src/__tests__/player-shield-runtime.test.ts (1 test | 1 failed) 89ms
+   × replays generic shield generation, parallel absorption, replacement, expiry, HP and pending tasks from complete JSON 89ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts > six fixed-source artifact buff lifecycles through real simulation hooks > applies Noblesse delay, Instructor and Gilded without rewriting snapshots, and Paradise only to an actual Bloom
+AssertionError: expected [ { id: 8, …(77) }, { id: 9, …(77) } ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts:88:20
+     86|     expect(paradise.trace.find(raw => (raw as { id: string }).id === "…
+     87|     const blooms = result.damageEvents.filter(row => row.reaction === …
+     88|     expect(blooms).toHaveLength(1);
+       |                    ^
+     89|     expect(blooms[0]).toMatchObject({ sourceActorId: "p", targetId: "b…
+     90|     // Fixed level-90 base 1446.853458; Bloom ×2; live EM120; Paradise…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-shield-runtime.test.ts > replays generic shield generation, parallel absorption, replacement, expiry, HP and pending tasks from complete JSON
+AssertionError: 检查点之后不足两次完整输入周期，单个剩余周期不能证明周期输入重复。: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ packages/sim-core/src/__tests__/player-shield-runtime.test.ts:125:90
+    123|
+    124|   const audit = result.executionAudit!;
+    125|   expect(audit.checkpointCoverage.complete, audit.checkpointCoverage.r…
+       |                                                                                          ^
+    126|   const checkpoint = audit.phaseCheckpoints[0]!;
+    127|   expect(checkpoint.tick).toBe(20);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 1 skipped (3)
+   Start at  09:38:06
+   Duration  1.92s (transform 924ms, setup 0ms, import 1.52s, tests 254ms, environment 0ms)
+
+
+wall_seconds=2.385

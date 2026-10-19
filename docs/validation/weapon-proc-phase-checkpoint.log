@@ -1,0 +1,34 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/weapon-proc-phase-checkpoint.test.ts (3 tests | 1 failed) 83ms
+     × establishes all three source weapons with pending cross-boundary procs and the unchanged ordinary Aura scope 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/weapon-proc-phase-checkpoint.test.ts > actual deterministic independent weapon checkpoints > establishes all three source weapons with pending cross-boundary procs and the unchanged ordinary Aura scope
+AssertionError: 配置校验失败：
+- reactionEngine: aura-v9 requires timeline.mode legal-frame-v1 at 60 FPS
+- targetTaskModel: target-phase-v2 requires timeline.mode legal-frame-v1 at 60 FPS
+- reactionEngine: aura-v1 through aura-v9 currently require timeline.mode legal-frame-v1
+- rotation.1.hits.0.geometry: aura-v9 Pyro/Electro elemental applications require explicit geometry for Dendro-core contact checks: expected 'blocked' to be 'steady-state-established' // Object.is equality
+
+Expected: "steady-state-established"
+Received: "blocked"
+
+ ❯ packages/sim-core/src/__tests__/weapon-proc-phase-checkpoint.test.ts:42:54
+     40|     }
+     41|     const actual = simulateWithStartup(config, { mode: "steady-state",…
+     42|     expect(actual.status, actual.reasons.join("; ")).toBe("steady-stat…
+       |                                                      ^
+     43|     expect(actual.result!.executionAudit!.checkpointCoverage).toMatchO…
+     44|     expect(actual.result!.config.reactionEngine!.mode).toBe("aura-v9");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  07:17:28
+   Duration  953ms (transform 626ms, setup 0ms, import 810ms, tests 83ms, environment 0ms)
+

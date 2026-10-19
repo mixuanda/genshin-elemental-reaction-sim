@@ -1,0 +1,53 @@
+
+Running 1 test using 1 worker
+
+(node:6397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/thrilling-tales-runtime.spec.ts:51:1 › Team TTDS declarations apply only on real holder swap and preserve rejected grants and complete hit replay
+  1) [chromium] › apps/web/e2e/thrilling-tales-runtime.spec.ts:51:1 › Team TTDS declarations apply only on real holder swap and preserve rejected grants and complete hit replay 
+
+    Test timeout of 30000ms exceeded.
+
+    Error: locator.selectOption: Test timeout of 30000ms exceeded.
+    Call log:
+      - waiting for locator('#analysis-warmup-energy')
+        - locator resolved to <select id="analysis-warmup-energy">…</select>
+      - attempting select option action
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+        - waiting 20ms
+        2 × waiting for element to be visible and enabled
+          - element is not visible
+        - retrying select option action
+          - waiting 100ms
+        56 × waiting for element to be visible and enabled
+           - element is not visible
+         - retrying select option action
+           - waiting 500ms
+
+
+      135 |
+      136 |   // A single warmup of this same saved cycle checks the persisted runtime cooldown state.
+    > 137 |   await page.locator("#analysis-warmup-energy").selectOption("zero");
+          |                                                 ^
+      138 |   await page.locator("#analysis-warmup-cycles").fill("8");
+      139 |   await page.locator("#analysis-steady-run").click();
+      140 |   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
+        at /Users/evan/Documents/gidps/apps/web/e2e/thrilling-tales-runtime.spec.ts:137:49
+
+    Error Context: test-results/thrilling-tales-runtime/thrilling-tales-runtime-Te-1e9be-nts-and-complete-hit-replay-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/thrilling-tales-runtime/thrilling-tales-runtime-Te-1e9be-nts-and-complete-hit-replay-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/thrilling-tales-runtime/thrilling-tales-runtime-Te-1e9be-nts-and-complete-hit-replay-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/thrilling-tales-runtime.spec.ts:51:1 › Team TTDS declarations apply only on real holder swap and preserve rejected grants and complete hit replay 

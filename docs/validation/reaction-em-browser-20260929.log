@@ -1,0 +1,42 @@
+[WebServer] (node:20819) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:20821) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-reaction-em.spec.ts:60:1 › both pinned native lanes link actual EC producers to their one live EM getter and restore the hit (3.4s)
+
+
+  1) [chromium] › apps/web/e2e/source-reaction-em.spec.ts:60:1 › both pinned native lanes link actual EC producers to their one live EM getter and restore the hit 
+
+    Error: locator.click: Error: strict mode violation: locator('[data-source-host-calculation-result] [data-detail-id="component.43.transformativeEmBonus"]').locator('summary') resolved to 3 elements:
+        1) <summary>展开：剧变反应精通加成的计算与解释</summary> aka getByRole('table').getByText('展开：剧变反应精通加成的计算与解释')
+        2) <summary>逐步运算与中间值（3 步）</summary> aka getByText('逐步运算与中间值（3 步）').first()
+        3) <summary>本步骤来源</summary> aka locator('tr:nth-child(296) > td > details > .trace-detail-content > .trace-sources > summary').first()
+
+    Call log:
+      - waiting for locator('[data-source-host-calculation-result] [data-detail-id="component.43.transformativeEmBonus"]').locator('summary')
+
+
+      162 |       await expect(formulaRow).toBeVisible();
+      163 |       const detail = page.locator(`[data-source-host-calculation-result] [data-detail-id="${emNodeId}"]`);
+    > 164 |       await detail.locator('summary').click();
+          |                                       ^
+      165 |       await expect(detail.locator('.trace-substitution')).toBeVisible();
+      166 |       await expect(detail).toContainText('实际代入与中间结果');
+      167 |       const componentCard = page.locator('fieldset[data-source-host-classic-reaction-kind="transformative-base"]')
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-reaction-em.spec.ts:164:39
+
+    Error Context: test-results/source-reaction-em-both-pi-fb1ba--getter-and-restore-the-hit-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-reaction-em-both-pi-fb1ba--getter-and-restore-the-hit-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-reaction-em-both-pi-fb1ba--getter-and-restore-the-hit-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-reaction-em.spec.ts:60:1 › both pinned native lanes link actual EC producers to their one live EM getter and restore the hit 

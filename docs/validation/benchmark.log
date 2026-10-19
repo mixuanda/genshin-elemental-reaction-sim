@@ -1,0 +1,19 @@
+{
+  "capturedAt": "2026-09-22T15:01:02.315Z",
+  "measurements": [
+    {
+      "id": "deterministic-120s-durin-demo",
+      "medianMilliseconds": 28.950624500000004,
+      "p95Milliseconds": 30.792125000000055,
+      "simulationsPerSecond": 34.26578953190001,
+      "sameSeedFullResultByteReplay": "passed"
+    },
+    {
+      "id": "seeded-particle-120s-energy-demo",
+      "medianMilliseconds": 5.429499999999962,
+      "p95Milliseconds": 6.650749999999789,
+      "simulationsPerSecond": 177.45826456677574,
+      "sameSeedFullResultByteReplay": "passed"
+    }
+  ]
+}

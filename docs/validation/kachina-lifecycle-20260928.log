@@ -1,0 +1,11 @@
+Command: npm exec vitest run packages/game-data/src/character-mappings/optimizer-kachina-mappings.test.ts
+Result: 1 test file, 5 tests passed. The wrapper shell exited 1 only because zsh reserves $status as read-only; Vitest output below is complete.
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  00:16:40
+   Duration  17.65s (transform 13.03s, setup 0ms, import 17.05s, tests 302ms, environment 0ms)
+

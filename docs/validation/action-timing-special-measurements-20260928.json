@@ -1,0 +1,247 @@
+{
+  "auto": {
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "executionMode": "auto-wait",
+    "durationFrames": 240,
+    "applications": 3,
+    "calculations": 3,
+    "totalDamage": 9350.65539198744,
+    "executionArtifact": {
+      "wasmSha256": "9654d6b2f8d66daaad3528ebb3f42978f70a25bb9719ec6900bd26190f6ad7b4",
+      "wasmBytes": 41914824
+    },
+    "receipts": [
+      {
+        "event": "action",
+        "frame": 1,
+        "ended": 1,
+        "char_index": 0,
+        "msg": "source-host action queued",
+        "logs": {
+          "sequence": 1,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 1,
+        "ended": 1,
+        "char_index": 0,
+        "msg": "source-host action accepted",
+        "logs": {
+          "characterKey": "noelle",
+          "sequence": 1,
+          "action": "attack"
+        },
+        "ordering": {
+          "action": 1,
+          "characterKey": 2,
+          "sequence": 0
+        }
+      },
+      {
+        "event": "action",
+        "frame": 28,
+        "ended": 28,
+        "char_index": 0,
+        "msg": "source-host input window opened",
+        "logs": {
+          "sequence": 1
+        },
+        "ordering": {
+          "sequence": 0
+        }
+      },
+      {
+        "event": "action",
+        "frame": 28,
+        "ended": 28,
+        "char_index": 0,
+        "msg": "source-host action queued",
+        "logs": {
+          "sequence": 2,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 49,
+        "ended": 49,
+        "char_index": 0,
+        "msg": "source-host action accepted",
+        "logs": {
+          "sequence": 2,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 73,
+        "ended": 73,
+        "char_index": 0,
+        "msg": "source-host input window opened",
+        "logs": {
+          "sequence": 2
+        },
+        "ordering": {
+          "sequence": 0
+        }
+      }
+    ]
+  },
+  "strict": {
+    "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+    "executionMode": "strict",
+    "durationFrames": 240,
+    "applications": 3,
+    "calculations": 3,
+    "totalDamage": 9350.65539198744,
+    "executionArtifact": {
+      "wasmSha256": "09de0dc39091d1843632815044e7d97bad32ead5db0f5ffcdf0d5940357903bf",
+      "wasmBytes": 61529031
+    },
+    "receipts": [
+      {
+        "event": "action",
+        "frame": 1,
+        "ended": 1,
+        "char_index": 0,
+        "msg": "source-host action queued",
+        "logs": {
+          "action": "attack",
+          "characterKey": "noelle",
+          "sequence": 1
+        },
+        "ordering": {
+          "characterKey": 2,
+          "sequence": 0,
+          "action": 1
+        }
+      },
+      {
+        "event": "action",
+        "frame": 1,
+        "ended": 1,
+        "char_index": 0,
+        "msg": "source-host action accepted",
+        "logs": {
+          "sequence": 1,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 28,
+        "ended": 28,
+        "char_index": 0,
+        "msg": "source-host input window opened",
+        "logs": {
+          "sequence": 1
+        },
+        "ordering": {
+          "sequence": 0
+        }
+      },
+      {
+        "event": "action",
+        "frame": 148,
+        "ended": 148,
+        "char_index": 0,
+        "msg": "source-host action queued",
+        "logs": {
+          "sequence": 2,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 148,
+        "ended": 148,
+        "char_index": 0,
+        "msg": "source-host action accepted",
+        "logs": {
+          "sequence": 2,
+          "action": "attack",
+          "characterKey": "noelle"
+        },
+        "ordering": {
+          "sequence": 0,
+          "action": 1,
+          "characterKey": 2
+        }
+      },
+      {
+        "event": "action",
+        "frame": 172,
+        "ended": 172,
+        "char_index": 0,
+        "msg": "source-host input window opened",
+        "logs": {
+          "sequence": 2
+        },
+        "ordering": {
+          "sequence": 0
+        }
+      }
+    ]
+  },
+  "lunar-bloom": {
+    "schemaVersion": "special-complete-reexecution-v1",
+    "engineVersion": "1.53.0-callback-bus",
+    "profile": "lunar-bloom",
+    "resultSchema": "lunar-bloom-simulation-v1",
+    "totalDamage": 6209.86653,
+    "ordinaryDamage": 3459.3363,
+    "ordinaryEvents": 3,
+    "specialEvents": 3,
+    "specialDamage": 2750.5302300000003,
+    "fieldInfluences": 0
+  },
+  "stellar-conduct": {
+    "schemaVersion": "special-complete-reexecution-v1",
+    "engineVersion": "1.53.0-callback-bus",
+    "profile": "stellar-conduct",
+    "resultSchema": "stellar-conduct-simulation-v1",
+    "totalDamage": 4469.75,
+    "ordinaryDamage": 4469.75,
+    "ordinaryEvents": 9,
+    "specialEvents": 0,
+    "specialDamage": 0,
+    "fieldInfluences": 6
+  },
+  "failures": {
+    "animationFailure": "运行停止：source-host strict player not ready at frame 28 for noelle attack: player still in animation; cannot execute action",
+    "energyFailure": "运行停止：source-host strict action not ready at frame 1 for noelle burst: action is not ready yet; cannot be executed",
+    "pageErrors": []
+  }
+}

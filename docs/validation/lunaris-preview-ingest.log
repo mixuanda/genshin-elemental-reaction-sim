@@ -1,0 +1,11 @@
+
+> genshin-dps-lab@1.0.0 data:preview
+> node packages/game-data/scripts/update-data.mjs preview --input packages/game-data/sources/lunaris-preview-7.1.50-20260924/candidate.bundle.json --metadata packages/game-data/sources/lunaris-preview-7.1.50-20260924/candidate.metadata.json
+
+{
+  "snapshotId": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+  "gameVersion": "7.1.50",
+  "label": "lunaris-7.1.50-preview-observed-20260924.partial-two-characters.1",
+  "releaseStatus": "preview",
+  "createdAt": "2026-09-24T14:56:21.027183Z"
+}

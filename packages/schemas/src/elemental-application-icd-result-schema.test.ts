@@ -330,7 +330,7 @@ describe("elemental-application ICD result leaf schema", () => {
       currentTopLevelFields.filter(
         (field) => !v152TopLevelFields.includes(field)
       )
-    ).toEqual(["callbackRegistrationLog", "callbackDeliveryLog"]);
+    ).toEqual(["executionAudit", "callbackRegistrationLog", "callbackDeliveryLog"]);
     expect(
       v152TopLevelFields.filter(
         (field) => !currentTopLevelFields.includes(field)

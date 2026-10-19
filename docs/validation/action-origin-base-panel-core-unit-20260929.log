@@ -1,0 +1,31 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/source-host-base-panel.test.ts (2 tests | 1 failed) 31ms
+     × connects only actual selected getter slots to the recipe and retains the legacy missing-recipe boundary 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/source-host-base-panel.test.ts > source base-panel recipe > connects only actual selected getter slots to the recipe and retains the legacy missing-recipe boundary
+Error: Unknown or unexecuted trace child: read.basePanel.0.result.24
+ ❯ TraceBuilder.add packages/sim-core/src/calculation-trace.ts:458:71
+    456|     if (new Set(childIds).size !== childIds.length) throw new Error("T…
+    457|     for (const childId of childIds) {
+    458|       if (!this.traceNodes.some((node) => node.id === childId)) throw …
+       |                                                                       ^
+    459|     }
+    460|     if (!Array.isArray(inputs)) throw new Error("Trace inputs must be …
+ ❯ packages/sim-core/src/source-host-stat-provenance.ts:138:15
+ ❯ executeRead packages/sim-core/src/source-host-stat-provenance.ts:134:21
+ ❯ executeSourceHostStatProvenance packages/sim-core/src/source-host-stat-provenance.ts:224:15
+ ❯ executeSourceHostNestedStatRead packages/sim-core/src/source-host-stat-provenance.ts:245:10
+ ❯ packages/sim-core/src/source-host-base-panel.test.ts:46:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  02:39:22
+   Duration  226ms (transform 43ms, setup 0ms, import 94ms, tests 31ms, environment 0ms)
+

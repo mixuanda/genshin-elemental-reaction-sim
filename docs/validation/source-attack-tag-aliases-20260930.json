@@ -1,0 +1,61 @@
+{
+  "batch": 124,
+  "date": "2026-09-30",
+  "status": "implemented; parent typecheck, web build and cached two-lane Nilou browser assertions passed",
+  "cause": "Classic bridge emits symbolic names; Stellar bridge emits AttackTag(n) for all except three explicitly named Stellar tags. Nilou finite closure compared its fixed symbolic Burst tag directly to AttackTag(6).",
+  "sourceEnums": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-CHWLQf/source/pkg/core/attacks/attack.go",
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-9hFTdx/source/pkg/core/attacks/attack.go",
+      "sha256": "f8f069982bda9f6cfc8e5b100e9cfaf9c5114b5782ac3a7d3623b165c330e614"
+    }
+  },
+  "bridges": {
+    "classic": {
+      "path": "/Users/evan/Documents/gidps/packages/source-host/go/pkg/core/sourcehost/attack.go",
+      "sha256": "1879e4b20541babae4f6df7e6ff22321c9f9b678b3c1ecb3ae5707d9febd2453"
+    },
+    "stellar": {
+      "path": "/Users/evan/Documents/gidps/packages/source-host/stellar-overlay/go/pkg/core/sourcehost/attack.go",
+      "sha256": "d710e2468040a6a45aa3c02dc0226411235fae0f005e49426afac84bfe0fdf62"
+    }
+  },
+  "explicitAliases": {
+    "AttackTag(0)": "AttackTagNone",
+    "AttackTag(1)": "AttackTagNormal",
+    "AttackTag(2)": "AttackTagExtra",
+    "AttackTag(3)": "AttackTagPlunge",
+    "AttackTag(4)": "AttackTagElementalArt",
+    "AttackTag(5)": "AttackTagElementalArtHold",
+    "AttackTag(6)": "AttackTagElementalBurst"
+  },
+  "boundary": "Only common fixed-source 0..6 aliases accepted. Enums diverge at 7: Classic WeaponSkill versus Stellar RelicSkill; no numeric parsing or mappings past 6. Already symbolic tags retain exact equality, including Stellar-specific tags.",
+  "implementation": "packages/sim-core/src/source-host-attack-tag.ts",
+  "changedConsumers": [
+    "source-host-beidou-owned-analysis.ts",
+    "source-host-owned-shield-analysis.ts",
+    "source-host-noelle-shield-analysis.ts",
+    "source-host-event-callback-analysis.ts",
+    "source-host-xinyan-shield-analysis.ts",
+    "source-host-extended-entity-analysis.ts",
+    "source-host-hit-callback-producer-analysis.ts",
+    "source-host-hit-callback-analysis.ts",
+    "source-host-event-collection.ts"
+  ],
+  "changedContractComparisons": 13,
+  "preserved": "Wire and saved captures unchanged. Native receipt-to-receipt tag comparison remains exact; all queue/attack/actor/invocation/target/frame/emit checks remain unchanged. No Go/WASM/source patch change.",
+  "checksByThisAgent": {
+    "sourceEnumAndBridgeRead": true,
+    "namedComparisonInventoryRead": true,
+    "testsExecuted": 0,
+    "buildsExecuted": 0,
+    "nativeExecutions": 0
+  },
+  "validation": {
+    "measurements": "docs/validation/source-conditional-enemy-measurements-20260930.json",
+    "runtimeScope": "Saved Classic/Stellar Nilou Q captures; other existing contracts were not rerun as a character matrix."
+  }
+}

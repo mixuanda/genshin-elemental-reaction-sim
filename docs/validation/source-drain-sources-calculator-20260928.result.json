@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "source-host-drain-calculator-v1",
+  "label": "hutao · Paramita Papilio · Drain #18",
+  "originalCapture": {
+    "schemaVersion": "source-host-drain-v1",
+    "formulaVersion": "shared-ast-source-host-v1",
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "sourceConfig": "options iteration=1 duration=18;\nkuki char lvl=90/90 cons=0 talent=1,1,1;\nkuki add weapon=\"favoniussword\" refine=1 lvl=90/90;\nkuki add stats hp=4000 em=200 cr=0.2 cd=0.4;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nhutao add stats hp=3000 cr=0.2 cd=0.4;\nlynette char lvl=90/90 cons=0 talent=1,1,1;\nlynette add weapon=\"favoniussword\" refine=1 lvl=90/90;\nlynette add stats atk=200 cr=0.2 cd=0.4;\nxiao char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxiao add weapon=\"favoniuslance\" refine=1 lvl=90/90;\nxiao add stats atk=200 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nhurt once interval=60 amount=14500,14500 element=physical;\nactive kuki;\nwait(65);\nkuki skill;\nhutao skill;\nlynette skill;\nxiao burst;\nwait(600);",
+    "seed": "20260928",
+    "executionArtifact": {
+      "wasmSha256": "192ae3a97a70615a000b8560e8b53eba7deac4c51b184da1d26128c805daefe5",
+      "wasmBytes": 43576714
+    },
+    "application": {
+      "id": 18,
+      "calculationId": 17,
+      "sourceCalculationId": 16,
+      "attackId": 0,
+      "frame": 117,
+      "actorIndex": 1,
+      "actorKey": "hutao",
+      "ability": "Paramita Papilio",
+      "amount": 5565.69198588,
+      "hpBefore": 18552.3066196,
+      "maxHp": 18552.3066196,
+      "resultRatio": 0.7000000000000001
+    },
+    "calculation": {
+      "request": {
+        "protocol": "gidps-source-host-v1",
+        "id": 17,
+        "frame": 117,
+        "actorIndex": 1,
+        "actorKey": "hutao",
+        "ability": "Paramita Papilio",
+        "attackTag": 0,
+        "attackTagName": "AttackTagNone",
+        "element": "electro",
+        "sourceFrame": 117,
+        "snapshotFrame": 117,
+        "attackId": 0,
+        "targetKey": 0,
+        "componentIds": [
+          16
+        ],
+        "componentApplications": [],
+        "snapshotStats": null,
+        "snapshot": null,
+        "rawAttack": {
+          "ActorIndex": 0,
+          "DamageSrc": 0,
+          "Abil": "",
+          "AttackTag": 0,
+          "AdditionalTags": null,
+          "PoiseDMG": 0,
+          "ICDTag": 0,
+          "ICDGroup": 0,
+          "Element": "electro",
+          "Durability": 0,
+          "NoImpulse": false,
+          "HitWeakPoint": false,
+          "BaseDmgBonus": 0,
+          "Elevation": 0,
+          "Mult": 0,
+          "StrikeType": 0,
+          "UseDef": false,
+          "UseHP": false,
+          "UseEM": false,
+          "FlatDmg": 0,
+          "IgnoreDefPercent": 0,
+          "IgnoreInfusion": false,
+          "Amped": false,
+          "AmpMult": 0,
+          "AmpType": "",
+          "Catalyzed": false,
+          "CatalyzedType": "",
+          "SourceIsSim": false,
+          "DoNotLog": false,
+          "HitlagHaltFrames": 0,
+          "HitlagFactor": 0,
+          "CanBeDefenseHalted": false,
+          "IsDeployable": false,
+          "HitlagOnHeadshotOnly": false
+        },
+        "kind": "player-drain",
+        "damageCategory": "player-drain",
+        "amountCalculationId": 16,
+        "input": {
+          "hpBefore": 18552.3066196,
+          "maxHp": 18552.3066196,
+          "amount": 5565.69198588
+        }
+      },
+      "value": 0.7000000000000001
+    },
+    "sources": [
+      {
+        "request": {
+          "protocol": "gidps-source-host-v1",
+          "id": 16,
+          "frame": 117,
+          "actorIndex": 1,
+          "actorKey": "hutao",
+          "ability": "drain-source-hutao-skill",
+          "attackTag": 0,
+          "attackTagName": "AttackTagNone",
+          "element": "",
+          "sourceFrame": 117,
+          "snapshotFrame": 0,
+          "attackId": 0,
+          "targetKey": 0,
+          "componentIds": [],
+          "componentApplications": [],
+          "snapshotStats": null,
+          "snapshot": null,
+          "rawAttack": {
+            "ActorIndex": 1,
+            "DamageSrc": 0,
+            "Abil": "drain-source-hutao-skill",
+            "AttackTag": 0,
+            "AdditionalTags": null,
+            "PoiseDMG": 0,
+            "ICDTag": 0,
+            "ICDGroup": 0,
+            "Element": "",
+            "Durability": 0,
+            "NoImpulse": false,
+            "HitWeakPoint": false,
+            "BaseDmgBonus": 0,
+            "Elevation": 0,
+            "Mult": 0,
+            "StrikeType": 0,
+            "UseDef": false,
+            "UseHP": false,
+            "UseEM": false,
+            "FlatDmg": 0,
+            "IgnoreDefPercent": 0,
+            "IgnoreInfusion": false,
+            "Amped": false,
+            "AmpMult": 0,
+            "AmpType": "",
+            "Catalyzed": false,
+            "CatalyzedType": "",
+            "SourceIsSim": false,
+            "DoNotLog": false,
+            "HitlagHaltFrames": 0,
+            "HitlagFactor": 0,
+            "CanBeDefenseHalted": false,
+            "IsDeployable": false,
+            "HitlagOnHeadshotOnly": false
+          },
+          "kind": "character-drain",
+          "damageCategory": "character-drain",
+          "input": {
+            "ruleId": "drain-source-hutao-skill",
+            "sourceHolderIndex": 1,
+            "state": {
+              "currentHp": 18552.3066196
+            }
+          }
+        },
+        "value": 5565.69198588
+      }
+    ]
+  },
+  "sourceInputs": [
+    {
+      "id": 16,
+      "ruleId": "drain-source-hutao-skill",
+      "state": {
+        "currentHp": 18652.3066196
+      }
+    }
+  ]
+}

@@ -1,0 +1,2307 @@
+{
+  "schemaVersion": 1,
+  "evidenceStatus": "source-provisional",
+  "scope": "固定 b4ae769 的 8 个默认弓普通攻击完整连段来源，另保留 Fischl/Yelan 受限 C0 独立 N 存证。仅归档与解释源代码，不授予执行能力，不声明完整角色技能或 game-verified。各角色其他技能、被动、命座原文用于审计边界，不表示其运行时已实现。",
+  "sources": [
+    {
+      "repository": "genshinsim/gcsim",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievedAt": "2026-09-23T06:21:35.667874+00:00",
+      "retrievalUrl": "https://codeload.github.com/genshinsim/gcsim/tar.gz/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "retrievalArchiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+      "retrievalArchiveBytes": 56440121,
+      "identityMethod": "本次归档前逐文件计算 Git blob SHA-1 与字节数，均与已取得的固定完整 Git tree 同路径条目精确相等；SHA-256 记录原始 UTF-8 字节。未联网或运行模拟器。",
+      "gitTreeSha": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "gitTreeFileSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "gitTreeTruncated": false,
+      "gitTreeEntries": 4779,
+      "gitTreeUrl": "https://api.github.com/repos/genshinsim/gcsim/git/trees/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+    }
+  ],
+  "archive": {
+    "path": "packages/game-data/sources/default-bow-normal-family/source.json.gz",
+    "format": "gzip JSON with UTF-8 original source text keyed by repository-prefixed path in files",
+    "bytes": 89190,
+    "sha256": "c664fc3b8b4410ccc0a8752a5b5c682c047d159ff1b012a111b93c1ee5d19194",
+    "uncompressedBytes": 452711,
+    "files": 128,
+    "gzipMtime": 0
+  },
+  "coefficientAuthority": "各 zz_*.dm.go 中 attack/auto 原始字段，全部 15 级逐箭数值及注释原样保留。没有声称与活动 catalog、其他数据库或游戏实测已对齐。",
+  "derivedCoefficients": {
+    "path": "packages/game-data/sources/default-bow-normal-family/coefficients.json",
+    "sha256": "44c98556bef7ef369f5c9ecc6abdb741ced2f3942da062b61714fadd115b0f7d",
+    "bytes": 23917,
+    "coefficientVectors": 51,
+    "status": "由父任务生成的派生文件；此处只记录交付身份，不声明外部交叉验证。"
+  },
+  "primaryCharacterSlugs": [
+    "gorou",
+    "kujousara",
+    "diona",
+    "collei",
+    "faruzan",
+    "ganyu",
+    "tighnari",
+    "venti"
+  ],
+  "conditionalEvidenceCharacterSlugs": [
+    "fischl",
+    "yelan"
+  ],
+  "characters": [
+    {
+      "slug": "gorou",
+      "sourceDirectory": "gorou",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 4,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          17
+        ],
+        [
+          12
+        ],
+        [
+          27
+        ],
+        [
+          31
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        21,
+        26,
+        43,
+        55
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        21,
+        26,
+        43,
+        55
+      ],
+      "canQueueAfterFrames": [
+        17,
+        12,
+        27,
+        31
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          17,
+          12,
+          27,
+          31
+        ],
+        "skill": [
+          17,
+          12,
+          27,
+          31
+        ],
+        "burst": [
+          17,
+          12,
+          27,
+          31
+        ],
+        "dash": [
+          17,
+          12,
+          27,
+          31
+        ],
+        "jump": [
+          17,
+          12,
+          27,
+          31
+        ],
+        "swap": [
+          17,
+          12,
+          27,
+          31
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/gorou/zz_gorou.dm.go",
+        "field": "attack",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "36-105",
+        "vectors": 4,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/gorou/attack.go",
+      "xingqiuN0StartDelay": 11,
+      "passiveBoundary": "C0 普攻不读取 E/Q 状态；A1 由 Q 触发并修改 DEF，A4 仅作用于 E/Q 附加值。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/gorou/gorou.go",
+          "lines": "51-63"
+        },
+        {
+          "path": "internal/characters/gorou/asc.go",
+          "lines": "9-42"
+        }
+      ]
+    },
+    {
+      "slug": "kujousara",
+      "sourceDirectory": "sara",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 5,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          14
+        ],
+        [
+          13
+        ],
+        [
+          19
+        ],
+        [
+          19
+        ],
+        [
+          32
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        25,
+        28,
+        37,
+        38,
+        45
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        25,
+        28,
+        37,
+        38,
+        45
+      ],
+      "canQueueAfterFrames": [
+        14,
+        13,
+        19,
+        19,
+        32
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          14,
+          13,
+          19,
+          19,
+          32
+        ],
+        "skill": [
+          14,
+          13,
+          19,
+          19,
+          32
+        ],
+        "burst": [
+          14,
+          13,
+          19,
+          19,
+          32
+        ],
+        "dash": [
+          14,
+          13,
+          19,
+          19,
+          32
+        ],
+        "jump": [
+          14,
+          13,
+          19,
+          19,
+          32
+        ],
+        "swap": [
+          14,
+          13,
+          19,
+          19,
+          32
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/sara/zz_kujousara.dm.go",
+        "field": "attack",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "36-122",
+        "vectors": 5,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/sara/attack.go",
+      "xingqiuN0StartDelay": 14,
+      "passiveBoundary": "目录 sara；注册身份 KujouSara/kujousara。C0 普攻不消费 E Cover；A1 仅瞄准，A4 仅 Ambush 回调；既有 ATK buff 可进入箭快照。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/sara/sara.go",
+          "lines": "29-39"
+        },
+        {
+          "path": "internal/characters/sara/asc.go",
+          "lines": "19-43"
+        },
+        {
+          "path": "internal/characters/sara/aimed.go",
+          "lines": "64-70"
+        },
+        {
+          "path": "internal/characters/sara/cons.go",
+          "lines": "31-36"
+        }
+      ]
+    },
+    {
+      "slug": "diona",
+      "sourceDirectory": "diona",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 5,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          19
+        ],
+        [
+          11
+        ],
+        [
+          21
+        ],
+        [
+          10
+        ],
+        [
+          38
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        30,
+        21,
+        44,
+        21,
+        73
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        30,
+        21,
+        44,
+        21,
+        73
+      ],
+      "canQueueAfterFrames": [
+        19,
+        11,
+        21,
+        10,
+        38
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          19,
+          11,
+          21,
+          10,
+          38
+        ],
+        "skill": [
+          19,
+          11,
+          21,
+          10,
+          38
+        ],
+        "burst": [
+          19,
+          11,
+          21,
+          10,
+          38
+        ],
+        "dash": [
+          19,
+          11,
+          21,
+          10,
+          38
+        ],
+        "jump": [
+          19,
+          11,
+          21,
+          10,
+          38
+        ],
+        "swap": [
+          19,
+          11,
+          21,
+          10,
+          38
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/diona/zz_diona.dm.go",
+        "field": "auto",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "37-123",
+        "vectors": 5,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/diona/attack.go",
+      "xingqiuN0StartDelay": 9,
+      "passiveBoundary": "倍率变量为 auto。A1 是 Icy Paws 护盾条件体力修正；源码注明 A4 未实现。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/diona/diona.go",
+          "lines": "31-40"
+        },
+        {
+          "path": "internal/characters/diona/asc.go",
+          "lines": "9-22"
+        }
+      ]
+    },
+    {
+      "slug": "collei",
+      "sourceDirectory": "collei",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 4,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          16
+        ],
+        [
+          14
+        ],
+        [
+          22
+        ],
+        [
+          32
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        24,
+        25,
+        43,
+        65
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        24,
+        25,
+        43,
+        65
+      ],
+      "canQueueAfterFrames": [
+        16,
+        14,
+        22,
+        32
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          16,
+          14,
+          22,
+          32
+        ],
+        "skill": [
+          16,
+          14,
+          22,
+          32
+        ],
+        "burst": [
+          16,
+          14,
+          22,
+          32
+        ],
+        "dash": [
+          16,
+          14,
+          22,
+          32
+        ],
+        "jump": [
+          16,
+          14,
+          22,
+          32
+        ],
+        "swap": [
+          16,
+          14,
+          22,
+          32
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/collei/zz_collei.dm.go",
+        "field": "attack",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "36-105",
+        "vectors": 4,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/collei/attack.go",
+      "xingqiuN0StartDelay": 11,
+      "passiveBoundary": "A1/A4 为 E/Q 活跃状态下草反应监听；普通物理箭不创建这些状态。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/collei/collei.go",
+          "lines": "47-56"
+        },
+        {
+          "path": "internal/characters/collei/asc.go",
+          "lines": "25-113"
+        }
+      ]
+    },
+    {
+      "slug": "faruzan",
+      "sourceDirectory": "faruzan",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 4,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          14
+        ],
+        [
+          10
+        ],
+        [
+          24
+        ],
+        [
+          29
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        26,
+        21,
+        39,
+        86
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        26,
+        21,
+        39,
+        86
+      ],
+      "canQueueAfterFrames": [
+        14,
+        10,
+        24,
+        29
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          14,
+          10,
+          24,
+          29
+        ],
+        "skill": [
+          14,
+          10,
+          24,
+          29
+        ],
+        "burst": [
+          14,
+          10,
+          24,
+          29
+        ],
+        "dash": [
+          14,
+          10,
+          24,
+          29
+        ],
+        "jump": [
+          14,
+          10,
+          24,
+          29
+        ],
+        "swap": [
+          14,
+          10,
+          24,
+          29
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/faruzan/zz_faruzan.dm.go",
+        "field": "attack",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "36-105",
+        "vectors": 4,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/faruzan/attack.go",
+      "xingqiuN0StartDelay": 9,
+      "passiveBoundary": "A4 先限定 Anemo 伤害，再要求 Q buff；物理普通箭不触发。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/faruzan/faruzan.go",
+          "lines": "30-35"
+        },
+        {
+          "path": "internal/characters/faruzan/asc.go",
+          "lines": "29-62"
+        }
+      ]
+    },
+    {
+      "slug": "ganyu",
+      "sourceDirectory": "ganyu",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 6,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          13
+        ],
+        [
+          14
+        ],
+        [
+          20
+        ],
+        [
+          26
+        ],
+        [
+          21
+        ],
+        [
+          22
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        19,
+        27,
+        38,
+        37,
+        28,
+        59
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        19,
+        27,
+        38,
+        37,
+        28,
+        59
+      ],
+      "canQueueAfterFrames": [
+        13,
+        14,
+        20,
+        26,
+        21,
+        22
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          13,
+          14,
+          20,
+          26,
+          21,
+          22
+        ],
+        "skill": [
+          13,
+          14,
+          20,
+          26,
+          21,
+          22
+        ],
+        "burst": [
+          13,
+          14,
+          20,
+          26,
+          21,
+          22
+        ],
+        "dash": [
+          13,
+          14,
+          20,
+          26,
+          21,
+          22
+        ],
+        "jump": [
+          13,
+          14,
+          20,
+          26,
+          21,
+          22
+        ],
+        "swap": [
+          13,
+          14,
+          20,
+          26,
+          21,
+          22
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/ganyu/zz_ganyu.dm.go",
+        "field": "attack",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "36-139",
+        "vectors": 6,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/ganyu/attack.go",
+      "xingqiuN0StartDelay": 10,
+      "passiveBoundary": "没有 asc.go；A1 在 aimed.go，仅霜华矢及绽发；A4 在 burst.go，是 Q 区域 CryoP。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/ganyu/ganyu.go",
+          "lines": "42-49"
+        },
+        {
+          "path": "internal/characters/ganyu/aimed.go",
+          "lines": "94-135"
+        },
+        {
+          "path": "internal/characters/ganyu/burst.go",
+          "lines": "71-81"
+        }
+      ]
+    },
+    {
+      "slug": "tighnari",
+      "sourceDirectory": "tighnari",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 4,
+      "arrowsPerStage": [
+        1,
+        1,
+        2,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          14
+        ],
+        [
+          12
+        ],
+        [
+          13,
+          25
+        ],
+        [
+          28
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        26,
+        23,
+        37,
+        68
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        26,
+        23,
+        37,
+        68
+      ],
+      "canQueueAfterFrames": [
+        14,
+        12,
+        25,
+        28
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          14,
+          12,
+          25,
+          28
+        ],
+        "skill": [
+          14,
+          12,
+          25,
+          28
+        ],
+        "burst": [
+          14,
+          12,
+          25,
+          28
+        ],
+        "dash": [
+          14,
+          12,
+          25,
+          28
+        ],
+        "jump": [
+          14,
+          12,
+          25,
+          28
+        ],
+        "swap": [
+          14,
+          12,
+          25,
+          28
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/tighnari/zz_tighnari.dm.go",
+        "field": "attack",
+        "dimensions": 3,
+        "layout": "stage, arrow, talent-index",
+        "lines": "38-126",
+        "vectors": 5,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/tighnari/attack.go",
+      "xingqiuN0StartDelay": 0,
+      "passiveBoundary": "N3 两箭，各自读取三维 attack 倍率。A4 明确仅 Extra/Burst；A1 由 Wreath Arrow 触发。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/tighnari/tighnari.go",
+          "lines": "29-38"
+        },
+        {
+          "path": "internal/characters/tighnari/asc.go",
+          "lines": "14-48"
+        }
+      ]
+    },
+    {
+      "slug": "venti",
+      "sourceDirectory": "venti",
+      "priority": "primary-normal-family",
+      "constellation": 0,
+      "normalStages": 6,
+      "arrowsPerStage": [
+        2,
+        1,
+        1,
+        2,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          17,
+          27
+        ],
+        [
+          19
+        ],
+        [
+          28
+        ],
+        [
+          15,
+          28
+        ],
+        [
+          17
+        ],
+        [
+          49
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        30,
+        38,
+        33,
+        31,
+        22,
+        98
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        30,
+        38,
+        33,
+        31,
+        22,
+        98
+      ],
+      "canQueueAfterFrames": [
+        27,
+        19,
+        28,
+        28,
+        17,
+        49
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          27,
+          19,
+          28,
+          28,
+          17,
+          49
+        ],
+        "skill": [
+          27,
+          19,
+          28,
+          28,
+          17,
+          49
+        ],
+        "burst": [
+          27,
+          19,
+          28,
+          28,
+          17,
+          49
+        ],
+        "dash": [
+          27,
+          19,
+          28,
+          28,
+          17,
+          49
+        ],
+        "jump": [
+          27,
+          19,
+          28,
+          28,
+          17,
+          49
+        ],
+        "swap": [
+          27,
+          19,
+          28,
+          28,
+          17,
+          49
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/venti/zz_venti.dm.go",
+        "field": "attack",
+        "dimensions": 3,
+        "layout": "stage, arrow, talent-index",
+        "lines": "37-178",
+        "vectors": 8,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/venti/attack.go",
+      "xingqiuN0StartDelay": 9,
+      "passiveBoundary": "N1/N4 各两箭；C0 Init 无普攻增伤订阅。A4 为 Q 结束回能；A1 上升气流在固定源码中未实现。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/venti/venti.go",
+          "lines": "35-41"
+        },
+        {
+          "path": "internal/characters/venti/asc.go",
+          "lines": "5-22"
+        }
+      ]
+    },
+    {
+      "slug": "fischl",
+      "sourceDirectory": "fischl",
+      "priority": "conditional-evidence-only",
+      "constellation": 0,
+      "normalStages": 5,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          15
+        ],
+        [
+          11
+        ],
+        [
+          24
+        ],
+        [
+          26
+        ],
+        [
+          21
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        25,
+        22,
+        38,
+        32,
+        67
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        25,
+        22,
+        38,
+        32,
+        67
+      ],
+      "canQueueAfterFrames": [
+        15,
+        11,
+        24,
+        26,
+        21
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          15,
+          11,
+          24,
+          26,
+          21
+        ],
+        "skill": [
+          15,
+          11,
+          24,
+          26,
+          21
+        ],
+        "burst": [
+          15,
+          11,
+          24,
+          26,
+          21
+        ],
+        "dash": [
+          15,
+          11,
+          24,
+          26,
+          21
+        ],
+        "jump": [
+          15,
+          11,
+          24,
+          26,
+          21
+        ],
+        "swap": [
+          15,
+          11,
+          24,
+          26,
+          21
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/fischl/zz_fischl.dm.go",
+        "field": "auto",
+        "dimensions": 2,
+        "layout": "stage, talent-index",
+        "lines": "37-123",
+        "vectors": 5,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/fischl/attack.go",
+      "xingqiuN0StartDelay": 9,
+      "passiveBoundary": "仅存证 C0 独立物理 N：无 Oz、既有或尾部 E/Q 效果及 A4/Hexerei buff。C1 额外箭不在 C0。默认 Hexerei 开启；Oz 存在时 C0 仍可触发 A4；队伍至少 2 名 Hexerei 时超载/感电/月感电可产生 22.5% ATK/90 EM，buff 可在 Oz 结束后继续存在，不能只检查当前 Oz=false。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/fischl/fischl.go",
+          "lines": "45-71"
+        },
+        {
+          "path": "internal/characters/fischl/attack.go",
+          "lines": "62-87"
+        },
+        {
+          "path": "internal/characters/fischl/asc.go",
+          "lines": "25-174"
+        }
+      ]
+    },
+    {
+      "slug": "yelan",
+      "sourceDirectory": "yelan",
+      "priority": "conditional-evidence-only",
+      "constellation": 0,
+      "normalStages": 4,
+      "arrowsPerStage": [
+        1,
+        1,
+        1,
+        2
+      ],
+      "releaseAndSnapshotFrames": [
+        [
+          13
+        ],
+        [
+          13
+        ],
+        [
+          18
+        ],
+        [
+          15,
+          29
+        ]
+      ],
+      "defaultTravelFrames": 10,
+      "animationLengthFrames": [
+        15,
+        21,
+        38,
+        67
+      ],
+      "nextNormalFramesBeforeAttackSpeed": [
+        15,
+        21,
+        38,
+        67
+      ],
+      "canQueueAfterFrames": [
+        13,
+        13,
+        18,
+        29
+      ],
+      "cancelFramesBeforeAttackSpeed": {
+        "aim": [
+          13,
+          13,
+          18,
+          29
+        ],
+        "skill": [
+          13,
+          13,
+          18,
+          29
+        ],
+        "burst": [
+          13,
+          13,
+          18,
+          29
+        ],
+        "dash": [
+          13,
+          13,
+          18,
+          29
+        ],
+        "jump": [
+          13,
+          13,
+          18,
+          29
+        ],
+        "swap": [
+          13,
+          13,
+          18,
+          29
+        ]
+      },
+      "otherActionFramesBeforeAttackSpeed": "各段 AnimationLength，没有额外角色覆盖。",
+      "attackInfo": {
+        "scalingStat": "ATK",
+        "attackTag": "AttackTagNormal",
+        "element": "Physical",
+        "icdTag": "ICDTagNone",
+        "icdGroup": "ICDGroupDefault",
+        "strikeType": "StrikeTypePierce",
+        "durability": 25
+      },
+      "coefficientSource": {
+        "path": "internal/characters/yelan/zz_yelan.dm.go",
+        "field": "attack",
+        "dimensions": 3,
+        "layout": "stage, arrow, talent-index",
+        "lines": "38-126",
+        "vectors": 5,
+        "valuesPerVector": 15
+      },
+      "attackSource": "internal/characters/yelan/attack.go",
+      "xingqiuN0StartDelay": 9,
+      "passiveBoundary": "仅存证 C0 独立物理 N：无 Q/Exquisite Throw watcher 触发及残留 A4 增伤，无 C6 状态。N 使用 ATK；A1 在 Init 自动按队伍元素种类增加 HPP，原文保留，不能据普通箭无 HP scaling 声称完整角色面板已实现。",
+      "passiveSourceRefs": [
+        {
+          "path": "internal/characters/yelan/yelan.go",
+          "lines": "57-69"
+        },
+        {
+          "path": "internal/characters/yelan/asc.go",
+          "lines": "11-63"
+        },
+        {
+          "path": "internal/characters/yelan/attack.go",
+          "lines": "39-106"
+        }
+      ]
+    }
+  ],
+  "normalChainSourceNotes": {
+    "progression": "Attack 使用当前段构造倍率、快照与动作信息；返回前 defer AdvanceNormalIndex，末段归0。按动作推进，不等命中，双箭不推进两次。",
+    "reset": "成功执行非 ActionAttack 输入后清全队计数，真实换人完成再次清计数；失败输入、同角色 swap no-op、wait/delay、自然 Idle 不触发该重置。",
+    "attackSpeed": "NewAttackFunc 构造时捕获当前段及 AtkSpd，仅 Frames(next) 经 AtkSpdAdjust；AnimationLength、CanQueueAfter、每箭 snapshot/damage delay 使用原始值。",
+    "frameBoundaries": "CanUse/CanQueueNext 为 elapsed >= 门槛，自然动画移除为 elapsed > AnimationLength；普通输入先等待 CanQueueAfter 再接受 ReadyCheck。",
+    "tails": "核心 snapshot/damage tasks 不属于 animation queue；本组 N 没有 OnRemoved，后续动作和换人不撤销已排队箭。",
+    "sourceRefs": [
+      {
+        "path": "internal/template/character/character.go",
+        "lines": "99-112"
+      },
+      {
+        "path": "internal/frames/frames.go",
+        "lines": "9-20;31-43"
+      },
+      {
+        "path": "pkg/core/player/exec.go",
+        "lines": "96-169;183-203"
+      },
+      {
+        "path": "pkg/core/player/player.go",
+        "lines": "104-138;191-195"
+      },
+      {
+        "path": "pkg/core/action/action.go",
+        "lines": "53-65;72-103"
+      },
+      {
+        "path": "pkg/core/attack.go",
+        "lines": "36-96"
+      },
+      {
+        "path": "pkg/simulation/run.go",
+        "lines": "138-150;162-227;230-295"
+      }
+    ]
+  },
+  "normalHitEnergySourceNotes": {
+    "bowInitialProbability": 0,
+    "probabilityIncreasePerFailure": 0.05,
+    "comparison": "random > current 时失败加概率；其余成功，包括 random == current。",
+    "trigger": "OnEnemyDamage 且 AttackTagNormal 或 AttackTagExtra；多箭逐箭形成事件，各次先通过全局成功 ICD。",
+    "success": "AddEnergy 1，全局 ICD=当前帧+12，本角色/武器概率归0。",
+    "cooldownBoundary": "icd > frame 才阻塞，因此正好到期允许读 RNG。",
+    "swap": "OnCharacterSwap 清全队/全武器概率，没有清全局成功 ICD。",
+    "sourceUncertainty": "源码 TODO 明示 0.2s ICD 与换人清概率是假设，不能标记游戏实证。",
+    "sourceRefs": [
+      {
+        "path": "pkg/core/energy.go",
+        "lines": "30-89"
+      },
+      {
+        "path": "pkg/core/player/character/energy.go",
+        "lines": "33-49"
+      }
+    ]
+  },
+  "acceptedActionPhase": {
+    "value": "after-frame-tasks-v1",
+    "ordering": "递增帧数后执行 Core.Tick（Combat、Constructs、Player、Tasks），再执行能量/受伤/OnTick，最后动作准备检查与 Exec。",
+    "sourceRefs": [
+      {
+        "path": "pkg/core/core.go",
+        "lines": "138-154"
+      },
+      {
+        "path": "pkg/simulation/run.go",
+        "lines": "230-242;286-295"
+      },
+      {
+        "path": "pkg/core/task/task.go",
+        "lines": "38-60"
+      }
+    ]
+  },
+  "limitations": [
+    "本包没有外部模拟器执行或游戏内实测证据。",
+    "没有修改生产源码、运行测试、构建或数据流水线；仅来源读取、原文身份计算与 manifest/gzip 写入。",
+    "CharacterStats、装备、外部队友 buff、目标状态以及完整角色技能运行时不因本归档自动获得支持。"
+  ],
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/aimed.go",
+      "bytes": 2310,
+      "sha256": "9dfead08b762b4fed8aa77fc81e69a5a50a160e4bd7349456dd428f859295c10",
+      "gitBlobSha1": "3d56cd918465ca69773479b70d9a5afce3d69630"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/asc.go",
+      "bytes": 3571,
+      "sha256": "cf2ac336b83661090727be1e7b267c4c2afda2d2ed373539d1c7b31f8856fa24",
+      "gitBlobSha1": "60ef111a58bf9377fbc3f8c7cddc5688d99e6e20"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/attack.go",
+      "bytes": 1834,
+      "sha256": "b1904b46ea917abb71341f131a4d23d49d972b6bca9b18315e675d18e1015268",
+      "gitBlobSha1": "8bf15f31fc010a63194c060849f94b2ce6afa426"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/burst.go",
+      "bytes": 2743,
+      "sha256": "24c2d89444775755cb68686e683a1b36886d07ed2c7e9b2209ea1a8220b15fe2",
+      "gitBlobSha1": "caf70ff669c88f24b84441d473bd24858bad5ab9"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/collei.go",
+      "bytes": 1277,
+      "sha256": "f50e43b099e369dcf45562dac0c3b39631937427366b1b495a729941795fde6f",
+      "gitBlobSha1": "03ad616e05cc103923e6a2acd2775d3ca2ee6a1b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/cons.go",
+      "bytes": 2413,
+      "sha256": "4b3b5108c2842ee7310288bfc9f60a2460ec6b87a2ab662648415f6aa63954a6",
+      "gitBlobSha1": "cecbf512f182e93bd02361ef7938330cd28687cc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/skill.go",
+      "bytes": 3066,
+      "sha256": "0c816b274d9e542dffb247971b23857b3fd601c64f17014ba45555d8737f5845",
+      "gitBlobSha1": "aaf9d741f65e2f8b25ba0683dec3f345486fbbf1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/collei/zz_collei.dm.go",
+      "bytes": 2885,
+      "sha256": "f6820e61b867282d61922967c724f6479cb7e74645c65e9f5ce25c3b115f0ef7",
+      "gitBlobSha1": "718f95f4d77410c1a25abeebf08c81a3f06e2769"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/aimed.go",
+      "bytes": 2968,
+      "sha256": "f566156c1a73c5267eaa149c6092786520492ba17f3b4dc3332ecf5e469e48ff",
+      "gitBlobSha1": "5b3bdacf9044f6d22ea7da66df41bd6e3d4e44aa"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/asc.go",
+      "bytes": 624,
+      "sha256": "ecf0fe3f5472755eb2b5b8dbe76a8837c500d85d31dd6a77432d394493382962",
+      "gitBlobSha1": "fd0e67c9149b1438c61cdce247b49e0c2b94e147"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/attack.go",
+      "bytes": 1931,
+      "sha256": "ec33f6c13fac4fb5f7919992ad4a02b82aa05ff26ece66289b47cfe7644da9e0",
+      "gitBlobSha1": "cc6d1a0cddf3f6e9b42dc71f721840849ea9fc4f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/burst.go",
+      "bytes": 2833,
+      "sha256": "6de165f9b6264e612c6c1ed4d0263dc6f0554da1b62474ffabc4ec8c73eb09d3",
+      "gitBlobSha1": "429e173dad33be9c730cdb525d33d9ed1878f14a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/cons.go",
+      "bytes": 1790,
+      "sha256": "00658d240098d66d61875b6c459c66cf769772c10cc7dd34ec15a1ad003a5f1c",
+      "gitBlobSha1": "90a0bd376180ca4973217bcc5ccfd1eb38d50049"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/diona.go",
+      "bytes": 1009,
+      "sha256": "d75c86712d2def91e1353ce6a65a856e3f5e1de961760114d99307344cc923d4",
+      "gitBlobSha1": "05a03fc0d683356c3f7fd5b47d35bbf45f64d9bf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/skill.go",
+      "bytes": 4916,
+      "sha256": "ee1b2a33b6795a9ab2a661ef51b5c97e552db0dcdd299be58bff6f4560e3451e",
+      "gitBlobSha1": "48b91cf77b142b287c76e33bff8ed8d4f5d6e320"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diona/zz_diona.dm.go",
+      "bytes": 4261,
+      "sha256": "2601720c0cc0d1b6efdf9e59f3659dc4261ec229a7c8a55a561e267f4a740683",
+      "gitBlobSha1": "ffb390897c629506758cc70a98d28050f6a4fd82"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/aimed.go",
+      "bytes": 3661,
+      "sha256": "a3321f3d6eeffb19b13ddf46ae1ba16cd16481c3815a5cd5c8cf528b7eddb09f",
+      "gitBlobSha1": "47a94beeb9047d6fff9aa9322d236aa4ed7b6644"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/asc.go",
+      "bytes": 2077,
+      "sha256": "091a76bb82b013476b503b5b0b987083bfa17185fc41fdf5e9e187052ffb481c",
+      "gitBlobSha1": "9b3d5b04601ca942d1a245df0882f06d5561e3e4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/attack.go",
+      "bytes": 2057,
+      "sha256": "257f19bde89aec0f18687c55ea4306e0d5f6318f50638039d48956de8bb37446",
+      "gitBlobSha1": "cea30a38eab59b944ad323d307611f2d40e4b0d3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/burst.go",
+      "bytes": 4529,
+      "sha256": "4b43a3809462ad0cca4ee49fd622b9712b051b1011230f9f1fc5de21223be6c1",
+      "gitBlobSha1": "a5687e18f32d6a4f7edc2b23af0dc08786fb50bf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/cons.go",
+      "bytes": 2143,
+      "sha256": "c3713d2634813248d186f64907c5e21763f8bec3560143b7b07d40e79ba081a9",
+      "gitBlobSha1": "928806c76219dafdf8f944268a36a55bef52c9d3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/faruzan.go",
+      "bytes": 1082,
+      "sha256": "45f4a3889959274a7b0ee364cdd1b6cdbe803539a9d1876192bf0f4fcbe5482f",
+      "gitBlobSha1": "2a3ebdb3fe6b7f1f1332799ff4ce5bb3261881ab"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/skill.go",
+      "bytes": 3850,
+      "sha256": "fc03484ff9d454418192077d58090e8fdbfe2674dc5bebf6eb1b0fd615fd4a00",
+      "gitBlobSha1": "9491d8be4f4a6dffc4d0ab1e32492cf901f3737b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/faruzan/zz_faruzan.dm.go",
+      "bytes": 3079,
+      "sha256": "bba0a9ef74e787804e759f2a48d21c11c0337b6b2ff982c08b5bb77d9d902f3e",
+      "gitBlobSha1": "2d81ba730c8199888d6107ff64545588809d6599"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/aimed.go",
+      "bytes": 2280,
+      "sha256": "4bf5c15f9ca54583585aece3854e778282dc66a0d85c4d878f60883a54ca066b",
+      "gitBlobSha1": "f54d894abd916c900bdefc566031f6808de99c6b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/asc.go",
+      "bytes": 4931,
+      "sha256": "ac7887afb79cb757a6d1847796e86181174d20da355bba67e6799caa8696f089",
+      "gitBlobSha1": "bab57f4b3d6f4f33953c128bc1c4857a74c6492d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/attack.go",
+      "bytes": 2548,
+      "sha256": "b91ee8878f271a1fd74540c596bcd4ca4c69e882a2c4b6ea5dc6f4f1a60e2f2f",
+      "gitBlobSha1": "682ae1ae4e9f8c35166769e66951eafc1669ed81"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/burst.go",
+      "bytes": 3624,
+      "sha256": "b257315fa65e7cd520c7d946b7a001b0392c8bc4addee4ab5ad10eaa15cf5e19",
+      "gitBlobSha1": "1b0ba584b3dade6471804a5a73d805ad483d42cc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/cons.go",
+      "bytes": 1083,
+      "sha256": "69f47a040a4d117aa6f22b371ae4d8ff4db5a069ffc33efdbe2b218d272555b7",
+      "gitBlobSha1": "2d0932169447e3228322d2db06c93343408eef29"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/fischl.go",
+      "bytes": 2657,
+      "sha256": "008dc741889be3036d3a4c119c1f5f1e2366d983ebbe34d2b7d52df33eb520da",
+      "gitBlobSha1": "1aacf4f03b91eda21cc3e3588397bd0eb4b9ef66"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/skill.go",
+      "bytes": 6087,
+      "sha256": "654f4a57a418bc1926a791133717b7a1984079844db6e87422f496feeccca069",
+      "gitBlobSha1": "171ece2d58bb928bf9165b005ea0a93798187b09"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/fischl/zz_fischl.dm.go",
+      "bytes": 3055,
+      "sha256": "48342136ccb5a429a60d11779137b0fb640cadb35f31bf58c9e14263b885bd3a",
+      "gitBlobSha1": "cc75631141dad527ee3ef2380b867b3e1132bbdf"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/aimed.go",
+      "bytes": 4458,
+      "sha256": "659c5adcc4cfa273488a37ec2f18b8501618459a98a54a75c54ac2b96ce3d0fc",
+      "gitBlobSha1": "1f51b4f3a6551a59f8dd1aa6cc5503ba434c437f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/attack.go",
+      "bytes": 1937,
+      "sha256": "11ffd15c653b9e5cf6580e6ffe6db66f20f5ea9cbfd4e44047c9ac62be6ba004",
+      "gitBlobSha1": "131c01f5b4b17c37b6c746bc02c4ddf82e9c4f81"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/burst.go",
+      "bytes": 3518,
+      "sha256": "48aa25c8b4ee2a2f526cff5e2e87e7917ea2ee5ef5ba4330fc95a7db8d3c2271",
+      "gitBlobSha1": "8fa1ee7da696f630f979698767158961c98618f8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/cons.go",
+      "bytes": 1592,
+      "sha256": "d04c9f02c9b86baec5c577e1125c0d7cb62f357f8d3ad2704f2c90454ab4e3ad",
+      "gitBlobSha1": "7c9753ade6121e2c5da1ccb1a606d10435a6b2c3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/ganyu.go",
+      "bytes": 1112,
+      "sha256": "534be5fa4d218b6ad11afbc8d08e17be03af6f96d6ce7fa6cf57605eade36add",
+      "gitBlobSha1": "adb2cce1cbbb0f3923b187a05900ee99a3ea4eda"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/skill.go",
+      "bytes": 1757,
+      "sha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+      "gitBlobSha1": "41cf5aa3ca3cce1eb2fae826e849c19cc91e92bc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ganyu/zz_ganyu.dm.go",
+      "bytes": 3493,
+      "sha256": "cd0f50f73f896771f35fac3854026e4fec6306d77a4bc8c70d73e0115e6c1f86",
+      "gitBlobSha1": "b1413f7de83b071b49b30859fbbc110aa7a6f45a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/aimed.go",
+      "bytes": 2322,
+      "sha256": "1ef32ba39aacac94388b4a3252effaa473fb4db313a981453396927e3898eb1c",
+      "gitBlobSha1": "93fef038b2070a9c5dad84132c1f093f4922b203"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/asc.go",
+      "bytes": 1130,
+      "sha256": "e0ace8147eb1cd5dc378b1ec1da7bcf3247fe28532735b552eec788ccb5f4ff3",
+      "gitBlobSha1": "576dbb05f37d1307df105e3313174c97ac50c374"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/attack.go",
+      "bytes": 2056,
+      "sha256": "7b215901cb9ae9a33a050b4b7d71362100a994f9215c7835d6cb9c86400ae618",
+      "gitBlobSha1": "84bed01e89f0bc4ea5da75678ed5ab18382f06c8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/burst.go",
+      "bytes": 5907,
+      "sha256": "2fa3bb144d723c35a7b6f779d64f42c9591b1e07bdc5692e6151bd75b0c71f89",
+      "gitBlobSha1": "9e85543a71e14a356d38c075977ab0553aa7ff2c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/cons.go",
+      "bytes": 3450,
+      "sha256": "8dc45122a7f31f3934b3598b780ed24524f1a10acf13a2e6b0baa68275d60eb9",
+      "gitBlobSha1": "7bec14cd24ece987a628a67ffad13ee405a8f16e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/gorou.go",
+      "bytes": 2893,
+      "sha256": "3e1b6d58a927e91c0bd173a12e3754ae92b1bf3087f6d6d53b3e1c39c7ac7749",
+      "gitBlobSha1": "1b6cc92f01d7e2b77f8896a4501ce3baa82a60b0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/skill.go",
+      "bytes": 4131,
+      "sha256": "4f3da7f1aa4aa3973a5af837a1e676f0db9d0b2d6a21faddb06b5402e0798072",
+      "gitBlobSha1": "064f2cd0d6f58bd0f6b908fec9a5b6b9846ddb1c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/gorou/zz_gorou.dm.go",
+      "bytes": 3132,
+      "sha256": "7ab3cef93f2aafe95cf848fdfc1dc668371a59c378195acad4891dc0b8a99dde",
+      "gitBlobSha1": "042c2600a3eef097c8255aa761e025df48853a5e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/aimed.go",
+      "bytes": 4212,
+      "sha256": "4580522e0afbd3d3b78fc63c7bf62e5bc6023dfc5ebc773fe7c55d9a792d9c3d",
+      "gitBlobSha1": "2058abf2adb77c3039958143548d4b12d73c73c9"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/asc.go",
+      "bytes": 1129,
+      "sha256": "7a8e22f8368b5a3343674ce8d7c05d42aaa47afcd1a7fd32f9f58b648d12a999",
+      "gitBlobSha1": "6ade7df2ac628105e946db4efb84b089c77eeb91"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/attack.go",
+      "bytes": 2142,
+      "sha256": "05cbb84ee36ea01693669463da4055f0f20c03fb1b59266fbe1ae8c145de4405",
+      "gitBlobSha1": "e14e9f85db41af01754c804c9f0071caea4cd9a3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/burst.go",
+      "bytes": 3916,
+      "sha256": "c6eccc34dd965e1121ae8181d7878952000706f57d980c04173330b291d60c34",
+      "gitBlobSha1": "3fe485bc46f05532c2e935e69cc4d5b0b5868915"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/cons.go",
+      "bytes": 2092,
+      "sha256": "c07e95c6c9636567a971d7b375b4e665df2c5902050cadd21138279c42233c58",
+      "gitBlobSha1": "628689fa490177960e97445836dc0839338ba178"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/sara.go",
+      "bytes": 775,
+      "sha256": "3dc395ca9edd947794223a36412ea6f71724450125c258eb4484dfbed100a5e1",
+      "gitBlobSha1": "2c08b3c08e88b24dfd912ef88ebc7e44931a383f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/skill.go",
+      "bytes": 4166,
+      "sha256": "2637836ea9e46caf1aac3c4425aa00558143657704931a6701423fd5e8c8d34f",
+      "gitBlobSha1": "b23383a0099382aafc3b0f14549fe9c0fe3fc95a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/sara/zz_kujousara.dm.go",
+      "bytes": 3328,
+      "sha256": "cdddde23c2f007260761598bf5bc66700a2a9eec22d60c1c84bda8ca3b34d091",
+      "gitBlobSha1": "a681560c57f9cf81d78bd3afb60b08686338f449"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/aimed.go",
+      "bytes": 5769,
+      "sha256": "73df60b4a71e1bef71b213b8c523c6b602507aebced436629759d4df0d7ff8cf",
+      "gitBlobSha1": "c3ba9a691c58622e20f12dedae7d8cc0945895f3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/asc.go",
+      "bytes": 1453,
+      "sha256": "46026d9ad171b3ce6fee168b9f0a099bbd9aaf38e4636ff571f1e7f35af401c4",
+      "gitBlobSha1": "29bce787aa8a4c25e1f0aaee78f8ab782e9a41ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/attack.go",
+      "bytes": 1903,
+      "sha256": "5b08ae3c7c009b5d7df5f0411f2b8eba688b004c57ecf8f2190a41ad99c9610b",
+      "gitBlobSha1": "5ee601bdc9031eaaf1fb156621bb81a55772d305"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/burst.go",
+      "bytes": 1864,
+      "sha256": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+      "gitBlobSha1": "711a0c467d78c24ac9148eb39dca8a4d84d506de"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/cons.go",
+      "bytes": 3153,
+      "sha256": "e170a084d7fc05fd76bb087dd2d8e252b214f8b03034ecd69aef0d1e88914ad8",
+      "gitBlobSha1": "5595358301878a6ae8a4f2d7fbb81e005291e73f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/skill.go",
+      "bytes": 2268,
+      "sha256": "7f4c8c220f95201571a69bd16a82ec43eba67c4d9bf19a3758c6510fac0e6311",
+      "gitBlobSha1": "944b5512c571fa9ee53c052dc73c49b880bd7bf3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/tighnari.go",
+      "bytes": 685,
+      "sha256": "4628dcd1f8e5e305009958fee926666011d3786e42c7b0f4bea9f7280f861895",
+      "gitBlobSha1": "32a57a93ed66c22cab3a94268d132fbacd35c757"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/tighnari/zz_tighnari.dm.go",
+      "bytes": 3757,
+      "sha256": "8319465d076ae6b1482c1c8cf040abc3fa72fa33f79b6dbef71ad7ecb8795823",
+      "gitBlobSha1": "fa80d06588b4f618a31dfc648198e31b63109f52"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/aimed.go",
+      "bytes": 2349,
+      "sha256": "db076f50bd1f0d944d9bdc470f59be7c8cf13de9ce5bf7d87f5030538d26d5f8",
+      "gitBlobSha1": "1dab5230139a506d1c43725980ab0b9137d0e3fd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/asc.go",
+      "bytes": 754,
+      "sha256": "a99c0ee9f55720d61abbc4f68058e8cd5921e301e9a1c510ac1e262d1b51743b",
+      "gitBlobSha1": "4b8c5c3035fd26e6c176972261ccd85a5635cb56"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/attack.go",
+      "bytes": 2064,
+      "sha256": "355cdf9618a5797e1ae1966f6b5968920d3fd7497dda8a44aef42caaa63e6acd",
+      "gitBlobSha1": "9a79c451ffd6b8bb94f28e4fd85714e54e5f195b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/burst.go",
+      "bytes": 3600,
+      "sha256": "1b1b157fbb3993c6cd11dbc502f368facce61bed201fb54322c46feb047144cb",
+      "gitBlobSha1": "a52d6da70de327d3b00d9a85501e1547ee020726"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/cons.go",
+      "bytes": 2567,
+      "sha256": "21fc477b1a85abb5bc4b3ca50b5e409558856601d0f3b51c2ed5f70c90b6b169",
+      "gitBlobSha1": "5f260de57dc9e73dca0b78d065aa6cff5bed0473"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/plunge.go",
+      "bytes": 1732,
+      "sha256": "c524c974b387392b5cccdf327059a25e152e45034371cd2cd0b6b66a8afc5732",
+      "gitBlobSha1": "ce56563e89ee1006e51cf6e48d7746e1d90334cc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/skill.go",
+      "bytes": 2634,
+      "sha256": "c21decac9fc9e68319a66abdf2dbd157cd5d9d7ff50ae288891c4f27705a80b6",
+      "gitBlobSha1": "112d3749064a102ef80e3a0924114eedd2a9dde6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/venti.go",
+      "bytes": 1151,
+      "sha256": "14b7ac55a29f2ca9b90acb5d2b260c8bedeb24fc1b6a1c8253299d349670b1ca",
+      "gitBlobSha1": "1154d3419f356ff88bbc650dde6db58d6f52619e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/venti/zz_venti.dm.go",
+      "bytes": 4387,
+      "sha256": "ded299f51bcb57d9e769c810fdec6f2548d23c7619d4b8108f7dc60d5b17275a",
+      "gitBlobSha1": "327da5c4ec1943c029d269fc29bd6f460b50ce14"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/aimed.go",
+      "bytes": 3440,
+      "sha256": "b5e363e15a5c64967876f93cd57d6acc3a46e839c63a1f9710c8088d7a8740c9",
+      "gitBlobSha1": "cb276a46cf24e917019e1dca4653e759749757ec"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/asc.go",
+      "bytes": 1724,
+      "sha256": "0ba947273e8155b29f0608aa5df80867d4675374562f3945a2f0795f08ab0882",
+      "gitBlobSha1": "b83c6d634d5e29dad9c0d13f0d4be9715a337c35"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/attack.go",
+      "bytes": 3032,
+      "sha256": "edb8a13a46a3786a75c8968a3c28c4b6c1455247391477efa38261d6649309b1",
+      "gitBlobSha1": "9a637a9bf80a92cdacb207c35da120d28986faf2"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/burst.go",
+      "bytes": 3457,
+      "sha256": "12551772f864b1fa8dfb3ef25a4ca223a7a9fdf1199d8f59feaecf027a26668f",
+      "gitBlobSha1": "b4670bb080a8ece3cd574850be71aad4b9762368"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/skill.go",
+      "bytes": 4892,
+      "sha256": "638450f741780ce0e430b40d99ccff7d9ad108e866e841a5e0d4351249f09bd6",
+      "gitBlobSha1": "eff101b2885b036f0845a4a14d4dfc44bc290965"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/yelan.go",
+      "bytes": 2174,
+      "sha256": "787f8b7e0608d4ac58d53ab87649657f7feb416e2ea269048d7ce6fe97f67db5",
+      "gitBlobSha1": "87675c89471e27b2f3fe25ed6659b4d22948d3e0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yelan/zz_yelan.dm.go",
+      "bytes": 3501,
+      "sha256": "6471d245eed61acde032ab5274c0090dd9fd1092663d5c747e00cbd4b2272106",
+      "gitBlobSha1": "00a8fdcb1873a6790cca6f31661bd173208c777f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "gitBlobSha1": "6f0f47b4097751ee1076677356ce0c4bdbe038c7"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/animation.go",
+      "bytes": 155,
+      "sha256": "97c61df00fa31e7d65363c6366a949b2290375d608adfd1dedf08561cdd9b2f0",
+      "gitBlobSha1": "d3fc9a811a39bc1aa6c97eb390f3c4b7b0d06ed6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlobSha1": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/cooldown.go",
+      "bytes": 7269,
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "gitBlobSha1": "0ef808a53ae22f7eec9d1c0c680aa0d1c80a20d1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/default.go",
+      "bytes": 226,
+      "sha256": "798e50e474f27fbee50182c0771ba1b3795882aaceee8080d06e8724a3d2cda0",
+      "gitBlobSha1": "122e5fb12e42b9e005cfc783a7c0dda885f2666b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/ready.go",
+      "bytes": 1602,
+      "sha256": "d8226df747ea6181d5edb40ea3131ff948cf165d1f5c948704402808ed049ef1",
+      "gitBlobSha1": "b121ecf707885873328debcf2c1fbd5a5b2d665d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/stam.go",
+      "bytes": 4593,
+      "sha256": "414c7c87cdc498e0551dd9a90ee4d03b414ad7d7cca0028fe037c5cc2e077767",
+      "gitBlobSha1": "d4ff61db98367713de3d9604e808cf7bca3420c1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/minazuki/minazuki.go",
+      "bytes": 6431,
+      "sha256": "f2dde80d5ada0b33ecb0c10af1d0da2fead7071c07c40f7a3a5c8172c2c91e9e",
+      "gitBlobSha1": "e11f13dc0088fe944c91a0f4efd2ae997b8d6d21"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/action/action.go",
+      "bytes": 4043,
+      "sha256": "5074744fa1f71db33c1d13230b3b929fe0df3b87f26fc84a70693ace1cc2ab69",
+      "gitBlobSha1": "3a2d1cdcfaa17df8ba93ddfcef62d5c9cc629754"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/action/failure.go",
+      "bytes": 866,
+      "sha256": "778e4ffc7acb45dc7236cf1e5dc6643c447e0b8f8257ba58e359dd2313734f95",
+      "gitBlobSha1": "a121fc18392a52df9e4ec416982eec3aaf1ea597"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/attack.go",
+      "bytes": 1484,
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "gitBlobSha1": "63b9b3cc74984420e93df17b90eec90ece9665bd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/icd_groups.dm.go",
+      "bytes": 15409,
+      "sha256": "799bdc59f64d365d2e898da92884a9a8e376aa35ac9004e01a664edad79522b4",
+      "gitBlobSha1": "1b423f2c537fba74458d39358d19cc61b00cc562"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/icd_tags.dm.go",
+      "bytes": 2005,
+      "sha256": "aa0e0ed56ed0713cdf81be7df1ee9686050d1b35b28ccc7e35425bd5fbcea85e",
+      "gitBlobSha1": "bd914e453eb73796e30e63b864d56b7a4cc23c89"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attributes/element.go",
+      "bytes": 1623,
+      "sha256": "f8bb0945fd69486d8718f9863be489d57818d7732b15210c8ec68c69efcb2065",
+      "gitBlobSha1": "98a0c1515d5fa5febd71521476c856456646e876"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attributes/stats.go",
+      "bytes": 1677,
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "gitBlobSha1": "cc142a8c7ebd88cf2e212786bc3f260b936fc960"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/combat/attack.go",
+      "bytes": 2494,
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "gitBlobSha1": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/combat/hitbox.go",
+      "bytes": 2372,
+      "sha256": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "gitBlobSha1": "b18dc631722b69e298663ce3bfb130508556e273"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/energy.go",
+      "bytes": 2639,
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "gitBlobSha1": "307f035e82bf5570c7b2ae86a4314201e025ca9e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "gitBlobSha1": "5e29feb40b303022b8f4e29010d838b7593eea88"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/animation.go",
+      "bytes": 161,
+      "sha256": "8c9e854d76b9dc8150d60424e9c9defa9ce29590be4595496caf3301695d1f09",
+      "gitBlobSha1": "f0efd2ea941dbc1338e844f65e7161eaf27e8275"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/character.go",
+      "bytes": 3177,
+      "sha256": "79f32dea9696faf270e797c9e7fd42f5ee24027c9cdbb1c6d51a10241cd00d12",
+      "gitBlobSha1": "8b40d9da49225b4cfbbd573875251830a28e0cab"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "gitBlobSha1": "c2e89e614a2513d00c710478f8dc55f2773d2ead"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/point.go",
+      "bytes": 1404,
+      "sha256": "eee7f859f512ca5e86ebb5589da64bf59b0be8c45f87c1b4ece4dd79c5564641",
+      "gitBlobSha1": "5ea23287dd586036e2c5d93e467d74c27c9f308b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/rectangle.go",
+      "bytes": 4765,
+      "sha256": "f7c656a7aaf34b625e7dd051fce54b16280aea1bad30040374cef45585358b7a",
+      "gitBlobSha1": "b656fe616583718cbc1ee47364364f8e118a9d19"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/shape.go",
+      "bytes": 4356,
+      "sha256": "e2d91f48c10940510035dbd48b33ac8312f239cb7ede5feb40c20430720b80c2",
+      "gitBlobSha1": "6af9ac6fb50fb5237870f50a82e1b7291e78fc81"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/talents.go",
+      "bytes": 126,
+      "sha256": "95a9e180998b46e0f3559e4524ad5b095c1bbee6344210ecbca938bd3893a228",
+      "gitBlobSha1": "2076135a1dcf2e1091ceaaf58468182251b21dad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/target.go",
+      "bytes": 210,
+      "sha256": "a57daebff34407de919a0aaec8867cfa2795338274375aa3430cf36b882d9294",
+      "gitBlobSha1": "cb2ec2c8dd96a17b5771d40d082f2b9ed6e9fd87"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/weapon.go",
+      "bytes": 1211,
+      "sha256": "3da40cb2bd5c1d5449043ec0fdb0726972cbbb83a71428a7521a26928c622f41",
+      "gitBlobSha1": "49c56061650bd2ac2859a7c893ddd3dcb317dec0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/keys/character.dm.go",
+      "bytes": 8778,
+      "sha256": "22ddee046faa5d88b77744056bbb665c4daf5a44d520ae3ef1f4babfa4ef4e45",
+      "gitBlobSha1": "ff4ded3c58115c1b21c93cf9a7a44a7f73638a93"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/keys/keys.go",
+      "bytes": 105,
+      "sha256": "d402cf6e2ad7d6ad41c30c55463f5227f1e25aaa81a5061ed03244ff917b1e39",
+      "gitBlobSha1": "fde732bae7a2d3907e2de492196f8ccb54a3381a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/animation/animation.go",
+      "bytes": 3385,
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "gitBlobSha1": "a11a10d7afbe88a8d1eefb60439a2c07e8823c88"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/basestat.go",
+      "bytes": 3278,
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+      "gitBlobSha1": "5fe8a567471550f150af747910cd2fdcb17446e6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/character.go",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlobSha1": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "gitBlobSha1": "89bcd35ff58041104029be9e3828e2154d724da9"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/exec.go",
+      "bytes": 7052,
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "gitBlobSha1": "1bf462c6ebbc58342377aa1a31ae82285ec6b75b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/infusion/infusion.go",
+      "bytes": 1937,
+      "sha256": "cfc364636e17ea9298109d8108b11b81b68a87295ce66f65f6d9c214e526726d",
+      "gitBlobSha1": "6357c614cdde204426cc26647101e429ab101d72"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/simulation/run.go",
+      "bytes": 9886,
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "gitBlobSha1": "0d4bdf5efb5607cad9deee83bfda795e315a8a5b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/target/icd.go",
+      "bytes": 2803,
+      "sha256": "6accec4e8c186c1b9d5c0875a763b30cd7a09fd51d5082fa98cbbb1b15574815",
+      "gitBlobSha1": "44cb6dc2560dfbd485f535b4c7d43498444ae5b7"
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "round": 112,
+  "status": "private source-site proposal only; no repository/cache edits or build/tests",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-Jv0OeE/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-pasFAn/source"
+  },
+  "sourceHashesSha256": {
+    "classic": {
+      "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/baizhu/burst.go": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09",
+      "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "internal/characters/tartaglia/tartaglia.go": "1eae9b4969dcb137e298816286c25aecaec60d635ea0b4e23c84050da9e11632",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "pkg/enemy/attack.go": "9923d6cd10bb2a834553d776dcf6dde983540134d2a9cc5799f978e2cd39d6a5",
+      "pkg/core/event/event.go": "479329d3b02c74c37d50d0a236a5863fc6f177ae688e6f5b308c99bd02097d8d",
+      "pkg/core/combat/enemy.go": "0ceffdee36e72cc173c477fbd5c31eefd5596f1f2aeb472d7f2b1877b3b024cd",
+      "pkg/core/info/sourcehost_origin.go": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961"
+    },
+    "stellar": {
+      "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/baizhu/burst.go": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09",
+      "internal/characters/baizhu/shield.go": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "internal/characters/tartaglia/tartaglia.go": "1eae9b4969dcb137e298816286c25aecaec60d635ea0b4e23c84050da9e11632",
+      "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+      "pkg/enemy/attack.go": "9923d6cd10bb2a834553d776dcf6dde983540134d2a9cc5799f978e2cd39d6a5",
+      "pkg/core/event/event.go": "517a2ebd63a41f5455129b280957621a42b1ed2ce1a4b01c70418cb82157b16f",
+      "pkg/core/combat/enemy.go": "0ceffdee36e72cc173c477fbd5c31eefd5596f1f2aeb472d7f2b1877b3b024cd",
+      "pkg/core/info/sourcehost_origin.go": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961"
+    }
+  },
+  "nativeAbiSource": "/tmp/gidps-112-event-ownership-design.json",
+  "nativeHelpers": {
+    "label": "Core.SourceHostLabelEventListener(siteID string, args ...any)",
+    "fact": "Core.SourceHostEventListenerFact(key string, value float64)",
+    "attack": "Core.SourceHostQueueEventAttack(siteID string, ai, pattern, snapshotDelay, dmgDelay, callbacks...)",
+    "task": "Core.SourceHostQueueEventTask(siteID string, func(), delay)",
+    "semantics": "Nil-safe source-host sidecars preserve the original event hook, QueueAttack, and Core.Tasks.Add once; no origin ownership rewrite."
+  },
+  "components": [
+    {
+      "id": "baizhu-c2-on-enemy-damage",
+      "eventType": "OnEnemyDamage",
+      "registration": {
+        "siteId": "baizhu.c2.enemy-damage",
+        "key": "baizhu-c2",
+        "created": "Init only if constellation>=2; not created by an E cast",
+        "sourceRefs": [
+          "internal/characters/baizhu/baizhu.go:28-38",
+          "internal/characters/baizhu/cons.go:25-27"
+        ]
+      },
+      "listenerFacts": {
+        "baizhu.c2.trigger-actor-active": "0/1 from one ae.Info.ActorIndex == c.Core.Player.Active() comparison; when 0, returns before ICD read",
+        "baizhu.c2.icd-active": "0/1 from one c.StatusIsActive(c2ICDKey) read, present only if actor fact=1"
+      },
+      "outcome": {
+        "zeroAttackWhen": [
+          "trigger actor is not current active actor",
+          "C2 ICD status active"
+        ],
+        "oneAttackWhen": "actor fact=1 and ICD fact=0",
+        "emitSiteId": "baizhu.c2.splice-attack",
+        "ability": "Gossamer Sprite: Splice. (C2)",
+        "attackTag": "ElementalArt",
+        "snapshotDelay": 0,
+        "damageDelay": 13,
+        "sameListenerEffects": [
+          "schedule healing task +51 frames",
+          "set 300f C2 ICD status"
+        ],
+        "sourceRefs": [
+          "internal/characters/baizhu/cons.go:26-96"
+        ]
+      },
+      "ordering": "OnEnemyDamage is emitted after applyDamage, including any lethal OnTargetDied, and before native attack hit callbacks. It is suppressed as gameplay by hitConfirmBlocked EmitObserved; no listener call row is created then.",
+      "scopeGate": "C2 event attack component can be certified independently of which active ally caused the trigger. At C6, Splice carries makeC6CB; shield creation/break/expiry and possible later Spiritvein remain an unclosed separate lifecycle, so do not mark that larger chain complete.",
+      "sourceRefs": [
+        "pkg/enemy/attack.go:83-113",
+        "internal/characters/baizhu/cons.go:47-59",
+        "internal/characters/baizhu/cons.go:121-129",
+        "internal/characters/baizhu/burst.go:64-86",
+        "internal/characters/baizhu/shield.go:8-39"
+      ]
+    },
+    {
+      "id": "tartaglia-riptide-on-target-died",
+      "eventType": "OnTargetDied",
+      "registration": {
+        "siteId": "tartaglia.riptide.target-died",
+        "key": "tartaglia-on-enemy-death",
+        "created": "Init regardless of constellation; not created by any Q cast",
+        "sourceRefs": [
+          "internal/characters/tartaglia/tartaglia.go:47-52",
+          "internal/characters/tartaglia/riptide.go:251-253"
+        ]
+      },
+      "listenerFacts": {
+        "tartaglia.riptide.target-enemy": "0/1 from original args[0].(*enemy.Enemy) assertion; when 0, returns before status read",
+        "tartaglia.riptide.active": "0/1 from one t.StatusIsActive(riptideKey) read, present only if enemy fact=1"
+      },
+      "outcome": {
+        "zeroProducerWhen": [
+          "target not an enemy",
+          "riptide status inactive on dead enemy"
+        ],
+        "oneProducerWhen": "enemy fact=1 and active fact=1",
+        "producerSiteId": "tartaglia.riptide.death-burst-task",
+        "taskDelay": 5,
+        "producerEmitSiteId": "tartaglia.riptide.death-burst-attack",
+        "producerAttackCount": 1,
+        "ability": "Riptide Burst",
+        "attackTag": "Normal",
+        "snapshotDelay": 0,
+        "damageDelay": 0,
+        "C2SideEffect": "if constellation>=2, gain 4 energy during listener call; independent of attack producer",
+        "sourceRefs": [
+          "internal/characters/tartaglia/riptide.go:251-283"
+        ]
+      },
+      "ordering": "OnTargetDied fires inside lethal applyDamage before OnEnemyDamage and all hit callbacks. Manual KillEnemy emits with an empty AttackEvent; parent attack/dispatch identity must remain absent.",
+      "scopeGate": "Listener call and +5f task/attack are a standalone event component. Parent lethal attack is the trigger, not the owner of the pre-existing riptide status. Enemy status ownership is not recorded by this ABI, so do not attribute burst to an earlier Q or claim full Q closure.",
+      "sourceImplementationNote": "The code comment says Riptide Burst inflicts Riptide, but this queued attack has no applyRiptide callback; do not invent that status effect in the contract.",
+      "sourceRefs": [
+        "pkg/enemy/attack.go:250-260",
+        "pkg/core/combat/enemy.go:31-35",
+        "internal/characters/tartaglia/riptide.go:248-283"
+      ]
+    }
+  ],
+  "verificationBoundary": [
+    "EventRegistration identity persists independently of per-cast roots.",
+    "EventEmission links only current trigger attack/target; it cannot establish source of prior enemy status.",
+    "A completed listener call with zero queued attacks proves only that this call took a zero-child branch.",
+    "A pending +5f event producer keeps its component open until the actual task and tagged attack complete."
+  ],
+  "patchStage": {
+    "description": "Patch applies before SourceHostTalentRead auto-instrumentation, so task and queue hunks use pre-instrument source context. Current Jv0OeE/pasFAn built caches are read-only audit evidence, not the patch application stage.",
+    "basisRoot": "/tmp/gidps-source-host-cache/build-GGPmB1/source",
+    "basisSourceHashesSha256": {
+      "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "internal/characters/tartaglia/riptide.go": "a06eae6b00efbbcdf850190d3d9c8fa8f78f7507a094adfa89f8915b48272305"
+    },
+    "rawA7SourceHashesSha256": {
+      "internal/characters/baizhu/cons.go": "87be8da2802b436cb3ca3e50e2e283444b393e0018ee7e6915229b88ffd16bea",
+      "internal/characters/tartaglia/riptide.go": "a06eae6b00efbbcdf850190d3d9c8fa8f78f7507a094adfa89f8915b48272305"
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/tmp/gidps-112-event-sites-classic.patch",
+      "sha256": "19d7c0cc26396029530ead295a2cdba9398d7854ca2086217790ad35619069ff",
+      "bytes": 2494,
+      "applyCheck": {
+        "preInstrumentationGGPmB1": 0
+      }
+    },
+    "stellar": {
+      "path": "/tmp/gidps-112-event-sites-stellar.patch",
+      "sha256": "19d7c0cc26396029530ead295a2cdba9398d7854ca2086217790ad35619069ff",
+      "bytes": 2494,
+      "applyCheck": {
+        "preInstrumentationGGPmB1": 0,
+        "rawA7": 0
+      }
+    }
+  },
+  "notes": [
+    "Classic and stellar character-site patches are text-identical because these two audited listener bodies have the same pre-instrument patch context; latest built source hashes are lane-specific and recorded separately.",
+    "Patch labels callback at first body line, writes only facts from existing guard reads, and changes only the exact attack/task queue helpers; no callback wrapping, duplicate selector/status getter, or fabricated status owner.",
+    "Pre-instrument raw b4 upstream tree lacks these character files; classic patch applicability was checked against the actual GGPmB1 pre-instrument stage copy, not unrelated raw b4."
+  ]
+}

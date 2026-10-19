@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "protocol": "observed-hydro-suffusion-v1",
+  "status": "cross-source numeric resolution; observed chronology; provisional, not automatic or current-game verified",
+  "recordedAt": "2026-09-25T03:18:26.287045+00:00",
+  "repositories": {
+    "optimizer": {
+      "repository": "frzyc/genshin-optimizer",
+      "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+      "archivedFilesMatchFullTree": true
+    },
+    "gcsim": {
+      "repository": "genshinsim/gcsim",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "role": "retained conflict evidence only",
+      "identity": "existing pinned source archive; individual original blob hashes recorded, not all tree-certified"
+    },
+    "genshinDb": {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "role": "talent numbers and raw description; original source bytes retained"
+    },
+    "kqm": {
+      "repository": "KQM-git/TCL",
+      "revision": "3b228d151a7f9d1daeb7b6f10e4f780ec1089b51",
+      "role": "first-party test record for22dewdrops/last simultaneous launch/dynamic; linked videos located but not replayed or measured in this task",
+      "path": "docs/evidence/characters/hydro/traveler-hydro.md",
+      "contentApiBlobMatched": true
+    }
+  },
+  "archive": {
+    "path": "packages/game-data/sources/traveler-hydro-resolved-casts/source.json.gz",
+    "sha256": "1303a7ef530b6b2088f1d914c6a86461d2505cf73de63cdb6caef5016b9ba11d",
+    "bytes": 354552,
+    "sourceFileCount": 13
+  },
+  "catalog": {
+    "version": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "sha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602"
+  },
+  "numericBindings": [
+    {
+      "characterKey": "TravelerHydroM",
+      "field": "skill[0]",
+      "catalogField": "combat2.param1",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroM",
+      "field": "skill[1]",
+      "catalogField": "combat2.param2",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroM",
+      "field": "skill[2]",
+      "catalogField": "combat2.param3",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroM",
+      "field": "skill[5]",
+      "catalogField": "combat2.param6",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroF",
+      "field": "skill[0]",
+      "catalogField": "combat2.param1",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroF",
+      "field": "skill[1]",
+      "catalogField": "combat2.param2",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroF",
+      "field": "skill[2]",
+      "catalogField": "combat2.param3",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    },
+    {
+      "characterKey": "TravelerHydroF",
+      "field": "skill[5]",
+      "catalogField": "combat2.param6",
+      "valueCount": 15,
+      "maximumAbsoluteDifference": 0
+    }
+  ],
+  "verification": {
+    "coefficientVectors": 8,
+    "coefficientValues": 120,
+    "maximumAbsoluteDifference": 0,
+    "testsOrBuildsRun": false,
+    "dataCommandsRun": false
+  },
+  "unresolved": [
+    "Automatic HP drain cadence and exact same-frame HP qualification vs drain order; explicitly observed events are required.",
+    "No automated droplets, movement, healing, particles, ICD/aura or team rotation; external HP changes are observed states in the per-cast ledger."
+  ]
+}

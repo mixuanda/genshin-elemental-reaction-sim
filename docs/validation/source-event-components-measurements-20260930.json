@@ -1,0 +1,350 @@
+{
+  "schemaVersion": "source-event-components-measurements-v1",
+  "asOf": "2026-09-30",
+  "scope": "112 observed global event components sharing the editable single-hit core; fixed-source evidence, no complete-cast or game verification promotion.",
+  "commands": [
+    {
+      "name": "classic-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 0.217,
+      "log": "docs/validation/source-event-components-classic-build-20260930.log"
+    },
+    {
+      "name": "stellar-build",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 10.217,
+      "log": "docs/validation/source-event-components-stellar-build-20260930.log"
+    },
+    {
+      "name": "classic-build-recovery",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 77.497,
+      "log": "docs/validation/source-event-components-classic-build-recovery-20260930.log"
+    },
+    {
+      "name": "stellar-build-recovery",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 14.596,
+      "log": "docs/validation/source-event-components-stellar-build-recovery-20260930.log"
+    },
+    {
+      "name": "classic-build-final",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 16.09,
+      "log": "docs/validation/source-event-components-classic-build-final-20260930.log"
+    },
+    {
+      "name": "stellar-build-final",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.584,
+      "log": "docs/validation/source-event-components-stellar-build-final-20260930.log"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 7.025,
+      "log": "docs/validation/source-event-components-typecheck-20260930.log"
+    },
+    {
+      "name": "typecheck-final",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.892,
+      "log": "docs/validation/source-event-components-typecheck-final-20260930.log"
+    },
+    {
+      "name": "registry",
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.197,
+      "log": "docs/validation/source-event-components-registry-20260930.log"
+    },
+    {
+      "name": "offline-regression",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-producer-declarations.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.073,
+      "log": "docs/validation/source-event-components-offline-regression-20260930.log"
+    },
+    {
+      "name": "web-build",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.103,
+      "log": "docs/validation/source-event-components-web-build-20260930.log"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-event-components.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 11.156,
+      "log": "docs/validation/source-event-components-browser-20260930.log",
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      }
+    },
+    {
+      "name": "web-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.469,
+      "log": "docs/validation/source-event-components-web-build-final-20260930.log"
+    },
+    {
+      "name": "browser-replay",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-event-components.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 40.802,
+      "log": "docs/validation/source-event-components-browser-replay-20260930.log",
+      "environment": {
+        "GIDPS_PREBUILT": "1",
+        "GIDPS_REUSE_EVENT_CAPTURE": "1"
+      }
+    }
+  ],
+  "counts": {
+    "eventTypesObserved": 2,
+    "auditedEventComponents": 2,
+    "staticEventDamageCandidateFamilies": 23,
+    "distinctSkillContracts": 60,
+    "producerPlanEntries": 51,
+    "nativeRunsThisBatch": 1,
+    "browserCases": 1,
+    "browserAttempts": 2,
+    "offlineTests": 1,
+    "historicalCapturesReused": 4
+  },
+  "runtime": {
+    "schemaVersion": "source-event-components-browser-v1",
+    "measurements": {
+      "nativeRunPerformed": false,
+      "nativeResultArchived": true,
+      "rawPath": "docs/validation/source-event-components-team-20260930.capture.json",
+      "receipts": {
+        "registrations": 2,
+        "emissions": 9,
+        "listenerCalls": 9,
+        "delayedProducers": 1,
+        "linkedTasks": 1,
+        "linkedTaskStates": [
+          "completed"
+        ],
+        "components": [
+          {
+            "siteId": "baizhu.c2.enemy-damage",
+            "listenerCallId": 12,
+            "componentId": "baizhu-c2-on-enemy-damage",
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 0,
+            "completedProducerCount": 0,
+            "pendingProducerCount": 0,
+            "hitCount": 1,
+            "componentSubtotal": 303.44568032812504
+          },
+          {
+            "siteId": "tartaglia.riptide.target-died",
+            "listenerCallId": 9,
+            "componentId": "tartaglia-riptide-on-target-died",
+            "deliveryClosed": true,
+            "attackCount": 1,
+            "producerCount": 1,
+            "completedProducerCount": 1,
+            "pendingProducerCount": 0,
+            "hitCount": 1,
+            "componentSubtotal": 125.39785272501312
+          }
+        ]
+      },
+      "componentImportExportSame": true,
+      "sharedCoreEditChangedSubtotal": true,
+      "missingDelayedProducerCloses": false,
+      "missingDelayedProducerReasons": [
+        "本次监听器发出的直接攻击或延迟任务数与实际分支不符。"
+      ],
+      "eventEmissionCount": 9
+    },
+    "pageErrors": [],
+    "scope": "One classic two-target run covers only observed Baizhu C2 and Riptide target-death event components; it does not establish ability ownership, full-cast closure, or game verification."
+  },
+  "runtimeDetails": {
+    "lifecycleObservationFrame": 681,
+    "teamApplicationCount": 8,
+    "nativeTotalDamage": 964356.9998983659,
+    "registrationCount": 5,
+    "emissionCount": 9,
+    "listenerCallCount": 33,
+    "producerCount": 1,
+    "selectedApplicationCount": 2,
+    "selectedSubtotal": 428.8435330531382,
+    "maxSelectedHitReplayDifference": 0,
+    "firstAttemptResult": "docs/validation/source-event-components-team-initial-20260930.result.json",
+    "evidence": "Passing browser case asserts exact-zero replay for both selected hits; the second attempt reused the first native capture."
+  },
+  "artifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "bytes": 45033463,
+      "sha256": "5adfbd650a2177db28fe5d12f241cd21ae18d40674786a0aaf0e010d7fe18874"
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "bytes": 69615152,
+      "sha256": "baa3f01a8906cdc553046ca505482e77231256ca74288f8fc5927b51d467d2da"
+    },
+    {
+      "path": "packages/source-host/patches/112-event-ownership.patch",
+      "bytes": 5290,
+      "sha256": "6da2162427e07bff47844dc1bcf0907a02f0c4d8e7e4d81a76be97fbb9bec43b"
+    },
+    {
+      "path": "packages/source-host/patches/112-event-character-sites.patch",
+      "bytes": 2494,
+      "sha256": "19d7c0cc26396029530ead295a2cdba9398d7854ca2086217790ad35619069ff"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-event-types.ts",
+      "bytes": 2815,
+      "sha256": "06b5a0afbd818136d9d3766a577f34e5d61c5790d5051b72530676cb83e13fb9"
+    },
+    {
+      "path": "packages/sim-core/src/source-host-event-collection.ts",
+      "bytes": 27256,
+      "sha256": "66cf58866159d28025c0556df5a857825b000b893f4e7fd3e593431047175111"
+    },
+    {
+      "path": "apps/web/src/source-host-event-calculator.ts",
+      "bytes": 10873,
+      "sha256": "cdfdb31b121bac01b3dd29a6388aa45f70380aeb2a57b5d0cba18a3db0d733ef"
+    },
+    {
+      "path": "docs/validation/source-event-components-team-20260930.capture.json",
+      "bytes": 606565,
+      "sha256": "4514b3aae28f352c3dad9ad804627887cb970337e42f497db74a94461a3e68df"
+    },
+    {
+      "path": "docs/validation/source-event-sites-112-20260930.json",
+      "bytes": 10200,
+      "sha256": "2ce885b859b3c465ae768870ffa4a8402dcda69f7d30aa0b407bb814bc393ba6"
+    },
+    {
+      "path": "docs/validation/source-event-ownership-design-112-20260930.json",
+      "bytes": 10101,
+      "sha256": "f49fae2eedab4406ddeae66df579ad220d56c2923c1cceed382a5c5e126a3379"
+    },
+    {
+      "path": "docs/validation/source-event-damage-inventory-20260930.json",
+      "bytes": 36967,
+      "sha256": "07b41b0ef401f5e3c58971817cfe1dc5c910bb7890153bb271856767884a5ffa"
+    },
+    {
+      "path": "docs/validation/source-shield-ownership-design-20260930.json",
+      "bytes": 18707,
+      "sha256": "a3c7cb3ba6ad306e71b8ccb6610dbbd4e6d892070fbf771701208dbba9b82a53"
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7"
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+    }
+  ],
+  "repairs": [
+    {
+      "failure": "Incomplete temporary classic upstream source, protobuf module and Go 1.25 standard library caches.",
+      "repair": "Preserved three incomplete directories under dated names and restored the same pinned source, checksum-pinned toolchain and Go module cache; final builds passed."
+    },
+    {
+      "failure": "Initial typecheck found missing event document controller union and three exactOptionalPropertyTypes fields.",
+      "repair": "Added event document type and omitted undefined attackId fields; final checks passed."
+    },
+    {
+      "failure": "Initial browser attempt rejected strict context projection; review of saved native rows also exposed missing AttackTag prefixes in the component rules.",
+      "repair": "Strip only for context projection while keeping document schema strict; use exact native tags. Rebuilt and reused the archived native capture."
+    }
+  ],
+  "limits": [
+    "One classic three-character two-target scenario with deliberately high Kaeya ATK and explicit HP; this is a mechanism fixture, not a recommended game build or DPS benchmark. Stellar built only.",
+    "Delivery closure concerns only this selected listener and its explicit attacks/tasks. Baizhu healing/C6 shield followups and Tartaglia prior status ownership/C4/full-Q lifetime remain outside scope.",
+    "Missing delayed producer negative edits archived output offline; it is not a native truncated run.",
+    "Registration replacement/unsubscribe, manual KillEnemy, observed-mode suppression, nested events and additional candidate sites have source/build evidence without extra runtime samples.",
+    "Released/preview/verified pointers unchanged. No full test suite, character matrix, data promotion, commit, push or deployment.",
+    "Master goal active; all five remaining broad categories tracked."
+  ]
+}

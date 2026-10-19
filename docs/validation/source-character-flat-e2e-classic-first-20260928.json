@@ -1,0 +1,14 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "GIDPS_FLAT_LANE=classic",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-character-flat.spec.ts"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 10.322,
+  "log": "docs/validation/source-character-flat-e2e-classic-first-20260928.log"
+}

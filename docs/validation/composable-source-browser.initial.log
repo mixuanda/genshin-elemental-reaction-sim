@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:27204) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/composable-source-abilities.spec.ts:55:1 › editable party binds two sourced bursts, executes real energy and swaps, and restores the same sourced hit and full JSON
+[chromium] › apps/web/e2e/composable-source-abilities.spec.ts:55:1 › editable party binds two sourced bursts, executes real energy and swaps, and restores the same sourced hit and full JSON
+Composable source browser measurements {"initialEnergyPreserved":[7,11],"burstCosts":[40,40],"meteorDamage":6563.304,"meteorFlatHpContribution":6600,"keqingHitCount":10,"totalDamage":10028.029,"dps":1253.503625,"replayDifference":0,"completeRecordRestored":true}
+
+  1 passed (3.1s)

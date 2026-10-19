@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "source-rng-policy-measurements-v1",
+  "asOf": "2026-09-28",
+  "environment": {
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "checks": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.853
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.365
+    },
+    "unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-randomness.test.ts",
+        "apps/web/src/source-host-startup-analysis.test.ts",
+        "apps/web/src/source-host-energy-analysis.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.056
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 22.229
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 18.056
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-rng-policy.spec.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 16.138
+    }
+  },
+  "browserReceipt": "docs/validation/source-rng-policy-browser-20260928.result.json",
+  "artifactIdentity": {
+    "classic": {
+      "sha256": "35548a34a9ce33367ebc13a53d53bafccd44f84392ebf2a76f866a408c1333fc",
+      "bytes": 44496857
+    },
+    "stellar": {
+      "sha256": "36b833e9ac379a89346d3c3e61c2a1866ac6e115d96e25f80de39c801b9235b3",
+      "bytes": 66059562
+    },
+    "browserPublicAndDistMatch": true
+  },
+  "datasetIdentity": {
+    "pointersSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "runtimeCurrentSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "changed": false
+  },
+  "scope": "Native RNG receipt, duplicate initialized stream rejection and preserved calculator context. Not game verification or general random stationarity proof."
+}

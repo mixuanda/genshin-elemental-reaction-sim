@@ -1,0 +1,168 @@
+diff --git a/internal/template/character/sourcehost_removed_func.go b/internal/template/character/sourcehost_removed_func.go
+new file mode 100644
+--- /dev/null
++++ b/internal/template/character/sourcehost_removed_func.go
+@@ -0,0 +1,20 @@
++package character
++
++import (
++	"github.com/genshinsim/gcsim/pkg/core/action"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
++)
++
++// SourceHostRemovedFunc is only for source-audited callbacks whose sole capture
++// is the explicitly supplied implementation object. The original callback is
++// retained unchanged; phase observation reads the same object, never the hook.
++// Callbacks retaining additional locals or closures must stay opaque or supply
++// a separate complete descriptor. Unknown actor state remains an explicit gap.
++func (c *Character) SourceHostRemovedFunc(source string, implementation any, run func(next action.AnimationState)) action.RemovedFunc {
++	return action.RemovedFunc{
++		Run: run,
++		Phase: &phase.Descriptor{Source: source, Observe: func() (map[string]any, []string) {
++			return c.SourceHostCapturedImplementationPhase(implementation)
++		}},
++	}
++}
+diff --git a/pkg/core/action/action.go b/pkg/core/action/action.go
+--- a/pkg/core/action/action.go
++++ b/pkg/core/action/action.go
+@@ -21,11 +21,11 @@
+ 	CanQueueAfter        int
+ 	State                AnimationState
+ 	FramePausedOnHitlag  func() bool               `json:"-"`
+-	OnRemoved            func(next AnimationState) `json:"-"`
++	OnRemoved            RemovedFunc `json:"-"`
+ 	// following are exposed only so we can log it properly
+ 	TimePassed           float64
+ 	NormalizedTimePassed float64
+-	UseNormalizedTime    func(next Action) bool
++	UseNormalizedTime    NormalizedTimeFunc
+ 	// hidden stuff
+ 	queued []queuedAction
+ }
+@@ -96,21 +96,21 @@
+ }
+ 
+ func (a *Info) RunRemoved(next AnimationState) {
+-	if a.OnRemoved == nil {
++	if a.OnRemoved.Run == nil {
+ 		return
+ 	}
+ 	if a.SourceHostOrigin == nil {
+-		a.OnRemoved(next)
++		a.OnRemoved.Run(next)
+ 		return
+ 	}
+ 	end := a.SourceHostOrigin.BeginTask(a.sourceHostCreation)
+-	a.OnRemoved(next)
++	a.OnRemoved.Run(next)
+ 	end()
+ }
+ 
+ // SourceHostCallbackSummary reads only the returned action's callback slots.
+ func (a *Info) SourceHostCallbackSummary() (int, bool) {
+-	return len(a.queued), a.OnRemoved != nil
++	return len(a.queued), a.OnRemoved.Run != nil
+ }
+ 
+ func (a *Info) CanQueueNext() bool {
+@@ -118,7 +118,7 @@
+ }
+ 
+ func (a *Info) CanUse(next Action) bool {
+-	if a.UseNormalizedTime != nil && a.UseNormalizedTime(next) {
++	if a.UseNormalizedTime.Run != nil && a.UseNormalizedTime.Run(next) {
+ 		return a.NormalizedTimePassed >= float64(a.Frames.Run(next))
+ 	}
+ 	// can't use anything if we're frozen
+diff --git a/pkg/core/action/sourcehost_animation_funcs.go b/pkg/core/action/sourcehost_animation_funcs.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/action/sourcehost_animation_funcs.go
+@@ -0,0 +1,36 @@
++package action
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
++
++// RemovedFunc retains the real callback and the source-audited description of
++// its complete captures together. Replacing it replaces both values.
++type RemovedFunc struct {
++	Run   func(next AnimationState)
++	Phase *phase.Descriptor
++}
++
++// NormalizedTimeFunc describes the predicate without evaluating it at a marker.
++type NormalizedTimeFunc struct {
++	Run   func(next Action) bool
++	Phase *phase.Descriptor
++}
++
++// OpaqueRemovedFunc preserves an unreviewed callback and its explicit gap.
++func OpaqueRemovedFunc(f func(next AnimationState)) RemovedFunc { return RemovedFunc{Run: f} }
++
++// OpaqueNormalizedTimeFunc never assumes that a dynamic predicate is stateless.
++func OpaqueNormalizedTimeFunc(f func(next Action) bool) NormalizedTimeFunc {
++	return NormalizedTimeFunc{Run: f}
++}
++
++// NormalizedForNextAction binds the audited next == nextAction predicate and its
++// sole scalar capture. The original HuTao/Keqing assignment conditions remain
++// at their action sites; no character-specific predicate is evaluated here.
++func NormalizedForNextAction(nextAction Action) NormalizedTimeFunc {
++	return NormalizedTimeFunc{
++		Run: func(next Action) bool { return next == nextAction },
++		Phase: &phase.Descriptor{Source: "pkg/core/action/sourcehost_animation_funcs.go:NormalizedForNextAction", Observe: func() (map[string]any, []string) {
++			return map[string]any{"nextAction": nextAction.String()}, nil
++		}},
++	}
++}
+diff --git a/pkg/core/action/sourcehost_phase_state.go b/pkg/core/action/sourcehost_phase_state.go
+--- a/pkg/core/action/sourcehost_phase_state.go
++++ b/pkg/core/action/sourcehost_phase_state.go
+@@ -41,11 +41,7 @@
+ 	}
+ 	describe("framesCallback", "animation.Frames callback", a.Frames.Run != nil, a.Frames.Phase)
+ 	describe("pauseCallback", "animation.FramePausedOnHitlag callback", a.FramePausedOnHitlag != nil, a.sourceHostPausePhase)
+-	if a.OnRemoved != nil {
+-		gaps = append(gaps, "animation.OnRemoved callback")
+-	}
+-	if a.UseNormalizedTime != nil {
+-		gaps = append(gaps, "animation.UseNormalizedTime callback")
+-	}
++	describe("removedCallback", "animation.OnRemoved callback", a.OnRemoved.Run != nil, a.OnRemoved.Phase)
++	describe("normalizedTimeCallback", "animation.UseNormalizedTime callback", a.UseNormalizedTime.Run != nil, a.UseNormalizedTime.Phase)
+ 	return state, gaps
+ }
+diff --git a/pkg/core/player/animation/animation.go b/pkg/core/player/animation/animation.go
+--- a/pkg/core/player/animation/animation.go
++++ b/pkg/core/player/animation/animation.go
+@@ -72,7 +72,7 @@
+ func (h *AnimationHandler) SetActionUsed(char int, act action.Action, evt *action.Info) {
+ 	// remove previous if still active
+ 	if h.aniEvt != nil {
+-		if h.aniEvt.OnRemoved != nil {
++		if h.aniEvt.OnRemoved.Run != nil {
+ 			h.aniEvt.RunRemoved(evt.State)
+ 		}
+ 		h.logEnded()
+diff --git a/pkg/core/player/character/sourcehost_captured_phase.go b/pkg/core/player/character/sourcehost_captured_phase.go
+new file mode 100644
+--- /dev/null
++++ b/pkg/core/player/character/sourcehost_captured_phase.go
+@@ -0,0 +1,16 @@
++package character
++
++import "fmt"
++
++// SourceHostCapturedImplementationPhase reads the actual implementation object
++// retained by an audited callback. The caller supplies that object explicitly;
++// neither a source label nor an actor index alone proves the closure's captures.
++// This uses the same read-only private reader as the character phase provider,
++// including every existing unknown function, clock, or generation-token gap.
++func (c *CharWrapper) SourceHostCapturedImplementationPhase(object any) (map[string]any, []string) {
++	state, gaps := sourceHostPrivatePhaseState(object, fmt.Sprintf("character[%d].capturedImplementation", c.index), *c.f)
++	return map[string]any{
++		"actor":          map[string]any{"sharedStateOwner": "characterWrapper", "characterIndex": c.index},
++		"implementation": state,
++	}, gaps
++}

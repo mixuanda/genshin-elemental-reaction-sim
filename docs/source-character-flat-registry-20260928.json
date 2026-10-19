@@ -1,0 +1,4758 @@
+{
+  "schemaVersion": "source-character-flat-registry-v1",
+  "scope": "Registry import and static Go patch literal alignment; not native execution or game verification.",
+  "counts": {
+    "rules": 142,
+    "characters": 40,
+    "operations": {
+      "set": 120,
+      "add": 16,
+      "multiply": 6
+    }
+  },
+  "lanes": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "patchRoot": "packages/source-host/patches",
+      "referencedRuleIds": [
+        "char-flat-aino-burst-a4",
+        "char-flat-aino-burst-zero",
+        "char-flat-aino-c2-a4",
+        "char-flat-aino-c2-zero-a4",
+        "char-flat-albedo-c2-burst",
+        "char-flat-alhaitham-burst-em",
+        "char-flat-alhaitham-mirror-em",
+        "char-flat-alhaitham-rush-em",
+        "char-flat-arlecchino-burst-c6",
+        "char-flat-arlecchino-burst-c6-zero",
+        "char-flat-arlecchino-na-bond",
+        "char-flat-ayato-namisen",
+        "char-flat-baizhu-c6-spiritvein",
+        "char-flat-candace-burst-hp",
+        "char-flat-candace-c6-hp",
+        "char-flat-candace-skill-hp",
+        "char-flat-candace-wave-hp",
+        "char-flat-chiori-a1-def-set",
+        "char-flat-chiori-a1-scale",
+        "char-flat-chiori-burst-def-set",
+        "char-flat-chiori-burst-scale",
+        "char-flat-chiori-c6-def-set",
+        "char-flat-chiori-c6-scale",
+        "char-flat-chiori-kinu-def-set",
+        "char-flat-chiori-kinu-scale",
+        "char-flat-chiori-skill-doll-def-set",
+        "char-flat-chiori-skill-doll-scale",
+        "char-flat-chiori-skill-upward-def-set",
+        "char-flat-chiori-skill-upward-scale",
+        "char-flat-citlali-c4-spiritvessel-skull",
+        "char-flat-citlali-frostfall-a4",
+        "char-flat-citlali-ice-storm-a4",
+        "char-flat-columbina-c4-hp",
+        "char-flat-columbina-c4-zero",
+        "char-flat-cyno-c6-bolt-a4",
+        "char-flat-cyno-c6-bolt-zero",
+        "char-flat-cyno-na-a4",
+        "char-flat-cyno-na-zero",
+        "char-flat-cyno-skill-bolt-a4",
+        "char-flat-cyno-skill-bolt-zero",
+        "char-flat-dehya-dot-hp",
+        "char-flat-dehya-kick-hp",
+        "char-flat-dehya-punch-hp",
+        "char-flat-dehya-skill-hp",
+        "char-flat-emilie-c6",
+        "char-flat-furina-bubble",
+        "char-flat-furina-burst",
+        "char-flat-furina-c6-extra",
+        "char-flat-furina-c6-no-extra",
+        "char-flat-furina-chevalmarin",
+        "char-flat-furina-crabaletta",
+        "char-flat-furina-usher",
+        "char-flat-gorou-a4-burst",
+        "char-flat-gorou-a4-skill",
+        "char-flat-hutao-c2-blood-blossom",
+        "char-flat-hydro-traveler-a4-accumulate",
+        "char-flat-hydro-traveler-a4-consume",
+        "char-flat-hydro-traveler-a4-consume-zero",
+        "char-flat-hydro-traveler-a4-first-accumulate",
+        "char-flat-hydro-traveler-dewdrop",
+        "char-flat-itto-a4",
+        "char-flat-kinich-a4-cannon",
+        "char-flat-kokomi-bonus-charge",
+        "char-flat-kokomi-bonus-normal",
+        "char-flat-kokomi-bonus-skill",
+        "char-flat-kokomi-bonus-zero",
+        "char-flat-kokomi-burst",
+        "char-flat-kokomi-c1",
+        "char-flat-kokomi-skill-tick-active",
+        "char-flat-kokomi-skill-tick-zero",
+        "char-flat-kuki-a4-ring-em",
+        "char-flat-kuki-burst-hp",
+        "char-flat-kuki-c4-hp",
+        "char-flat-kuki-skill-em",
+        "char-flat-lanyan-burst",
+        "char-flat-lanyan-ring",
+        "char-flat-lauma-frostgrove-sanctuary",
+        "char-flat-layla-burst",
+        "char-flat-layla-shooting-star-a4",
+        "char-flat-mavuika-cyclic-burst",
+        "char-flat-mavuika-cyclic-c2",
+        "char-flat-mavuika-cyclic-zero",
+        "char-flat-mavuika-final-burst",
+        "char-flat-mavuika-final-c2",
+        "char-flat-mavuika-final-zero",
+        "char-flat-mavuika-normal-burst",
+        "char-flat-mavuika-normal-c2",
+        "char-flat-mavuika-normal-zero",
+        "char-flat-mavuika-sunfell-burst",
+        "char-flat-mavuika-sunfell-c2",
+        "char-flat-mavuika-sunfell-zero",
+        "char-flat-mualani-a4",
+        "char-flat-mualani-bite",
+        "char-flat-mualani-burst",
+        "char-flat-nahida-c6",
+        "char-flat-nahida-trikarma",
+        "char-flat-neuv-burst",
+        "char-flat-neuv-burstwaterfall",
+        "char-flat-neuv-c6",
+        "char-flat-neuv-chargejudgement",
+        "char-flat-neuv-judgement-a1",
+        "char-flat-neuv-skill",
+        "char-flat-nicole-burst-projection",
+        "char-flat-nicole-c1-projection",
+        "char-flat-nilou-aeon-hp",
+        "char-flat-nilou-burst-hp",
+        "char-flat-nilou-skill-hp",
+        "char-flat-nilou-sword-hp",
+        "char-flat-nilou-whirling-hp",
+        "char-flat-razor-hexerei-wolf",
+        "char-flat-sayu-c6-daruma",
+        "char-flat-sethos-dusk-bolt",
+        "char-flat-sethos-shadowpiercing-a4",
+        "char-flat-sethos-shadowpiercing-em",
+        "char-flat-sigewinne-bolsteringbubblebalmdmg",
+        "char-flat-sigewinne-burstdmg",
+        "char-flat-sigewinne-surgingbladedmg",
+        "char-flat-thoma-a4-fiery-collapse",
+        "char-flat-varesa-a1-atk-cache",
+        "char-flat-varesa-a1-helper",
+        "char-flat-varesa-a1-helper-no-source",
+        "char-flat-varesa-c4-helper",
+        "char-flat-varesa-kablam-a1",
+        "char-flat-varesa-kablam-a1-no-source",
+        "char-flat-varesa-kablam-zero",
+        "char-flat-varesa-plunge-a1",
+        "char-flat-varesa-plunge-a1-c4",
+        "char-flat-varesa-plunge-a1-no-source",
+        "char-flat-varesa-plunge-a1-no-source-c4",
+        "char-flat-varesa-plunge-c4",
+        "char-flat-varesa-plunge-zero",
+        "char-flat-yelan-aimed-barb",
+        "char-flat-yelan-burst",
+        "char-flat-yelan-burstdice",
+        "char-flat-yelan-c2",
+        "char-flat-yelan-c6-barb",
+        "char-flat-yelan-skill",
+        "char-flat-zhongli-a4-burst",
+        "char-flat-zhongli-a4-normal-charge",
+        "char-flat-zhongli-a4-skill"
+      ],
+      "applicableRuleIds": [
+        "char-flat-aino-burst-a4",
+        "char-flat-aino-burst-zero",
+        "char-flat-aino-c2-a4",
+        "char-flat-aino-c2-zero-a4",
+        "char-flat-albedo-c2-burst",
+        "char-flat-alhaitham-burst-em",
+        "char-flat-alhaitham-mirror-em",
+        "char-flat-alhaitham-rush-em",
+        "char-flat-arlecchino-burst-c6",
+        "char-flat-arlecchino-burst-c6-zero",
+        "char-flat-arlecchino-na-bond",
+        "char-flat-ayato-namisen",
+        "char-flat-baizhu-c6-spiritvein",
+        "char-flat-candace-burst-hp",
+        "char-flat-candace-c6-hp",
+        "char-flat-candace-skill-hp",
+        "char-flat-candace-wave-hp",
+        "char-flat-chiori-a1-def-set",
+        "char-flat-chiori-a1-scale",
+        "char-flat-chiori-burst-def-set",
+        "char-flat-chiori-burst-scale",
+        "char-flat-chiori-c6-def-set",
+        "char-flat-chiori-c6-scale",
+        "char-flat-chiori-kinu-def-set",
+        "char-flat-chiori-kinu-scale",
+        "char-flat-chiori-skill-doll-def-set",
+        "char-flat-chiori-skill-doll-scale",
+        "char-flat-chiori-skill-upward-def-set",
+        "char-flat-chiori-skill-upward-scale",
+        "char-flat-citlali-c4-spiritvessel-skull",
+        "char-flat-citlali-frostfall-a4",
+        "char-flat-citlali-ice-storm-a4",
+        "char-flat-columbina-c4-hp",
+        "char-flat-columbina-c4-zero",
+        "char-flat-cyno-c6-bolt-a4",
+        "char-flat-cyno-c6-bolt-zero",
+        "char-flat-cyno-na-a4",
+        "char-flat-cyno-na-zero",
+        "char-flat-cyno-skill-bolt-a4",
+        "char-flat-cyno-skill-bolt-zero",
+        "char-flat-dehya-dot-hp",
+        "char-flat-dehya-kick-hp",
+        "char-flat-dehya-punch-hp",
+        "char-flat-dehya-skill-hp",
+        "char-flat-emilie-c6",
+        "char-flat-furina-bubble",
+        "char-flat-furina-burst",
+        "char-flat-furina-c6-extra",
+        "char-flat-furina-c6-no-extra",
+        "char-flat-furina-chevalmarin",
+        "char-flat-furina-crabaletta",
+        "char-flat-furina-usher",
+        "char-flat-gorou-a4-burst",
+        "char-flat-gorou-a4-skill",
+        "char-flat-hutao-c2-blood-blossom",
+        "char-flat-hydro-traveler-a4-accumulate",
+        "char-flat-hydro-traveler-a4-consume",
+        "char-flat-hydro-traveler-a4-consume-zero",
+        "char-flat-hydro-traveler-a4-first-accumulate",
+        "char-flat-hydro-traveler-dewdrop",
+        "char-flat-itto-a4",
+        "char-flat-kinich-a4-cannon",
+        "char-flat-kokomi-bonus-charge",
+        "char-flat-kokomi-bonus-normal",
+        "char-flat-kokomi-bonus-skill",
+        "char-flat-kokomi-bonus-zero",
+        "char-flat-kokomi-burst",
+        "char-flat-kokomi-c1",
+        "char-flat-kokomi-skill-tick-active",
+        "char-flat-kokomi-skill-tick-zero",
+        "char-flat-kuki-a4-ring-em",
+        "char-flat-kuki-burst-hp",
+        "char-flat-kuki-c4-hp",
+        "char-flat-kuki-skill-em",
+        "char-flat-lanyan-burst",
+        "char-flat-lanyan-ring",
+        "char-flat-lauma-frostgrove-sanctuary",
+        "char-flat-layla-burst",
+        "char-flat-layla-shooting-star-a4",
+        "char-flat-mavuika-cyclic-burst",
+        "char-flat-mavuika-cyclic-c2",
+        "char-flat-mavuika-cyclic-zero",
+        "char-flat-mavuika-final-burst",
+        "char-flat-mavuika-final-c2",
+        "char-flat-mavuika-final-zero",
+        "char-flat-mavuika-normal-burst",
+        "char-flat-mavuika-normal-c2",
+        "char-flat-mavuika-normal-zero",
+        "char-flat-mavuika-sunfell-burst",
+        "char-flat-mavuika-sunfell-c2",
+        "char-flat-mavuika-sunfell-zero",
+        "char-flat-mualani-a4",
+        "char-flat-mualani-bite",
+        "char-flat-mualani-burst",
+        "char-flat-nahida-c6",
+        "char-flat-nahida-trikarma",
+        "char-flat-neuv-burst",
+        "char-flat-neuv-burstwaterfall",
+        "char-flat-neuv-c6",
+        "char-flat-neuv-chargejudgement",
+        "char-flat-neuv-judgement-a1",
+        "char-flat-neuv-skill",
+        "char-flat-nicole-burst-projection",
+        "char-flat-nicole-c1-projection",
+        "char-flat-nilou-aeon-hp",
+        "char-flat-nilou-burst-hp",
+        "char-flat-nilou-skill-hp",
+        "char-flat-nilou-sword-hp",
+        "char-flat-nilou-whirling-hp",
+        "char-flat-razor-hexerei-wolf",
+        "char-flat-sayu-c6-daruma",
+        "char-flat-sethos-dusk-bolt",
+        "char-flat-sethos-shadowpiercing-a4",
+        "char-flat-sethos-shadowpiercing-em",
+        "char-flat-sigewinne-bolsteringbubblebalmdmg",
+        "char-flat-sigewinne-burstdmg",
+        "char-flat-sigewinne-surgingbladedmg",
+        "char-flat-thoma-a4-fiery-collapse",
+        "char-flat-varesa-a1-atk-cache",
+        "char-flat-varesa-a1-helper",
+        "char-flat-varesa-a1-helper-no-source",
+        "char-flat-varesa-c4-helper",
+        "char-flat-varesa-kablam-a1",
+        "char-flat-varesa-kablam-a1-no-source",
+        "char-flat-varesa-kablam-zero",
+        "char-flat-varesa-plunge-a1",
+        "char-flat-varesa-plunge-a1-c4",
+        "char-flat-varesa-plunge-a1-no-source",
+        "char-flat-varesa-plunge-a1-no-source-c4",
+        "char-flat-varesa-plunge-c4",
+        "char-flat-varesa-plunge-zero",
+        "char-flat-yelan-aimed-barb",
+        "char-flat-yelan-burst",
+        "char-flat-yelan-burstdice",
+        "char-flat-yelan-c2",
+        "char-flat-yelan-c6-barb",
+        "char-flat-yelan-skill",
+        "char-flat-zhongli-a4-burst",
+        "char-flat-zhongli-a4-normal-charge",
+        "char-flat-zhongli-a4-skill"
+      ],
+      "unreferencedDeclaredRules": [],
+      "undeclaredSourceRules": []
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "patchRoot": "packages/source-host/stellar-overlay/patches",
+      "referencedRuleIds": [
+        "char-flat-aino-burst-a4",
+        "char-flat-aino-burst-zero",
+        "char-flat-aino-c2-a4",
+        "char-flat-aino-c2-zero-a4",
+        "char-flat-albedo-c2-burst",
+        "char-flat-alhaitham-burst-em",
+        "char-flat-alhaitham-mirror-em",
+        "char-flat-alhaitham-rush-em",
+        "char-flat-arlecchino-burst-c6",
+        "char-flat-arlecchino-burst-c6-zero",
+        "char-flat-arlecchino-na-bond",
+        "char-flat-ayato-namisen",
+        "char-flat-baizhu-c6-spiritvein",
+        "char-flat-candace-burst-hp",
+        "char-flat-candace-c6-hp",
+        "char-flat-candace-skill-hp",
+        "char-flat-candace-wave-hp",
+        "char-flat-chiori-a1-def-set",
+        "char-flat-chiori-a1-scale",
+        "char-flat-chiori-burst-def-set",
+        "char-flat-chiori-burst-scale",
+        "char-flat-chiori-c6-def-set",
+        "char-flat-chiori-c6-scale",
+        "char-flat-chiori-kinu-def-set",
+        "char-flat-chiori-kinu-scale",
+        "char-flat-chiori-skill-doll-def-set",
+        "char-flat-chiori-skill-doll-scale",
+        "char-flat-chiori-skill-upward-def-set",
+        "char-flat-chiori-skill-upward-scale",
+        "char-flat-citlali-c4-spiritvessel-skull",
+        "char-flat-citlali-frostfall-a4",
+        "char-flat-citlali-ice-storm-a4",
+        "char-flat-columbina-c4-hp",
+        "char-flat-columbina-c4-zero",
+        "char-flat-cyno-c6-bolt-a4",
+        "char-flat-cyno-c6-bolt-zero",
+        "char-flat-cyno-na-a4",
+        "char-flat-cyno-na-zero",
+        "char-flat-cyno-skill-bolt-a4",
+        "char-flat-cyno-skill-bolt-zero",
+        "char-flat-dehya-dot-hp",
+        "char-flat-dehya-kick-hp",
+        "char-flat-dehya-punch-hp",
+        "char-flat-dehya-skill-hp",
+        "char-flat-emilie-c6",
+        "char-flat-furina-bubble",
+        "char-flat-furina-burst",
+        "char-flat-furina-c6-extra",
+        "char-flat-furina-c6-no-extra",
+        "char-flat-furina-chevalmarin",
+        "char-flat-furina-crabaletta",
+        "char-flat-furina-usher",
+        "char-flat-gorou-a4-burst",
+        "char-flat-gorou-a4-skill",
+        "char-flat-hutao-c2-blood-blossom",
+        "char-flat-hydro-traveler-a4-accumulate",
+        "char-flat-hydro-traveler-a4-consume",
+        "char-flat-hydro-traveler-a4-consume-zero",
+        "char-flat-hydro-traveler-a4-first-accumulate",
+        "char-flat-hydro-traveler-dewdrop",
+        "char-flat-itto-a4",
+        "char-flat-jahoda-robot",
+        "char-flat-kinich-a4-cannon",
+        "char-flat-kokomi-bonus-charge",
+        "char-flat-kokomi-bonus-normal",
+        "char-flat-kokomi-bonus-skill",
+        "char-flat-kokomi-bonus-zero",
+        "char-flat-kokomi-burst",
+        "char-flat-kokomi-c1",
+        "char-flat-kokomi-skill-tick-active",
+        "char-flat-kokomi-skill-tick-zero",
+        "char-flat-kuki-a4-ring-em",
+        "char-flat-kuki-burst-hp",
+        "char-flat-kuki-c4-hp",
+        "char-flat-kuki-skill-em",
+        "char-flat-lanyan-burst",
+        "char-flat-lanyan-ring",
+        "char-flat-lauma-frostgrove-sanctuary",
+        "char-flat-layla-burst",
+        "char-flat-layla-shooting-star-a4",
+        "char-flat-mavuika-cyclic-burst",
+        "char-flat-mavuika-cyclic-c2",
+        "char-flat-mavuika-cyclic-zero",
+        "char-flat-mavuika-final-burst",
+        "char-flat-mavuika-final-c2",
+        "char-flat-mavuika-final-zero",
+        "char-flat-mavuika-normal-burst",
+        "char-flat-mavuika-normal-c2",
+        "char-flat-mavuika-normal-zero",
+        "char-flat-mavuika-sunfell-burst",
+        "char-flat-mavuika-sunfell-c2",
+        "char-flat-mavuika-sunfell-zero",
+        "char-flat-mualani-a4",
+        "char-flat-mualani-bite",
+        "char-flat-mualani-burst",
+        "char-flat-nahida-c6",
+        "char-flat-nahida-trikarma",
+        "char-flat-neuv-burst",
+        "char-flat-neuv-burstwaterfall",
+        "char-flat-neuv-c6",
+        "char-flat-neuv-chargejudgement",
+        "char-flat-neuv-judgement-a1",
+        "char-flat-neuv-skill",
+        "char-flat-nicole-burst-projection",
+        "char-flat-nicole-c1-projection",
+        "char-flat-nilou-aeon-hp",
+        "char-flat-nilou-burst-hp",
+        "char-flat-nilou-skill-hp",
+        "char-flat-nilou-sword-hp",
+        "char-flat-nilou-whirling-hp",
+        "char-flat-razor-hexerei-wolf",
+        "char-flat-sayu-c6-daruma",
+        "char-flat-sethos-dusk-bolt",
+        "char-flat-sethos-shadowpiercing-a4",
+        "char-flat-sethos-shadowpiercing-em",
+        "char-flat-sigewinne-bolsteringbubblebalmdmg",
+        "char-flat-sigewinne-burstdmg",
+        "char-flat-sigewinne-surgingbladedmg",
+        "char-flat-thoma-a4-fiery-collapse",
+        "char-flat-varesa-a1-atk-cache",
+        "char-flat-varesa-a1-helper",
+        "char-flat-varesa-a1-helper-no-source",
+        "char-flat-varesa-c4-helper",
+        "char-flat-varesa-kablam-a1",
+        "char-flat-varesa-kablam-a1-no-source",
+        "char-flat-varesa-kablam-zero",
+        "char-flat-varesa-plunge-a1",
+        "char-flat-varesa-plunge-a1-c4",
+        "char-flat-varesa-plunge-a1-no-source",
+        "char-flat-varesa-plunge-a1-no-source-c4",
+        "char-flat-varesa-plunge-c4",
+        "char-flat-varesa-plunge-zero",
+        "char-flat-yaemiko-revelation",
+        "char-flat-yelan-aimed-barb",
+        "char-flat-yelan-burst",
+        "char-flat-yelan-burstdice",
+        "char-flat-yelan-c2",
+        "char-flat-yelan-c6-barb",
+        "char-flat-yelan-skill",
+        "char-flat-zhongli-a4-burst",
+        "char-flat-zhongli-a4-normal-charge",
+        "char-flat-zhongli-a4-skill"
+      ],
+      "applicableRuleIds": [
+        "char-flat-aino-burst-a4",
+        "char-flat-aino-burst-zero",
+        "char-flat-aino-c2-a4",
+        "char-flat-aino-c2-zero-a4",
+        "char-flat-albedo-c2-burst",
+        "char-flat-alhaitham-burst-em",
+        "char-flat-alhaitham-mirror-em",
+        "char-flat-alhaitham-rush-em",
+        "char-flat-arlecchino-burst-c6",
+        "char-flat-arlecchino-burst-c6-zero",
+        "char-flat-arlecchino-na-bond",
+        "char-flat-ayato-namisen",
+        "char-flat-baizhu-c6-spiritvein",
+        "char-flat-candace-burst-hp",
+        "char-flat-candace-c6-hp",
+        "char-flat-candace-skill-hp",
+        "char-flat-candace-wave-hp",
+        "char-flat-chiori-a1-def-set",
+        "char-flat-chiori-a1-scale",
+        "char-flat-chiori-burst-def-set",
+        "char-flat-chiori-burst-scale",
+        "char-flat-chiori-c6-def-set",
+        "char-flat-chiori-c6-scale",
+        "char-flat-chiori-kinu-def-set",
+        "char-flat-chiori-kinu-scale",
+        "char-flat-chiori-skill-doll-def-set",
+        "char-flat-chiori-skill-doll-scale",
+        "char-flat-chiori-skill-upward-def-set",
+        "char-flat-chiori-skill-upward-scale",
+        "char-flat-citlali-c4-spiritvessel-skull",
+        "char-flat-citlali-frostfall-a4",
+        "char-flat-citlali-ice-storm-a4",
+        "char-flat-columbina-c4-hp",
+        "char-flat-columbina-c4-zero",
+        "char-flat-cyno-c6-bolt-a4",
+        "char-flat-cyno-c6-bolt-zero",
+        "char-flat-cyno-na-a4",
+        "char-flat-cyno-na-zero",
+        "char-flat-cyno-skill-bolt-a4",
+        "char-flat-cyno-skill-bolt-zero",
+        "char-flat-dehya-dot-hp",
+        "char-flat-dehya-kick-hp",
+        "char-flat-dehya-punch-hp",
+        "char-flat-dehya-skill-hp",
+        "char-flat-emilie-c6",
+        "char-flat-furina-bubble",
+        "char-flat-furina-burst",
+        "char-flat-furina-c6-extra",
+        "char-flat-furina-c6-no-extra",
+        "char-flat-furina-chevalmarin",
+        "char-flat-furina-crabaletta",
+        "char-flat-furina-usher",
+        "char-flat-gorou-a4-burst",
+        "char-flat-gorou-a4-skill",
+        "char-flat-hutao-c2-blood-blossom",
+        "char-flat-hydro-traveler-a4-accumulate",
+        "char-flat-hydro-traveler-a4-consume",
+        "char-flat-hydro-traveler-a4-consume-zero",
+        "char-flat-hydro-traveler-a4-first-accumulate",
+        "char-flat-hydro-traveler-dewdrop",
+        "char-flat-itto-a4",
+        "char-flat-jahoda-robot",
+        "char-flat-kinich-a4-cannon",
+        "char-flat-kokomi-bonus-charge",
+        "char-flat-kokomi-bonus-normal",
+        "char-flat-kokomi-bonus-skill",
+        "char-flat-kokomi-bonus-zero",
+        "char-flat-kokomi-burst",
+        "char-flat-kokomi-c1",
+        "char-flat-kokomi-skill-tick-active",
+        "char-flat-kokomi-skill-tick-zero",
+        "char-flat-kuki-a4-ring-em",
+        "char-flat-kuki-burst-hp",
+        "char-flat-kuki-c4-hp",
+        "char-flat-kuki-skill-em",
+        "char-flat-lanyan-burst",
+        "char-flat-lanyan-ring",
+        "char-flat-lauma-frostgrove-sanctuary",
+        "char-flat-layla-burst",
+        "char-flat-layla-shooting-star-a4",
+        "char-flat-mavuika-cyclic-burst",
+        "char-flat-mavuika-cyclic-c2",
+        "char-flat-mavuika-cyclic-zero",
+        "char-flat-mavuika-final-burst",
+        "char-flat-mavuika-final-c2",
+        "char-flat-mavuika-final-zero",
+        "char-flat-mavuika-normal-burst",
+        "char-flat-mavuika-normal-c2",
+        "char-flat-mavuika-normal-zero",
+        "char-flat-mavuika-sunfell-burst",
+        "char-flat-mavuika-sunfell-c2",
+        "char-flat-mavuika-sunfell-zero",
+        "char-flat-mualani-a4",
+        "char-flat-mualani-bite",
+        "char-flat-mualani-burst",
+        "char-flat-nahida-c6",
+        "char-flat-nahida-trikarma",
+        "char-flat-neuv-burst",
+        "char-flat-neuv-burstwaterfall",
+        "char-flat-neuv-c6",
+        "char-flat-neuv-chargejudgement",
+        "char-flat-neuv-judgement-a1",
+        "char-flat-neuv-skill",
+        "char-flat-nicole-burst-projection",
+        "char-flat-nicole-c1-projection",
+        "char-flat-nilou-aeon-hp",
+        "char-flat-nilou-burst-hp",
+        "char-flat-nilou-skill-hp",
+        "char-flat-nilou-sword-hp",
+        "char-flat-nilou-whirling-hp",
+        "char-flat-razor-hexerei-wolf",
+        "char-flat-sayu-c6-daruma",
+        "char-flat-sethos-dusk-bolt",
+        "char-flat-sethos-shadowpiercing-a4",
+        "char-flat-sethos-shadowpiercing-em",
+        "char-flat-sigewinne-bolsteringbubblebalmdmg",
+        "char-flat-sigewinne-burstdmg",
+        "char-flat-sigewinne-surgingbladedmg",
+        "char-flat-thoma-a4-fiery-collapse",
+        "char-flat-varesa-a1-atk-cache",
+        "char-flat-varesa-a1-helper",
+        "char-flat-varesa-a1-helper-no-source",
+        "char-flat-varesa-c4-helper",
+        "char-flat-varesa-kablam-a1",
+        "char-flat-varesa-kablam-a1-no-source",
+        "char-flat-varesa-kablam-zero",
+        "char-flat-varesa-plunge-a1",
+        "char-flat-varesa-plunge-a1-c4",
+        "char-flat-varesa-plunge-a1-no-source",
+        "char-flat-varesa-plunge-a1-no-source-c4",
+        "char-flat-varesa-plunge-c4",
+        "char-flat-varesa-plunge-zero",
+        "char-flat-yaemiko-revelation",
+        "char-flat-yelan-aimed-barb",
+        "char-flat-yelan-burst",
+        "char-flat-yelan-burstdice",
+        "char-flat-yelan-c2",
+        "char-flat-yelan-c6-barb",
+        "char-flat-yelan-skill",
+        "char-flat-zhongli-a4-burst",
+        "char-flat-zhongli-a4-normal-charge",
+        "char-flat-zhongli-a4-skill"
+      ],
+      "unreferencedDeclaredRules": [],
+      "undeclaredSourceRules": []
+    }
+  ],
+  "rules": [
+    {
+      "id": "char-flat-albedo-c2-burst",
+      "character": "albedo",
+      "title": "阿贝多 C2 爆发及生灭之花防御加值",
+      "sourceFile": "internal/characters/albedo/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "nonExtraDef": {
+          "label": "原帧非额外总防御力",
+          "unit": "DEF"
+        },
+        "stacks": {
+          "label": "爆发起手保存的 C2 层数",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 4
+        }
+      },
+      "statLeaf": {
+        "stateKey": "nonExtraDef",
+        "getter": "non-extra-total-def",
+        "actor": "holder"
+      },
+      "explanation": "起手读取 C2 层数并清零；75 帧后以保存的层数和第二次独立防御力读取覆盖同一 AttackInfo 的旧 FlatDmg，绽放攻击只携新回执。"
+    },
+    {
+      "id": "char-flat-alhaitham-burst-em",
+      "character": "alhaitham",
+      "title": "艾尔海森爆发精通伤害",
+      "sourceFile": "internal/characters/alhaitham/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "em": {
+          "label": "原位置一次真实元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "爆发 FlatDmg 使用战技天赋等级表，保留原 Burst Mult 的单独爆发天赋读取。"
+    },
+    {
+      "id": "char-flat-alhaitham-rush-em",
+      "character": "alhaitham",
+      "title": "艾尔海森迅击精通伤害",
+      "sourceFile": "internal/characters/alhaitham/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "em": {
+          "label": "原位置一次真实元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "战技点按与长按各在原 AttackInfo 创建位置按同一战技表计算，原蓄力/棱镜时序不变。"
+    },
+    {
+      "id": "char-flat-alhaitham-mirror-em",
+      "character": "alhaitham",
+      "title": "艾尔海森棱镜投射精通伤害",
+      "sourceFile": "internal/characters/alhaitham/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "em": {
+          "label": "原位置一次真实元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "每次原投射攻击构造时读取当次战技天赋与一次精通，保留棱镜层、攻击排队和命中条件。"
+    },
+    {
+      "id": "char-flat-candace-skill-hp",
+      "character": "candace",
+      "title": "坎蒂丝战技生命伤害",
+      "sourceFile": "internal/characters/candace/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "chargeLevel": {
+          "label": "点按或蓄力档位",
+          "unit": "index",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "点按"
+            },
+            {
+              "value": 1,
+              "label": "蓄力"
+            }
+          ]
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "沿用 perfect/hold 得到的原 chargeLevel 后查二维战技表，原 windup 与粒子门槛不变。"
+    },
+    {
+      "id": "char-flat-candace-c6-hp",
+      "character": "candace",
+      "title": "坎蒂丝 C6 生命附加攻击",
+      "sourceFile": "internal/characters/candace/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原 C6 事件门槛后构造一次独立水元素攻击，以来源持有者一次生命上限读取计算。"
+    },
+    {
+      "id": "char-flat-candace-burst-hp",
+      "character": "candace",
+      "title": "坎蒂丝爆发生命伤害",
+      "sourceFile": "internal/characters/candace/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "爆发起手在原 AttackInfo 创建点查爆发天赋表并读取一次生命上限。"
+    },
+    {
+      "id": "char-flat-candace-wave-hp",
+      "character": "candace",
+      "title": "坎蒂丝爆发切人水波生命伤害",
+      "sourceFile": "internal/characters/candace/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "切人事件原门槛和水波次数保持，水波创建时独立读取一次生命上限。"
+    },
+    {
+      "id": "char-flat-dehya-skill-hp",
+      "character": "dehya",
+      "title": "迪希雅战技初击与重置生命伤害",
+      "sourceFile": "internal/characters/dehya/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "c1": {
+          "label": "原生一命是否解锁",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "未解锁"
+            },
+            {
+              "value": 1,
+              "label": "已解锁"
+            }
+          ]
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "初次战技和重新布置分别构造攻击；原 C1 初始化把倍率写成 3.6%，未解锁则为零。"
+    },
+    {
+      "id": "char-flat-dehya-dot-hp",
+      "character": "dehya",
+      "title": "迪希雅领域持续伤害生命项",
+      "sourceFile": "internal/characters/dehya/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "c1": {
+          "label": "原生一命是否解锁",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "未解锁"
+            },
+            {
+              "value": 1,
+              "label": "已解锁"
+            }
+          ]
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "领域部署时按 C1 分支与原战技持续伤害表计算并保存快照，后续 tick 不重复读取。"
+    },
+    {
+      "id": "char-flat-dehya-punch-hp",
+      "character": "dehya",
+      "title": "迪希雅爆发连打生命项",
+      "sourceFile": "internal/characters/dehya/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "c1": {
+          "label": "原生一命是否解锁",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "未解锁"
+            },
+            {
+              "value": 1,
+              "label": "已解锁"
+            }
+          ]
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "每次连打创建时使用原 C1 分支与对应爆发天赋表。"
+    },
+    {
+      "id": "char-flat-dehya-kick-hp",
+      "character": "dehya",
+      "title": "迪希雅爆发终结生命项",
+      "sourceFile": "internal/characters/dehya/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "c1": {
+          "label": "原生一命是否解锁",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "未解锁"
+            },
+            {
+              "value": 1,
+              "label": "已解锁"
+            }
+          ]
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "爆发终结击创建时使用原 C1 分支与终结天赋表。"
+    },
+    {
+      "id": "char-flat-kuki-c4-hp",
+      "character": "kuki",
+      "title": "久岐忍 C4 生命伤害",
+      "sourceFile": "internal/characters/kuki/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原 C4 事件和冷却条件不变，攻击创建时读取一次生命上限。"
+    },
+    {
+      "id": "char-flat-kuki-burst-hp",
+      "character": "kuki",
+      "title": "久岐忍爆发生命伤害",
+      "sourceFile": "internal/characters/kuki/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原式先读取生命上限，再按爆发天赋表取系数；多段共享原 AttackInfo。"
+    },
+    {
+      "id": "char-flat-kuki-skill-em",
+      "character": "kuki",
+      "title": "久岐忍战技精通伤害",
+      "sourceFile": "internal/characters/kuki/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原位置一次真实元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "战技起手构造攻击时读取一次精通，保留原技能排队。"
+    },
+    {
+      "id": "char-flat-kuki-a4-ring-em",
+      "character": "kuki",
+      "title": "久岐忍 A4 雷环精通伤害",
+      "sourceFile": "internal/characters/kuki/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原位置一次真实元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原 a4Damage 在未达四阶时返回零且不读精通；只在四阶已解锁时生成公式回执。"
+    },
+    {
+      "id": "char-flat-nilou-burst-hp",
+      "character": "nilou",
+      "title": "妮露爆发初击生命伤害",
+      "sourceFile": "internal/characters/nilou/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "保留原式生命上限先于爆发天赋等级表的读取顺序。"
+    },
+    {
+      "id": "char-flat-nilou-aeon-hp",
+      "character": "nilou",
+      "title": "妮露爆发延迟水环生命伤害",
+      "sourceFile": "internal/characters/nilou/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "延迟水环在原任务帧独立读取一次生命上限及爆发天赋。"
+    },
+    {
+      "id": "char-flat-nilou-skill-hp",
+      "character": "nilou",
+      "title": "妮露战技初击生命伤害",
+      "sourceFile": "internal/characters/nilou/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原战技初击以战技天赋表乘一次生命上限读取。"
+    },
+    {
+      "id": "char-flat-nilou-sword-hp",
+      "character": "nilou",
+      "title": "妮露剑舞三段生命伤害",
+      "sourceFile": "internal/characters/nilou/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "stage": {
+          "label": "原 dancestep 段数",
+          "unit": "index",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "一段"
+            },
+            {
+              "value": 1,
+              "label": "二段"
+            },
+            {
+              "value": 2,
+              "label": "三段"
+            }
+          ]
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原 dancestep 0–2 决定二维剑舞表，保留 AdvanceSkillIndex 时点及位移。"
+    },
+    {
+      "id": "char-flat-nilou-whirling-hp",
+      "character": "nilou",
+      "title": "妮露旋舞三段生命伤害",
+      "sourceFile": "internal/characters/nilou/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "stage": {
+          "label": "原 dancestep 段数",
+          "unit": "index",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "一段"
+            },
+            {
+              "value": 1,
+              "label": "二段"
+            },
+            {
+              "value": 2,
+              "label": "三段"
+            }
+          ]
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原 dancestep 0–2 决定二维旋舞表，保留三段后的水环判定。"
+    },
+    {
+      "id": "char-flat-baizhu-c6-spiritvein",
+      "character": "baizhu",
+      "title": "白术 C6 灵脉生命附伤",
+      "sourceFile": "internal/characters/baizhu/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原创建点实际生命上限",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "保留六命门和原生命上限一次读取，入队前设置 8% 生命附伤。"
+    },
+    {
+      "id": "char-flat-chiori-a1-def-set",
+      "character": "chiori",
+      "title": "千织 A1 快照防御设值",
+      "sourceFile": "internal/characters/chiori/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotDEF": {
+          "label": "原攻击快照的总防御力",
+          "unit": "DEF"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotDEF",
+        "getter": "total-def"
+      },
+      "explanation": "原代码先从已经取得的攻击快照把 FlatDmg 设为总防御力；后续独立乘法才应用倍率。"
+    },
+    {
+      "id": "char-flat-chiori-a1-scale",
+      "character": "chiori",
+      "title": "千织 A1 战技倍率",
+      "sourceFile": "internal/characters/chiori/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "multiply",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "explanation": "保留原快照 DEF 的先前 set 回执，再以原位置一次天赋等级读取乘来源倍率。"
+    },
+    {
+      "id": "char-flat-chiori-burst-def-set",
+      "character": "chiori",
+      "title": "千织爆发快照防御设值",
+      "sourceFile": "internal/characters/chiori/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotDEF": {
+          "label": "原攻击快照的总防御力",
+          "unit": "DEF"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotDEF",
+        "getter": "total-def"
+      },
+      "explanation": "原代码先从已经取得的攻击快照把 FlatDmg 设为总防御力；后续独立乘法才应用倍率。"
+    },
+    {
+      "id": "char-flat-chiori-burst-scale",
+      "character": "chiori",
+      "title": "千织爆发防御倍率",
+      "sourceFile": "internal/characters/chiori/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "multiply",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "explanation": "保留原快照 DEF 的先前 set 回执，再以原位置一次天赋等级读取乘来源倍率。"
+    },
+    {
+      "id": "char-flat-chiori-c6-def-set",
+      "character": "chiori",
+      "title": "千织 C6 普攻快照防御设值",
+      "sourceFile": "internal/characters/chiori/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotDEF": {
+          "label": "原攻击快照的总防御力",
+          "unit": "DEF"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotDEF",
+        "getter": "total-def"
+      },
+      "explanation": "原代码先从已经取得的攻击快照把 FlatDmg 设为总防御力；后续独立乘法才应用倍率。"
+    },
+    {
+      "id": "char-flat-chiori-c6-scale",
+      "character": "chiori",
+      "title": "千织 C6 普攻防御倍率",
+      "sourceFile": "internal/characters/chiori/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "multiply",
+      "inputs": {},
+      "explanation": "在原先快照 DEF 设值后，同位置乘 235%；循环中每次重新替换本次攻击组件。"
+    },
+    {
+      "id": "char-flat-chiori-kinu-def-set",
+      "character": "chiori",
+      "title": "千织绢偶快照防御设值",
+      "sourceFile": "internal/characters/chiori/kinu.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotDEF": {
+          "label": "原攻击快照的总防御力",
+          "unit": "DEF"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotDEF",
+        "getter": "total-def"
+      },
+      "explanation": "原代码先从已经取得的攻击快照把 FlatDmg 设为总防御力；后续独立乘法才应用倍率。"
+    },
+    {
+      "id": "char-flat-chiori-kinu-scale",
+      "character": "chiori",
+      "title": "千织绢偶防御倍率",
+      "sourceFile": "internal/characters/chiori/kinu.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "multiply",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "explanation": "保留原快照 DEF 的先前 set 回执，再以原位置一次天赋等级读取乘来源倍率。"
+    },
+    {
+      "id": "char-flat-chiori-skill-upward-def-set",
+      "character": "chiori",
+      "title": "千织战技上挑快照防御设值",
+      "sourceFile": "internal/characters/chiori/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotDEF": {
+          "label": "原攻击快照的总防御力",
+          "unit": "DEF"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotDEF",
+        "getter": "total-def"
+      },
+      "explanation": "原代码先从已经取得的攻击快照把 FlatDmg 设为总防御力；后续独立乘法才应用倍率。"
+    },
+    {
+      "id": "char-flat-chiori-skill-upward-scale",
+      "character": "chiori",
+      "title": "千织战技上挑防御倍率",
+      "sourceFile": "internal/characters/chiori/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "multiply",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "explanation": "保留原快照 DEF 的先前 set 回执，再以原位置一次天赋等级读取乘来源倍率。"
+    },
+    {
+      "id": "char-flat-chiori-skill-doll-def-set",
+      "character": "chiori",
+      "title": "千织人偶攻击快照防御设值",
+      "sourceFile": "internal/characters/chiori/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotDEF": {
+          "label": "原攻击快照的总防御力",
+          "unit": "DEF"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotDEF",
+        "getter": "total-def"
+      },
+      "explanation": "原代码先从已经取得的攻击快照把 FlatDmg 设为总防御力；后续独立乘法才应用倍率。"
+    },
+    {
+      "id": "char-flat-chiori-skill-doll-scale",
+      "character": "chiori",
+      "title": "千织人偶攻击防御倍率",
+      "sourceFile": "internal/characters/chiori/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "multiply",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "explanation": "保留原快照 DEF 的先前 set 回执，再以原位置一次天赋等级读取乘来源倍率。"
+    },
+    {
+      "id": "char-flat-itto-a4",
+      "character": "itto",
+      "title": "荒泷一斗 A4 防御附伤",
+      "sourceFile": "internal/characters/itto/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "totalDEF": {
+          "label": "原重击创建点实际总防御力",
+          "unit": "DEF"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalDEF",
+        "getter": "total-def",
+        "actor": "holder"
+      },
+      "explanation": "四阶门通过后保留一次 TotalDef(false) 读取，于原设值点写入 35% 防御附伤。"
+    },
+    {
+      "id": "char-flat-kokomi-burst",
+      "character": "kokomi",
+      "title": "心海爆发初始生命附伤",
+      "sourceFile": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHP": {
+          "label": "原创建点实际生命上限",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原爆发动作在入队和赋予爆发衣状态之前，先读爆发天赋等级、后读生命上限；保留原源码关于快照时机未明的 TODO。"
+    },
+    {
+      "id": "char-flat-kokomi-c1",
+      "character": "kokomi",
+      "title": "心海 C1 水鱼生命附伤",
+      "sourceFile": "internal/characters/kokomi/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原创建点实际生命上限",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原 C1 排队攻击创建处只读一次生命上限，维持原静态或动态机制 TODO。"
+    },
+    {
+      "id": "char-flat-kokomi-bonus-normal",
+      "character": "kokomi",
+      "title": "心海爆发衣普攻生命附伤",
+      "sourceFile": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHP": {
+          "label": "原创建点实际生命上限",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原爆发衣状态门和攻击标签分支通过后，先读爆发天赋等级、后读生命上限；值在当前生产帧固定。"
+    },
+    {
+      "id": "char-flat-kokomi-bonus-charge",
+      "character": "kokomi",
+      "title": "心海爆发衣重击生命附伤",
+      "sourceFile": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHP": {
+          "label": "原创建点实际生命上限",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原爆发衣状态门和攻击标签分支通过后，先读爆发天赋等级、后读生命上限；值在当前生产帧固定。"
+    },
+    {
+      "id": "char-flat-kokomi-bonus-skill",
+      "character": "kokomi",
+      "title": "心海爆发衣水母生命附伤",
+      "sourceFile": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHP": {
+          "label": "原创建点实际生命上限",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原爆发衣状态门和攻击标签分支通过后，先读爆发天赋等级、后读生命上限；值在当前生产帧固定。"
+    },
+    {
+      "id": "char-flat-kokomi-bonus-zero",
+      "character": "kokomi",
+      "title": "心海爆发衣失效时零附伤",
+      "sourceFile": "internal/characters/kokomi/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原状态或标签不满足时直接返回零，不增加天赋或生命 getter。"
+    },
+    {
+      "id": "char-flat-kokomi-skill-tick-active",
+      "character": "kokomi",
+      "title": "心海水母 tick 消费保存生命附伤",
+      "sourceFile": "internal/characters/kokomi/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "savedSkillFlatDmg": {
+          "label": "最近一次原生产者保存的水母附伤",
+          "unit": "damage"
+        }
+      },
+      "valueSources": {
+        "savedSkillFlatDmg": "char-flat-kokomi-bonus-skill"
+      },
+      "explanation": "原技能 tick 在选择保存或现场生产分支后覆写复用的攻击事件，引用对应创建帧回执。"
+    },
+    {
+      "id": "char-flat-kokomi-skill-tick-zero",
+      "character": "kokomi",
+      "title": "心海水母 tick 消费保存零附伤",
+      "sourceFile": "internal/characters/kokomi/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "savedSkillFlatDmg": {
+          "label": "原状态失效后保存的零附伤",
+          "unit": "damage"
+        }
+      },
+      "valueSources": {
+        "savedSkillFlatDmg": "char-flat-kokomi-bonus-zero"
+      },
+      "explanation": "原技能 tick 的无爆发衣分支仍执行覆写，使用零值生产回执替换此前 tick 的组件。"
+    },
+    {
+      "id": "char-flat-lanyan-ring",
+      "character": "lanyan",
+      "title": "蓝砚羽环精通附伤",
+      "sourceFile": "internal/characters/lanyan/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原创建点实际元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原四阶门通过后只读一次精通，同一入队攻击值由多次羽环命中沿用。"
+    },
+    {
+      "id": "char-flat-lanyan-burst",
+      "character": "lanyan",
+      "title": "蓝砚爆发精通附伤",
+      "sourceFile": "internal/characters/lanyan/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原创建点实际元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原四阶门通过后只读一次精通，爆发连续命中沿用同一创建值。"
+    },
+    {
+      "id": "char-flat-nahida-trikarma",
+      "character": "nahida",
+      "title": "纳西妲灭净三业精通附伤",
+      "sourceFile": "internal/characters/nahida/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotEM": {
+          "label": "原本次攻击快照元素精通",
+          "unit": "EM"
+        },
+        "talentLevel": {
+          "label": "原天赋表索引",
+          "unit": "level",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotEM",
+        "getter": "em"
+      },
+      "explanation": "原目标门通过并取得攻击快照后，按第二次实际战技天赋表索引设置附伤。"
+    },
+    {
+      "id": "char-flat-nahida-c6",
+      "character": "nahida",
+      "title": "纳西妲 C6 业障净化精通附伤",
+      "sourceFile": "internal/characters/nahida/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "snapshotEM": {
+          "label": "原攻击快照元素精通",
+          "unit": "EM"
+        }
+      },
+      "snapshotLeaf": {
+        "stateKey": "snapshotEM",
+        "getter": "em"
+      },
+      "explanation": "原 C6 触发与六次计数门完成后取一次攻击快照精通，多目标攻击沿用同一附伤。"
+    },
+    {
+      "id": "char-flat-furina-c6-extra",
+      "character": "furina",
+      "title": "芙宁娜 C6 水伤生命项",
+      "sourceFile": "internal/characters/furina/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "pneuma": {
+          "label": "原生荒性分支",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "非荒性"
+            },
+            {
+              "value": 1,
+              "label": "荒性"
+            }
+          ]
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原生 C6 状态门槛与 arkhe callback 时序保持。"
+    },
+    {
+      "id": "char-flat-furina-c6-no-extra",
+      "character": "furina",
+      "title": "芙宁娜 C6 芒荒生命项",
+      "sourceFile": "internal/characters/furina/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原生 C6 状态门槛与 arkhe callback 时序保持。"
+    },
+    {
+      "id": "char-flat-furina-burst",
+      "character": "furina",
+      "title": "芙宁娜爆发生命项",
+      "sourceFile": "internal/characters/furina/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "起手生命读取先于天赋表。"
+    },
+    {
+      "id": "char-flat-furina-bubble",
+      "character": "furina",
+      "title": "芙宁娜乌西亚气泡",
+      "sourceFile": "internal/characters/furina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原战技起手与排队不变。"
+    },
+    {
+      "id": "char-flat-furina-chevalmarin",
+      "character": "furina",
+      "title": "芙宁娜海马生命项",
+      "sourceFile": "internal/characters/furina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "drainedAllies": {
+          "label": "原 consumeAlliesHealth 返回计数",
+          "unit": "count",
+          "integer": true,
+          "minimum": 0
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "保留原耗血及周期门槛，使用其真实计数展开倍率。"
+    },
+    {
+      "id": "char-flat-furina-usher",
+      "character": "furina",
+      "title": "芙宁娜乌瑟生命项",
+      "sourceFile": "internal/characters/furina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "drainedAllies": {
+          "label": "原 consumeAlliesHealth 返回计数",
+          "unit": "count",
+          "integer": true,
+          "minimum": 0
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "保留原耗血及周期门槛，使用其真实计数展开倍率。"
+    },
+    {
+      "id": "char-flat-furina-crabaletta",
+      "character": "furina",
+      "title": "芙宁娜螃蟹生命项",
+      "sourceFile": "internal/characters/furina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "drainedAllies": {
+          "label": "原 consumeAlliesHealth 返回计数",
+          "unit": "count",
+          "integer": true,
+          "minimum": 0
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "保留原耗血及周期门槛，使用其真实计数展开倍率。"
+    },
+    {
+      "id": "char-flat-neuv-burst",
+      "character": "neuvillette",
+      "title": "那维莱特爆发初击",
+      "sourceFile": "internal/characters/neuvillette/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原天赋读取及生命上限读取各一次。"
+    },
+    {
+      "id": "char-flat-neuv-burstwaterfall",
+      "character": "neuvillette",
+      "title": "那维莱特爆发瀑布",
+      "sourceFile": "internal/characters/neuvillette/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原天赋读取及生命上限读取各一次。"
+    },
+    {
+      "id": "char-flat-neuv-skill",
+      "character": "neuvillette",
+      "title": "那维莱特战技",
+      "sourceFile": "internal/characters/neuvillette/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原天赋读取及生命上限读取各一次。"
+    },
+    {
+      "id": "char-flat-neuv-chargejudgement",
+      "character": "neuvillette",
+      "title": "那维莱特重击初始",
+      "sourceFile": "internal/characters/neuvillette/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原天赋读取及生命上限读取各一次。"
+    },
+    {
+      "id": "char-flat-neuv-judgement-a1",
+      "character": "neuvillette",
+      "title": "那维莱特重击逐波 A1",
+      "sourceFile": "internal/characters/neuvillette/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "baseStacks": {
+          "label": "原 C1 初始叠层",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "status0": {
+          "label": "原第1项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status1": {
+          "label": "原第2项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status2": {
+          "label": "原第3项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status3": {
+          "label": "原第4项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status4": {
+          "label": "原第5项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status5": {
+          "label": "原第6项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status6": {
+          "label": "原第7项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status7": {
+          "label": "原第8项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status8": {
+          "label": "原第9项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "逐波原状态循环仅检查到第三层，未访问状态记录为零。"
+    },
+    {
+      "id": "char-flat-neuv-c6",
+      "character": "neuvillette",
+      "title": "那维莱特 C6 额外波",
+      "sourceFile": "internal/characters/neuvillette/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "baseStacks": {
+          "label": "原 C1 初始叠层",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 1
+        },
+        "status0": {
+          "label": "原第1项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status1": {
+          "label": "原第2项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status2": {
+          "label": "原第3项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status3": {
+          "label": "原第4项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status4": {
+          "label": "原第5项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status5": {
+          "label": "原第6项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status6": {
+          "label": "原第7项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status7": {
+          "label": "原第8项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "status8": {
+          "label": "原第9项状态实际检查结果",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原敌人、ICD 与同一攻击排队两次保持。"
+    },
+    {
+      "id": "char-flat-yelan-c6-barb",
+      "character": "yelan",
+      "title": "夜兰 C6 破局矢",
+      "sourceFile": "internal/characters/yelan/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "同一次原生命读取用于该攻击的共享结果。"
+    },
+    {
+      "id": "char-flat-yelan-aimed-barb",
+      "character": "yelan",
+      "title": "夜兰破局矢",
+      "sourceFile": "internal/characters/yelan/aimed.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "同一次原生命读取用于该攻击的共享结果。"
+    },
+    {
+      "id": "char-flat-yelan-burst",
+      "character": "yelan",
+      "title": "夜兰爆发初击",
+      "sourceFile": "internal/characters/yelan/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "同一次原生命读取用于该攻击的共享结果。"
+    },
+    {
+      "id": "char-flat-yelan-burstdice",
+      "character": "yelan",
+      "title": "夜兰玄掷玲珑",
+      "sourceFile": "internal/characters/yelan/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "同一次原生命读取用于该攻击的共享结果。"
+    },
+    {
+      "id": "char-flat-yelan-skill",
+      "character": "yelan",
+      "title": "夜兰战技",
+      "sourceFile": "internal/characters/yelan/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "同一次原生命读取用于该攻击的共享结果。"
+    },
+    {
+      "id": "char-flat-yelan-c2",
+      "character": "yelan",
+      "title": "夜兰 C2 额外水箭",
+      "sourceFile": "internal/characters/yelan/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "覆写 C2 攻击 Info，先前骰子快照已按原顺序排队。"
+    },
+    {
+      "id": "char-flat-sigewinne-burstdmg",
+      "character": "sigewinne",
+      "title": "希格雯爆发水波",
+      "sourceFile": "internal/characters/sigewinne/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原快照及排队时点保持；爆发沿用原攻击天赋索引。"
+    },
+    {
+      "id": "char-flat-sigewinne-surgingbladedmg",
+      "character": "sigewinne",
+      "title": "希格雯灵息刺",
+      "sourceFile": "internal/characters/sigewinne/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原快照及排队时点保持；爆发沿用原攻击天赋索引。"
+    },
+    {
+      "id": "char-flat-sigewinne-bolsteringbubblebalmdmg",
+      "character": "sigewinne",
+      "title": "希格雯弹跳水疗",
+      "sourceFile": "internal/characters/sigewinne/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原快照及排队时点保持；爆发沿用原攻击天赋索引。"
+    },
+    {
+      "id": "char-flat-mualani-bite",
+      "character": "mualani",
+      "title": "玛拉妮鲨鲨噬咬",
+      "sourceFile": "internal/characters/mualani/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentBite": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "talentMomentum": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "talentSurge": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        },
+        "stacks": {
+          "label": "原保存的动量层数",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 3
+        },
+        "c1Eligible": {
+          "label": "原 C1 调用前可用状态",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "不可用"
+            },
+            {
+              "value": 1,
+              "label": "可用"
+            }
+          ]
+        },
+        "marked": {
+          "label": "主目标猎物标记",
+          "unit": "flag",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "否"
+            },
+            {
+              "value": 1,
+              "label": "是"
+            }
+          ]
+        },
+        "neighbours": {
+          "label": "原附近已标记其他目标数",
+          "unit": "count",
+          "integer": true,
+          "minimum": 0
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "C1 辅助函数仍在原位置调用一次以执行副作用；主目标与标记门槛原生执行。"
+    },
+    {
+      "id": "char-flat-mualani-burst",
+      "character": "mualani",
+      "title": "玛拉妮爆发基础生命项",
+      "sourceFile": "internal/characters/mualani/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "延迟任务中的生命读取和天赋表保持。"
+    },
+    {
+      "id": "char-flat-mualani-a4",
+      "character": "mualani",
+      "title": "玛拉妮爆发 A4 追加",
+      "sourceFile": "internal/characters/mualani/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "stacks": {
+          "label": "起手保存的 A4 层数",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0
+        },
+        "maxHp": {
+          "label": "原位置一次真实生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "在原 Ascension 门槛内给基础爆发加值，复用同一次生命读取。"
+    },
+    {
+      "id": "char-flat-sethos-shadowpiercing-em",
+      "character": "sethos",
+      "title": "赛索斯二阶蓄力箭元素精通基伤",
+      "sourceFile": "internal/characters/sethos/aimed.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "在原二阶蓄力箭排队时，按原普攻天赋索引查表并乘一次赛索斯元素精通；技能消耗与命中条件仍按来源执行。"
+    },
+    {
+      "id": "char-flat-sethos-shadowpiercing-a4",
+      "character": "sethos",
+      "title": "赛索斯 A4 影穿箭追加",
+      "sourceFile": "internal/characters/sethos/aimed.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原 A4 状态门通过后按原顺序给影穿箭的既有 FlatDmg 加上七倍元素精通；日志与状态消费不变。"
+    },
+    {
+      "id": "char-flat-sethos-dusk-bolt",
+      "character": "sethos",
+      "title": "赛索斯夜巡逐猎·昏识之得基伤",
+      "sourceFile": "internal/characters/sethos/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原爆发状态下，以爆发天赋索引查来源倍率并乘一次元素精通；命中队列、攻击倍率与 C4 回调保持原顺序。"
+    },
+    {
+      "id": "char-flat-layla-burst",
+      "character": "layla",
+      "title": "莱依拉星流摇床基伤",
+      "sourceFile": "internal/characters/layla/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "来源爆发伤害表中的百分比乘莱依拉最大生命值；状态持续与周期攻击仍由来源队列处理。"
+    },
+    {
+      "id": "char-flat-layla-shooting-star-a4",
+      "character": "layla",
+      "title": "莱依拉 A4 夜星附加基伤",
+      "sourceFile": "internal/characters/layla/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原突破四阶门通过时读取最大生命值并乘 1.5%；夜星是否发射和命中时序不由本式决定。"
+    },
+    {
+      "id": "char-flat-lauma-frostgrove-sanctuary",
+      "character": "lauma",
+      "title": "菈乌玛霜林圣域周期基伤",
+      "sourceFile": "internal/characters/lauma/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原领域周期命中时读取元素精通并乘来源技能等级表；来源仍检查领域实例和持续状态。"
+    },
+    {
+      "id": "char-flat-citlali-c4-spiritvessel-skull",
+      "character": "citlali",
+      "title": "茜特菈莉 C4 精神器骷髅基伤",
+      "sourceFile": "internal/characters/citlali/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原 C4 冷却通过并完成夜魂与能量副作用后，按 18 倍元素精通创建骷髅攻击。"
+    },
+    {
+      "id": "char-flat-citlali-ice-storm-a4",
+      "character": "citlali",
+      "title": "茜特菈莉 A4 冰暴基伤",
+      "sourceFile": "internal/characters/citlali/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原 A4 突破门通过且能力为冰暴时读取元素精通并乘十二。"
+    },
+    {
+      "id": "char-flat-citlali-frostfall-a4",
+      "character": "citlali",
+      "title": "茜特菈莉 A4 霜坠风暴基伤",
+      "sourceFile": "internal/characters/citlali/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原生读取的元素精通",
+          "unit": "EM"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      },
+      "explanation": "原 A4 突破门通过且能力为霜坠风暴时读取元素精通并乘 0.9。"
+    },
+    {
+      "id": "char-flat-gorou-a4-skill",
+      "character": "gorou",
+      "title": "五郎 A4 战技附加基伤",
+      "sourceFile": "internal/characters/gorou/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "totalDef": {
+          "label": "原生读取的非额外总防御力",
+          "unit": "DEF"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalDef",
+        "getter": "total-def",
+        "actor": "holder"
+      },
+      "explanation": "原突破四阶门通过后以非额外总防御力乘 156%；来源战技仍决定何时创建攻击。"
+    },
+    {
+      "id": "char-flat-gorou-a4-burst",
+      "character": "gorou",
+      "title": "五郎 A4 爆发与晶塌附加基伤",
+      "sourceFile": "internal/characters/gorou/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "totalDef": {
+          "label": "原生读取的非额外总防御力",
+          "unit": "DEF"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalDef",
+        "getter": "total-def",
+        "actor": "holder"
+      },
+      "explanation": "原突破四阶门通过后以非额外总防御力乘 15.6%；用于来源爆发初击和晶塌各自真实创建的攻击。"
+    },
+    {
+      "id": "char-flat-thoma-a4-fiery-collapse",
+      "character": "thoma",
+      "title": "托马 A4 烈烧佑命之侍护协同基伤",
+      "sourceFile": "internal/characters/thoma/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原突破一阶门通过时读取最大生命值并乘 2.2%；烈烧佑命之侍护的触发与队列仍由来源处理。"
+    },
+    {
+      "id": "char-flat-zhongli-a4-normal-charge",
+      "character": "zhongli",
+      "title": "钟离 A4 普攻与重击附加基伤",
+      "sourceFile": "internal/characters/zhongli/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原突破四阶门通过时读取最大生命值并乘 1.39%，用于来源普攻或重击攻击构造。"
+    },
+    {
+      "id": "char-flat-zhongli-a4-skill",
+      "character": "zhongli",
+      "title": "钟离 A4 战技附加基伤",
+      "sourceFile": "internal/characters/zhongli/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原突破四阶门通过时读取最大生命值并乘 1.9%；岩脊初次创建后的共鸣跳字复用真实创建回执。"
+    },
+    {
+      "id": "char-flat-zhongli-a4-burst",
+      "character": "zhongli",
+      "title": "钟离 A4 天星附加基伤",
+      "sourceFile": "internal/characters/zhongli/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原突破四阶门通过时读取最大生命值并乘 33%。"
+    },
+    {
+      "id": "char-flat-hydro-traveler-dewdrop",
+      "character": "hydro-traveler",
+      "title": "水主源水之滴技能基伤",
+      "sourceFile": "internal/characters/traveler/common/hydro/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "maxHP": {
+          "label": "原生读取的最大生命值",
+          "unit": "HP"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "maxHP",
+        "getter": "max-hp",
+        "actor": "holder"
+      },
+      "explanation": "原气血门通过时按技能天赋等级表乘最大生命值；后续扣血、加成累计及队列仍由来源执行。"
+    },
+    {
+      "id": "char-flat-hydro-traveler-a4-first-accumulate",
+      "character": "hydro-traveler",
+      "title": "水主 A4 蓄水叠加",
+      "sourceFile": "internal/characters/traveler/common/hydro/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "drainHP": {
+          "label": "原此次扣除生命值",
+          "unit": "HP"
+        }
+      },
+      "explanation": "字段默认零值仅作为此独立公式的明确常量；第一次真实生命消耗后按 45% 增加蓄水并按 5000 封顶。"
+    },
+    {
+      "id": "char-flat-hydro-traveler-a4-accumulate",
+      "character": "hydro-traveler",
+      "title": "水主 A4 后续蓄水叠加",
+      "sourceFile": "internal/characters/traveler/common/hydro/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "previousBonus": {
+          "label": "来源上次累计的蓄水值",
+          "unit": "damage"
+        },
+        "drainHP": {
+          "label": "原此次扣除生命值",
+          "unit": "HP"
+        }
+      },
+      "valueSources": {
+        "previousBonus": [
+          "char-flat-hydro-traveler-a4-first-accumulate",
+          "char-flat-hydro-traveler-a4-accumulate"
+        ]
+      },
+      "explanation": "后续真实生命消耗递归读取上次累计的创建 ID，再按来源公式增加并按 5000 封顶。"
+    },
+    {
+      "id": "char-flat-hydro-traveler-a4-consume-zero",
+      "character": "hydro-traveler",
+      "title": "水主 A4 初始蓄水加入战技",
+      "sourceFile": "internal/characters/traveler/common/hydro/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {},
+      "explanation": "来源字段仍为默认零值时，保留原加零操作；不伪造不存在的初始化事件。"
+    },
+    {
+      "id": "char-flat-hydro-traveler-a4-consume",
+      "character": "hydro-traveler",
+      "title": "水主 A4 蓄水加入战技",
+      "sourceFile": "internal/characters/traveler/common/hydro/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "storedBonus": {
+          "label": "来源字段保存的 A4 蓄水值",
+          "unit": "damage"
+        }
+      },
+      "valueSources": {
+        "storedBonus": [
+          "char-flat-hydro-traveler-a4-first-accumulate",
+          "char-flat-hydro-traveler-a4-accumulate"
+        ]
+      },
+      "explanation": "战技按原顺序将上次累计的蓄水值加入已有 FlatDmg，随后清零；此链接追溯该真实字段最近一次创建记录。"
+    },
+    {
+      "id": "char-flat-aino-burst-zero",
+      "character": "aino",
+      "title": "爱诺爆发未解锁 A4 零附加基伤",
+      "sourceFile": "internal/characters/aino/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原 A4 helper 在四阶前返回零，仍覆盖复用的 AttackInfo。"
+    },
+    {
+      "id": "char-flat-aino-burst-a4",
+      "character": "aino",
+      "title": "爱诺爆发 A4 精通附加基伤",
+      "sourceFile": "internal/characters/aino/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "explanation": "每次爆发 tick 在原任务帧读取一次精通，覆盖上次同一 AttackInfo 的值。",
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-aino-c2-zero-a4",
+      "character": "aino",
+      "title": "爱诺 C2 未解锁 A4 附加基伤",
+      "sourceFile": "internal/characters/aino/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "emFirst": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "explanation": "C2 冷却状态写入后仍执行首次精通读取，A4 helper 返回零。",
+      "statLeaf": {
+        "stateKey": "emFirst",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-aino-c2-a4",
+      "character": "aino",
+      "title": "爱诺 C2 双精通读取附加基伤",
+      "sourceFile": "internal/characters/aino/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "emFirst": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        },
+        "emSecond": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "explanation": "C2 首次精通读取发生在构造攻击前，A4 helper 独立读取第二次精通。",
+      "statLeaves": [
+        {
+          "stateKey": "emFirst",
+          "getter": "stat",
+          "statIndex": 8,
+          "actor": "holder"
+        },
+        {
+          "stateKey": "emSecond",
+          "getter": "stat",
+          "statIndex": 8,
+          "actor": "holder"
+        }
+      ]
+    },
+    {
+      "id": "char-flat-arlecchino-na-bond",
+      "character": "arlecchino",
+      "title": "阿蕾奇诺红死之宴普攻生命之契加值",
+      "sourceFile": "internal/characters/arlecchino/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "c1Bonus": {
+          "label": "原一命加成",
+          "unit": "ratio",
+          "choices": [
+            {
+              "value": 0,
+              "label": "未解锁"
+            },
+            {
+              "value": 1,
+              "label": "已解锁"
+            }
+          ]
+        },
+        "hpDebt": {
+          "label": "当前生命之契",
+          "unit": "HP"
+        },
+        "maxHp": {
+          "label": "原位置一次生命上限读取",
+          "unit": "HP"
+        },
+        "totalAtk": {
+          "label": "原位置一次总攻击力读取",
+          "unit": "ATK"
+        }
+      },
+      "explanation": "仅红死之宴状态有效的普攻创建任务执行；生命之契与生命上限、攻击力依原顺序读取。",
+      "statLeaves": [
+        {
+          "stateKey": "maxHp",
+          "getter": "max-hp",
+          "actor": "holder"
+        },
+        {
+          "stateKey": "totalAtk",
+          "getter": "total-atk",
+          "actor": "holder"
+        }
+      ]
+    },
+    {
+      "id": "char-flat-arlecchino-burst-c6-zero",
+      "character": "arlecchino",
+      "title": "阿蕾奇诺爆发未解锁六命零加值",
+      "sourceFile": "internal/characters/arlecchino/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {},
+      "explanation": "原 C6 helper 返回零且不写伤害日志。"
+    },
+    {
+      "id": "char-flat-arlecchino-burst-c6",
+      "character": "arlecchino",
+      "title": "阿蕾奇诺六命爆发生命之契加值",
+      "sourceFile": "internal/characters/arlecchino/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "原位置一次总攻击力读取",
+          "unit": "ATK"
+        },
+        "hpDebt": {
+          "label": "当前生命之契",
+          "unit": "HP"
+        },
+        "maxHp": {
+          "label": "原位置一次生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "explanation": "爆发第 110 帧读取攻击力、生命之契、生命上限，保留原伤害日志。",
+      "statLeaves": [
+        {
+          "stateKey": "totalAtk",
+          "getter": "total-atk",
+          "actor": "holder"
+        },
+        {
+          "stateKey": "maxHp",
+          "getter": "max-hp",
+          "actor": "holder"
+        }
+      ]
+    },
+    {
+      "id": "char-flat-ayato-namisen",
+      "character": "ayato",
+      "title": "神里绫人浪闪层数生命加值",
+      "sourceFile": "internal/characters/ayato/ayato.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次生命上限读取",
+          "unit": "HP"
+        },
+        "talent": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "stacks": {
+          "label": "快照帧浪闪层数",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 5
+        }
+      },
+      "explanation": "基础 Snapshot 已完成后，在战技状态的普通或重击快照中读取生命上限，再查战技等级和层数。",
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-columbina-c4-zero",
+      "character": "columbina",
+      "title": "哥伦比娅 C4 未触发零附加基伤",
+      "sourceFile": "internal/characters/columbina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原 helper 的星座与冷却门槛或多段后续攻击返回零，每段仍覆盖同一 AttackInfo。"
+    },
+    {
+      "id": "char-flat-columbina-c4-hp",
+      "character": "columbina",
+      "title": "哥伦比娅 C4 引力干涉生命加值",
+      "sourceFile": "internal/characters/columbina/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次生命上限读取",
+          "unit": "HP"
+        },
+        "reaction": {
+          "label": "已选月曜反应",
+          "unit": "index",
+          "integer": true,
+          "choices": [
+            {
+              "value": 0,
+              "label": "月感电"
+            },
+            {
+              "value": 1,
+              "label": "月绽放"
+            },
+            {
+              "value": 2,
+              "label": "月结晶"
+            }
+          ]
+        }
+      },
+      "explanation": "每段原 helper 先回能并检查冷却；仅首次可触发段读取生命上限。",
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-cyno-na-zero",
+      "character": "cyno",
+      "title": "赛诺未解锁 A4 誓约普攻零加值",
+      "sourceFile": "internal/characters/cyno/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "A4 helper 四阶前返回零。"
+    },
+    {
+      "id": "char-flat-cyno-na-a4",
+      "character": "cyno",
+      "title": "赛诺 A4 誓约普攻精通加值",
+      "sourceFile": "internal/characters/cyno/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "explanation": "每段爆发普攻构造时读取一次精通。",
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-cyno-skill-bolt-zero",
+      "character": "cyno",
+      "title": "赛诺未解锁 A4 战技渡荒之雷零加值",
+      "sourceFile": "internal/characters/cyno/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "三枚共享的渡荒之雷使用同一原生零值。"
+    },
+    {
+      "id": "char-flat-cyno-skill-bolt-a4",
+      "character": "cyno",
+      "title": "赛诺 A4 战技渡荒之雷精通加值",
+      "sourceFile": "internal/characters/cyno/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "explanation": "A1 条件内一次读取后复制给三枚渡荒之雷。",
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-cyno-c6-bolt-zero",
+      "character": "cyno",
+      "title": "赛诺未解锁 A4 六命渡荒之雷零加值",
+      "sourceFile": "internal/characters/cyno/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "六命命中回调原门槛和层数扣除后返回零。"
+    },
+    {
+      "id": "char-flat-cyno-c6-bolt-a4",
+      "character": "cyno",
+      "title": "赛诺 A4 六命渡荒之雷精通加值",
+      "sourceFile": "internal/characters/cyno/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "em": {
+          "label": "原位置一次元素精通读取",
+          "unit": "EM"
+        }
+      },
+      "explanation": "六命命中回调扣除层数后读取一次精通。",
+      "statLeaf": {
+        "stateKey": "em",
+        "getter": "stat",
+        "statIndex": 8,
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-emilie-c6",
+      "character": "emilie",
+      "title": "艾梅莉埃六命普攻重击攻击力加值",
+      "sourceFile": "internal/characters/emilie/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "原位置一次总攻击力读取",
+          "unit": "ATK"
+        }
+      },
+      "explanation": "原六命状态及普通或重击标签门槛后读取一次攻击力。",
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-hutao-c2-blood-blossom",
+      "character": "hutao",
+      "title": "胡桃二命血梅香生命加值",
+      "sourceFile": "internal/characters/hutao/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "maxHp": {
+          "label": "原位置一次生命上限读取",
+          "unit": "HP"
+        }
+      },
+      "explanation": "每个目标各自的 240 帧持续伤害回调在二命门槛后读取一次生命上限。",
+      "statLeaf": {
+        "stateKey": "maxHp",
+        "getter": "max-hp",
+        "actor": "holder"
+      }
+    },
+    {
+      "id": "char-flat-jahoda-robot",
+      "character": "jahoda",
+      "title": "嘉霍达机器人吸收时附加基伤",
+      "sourceFile": "internal/characters/jahoda/burst.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        },
+        "a1DmgMult": {
+          "label": "原 A1 元素分支保存的伤害倍率",
+          "unit": "ratio"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "元素吸收成功时只读取一次爆发天赋、攻击力及原 A1 倍率；同一机器人攻击信息在后续定时命中及多目标间复用。"
+    },
+    {
+      "id": "char-flat-kinich-a4-cannon",
+      "character": "kinich",
+      "title": "基尼奇 A4 炮击附加基伤",
+      "sourceFile": "internal/characters/kinich/skill.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "stacks": {
+          "label": "原 A4 读取并立即清空的层数",
+          "unit": "stack",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 2
+        },
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "构造炮击 AttackInfo 时在原 A4 消耗层数及删除状态后读取一次总攻击力；之后的排队与快照沿用此值。"
+    },
+    {
+      "id": "char-flat-mavuika-normal-burst",
+      "character": "mavuika",
+      "title": "玛薇卡骑行普攻爆发加值",
+      "sourceFile": "internal/characters/mavuika/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "burstStacks": {
+          "label": "爆发起手保存的战意",
+          "unit": "stack",
+          "minimum": 0
+        },
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原爆发状态门通过后，先用起手保存的战意和爆发天赋表计算，再执行左侧独立攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-normal-zero",
+      "character": "mavuika",
+      "title": "玛薇卡骑行普攻无爆发加值",
+      "sourceFile": "internal/characters/mavuika/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原爆发状态门未通过，左侧辅助函数返回零且没有攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-normal-c2",
+      "character": "mavuika",
+      "title": "玛薇卡骑行普攻 C2 加值",
+      "sourceFile": "internal/characters/mavuika/attack.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原 C2 与摩托形态门通过后，右侧再独立读取一次攻击力，并加到左侧完整 FlatDmg。"
+    },
+    {
+      "id": "char-flat-mavuika-sunfell-burst",
+      "character": "mavuika",
+      "title": "玛薇卡坠日斩爆发加值",
+      "sourceFile": "internal/characters/mavuika/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "burstStacks": {
+          "label": "爆发起手保存的战意",
+          "unit": "stack",
+          "minimum": 0
+        },
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原爆发状态门通过后，先用起手保存的战意和爆发天赋表计算，再执行左侧独立攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-sunfell-zero",
+      "character": "mavuika",
+      "title": "玛薇卡坠日斩无爆发加值",
+      "sourceFile": "internal/characters/mavuika/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原爆发状态门未通过，左侧辅助函数返回零且没有攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-sunfell-c2",
+      "character": "mavuika",
+      "title": "玛薇卡坠日斩 C2 加值",
+      "sourceFile": "internal/characters/mavuika/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原 C2 与摩托形态门通过后，右侧再独立读取一次攻击力，并加到左侧完整 FlatDmg。"
+    },
+    {
+      "id": "char-flat-mavuika-final-burst",
+      "character": "mavuika",
+      "title": "玛薇卡骑行重击终结爆发加值",
+      "sourceFile": "internal/characters/mavuika/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "burstStacks": {
+          "label": "爆发起手保存的战意",
+          "unit": "stack",
+          "minimum": 0
+        },
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原爆发状态门通过后，先用起手保存的战意和爆发天赋表计算，再执行左侧独立攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-final-zero",
+      "character": "mavuika",
+      "title": "玛薇卡骑行重击终结无爆发加值",
+      "sourceFile": "internal/characters/mavuika/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原爆发状态门未通过，左侧辅助函数返回零且没有攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-final-c2",
+      "character": "mavuika",
+      "title": "玛薇卡骑行重击终结 C2 加值",
+      "sourceFile": "internal/characters/mavuika/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原 C2 与摩托形态门通过后，右侧再独立读取一次攻击力，并加到左侧完整 FlatDmg。"
+    },
+    {
+      "id": "char-flat-mavuika-cyclic-burst",
+      "character": "mavuika",
+      "title": "玛薇卡骑行重击旋转爆发加值",
+      "sourceFile": "internal/characters/mavuika/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "burstStacks": {
+          "label": "爆发起手保存的战意",
+          "unit": "stack",
+          "minimum": 0
+        },
+        "talentLevel": {
+          "label": "原生天赋等级表索引",
+          "unit": "index",
+          "integer": true,
+          "minimum": 0,
+          "maximum": 14
+        },
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原爆发状态门通过后，先用起手保存的战意和爆发天赋表计算，再执行左侧独立攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-cyclic-zero",
+      "character": "mavuika",
+      "title": "玛薇卡骑行重击旋转无爆发加值",
+      "sourceFile": "internal/characters/mavuika/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {},
+      "explanation": "原爆发状态门未通过，左侧辅助函数返回零且没有攻击力读取。"
+    },
+    {
+      "id": "char-flat-mavuika-cyclic-c2",
+      "character": "mavuika",
+      "title": "玛薇卡骑行重击旋转 C2 加值",
+      "sourceFile": "internal/characters/mavuika/charge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原 C2 与摩托形态门通过后，右侧再独立读取一次攻击力，并加到左侧完整 FlatDmg。"
+    },
+    {
+      "id": "char-flat-nicole-burst-projection",
+      "character": "nicole",
+      "title": "妮可爆发奥术投影附加基伤",
+      "sourceFile": "internal/characters/nicole/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原三道 Hexerei 门通过后，在投影任务实际执行帧读取妮可攻击力；投影攻击者仍是触发的角色。"
+    },
+    {
+      "id": "char-flat-nicole-c1-projection",
+      "character": "nicole",
+      "title": "妮可 C1 奥术投影附加基伤",
+      "sourceFile": "internal/characters/nicole/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原三道 Hexerei 门通过后，在 C1 投影任务实际执行帧读取妮可攻击力；投影攻击者仍是触发的角色。"
+    },
+    {
+      "id": "char-flat-razor-hexerei-wolf",
+      "character": "razor",
+      "title": "雷泽魔导狼魂追加基伤",
+      "sourceFile": "internal/characters/razor/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "totalAtk": {
+          "label": "本次来源角色总攻击力",
+          "unit": "ATK"
+        }
+      },
+      "statLeaf": {
+        "stateKey": "totalAtk",
+        "getter": "total-atk",
+        "actor": "holder"
+      },
+      "explanation": "原狼魂回调的 IsHexerei 门通过后才读取雷泽攻击力；加在独立雷元素狼魂攻击上。"
+    },
+    {
+      "id": "char-flat-sayu-c6-daruma",
+      "character": "sayu",
+      "title": "早柚 C6 不倒貉貉精通附伤",
+      "sourceFile": "internal/characters/sayu/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "add",
+      "inputs": {
+        "atk": {
+          "label": "施放时另取的不倒貉貉快照总攻击力",
+          "unit": "ATK"
+        },
+        "em": {
+          "label": "同一快照在 C6 伤害表达式中的元素精通",
+          "unit": "EM"
+        }
+      },
+      "snapshotLeaves": [
+        {
+          "stateKey": "atk",
+          "getter": "total-atk"
+        },
+        {
+          "stateKey": "em",
+          "getter": "em"
+        }
+      ],
+      "explanation": "C6 门通过后给复用的攻击事件加一次附伤；治疗继续在下一句独立读取快照精通。"
+    },
+    {
+      "id": "char-flat-varesa-a1-atk-cache",
+      "character": "varesa",
+      "title": "瓦蕾莎 A1 定时攻击力缓存",
+      "sourceFile": "internal/characters/varesa/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "resultUnit": "ATK",
+      "inputs": {
+        "totalAtk": {
+          "label": "每六帧更新点的一次总攻击力读取",
+          "unit": "ATK"
+        }
+      },
+      "statLeaves": [
+        {
+          "stateKey": "totalAtk",
+          "getter": "total-atk",
+          "actor": "holder"
+        }
+      ],
+      "explanation": "只在来源的定时更新回调实际执行时生产缓存值，之后的 A1 helper 使用保存值和对应生产 ID。"
+    },
+    {
+      "id": "char-flat-varesa-a1-helper",
+      "character": "varesa",
+      "title": "瓦蕾莎 A1 下落攻击加值",
+      "sourceFile": "internal/characters/varesa/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "mult": {
+          "label": "A1 原状态决定的 0.5 或 1.8 倍率",
+          "unit": "ratio",
+          "choices": [
+            {
+              "value": 0.5,
+              "label": "普通"
+            },
+            {
+              "value": 1.8,
+              "label": "C1 或夜魂加持"
+            }
+          ]
+        },
+        "a1Atk": {
+          "label": "每六帧刷新并保存的原 A1 攻击力",
+          "unit": "ATK"
+        }
+      },
+      "valueSources": {
+        "a1Atk": "char-flat-varesa-a1-atk-cache"
+      },
+      "explanation": "突破与 A1 状态门通过后读取已生产的定时攻击力缓存；未激活分支直接返回零。"
+    },
+    {
+      "id": "char-flat-varesa-a1-helper-no-source",
+      "character": "varesa",
+      "title": "瓦蕾莎 A1 首次刷新前零缓存",
+      "sourceFile": "internal/characters/varesa/asc.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "mult": {
+          "label": "A1 原状态决定的 0.5 或 1.8 倍率",
+          "unit": "ratio",
+          "choices": [
+            {
+              "value": 0.5,
+              "label": "普通"
+            },
+            {
+              "value": 1.8,
+              "label": "C1 或夜魂加持"
+            }
+          ]
+        },
+        "a1Atk": {
+          "label": "首次六帧更新前原字段的零值",
+          "unit": "ATK",
+          "choices": [
+            {
+              "value": 0,
+              "label": "尚未刷新"
+            }
+          ]
+        }
+      },
+      "explanation": "A1 已激活但首次定时更新尚未执行时，原字段仍为零；无保存值生产 ID。"
+    },
+    {
+      "id": "char-flat-varesa-c4-helper",
+      "character": "varesa",
+      "title": "瓦蕾莎 C4 下落攻击加值",
+      "sourceFile": "internal/characters/varesa/cons.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "totalAtk": {
+          "label": "C4 helper 原位置一次总攻击力读取",
+          "unit": "ATK"
+        }
+      },
+      "statLeaves": [
+        {
+          "stateKey": "totalAtk",
+          "getter": "total-atk",
+          "actor": "holder"
+        }
+      ],
+      "explanation": "仅在 C4 与勤修状态门通过后读一次总攻击力，仍在 helper 内按原顺序记录加值日志。"
+    },
+    {
+      "id": "char-flat-varesa-kablam-a1",
+      "character": "varesa",
+      "title": "瓦蕾莎火山爆裂 A1 附伤",
+      "sourceFile": "internal/characters/varesa/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        }
+      },
+      "valueSources": {
+        "a1Bonus": "char-flat-varesa-a1-helper"
+      },
+      "explanation": "构造攻击信息时使用先前 A1 helper 的本次返回值，再于原 hitmark 排队。"
+    },
+    {
+      "id": "char-flat-varesa-kablam-a1-no-source",
+      "character": "varesa",
+      "title": "瓦蕾莎火山爆裂首次刷新前 A1 附伤",
+      "sourceFile": "internal/characters/varesa/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        }
+      },
+      "valueSources": {
+        "a1Bonus": "char-flat-varesa-a1-helper-no-source"
+      },
+      "explanation": "A1 helper 在首次缓存刷新前返回零，直接承接其真实零值回执。"
+    },
+    {
+      "id": "char-flat-varesa-kablam-zero",
+      "character": "varesa",
+      "title": "瓦蕾莎火山爆裂无 A1 附伤",
+      "sourceFile": "internal/characters/varesa/burst.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        }
+      },
+      "explanation": "A1 helper 的原生门返回零，没有调用属性 getter 或伪造 A1 产出。"
+    },
+    {
+      "id": "char-flat-varesa-plunge-a1-c4",
+      "character": "varesa",
+      "sourceFile": "internal/characters/varesa/plunge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        },
+        "c4Bonus": {
+          "label": "C4 helper 在 A1 之后返回的数值",
+          "unit": "damage"
+        }
+      },
+      "title": "瓦蕾莎下落 A1 与 C4 附伤",
+      "valueSources": {
+        "a1Bonus": "char-flat-varesa-a1-helper",
+        "c4Bonus": "char-flat-varesa-c4-helper"
+      },
+      "explanation": "原 AttackInfo 表达式先执行 A1 helper 再执行 C4 helper，之后相加并排队。"
+    },
+    {
+      "id": "char-flat-varesa-plunge-a1-no-source-c4",
+      "character": "varesa",
+      "sourceFile": "internal/characters/varesa/plunge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        },
+        "c4Bonus": {
+          "label": "C4 helper 在 A1 之后返回的数值",
+          "unit": "damage"
+        }
+      },
+      "title": "瓦蕾莎下落首次刷新前 A1 与 C4 附伤",
+      "valueSources": {
+        "a1Bonus": "char-flat-varesa-a1-helper-no-source",
+        "c4Bonus": "char-flat-varesa-c4-helper"
+      },
+      "explanation": "A1 读取未初始化的零缓存，随后 C4 按原序读取攻击力并记录日志。"
+    },
+    {
+      "id": "char-flat-varesa-plunge-a1",
+      "character": "varesa",
+      "sourceFile": "internal/characters/varesa/plunge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        },
+        "c4Bonus": {
+          "label": "C4 helper 在 A1 之后返回的数值",
+          "unit": "damage"
+        }
+      },
+      "title": "瓦蕾莎下落仅 A1 附伤",
+      "valueSources": {
+        "a1Bonus": "char-flat-varesa-a1-helper"
+      },
+      "explanation": "C4 helper 原生门返回零；保留 A1 helper 的产出关联和原加法。"
+    },
+    {
+      "id": "char-flat-varesa-plunge-a1-no-source",
+      "character": "varesa",
+      "sourceFile": "internal/characters/varesa/plunge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        },
+        "c4Bonus": {
+          "label": "C4 helper 在 A1 之后返回的数值",
+          "unit": "damage"
+        }
+      },
+      "title": "瓦蕾莎下落首次刷新前仅 A1 附伤",
+      "valueSources": {
+        "a1Bonus": "char-flat-varesa-a1-helper-no-source"
+      },
+      "explanation": "A1 helper 读取原零缓存且 C4 门返回零；两项按原顺序相加。"
+    },
+    {
+      "id": "char-flat-varesa-plunge-c4",
+      "character": "varesa",
+      "sourceFile": "internal/characters/varesa/plunge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        },
+        "c4Bonus": {
+          "label": "C4 helper 在 A1 之后返回的数值",
+          "unit": "damage"
+        }
+      },
+      "title": "瓦蕾莎下落仅 C4 附伤",
+      "valueSources": {
+        "c4Bonus": "char-flat-varesa-c4-helper"
+      },
+      "explanation": "A1 helper 原生门返回零；C4 helper 在原位置读攻击力并记录日志后相加。"
+    },
+    {
+      "id": "char-flat-varesa-plunge-zero",
+      "character": "varesa",
+      "sourceFile": "internal/characters/varesa/plunge.go",
+      "sourceCommits": [
+        "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "a1Bonus": {
+          "label": "A1 helper 在本次攻击构造时返回的数值",
+          "unit": "damage"
+        },
+        "c4Bonus": {
+          "label": "C4 helper 在 A1 之后返回的数值",
+          "unit": "damage"
+        }
+      },
+      "title": "瓦蕾莎下落无 A1、C4 附伤",
+      "explanation": "两个 helper 均由原生门返回零，仍保留 AttackInfo 的原始加法位置。"
+    },
+    {
+      "id": "char-flat-yaemiko-revelation",
+      "character": "yaemiko",
+      "title": "八重神子启示杀生樱附伤",
+      "sourceFile": "internal/characters/yaemiko/stellar.go",
+      "sourceCommits": [
+        "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+      ],
+      "operation": "set",
+      "inputs": {
+        "atk": {
+          "label": "消耗启示状态后的一次总攻击力读取",
+          "unit": "ATK"
+        }
+      },
+      "statLeaves": [
+        {
+          "stateKey": "atk",
+          "getter": "total-atk",
+          "actor": "holder"
+        }
+      ],
+      "explanation": "启示与 ICD 门通过后先启动 ICD 并消耗状态，再算 80% 攻击力；辉光附加攻击回调继续由原 helper 产生。"
+    }
+  ]
+}

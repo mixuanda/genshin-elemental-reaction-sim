@@ -640,11 +640,11 @@ describe("exact current 1.53 SimulationResult schema", () => {
     expect(simulationResultSchema).not.toBe(simulationResultV152Schema);
   });
 
-  it("keeps the exact 72-field shape and all 71 non-timeline fields required", () => {
+  it("keeps 71 required fields with optional timeline and execution capture", () => {
     const schemaKeys = Object.keys(
       simulationResultV153ValueSchema.shape,
     ).sort();
-    expect(schemaKeys).toHaveLength(72);
+    expect(schemaKeys).toHaveLength(73);
     expect(
       Object.keys(simulationResultV153ValueSchema.shape).filter(
         (key) =>
@@ -653,18 +653,18 @@ describe("exact current 1.53 SimulationResult schema", () => {
             key,
           ),
       ),
-    ).toEqual(["callbackRegistrationLog", "callbackDeliveryLog"]);
+    ).toEqual(["executionAudit", "callbackRegistrationLog", "callbackDeliveryLog"]);
     expect(schemaKeys).toContain("callbackRegistrationLog");
     expect(schemaKeys).toContain("callbackDeliveryLog");
     expect(Object.keys(defaultResult).sort()).toEqual(
-      schemaKeys.filter((key) => key !== "timelineExecution"),
+      schemaKeys.filter((key) => key !== "timelineExecution" && key !== "executionAudit"),
     );
-    expect(Object.keys(auraV9Result).sort()).toEqual(schemaKeys);
+    expect(Object.keys(auraV9Result).sort()).toEqual(schemaKeys.filter((key) => key !== "executionAudit"));
     expect(defaultResult.callbackRegistrationLog).toEqual([]);
     expect(defaultResult.callbackDeliveryLog).toEqual([]);
 
     for (const key of schemaKeys) {
-      if (key === "timelineExecution") continue;
+      if (key === "timelineExecution" || key === "executionAudit") continue;
       const missing = cloneResult(defaultResult) as unknown as Record<
         string,
         unknown

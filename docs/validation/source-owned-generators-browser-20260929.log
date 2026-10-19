@@ -1,0 +1,10 @@
+[WebServer] (node:4723) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:4724) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-owned-generators.spec.ts:32:1 › Yelan C2 Q owns its live status generator across normal, ticker and skill-hit triggers (12.5s)
+
+  1 passed (13.7s)

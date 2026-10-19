@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "status": "static source implementation; not game verified",
+  "sourceTrees": {
+    "classic": {"root":"/tmp/gidps-source-host-cache/build-5Q2zcD/source","sourceCommit":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"},
+    "stellar": {"root":"/tmp/gidps-source-host-cache/stellar-build-nuG3EO/source","sourceCommit":"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"}
+  },
+  "counting": {
+    "method":"Parsed the generated Go source trees for concrete DrainSourceCompute rule-ID call expressions, DrainInfo literals and SourceHostAmountID writes; counted TypeScript registry object keys and FlatDmg bridge call sites from checked-in registries and generated Go.",
+    "perLaneDrainRegistryRuleIds":19,
+    "perLaneGoDrainSourceComputeCallSites":19,
+    "perLaneUniqueDrainCharacters":13,
+    "perLaneDehyaRules":6,
+    "perLaneAuthoredDrainInfoLiterals":14,
+    "perLaneDrainInfoLiteralsWithInlineSourceHostAmountID":13,
+    "perLaneDehyaManualDrainLiteralsWithLaterAmountIDWrite":1,
+    "perLaneCharacterFlatRuleIdsForDendroSelfHits":2,
+    "perLaneCharacterFlatGoBridgeCallSites":4,
+    "perLaneNormalDendrocoreCallSites":3,
+    "perLaneNilouBountifulCoreCallSites":1,
+    "interpretation":"Counts are static unique source callsites/rule entries per lane, not runtime invocation frequencies; one source callsite can execute repeatedly. Dehya's six rules are included in the 19 and are not extra character entries. Nilou and generic Dendrocore FlatDmg rules are separate from the 19 drain rules."
+  },
+  "drainRules": [
+    {"ruleId":"drain-source-furina-c6-pneuma","character":"furina","file":"internal/characters/furina/cons.go","goCall":"105","outputSlot":"drain-amount","formula":"0.01 * currentHp","readTiming":"For each party member, CurrentHP read immediately before this Drain; Pneuma branch only.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 111","classification":"amount"},
+    {"ruleId":"drain-source-furina-skill","character":"furina","file":"internal/characters/furina/skill.go","goCall":"415","outputSlot":"drain-amount","formula":"maxHp * ratio; actual ratio input is selected by salon summon (0.016, 0.024, or 0.036)","readTiming":"After live current-HPRatio eligibility and burst-state skip; MaxHP read before compute at line 413; preserves party iteration order.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 422","classification":"amount"},
+    {"ruleId":"drain-source-gaming-plunge","character":"gaming","file":"internal/characters/gaming/plunge.go","goCall":"251","outputSlot":"drain-amount","formula":"0.15*maxHp; if (currentHp-0.15*maxHp)/maxHp <= 0.1 then currentHp-0.1*maxHp","readTiming":"Delayed hit+1 frame callback; gated by live HP ratio; currentHP then MaxHP reads, explicit source stat read for MaxHP.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 257","classification":"amount"},
+    {"ruleId":"drain-source-hutao-skill","character":"hutao","file":"internal/characters/hutao/skill.go","goCall":"67","outputSlot":"drain-amount","formula":"0.30*currentHp","readTiming":"Skill activation after A1 task queue, before zero-damage attack setup.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 73","classification":"amount"},
+    {"ruleId":"drain-source-kuki-skill","character":"kuki","file":"internal/characters/kuki/skill.go","goCall":"48","outputSlot":"drain-amount","formula":"0.30*currentHp; if (currentHp-0.30*currentHp)/maxHp <= 0.2 then currentHp-0.2*maxHp","readTiming":"Only live CurrentHPRatio>0.2; reads currentHP then maxHP; maxHP has source stat leaf.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 54","classification":"amount"},
+    {"ruleId":"drain-source-lynette-skill","character":"lynette","file":"internal/characters/lynette/skill.go","goCall":"248","outputSlot":"drain-amount","formula":"0.06*currentHp","readTiming":"Each scheduled tick reads currentHP live; count==4 exits before calculation; next tick keeps one-second timing.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 254","classification":"amount"},
+    {"ruleId":"drain-source-lyney-prop-surplus","character":"lyney","file":"internal/characters/lyney/aimed.go","goCall":"206","outputSlot":"drain-amount","formula":"0.20*maxHp; if (currentHp-0.20*maxHp)/maxHp <= 0.6 then currentHp-0.6*maxHp","readTiming":"After <0.6 and tolerance gates; reads CurrentHP then MaxHP; updates stack only after Drain.","actualGoAttachment":"DrainInfo.SourceHostAmountID=sourceAmountID at line 212","classification":"amount"},
+    {"ruleId":"drain-source-hydro-traveler-suffusion","character":"hydro-traveler","file":"internal/characters/traveler/common/hydro/skill.go","goCall":"350","outputSlot":"drain-amount","formula":"0.04*currentHp","readTiming":"After native state/HP gate; resulting local drainHP is also consumed by the later A4 accumulation.","actualGoAttachment":"DrainInfo.SourceHostAmountID=drainID at line 357","classification":"amount"},
+    {"ruleId":"drain-source-wriothesley-chilling-penalty","character":"wriothesley","file":"internal/characters/wriothesley/skill.go","goCall":"88","outputSlot":"drain-amount","formula":"0.045*maxHp","readTiming":"After target/ICD gates and setting ICD; MaxHP read immediately before source compute.","actualGoAttachment":"DrainInfo.SourceHostAmountID=amountID at line 95","classification":"amount"},
+    {"ruleId":"drain-source-xiao-burst","character":"xiao","file":"internal/characters/xiao/burst.go","goCall":"47","outputSlot":"drain-amount","formula":"burstDrain[TalentLvlBurst] * currentHp","readTiming":"After burst status/frame ICD gate and hpICD update; live currentHP is read for each periodic tick.","actualGoAttachment":"DrainInfo.SourceHostAmountID=amountID at line 54","classification":"amount"},
+    {"ruleId":"drain-source-neuvillette-charge","character":"neuvillette","file":"internal/characters/neuvillette/charge.go","goCall":"316","outputSlot":"drain-amount","formula":"0.08*maxHp","readTiming":"Within valid consume callback, current HPRatio>0.5; MaxHP sampled immediately before calculation.","actualGoAttachment":"DrainInfo.SourceHostAmountID=drainID at line 324","classification":"amount"},
+    {"ruleId":"drain-source-dori-burst-zero-event","character":"dori","file":"internal/characters/dori/burst.go","goCall":"71","outputSlot":"drain-amount","formula":"0","readTiming":"Event marker at original self-application point; no HP-derived input.","actualGoAttachment":"DrainInfo.SourceHostAmountID=amountID at line 78","classification":"zero-event"},
+    {"ruleId":"drain-source-sara-skill-zero-event","character":"sara","file":"internal/characters/sara/skill.go","goCall":"120","outputSlot":"drain-amount","formula":"0","readTiming":"Event marker after original skill callback action; no HP-derived input.","actualGoAttachment":"DrainInfo.SourceHostAmountID=amountID at line 127","classification":"zero-event"},
+    {"ruleId":"drain-source-dehya-mitigation","character":"dehya","file":"internal/characters/dehya/skill.go","goCall":"325","outputSlot":"intermediate","formula":"beforeAmount * skillMitigation[TalentLvlSkill]","readTiming":"OnPlayerPreHPDrain, after external/positive/field/area/non-self-dot/pool-cap gates; input SourceHostAmountID is captured from incoming DrainInfo.","actualGoAttachment":"Used as source for pool-add and after-mitigation rules; not final DrainInfo.Amount.","classification":"intermediate"},
+    {"ruleId":"drain-source-dehya-pool-add","character":"dehya","file":"internal/characters/dehya/skill.go","goCall":"338","outputSlot":"pool","formula":"poolBefore + mitigation","readTiming":"After mitigation calculation, before same DrainInfo.Amount is rewritten; state carries across mitigation callbacks and tick consumption.","actualGoAttachment":"Returned ID stored in c.redmanePoolID; next pool rule uses the stored field ID when available.","classification":"pool"},
+    {"ruleId":"drain-source-dehya-after-mitigation","character":"dehya","file":"internal/characters/dehya/skill.go","goCall":"351","outputSlot":"drain-amount","formula":"max(beforeAmount-mitigation,0)","readTiming":"After pool-add write; replaces di.Amount and di.SourceHostAmountID before Player.Drain finishes.","actualGoAttachment":"Directly writes di.SourceHostAmountID; reaches PlayerDrain.","classification":"amount"},
+    {"ruleId":"drain-source-dehya-tick-raw","character":"dehya","file":"internal/characters/dehya/skill.go","goCall":"398","outputSlot":"manual-raw","formula":"poolBefore*0.1","readTiming":"At scheduled tick after queue/status/iframe checks; raw amount is used for pool consumption before A1 and shields.","actualGoAttachment":"Raw source ID becomes component for manual incoming request.","classification":"manual-intermediate"},
+    {"ruleId":"drain-source-dehya-pool-consume","character":"dehya","file":"internal/characters/dehya/skill.go","goCall":"411","outputSlot":"pool","formula":"max(poolBefore-rawDamage,0)","readTiming":"Pool is consumed by raw pre-A1 value, before A1 reduction and shield absorption.","actualGoAttachment":"Returned ID stored in c.redmanePoolID and used as later poolBefore source.","classification":"pool"},
+    {"ruleId":"drain-source-dehya-tick-a1","character":"dehya","file":"internal/characters/dehya/skill.go","goCall":"422","outputSlot":"manual-raw","formula":"rawDamage*(1-0.6) when A1 active","readTiming":"Only after raw tick and pool consume; its value becomes the manual player's incoming raw damage.","actualGoAttachment":"Returned ID supersedes raw ID for ManualPlayerIncoming when A1 applies.","classification":"manual-intermediate"}
+  ],
+  "flatF2": {
+    "registryIds": ["char-flat-dendrocore-self-hit", "char-flat-nilou-bountiful-self-hit"],
+    "registryCount":2,
+    "generatedGoCallSitesPerLane":4,
+    "sites":[
+      {"ruleId":"char-flat-dendrocore-self-hit","path":"internal/template/dendrocore/dendrocore.go:55","branch":"Bloom normal core","expression":"ai.FlatDmg *= 0.02 after ordinary bloom FlatDmg calculation; same local attack/snapshot; enemy hit is queued before recording the player self-hit operand."},
+      {"ruleId":"char-flat-dendrocore-self-hit","path":"internal/template/dendrocore/dendrocore.go:107","branch":"Burgeon core","expression":"ai.FlatDmg *= 0.02 after Burgeon FlatDmg calculation; enemy hit first, player self-hit next."},
+      {"ruleId":"char-flat-dendrocore-self-hit","path":"internal/template/dendrocore/dendrocore.go:135","branch":"Hyperbloom core","expression":"ai.FlatDmg *= 0.02 after Hyperbloom FlatDmg calculation; enemy hit first, player self-hit next."},
+      {"ruleId":"char-flat-nilou-bountiful-self-hit","path":"internal/characters/nilou/bountifulcore.go:45","branch":"Nilou Bountiful Core","expression":"ai.FlatDmg *= 0.02 on the already computed Bloom AttackInfo and snapshot, after queuing enemy Bloom hit; player-only target mask."}
+    ],
+    "classification":"These are FlatDmg producer terms, not DrainInfo.Amount rules. Final DrainInfo amount is derived downstream after player incoming damage calculation and shields."
+  },
+  "sourceHostAmountIdCoverage": {
+    "field":"pkg/core/info/heal.go:25 SourceHostAmountID (shared DrainInfo/HealInfo source amount provenance field)",
+    "attachmentScan":"14 character DrainInfo literals: 13 source-rule producers carry the corresponding SourceHostAmountID in the literal; Dehya manual self-hit attaches its selected manualIncoming/shield result ID immediately before Player.Drain. Avatar-generated player-hit DrainInfo computes PlayerDrainAmountID from incoming attack raw calculation and attaches it in the literal.",
+    "dehyaHook":"Incoming Dehya mitigation preserves beforeAmountID, uses it as a prior source for mitigation and after-mitigation, then overwrites both Amount and SourceHostAmountID. If an incoming source amount has no ID, native value remains and shared lineage starts at the first Dehya calculation.",
+    "manualIncoming":"pkg/core/sourcehost/manual_player_incoming.go:8-23 ManualPlayerIncoming prepares attack identity and records player-manual-incoming from rawDamage, optionally linked to tick raw/A1 component. Dehya sends that result to shield handling; PlayerDrainAmountID chooses last shield minimum result when shields ran, otherwise manual result ID. ManualPlayerApplied records application and restores previous attack ID.",
+    "nativePath":"pkg/core/sourcehost/bridge.go:343-361 PlayerDrain links AmountCalculationID/ComponentIDs only when SourceHostAmountID>0, then stores a DrainApplication; the shared HP-ratio formula remains downstream.",
+    "foundMissingAttachments":"No missing SourceHostAmountID attachment was found among the 14 authored DrainInfo literals, avatar forwarding literal, Dehya post-rewrite path, or the inspected SourceHost Drain endpoint in either generated tree. Zero IDs in non-sourcehost execution are the intentional disabled-bridge path."
+  },
+  "laneDifferences": "The registry rule IDs, DrainSourceCompute callsites, SourceHostAmountID writes, four FlatDmg callsites, and manual incoming route are present in both final trees. Paths and call line numbers match for the listed evidence; no lane-only producer was found.",
+  "limitations": [
+    "This is static registry and generated-source evidence, not a game-mechanic verification.",
+    "Runtime multiplicity depends on callbacks/party loops and is not represented by callsite counts.",
+    "Zero-event rules preserve native event markers and do not establish self-damage.",
+    "Dehya retains the native comment that off-field direct character damage is a workaround/hack; no external verification is implied."
+  ]
+}

@@ -1,0 +1,343 @@
+{
+  "batch": 119,
+  "scope": "Shared phase descriptor transport and reviewed player modifiers, exact plain shield callback, enemy HP-drop task; fixed-source evidence only, not game verified.",
+  "lanes": {
+    "classic": {
+      "baselineReceipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch119/classic/receipt.json",
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/build-ZDxiiA/source",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "patch": "/Users/evan/Library/Caches/gidps-source-host/119-shared-phase/119-shared-phase-classic.patch",
+      "patchSha256": "973ddc30bc477246ad0d443b9b4f7defb1d0eea6092300e1c6c5c806bbf480ca",
+      "patchBytes": 17579,
+      "fileCount": 14,
+      "files": [
+        {
+          "path": "pkg/core/player/stam.go",
+          "beforeSha256": "25b5a72d15ee962ef7ff46a4ab981ff6a328c6c3f7cb1af8bd19bb7fc330dfcf",
+          "afterSha256": "97d440238c30b996ec512ed57b3ee8392215dfb68c5b468ae336c02d933bf582"
+        },
+        {
+          "path": "pkg/core/player/sourcehost_phase_state.go",
+          "beforeSha256": "49b9853e9089cbcc15e32215f1d53ed9838c503eccf357a59bba22f236b6a144",
+          "afterSha256": "642e8c619021b65bfe23860304aa23843792e7bbb43fcfe2d65d412a1b02c4b9"
+        },
+        {
+          "path": "pkg/core/player/shield/template.go",
+          "beforeSha256": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+          "afterSha256": "2bb3bba605695e684530576aa096461db4a4ffe510cbfbf9bf530d47d089829e"
+        },
+        {
+          "path": "pkg/core/player/shield/handler.go",
+          "beforeSha256": "ddc3ab395261ad4f1ae7fc503b83482481e7cf27477898e2bb419926f4b3cb0f",
+          "afterSha256": "cdc12d7bafe8a5c27a6c8bc57890846156ad7dc6309389f7c4ad7ef4091a1090"
+        },
+        {
+          "path": "pkg/core/player/shield/bonus.go",
+          "beforeSha256": "55fa6ff7d71753872a238037ffacffe9e2fbcb60eb243d01fff33887249debad",
+          "afterSha256": "4f8ac3ab7e669f5d418ea8c7688b8e633e978a9307e3df5ff26b80abfe01c483"
+        },
+        {
+          "path": "pkg/core/player/shield/sourcehost_phase_state.go",
+          "beforeSha256": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb",
+          "afterSha256": "5eb4d9e5085322c5f9e6335e2517e14ab62f185fef15b777f1ec0ec8105c101e"
+        },
+        {
+          "path": "pkg/enemy/attack.go",
+          "beforeSha256": "9923d6cd10bb2a834553d776dcf6dde983540134d2a9cc5799f978e2cd39d6a5",
+          "afterSha256": "3a136213ce7f728a65a37260a0e510367661b45a3eac5aca5a89b686ae74d639"
+        },
+        {
+          "path": "pkg/simulation/setup.go",
+          "beforeSha256": "ceb93639da58bc229edc86d32455b783607fe1339753ee0ad141017932df71a7",
+          "afterSha256": "8b08288512cc7297cdbb36c88bb6f0413bd31f0883fa6c07ba25a1032e086c93"
+        },
+        {
+          "path": "internal/weapons/common/goldenmajesty.go",
+          "beforeSha256": "17fd39611cfaf0fe412d8af87b5761c63b544c750c0aa0a89a7c5974af74a8d4",
+          "afterSha256": "caf45d0a979484be226b610b538bac0820f962ab2e06c6b468b6186ccdf8c296"
+        },
+        {
+          "path": "internal/artifacts/bolide/bolide.go",
+          "beforeSha256": "4e912a0b40e826fce305f29033915d501def7e94a1e881b19de7856d6e23ba04",
+          "afterSha256": "0eb754c87abf30c62847d116a0aa3f5ddd7b02388d87aee892843efc6992787a"
+        },
+        {
+          "path": "internal/artifacts/tenacity/tenacity.go",
+          "beforeSha256": "3f94338f3ecc4bd23f1a9c94075da2d0b187a48d03127cda5ad048584bba2fc0",
+          "afterSha256": "0ef7b8b577c022443f1b854e3f4725ae8c88c52836b33a6b65a682ed72afeb2d"
+        },
+        {
+          "path": "internal/artifacts/bloodstained/bloodstained.go",
+          "beforeSha256": "62eb17184de5c30f85b211e653b900353f7c0803c3b5ab3cee0895d6ff20d32e",
+          "afterSha256": "bbaca94684c892f2cf64dff8de19253828affa507b4ddaeb0b785e194cbbf7b2"
+        },
+        {
+          "path": "internal/weapons/sword/sturdybone/sturdybone.go",
+          "beforeSha256": "487a7c139b21d2c20e006c5c94acca01b13ae23140a6220374011ed2cafbce3a",
+          "afterSha256": "d225ee19e9433789b1d3d67831bda17fa5c61b834299487657dd83a17b2a003c"
+        },
+        {
+          "path": "internal/weapons/catalyst/wine/wine.go",
+          "beforeSha256": "b925d767e719c0e38de0dd7b654f7716a9632ecada41becb345f48cbd53a7dac",
+          "afterSha256": "681a79e7b6f0303220f36affa9b5a24f7473fabf75f9b3a02b3c597137171a88"
+        }
+      ],
+      "checks": {
+        "gofmt": "completed on modified private copies with pinned lane runtime",
+        "gitApplyCheckExitCode": 0,
+        "buildsExecuted": 0,
+        "testsExecuted": 0
+      }
+    },
+    "stellar": {
+      "baselineReceipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch119/stellar/receipt.json",
+      "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-2MTRcn/source",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "patch": "/Users/evan/Library/Caches/gidps-source-host/119-shared-phase/119-shared-phase-stellar.patch",
+      "patchSha256": "78c5a8c1888bc40d764a0deb1bc5f94b13f9eed543f93e6861cda02a22b6366a",
+      "patchBytes": 17579,
+      "fileCount": 14,
+      "files": [
+        {
+          "path": "pkg/core/player/stam.go",
+          "beforeSha256": "25b5a72d15ee962ef7ff46a4ab981ff6a328c6c3f7cb1af8bd19bb7fc330dfcf",
+          "afterSha256": "97d440238c30b996ec512ed57b3ee8392215dfb68c5b468ae336c02d933bf582"
+        },
+        {
+          "path": "pkg/core/player/sourcehost_phase_state.go",
+          "beforeSha256": "49b9853e9089cbcc15e32215f1d53ed9838c503eccf357a59bba22f236b6a144",
+          "afterSha256": "642e8c619021b65bfe23860304aa23843792e7bbb43fcfe2d65d412a1b02c4b9"
+        },
+        {
+          "path": "pkg/core/player/shield/template.go",
+          "beforeSha256": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+          "afterSha256": "2bb3bba605695e684530576aa096461db4a4ffe510cbfbf9bf530d47d089829e"
+        },
+        {
+          "path": "pkg/core/player/shield/handler.go",
+          "beforeSha256": "ddc3ab395261ad4f1ae7fc503b83482481e7cf27477898e2bb419926f4b3cb0f",
+          "afterSha256": "cdc12d7bafe8a5c27a6c8bc57890846156ad7dc6309389f7c4ad7ef4091a1090"
+        },
+        {
+          "path": "pkg/core/player/shield/bonus.go",
+          "beforeSha256": "55fa6ff7d71753872a238037ffacffe9e2fbcb60eb243d01fff33887249debad",
+          "afterSha256": "4f8ac3ab7e669f5d418ea8c7688b8e633e978a9307e3df5ff26b80abfe01c483"
+        },
+        {
+          "path": "pkg/core/player/shield/sourcehost_phase_state.go",
+          "beforeSha256": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb",
+          "afterSha256": "5eb4d9e5085322c5f9e6335e2517e14ab62f185fef15b777f1ec0ec8105c101e"
+        },
+        {
+          "path": "pkg/enemy/attack.go",
+          "beforeSha256": "9923d6cd10bb2a834553d776dcf6dde983540134d2a9cc5799f978e2cd39d6a5",
+          "afterSha256": "3a136213ce7f728a65a37260a0e510367661b45a3eac5aca5a89b686ae74d639"
+        },
+        {
+          "path": "pkg/simulation/setup.go",
+          "beforeSha256": "e8584917c9a54d3b827be69ca9b40b3cd6ab349a43497474532944b9e6e231d7",
+          "afterSha256": "33da768b9dd74307b79d678d4edc8284d42db4ed3fb2a867234e17336c83fb2f"
+        },
+        {
+          "path": "internal/weapons/common/goldenmajesty.go",
+          "beforeSha256": "17fd39611cfaf0fe412d8af87b5761c63b544c750c0aa0a89a7c5974af74a8d4",
+          "afterSha256": "caf45d0a979484be226b610b538bac0820f962ab2e06c6b468b6186ccdf8c296"
+        },
+        {
+          "path": "internal/artifacts/bolide/bolide.go",
+          "beforeSha256": "4e912a0b40e826fce305f29033915d501def7e94a1e881b19de7856d6e23ba04",
+          "afterSha256": "0eb754c87abf30c62847d116a0aa3f5ddd7b02388d87aee892843efc6992787a"
+        },
+        {
+          "path": "internal/artifacts/tenacity/tenacity.go",
+          "beforeSha256": "3f94338f3ecc4bd23f1a9c94075da2d0b187a48d03127cda5ad048584bba2fc0",
+          "afterSha256": "0ef7b8b577c022443f1b854e3f4725ae8c88c52836b33a6b65a682ed72afeb2d"
+        },
+        {
+          "path": "internal/artifacts/bloodstained/bloodstained.go",
+          "beforeSha256": "62eb17184de5c30f85b211e653b900353f7c0803c3b5ab3cee0895d6ff20d32e",
+          "afterSha256": "bbaca94684c892f2cf64dff8de19253828affa507b4ddaeb0b785e194cbbf7b2"
+        },
+        {
+          "path": "internal/weapons/sword/sturdybone/sturdybone.go",
+          "beforeSha256": "487a7c139b21d2c20e006c5c94acca01b13ae23140a6220374011ed2cafbce3a",
+          "afterSha256": "d225ee19e9433789b1d3d67831bda17fa5c61b834299487657dd83a17b2a003c"
+        },
+        {
+          "path": "internal/weapons/catalyst/wine/wine.go",
+          "beforeSha256": "b925d767e719c0e38de0dd7b654f7716a9632ecada41becb345f48cbd53a7dac",
+          "afterSha256": "681a79e7b6f0303220f36affa9b5a24f7473fabf75f9b3a02b3c597137171a88"
+        }
+      ],
+      "checks": {
+        "gofmt": "completed on modified private copies with pinned lane runtime",
+        "gitApplyCheckExitCode": 0,
+        "buildsExecuted": 0,
+        "testsExecuted": 0
+      }
+    }
+  },
+  "registrations": [
+    {
+      "site": "pkg/simulation/setup.go:geo-shield-bonus",
+      "domain": "shield-bonus",
+      "captures": {
+        "shieldBonus": 0.15,
+        "removeAfterRead": true
+      },
+      "semantics": "Original returns (0.15,true), including removal after its actual read; phase observer does not call it."
+    },
+    {
+      "site": "pkg/simulation/setup.go:anemo-stamina",
+      "domain": "stamina",
+      "captures": {
+        "staminaPercent": -0.15
+      },
+      "semantics": "Original all-action constant preserved; original AddStamPercentMod duration arithmetic unchanged."
+    },
+    {
+      "site": "internal/weapons/common/goldenmajesty.go:shield-bonus",
+      "domain": "shield-bonus",
+      "captures": [
+        "shieldBonus=shd"
+      ],
+      "semantics": "shd is immutable .15 + .05*refine captured at weapon construction. Other weapon closures not newly described."
+    },
+    {
+      "site": "internal/artifacts/bolide/bolide.go:shield-bonus",
+      "domain": "shield-bonus",
+      "captures": [
+        "characterIndex=char.Index()",
+        "shieldBonus=0.35"
+      ],
+      "semantics": "SourceHost.ArtifactScalar bolide-2pc-shield is fixed .35; actor/current attack IDs annotate the formula receipt. Live getter and receipt writes retain order."
+    },
+    {
+      "site": "internal/artifacts/tenacity/tenacity.go:shield-bonus",
+      "domain": "shield-bonus",
+      "captures": [
+        "characterIndex=char.Index()",
+        "shieldBonus=0.30"
+      ],
+      "semantics": "SourceHost.ArtifactScalar tenacity-4pc-shield is fixed .30. Original 180-frame expiry, event gates, and formula receipt reads unchanged."
+    },
+    {
+      "site": "internal/artifacts/bloodstained/bloodstained.go:charged-stamina",
+      "domain": "stamina",
+      "captures": [
+        "action=ActionCharge",
+        "staminaPercent=-1"
+      ],
+      "semantics": "Original returns -1 for charged action, zero otherwise. Original 600-frame lifespan unchanged; no actor gate added."
+    },
+    {
+      "site": "internal/weapons/sword/sturdybone/sturdybone.go:stamina",
+      "domain": "stamina",
+      "captures": [
+        "staminaPercent=-0.15"
+      ],
+      "semantics": "Preserves source all-action callback despite weapon description referring to Sprint; does not reinterpret game mechanics."
+    },
+    {
+      "site": "internal/weapons/catalyst/wine/wine.go:dash-stamina",
+      "domain": "stamina",
+      "captures": [
+        "action=ActionDash",
+        "staminaReduction=stamReduction"
+      ],
+      "semantics": "Records immutable local .12 + .02*refine. Original Dash gate, -stamReduction result and 300-frame lifespan unchanged."
+    }
+  ],
+  "registrationCount": 8,
+  "transport": {
+    "stamina": "stamPercentMod.Phase + AddStamPercentModWithPhase; legacy method forwards empty descriptor and remains a gap for nonnil Amount.",
+    "shieldBonus": "shieldBonusMod.Phase + AddShieldBonusModWithPhase; legacy method forwards empty descriptor.",
+    "shieldDamage": "Handler and Tmpl SourceHostDamagePhase; existing source-host-only setter carries function and descriptor together. Only exact *shield.Tmpl is reviewed.",
+    "observation": "Copies callback capture maps without evaluating Amount, ShieldBonus, ShieldStrength or damage callbacks. Propagates all descriptor gaps; never changes source closures, getter side effects or removal order."
+  },
+  "plainShield": {
+    "descriptorSource": "cmd/sourcehost/main.go:shared-player-shield-resolver",
+    "capture": {
+      "formula": "player-shield",
+      "liveState": "player.shields"
+    },
+    "normalizedOut": [
+      "exact *shield.Tmpl Src/Key",
+      "exact *shield.Tmpl SourceHostHPID",
+      "exact *shield.Tmpl SourceHostBonusID"
+    ],
+    "preservedState": [
+      "owner",
+      "target",
+      "type",
+      "description",
+      "element",
+      "hp",
+      "expiryRemaining",
+      "implementation",
+      "damage callback descriptor/capture"
+    ],
+    "proof": [
+      {
+        "path": "pkg/core/player/shield/template.go",
+        "facts": "Key only returns Src. Plain OnExpire/OnOverwrite are empty. ShieldStrength reads HP/element and call arguments. OnDamage reads current HP/element and call arguments; no identity determines arithmetic."
+      },
+      {
+        "path": "pkg/core/player/shield/handler.go",
+        "facts": "Add overwrites by Type and ShieldTarget. Damage selection uses target and active actor. Expiry uses Expires. Key is not a gameplay branch."
+      },
+      {
+        "path": "pkg/core/sourcehost/shield_lifecycle.go",
+        "facts": "Key is copied only to SourceKeyFrame receipt. HP IDs copied to receipt ancestry; all actual receipt fields remain intact."
+      },
+      {
+        "path": "pkg/core/sourcehost/bridge.go:ShieldDamage",
+        "facts": "Current HP, damage, shield/incoming elements, bonus and type populate numerical input. HP/Bonus IDs add history components and choose scalar provenance attachment; SourceKeyFrame is not sent to numeric resolver. IDs and all resolver validation remain untouched."
+      },
+      {
+        "path": "packages/sim-core/src/source-host-formula.ts:641-731",
+        "facts": "IDs locate and validate prior values and build trace ancestry. Current numerical request is delegated unchanged to resolveSourceHostPlayerShieldRequest. Omission here occurs only in phase-equality projection, never runtime/formula/replay requests."
+      },
+      {
+        "path": "packages/sim-core/src/source-host-shield-formula.ts:23-58",
+        "facts": "Formula numerical branch reads request.input HP/damage/bonus/element/output; no receipt ID or shield source key is an arithmetic operand."
+      }
+    ],
+    "limits": "Custom shield types retain their key plus explicit private-state gap, even if they embed Tmpl. Unknown SourceHostDamage descriptors retain an explicit callback gap."
+  },
+  "enemyHPDrop": {
+    "path": "pkg/enemy/attack.go",
+    "site": "pkg/enemy/attack.go:hp-drop-particle",
+    "taskKey": "enemy-hp-drop-particle",
+    "delayFrames": 100,
+    "capture": [
+      "source=hp_drop",
+      "count",
+      "element"
+    ],
+    "semantics": "Captured count and element are determined by unchanged tryHPDropParticle. The original closure still distributes the same Particle to the live Player at execution; task insertion order and delay unchanged."
+  },
+  "overlayEdits": [
+    {
+      "path": "packages/source-host/go/cmd/sourcehost/main.go",
+      "sha256": "671f53ec928f3141366d944bd35cdc293ce9f096743c26bf891a50719e4aabdf",
+      "scope": "Only SourceHostDamagePhase registration adjoining existing shared resolver; gofmt completed."
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/cmd/sourcehost/main.go",
+      "sha256": "c15e81843d1e302f0a94beb58f6f3d2af9029e74003f46104c1f552fb146adaa",
+      "scope": "Only SourceHostDamagePhase registration adjoining existing shared resolver; gofmt completed."
+    }
+  ],
+  "limitations": [
+    "No claim that whole equipment, character or complete rotation state is closed; other event/stat/attack closures remain as before.",
+    "Unknown legacy callbacks and custom shields are not assigned guessed descriptors.",
+    "No build, runtime, replay or game-mechanics verification executed in this subtask; central integration owns required validation.",
+    "Native source quirks including geo callback done=true and stamina duration behavior are intentionally preserved."
+  ],
+  "dependencies": [
+    "Existing phase.Descriptor transport and Tasks.AddWithPhase",
+    "Overlay main.go registration requires this patch Handler/Tmpl descriptor fields",
+    "Root attack task patch may share pkg/enemy/attack.go phase import; apply merged import once."
+  ]
+}

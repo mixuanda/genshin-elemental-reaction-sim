@@ -1,0 +1,472 @@
+{
+  "schemaVersion": "preview-history-validation-v1",
+  "snapshots": {
+    "from": {
+      "snapshotId": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+      "catalogVersion": "lunaris-7.1.50-preview-observed-20260924.partial-two-characters.1",
+      "gameVersion": "7.1.50",
+      "releaseStatus": "preview",
+      "contentSha256": "b5281065d42479f0215ccc29310a2d58593d81abc1590d556eb8fe580fb86c7d",
+      "numericEvidenceStatus": "missing",
+      "mechanicEvidenceStatus": "missing",
+      "sourceIds": [
+        "lunaris-version-json",
+        "lunaris-charlist-json",
+        "lunaris-mitya-en-json",
+        "lunaris-valeriy-en-json",
+        "lunaris-mitya-chs-json",
+        "lunaris-valeriy-chs-json",
+        "lunaris-lunaris-app-js"
+      ]
+    },
+    "to": {
+      "snapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+      "catalogVersion": "lunaris-7.1.50.2-preview-observed-20260928.partial-two-characters.1",
+      "gameVersion": "7.1.50.2",
+      "releaseStatus": "preview",
+      "contentSha256": "f744f0aef052fae3a5bd6aa007457154cac01205f4c4c515a6f29ed5850dcb08",
+      "numericEvidenceStatus": "missing",
+      "mechanicEvidenceStatus": "missing",
+      "sourceIds": [
+        "lunaris-version-json",
+        "lunaris-charlist-json",
+        "lunaris-mitya-en-json",
+        "lunaris-valeriy-en-json",
+        "lunaris-mitya-chs-json",
+        "lunaris-valeriy-chs-json",
+        "lunaris-lunaris-app-js"
+      ]
+    }
+  },
+  "comparison": {
+    "totalChanges": 529,
+    "displayedChanges": 200,
+    "numericChangeCount": 43,
+    "numericChanges": [
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 3.336,
+        "after": 3.3359999656677246,
+        "numericDelta": -3.433227524496374e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalburst/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 6.672,
+        "after": 6.671999931335449,
+        "numericDelta": -6.866455048992748e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.9072,
+        "after": 0.9071999788284302,
+        "numericDelta": -2.1171569830613635e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 1.296,
+        "after": 1.2960000038146973,
+        "numericDelta": 3.814697224768793e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam2/0",
+        "kind": "changed",
+        "before": 0.72,
+        "after": 0.7200000286102295,
+        "numericDelta": 2.8610229518832853e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam3/0",
+        "kind": "changed",
+        "before": 0.96,
+        "after": 0.9599999785423279,
+        "numericDelta": -2.1457672083613488e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:elementalskill/parameters/sourceParam4/0",
+        "kind": "changed",
+        "before": 1.152,
+        "after": 1.1519999504089355,
+        "numericDelta": -4.9591064366083515e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.587984,
+        "after": 0.587984025478363,
+        "numericDelta": 2.54783630859734e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 0.483008,
+        "after": 0.4830079972743988,
+        "numericDelta": -2.7256011891907406e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam2/0",
+        "kind": "changed",
+        "before": 0.690224,
+        "after": 0.6902239918708801,
+        "numericDelta": -8.129119821731479e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam3/0",
+        "kind": "changed",
+        "before": 1.3688,
+        "after": 1.3688000440597534,
+        "numericDelta": 4.4059753401270996e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam5/0",
+        "kind": "changed",
+        "before": 0.568288,
+        "after": 0.5682880282402039,
+        "numericDelta": 2.8240203842067046e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam6/0",
+        "kind": "changed",
+        "before": 1.136335,
+        "after": 1.136335015296936,
+        "numericDelta": 1.5296935940156686e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam7/0",
+        "kind": "changed",
+        "before": 1.419344,
+        "after": 1.4193439483642578,
+        "numericDelta": -5.163574212652122e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam8/0",
+        "kind": "changed",
+        "before": 1.53,
+        "after": 1.5299999713897705,
+        "numericDelta": -2.8610229518832853e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:normalattack/parameters/sourceParam9/0",
+        "kind": "changed",
+        "before": 2.04,
+        "after": 2.0399999618530273,
+        "numericDelta": -3.814697269177714e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p2/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.05,
+        "after": 0.05000000074505806,
+        "numericDelta": 7.450580569168253e-10
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.00028,
+        "after": 0.0002800000074785203,
+        "numericDelta": 7.478520298691282e-12
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p3/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 0.14,
+        "after": 0.14000000059604645,
+        "numericDelta": 5.9604643443123e-10
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/abilities/talent-set:mitya:p4/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.2,
+        "after": 0.20000000298023224,
+        "numericDelta": 2.980232227667301e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 1.3512,
+        "after": 1.351199984550476,
+        "numericDelta": -1.5449523882438143e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalburst/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 0.3152,
+        "after": 0.31520000100135803,
+        "numericDelta": 1.0013580520329413e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 1.66,
+        "after": 1.659999966621399,
+        "numericDelta": -3.337860099428269e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 2.08896,
+        "after": 2.0889599323272705,
+        "numericDelta": -6.767272964225413e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:elementalskill/parameters/sourceParam2/0",
+        "kind": "changed",
+        "before": 1309.6384,
+        "after": 1309.638427734375,
+        "numericDelta": 0.000027734374953070073
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.324839,
+        "after": 0.3248389959335327,
+        "numericDelta": -4.066467274022045e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 0.29326,
+        "after": 0.29326000809669495,
+        "numericDelta": 8.096694925630032e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam10/0",
+        "kind": "changed",
+        "before": 0.639324,
+        "after": 0.6393240094184875,
+        "numericDelta": 9.41848754543173e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam11/0",
+        "kind": "changed",
+        "before": 1.278377,
+        "after": 1.2783770561218262,
+        "numericDelta": 5.612182607528382e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam12/0",
+        "kind": "changed",
+        "before": 1.596762,
+        "after": 1.59676194190979,
+        "numericDelta": -5.80902099756031e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam2/0",
+        "kind": "changed",
+        "before": 0.454175,
+        "after": 0.4541749954223633,
+        "numericDelta": -4.577636714131472e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam3/0",
+        "kind": "changed",
+        "before": 1.00276,
+        "after": 1.0027600526809692,
+        "numericDelta": 5.2680969142571143e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam4/0",
+        "kind": "changed",
+        "before": 2.292,
+        "after": 2.2920000553131104,
+        "numericDelta": 5.531311053630361e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam6/0",
+        "kind": "changed",
+        "before": 0.2096,
+        "after": 0.20960000157356262,
+        "numericDelta": 1.5735626135437997e-9
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:normalattack/parameters/sourceParam7/0",
+        "kind": "changed",
+        "before": 0.6288,
+        "after": 0.6287999749183655,
+        "numericDelta": -2.5081634547063913e-8
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/parameters/sourceParam0/0",
+        "kind": "changed",
+        "before": 0.003,
+        "after": 0.003000000026077032,
+        "numericDelta": 2.6077032026783353e-11
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:valeriy/abilities/talent-set:valeriy:p2/parameters/sourceParam1/0",
+        "kind": "changed",
+        "before": 0.009,
+        "after": 0.008999999612569809,
+        "numericDelta": -3.8743019036002746e-10
+      },
+      {
+        "path": "/supplemental/constellationSets/constellation-set:mitya/entries/const6/params/0",
+        "kind": "changed",
+        "before": 0.3,
+        "after": 0.30000001192092896,
+        "numericDelta": 1.1920928966180355e-8
+      },
+      {
+        "path": "/supplemental/constellationSets/constellation-set:mitya/entries/const6/params/1",
+        "kind": "changed",
+        "before": 0.2,
+        "after": 0.20000000298023224,
+        "numericDelta": 2.980232227667301e-9
+      },
+      {
+        "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const2/params/0",
+        "kind": "changed",
+        "before": 0.08,
+        "after": 0.07999999821186066,
+        "numericDelta": -1.7881393449270533e-9
+      },
+      {
+        "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const4/params/0",
+        "kind": "changed",
+        "before": 0.3,
+        "after": 0.30000001192092896,
+        "numericDelta": 1.1920928966180355e-8
+      },
+      {
+        "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const6/params/2",
+        "kind": "changed",
+        "before": 0.1,
+        "after": 0.10000000149011612,
+        "numericDelta": 1.4901161138336505e-9
+      },
+      {
+        "path": "/supplemental/constellationSets/constellation-set:valeriy/entries/const6/params/3",
+        "kind": "changed",
+        "before": 0.4,
+        "after": 0.4000000059604645,
+        "numericDelta": 5.960464455334602e-9
+      }
+    ],
+    "keyChanges": [
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/attackType",
+        "kind": "added",
+        "after": "Melee"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/damageParam",
+        "kind": "added",
+        "after": "AS_ArtHold_Dmg"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/element",
+        "kind": "added",
+        "after": "Electric"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/gauge",
+        "kind": "added",
+        "after": "1U"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/icd_rule",
+        "kind": "added",
+        "after": "Independent"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/icd_source",
+        "kind": "added",
+        "after": "Tag: Elemental_Art (!)"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/name",
+        "kind": "added",
+        "after": "ElementalArt"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/poise",
+        "kind": "added",
+        "after": "LV2/100"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/0/strikeType",
+        "kind": "added",
+        "after": "-"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/attackType",
+        "kind": "added",
+        "after": "Melee"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/damageParam",
+        "kind": "added",
+        "after": "AS_ArtTrigger_Dmg"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/element",
+        "kind": "added",
+        "after": "Electric"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/gauge",
+        "kind": "added",
+        "after": "1U"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/icd_rule",
+        "kind": "added",
+        "after": "Independent"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/icd_source",
+        "kind": "added",
+        "after": "Tag: Elemental_Art (!)"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/name",
+        "kind": "added",
+        "after": "ElementalArt"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/poise",
+        "kind": "added",
+        "after": "LV2/75"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/1/strikeType",
+        "kind": "added",
+        "after": "-"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/attackType",
+        "kind": "added",
+        "after": "Default"
+      },
+      {
+        "path": "/catalog/talentSets/talent-set:mitya/sourceCombatMetadata/attacks/2/damageParam",
+        "kind": "added",
+        "after": "-"
+      }
+    ],
+    "fullExport": "docs/validation/preview-history-comparison-20260928.result.json"
+  },
+  "calculator": {
+    "deepLinkedSnapshot": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+    "switchedTo": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "switchedBack": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+    "reloadedSnapshot": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+    "previewCharacters": [
+      "",
+      "character:10000136",
+      "character:10000137"
+    ],
+    "releasedCharacterCount": 125,
+    "previewDamageDisplayed": false
+  },
+  "pointers": {
+    "sourceFile": "packages/game-data/manifests/runtime/current.ts",
+    "beforeSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "afterSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "unchanged": true
+  },
+  "pageErrors": []
+}

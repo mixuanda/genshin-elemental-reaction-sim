@@ -1,0 +1,341 @@
+{
+  "schemaVersion": "source-target-scene-measurements-v1",
+  "batch": "104",
+  "date": "2026-09-29",
+  "commands": {
+    "focused-unit": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "apps/web/src/source-target-scene.test.ts",
+        "packages/sim-core/src/source-host-target-summary.test.ts"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 0.938
+    },
+    "summary-unit-fixed": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/source-host-target-summary.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.582
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.783
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.831
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.182
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 4.622
+    },
+    "web-build-fixed": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.358
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-scene.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 14.971
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-target-scene-browser-v1",
+    "measurements": {
+      "single": {
+        "rawPath": "/tmp/gidps-target-scene-single.json",
+        "primaryTargetIndex": 1,
+        "initialDefaultTargetKey": 1,
+        "primaryTargetKey": 2,
+        "totalRawDamage": 1807.387792842841,
+        "rows": [
+          {
+            "declarationIndex": 0,
+            "targetKey": 1,
+            "rawDamage": 1161.8921525418264,
+            "appliedDamage": 1161.8921525418264,
+            "hitCount": 1
+          },
+          {
+            "declarationIndex": 1,
+            "targetKey": 2,
+            "rawDamage": 645.4956403010146,
+            "appliedDamage": 645.4956403010146,
+            "hitCount": 1
+          },
+          {
+            "declarationIndex": 2,
+            "targetKey": 3,
+            "rawDamage": 0,
+            "appliedDamage": 0,
+            "hitCount": 0
+          }
+        ],
+        "replayDifferences": [
+          0,
+          0
+        ]
+      },
+      "team": {
+        "rawPath": "/tmp/gidps-target-scene-team.json",
+        "primaryTargetIndex": 2,
+        "initialDefaultTargetKey": 1,
+        "primaryTargetKey": 3,
+        "totalRawDamage": 1807.387792842841,
+        "primaryRawDamage": 0,
+        "replayDifferences": [
+          0,
+          0
+        ],
+        "sameNativeApplications": true,
+        "copiedAndRemovedDraftRestored": true,
+        "sceneScreenshot": "docs/validation/source-target-scene-diagram-20260929.png",
+        "summaryScreenshot": "docs/validation/source-target-scene-summary-20260929.png"
+      }
+    },
+    "pageErrors": [],
+    "scope": "Two classic Kaeya E native runs with the same three-target GCSL and seed; only the statistics target changes. Initial native default target and primary reporting remain distinct."
+  },
+  "archives": [
+    {
+      "path": "docs/validation/source-target-scene-single-20260929.capture.json",
+      "sha256": "f1b30be9763b5d8d26a0497a996b23fa94338c28e5ad5e896a34db489a87ecfe",
+      "bytes": 94309
+    },
+    {
+      "path": "docs/validation/source-target-scene-team-20260929.capture.json",
+      "sha256": "cb41cdb756a83e6c012a8b58fded6e2f7b877b271cc03c7cf4cdd0da5ba7c801",
+      "bytes": 93560
+    }
+  ],
+  "implementationFiles": [
+    {
+      "path": "apps/web/src/source-target-scene.ts",
+      "sha256": "5ece12d720170437cde5089cce05176a4a0a629cfb3ef38b9b165e681ccbbcec",
+      "bytes": 1667
+    },
+    {
+      "path": "apps/web/src/source-target-scene-controls.ts",
+      "sha256": "b3150f0bed95988da122a15eb8398e3fa2cd0de6dcd06aaa2c2b66138017ef13",
+      "bytes": 11379
+    },
+    {
+      "path": "apps/web/src/source-team-builder.ts",
+      "sha256": "7af72fd2fa6becfb94e52b164b9bcc89b6b7186a3bf5cd4e485f35518af816b8",
+      "bytes": 77995
+    },
+    {
+      "path": "apps/web/src/source-single-skill.ts",
+      "sha256": "e18059a66cbafa7bb1b944763a257c493e5788d460e15b653288dc92c1b675f6",
+      "bytes": 7857
+    },
+    {
+      "path": "apps/web/src/source-single-skill-panel.ts",
+      "sha256": "eaa555cefb96b88d502046f58b53157ed19db3f4a5257d286e8c82a49de1e31b",
+      "bytes": 40248
+    },
+    {
+      "path": "apps/web/src/source-host-panel.ts",
+      "sha256": "b6e31aabbd6a0d8e73a891f1850b112b060c8dd1271b603846ef17f804316c5e",
+      "bytes": 41032
+    },
+    {
+      "path": "apps/web/src/source-host-target-summary-panel.ts",
+      "sha256": "b905dd2a0fc84dea5dfc472bae934f962d15c6fb00957a521497f30e2890f9ec",
+      "bytes": 9439
+    },
+    {
+      "path": "apps/web/src/source-host-worker.ts",
+      "sha256": "45349a99515521d206e8be0b2b53c267cdd226c48f2132bd7b291fbc40aa91a8",
+      "bytes": 8521
+    },
+    {
+      "path": "apps/web/src/source-host-batch.ts",
+      "sha256": "b45ac2acd14c8410da2fee5473f37afb2a109485c656b673a3eb64cc540a7a0b",
+      "bytes": 18280
+    },
+    {
+      "path": "apps/web/src/source-host-startup-analysis.ts",
+      "sha256": "9577a9fd419a0ee9a8c7bc729d6fab0c936362c940bbbe6741f63888aa8013a6",
+      "bytes": 14350
+    },
+    {
+      "path": "apps/web/src/source-host-energy-analysis.ts",
+      "sha256": "7e43e70e8ac111228ec73e5cdddd57441fa4297948a9d6f3dfa6dda13c45142f",
+      "bytes": 18030
+    },
+    {
+      "path": "packages/sim-core/src/source-host-wire.ts",
+      "sha256": "d153215a545e47eab28e4692561c2f478d3ceff73605e5e350e836b862634f8d",
+      "bytes": 32356
+    },
+    {
+      "path": "packages/sim-core/src/source-host-target-summary.ts",
+      "sha256": "dc10fa281295f2e0d9c1ff3748b4b09bae8b5c390093419a8e25272a24bfe272",
+      "bytes": 15319
+    },
+    {
+      "path": "packages/sim-core/src/source-host-reexecution.ts",
+      "sha256": "3495a27bec0dc5f75fa62d22b1882ecb58f5169494e1881b03034e21a77c9c00",
+      "bytes": 6344
+    },
+    {
+      "path": "packages/sim-core/src/source-host-capture.ts",
+      "sha256": "139875cb9978acba27b325d27e1f3b055ab50e8fd975d1cca0c156656b4cc796",
+      "bytes": 39612
+    },
+    {
+      "path": "packages/sim-core/src/source-host-action-collection.ts",
+      "sha256": "43088bbbc23452b7c16caee91457ff61aaaa2cacffc162fe17893a6de805188e",
+      "bytes": 20406
+    },
+    {
+      "path": "packages/source-host/go/cmd/sourcehost/main.go",
+      "sha256": "f154cad42421fade3a13edc7edac565d01d8b909415bbdf9ddb7d9faba9afdfb",
+      "bytes": 8695
+    },
+    {
+      "path": "packages/source-host/go/cmd/sourcehost/target_scene.go",
+      "sha256": "59660df69eef3df201ed21721bf1bd55a266143597f45be06197c01fe01d87a4",
+      "bytes": 1954
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/cmd/sourcehost/main.go",
+      "sha256": "2bfe2798f6ed725575df94ebc1304c4ecf390a9c0dc5145d9633627a5b220bb7",
+      "bytes": 9133
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/cmd/sourcehost/target_scene.go",
+      "sha256": "59660df69eef3df201ed21721bf1bd55a266143597f45be06197c01fe01d87a4",
+      "bytes": 1954
+    },
+    {
+      "path": "apps/web/src/source-target-scene.test.ts",
+      "sha256": "7306b42a65c85c76c7a7adeffd25f66be798beacbc93993f190c4ecaf07f01b1",
+      "bytes": 2102
+    },
+    {
+      "path": "packages/sim-core/src/source-host-target-summary.test.ts",
+      "sha256": "8f7b3f2c5ad3f7248a35cbd9a235f7dcc8b99f84200095e94b6d171ab8973196",
+      "bytes": 3461
+    },
+    {
+      "path": "apps/web/e2e/source-target-scene.spec.ts",
+      "sha256": "fccb3ba0349cc83474bfa99318034397b09f21788130a01b2e49ed8b24db41e4",
+      "bytes": 14111
+    }
+  ],
+  "executionArtifacts": [
+    {
+      "path": "apps/web/public/source-host/source-host.wasm",
+      "sha256": "fadc5c9d47501f434c4c08de017947dd29beb225ad30112ff95c6f49e24415bd",
+      "bytes": 44772053
+    },
+    {
+      "path": "apps/web/public/source-host/manifest.json",
+      "sha256": "19e369152fdb56c0cff0086a75e5dabb9724fa7255fcdc2866b644bf8ef750f1",
+      "bytes": 146909
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/source-host.wasm",
+      "sha256": "e6a8f5d3df9513b257a74075635afbbe6636bcd8f23981913b63b07dd31b9c48",
+      "bytes": 68409683
+    },
+    {
+      "path": "apps/web/public/source-host-stellar/manifest.json",
+      "sha256": "ba1889e01a6c8b83024008eca46d3fd7cb9d14d175887ea1efbe26cd92c21207",
+      "bytes": 149256
+    },
+    {
+      "path": "apps/web/dist/source-host/source-host.wasm",
+      "sha256": "fadc5c9d47501f434c4c08de017947dd29beb225ad30112ff95c6f49e24415bd",
+      "bytes": 44772053
+    },
+    {
+      "path": "apps/web/dist/source-host-stellar/source-host.wasm",
+      "sha256": "e6a8f5d3df9513b257a74075635afbbe6636bcd8f23981913b63b07dd31b9c48",
+      "bytes": 68409683
+    },
+    {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "c5dcac6ff25bb50570fc00f906f52b547000a7471ee9fe10a3743b7ce58bc6f7",
+      "bytes": 817351
+    }
+  ],
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "bytes": 955
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "bytes": 6035
+    }
+  ],
+  "repairs": [
+    {
+      "check": "focused-unit",
+      "initial": "4 of 5 passed; target summary rate referenced the raw grouping object instead of the traced row metrics",
+      "repair": "Read traced row metrics and their existing node IDs; reran only summary test file, 2 of 2 passed."
+    },
+    {
+      "check": "web-build",
+      "initial": "Strict exactOptionalPropertyTypes errors in added scene field propagation, E2E input and rate assignments",
+      "repair": "NonNullable optional scene arrays, conditional optional spreads, positive-duration guarded rate function returns number; full production build passed."
+    }
+  ],
+  "limits": [
+    "Two actual native runs, both classic; stellar compiled only.",
+    "Native initial scene receipt is not a dynamic position/phase checkpoint. Selecting the statistics primary target does not change native targeting.",
+    "Single-skill summary includes only selected associated application IDs and does not present DPS or claim a complete cast.",
+    "No batch/startup/full-native-reexecution suite was repeated; receipt context propagation is included in typechecking.",
+    "Static scene editing and target-key aggregation do not implement enemy shields, phase transitions or initial DEF modifiers.",
+    "No data promotion, game-verification upgrade or full-coverage claim."
+  ]
+}

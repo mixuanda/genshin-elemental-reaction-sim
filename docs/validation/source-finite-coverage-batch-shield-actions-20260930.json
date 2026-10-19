@@ -1,0 +1,191 @@
+{
+  "batch": 117,
+  "owner": "event_sites_b",
+  "source_roots": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-yNtRq2/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch117/classic/receipt.json",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7",
+      "exportSha256": "6884b9117d95c4f7487749ea80d6a41ad549a5d88a32741988b9bcd4f1381326"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-lzWkaI/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch117/stellar/receipt.json",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeJsonSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6",
+      "exportSha256": "30c4ccbbdd41529001f3c725dad36f7548c9d3bd2e25b2789e38012a19d70b2d"
+    }
+  },
+  "patches": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/117-shield-actions/kirara-classic.patch",
+      "sha256": "78251d5d9ece07314aeed9af02a448def234a11b0a8a8fdf29a8af210bec7dcd",
+      "gitApplyCheck": "passed against frozen pre-117 classic root"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/117-shield-actions/kirara-stellar.patch",
+      "sha256": "78251d5d9ece07314aeed9af02a448def234a11b0a8a8fdf29a8af210bec7dcd",
+      "gitApplyCheck": "passed against frozen pre-117 Stellar root"
+    },
+    "patches_equal": true,
+    "changed_files": [
+      "internal/characters/kirara/skill.go"
+    ],
+    "thoma_patch": null
+  },
+  "source_locations": {
+    "thoma": [
+      {
+        "file": "internal/characters/thoma/skill.go",
+        "sha256": "25e1b76765ca663011664eef2c14ad59ab8cb50e17870ca2cfdd0a17b878873a",
+        "lines": "28-58",
+        "finding": "Skill queues exactly one Blazing Blessing AttackTagElementalArt with snapshot and damage delays of 11 frames, directly during the active action invocation; this is covered by the ordinary AbilityInvocation queue receipt."
+      },
+      {
+        "file": "internal/characters/thoma/skill.go",
+        "lines": "46-49",
+        "finding": "Separate +9 Core task computes the skill shield and invokes genShield; it is not a damage producer."
+      },
+      {
+        "file": "internal/characters/thoma/shield.go",
+        "sha256": "4bab7cada952731ea747f4a2420c8f72cfc354dd39c4249d225b4f400b9701e3",
+        "lines": "12-59",
+        "finding": "genShield performs non-damage shield refresh math and queues a +1 Core task which only calls Shields.Add. This branch has no terminal attack; no extra shield lifecycle dependency is needed for Thoma E damage."
+      },
+      {
+        "file": "internal/characters/thoma/asc.go",
+        "sha256": "e8bc3ee1e557fd33741bbeff4c25cca59aa55fee044d5811af7883f77873c40f",
+        "lines": "11-30",
+        "finding": "A1 changes shield-strength stacks only. C1 changes skill cooldown only; C6 attack modifier applies only Normal/Extra/Plunge tags, not E."
+      }
+    ],
+    "kirara": [
+      {
+        "file": "internal/characters/kirara/skill.go",
+        "sha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2",
+        "lines": "61-78",
+        "finding": "Native dispatcher normalizes any nonzero short_hold to 1; this branch takes precedence. Otherwise positive hold is capped at 600 frames; zero/nonpositive hold selects Tap."
+      },
+      {
+        "file": "internal/characters/kirara/skill.go",
+        "lines": "102-138",
+        "finding": "Tap E queues one Tail-Flicking Flying Kick direct action attack at +14 frames; shield generation is not damage."
+      },
+      {
+        "file": "internal/characters/kirara/skill.go",
+        "lines": "140-189",
+        "finding": "Short Hold schedules one Urgent Neko Parcel AttackEvent at +17 Core frames and one direct Flipclaw Strike at +48; other delayed work is A1/shield only."
+      },
+      {
+        "file": "internal/characters/kirara/skill.go",
+        "lines": "191-244",
+        "finding": "Long Hold schedules roll tasks at i=16; i<=effectiveDuration+12; i+=30 and one direct Flipclaw Strike at duration+36; duration is already capped in Skill."
+      },
+      {
+        "file": "internal/characters/kirara/skill.go",
+        "sha256": "404b23aceae5f144158e893495f2bf9a1b0d4b1a097a8f002a09cac6965e14a2",
+        "lines": "246-269",
+        "finding": "All rolling ticks reuse one *info.AttackEvent d, mutating only d.Pattern per scheduled task; the A1 callback only changes shield stacks."
+      },
+      {
+        "file": "internal/characters/kirara/asc.go",
+        "sha256": "ab9a3fff346fd49ce69bf48908885d382de3d827fbefd964c02e9d3ae8fb984e",
+        "lines": "15-45",
+        "finding": "A1 grants stacks on roll impacts and creates shield absorption when invoked; it emits no attacks."
+      },
+      {
+        "file": "internal/characters/kirara/cons.go",
+        "sha256": "06458d061719578cd21f40b0d87e33b2491b5c1d790828b6ce7b5a5ab21f9d43",
+        "lines": "17-67",
+        "finding": "C2 is co-op only/unimplemented. C4 Steed of Skanda is a later independent OnEnemyDamage event listener already instrumented at kirara.c4.cardamom; it is explicitly outside the Kirara E intrinsic direct/tick contract."
+      }
+    ]
+  },
+  "instrumentation": {
+    "abilityInvocationFacts": {
+      "kirara.skill.resolved-mode": "0 Tap, 1 Short Hold, 2 Hold, from the exact existing dispatcher branch",
+      "kirara.skill.effective-hold-frames": "0 for Tap/Short Hold; positive hold value after native 600-frame cap",
+      "kirara.skill.roll-task-count": "Tap 0; Short Hold 1 after actual task registration; Hold incremented once per actual loop registration, then recorded on the invocation"
+    },
+    "abilityProducerSites": [
+      {
+        "siteId": "kirara.skill.short-hold.roll",
+        "queueFrame": 17,
+        "expectedQueueOccurrences": 1
+      },
+      {
+        "siteId": "kirara.skill.hold.roll",
+        "queueFrames": "16+30k through effectiveHold+12 inclusive",
+        "expectedQueueOccurrences": "kirara.skill.roll-task-count invocation fact"
+      }
+    ],
+    "queueOccurrenceApi": "Core.SourceHostQueueAttackEventImmediateOccurrence(d) uses the same original *AttackEvent pointer once with delay zero while giving each QueueAttackEvent call a stable queue-use identity. It does not copy or mutate/restore Info, Snapshot, Pattern, Callbacks, or SourceFrame. Required because the native rolling tasks deliberately reuse one event pointer.",
+    "sourceLaneDifference": "No Thoma or Kirara source-file differences between the two roots; private Kirara patches are byte-identical. Existing character shield/source formula data is untouched."
+  },
+  "contract_proposal": {
+    "thoma_e": {
+      "ability": "Blazing Blessing",
+      "attackTag": "AttackTagElementalArt",
+      "directActionQueueCount": 1,
+      "evidence": "ordinary AbilityInvocation direct queue row; +11 snapshot/+11 damage delay",
+      "scopeNotes": "The +9 shield-calculation task and its +1 Shields.Add child are no-damage work and intentionally do not join/close the direct E damage contract. No shield lifecycle instrumentation added."
+    },
+    "kirara_e": {
+      "tap": {
+        "ability": "Tail-Flicking Flying Kick",
+        "attackTag": "AttackTagElementalArt",
+        "directQueueCount": 1,
+        "rollTaskCount": 0
+      },
+      "short_hold": {
+        "ability": "Flipclaw Strike",
+        "directAttackTag": "AttackTagElementalArt",
+        "rollAbility": "Urgent Neko Parcel",
+        "rollAttackTag": "AttackTagElementalArtHold",
+        "rollProducerSiteId": "kirara.skill.short-hold.roll",
+        "rollTaskCount": 1,
+        "expectedQueueCount": 2
+      },
+      "hold": {
+        "ability": "Flipclaw Strike",
+        "directAttackTag": "AttackTagElementalArt",
+        "rollAbility": "Urgent Neko Parcel",
+        "rollAttackTag": "AttackTagElementalArtHold",
+        "rollProducerSiteId": "kirara.skill.hold.roll",
+        "rollTaskCountFact": "kirara.skill.roll-task-count",
+        "expectedQueueCount": "1 direct + actual registered roll-task-count"
+      },
+      "hold60Example": {
+        "nativeRollTaskFrames": [
+          16,
+          46
+        ],
+        "rollTaskCount": 2,
+        "directFlipclawCount": 1,
+        "expectedQueueCount": 3
+      },
+      "sourceCompleteness": "All three E modes are represented by one direct action-invocation attack plus the actual rolling producer occurrences, once the authorized native QueueAttackEvent occurrence API is integrated in both lanes. No extra shield dependency is needed because generated Shield of Safe Transport has no terminal attack in these E paths.",
+      "scopeNotes": "C4 Cardamom remains a separate later event-listener contract (not E intrinsic direct/tick damage); A1 and shield refresh are shield-only. No gameplay guards or clone of the reused AttackEvent are introduced. ActionInvocation.Params retain raw native input while EntryFacts record resolved branch and actual effective duration/task count."
+    }
+  },
+  "validation": {
+    "gitApplyCheck": "passed in classic and Stellar frozen roots",
+    "gofmt": "not run: gofmt executable is absent from this environment; edits use existing gofmt style",
+    "buildTests": "not run as requested",
+    "centralGofmt": {
+      "command": [
+        "/Users/evan/Library/Caches/gidps-source-host/go1.25.0/darwin-arm64/go/bin/gofmt",
+        "-l",
+        "/Users/evan/Library/Caches/gidps-source-host/117-shield-actions/classic/internal/characters/kirara/skill.go",
+        "/Users/evan/Library/Caches/gidps-source-host/117-shield-actions/stellar/internal/characters/kirara/skill.go"
+      ],
+      "exitCode": 0,
+      "unformattedFiles": []
+    }
+  },
+  "additionalRootReview": {
+    "thomaInit": "Init registers A1, C6 values and a burst-status watcher; only later normal animations under Q can summon Fiery Collapse. E does not create a burst damage queue.",
+    "thomaSourceLimitations": "skill.go says snapshot unknown and damage component not final; C1 cooldown is simplified to unconditional 12 seconds instead of conditional protected-character hits. Kept as fixed-source assumptions, not game verified."
+  }
+}

@@ -1,0 +1,19 @@
+Build preset resolution snapshot
+Date: 2026-09-27
+Scope: the then-current preset module, before later targeted corrections to role slugs, artifact set ID, and main-stat rationale. This log does not validate those later edits, the page, team wiring, or import wiring.
+
+Command:
+npx tsx -e 'import { characterBuildPresets } from "./packages/game-data/src/character-build-presets.ts"; import { resolveEquipmentBuild } from "./packages/game-data/src/equipment-build.ts"; const failures=[]; const counts={starter:0,developed:0}; for (const p of characterBuildPresets) { try { const x=resolveEquipmentBuild(p.build); counts[p.tier]++; if (x.build.equipment.artifacts.length!==5) failures.push(`${p.id}: resolved ${x.build.equipment.artifacts.length} artifacts`); } catch (e) { failures.push(`${p.id}: ${e instanceof Error ? e.message : String(e)}`); } } console.log(JSON.stringify({presetCount:characterBuildPresets.length, resolved:counts, failureCount:failures.length, failures},null,2));'
+
+Output:
+{
+  "presetCount": 248,
+  "resolved": {
+    "starter": 124,
+    "developed": 124
+  },
+  "failureCount": 0,
+  "failures": []
+}
+
+Interpretation: 248 inputs resolved through `resolveEquipmentBuild` at that point in time; this establishes only equipment input resolvability. It does not establish optimality, in-game accuracy, source mechanic completeness, or that the later targeted corrections still resolve.

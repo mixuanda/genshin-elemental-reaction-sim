@@ -1,0 +1,44 @@
+{
+  "baseCommit": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "cwd": "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-durin-correction-7638ps4n",
+  "changedFiles": {
+    "packages/mechanics/src/characters/durin.ts": "aa8cbd86a8b4c1d795606aaafc1e32fa06d02d03cddd85fa791e6ec58990e5eb",
+    "packages/mechanics/src/characters/durin-audit.ts": "c2ba92a1636b3aa6aa4f7178c64a7fa7f1c3bc5e974365db200ef81b8ee02688",
+    "packages/mechanics/src/characters/durin.test.ts": "f40874d965a6a4619912a2524e68f7bc8f9465eaeacc663050bbfb4be6f613fd",
+    "apps/web/e2e/simulator.spec.ts": "a17f286a078ea1600b0ed0cd039758717ec53c0dd20b281adc0ad4d8b5c8dac5"
+  },
+  "harnessOverride": "Playwright port4181; reuseExistingServer=false; application code otherwise frozen base + four scoped correction files.",
+  "checks": [
+    {
+      "command": "npx vitest run packages/mechanics/src/characters/durin.test.ts packages/mechanics/src/compiler.test.ts packages/mechanics/src/index.test.ts",
+      "cwd": "/Users/evan/Documents/gidps",
+      "startedAt": "2026-09-22T14:42:19Z",
+      "exitCode": 0,
+      "testFilesPassed": 3,
+      "testsPassed": 35,
+      "vitestReportedDurationSeconds": 1.86,
+      "evidence": "Captured tool stdout: Test Files 3 passed (3); Tests 35 passed (35)."
+    },
+    {
+      "command": "npm run typecheck",
+      "cwd": "/Users/evan/Documents/gidps",
+      "exitCode": 1,
+      "evidence": "Intermediate concurrent application check: calculator-ui.ts(105,1560) special/blocked union branch accesses reasons; no mechanics file error. Reported to calculator_ui owner; final integrated gate must rerun."
+    },
+    {
+      "command": "npm run test:e2e -- --grep Durin white E",
+      "startedAt": "2026-09-22T14:44:31.921177+00:00",
+      "elapsedSeconds": 10.262,
+      "exitCode": 1,
+      "log": "docs/cross-validation/durin-white-e-browser-attempt-1.log",
+      "resolution": "Corrected expected auraApplied cell from none to Pyro1U; source-backed core output was correct."
+    },
+    {
+      "command": "npm run test:e2e -- --grep Durin white E",
+      "startedAt": "2026-09-22T14:45:08.905277+00:00",
+      "elapsedSeconds": 4.543,
+      "exitCode": 0,
+      "log": "docs/cross-validation/durin-white-e-browser.log"
+    }
+  ]
+}

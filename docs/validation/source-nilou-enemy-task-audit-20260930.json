@@ -1,0 +1,208 @@
+{
+  "batch": 124,
+  "date": "2026-09-30",
+  "status": "private implementation ready; parent integration/build/runtime validation pending",
+  "authority": "pinned local source; not game-verified",
+  "roots": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/build-CHWLQf/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch124/classic/receipt.json",
+      "reviewedFiles": [
+        {
+          "path": "internal/characters/nilou/burst.go",
+          "sha256": "1cb7d952d35a82945bf786d04d90f0c0017ccd2b7c544b591c8464ff3a0d1531"
+        },
+        {
+          "path": "internal/characters/nilou/nilou.go",
+          "sha256": "ca20825f8d743f5105a7f51f744e487b6a79b739d561d4aaf8929ef829a50509"
+        },
+        {
+          "path": "internal/characters/nilou/cons.go",
+          "sha256": "da93a749cec3566811ae4acfd7e352e1806fe11f851ae8abf70c185d8ee2cab1"
+        },
+        {
+          "path": "internal/characters/nilou/asc.go",
+          "sha256": "7e4ea79dabdfc1eab2d3df3c24679a22702e2188e476fcaaff71e31fc5ccd468"
+        },
+        {
+          "path": "internal/characters/nilou/skill.go",
+          "sha256": "0d64a174d77d4c1592a6878454e5f28d3409f8a7eff93d89f71c9524134adbeb"
+        },
+        {
+          "path": "internal/characters/mavuika/burst.go",
+          "sha256": "d09cc8c0e40859f4e6acbba86a099ab6d20c8dc69a1b790d6ac7c7772cb38c9f"
+        },
+        {
+          "path": "internal/characters/mavuika/skill.go",
+          "sha256": "67aa83afe67d62bc40b984bd2850acd2c1c150005620af196ee86c064abf7d17"
+        },
+        {
+          "path": "internal/characters/mavuika/cons.go",
+          "sha256": "73456ecd2b8d5f03012ae958936610223dabd354131549825f27eb48fc52bab3"
+        },
+        {
+          "path": "internal/characters/mavuika/mavuika.go",
+          "sha256": "895c539c786df0c5f7907a332e145515603aae74adc650217ba7a12844bd9af9"
+        },
+        {
+          "path": "internal/characters/mavuika/asc.go",
+          "sha256": "05c95fe1f4dae2450ecd73c18ee86dc69abf31c22bf247562fbdf8eb16702909"
+        },
+        {
+          "path": "pkg/enemy/hitlag.go",
+          "sha256": "0b4d393ae662e45598ed0c496088e0d7d62611f75eba22f8083a9fbfb0f27799"
+        },
+        {
+          "path": "pkg/enemy/attack.go",
+          "sha256": "3a136213ce7f728a65a37260a0e510367661b45a3eac5aca5a89b686ae74d639"
+        },
+        {
+          "path": "pkg/core/combat/attack.go",
+          "sha256": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8"
+        },
+        {
+          "path": "pkg/core/sourcehost/ability_producer.go",
+          "sha256": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504"
+        },
+        {
+          "path": "pkg/core/info/sourcehost_origin.go",
+          "sha256": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961"
+        }
+      ]
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-9hFTdx/source",
+      "receipt": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch124/stellar/receipt.json",
+      "reviewedFiles": [
+        {
+          "path": "internal/characters/nilou/burst.go",
+          "sha256": "1cb7d952d35a82945bf786d04d90f0c0017ccd2b7c544b591c8464ff3a0d1531"
+        },
+        {
+          "path": "internal/characters/nilou/nilou.go",
+          "sha256": "ca20825f8d743f5105a7f51f744e487b6a79b739d561d4aaf8929ef829a50509"
+        },
+        {
+          "path": "internal/characters/nilou/cons.go",
+          "sha256": "da93a749cec3566811ae4acfd7e352e1806fe11f851ae8abf70c185d8ee2cab1"
+        },
+        {
+          "path": "internal/characters/nilou/asc.go",
+          "sha256": "7e4ea79dabdfc1eab2d3df3c24679a22702e2188e476fcaaff71e31fc5ccd468"
+        },
+        {
+          "path": "internal/characters/nilou/skill.go",
+          "sha256": "0d64a174d77d4c1592a6878454e5f28d3409f8a7eff93d89f71c9524134adbeb"
+        },
+        {
+          "path": "internal/characters/mavuika/burst.go",
+          "sha256": "e1fdd9a6da58ad9d800580d46290d85e377088821c0be9a3e151b57db1b432eb"
+        },
+        {
+          "path": "internal/characters/mavuika/skill.go",
+          "sha256": "ff9287b1f0a4eefd027bbfa9d6b5a9e10efcfcfdbf0a1a345e8793b60bb9a5d1"
+        },
+        {
+          "path": "internal/characters/mavuika/cons.go",
+          "sha256": "32823d0bb01c51ad0b3bd98e0cbdee85baa73f7591d68ff9b4aeb2364ce50f53"
+        },
+        {
+          "path": "internal/characters/mavuika/mavuika.go",
+          "sha256": "f673519b7c99ed90213a712d6b76bbc69cf30640cf90361ffc7a5c16827b84a6"
+        },
+        {
+          "path": "internal/characters/mavuika/asc.go",
+          "sha256": "05c95fe1f4dae2450ecd73c18ee86dc69abf31c22bf247562fbdf8eb16702909"
+        },
+        {
+          "path": "pkg/enemy/hitlag.go",
+          "sha256": "0b4d393ae662e45598ed0c496088e0d7d62611f75eba22f8083a9fbfb0f27799"
+        },
+        {
+          "path": "pkg/enemy/attack.go",
+          "sha256": "3a136213ce7f728a65a37260a0e510367661b45a3eac5aca5a89b686ae74d639"
+        },
+        {
+          "path": "pkg/core/combat/attack.go",
+          "sha256": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8"
+        },
+        {
+          "path": "pkg/core/sourcehost/ability_producer.go",
+          "sha256": "3e6b56cb92f2e957307bdbd4c73c5d1170cd18a8e600df4212269d28a1f19504"
+        },
+        {
+          "path": "pkg/core/info/sourcehost_origin.go",
+          "sha256": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961"
+        }
+      ]
+    }
+  },
+  "implemented": {
+    "nilouBurst": {
+      "contract": "nilou-burst",
+      "nativeSource": "internal/characters/nilou/burst.go",
+      "callbackSite": "nilou.burst.lingering-aeon-hit",
+      "taskCountFact": "nilou.burst.lingering-aeon-task-count",
+      "producerSite": "nilou.burst.lingering-aeon-task",
+      "notes": [
+        "初击在调用时读取生命值倍率，91帧后 AoE；每个实际敌人命中回调独立登记 lingering-aeon 任务，不写死两击或固定目标数。",
+        "第二段保留敌人自己的局部时钟：原 121 local frames 后任务执行时重读生命值/天赋，立刻向该父回调目标发出一次单体攻击；停帧不会被误换算为全局 +121。",
+        "完整范围包含本次初击及其所有实际敌人回调任务；初击落空、跳过或命中确认阻断不会产生任务。目标死亡后敌人队列不 tick，未执行任务继续 pending，不能宣告完整。",
+        "不伪造 Origin；原生 callback→producer→taskId→enemy queue targetKey 的明确链接建立所有权，entry Origin 仅用于隔离同步嵌套反应/独立追击。",
+        "lingeringaeon 状态只在原命中处添加；延迟任务未检查状态或新 Q，因此重叠 Q 不取消旧任务，全部按真实父回调独立追踪。",
+        "同击支持的增幅/加算反应仍进入该击；独立反应、丰穰之核、装备或其他事件追击保留独立范围。固定源码证据不是实机机制验证。"
+      ],
+      "nativeGameplaySemantics": "Original callback/type gate/status and task body retained; no additional MaxHP, talent, target-key or time getter reads. Instrumentation calls only SourceHost metadata. Native source enemy QueueEnemyTask immediate/delayed scheduling and unbound Origin retained.",
+      "ownership": "RegisterHitCallbackAbilityProducer binds original parentQueue census and actor to invocation. Callback-bound collection retains only matching producer+actor, exact wrapper-entry Origin, and zero entity/owned/hit/shield/event owner; nested direct reactions change parentAttackID and stay excluded. TS requires exact parent attack/dispatch/target callback, selected invocation actor, taskId, enemy queue target and local 121 frame delay. Missing fact invalidates closure while observed exact-ancestry children remain members.",
+      "replay": "Child retains its original unbound/actual execution Origin, queued/dispatch/application Origin equality follows existing finite-cast checks; no fabricated creationActionSequence.",
+      "completeScope": "Runtime 1+number of completed callbacks which registered their unique tasks; must await every task and every child dispatch/target/batch. Blocked/missed/skipped parents legal no task. Dead target pending prevents closure."
+    }
+  },
+  "unresolved": {
+    "mavuikaBurst": {
+      "registered": false,
+      "reason": "Q owns mode/resource transitions which can create later autonomous damage, so Sunfell Slice alone is not full Q.",
+      "paths": [
+        "burst.go:Burst/enterBike at entry; enterNightsoulOrRegenerate(10) at local87; burst status420 at105; Sunfell Slice at106",
+        "skill.go:enterBike→c6Bike; exitBike→skillRingTask+c2Ring; ring task120 local recurring until ringSrc/armament/blessing gates fail",
+        "cons.go:c6Bike/c6RingAtk every180 local; c6Src+mode+blessing gates; c6RingCB additional Flamestrider after3f with30f ICD",
+        "mavuika.go:onExitField deletes burst status and can exitBike into autonomous ring; ActionReady Q uses Fighting Spirit>=100 unless IgnoreBurstEnergy",
+        "skill.go:nightsoulPointReduceTask consumes every6 local, frozen consumption during burst, exitNightsoul invalidates nightsoulSrc; E can regenerate/replace modes",
+        "asc.go:a4DecayTask only alters buff and by itself is not an ownership blocker"
+      ],
+      "needed": "Explicit invocation-owned mode and nightsoul resource lifecycle with replacement/transition/exit receipts; connect swap-driven ring and C6 callback/task emitters before full Q closure. Shared event/task ancestry alone must not attribute all subsequent actions to Q.",
+      "laneDifferences": [
+        "Stellar uses AttackTagNightsoul instead of AdditionalTagNightsoul",
+        "Stellar skillBikeRefresh also applies skillRecastCD status",
+        "Stellar isRingFollowing for C<6 additionally requires nightsoul blessing",
+        "Stellar ActionReady charge calls canBeginBikedCharge using skipped buffered windup and remaining nightsoul duration",
+        "Stellar NewChar uses NewWithWrapper, Classic constructs template then assigns wrapper"
+      ]
+    }
+  },
+  "checks": {
+    "gofmt": "private changed Go files only",
+    "applyCheck": {
+      "repo": "passed against current repo (including concurrent calculate edits)",
+      "classic": "passed against frozen PRE124 build-CHWLQf/source",
+      "stellar": "passed against frozen PRE124 stellar-build-9hFTdx/source"
+    },
+    "buildsExecuted": 0,
+    "testsExecuted": 0,
+    "runtimeExecuted": 0
+  },
+  "artifacts": [
+    {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/124-producer/124-producer-classic.patch",
+      "sha256": "dc4e79d7e996d578e8d1e8d4271f8da28845db0a8bd5ba84f478fe7fe160d5ea"
+    },
+    {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/124-producer/124-producer-repo.patch",
+      "sha256": "4e28e0e049b2c0cda0cb7ba5e48965968c1bfad60c3341f4f478592e7717d0b4"
+    },
+    {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/124-producer/124-producer-stellar.patch",
+      "sha256": "dc4e79d7e996d578e8d1e8d4271f8da28845db0a8bd5ba84f478fe7fe160d5ea"
+    }
+  ]
+}

@@ -1,0 +1,1055 @@
+{
+  "measurements": {
+    "summaries": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "e55c5d988844573bead2bc479aa13bf0eca9502c9fb7a5f0dd4c443b309b331e",
+          "wasmBytes": 46364678
+        },
+        "observations": 14,
+        "phaseFrames": [
+          7,
+          30,
+          40,
+          46,
+          100,
+          106,
+          160,
+          166,
+          220,
+          226,
+          280,
+          391,
+          404,
+          405
+        ],
+        "normalConstructorCaptures": [
+          {
+            "captured": {
+              "attackSpeed": 0,
+              "frameTable": [
+                [
+                  23,
+                  6,
+                  6,
+                  15,
+                  18,
+                  23,
+                  23,
+                  6,
+                  6,
+                  6,
+                  6,
+                  23,
+                  23,
+                  23,
+                  23
+                ],
+                [
+                  28,
+                  11,
+                  11,
+                  21,
+                  24,
+                  28,
+                  28,
+                  11,
+                  11,
+                  11,
+                  11,
+                  28,
+                  28,
+                  28,
+                  28
+                ],
+                [
+                  30,
+                  12,
+                  12,
+                  22,
+                  28,
+                  30,
+                  30,
+                  12,
+                  12,
+                  12,
+                  12,
+                  30,
+                  30,
+                  30,
+                  30
+                ],
+                [
+                  60,
+                  32,
+                  32,
+                  60,
+                  500,
+                  60,
+                  60,
+                  32,
+                  2,
+                  3,
+                  2,
+                  57,
+                  60,
+                  60,
+                  60
+                ]
+              ],
+              "normalCounter": 0,
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAttackFunc"
+          }
+        ],
+        "abilityConstructorCaptures": [
+          {
+            "captured": {
+              "frameTable": [
+                40,
+                40,
+                40,
+                37,
+                38,
+                40,
+                40,
+                40,
+                35,
+                20,
+                20,
+                40,
+                40,
+                40,
+                40
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                40,
+                40,
+                40,
+                37,
+                38,
+                40,
+                40,
+                40,
+                35,
+                20,
+                20,
+                40,
+                40,
+                40,
+                40
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                40,
+                40,
+                40,
+                37,
+                38,
+                40,
+                40,
+                40,
+                35,
+                20,
+                20,
+                40,
+                40,
+                40,
+                40
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                68,
+                67,
+                68,
+                65,
+                68,
+                68,
+                68,
+                65,
+                54,
+                53,
+                66,
+                68,
+                68,
+                68,
+                68
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                79,
+                80,
+                80,
+                80,
+                80
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          }
+        ],
+        "offsetCaptures": [],
+        "defaultPauseCaptures": [
+          {
+            "captured": {
+              "actorIndex": 0,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 1,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 1,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 1,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 2,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 3,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          }
+        ],
+        "numericFrameTables": [
+          [
+            [
+              23,
+              6,
+              6,
+              15,
+              18,
+              23,
+              23,
+              6,
+              6,
+              6,
+              6,
+              23,
+              23,
+              23,
+              23
+            ],
+            [
+              28,
+              11,
+              11,
+              21,
+              24,
+              28,
+              28,
+              11,
+              11,
+              11,
+              11,
+              28,
+              28,
+              28,
+              28
+            ],
+            [
+              30,
+              12,
+              12,
+              22,
+              28,
+              30,
+              30,
+              12,
+              12,
+              12,
+              12,
+              30,
+              30,
+              30,
+              30
+            ],
+            [
+              60,
+              32,
+              32,
+              60,
+              500,
+              60,
+              60,
+              32,
+              2,
+              3,
+              2,
+              57,
+              60,
+              60,
+              60
+            ]
+          ],
+          [
+            40,
+            40,
+            40,
+            37,
+            38,
+            40,
+            40,
+            40,
+            35,
+            20,
+            20,
+            40,
+            40,
+            40,
+            40
+          ],
+          [
+            40,
+            40,
+            40,
+            37,
+            38,
+            40,
+            40,
+            40,
+            35,
+            20,
+            20,
+            40,
+            40,
+            40,
+            40
+          ],
+          [
+            40,
+            40,
+            40,
+            37,
+            38,
+            40,
+            40,
+            40,
+            35,
+            20,
+            20,
+            40,
+            40,
+            40,
+            40
+          ],
+          [
+            68,
+            67,
+            68,
+            65,
+            68,
+            68,
+            68,
+            65,
+            54,
+            53,
+            66,
+            68,
+            68,
+            68,
+            68
+          ],
+          [
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            79,
+            80,
+            80,
+            80,
+            80
+          ]
+        ],
+        "applications": 14,
+        "unknownGaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 23 key \"collei-a1\" has an undescribed callback",
+          "events: event 23 key \"collei-a4\" has an undescribed callback",
+          "events: event 24 key \"collei-a1\" has an undescribed callback",
+          "events: event 24 key \"collei-a4\" has an undescribed callback",
+          "events: event 25 key \"collei-a1\" has an undescribed callback",
+          "events: event 25 key \"collei-a4\" has an undescribed callback",
+          "events: event 26 key \"collei-a1\" has an undescribed callback",
+          "events: event 26 key \"collei-a4\" has an undescribed callback",
+          "events: event 27 key \"collei-a1\" has an undescribed callback",
+          "events: event 27 key \"collei-a4\" has an undescribed callback",
+          "events: event 28 key \"collei-a1\" has an undescribed callback",
+          "events: event 28 key \"collei-a4\" has an undescribed callback",
+          "events: event 29 key \"collei-a1\" has an undescribed callback",
+          "events: event 29 key \"collei-a4\" has an undescribed callback",
+          "events: event 31 key \"collei-a1\" has an undescribed callback",
+          "events: event 31 key \"collei-a4\" has an undescribed callback",
+          "events: event 41 key \"barbara-a4\" has an undescribed callback",
+          "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+          "player: character[0].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[0].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+          "player: character[1].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstExtendCount: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.X: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.Y: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.sproutSrc: private numeric clock semantics have not been reviewed",
+          "player: character[3].concrete.*.guobaFlameRange: private numeric clock semantics have not been reviewed",
+          "player: character[3].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[3].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "targets: enemies[0].target.tag-value-temporal-semantics",
+          "tasks: queued task \"\" has an undescribed closure",
+          "tasks: queued task \"attack-application\": attack callback[0] has undescribed captured state",
+          "player: queued task \"\" has an undescribed closure"
+        ],
+        "completeBoundaries": 0,
+        "phaseAnalysis": {
+          "status": "not-established",
+          "evidence": "provisional-source-state",
+          "periodCycles": null,
+          "steadyStateDps": null,
+          "periodDamage": null,
+          "periodFrames": null,
+          "warmupBoundaryFrame": null,
+          "matchedBoundaryFrames": [],
+          "observationCount": 14,
+          "reasons": [
+            "原生边界并非同一解释器重复输入位置。"
+          ],
+          "stateDifferences": [],
+          "intervalDifferences": []
+        },
+        "frozen119Comparisons": {
+          "framesEqual": true,
+          "applicationsEqual": true
+        }
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546",
+          "wasmBytes": 70412296
+        },
+        "observations": 14,
+        "phaseFrames": [
+          7,
+          30,
+          40,
+          46,
+          100,
+          106,
+          160,
+          166,
+          220,
+          226,
+          280,
+          391,
+          404,
+          405
+        ],
+        "normalConstructorCaptures": [
+          {
+            "captured": {
+              "attackSpeed": 0,
+              "frameTable": [
+                [
+                  23,
+                  6,
+                  6,
+                  15,
+                  18,
+                  23,
+                  23,
+                  6,
+                  6,
+                  6,
+                  6,
+                  23,
+                  23,
+                  23,
+                  23,
+                  23
+                ],
+                [
+                  28,
+                  11,
+                  11,
+                  21,
+                  24,
+                  28,
+                  28,
+                  11,
+                  11,
+                  11,
+                  11,
+                  28,
+                  28,
+                  28,
+                  28,
+                  28
+                ],
+                [
+                  30,
+                  12,
+                  12,
+                  22,
+                  28,
+                  30,
+                  30,
+                  12,
+                  12,
+                  12,
+                  12,
+                  30,
+                  30,
+                  30,
+                  30,
+                  30
+                ],
+                [
+                  60,
+                  32,
+                  32,
+                  60,
+                  60,
+                  60,
+                  60,
+                  32,
+                  2,
+                  3,
+                  2,
+                  57,
+                  60,
+                  60,
+                  60,
+                  60
+                ]
+              ],
+              "normalCounter": 0,
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAttackFunc"
+          }
+        ],
+        "abilityConstructorCaptures": [
+          {
+            "captured": {
+              "frameTable": [
+                40,
+                40,
+                40,
+                37,
+                38,
+                40,
+                40,
+                40,
+                35,
+                20,
+                20,
+                40,
+                40,
+                40,
+                40,
+                40
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                40,
+                40,
+                40,
+                37,
+                38,
+                40,
+                40,
+                40,
+                35,
+                20,
+                20,
+                40,
+                40,
+                40,
+                40,
+                40
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                40,
+                40,
+                40,
+                37,
+                38,
+                40,
+                40,
+                40,
+                35,
+                20,
+                20,
+                40,
+                40,
+                40,
+                40,
+                40
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                68,
+                67,
+                68,
+                65,
+                68,
+                68,
+                68,
+                65,
+                54,
+                53,
+                66,
+                68,
+                68,
+                68,
+                68,
+                68
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          },
+          {
+            "captured": {
+              "frameTable": [
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                80,
+                79,
+                80,
+                80,
+                80,
+                80,
+                80
+              ],
+              "offset": 0
+            },
+            "source": "internal/frames/frames.go:NewAbilFunc"
+          }
+        ],
+        "offsetCaptures": [],
+        "defaultPauseCaptures": [
+          {
+            "captured": {
+              "actorIndex": 0,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 1,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 1,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 1,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 2,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          },
+          {
+            "captured": {
+              "actorIndex": 3,
+              "predicate": "character.frozenFrames > 0"
+            },
+            "source": "pkg/core/player/character/hitlag.go:FramePausedOnHitlag"
+          }
+        ],
+        "numericFrameTables": [
+          [
+            [
+              23,
+              6,
+              6,
+              15,
+              18,
+              23,
+              23,
+              6,
+              6,
+              6,
+              6,
+              23,
+              23,
+              23,
+              23,
+              23
+            ],
+            [
+              28,
+              11,
+              11,
+              21,
+              24,
+              28,
+              28,
+              11,
+              11,
+              11,
+              11,
+              28,
+              28,
+              28,
+              28,
+              28
+            ],
+            [
+              30,
+              12,
+              12,
+              22,
+              28,
+              30,
+              30,
+              12,
+              12,
+              12,
+              12,
+              30,
+              30,
+              30,
+              30,
+              30
+            ],
+            [
+              60,
+              32,
+              32,
+              60,
+              60,
+              60,
+              60,
+              32,
+              2,
+              3,
+              2,
+              57,
+              60,
+              60,
+              60,
+              60
+            ]
+          ],
+          [
+            40,
+            40,
+            40,
+            37,
+            38,
+            40,
+            40,
+            40,
+            35,
+            20,
+            20,
+            40,
+            40,
+            40,
+            40,
+            40
+          ],
+          [
+            40,
+            40,
+            40,
+            37,
+            38,
+            40,
+            40,
+            40,
+            35,
+            20,
+            20,
+            40,
+            40,
+            40,
+            40,
+            40
+          ],
+          [
+            40,
+            40,
+            40,
+            37,
+            38,
+            40,
+            40,
+            40,
+            35,
+            20,
+            20,
+            40,
+            40,
+            40,
+            40,
+            40
+          ],
+          [
+            68,
+            67,
+            68,
+            65,
+            68,
+            68,
+            68,
+            65,
+            54,
+            53,
+            66,
+            68,
+            68,
+            68,
+            68,
+            68
+          ],
+          [
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            80,
+            79,
+            80,
+            80,
+            80,
+            80,
+            80
+          ]
+        ],
+        "applications": 14,
+        "unknownGaps": [
+          "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+          "events: event 24 key \"collei-a1\" has an undescribed callback",
+          "events: event 24 key \"collei-a4\" has an undescribed callback",
+          "events: event 25 key \"collei-a1\" has an undescribed callback",
+          "events: event 25 key \"collei-a4\" has an undescribed callback",
+          "events: event 26 key \"collei-a1\" has an undescribed callback",
+          "events: event 26 key \"collei-a4\" has an undescribed callback",
+          "events: event 27 key \"collei-a1\" has an undescribed callback",
+          "events: event 27 key \"collei-a4\" has an undescribed callback",
+          "events: event 28 key \"collei-a1\" has an undescribed callback",
+          "events: event 28 key \"collei-a4\" has an undescribed callback",
+          "events: event 29 key \"collei-a1\" has an undescribed callback",
+          "events: event 29 key \"collei-a4\" has an undescribed callback",
+          "events: event 30 key \"collei-a1\" has an undescribed callback",
+          "events: event 30 key \"collei-a4\" has an undescribed callback",
+          "events: event 32 key \"collei-a1\" has an undescribed callback",
+          "events: event 32 key \"collei-a4\" has an undescribed callback",
+          "events: event 44 key \"barbara-a4\" has an undescribed callback",
+          "player: character[0].concrete.*.a4extendCount: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[0]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[10]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[11]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[12]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[13]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[14]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[15]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[16]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[17]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[18]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[19]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[1]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[20]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[21]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[22]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[23]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[24]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[25]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[2]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[3]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[4]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[5]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[6]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[7]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[8]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c2buff[9]: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed",
+          "player: character[0].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[0].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.c6icd: private numeric clock semantics have not been reviewed",
+          "player: character[1].concrete.*.previousDischargeCount: private numeric clock semantics have not been reviewed",
+          "player: character[1].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[1].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstExtendCount: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.X: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.burstPos.Y: private numeric clock semantics have not been reviewed",
+          "player: character[2].concrete.*.sproutSrc: private numeric clock semantics have not been reviewed",
+          "player: character[3].concrete.*.guobaFlameRange: private numeric clock semantics have not been reviewed",
+          "player: character[3].modifier[0]: Amount callback has no source-reviewed live capture descriptor",
+          "player: character[3].weapon.*.Index: private numeric clock semantics have not been reviewed",
+          "targets: enemies[0].target.tag-value-temporal-semantics",
+          "tasks: queued task \"\" has an undescribed closure",
+          "tasks: queued task \"attack-application\": attack callback[0] has undescribed captured state",
+          "player: queued task \"\" has an undescribed closure"
+        ],
+        "completeBoundaries": 0,
+        "phaseAnalysis": {
+          "status": "not-established",
+          "evidence": "provisional-source-state",
+          "periodCycles": null,
+          "steadyStateDps": null,
+          "periodDamage": null,
+          "periodFrames": null,
+          "warmupBoundaryFrame": null,
+          "matchedBoundaryFrames": [],
+          "observationCount": 14,
+          "reasons": [
+            "原生边界并非同一解释器重复输入位置。"
+          ],
+          "stateDifferences": [],
+          "intervalDifferences": []
+        },
+        "frozen119Comparisons": {
+          "framesEqual": true,
+          "applicationsEqual": true
+        }
+      }
+    ],
+    "frozenPath": "docs/validation/source-shared-phase-state-browser-20260930.capture.json",
+    "capturePath": "docs/validation/source-shared-animation-browser-20260930.capture.json",
+    "scope": "Replays the two archived 119 lanes with the same config, seed and phase request. Captures shared frame-table state; remaining provider gaps do not establish full animation coverage.",
+    "nativeRunsPerformed": true,
+    "phaseJsonRoundtripEqual": true,
+    "pageText": "GENSHIN DAMAGE LABORATORY\n提瓦特伤害实验室\n\n独立技能计算 · 逐步公式解释 · 可审计的团队模拟\n\n技能计算器\n演算示例\n配装预设\n队伍配置\n行动编辑\n模拟结果\n来源队伍模拟\n结果比较\n数据浏览\n更新状态\n来源队伍模拟\n\n固定版本的来源执行器运行角色、装备、快照、粒子、附着与回调，共享公式核心返回实际使用的出伤结果。原有队伍编辑与独立技能计算继续可用。\n\n来源机制为暂定。共用出伤核心支持普通、增幅、激化、经典剧变，以及直接月伤害、多人月感电／月结晶；月绽放资源事件另列。星辉另由 a7dc4bf 执行器运行；其源码与指南的分歧保留，尚未游戏验证。任意属性转换的前置解释仍不完整，不支持任意帧断点恢复或据此宣称稳态。\n\n来源规则版本\nb4ae769 · 普通/月曜、逐项属性、共享玩家受击\na7dc4bf · 星辉来源规则（暂定、AGPL）\n\n配队卡、装备名册与生成脚本使用所选来源；两个来源分别保留队伍草稿。星辉来源的新增角色也可自由配队。切换不会改动正式或预览数据集。\n\n来源队伍构筑\n\n固定来源 a7dc4bf。从 18 个入门队伍或任意 1–4 位角色开始，按顺序点 E、Q、普攻等动作；实际冷却、能量、动作帧由运行后的来源日志给出。\n\n队伍名称\n参考构筑\n小毕业 · 基础参考\n大毕业 · 进阶参考\n应用到全队\n队伍模板\n选择入门队伍…\n水火蒸发入门\n冰火融化入门\n夏沃蕾超载入门\n水雷感电入门\n刻晴激化入门\n久岐忍超绽放入门\n托马烈绽放入门\n妮露绽放入门\n神里绫华冻结入门\n优菈物理入门\n荒泷一斗岩队入门\n月结晶机制入门\n林尼纯火入门\n魈风队入门\n月感电入门\n月绽放入门\n达达利亚感电入门\n月感电角色轮换示例\n本机多预设库（stellar）\n已保存预设\n选择预设（不会自动载入）\n预设名称\n载入所选\n另存为新预设\n更新所选\n删除所选\n\n选择预设只改变所选记录，不会载入或修改当前队伍。 载入后编辑不会自动改写预设；只有点击“更新所选”才会覆盖该记录，同名另存会新建独立记录。\n\n当前队伍动作检查\n\n尚无动作步骤。选择模板预览或加入角色后，可查看来源方法缺口。\n\n自由加入角色\n选择角色…\n爱诺 · aino\n阿贝多 · albedo\n艾尔海森 · alhaitham\n埃洛伊 · aloy\n安柏 · amber\n阿蕾奇诺 · arlecchino\n神里绫华 · kamisatoayaka\n神里绫人 · kamisatoayato\n白术 · baizhu\n芭芭拉 · barbara\n北斗 · beidou\n班尼特 · bennett\n坎蒂丝 · candace\n夏洛蒂 · charlotte\n恰斯卡 · chasca\n夏沃蕾 · chevreuse\n千织 · chiori\n重云 · chongyun\n茜特菈莉 · citlali\n克洛琳德 · clorinde\n柯莱 · collei\n哥伦比娅 · columbina\n赛诺 · cyno\n塔利雅 · dahlia\n迪希雅 · dehya\n迪卢克 · diluc\n迪奥娜 · diona\n多莉 · dori\n杜林 · durin\n艾梅莉埃 · emilie\n爱可菲 · escoffier\n优菈 · eula\n珐露珊 · faruzan\n菲谢尔 · fischl\n菲林斯 · flins\n菲米尼 · freminet\n芙宁娜 · furina\n嘉明 · gaming\n甘雨 · ganyu\n五郎 · gorou\n鹿野院平藏 · shikanoinheizou\n胡桃 · hutao\n伊安珊 · iansan\n伊法 · ifa\n伊涅芙 · ineffa\n荒泷一斗 · aratakiitto\n雅珂达 · jahoda\n琴 · jean\n凯亚 · kaeya\n卡维 · kaveh\n枫原万叶 · kaedeharakazuha\n刻晴 · keqing\n基尼奇 · kinich\n绮良良 · kirara\n可莉 · klee\n珊瑚宫心海 · sangonomiyakokomi\n久岐忍 · kukishinobu\n蓝砚 · lanyan\n菈乌玛 · lauma\n莱依拉 · layla\n丽莎 · lisa\n琳妮特 · lynette\n林尼 · lyney\n玛薇卡 · mavuika\n米卡 · mika\n梦见月瑞希 · yumemizukimizuki\n莫娜 · mona\n玛拉妮 · mualani\n纳西妲 · nahida\n娜维娅 · navia\n那维莱特 · neuvillette\n尼可 · nicole\n妮露 · nilou\n凝光 · ningguang\n诺艾尔 · noelle\n奥黛塔 · odette\n欧洛伦 · ororon\n布伦妮 · prune\n七七 · qiqi\n雷电将军 · raidenshogun\n雷泽 · razor\n罗莎莉亚 · rosaria\n九条裟罗 · kujousara\n早柚 · sayu\n赛索斯 · sethos\n申鹤 · shenhe\n希格雯 · sigewinne\n丝柯克 · skirk\n砂糖 · sucrose\n达达利亚 · tartaglia\n托马 · thoma\n提纳里 · tighnari\n空 (风元素) · aetheranemo\n荧 (风元素) · lumineanemo\n空 (冰元素) · aethercryo\n荧 (冰元素) · luminecryo\n空 (草元素) · aetherdendro\n荧 (草元素) · luminedendro\n空 (雷元素) · aetherelectro\n荧 (雷元素) · lumineelectro\n空 (岩元素) · aethergeo\n荧 (岩元素) · luminegeo\n空 (水元素) · aetherhydro\n荧 (水元素) · luminehydro\n空 (火元素) · aetherpyro\n荧 (火元素) · luminepyro\n瓦雷莎 · varesa\n法尔伽 · varka\n温迪 · venti\n流浪者 · wanderer\n莱欧斯利 · wriothesley\n香菱 · xiangling\n闲云 · xianyun\n魈 · xiao\n希诺宁 · xilonen\n行秋 · xingqiu\n辛焱 · xinyan\n八重神子 · yaemiko\n烟绯 · yanfei\n瑶瑶 · yaoyao\n夜兰 · yelan\n宵宫 · yoimiya\n云堇 · yunjin\n钟离 · zhongli\n观察秒数\n目标等级\n通用抗性（小数）\n目标 1\n目标初始几何\n目标半径（须大于零）\n目标初始来源坐标 x\n目标初始来源坐标 y\n角色\n目标\n\n初始来源坐标（来源坐标单位，不声明为米）。角色：中心 (0, 0)，初始范围半径 0.3。目标：中心 (0, 2.4)，目标半径 2。目标圆不代表技能命中范围。图示只记录初始场景，不表示角色之后保持朝向或位置不变，也不判断某次动作是否命中。\n\n进阶目标参数\n目标阶段情景\n\n帧按 60 帧/秒计；起始帧包含，结束帧不包含。未被阶段覆盖的时间按正常行为处理。以下是用户设定情景，不表示已核实敌人机制。\n\n各项效果说明\n添加 60 帧阶段\n多目标初始场景\n统计目标\n目标 1 · 首个声明目标 · 当前统计\n\n此项只选择结果统计所用目标，不改变来源执行器的默认锁定、朝向或命中对象。\n\n1\n角色\n目标 1 · 统计目标：初始中心 (0, 2.4)，半径 2\n\n初始来源坐标使用来源单位，不声明为米。圆形只表示目标初始几何，不表示任何技能命中范围；统计目标选择不自动更改原生锁定、朝向或后续移动。\n\n添加目标会复制当前首目标的全部参数为可编辑输入，不会套用或伪造新的敌人预设。\n\n添加目标（复制目标 1 参数）\n观察窗预设\n自定义\n15秒观察窗\n18秒观察窗\n20秒观察窗\n60秒观察窗\n90秒观察窗\n120秒观察窗\n初始能量\n满能起步\n零能起步\n逐角色自定义\n动作执行难度\n动作延迟预设\n理想 · 零帧延迟\n实用 · 来源 human 固定值 8/5 帧\n保守 · 参考假设 12/8 帧\n自定义\n\n延迟影响实际来源动作队列与输入窗口，不对伤害作折扣。实用档采用固定来源 human 数值：切人 8 帧、其他七类输入 5 帧；切人延迟沿用来源换人动画，不重复加算，其他输入是在就绪后增加延迟。保守档的 12/8 帧是本工具参考假设，不代表 KQMS 标准。实际帧数以运行回执和来源日志为准。\n\n切人（帧）\n普攻（帧）\n重击（帧）\n元素战技（帧）\n元素爆发（帧）\n跳跃（帧）\n冲刺（帧）\n瞄准（帧）\n\n满能只在开场提供一次，不绕过后续消耗；零能按实际产球启动。自定义超过来源上限时会被来源钳制，特殊爆发资源遵循该角色实现，以实际能量账本为准。观察时长不等于轮转长度，稳态尚未建立时不能自动填充稳态初能。\n\n先选择一个模板，或从角色列表自由加入。\n\n有序动作卡\n整套动作的执行方式\n执行一次\n重复指定次数\n循环至观察窗结束\n\n按钮将动作添加到末尾。动作行的重复只影响该行动；整套循环沿用前轮的实际能量、冷却和场上状态，不在轮间补能。观察窗可能截断末轮；重复运行不等于已证明稳态。\n\n等待\n生成并填入 GCSL\n保存草稿到本机\n读取本机草稿\n导出 JSON\n导入 JSON\n\n本次来源实际动作时间线\n每一步实际何时轮到你\n\n共 7 个来源动作实例，含自动切人。排队、施放和下一输入窗口由同一实例编号关联；下方显示前 80 个。它们对应本次实际脚本，编辑草稿后需重新运行。\n\n1. 芭芭拉 · N 普攻\n进入动作队列\n1 帧 · 0.017 秒\n实际施放\n1 帧 · 0.017 秒\n排队后经过\n0 帧\n下一输入窗口\n7 帧 · 0.117 秒\n2. 丽莎 · 切人\n进入动作队列\n7 帧 · 0.117 秒\n实际施放\n7 帧 · 0.117 秒\n排队后经过\n0 帧\n下一输入窗口\n8 帧 · 0.133 秒\n3. 丽莎 · E 技能\n进入动作队列\n8 帧 · 0.133 秒\n实际施放\n8 帧 · 0.133 秒\n排队后经过\n0 帧\n下一输入窗口\n28 帧 · 0.467 秒\n4. 柯莱 · 切人\n进入动作队列\n226 帧 · 3.767 秒\n实际施放\n226 帧 · 3.767 秒\n排队后经过\n0 帧\n下一输入窗口\n227 帧 · 3.783 秒\n5. 柯莱 · E 技能\n进入动作队列\n227 帧 · 3.783 秒\n实际施放\n227 帧 · 3.783 秒\n排队后经过\n0 帧\n下一输入窗口\n280 帧 · 4.667 秒\n6. 香菱 · 切人\n进入动作队列\n280 帧 · 4.667 秒\n实际施放\n293 帧 · 4.883 秒\n排队后经过\n13 帧\n下一输入窗口\n294 帧 · 4.900 秒\n7. 香菱 · Q 爆发\n进入动作队列\n294 帧 · 4.900 秒\n实际施放\n294 帧 · 4.900 秒\n排队后经过\n0 帧\n下一输入窗口\n391 帧 · 6.517 秒\n\n“排队后经过”包含实际就绪等待与显式动作前延迟；原因见事件账本。下一输入窗口表示可以读取下一条脚本指令，下一动作仍须通过自身检查。秒数按 60 帧参考时钟换算；不是游戏客户端帧率承诺。\n\n34 条实际来源事件：动作、等待、动画、冷却和能量。下表只展示日志已有的数值；冷却「剩余帧」是当时记录值，实际就绪以就绪事件为准。\n\n0 帧\n405 帧\nbarbara · 动画 N 普攻 · 1–7 帧\nbarbara · 执行 N 普攻 · 1 帧\nbarbara · 动画 切人 · 7–8 帧\nlisa · 执行 切人 · 8 帧\nlisa · 动画 E 技能 · 8–49 帧\nlisa · 执行 E 技能 · 8 帧\nlisa · 等待 2 帧 · 28–30 帧\nlisa · 等待 10 帧 · 30–40 帧\nlisa · 等待 6 帧 · 40–46 帧\nlisa · 等待 54 帧 · 46–100 帧\nlisa · 等待 6 帧 · 100–106 帧\nlisa · 等待 54 帧 · 106–160 帧\nlisa · 等待 6 帧 · 160–166 帧\nlisa · 等待 54 帧 · 166–220 帧\nlisa · 等待 6 帧 · 220–226 帧\nlisa · 动画 切人 · 226–227 帧\ncollei · 执行 切人 · 227 帧\ncollei · 动画 E 技能 · 227–293 帧\ncollei · 执行 E 技能 · 227 帧\ncollei · 动画 切人 · 293–294 帧\nxiangling · 执行 切人 · 294 帧\nxiangling · 动画 Q 爆发 · 294–393 帧\nxiangling · 执行 Q 爆发 · 294 帧\nxiangling · 等待 13 帧 · 391–404 帧\nxiangling · 等待 1 帧 · 404–405 帧\n来源帧\t角色\t实际事件\t来源数值\n1\tbarbara\tN 普攻 执行配置延迟\t本次配置 0 帧；含脚本显式 delay 的累计动作前延迟 0 帧。就绪检查后倒计时，实际施放时刻见动作回执。\n1\tbarbara\t动画 N 普攻\t实际结束或中断于第 7 帧（6 帧）；来源动画长度 23 帧；动画内部排队门槛 6 帧；转入下一动作的内部帧门槛：E 技能 6、Q 爆发 6、N 普攻 15、CA 重击 18、瞄准 6、冲刺 6、跳跃 6、低空下落 23、高空下落 23、切人 6\n1\tbarbara\t执行 N 普攻\t切人冷却剩余 0 帧\n7\tbarbara\t动画 切人\t实际结束或中断于第 8 帧（1 帧）；来源动画长度 1 帧；动画内部排队门槛 1 帧；转入下一动作的内部帧门槛：E 技能 1、Q 爆发 1、N 普攻 1、CA 重击 1、瞄准 1、冲刺 1、跳跃 1、低空下落 1、高空下落 1、切人 1\n8\tlisa\t执行 切人\t—\n8\tlisa\tE 技能 执行配置延迟\t本次配置 0 帧；含脚本显式 delay 的累计动作前延迟 0 帧。就绪检查后倒计时，实际施放时刻见动作回执。\n8\tlisa\t动画 E 技能\t实际结束或中断于第 49 帧（41 帧）；来源动画长度 40 帧；动画内部排队门槛 20 帧；转入下一动作的内部帧门槛：E 技能 40、Q 爆发 40、N 普攻 37、CA 重击 38、瞄准 40、冲刺 35、跳跃 20、低空下落 40、高空下落 40、切人 20\n8\tlisa\t执行 E 技能\t切人冷却剩余 60 帧\n25\tlisa\tE 技能 冷却触发\t日志记录的当前剩余 60 帧；剩余可用次数 0\n28\tlisa\t等待 2 帧\t—\n30\tlisa\t等待 10 帧\t—\n40\tlisa\t等待 6 帧\t—\n46\tlisa\t等待 54 帧\t—\n85\tlisa\tE 技能 冷却就绪\t剩余可用次数 1\n100\tlisa\t等待 6 帧\t—\n106\tlisa\t等待 54 帧\t—\n160\tlisa\t等待 6 帧\t—\n166\tlisa\t等待 54 帧\t—\n220\tlisa\t等待 6 帧\t—\n226\tlisa\t动画 切人\t实际结束或中断于第 227 帧（1 帧）；来源动画长度 1 帧；动画内部排队门槛 1 帧；转入下一动作的内部帧门槛：E 技能 1、Q 爆发 1、N 普攻 1、CA 重击 1、瞄准 1、冲刺 1、跳跃 1、低空下落 1、高空下落 1、切人 1\n227\tcollei\t执行 切人\t—\n227\tcollei\tE 技能 执行配置延迟\t本次配置 0 帧；含脚本显式 delay 的累计动作前延迟 0 帧。就绪检查后倒计时，实际施放时刻见动作回执。\n227\tcollei\t动画 E 技能\t实际结束或中断于第 293 帧（66 帧）；来源动画长度 68 帧；动画内部排队门槛 53 帧；转入下一动作的内部帧门槛：E 技能 67、Q 爆发 68、N 普攻 65、CA 重击 68、瞄准 65、冲刺 54、跳跃 53、低空下落 68、高空下落 68、切人 66\n227\tcollei\t执行 E 技能\t切人冷却剩余 60 帧\n247\tcollei\tE 技能 冷却触发\t日志记录的当前剩余 720 帧；剩余可用次数 0\n293\tcollei\t动画 切人\t实际结束或中断于第 294 帧（1 帧）；来源动画长度 1 帧；动画内部排队门槛 1 帧；转入下一动作的内部帧门槛：E 技能 1、Q 爆发 1、N 普攻 1、CA 重击 1、瞄准 1、冲刺 1、跳跃 1、低空下落 1、高空下落 1、切人 1\n294\txiangling\t执行 切人\t—\n294\txiangling\tQ 爆发 执行配置延迟\t本次配置 0 帧；含脚本显式 delay 的累计动作前延迟 0 帧。就绪检查后倒计时，实际施放时刻见动作回执。\n294\txiangling\t动画 Q 爆发\t实际结束或中断于第 393 帧（99 帧）；来源动画长度 80 帧；动画内部排队门槛 79 帧；转入下一动作的内部帧门槛：E 技能 80、Q 爆发 80、N 普攻 80、CA 重击 80、瞄准 80、冲刺 80、跳跃 80、低空下落 80、高空下落 80、切人 79\n294\txiangling\t执行 Q 爆发\t切人冷却剩余 60 帧\n312\txiangling\tQ 爆发 冷却触发\t日志记录的当前剩余 1200 帧；剩余可用次数 0\n318\txiangling\t消耗能量\t80 → 0 / 80；来源 xiangling-burst-energy-drain\n391\txiangling\t等待 13 帧\t—\n404\txiangling\t等待 1 帧\t—\n\n动画长度、排队门槛和转入下一动作的门槛使用来源动画内部计时，可能受卡肉暂停或归一化时钟影响；不能直接加上起始帧来预测实际结束或可施放帧。实际输入窗口以上方回执为准。\n\n原始来源日志（213 条，按 50 条分页）\n载入单角色动作示例\n载入月曜机制示例\n载入玩家受击示例\n载入星扩散示例\n载入星导示例\n完整 GCSL 队伍与行动脚本\n\n示例数值为明确的假设构筑。属性增量与最终面板不同，请勿将导入的最终面板再作为构筑增量填写。观察时间使用脚本中的 options duration=…（秒）；输入采用来源 GCSL 语法。显式目标 hp 会切换到击杀模式，脚本结束即可停止，末击尾段可能不发生；固定时间窗请保留来源的无 hp 模式。\n\n同时以脚本 duration 作为时间上限\n\n配队编辑器生成脚本时自动启用。即使目标设置 HP 或动作正在等待能量，也最迟在配置时长停止；目标死亡或击杀模式的动作流结束仍可提前停止。取消后完全沿用来源原生终止条件，HP 模式不受 duration 限制。\n\n统计主目标（按 target 声明顺序，编号从 1 开始）\n\n只指定分目标统计，不改变原生锁定或朝向；结果保留运行时的目标选择。\n\n目标阶段情景 · 高级 JSON\n随机种子（uint64 十进制）\n动作执行模式\n自动等待 · 未就绪时按帧重试\n严格 · 首次未就绪即停止\n\n两种模式都沿用来源的动画排队、隐式切人和显式等待。严格模式在实际排队后首次遇到动画、切人、冷却、能量或体力未就绪时停止，不补时间也不跳过动作；允许排队不代表此时已能施放。可先用自动等待查看实际排队与执行差，再编辑等待或动作。它们是本工具的执行政策，不能代替游戏机制验证。\n\n观察轮转相位\n载入随机循环示例载入确定性伤害循环示例\n记录原生相位并检查周期状态\n\n在同一轮转的开头写入 phase(\"rotation\");，并在重复循环中保留这个位置。观察标记不推进时间。系统同时比较实际脚本位置、完整状态与周期伤害；有未知回调或私有状态时会列出缺口，不给稳态 DPS。\n\n预热帧数\n允许的最长周期（轮）\n连续比较周期数\n最多记录边界\n运行来源队伍\n取消\n导出完整结果\n导入来源结果\n\n已导入并重算来源结果的共享数值；尚未从头复跑机制。导入的历史核对记录不作为本次通过证明。\n\n从头复跑核对当前结果\n导出复跑核对记录\n\n导入会恢复共享公式与数值；「从头复跑核对」使用该结果保存的完整脚本、种子、动作政策和同一WASM，从初态重新运行机制，包含实际动作、能量、伤害和日志。它不使用上方尚未运行的编辑内容，也不是任意帧断点恢复或游戏验证。\n\n当前结果尚未在本页面完成从头复跑核对。\n\n来源与能力边界\n多种子与额外充能对照\n起步敏感度：零能 / 满能对照\n\n对同一脚本、来源版本和每个种子，分别从零能与满能启动；每次都是独立的完整来源运行。自定义起步须填写所有队员的来源角色键和整数初始能量，实际上限由来源执行器校验。\n\n种子（逗号分隔）\n同时加入自定义起步\n\n种子须映射到不同的 Go 随机初始化流；数值不同也可能等价而被拒绝。不同初始化流不等于数学独立。\n\n自定义初始能量（每行 actor_key=整数）\n预热秒数\n每个窗口秒数\n\n每条轨迹至少运行 45 秒：预热 15 秒，随后统计两个相邻 15 秒半开窗口 [起点, 终点)。预热不重置能量、冷却、角色状态或随机流。\n\n运行起步对照\n重新分析保存轨迹\n导出完整 JSON\n导入 JSON\n\n这是有限样本的起步敏感度诊断，不证明随机稳态。零能与满能使用相同初始化种子，但起始状态不同会改变后续随机数消耗顺序，因此逐事件随机行为不保证对应。能量、冷却、姿态和动画仍以各次实际执行为准。\n\n本次来源执行结果\n\n固定源码：a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd；本次执行政策：自动等待。\n\n随机性回执：go-math-rand-rngSource-v1；原始种子 20260930119 → int64 20260930119 → 实际初始化种子 933577296；Go go1.27.1。暴击按该原生随机流抽样；由暴击触发的效果及其他随机事件均由来源运行抽样。\n\n终止政策：来源原生条件；配置截止帧 1440，实际结束帧 406；结束原因：击杀模式动作流已结束。本次提前结束，伤害率使用实际时间，不称为完整固定窗口 DPS。\n\n实际观察时间 6.766666666666667 秒；来源记账伤害 13294.693123088311；按实际运行时间的伤害率 1964.7329738554154；目标实际扣血 13294.693123087985。\n\n记录 14 次已结算命中、0 次玩家受击、34 次共享核心计算。固定时长与击杀模式的统计、目标剩余生命截断分别保留。\n\n执行器 SHA-256：e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546\n\n数值状态 provisional；前置解释 partial。保存脚本与种子可从头再运行，逐击恢复无需 WASM。\n\n选择实际命中\n在独立计算器中恢复并编辑\nbarbara · Normal 0 · 第 7 帧\n\n原始公式伤害 33.52905049032；公式重放 33.52905049032。来源实际记账 33.52905049032；应用重放 33.52905049032；记账差值 0。目标 HP 损失 33.52905049035326。\n\n共享公式按此条保存输入重放；来源机制仍属暂定。本视图恢复单次命中，不支持任意帧状态断点。\n\n原生基础面板配置来源\n快照根读取 · barbara · 角色索引 0\n\n天赋表读取使用原生实际索引；未附等级来源的动态索引，其天赋、命座或动作状态生成过程尚未逐步展开。\n\n阶段\t数值\t公式\n基础面板输入：无属性\t0\tconfigured\n\n展开：基础面板输入：无属性的计算与解释\n\n基础面板输入：防御力百分比\t0\tconfigured\n\n展开：基础面板输入：防御力百分比的计算与解释\n\n基础面板输入：固定防御力\t0\tconfigured\n\n展开：基础面板输入：固定防御力的计算与解释\n\n基础面板输入：固定生命值\t0\tconfigured\n\n展开：基础面板输入：固定生命值的计算与解释\n\n基础面板输入：生命值百分比\t0\tconfigured\n\n展开：基础面板输入：生命值百分比的计算与解释\n\n基础面板输入：固定攻击力\t0\tconfigured\n\n展开：基础面板输入：固定攻击力的计算与解释\n\n基础面板输入：攻击力百分比\t0\tconfigured\n\n展开：基础面板输入：攻击力百分比的计算与解释\n\n基础面板输入：充能效率\t0\tconfigured\n\n展开：基础面板输入：充能效率的计算与解释\n\n基础面板输入：元素精通\t0\tconfigured\n\n展开：基础面板输入：元素精通的计算与解释\n\n基础面板输入：暴击率\t0\tconfigured\n\n展开：基础面板输入：暴击率的计算与解释\n\n基础面板输入：暴击伤害\t0\tconfigured\n\n展开：基础面板输入：暴击伤害的计算与解释\n\n基础面板输入：治疗加成\t0\tconfigured\n\n展开：基础面板输入：治疗加成的计算与解释\n\n基础面板输入：火元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：火元素伤害加成的计算与解释\n\n基础面板输入：水元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：水元素伤害加成的计算与解释\n\n基础面板输入：冰元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：冰元素伤害加成的计算与解释\n\n基础面板输入：雷元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：雷元素伤害加成的计算与解释\n\n基础面板输入：风元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：风元素伤害加成的计算与解释\n\n基础面板输入：岩元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：岩元素伤害加成的计算与解释\n\n基础面板输入：草元素伤害加成\t0\tconfigured\n\n展开：基础面板输入：草元素伤害加成的计算与解释\n\n基础面板输入：物理伤害加成\t0\tconfigured\n\n展开：基础面板输入：物理伤害加成的计算与解释\n\n基础面板输入：攻击速度\t0\tconfigured\n\n展开：基础面板输入：攻击速度的计算与解释\n\n基础面板输入：通用伤害加成\t0\tconfigured\n\n展开：基础面板输入：通用伤害加成的计算与解释\n\n基础面板输入：基础属性分隔符\t0\tconfigured\n\n展开：基础面板输入：基础属性分隔符的计算与解释\n\n基础面板输入：基础生命值\t0\tconfigured\n\n展开：基础面板输入：基础生命值的计算与解释\n\n基础面板输入：基础攻击力\t0\tconfigured\n\n展开：基础面板输入：基础攻击力的计算与解释\n\n基础面板输入：基础防御力\t0\tconfigured\n\n展开：基础面板输入：基础防御力的计算与解释\n\n角色等级曲线索引\t89\tclamp((level − 1), 0, 99)\n\n展开：角色等级曲线索引的计算与解释\n\n角色基础生命值：基础值 × 等级曲线\t6,851.288753\t(catalogBase × curve)\n\n展开：角色基础生命值：基础值 × 等级曲线的计算与解释\n\n角色基础生命值：赋值\t6,851.288753\tcontribution\n\n展开：角色基础生命值：赋值的计算与解释\n\n角色基础攻击力：基础值 × 等级曲线\t111.509244\t(catalogBase × curve)\n\n展开：角色基础攻击力：基础值 × 等级曲线的计算与解释\n\n角色基础攻击力：赋值\t111.509244\tcontribution\n\n展开：角色基础攻击力：赋值的计算与解释\n\n角色基础防御力：基础值 × 等级曲线\t468.216095\t(catalogBase × curve)\n\n展开：角色基础防御力：基础值 × 等级曲线的计算与解释\n\n角色基础防御力：赋值\t468.216095\tcontribution\n\n展开：角色基础防御力：赋值的计算与解释\n\n角色元素精通：目录属性\t0\tvalue\n\n展开：角色元素精通：目录属性的计算与解释\n\n角色元素精通：赋值\t0\tcontribution\n\n展开：角色元素精通：赋值的计算与解释\n\n角色充能效率：源码默认值\t1\tvalue\n\n展开：角色充能效率：源码默认值的计算与解释\n\n角色充能效率：逐项累加\t1\t(before + contribution)\n\n展开：角色充能效率：逐项累加的计算与解释\n\n角色暴击伤害：源码默认值\t0.5\tvalue\n\n展开：角色暴击伤害：源码默认值的计算与解释\n\n角色暴击伤害：逐项累加\t0.5\t(before + contribution)\n\n展开：角色暴击伤害：逐项累加的计算与解释\n\n角色暴击率：源码默认值\t0.05\tvalue\n\n展开：角色暴击率：源码默认值的计算与解释\n\n角色暴击率：逐项累加\t0.05\t(before + contribution)\n\n展开：角色暴击率：逐项累加的计算与解释\n\n角色基础生命值：突破加值\t2,936.1348\tvalue\n\n展开：角色基础生命值：突破加值的计算与解释\n\n角色基础生命值：逐项累加\t9,787.423553\t(before + contribution)\n\n展开：角色基础生命值：逐项累加的计算与解释\n\n角色基础防御力：突破加值\t200.655\tvalue\n\n展开：角色基础防御力：突破加值的计算与解释\n\n角色基础防御力：逐项累加\t668.871095\t(before + contribution)\n\n展开：角色基础防御力：逐项累加的计算与解释\n\n角色基础攻击力：突破加值\t47.78865\tvalue\n\n展开：角色基础攻击力：突破加值的计算与解释\n\n角色基础攻击力：逐项累加\t159.297894\t(before + contribution)\n\n展开：角色基础攻击力：逐项累加的计算与解释\n\n角色生命值百分比：突破加值\t0.24\tvalue\n\n展开：角色生命值百分比：突破加值的计算与解释\n\n角色生命值百分比：逐项累加\t0.24\t(before + contribution)\n\n展开：角色生命值百分比：逐项累加的计算与解释\n\n武器等级曲线索引\t0\tclamp((level − 1), 0, 89)\n\n展开：武器等级曲线索引的计算与解释\n\n武器基础攻击力：基础值 × 等级曲线\t37.6075\t(catalogBase × curve)\n\n展开：武器基础攻击力：基础值 × 等级曲线的计算与解释\n\n武器基础攻击力：赋值\t37.6075\tcontribution\n\n展开：武器基础攻击力：赋值的计算与解释\n\n武器元素精通：基础值 × 等级曲线\t40.8\t(catalogBase × curve)\n\n展开：武器元素精通：基础值 × 等级曲线的计算与解释\n\n武器元素精通：赋值\t40.8\tcontribution\n\n展开：武器元素精通：赋值的计算与解释\n\n基础面板无属性：加入角色\t0\t(configured + character)\n\n展开：基础面板无属性：加入角色的计算与解释\n\n基础面板无属性：加入武器\t0\t(before + weapon)\n\n展开：基础面板无属性：加入武器的计算与解释\n\n基础面板防御力百分比：加入角色\t0\t(configured + character)\n\n展开：基础面板防御力百分比：加入角色的计算与解释\n\n基础面板防御力百分比：加入武器\t0\t(before + weapon)\n\n展开：基础面板防御力百分比：加入武器的计算与解释\n\n基础面板固定防御力：加入角色\t0\t(configured + character)\n\n展开：基础面板固定防御力：加入角色的计算与解释\n\n基础面板固定防御力：加入武器\t0\t(before + weapon)\n\n展开：基础面板固定防御力：加入武器的计算与解释\n\n基础面板固定生命值：加入角色\t0\t(configured + character)\n\n展开：基础面板固定生命值：加入角色的计算与解释\n\n基础面板固定生命值：加入武器\t0\t(before + weapon)\n\n展开：基础面板固定生命值：加入武器的计算与解释\n\n基础面板生命值百分比：加入角色\t0.24\t(configured + character)\n\n展开：基础面板生命值百分比：加入角色的计算与解释\n\n基础面板生命值百分比：加入武器\t0.24\t(before + weapon)\n\n展开：基础面板生命值百分比：加入武器的计算与解释\n\n基础面板固定攻击力：加入角色\t0\t(configured + character)\n\n展开：基础面板固定攻击力：加入角色的计算与解释\n\n基础面板固定攻击力：加入武器\t0\t(before + weapon)\n\n展开：基础面板固定攻击力：加入武器的计算与解释\n\n基础面板攻击力百分比：加入角色\t0\t(configured + character)\n\n展开：基础面板攻击力百分比：加入角色的计算与解释\n\n基础面板攻击力百分比：加入武器\t0\t(before + weapon)\n\n展开：基础面板攻击力百分比：加入武器的计算与解释\n\n基础面板充能效率：加入角色\t1\t(configured + character)\n\n展开：基础面板充能效率：加入角色的计算与解释\n\n基础面板充能效率：加入武器\t1\t(before + weapon)\n\n展开：基础面板充能效率：加入武器的计算与解释\n\n基础面板元素精通：加入角色\t0\t(configured + character)\n\n展开：基础面板元素精通：加入角色的计算与解释\n\n基础面板元素精通：加入武器\t40.8\t(before + weapon)\n\n展开：基础面板元素精通：加入武器的计算与解释\n\n基础面板暴击率：加入角色\t0.05\t(configured + character)\n\n展开：基础面板暴击率：加入角色的计算与解释\n\n基础面板暴击率：加入武器\t0.05\t(before + weapon)\n\n展开：基础面板暴击率：加入武器的计算与解释\n\n基础面板暴击伤害：加入角色\t0.5\t(configured + character)\n\n展开：基础面板暴击伤害：加入角色的计算与解释\n\n基础面板暴击伤害：加入武器\t0.5\t(before + weapon)\n\n展开：基础面板暴击伤害：加入武器的计算与解释\n\n基础面板治疗加成：加入角色\t0\t(configured + character)\n\n展开：基础面板治疗加成：加入角色的计算与解释\n\n基础面板治疗加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板治疗加成：加入武器的计算与解释\n\n基础面板火元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板火元素伤害加成：加入角色的计算与解释\n\n基础面板火元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板火元素伤害加成：加入武器的计算与解释\n\n基础面板水元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板水元素伤害加成：加入角色的计算与解释\n\n基础面板水元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板水元素伤害加成：加入武器的计算与解释\n\n基础面板冰元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板冰元素伤害加成：加入角色的计算与解释\n\n基础面板冰元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板冰元素伤害加成：加入武器的计算与解释\n\n基础面板雷元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板雷元素伤害加成：加入角色的计算与解释\n\n基础面板雷元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板雷元素伤害加成：加入武器的计算与解释\n\n基础面板风元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板风元素伤害加成：加入角色的计算与解释\n\n基础面板风元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板风元素伤害加成：加入武器的计算与解释\n\n基础面板岩元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板岩元素伤害加成：加入角色的计算与解释\n\n基础面板岩元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板岩元素伤害加成：加入武器的计算与解释\n\n基础面板草元素伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板草元素伤害加成：加入角色的计算与解释\n\n基础面板草元素伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板草元素伤害加成：加入武器的计算与解释\n\n基础面板物理伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板物理伤害加成：加入角色的计算与解释\n\n基础面板物理伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板物理伤害加成：加入武器的计算与解释\n\n基础面板攻击速度：加入角色\t0\t(configured + character)\n\n展开：基础面板攻击速度：加入角色的计算与解释\n\n基础面板攻击速度：加入武器\t0\t(before + weapon)\n\n展开：基础面板攻击速度：加入武器的计算与解释\n\n基础面板通用伤害加成：加入角色\t0\t(configured + character)\n\n展开：基础面板通用伤害加成：加入角色的计算与解释\n\n基础面板通用伤害加成：加入武器\t0\t(before + weapon)\n\n展开：基础面板通用伤害加成：加入武器的计算与解释\n\n基础面板基础属性分隔符：加入角色\t0\t(configured + character)\n\n展开：基础面板基础属性分隔符：加入角色的计算与解释\n\n基础面板基础属性分隔符：加入武器\t0\t(before + weapon)\n\n展开：基础面板基础属性分隔符：加入武器的计算与解释\n\n基础面板基础生命值：加入角色\t9,787.423553\t(configured + character)\n\n展开：基础面板基础生命值：加入角色的计算与解释\n\n基础面板基础生命值：加入武器\t9,787.423553\t(before + weapon)\n\n展开：基础面板基础生命值：加入武器的计算与解释\n\n基础面板基础攻击力：加入角色\t159.297894\t(configured + character)\n\n展开：基础面板基础攻击力：加入角色的计算与解释\n\n基础面板基础攻击力：加入武器\t196.905394\t(before + weapon)\n\n展开：基础面板基础攻击力：加入武器的计算与解释\n\n基础面板基础防御力：加入角色\t668.871095\t(configured + character)\n\n展开：基础面板基础防御力：加入角色的计算与解释\n\n基础面板基础防御力：加入武器\t668.871095\t(before + weapon)\n\n展开：基础面板基础防御力：加入武器的计算与解释\n\n无属性：本次读取起点\t0\tbase\n\n展开：无属性：本次读取起点的计算与解释\n\n防御力百分比：本次读取起点\t0\tbase\n\n展开：防御力百分比：本次读取起点的计算与解释\n\n固定防御力：本次读取起点\t0\tbase\n\n展开：固定防御力：本次读取起点的计算与解释\n\n固定生命值：本次读取起点\t0\tbase\n\n展开：固定生命值：本次读取起点的计算与解释\n\n生命值百分比：本次读取起点\t0.24\tbase\n\n展开：生命值百分比：本次读取起点的计算与解释\n\n固定攻击力：本次读取起点\t0\tbase\n\n展开：固定攻击力：本次读取起点的计算与解释\n\n攻击力百分比：本次读取起点\t0\tbase\n\n展开：攻击力百分比：本次读取起点的计算与解释\n\n充能效率：本次读取起点\t1\tbase\n\n展开：充能效率：本次读取起点的计算与解释\n\n元素精通：本次读取起点\t40.8\tbase\n\n展开：元素精通：本次读取起点的计算与解释\n\n暴击率：本次读取起点\t0.05\tbase\n\n展开：暴击率：本次读取起点的计算与解释\n\n暴击伤害：本次读取起点\t0.5\tbase\n\n展开：暴击伤害：本次读取起点的计算与解释\n\n治疗加成：本次读取起点\t0\tbase\n\n展开：治疗加成：本次读取起点的计算与解释\n\n火元素伤害加成：本次读取起点\t0\tbase\n\n展开：火元素伤害加成：本次读取起点的计算与解释\n\n水元素伤害加成：本次读取起点\t0\tbase\n\n展开：水元素伤害加成：本次读取起点的计算与解释\n\n冰元素伤害加成：本次读取起点\t0\tbase\n\n展开：冰元素伤害加成：本次读取起点的计算与解释\n\n雷元素伤害加成：本次读取起点\t0\tbase\n\n展开：雷元素伤害加成：本次读取起点的计算与解释\n\n风元素伤害加成：本次读取起点\t0\tbase\n\n展开：风元素伤害加成：本次读取起点的计算与解释\n\n岩元素伤害加成：本次读取起点\t0\tbase\n\n展开：岩元素伤害加成：本次读取起点的计算与解释\n\n草元素伤害加成：本次读取起点\t0\tbase\n\n展开：草元素伤害加成：本次读取起点的计算与解释\n\n物理伤害加成：本次读取起点\t0\tbase\n\n展开：物理伤害加成：本次读取起点的计算与解释\n\n攻击速度：本次读取起点\t0\tbase\n\n展开：攻击速度：本次读取起点的计算与解释\n\n通用伤害加成：本次读取起点\t0\tbase\n\n展开：通用伤害加成：本次读取起点的计算与解释\n\n基础属性分隔符：本次读取起点\t0\tbase\n\n展开：基础属性分隔符：本次读取起点的计算与解释\n\n基础生命值：本次读取起点\t9,787.423553\tbase\n\n展开：基础生命值：本次读取起点的计算与解释\n\n基础攻击力：本次读取起点\t196.905394\tbase\n\n展开：基础攻击力：本次读取起点的计算与解释\n\n基础防御力：本次读取起点\t668.871095\tbase\n\n展开：基础防御力：本次读取起点的计算与解释\n\n帧 7 属性读取完成\t0\t0\n\n展开：帧 7 属性读取完成的计算与解释\n\n无属性：本次读取起点\t0\tbase\n\n展开：无属性：本次读取起点的计算与解释\n\n防御力百分比：本次读取起点\t0\tbase\n\n展开：防御力百分比：本次读取起点的计算与解释\n\n固定防御力：本次读取起点\t0\tbase\n\n展开：固定防御力：本次读取起点的计算与解释\n\n固定生命值：本次读取起点\t0\tbase\n\n展开：固定生命值：本次读取起点的计算与解释\n\n生命值百分比：本次读取起点\t0.24\tbase\n\n展开：生命值百分比：本次读取起点的计算与解释\n\n固定攻击力：本次读取起点\t0\tbase\n\n展开：固定攻击力：本次读取起点的计算与解释\n\n攻击力百分比：本次读取起点\t0\tbase\n\n展开：攻击力百分比：本次读取起点的计算与解释\n\n充能效率：本次读取起点\t1\tbase\n\n展开：充能效率：本次读取起点的计算与解释\n\n元素精通：本次读取起点\t40.8\tbase\n\n展开：元素精通：本次读取起点的计算与解释\n\n暴击率：本次读取起点\t0.05\tbase\n\n展开：暴击率：本次读取起点的计算与解释\n\n暴击伤害：本次读取起点\t0.5\tbase\n\n展开：暴击伤害：本次读取起点的计算与解释\n\n治疗加成：本次读取起点\t0\tbase\n\n展开：治疗加成：本次读取起点的计算与解释\n\n火元素伤害加成：本次读取起点\t0\tbase\n\n展开：火元素伤害加成：本次读取起点的计算与解释\n\n水元素伤害加成：本次读取起点\t0\tbase\n\n展开：水元素伤害加成：本次读取起点的计算与解释\n\n冰元素伤害加成：本次读取起点\t0\tbase\n\n展开：冰元素伤害加成：本次读取起点的计算与解释\n\n雷元素伤害加成：本次读取起点\t0\tbase\n\n展开：雷元素伤害加成：本次读取起点的计算与解释\n\n风元素伤害加成：本次读取起点\t0\tbase\n\n展开：风元素伤害加成：本次读取起点的计算与解释\n\n岩元素伤害加成：本次读取起点\t0\tbase\n\n展开：岩元素伤害加成：本次读取起点的计算与解释\n\n草元素伤害加成：本次读取起点\t0\tbase\n\n展开：草元素伤害加成：本次读取起点的计算与解释\n\n物理伤害加成：本次读取起点\t0\tbase\n\n展开：物理伤害加成：本次读取起点的计算与解释\n\n攻击速度：本次读取起点\t0\tbase\n\n展开：攻击速度：本次读取起点的计算与解释\n\n通用伤害加成：本次读取起点\t0\tbase\n\n展开：通用伤害加成：本次读取起点的计算与解释\n\n基础属性分隔符：本次读取起点\t0\tbase\n\n展开：基础属性分隔符：本次读取起点的计算与解释\n\n基础生命值：本次读取起点\t9,787.423553\tbase\n\n展开：基础生命值：本次读取起点的计算与解释\n\n基础攻击力：本次读取起点\t196.905394\tbase\n\n展开：基础攻击力：本次读取起点的计算与解释\n\n基础防御力：本次读取起点\t668.871095\tbase\n\n展开：基础防御力：本次读取起点的计算与解释\n\nmagic-guide：returned-nil\t0\t0\n\n展开：magic-guide：returned-nil的计算与解释\n\n帧 7 属性读取完成\t1\t1\n\n展开：帧 7 属性读取完成的计算与解释\n\nresistance：读取起点\t0.1\tbase\n\n展开：resistance：读取起点的计算与解释\n\nresistance：实际输出\t0.1\toutput\n\n展开：resistance：实际输出的计算与解释\n\n敌人 DEF 调整：读取起点\t0\tbase\n\n展开：敌人 DEF 调整：读取起点的计算与解释\n\n来源标量上限\t0\tmin(before, limit)\n\n展开：来源标量上限的计算与解释\n\ndefense-adjustment：实际输出\t0\toutput\n\n展开：defense-adjustment：实际输出的计算与解释\n\n原生基础天赋等级\t1\tbaseTalent\n\n展开：原生基础天赋等级的计算与解释\n\n达达利亚被动天赋加级\t0\t(if 0 < passiveTagValue then 1 else 0)\n\n展开：达达利亚被动天赋加级的计算与解释\n\n原生命座天赋加级\t0\t(if 0 < constellationUnlock then (if constellationUnlock ≤ constellation then 3 else 0) else 0)\n\n展开：原生命座天赋加级的计算与解释\n\n原生天赋下标偏移\t-1\t((-1) + passiveBonus + constellationBonus)\n\n展开：原生天赋下标偏移的计算与解释\n\n原生偏移上限\t-1\t(if 4 ≤ offset then 4 else offset)\n\n展开：原生偏移上限的计算与解释\n\n原生天赋表下标\t0\t(baseTalent + cappedOffset)\n\n展开：原生天赋表下标的计算与解释\n\n来源天赋表 attack：实际索引查值\t0.3784\tattack[index0][index1]\n\n展开：来源天赋表 attack：实际索引查值的计算与解释\n\n来源最终暴击率：原快照钳制\t0.05\tmax(0, min(1, rawCritRate))\n\n展开：来源最终暴击率：原快照钳制的计算与解释\n\n来源攻击标签决定本击伤害加成\t0\t(if attackTag < noneStatTag then (0 + elementBonus + genericBonus) else 0)\n\n展开：来源攻击标签决定本击伤害加成的计算与解释\n\n本击实际缩放属性\t196.905394\t((baseStat × (1 + statPercent)) + flatStat)\n\n展开：本击实际缩放属性的计算与解释\n\n来源天赋基数及基础伤害加成\t74.509001\t(scaling × scalingValue × (1 + baseDamageBonus))\n\n展开：来源天赋基数及基础伤害加成的计算与解释\n\n来源最终附加基数\t0\tflatDamage\n\n展开：来源最终附加基数的计算与解释\n\n来源实际暴击抽样\t0\t(if critRoll ≤ clamp(critRate, 0, 1) then 1 else 0)\n\n展开：来源实际暴击抽样的计算与解释\n\n天赋基础伤害\t74.509001\t(scaling × scalingValue)\n\n展开：天赋基础伤害的计算与解释\n\n加入附加基础伤害\t74.509001\t(talentDamage + flatDamage)\n\n展开：加入附加基础伤害的计算与解释\n\n伤害加成乘区\t1\t(1 + damageBonus)\n\n展开：伤害加成乘区的计算与解释\n\n伤害加成后\t74.509001\t(baseDamage × damageBonusMultiplier)\n\n展开：伤害加成后的计算与解释\n\n防御无视限制\t0\tclamp(defenseIgnore, 0, 1)\n\n展开：防御无视限制的计算与解释\n\n有符号防御调整\t0\tclamp(defenseAdjustment, (-1), 0.9)\n\n展开：有符号防御调整的计算与解释\n\n敌人防御乘区\t0.5\t((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))\n\n展开：敌人防御乘区的计算与解释\n\n防御乘区后\t37.254501\t(afterBonus × defenseMultiplier)\n\n展开：防御乘区后的计算与解释\n\n敌人抗性分支\t0.9\t(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))\n\n展开：敌人抗性分支的计算与解释\n\n抗性乘区后\t33.52905\t(afterDefense × resistanceMultiplier)\n\n展开：抗性乘区后的计算与解释\n\n有效暴击率\t0.05\tclamp(critRate, 0, 1)\n\n展开：有效暴击率的计算与解释\n\n有效暴击伤害\t0.5\tmax(0, critDamage)\n\n展开：有效暴击伤害的计算与解释\n\n非暴击乘数\t1\t1\n\n展开：非暴击乘数的计算与解释\n\n增幅反应精通加成\t0\t0\n\n展开：增幅反应精通加成的计算与解释\n\n增幅反应乘数\t1\t(reactionBase × (1 + elementalMasteryBonus + reactionBonus))\n\n展开：增幅反应乘数的计算与解释\n\n暴击分支伤害\t33.52905\t(afterResistance × critMultiplier)\n\n展开：暴击分支伤害的计算与解释\n\n反应结算后\t33.52905\t(afterCritical × reactionMultiplier)\n\n展开：反应结算后的计算与解释\n\n本分支最终伤害\t33.52905\t(afterReaction × groupMultiplier)\n\n展开：本分支最终伤害的计算与解释\n\n来源最终提升倍率\t33.52905\t(sharedDamage × (1 + elevation))\n\n展开：来源最终提升倍率的计算与解释\n\n目标实际生命扣减\t33.52905\tmin(rawDamage, hpBefore)\n\n展开：目标实际生命扣减的计算与解释\n\n目标扣血后生命\t999,966.47095\t(hpBefore − hpLoss)\n\n展开：目标扣血后生命的计算与解释\n\n来源伤害回调实际记账量\t33.52905\t(if damageMode = 1 then hpLoss else rawDamage)\n\n展开：来源伤害回调实际记账量的计算与解释\n多目标伤害汇总\n\n汇总全部 14 条实际应用；原始公式伤害、来源记账伤害与目标 HP 损失分别列示，不混为同一个总量。\n\n目标场景回执记录 1 个声明目标；统计主目标为目标 1（声明下标 0），按原生回执映射到 key 1。初始默认目标 key 1 单独标记。\n\n全应用合计\n\n原始公式伤害 13,294.693123；来源记账伤害 13,294.693123；目标 HP 损失 13,294.693123；已结算命中 14。\n\n实际观察时长 6.766667 秒（按实际观察时间）；全目标原始公式伤害率 1,964.732974 / 秒；全目标实际运行伤害率 1,964.732974 / 秒。本次未覆盖完整配置时间窗，速率仅对应本次实际观察区间。\n\n统计主目标 · 目标 1（声明下标 0）· 原生 key 1\n\n原始公式伤害 13,294.693123；来源记账伤害 13,294.693123；目标 HP 损失 13,294.693123；已结算命中 14。\n\n统计主目标实际运行伤害率：1,964.732974 / 秒；统计主目标原始公式伤害率 1,964.732974 / 秒。\n\n初始默认锁定：是。此标记与统计主目标分别来自原生目标场景回执。\n\n目标编号\t原生 key\t统计主目标\t原生初始默认目标\t原始公式伤害\t来源记账伤害\t目标 HP 损失\t命中数\t原始公式伤害率\t来源记账实际运行伤害率\t目标回执与公式\n目标 1（声明下标 0）\t1\t是 · 统计主目标\t是 · 原生初始默认目标\t13,294.693123\t13,294.693123\t13,294.693123\t14\t1,964.732974 / 秒\t1,964.732974 / 秒\t\n原生目标回执\n\n没有无法映射的目标应用。\n展开本范围的汇总公式（58 个节点）\n目标阶段与实际命中\n\n本面板按全部实际来源应用统计。策略是用户声明的目标情景，不是已验证的游戏敌人机制。三个效果轴分别记录，互不替代；本面板不推导完整施放数、DPS 或验证结论。\n\n本结果没有保存目标阶段声明；这是“未配置阶段”。它与某个已配置窗口内没有实际应用记录不同。\n\n未匹配到已声明阶段的实际应用\n\n这些是确有记录的应用，但其回执未匹配本结果保存的阶段声明和半开帧窗；不把它们改写成阶段命中。\n\n#2（7 帧，目标 key 1）、#7（30 帧，目标 key 1）、#9（40 帧，目标 key 1）、#11（100 帧，目标 key 1）、#15（261 帧，目标 key 1）、#20（312 帧，目标 key 1）、#25（333 帧，目标 key 1）、#26（333 帧，目标 key 1）、#28（354 帧，目标 key 1）、#39（362 帧，目标 key 1）、#41（363 帧，目标 key 1）、#44（365 帧，目标 key 1）、#46（379 帧，目标 key 1）、#48（394 帧，目标 key 1）\n\n逐击应用记录（14 / 14 条）\n完整目标阶段与逐击应用 JSON\n原生动作来源归属\n原生攻击观察账本（54 条，显示前 54 条）\n状态与待处理攻击生命周期\n排队任务生命周期\n\n观察帧 406；本记录任务总数 70，已执行 48，仍在等待 22。\n\n“执行完毕”只表示这一排队任务已运行，不代表整个技能或所有后续效果已经结束。队列时钟是各队列本地时钟；时钟与差值不解释为全局秒数或帧数。\n\n排队任务记录（70 条，显示前 70 条）\n\n生命周期观察帧：406。状态账本只记录已观察到的实例变化；最终到期帧可能包含命中僵直延长。「观察终点时已过期」表示终点检查时已过期，不代表精确过期时刻。\n\n下方「待处理攻击任务」只列来源核心实际追踪的攻击快照／应用任务，不盘点其他角色任务、实体、回调或攻击机会；完整排队任务见上方。记录为 0 不能证明完整施放或结算完成。\n\n状态实例记录（2 条，显示前 2 条）\n待处理攻击任务（0 条，显示前 0 条）\n\n每类账本最多显示前 200 条；完整结果 JSON 导出仍保留全部记录。\n\n「创建链」表示原生回执记录的攻击创建回调链，不代表技能所有权；「触发链」包含协同攻击与装备效果；「主动状态关联」仅记录明确的状态激活来源，不能代表普遍技能所有权。三种关联可能重叠，不能相加作为总伤。未绑定实体、漏记及待处理命中会阻止完整施放结论；本面板不计算 DPS。\n\n「技能固有伤害」是固定来源方法契约限定的独立范围，并按实际原生施放及攻击派发回执检查；它不替代上述来源关联，也不代表完整施放已完成。\n\n已审阅的事件监听调用\n\n这里按实际监听调用展示由当前来源提交规则覆盖的事件。默认筛出监听器排入攻击或登记任务的调用；“全部调用”也可查看没有攻击或任务的监听器。全局注册监听可能由其他角色的命中触发；事件攻击作为独立组件计算，不归入某次 E/Q 技能所有权。\n\n下表“监听／任务排队”只计监听器及其登记任务直接排队的攻击；攻击回调继续排入的子攻击在打开组件后查看。\n\n本次没有已审阅源码规则覆盖的事件监听调用。\n\n记录 7 个动作；创建来源未关联命中 4 个。\n\n每页动作\n20\n50\n上一页第 1 / 1 页下一页\n动作序号 1 · barbara · N 普攻\n\n排队帧 1；接受帧 1\n\n创建链（原生攻击创建回调）：1 次关联命中，已记账 33.529；触发链（含协同与装备效果）：1 次关联命中，已记账 33.529；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n打开创建链命中集合（1） 打开触发链命中集合（1）\n动作序号 2 · lisa · 切人\n\n排队帧 7；接受帧 7\n\n创建链（原生攻击创建回调）：没有可编辑的已记账命中；不能据此断言完整动作伤害为零；触发链（含协同与装备效果）：没有可编辑的已记账命中；不能据此断言完整动作伤害为零；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n动作序号 3 · lisa · E 技能\n\n排队帧 8；接受帧 8\n\n创建链（原生攻击创建回调）：3 次关联命中，已记账 10,652.61；触发链（含协同与装备效果）：3 次关联命中，已记账 10,652.61；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n打开创建链命中集合（3） 打开触发链命中集合（3）\n动作序号 4 · collei · 切人\n\n排队帧 226；接受帧 226\n\n创建链（原生攻击创建回调）：没有可编辑的已记账命中；不能据此断言完整动作伤害为零；触发链（含协同与装备效果）：没有可编辑的已记账命中；不能据此断言完整动作伤害为零；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n动作序号 5 · collei · E 技能\n\n排队帧 227；接受帧 227\n\n创建链（原生攻击创建回调）：2 次关联命中，已记账 376.117；触发链（含协同与装备效果）：2 次关联命中，已记账 376.117；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n打开创建链命中集合（2） 打开触发链命中集合（2） 打开主动状态关联动作观察集合（无已记账命中）\n动作序号 6 · xiangling · 切人\n\n排队帧 280；接受帧 293\n\n创建链（原生攻击创建回调）：没有可编辑的已记账命中；不能据此断言完整动作伤害为零；触发链（含协同与装备效果）：没有可编辑的已记账命中；不能据此断言完整动作伤害为零；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n动作序号 7 · xiangling · Q 爆发\n\n排队帧 294；接受帧 294\n\n创建链（原生攻击创建回调）：4 次关联命中，已记账 453.139；触发链（含协同与装备效果）：4 次关联命中，已记账 453.139；主动状态关联：没有可编辑的已记账命中；不能据此断言完整动作伤害为零。\n\n打开创建链命中集合（4） 打开触发链命中集合（4） 检查技能固有伤害 · 香菱 Q：三次起手与原生固定间隔旋火轮\n玩家实际受击账本\n\n本次没有玩家受击记录；旧版结果也可能未提供此账本。\n\n角色生命扣除账本\n\n本次没有 Drain 应用记录；旧版结果也可能未保存这条账本，不能据此断定没有扣血。\n\n重复动作相位观察\n\n尚未建立重复周期 · 来源状态证据为 provisional\n\n分析政策：预热 0 帧；周期上限 4；要求连续 3 个周期一致；最多观察 64 次。本次有 14 条观察，其中 0 条的状态提供者声明完整。\n\n结论只针对本次来源运行、已声明的原生状态和重复输入位置。周期成立要求完整原生状态（包括固定种子下 RNG 状态）重复；若随机流持续前进，就不会据此视为确定性周期。有限周期观察不是游戏验证，也不代表随机伤害分布；缺少或不透明的来源状态会阻止建立周期。\n\n原生边界并非同一解释器重复输入位置。\n实际相位观察（前 14 / 共 14 条）\n完整政策、观察和分析 JSON\n连续来源运行：能量与起步诊断\n\n源码 a7dc4bf；种子 20260930119；执行器 e8be234e25b62a4ff3bcbfe07577069c24260bbae9673e5e263cccc5e9771546。第 1–406 帧是同一次来源执行，分窗时没有重置角色、能量、冷却或随机流。\n\n前半窗 10,686.139 伤害、3,158.4647 DPS；后半窗 2,608.5541 伤害、771.0012 DPS。两窗 DPS 差 -2,387.4635。这是本次起步敏感性诊断，不能单凭伤害相近判定能量或随机稳态。\n\n面板充能是来源初始属性日志的舍入值；临时充能变化以各次粒子回执中的实际 ER 为准。\n\n实际观察窗\t角色\t初始面板充能\t窗边界能量\t实际获得\t溢出\t消耗\t粒子回执\t成功 Q\t拒绝 Q\t能量不足 Q\n前半窗 [1, 204)\tbarbara\t100%\t80 → 80\t0\t0\t0\t0\t0\t0\t0\n前半窗 [1, 204)\tlisa\t100%\t80 → 80\t0\t0\t0\t0\t0\t0\t0\n前半窗 [1, 204)\tcollei\t100%\t60 → 60\t0\t0\t0\t0\t0\t0\t0\n前半窗 [1, 204)\txiangling\t100%\t80 → 80\t0\t0\t0\t0\t0\t0\t0\n后半窗 [204, 407)\tbarbara\t100%\t80 → 80\t0\t1.8\t0\t1\t0\t0\t0\n后半窗 [204, 407)\tlisa\t100%\t80 → 80\t0\t1.8\t0\t1\t0\t0\t0\n后半窗 [204, 407)\tcollei\t100%\t60 → 60\t0\t5.4\t0\t1\t0\t0\t0\n后半窗 [204, 407)\txiangling\t100%\t80 → 3\t3\t0\t80\t1\t1\t0\t0\n实际能量回执（前 5 / 5 条）\n实际 Q 请求（1 次）\n实际能量操作与共享公式\n\n共 5 条带公式身份的能量应用。选择一条查看原始公式与代入；独立实验只重算已捕获数值，不重跑触发、冷却或粒子生成。\n\n选择实际能量事件\n送到独立能量计算器\nxiangling · xiangling-burst-energy-drain · 第 318 帧\n\n实际能量 80 → 0；公式重放 0；请求量 80；实际变化 -80；溢出 0。\n\n阶段\t数值\t公式\n消耗后的未截断能量\t0\t(energyBefore − amount)\n\n展开：消耗后的未截断能量的计算与解释\n\n角色消耗后能量\t0\tmax(subtracted, 0)\n\n展开：角色消耗后能量的计算与解释\n\n本次实际能量变化\t-80\t(energyAfter − energyBefore)\n\n展开：本次实际能量变化的计算与解释\n\n本次未入账的正向能量\t0\t0\n\n展开：本次未入账的正向能量的计算与解释\n编号\t帧\t角色\t操作\t来源\t能量前 → 后\t请求量\t查看\n0\t318\txiangling\t消耗\txiangling-burst-energy-drain\t80 → 0\t80\t查看公式\n1\t361\tbarbara\t粒子入账\tcollei\t80 → 80\t1.8\t查看公式\n2\t361\tlisa\t粒子入账\tcollei\t80 → 80\t1.8\t查看公式\n3\t361\tcollei\t粒子入账\tcollei\t60 → 60\t5.4\t查看公式\n4\t361\txiangling\t粒子入账\tcollei\t0 → 3\t3\t查看公式\n实际冷却公式操作（显示 6 / 6 条）\n\n这里展示来源实际经过共享公式的冷却数值步骤。角色覆写、冷却队列和动作安排仍由固定来源执行器处理；独立编辑只重算所选单步数值，不改变原生策略。\n\n选择冷却操作\n送到独立冷却计算器\nlisa · skill · 第 25 帧\n\n来源公式值 60 帧；共享公式重放 60 帧；差值 0 帧。\n\n冷却队列和动作安排、角色覆写和版本分支保持来源历史状态。\n\n冷却修饰器 Amount 的条件与来源、充能队列和 worker 调度仍由固定 Go 宿主执行。\n阶段\t数值\t公式\ncooldown-factor：读取起点\t1\tbase\n\n展开：cooldown-factor：读取起点的计算与解释\n\ncooldown-factor：实际输出\t1\toutput\n\n展开：cooldown-factor：实际输出的计算与解释\n\n冷却修正后未截断帧数\t60\t(originalDuration × cooldownFactor)\n\n展开：冷却修正后未截断帧数的计算与解释\n\n写入队列的冷却帧数\t60\ttrunc(product)\n\n展开：写入队列的冷却帧数的计算与解释\n编号\t帧\t角色\t动作\t操作\t数值\n0\t25\tlisa\tskill (1)\tduration\t60\n1\t25\tlisa\tskill (1)\tremaining\t60\n2\t247\tcollei\tskill (1)\tduration\t720\n3\t247\tcollei\tskill (1)\tremaining\t720\n4\t312\txiangling\tburst (2)\tduration\t1200\n5\t312\txiangling\tburst (2)\tremaining\t1200\n\n本次结果没有共享角色护盾生成／刷新公式记录；旧来源的护盾 HP 计算可能未捕获，不能据此断定没有护盾。\n\n完整来源事件日志\n固定来源注册名册\n\n本宿主实际导入 420 个来源包：角色 124、武器 241、圣遗物套装 55。这是包注册数，包含不同形态；不是最新角色总数，也不代表每个分支均已验证。\n\n固定提交 a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd · 角色注册 · 武器注册 · 套装注册。\n\n420 个包的配置键已由注册函数、来源目录与解析器别名表共同确定；0 个配置键仍待查。已取得 420 个包的实现元数据：178 个包涉及 387 处明确 TODO／未实现标记，按包展开为 444 条（共享文件会重复列出）。\n\n搜索名称、配置键、包路径或 TODO 原文\n类型\n全部（420）\n角色（124）\n武器（241）\n圣遗物套装（55）\n来源说明\n全部条目\n有明确 TODO／未实现标记\n配置键仍待查\n每页条目\n12\n24\n\n匹配 420 / 420 个来源包；显示第 1–12 条。\n\n爱诺\n角色 · aino\n配置键 aino\n明确 TODO／未实现标记 1 条\n\n查看固定注册行\n\n阿贝多\n角色 · albedo\n配置键 albedo\n明确 TODO／未实现标记 2 条\n\n查看固定注册行\n\n艾尔海森\n角色 · alhaitham\n配置键 alhaitham\n明确 TODO／未实现标记 0 条\n\n查看固定注册行\n\n埃洛伊\n角色 · aloy\n配置键 aloy\n明确 TODO／未实现标记 1 条\n\n查看固定注册行\n\n安柏\n角色 · amber\n配置键 amber\n明确 TODO／未实现标记 4 条\n\n查看固定注册行\n\n阿蕾奇诺\n角色 · arlecchino\n配置键 arlecchino\n明确 TODO／未实现标记 3 条\n\n查看固定注册行\n\n神里绫华\n角色 · ayaka\n配置键 kamisatoayaka\n明确 TODO／未实现标记 5 条\n\n查看固定注册行\n\n神里绫人\n角色 · ayato\n配置键 kamisatoayato\n明确 TODO／未实现标记 2 条\n\n查看固定注册行\n\n白术\n角色 · baizhu\n配置键 baizhu\n明确 TODO／未实现标记 1 条\n\n查看固定注册行\n\n芭芭拉\n角色 · barbara\n配置键 barbara\n明确 TODO／未实现标记 2 条\n\n查看固定注册行\n\n北斗\n角色 · beidou\n配置键 beidou\n明确 TODO／未实现标记 4 条\n\n查看固定注册行\n\n班尼特\n角色 · bennett\n配置键 bennett\n明确 TODO／未实现标记 0 条\n\n查看固定注册行\n\n上一页\n第 1 / 35 页\n下一页\n\n选择一个条目，即可查看注册键、固定源码与具体 TODO。生成单角色或单件装备的配置片段无需先填写完整队伍。\n\n打开独立技能计算器；其来源映射与本宿主注册范围分别记录，不能把包注册数当作独立计算器的完整动作数。"
+  },
+  "pageErrors": []
+}

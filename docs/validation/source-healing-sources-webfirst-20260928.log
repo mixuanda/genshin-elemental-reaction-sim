@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-healing-calculator.ts(36,67): error TS2339: Property 'state' does not exist on type '{ operation: "receive-override"; branch: "arlecchino-rejected"; finalAmount: number; } | { operation: "receive-override"; branch: "clorinde-converted"; finalAmount: number; convertedAmount: number; } | ... 9 more ... | { ...; }'.
+  Property 'state' does not exist on type '{ operation: "receive-override"; branch: "arlecchino-rejected"; finalAmount: number; }'.

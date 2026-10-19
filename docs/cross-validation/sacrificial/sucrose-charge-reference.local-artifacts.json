@@ -1,0 +1,173 @@
+{
+  "localCombatExecutions": 1,
+  "simulateApiInvocations": 2,
+  "configurationParsingFailures": 1,
+  "externalCliInvocationsDuringLocalStage": 0,
+  "files": [
+    {
+      "path": "docs/cross-validation/sacrificial/compare-local.mjs",
+      "bytes": 14237,
+      "sha256": "3451a72d424ed6e8d87c28abb3463d34007c6be7545973930b81ea79e5b159e6"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/extract-reference.py",
+      "bytes": 7356,
+      "sha256": "85c5c3ff093b0a76ec785ef2775d9b986e10f34d4e62a904f164ceb25bb02e8f"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/fixed-source.json.gz",
+      "bytes": 36752,
+      "sha256": "bacb69fa2d3f37d346b01681c38ccf361825d3c6e08ee6b87d85137091be7d5d"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/fixed-source.manifest.json",
+      "bytes": 8705,
+      "sha256": "6f4a5eccb2040df4bb10b2a03231a73c58f3a8382c8f80145ce1fb49f9a61a07"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.execution.json",
+      "bytes": 1624,
+      "sha256": "7e62585a5d9cb32d3e0c1470e1c07dbad542fd2a85a287cb18d083b9b978c50f"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.gcsl",
+      "bytes": 647,
+      "sha256": "53eb8fbb1491d822ec485b01817f37b3c5a1ee275baf5518812773c3bfc6f845"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-0.capture.json",
+      "bytes": 548257,
+      "sha256": "218c48fff6d97c284382b6588e6b8a428ff4d5447bad3bc6fdc25c67080bf562"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-0.replay.json",
+      "bytes": 618737,
+      "sha256": "cb3f362e2441c06eea8d45d4e47db09fab2b14daa52297064fba8907340b29d4"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-1.capture.json",
+      "bytes": 548257,
+      "sha256": "4996100f98a1e957af0e8506f8d9a90b6c32afe61e400c06fbdb2f8f4073a5b7"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-1.replay.json",
+      "bytes": 618737,
+      "sha256": "843f4123b87e29994aa96acabe9c01826efca9fd2e673c4ebaac9bf5b7fbcafe"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-2.capture.json",
+      "bytes": 548257,
+      "sha256": "c46867b3c70505e07d2a1e0d55a3dfb287a005c616a25b0c7f7ccf9bbc486bc7"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-2.replay.json",
+      "bytes": 618737,
+      "sha256": "fd988ee0ce07d0949ce94ffbdeb671a7334bafd5c30ef20e68f9c714c3ba5105"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-3.capture.json",
+      "bytes": 548257,
+      "sha256": "c879ef7a85e74ded16886879a3bdf7208b10eb0dd9ddc4bae8e1930415523e3e"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-3.replay.json",
+      "bytes": 618713,
+      "sha256": "2cb9546b2d2731af8fb43b1cbee58d2bedba056571cb0e856583d22985bdd2ea"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-4.capture.json",
+      "bytes": 548257,
+      "sha256": "4c51cc8e804f02e9e919956ad9f395768743838db4ac755f7f012d9f9412e0e4"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-4.replay.json",
+      "bytes": 618713,
+      "sha256": "789dfdf633d961347bad33656b48db282e4be7ae0680b8783e3aee4cfc252be8"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-5.capture.json",
+      "bytes": 548257,
+      "sha256": "4862f9a0282e564af8f33a71474414821e96791d7fcc1a6e85bc3532081b67c5"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-5.replay.json",
+      "bytes": 618713,
+      "sha256": "03d711eeabef67c1cd47d862226669c0a4e8818013a79bd20d89f856ff651c5f"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-6.capture.json",
+      "bytes": 548257,
+      "sha256": "c38b98ce61a2ade8f6b6a64895bf5ca807f27041de453801fd1cacf436bb2bb9"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-6.replay.json",
+      "bytes": 618744,
+      "sha256": "5c2508eb22be4592ea94648ca5cc3a687a1c6bf3379952866318a8a31370ec05"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-7.capture.json",
+      "bytes": 548257,
+      "sha256": "6102d42229bb7c3c19d108e9c10594b37951100f6ca176841fe8c3e7b22f26d4"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-7.replay.json",
+      "bytes": 618744,
+      "sha256": "26e0758b91064ffa8b13b4d611bc66f50edf2ad2724caa711662abbb25f1acea"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-8.capture.json",
+      "bytes": 548257,
+      "sha256": "3832e8c0c316aaa3832117da082d85e3d1c4b4e8ca66147b981f49b6762b24ab"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.hit-8.replay.json",
+      "bytes": 618744,
+      "sha256": "bd3c75505b8aad9016b1dede990fcf80612bd6ff6c69db657342486d1e94c1cd"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.local-attempt1-config.json",
+      "bytes": 6261,
+      "sha256": "03ee276b093180c90671cec7853b5b4a35c395c0d19558d4b77be800bdd18f81"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.local-attempt1-error.json",
+      "bytes": 30526,
+      "sha256": "9cfa40f50d90f8c6ebf17ec71de488580295e068e92de24b06c628662ef2549e"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.local-attempt1-execution.json",
+      "bytes": 473,
+      "sha256": "7ee6cad49020cbc5ac961581a5e1d42c632b99284629b24f974acfc98b528a85"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.local-config.json",
+      "bytes": 6261,
+      "sha256": "e4e262108e6ba9ea3202d83a7c9dc3701dff312564cd6b22e76d6c1475547a54"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.local-metrics.json",
+      "bytes": 55163,
+      "sha256": "0f8694dc2b1ffabbcb5d5e3706fc4aa18807b010d554bb83a470571eb34e0aed"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.local-result.json",
+      "bytes": 515474,
+      "sha256": "84a233b6f411bb2a088763184adaa09237c38bccf4f3b8b6548c26b9090a52b5"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.reference.json",
+      "bytes": 40548,
+      "sha256": "18c0a596efb7ee376b95b4f94249f281795b649e946c29b4ab41a6772bee942e"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.result.json",
+      "bytes": 9279,
+      "sha256": "fd0b72ad4c82b170a330b28612bc0f92f874aa74e6f2819ac45e76ac0759f741"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.sample.json",
+      "bytes": 34857,
+      "sha256": "a1fd3bea97034efb66609d3972a76e130400ed7159f46888e7f78b42c05fff94"
+    }
+  ]
+}

@@ -1,0 +1,1211 @@
+--- a/internal/characters/albedo/asc.go
++++ b/internal/characters/albedo/asc.go
+@@ -33,6 +33,10 @@
+ 			if e, ok := t.(*enemy.Enemy); !(ok && e.HP()/e.MaxHP() < .5) {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-albedo-albedo-a1-dmgp-0p25"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+@@ -50,6 +54,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("albedo-a4", 600),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-albedo-albedo-a4-em-125"}, []int{int(attributes.EM)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/albedo/cons.go
++++ b/internal/characters/albedo/cons.go
+@@ -41,6 +41,10 @@
+ 					if atk.Info.AttackTag != attacks.AttackTagPlunge {
+ 						return nil
+ 					}
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-albedo-albedo-c4-dmgp-0p3"}, []int{int(attributes.DmgP)})
++					}
+ 					return m
+ 				},
+ 			})
+@@ -75,6 +79,10 @@
+ 				Base:         modifier.NewBase("albedo-c6", 60), // 1s
+ 				AffectedStat: attributes.DmgP,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-albedo-albedo-c6-dmgp-0p17"}, []int{int(attributes.DmgP)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/amber/asc.go
++++ b/internal/characters/amber/asc.go
+@@ -20,6 +20,10 @@
+ 		Base: modifier.NewBase("amber-a1", -1),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag == attacks.AttackTagElementalBurst {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-amber-amber-a1-cr-0p1"}, []int{int(attributes.CR)})
++				}
+ 				return m
+ 			}
+ 			return nil
+@@ -53,6 +57,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("amber-a4", 600),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-amber-amber-a4-atkp-0p15"}, []int{int(attributes.ATKP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/amber/burst.go
++++ b/internal/characters/amber/burst.go
+@@ -76,6 +76,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("amber-c6", 900),
+ 				AffectedStat: attributes.ATKP,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-amber-amber-c6-atkp-0p15"}, []int{int(attributes.ATKP)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/amber/cons.go
++++ b/internal/characters/amber/cons.go
+@@ -22,6 +22,10 @@
+ 			if atk.Info.Abil != manualExplosionAbil {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-amber-amber-c2-dmgp-2"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/arlecchino/asc.go
++++ b/internal/characters/arlecchino/asc.go
+@@ -19,6 +19,10 @@
+ 		Base:         modifier.NewBase("arlecchino-passive", -1),
+ 		AffectedStat: attributes.PyroP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-arlecchino-arlecchino-passive-pyrop-0p4"}, []int{int(attributes.PyroP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/ayaka/asc.go
++++ b/internal/characters/ayaka/asc.go
+@@ -19,6 +19,10 @@
+ 		Base: modifier.NewBaseWithHitlag("ayaka-a1", 360),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag == attacks.AttackTagNormal || atk.Info.AttackTag == attacks.AttackTagExtra {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-ayaka-ayaka-a1-dmgp-0p3"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			}
+ 			return nil
+@@ -53,6 +57,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("ayaka-a4", 600),
+ 			AffectedStat: attributes.CryoP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-ayaka-ayaka-a4-cryop-0p18"}, []int{int(attributes.CryoP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/ayaka/cons.go
++++ b/internal/characters/ayaka/cons.go
+@@ -90,6 +90,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagExtra {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-ayaka-ayaka-c6-dmgp-2p98"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/ayato/burst.go
++++ b/internal/characters/ayato/burst.go
+@@ -91,6 +91,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("ayato-c4", 15*60),
+ 				AffectedStat: attributes.AtkSpd,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-ayato-ayato-c4-atkspd-0p15"}, []int{int(attributes.AtkSpd)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/ayato/cons.go
++++ b/internal/characters/ayato/cons.go
+@@ -29,6 +29,10 @@
+ 				if a.Info.AttackTag != attacks.AttackTagNormal || x.HP()/x.MaxHP() > 0.5 {
+ 					return nil
+ 				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-ayato-ayato-c1-dmgp-0p4"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			},
+ 		})
+@@ -43,6 +47,10 @@
+ 		AffectedStat: attributes.HPP,
+ 		Amount: func() []float64 {
+ 			if c.stacks >= 3 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-ayato-ayato-c2-hpp-0p5"}, []int{int(attributes.HPP)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/baizhu/asc.go
++++ b/internal/characters/baizhu/asc.go
+@@ -25,6 +25,10 @@
+ 		Amount: func() []float64 {
+ 			active := c.Core.Player.ActiveChar()
+ 			if active.CurrentHPRatio() < 0.5 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), mHeal,
++						[]string{"char-baizhu-baizhu-a1-heal-bonus-heal-0p2"}, []int{int(attributes.Heal)})
++				}
+ 				return mHeal
+ 			}
+ 			return nil
+@@ -40,6 +44,10 @@
+ 		Amount: func() []float64 {
+ 			active := c.Core.Player.ActiveChar()
+ 			if active.CurrentHPRatio() >= 0.5 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), mDendroP,
++						[]string{"char-baizhu-baizhu-a1-dendro-dmg-dendrop-0p25"}, []int{int(attributes.DendroP)})
++				}
+ 				return mDendroP
+ 			}
+ 			return nil
+--- a/internal/characters/baizhu/cons.go
++++ b/internal/characters/baizhu/cons.go
+@@ -82,6 +82,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("baizhu-c4", 900),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-baizhu-baizhu-c4-em-80"}, []int{int(attributes.EM)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/beidou/asc.go
++++ b/internal/characters/beidou/asc.go
+@@ -27,6 +27,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mDmg,
++					[]string{"char-beidou-beidou-a4-dmg-dmgp-0p15"}, []int{int(attributes.DmgP)})
++			}
+ 			return mDmg
+ 		},
+ 	})
+@@ -37,6 +41,10 @@
+ 		Base:         modifier.NewBaseWithHitlag("beidou-a4-atkspd", 600),
+ 		AffectedStat: attributes.AtkSpd,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mAtkSpd,
++					[]string{"char-beidou-beidou-a4-atkspd-atkspd-0p15"}, []int{int(attributes.AtkSpd)})
++			}
+ 			return mAtkSpd
+ 		},
+ 	})
+--- a/internal/characters/bennett/cons.go
++++ b/internal/characters/bennett/cons.go
+@@ -15,6 +15,10 @@
+ 		AffectedStat: attributes.ER,
+ 		Amount: func() []float64 {
+ 			if c.CurrentHPRatio() < 0.7 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-bennett-bennett-c2-er-0p3"}, []int{int(attributes.ER)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/candace/cons.go
++++ b/internal/characters/candace/cons.go
+@@ -21,6 +21,10 @@
+ 		Base:         modifier.NewBaseWithHitlag("candace-c2", 15*60),
+ 		AffectedStat: attributes.HPP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-candace-candace-c2-hpp-0p2"}, []int{int(attributes.HPP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/chongyun/cons.go
++++ b/internal/characters/chongyun/cons.go
+@@ -54,6 +54,10 @@
+ 					return nil
+ 				}
+ 				if x.HP()/x.MaxHP() < c.CurrentHPRatio() {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-chongyun-chongyun-c6-dmgp-0p15"}, []int{int(attributes.DmgP)})
++					}
+ 					return m
+ 				}
+ 				return nil
+--- a/internal/characters/chongyun/skill.go
++++ b/internal/characters/chongyun/skill.go
+@@ -166,6 +166,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("chongyun-field", dur),
+ 				AffectedStat: attributes.NoStat,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-chongyun-chongyun-field-atkspd-0p08"}, []int{int(attributes.AtkSpd)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/citlali/cons.go
++++ b/internal/characters/citlali/cons.go
+@@ -71,6 +71,10 @@
+ 		Base:         modifier.NewBase("citlali-c2-em", -1),
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), buffSelf,
++					[]string{"char-citlali-citlali-c2-em-em-125"}, []int{int(attributes.EM)})
++			}
+ 			return buffSelf
+ 		},
+ 	})
+@@ -91,6 +95,10 @@
+ 				}
+ 				if c.Core.Player.Shields.Get(shield.CitlaliSkill) == nil && !c.nightsoulState.HasBlessing() {
+ 					return nil
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), buffOther,
++						[]string{"char-citlali-citlali-c2-em-em-250"}, []int{int(attributes.EM)})
+ 				}
+ 				return buffOther
+ 			},
+--- a/internal/characters/clorinde/cons.go
++++ b/internal/characters/clorinde/cons.go
+@@ -123,6 +123,10 @@
+ 		Base:         modifier.NewBase("clorinde-c6-cr-bonus", c6Icd),
+ 		AffectedStat: attributes.CR,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mCR,
++					[]string{"char-clorinde-clorinde-c6-cr-bonus-cr-0p1"}, []int{int(attributes.CR)})
++			}
+ 			return mCR
+ 		},
+ 	})
+@@ -133,6 +137,10 @@
+ 		Base:         modifier.NewBase("clorinde-c6-cd-bonus", c6Icd),
+ 		AffectedStat: attributes.CD,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mCD,
++					[]string{"char-clorinde-clorinde-c6-cd-bonus-cd-0p7"}, []int{int(attributes.CD)})
++			}
+ 			return mCD
+ 		},
+ 	})
+--- a/internal/characters/collei/cons.go
++++ b/internal/characters/collei/cons.go
+@@ -20,6 +20,10 @@
+ 		AffectedStat: attributes.ER,
+ 		Amount: func() []float64 {
+ 			if c.Core.Player.Active() != c.Index() {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-collei-collei-c1-er-0p2"}, []int{int(attributes.ER)})
++				}
+ 				return m
+ 			}
+ 			return nil
+@@ -69,6 +73,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("collei-c4", 720),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), amts,
++						[]string{"char-collei-collei-c4-em-60"}, []int{int(attributes.EM)})
++				}
+ 				return amts
+ 			},
+ 		})
+--- a/internal/characters/cyno/asc.go
++++ b/internal/characters/cyno/asc.go
+@@ -41,6 +41,10 @@
+ 			if atk.Info.Abil != skillBName {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-cyno-cyno-a1-dmg-dmgp-0p35"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/dehya/cons.go
++++ b/internal/characters/dehya/cons.go
+@@ -24,6 +24,10 @@
+ 		Base:         modifier.NewBase("dehya-c1", -1),
+ 		AffectedStat: attributes.HPP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-dehya-dehya-c1-hpp-0p2"}, []int{int(attributes.HPP)})
++			}
+ 			return m
+ 		},
+ 	})
+@@ -53,6 +57,10 @@
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.Abil != skillDoTAbil || !c.hasC2DamageBuff {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), val,
++					[]string{"char-dehya-dehya-sanctum-dot-c2-dmgp-0p5"}, []int{int(attributes.DmgP)})
+ 			}
+ 			return val
+ 		},
+--- a/internal/characters/diluc/cons.go
++++ b/internal/characters/diluc/cons.go
+@@ -22,6 +22,10 @@
+ 					return nil
+ 				}
+ 				if x.HP()/x.MaxHP() > 0.5 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-diluc-diluc-c1-dmgp-0p15"}, []int{int(attributes.DmgP)})
++					}
+ 					return m
+ 				}
+ 				return nil
+--- a/internal/characters/diluc/skill.go
++++ b/internal/characters/diluc/skill.go
+@@ -74,6 +74,10 @@
+ 					return nil
+ 				}
+ 				c.c6Count++
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-diluc-diluc-c6-dmg-dmgp-0p3"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			},
+ 		})
+@@ -89,6 +93,10 @@
+ 				}
+ 				if c.c6Count > 1 {
+ 					return nil
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), mAtkSpd,
++						[]string{"char-diluc-diluc-c6-speed-atkspd-0p3"}, []int{int(attributes.AtkSpd)})
+ 				}
+ 				return mAtkSpd
+ 			},
+--- a/internal/characters/diona/cons.go
++++ b/internal/characters/diona/cons.go
+@@ -16,6 +16,10 @@
+ 		Base: modifier.NewBase("diona-c2", -1),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag == attacks.AttackTagElementalArt {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-diona-diona-c2-dmgp-0p15"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/dori/cons.go
++++ b/internal/characters/dori/cons.go
+@@ -62,6 +62,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("dori-c4-er-bonus", 48),
+ 			AffectedStat: attributes.ER,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), erMod,
++						[]string{"char-dori-dori-c4-er-bonus-er-0p3"}, []int{int(attributes.ER)})
++				}
+ 				return erMod
+ 			},
+ 		})
+--- a/internal/characters/durin/cons.go
++++ b/internal/characters/durin/cons.go
+@@ -227,6 +227,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-durin-durin-c4-dmgp-0p4"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/eula/cons.go
++++ b/internal/characters/eula/cons.go
+@@ -28,6 +28,10 @@
+ 				if x.HP()/x.MaxHP() >= 0.5 {
+ 					return nil
+ 				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-eula-eula-c4-dmgp-0p25"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/faruzan/cons.go
++++ b/internal/characters/faruzan/cons.go
+@@ -46,6 +46,10 @@
+ 			if atk.Info.Element != attributes.Anemo {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-faruzan-faruzan-c6-cd-0p4"}, []int{int(attributes.CD)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/gaming/asc.go
++++ b/internal/characters/gaming/asc.go
+@@ -59,6 +59,10 @@
+ 			if c.CurrentHPRatio() >= 0.5 {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mHeal,
++					[]string{"char-gaming-gaming-a4-heal-bonus-heal-0p2"}, []int{int(attributes.Heal)})
++			}
+ 			return mHeal
+ 		},
+ 	})
+@@ -74,6 +78,10 @@
+ 			if atk.Info.Abil != specialPlungeKey {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mDmg,
++					[]string{"char-gaming-gaming-a4-dmg-bonus-dmgp-0p2"}, []int{int(attributes.DmgP)})
++			}
+ 			return mDmg
+ 		},
+ 	})
+--- a/internal/characters/ganyu/burst.go
++++ b/internal/characters/ganyu/burst.go
+@@ -76,6 +76,10 @@
+ 					Base:         modifier.NewBaseWithHitlag("ganyu-field", 60),
+ 					AffectedStat: attributes.CryoP,
+ 					Amount: func() []float64 {
++						if c.Core.SourceHost != nil {
++							return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++								[]string{"char-ganyu-ganyu-field-cryop-0p2"}, []int{int(attributes.CryoP)})
++						}
+ 						return m
+ 					},
+ 				})
+--- a/internal/characters/ifa/asc.go
++++ b/internal/characters/ifa/asc.go
+@@ -65,6 +65,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("ifa-a4", 10*60),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-ifa-ifa-a4-em-80"}, []int{int(attributes.EM)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/ifa/cons.go
++++ b/internal/characters/ifa/cons.go
+@@ -56,6 +56,10 @@
+ 		Base:         modifier.NewBaseWithHitlag("ifa-c4", 15*60),
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-ifa-ifa-c4-em-100"}, []int{int(attributes.EM)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/itto/cons.go
++++ b/internal/characters/itto/cons.go
+@@ -50,6 +50,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("itto-c4", 10*60),
+ 			AffectedStat: attributes.NoStat,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-itto-itto-c4-atkp-0p2", "char-itto-itto-c4-defp-0p2"}, []int{int(attributes.ATKP), int(attributes.DEFP)})
++				}
+ 				return m
+ 			},
+ 		})
+@@ -67,6 +71,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagExtra {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-itto-itto-c6-cd-0p7"}, []int{int(attributes.CD)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/kaveh/cons.go
++++ b/internal/characters/kaveh/cons.go
+@@ -23,6 +23,10 @@
+ 		Base:         modifier.NewBaseWithHitlag("kaveh-c1", 180),
+ 		AffectedStat: attributes.NoStat,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-kaveh-kaveh-c1-heal-0p25"}, []int{int(attributes.Heal)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/klee/burst.go
++++ b/internal/characters/klee/burst.go
+@@ -102,6 +102,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("klee-c6", 1500),
+ 				AffectedStat: attributes.PyroP,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-klee-klee-c6-pyrop-0p1"}, []int{int(attributes.PyroP)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/kokomi/asc.go
++++ b/internal/characters/kokomi/asc.go
+@@ -18,6 +18,10 @@
+ 		Base:         modifier.NewBase("kokomi-passive", -1),
+ 		AffectedStat: attributes.NoStat,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-kokomi-kokomi-passive-heal-0p25", "char-kokomi-kokomi-passive-cr-neg1"}, []int{int(attributes.Heal), int(attributes.CR)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/kokomi/burst.go
++++ b/internal/characters/kokomi/burst.go
+@@ -71,6 +71,10 @@
+ 			Base:         modifier.NewBase("kokomi-c4", 10*60),
+ 			AffectedStat: attributes.AtkSpd,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-kokomi-kokomi-c4-atkspd-0p1"}, []int{int(attributes.AtkSpd)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/kokomi/cons.go
++++ b/internal/characters/kokomi/cons.go
+@@ -79,6 +79,10 @@
+ 			AffectedStat: attributes.HydroP,
+ 			Extra:        true,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-kokomi-kokomi-c6-hydrop-0p4"}, []int{int(attributes.HydroP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/kuki/asc.go
++++ b/internal/characters/kuki/asc.go
+@@ -18,6 +18,10 @@
+ 		AffectedStat: attributes.Heal,
+ 		Amount: func() []float64 {
+ 			if c.CurrentHPRatio() <= 0.5 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-kuki-kuki-a1-heal-0p15"}, []int{int(attributes.Heal)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/kuki/cons.go
++++ b/internal/characters/kuki/cons.go
+@@ -87,6 +87,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("kuki-c6", 900),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-kuki-kuki-c6-em-150"}, []int{int(attributes.EM)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/lanyan/cons.go
++++ b/internal/characters/lanyan/cons.go
+@@ -51,6 +51,10 @@
+ 		char.AddStatMod(character.StatMod{
+ 			Base: modifier.NewBaseWithHitlag("lanyan-c4", 12*60),
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-lanyan-lanyan-c4-em-60"}, []int{int(attributes.EM)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/lauma/asc.go
++++ b/internal/characters/lauma/asc.go
+@@ -69,6 +69,10 @@
+ 			Base: modifier.NewBase("lauma-a1-ascendant", -1),
+ 			Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 				if atk.Info.AttackTag == attacks.AttackTagDirectLunarBloom {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-lauma-lauma-a1-ascendant-cr-0p1", "char-lauma-lauma-a1-ascendant-cd-0p2"}, []int{int(attributes.CR), int(attributes.CD)})
++					}
+ 					return m
+ 				}
+ 				return nil
+--- a/internal/characters/layla/cons.go
++++ b/internal/characters/layla/cons.go
+@@ -49,6 +49,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalBurst && atk.Info.Abil != shootingStarsAbil {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-layla-layla-c6-dmgp-0p4"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/lisa/skill.go
++++ b/internal/characters/lisa/skill.go
+@@ -135,6 +135,10 @@
+ 			Base:         modifier.NewBase("lisa-c2", 126),
+ 			AffectedStat: attributes.DEFP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-lisa-lisa-c2-defp-0p25"}, []int{int(attributes.DEFP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/lynette/asc.go
++++ b/internal/characters/lynette/asc.go
+@@ -58,6 +58,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-lynette-lynette-a4-dmgp-0p15"}, []int{int(attributes.DmgP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/lynette/cons.go
++++ b/internal/characters/lynette/cons.go
+@@ -49,6 +49,10 @@
+ 	c.AddStatMod(character.StatMod{
+ 		Base: modifier.NewBaseWithHitlag("lynette-c6-buff", duration),
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-lynette-lynette-c6-buff-anemop-0p2"}, []int{int(attributes.AnemoP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/mavuika/cons.go
++++ b/internal/characters/mavuika/cons.go
+@@ -53,6 +53,10 @@
+ 		Base: modifier.NewBase("mavuika-c2-base-atk", -1),
+ 		Amount: func() []float64 {
+ 			if c.nightsoulState.HasBlessing() {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-mavuika-mavuika-c2-base-atk-baseatk-200"}, []int{int(attributes.BaseATK)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/mona/cons.go
++++ b/internal/characters/mona/cons.go
+@@ -151,6 +151,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("mona-hexerei-c2-em", 12*60),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-mona-mona-hexerei-c2-em-em-80"}, []int{int(attributes.EM)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/nahida/cons.go
++++ b/internal/characters/nahida/cons.go
+@@ -85,6 +85,10 @@
+ 					return nil
+ 				}
+ 				if ae.Info.AttackTag == attacks.AttackTagDirectLunarBloom {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-nahida-nahida-c2-lunarbloom-cr-0p1", "char-nahida-nahida-c2-lunarbloom-cd-0p2"}, []int{int(attributes.CR), int(attributes.CD)})
++					}
+ 					return m
+ 				}
+ 				return nil
+--- a/internal/characters/nilou/asc.go
++++ b/internal/characters/nilou/asc.go
+@@ -73,6 +73,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("nilou-a1-em", 10*60),
+ 				AffectedStat: attributes.EM,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-nilou-nilou-a1-em-em-100"}, []int{int(attributes.EM)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/nilou/cons.go
++++ b/internal/characters/nilou/cons.go
+@@ -22,6 +22,10 @@
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.Abil != skillIllusionAbil {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-nilou-nilou-c1-dmgp-0p65"}, []int{int(attributes.DmgP)})
+ 			}
+ 			return m
+ 		},
+@@ -76,6 +80,10 @@
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag != attacks.AttackTagElementalBurst {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-nilou-nilou-c4-dmgp-0p5"}, []int{int(attributes.DmgP)})
+ 			}
+ 			return m
+ 		},
+--- a/internal/characters/ningguang/asc.go
++++ b/internal/characters/ningguang/asc.go
+@@ -31,6 +31,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("ning-screen", 600),
+ 			AffectedStat: attributes.GeoP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-ningguang-ning-screen-geop-0p12"}, []int{int(attributes.GeoP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/noelle/cons.go
++++ b/internal/characters/noelle/cons.go
+@@ -20,6 +20,10 @@
+ 		Base: modifier.NewBase("noelle-c2-dmg", -1),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag == attacks.AttackTagExtra {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-noelle-noelle-c2-dmg-dmgp-0p15"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/raiden/cons.go
++++ b/internal/characters/raiden/cons.go
+@@ -41,6 +41,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("raiden-c4", 600),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-raiden-raiden-c4-atkp-0p3"}, []int{int(attributes.ATKP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/rosaria/asc.go
++++ b/internal/characters/rosaria/asc.go
+@@ -30,6 +30,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("rosaria-a1", 300),
+ 			AffectedStat: attributes.CR,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-rosaria-rosaria-a1-cr-0p12"}, []int{int(attributes.CR)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/rosaria/cons.go
++++ b/internal/characters/rosaria/cons.go
+@@ -37,6 +37,10 @@
+ 				if atk.Info.AttackTag != attacks.AttackTagNormal {
+ 					return nil
+ 				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-rosaria-rosaria-c1-dmg-dmgp-0p1"}, []int{int(attributes.DmgP)})
++				}
+ 				return m
+ 			},
+ 		})
+@@ -49,6 +53,10 @@
+ 			Amount: func() []float64 {
+ 				if c.Core.Player.CurrentState() != action.NormalAttackState {
+ 					return nil
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), mAtkSpd,
++						[]string{"char-rosaria-rosaria-c1-speed-atkspd-0p1"}, []int{int(attributes.AtkSpd)})
+ 				}
+ 				return mAtkSpd
+ 			},
+--- a/internal/characters/sethos/cons.go
++++ b/internal/characters/sethos/cons.go
+@@ -42,6 +42,10 @@
+ 			}
+ 			if atk.Info.Abil != shadowPierceShotAil {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-sethos-sethos-c1-cr-0p15"}, []int{int(attributes.CR)})
+ 			}
+ 			return m
+ 		},
+--- a/internal/characters/tighnari/asc.go
++++ b/internal/characters/tighnari/asc.go
+@@ -18,6 +18,10 @@
+ 		Base:         modifier.NewBase("tighnari-a1", 4*60),
+ 		AffectedStat: attributes.EM,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-tighnari-tighnari-a1-em-50"}, []int{int(attributes.EM)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/tighnari/cons.go
++++ b/internal/characters/tighnari/cons.go
+@@ -20,6 +20,10 @@
+ 			if atk.Info.AttackTag != attacks.AttackTagExtra {
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-tighnari-tighnari-c1-cr-0p15"}, []int{int(attributes.CR)})
++			}
+ 			return m
+ 		},
+ 	})
+@@ -39,6 +43,10 @@
+ 				Base:         modifier.NewBase("tighnari-c2", 6*60),
+ 				AffectedStat: attributes.DendroP,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-tighnari-tighnari-c2-dendrop-0p2"}, []int{int(attributes.DendroP)})
++					}
+ 					return m
+ 				},
+ 			})
+@@ -62,6 +70,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("tighnari-c4", 8*60),
+ 				AffectedStat: attributes.EM,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-tighnari-tighnari-c4-em-60"}, []int{int(attributes.EM)})
++					}
+ 					return m
+ 				},
+ 			})
+@@ -88,6 +100,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("tighnari-c4", 8*60),
+ 				AffectedStat: attributes.EM,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-tighnari-tighnari-c4-em-120"}, []int{int(attributes.EM)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/traveler/common/anemo/cons.go
++++ b/internal/characters/traveler/common/anemo/cons.go
+@@ -16,6 +16,10 @@
+ 		Base:         modifier.NewBase("amc-c2", -1),
+ 		AffectedStat: attributes.ER,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-traveler-anemo-amc-c2-er-0p16"}, []int{int(attributes.ER)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/traveler/common/geo/cons.go
++++ b/internal/characters/traveler/common/geo/cons.go
+@@ -41,6 +41,10 @@
+ 				Base:         modifier.NewBaseWithHitlag("geo-traveler-c1", 120), // 2s
+ 				AffectedStat: attributes.CR,
+ 				Amount: func() []float64 {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-traveler-geo-geo-traveler-c1-cr-0p1"}, []int{int(attributes.CR)})
++					}
+ 					return m
+ 				},
+ 			})
+--- a/internal/characters/traveler/common/pyro/cons.go
++++ b/internal/characters/traveler/common/pyro/cons.go
+@@ -86,6 +86,10 @@
+ 	c.AddStatMod(character.StatMod{
+ 		Base: modifier.NewBaseWithHitlag("travelerpyro-c4", 9*60),
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), mPyroDmg,
++					[]string{"char-traveler-pyro-travelerpyro-c4-pyrop-0p2"}, []int{int(attributes.PyroP)})
++			}
+ 			return mPyroDmg
+ 		},
+ 	})
+--- a/internal/characters/varesa/cons.go
++++ b/internal/characters/varesa/cons.go
+@@ -44,6 +44,10 @@
+ 			}
+ 			if !c.nightsoulState.HasBlessing() && !c.StatusIsActive(apexState) {
+ 				return nil
++			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-varesa-varesa-c4-dmgp-1"}, []int{int(attributes.DmgP)})
+ 			}
+ 			return m
+ 		},
+@@ -100,6 +104,10 @@
+ 			default:
+ 				return nil
+ 			}
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-varesa-varesa-c6-cr-0p1", "char-varesa-varesa-c6-cd-1"}, []int{int(attributes.CR), int(attributes.CD)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/wanderer/cons.go
++++ b/internal/characters/wanderer/cons.go
+@@ -26,6 +26,10 @@
+ 	c.AddStatMod(character.StatMod{
+ 		Base: modifier.NewBaseWithHitlag("wanderer-c1-atkspd", 1200),
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-wanderer-wanderer-c1-atkspd-atkspd-0p1"}, []int{int(attributes.AtkSpd)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/xiangling/asc.go
++++ b/internal/characters/xiangling/asc.go
+@@ -32,6 +32,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("xiangling-a4", 10*60),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-xiangling-xiangling-a4-atkp-0p1"}, []int{int(attributes.ATKP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/xiangling/cons.go
++++ b/internal/characters/xiangling/cons.go
+@@ -75,6 +75,10 @@
+ 			Base:         modifier.NewBaseWithHitlag("xiangling-c6", dur),
+ 			AffectedStat: attributes.PyroP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-xiangling-xiangling-c6-pyrop-0p15"}, []int{int(attributes.PyroP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/characters/xiao/cons.go
++++ b/internal/characters/xiao/cons.go
+@@ -19,6 +19,10 @@
+ 		AffectedStat: attributes.ER,
+ 		Amount: func() []float64 {
+ 			if c.Core.Player.Active() != c.Index() {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-xiao-xiao-c2-er-0p25"}, []int{int(attributes.ER)})
++				}
+ 				return m
+ 			}
+ 			return nil
+@@ -38,6 +42,10 @@
+ 		AffectedStat: attributes.DEFP,
+ 		Amount: func() []float64 {
+ 			if c.CurrentHPRatio() <= 0.5 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-xiao-xiao-c4-defp-1"}, []int{int(attributes.DEFP)})
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/characters/xingqiu/asc.go
++++ b/internal/characters/xingqiu/asc.go
+@@ -20,6 +20,10 @@
+ 		Base:         modifier.NewBase("xingqiu-a4", -1),
+ 		AffectedStat: attributes.HydroP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-xingqiu-xingqiu-a4-hydrop-0p2"}, []int{int(attributes.HydroP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/xinyan/asc.go
++++ b/internal/characters/xinyan/asc.go
+@@ -35,6 +35,10 @@
+ 			Amount: func(_ *info.AttackEvent, _ info.Target) []float64 {
+ 				shd := c.Core.Player.Shields.Get(shield.XinyanSkill)
+ 				if shd != nil && c.Core.Player.Active() == idx {
++					if c.Core.SourceHost != nil {
++						return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++							[]string{"char-xinyan-xinyan-a4-phyp-0p15"}, []int{int(attributes.PhyP)})
++					}
+ 					return m
+ 				}
+ 				return nil
+--- a/internal/characters/xinyan/cons.go
++++ b/internal/characters/xinyan/cons.go
+@@ -41,6 +41,10 @@
+ 			Amount: func() []float64 {
+ 				if c.Core.Player.CurrentState() != action.NormalAttackState && c.Core.Player.CurrentState() != action.ChargeAttackState {
+ 					return nil
++				}
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-xinyan-xinyan-c1-atkspd-0p12"}, []int{int(attributes.AtkSpd)})
+ 				}
+ 				return m
+ 			},
+--- a/internal/characters/yaoyao/cons.go
++++ b/internal/characters/yaoyao/cons.go
+@@ -24,6 +24,10 @@
+ 		Base:         modifier.NewBase("yaoyao-c1", 8*60),
+ 		AffectedStat: attributes.DendroP,
+ 		Amount: func() []float64 {
++			if c.Core.SourceHost != nil {
++				return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++					[]string{"char-yaoyao-yaoyao-c1-dendrop-0p15"}, []int{int(attributes.DendroP)})
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/characters/yoimiya/cons.go
++++ b/internal/characters/yoimiya/cons.go
+@@ -27,6 +27,10 @@
+ 			Base:         modifier.NewBase("yoimiya-c1", 1200),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-yoimiya-yoimiya-c1-atkp-0p2"}, []int{int(attributes.ATKP)})
++				}
+ 				return m
+ 			},
+ 		})
+@@ -56,6 +60,10 @@
+ 			Base:         modifier.NewBase("yoimiya-c2", 360),
+ 			AffectedStat: attributes.PyroP,
+ 			Amount: func() []float64 {
++				if c.Core.SourceHost != nil {
++					return c.Core.SourceHost.CharacterModifierVector(c.Index(), m,
++						[]string{"char-yoimiya-yoimiya-c2-pyrop-0p25"}, []int{int(attributes.PyroP)})
++				}
+ 				return m
+ 			},
+ 		})
+--- a/pkg/core/player/character/sourcehost_stat_provenance.go
++++ b/pkg/core/player/character/sourcehost_stat_provenance.go
+@@ -42,7 +42,7 @@
+ 		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
+ 	}
+ 	read.Steps = append(read.Steps, step)
+-	c.SourceHost.BeginStatFormulaStep(step)
++	c.SourceHost.BeginStatFormulaStep(step, read)
+ 	return step
+ }
+ 
+@@ -55,7 +55,7 @@
+ 		AttackChanges: []info.SourceHostNumericChange{}, Dependencies: []*info.SourceHostStatRead{},
+ 	}
+ 	read.Steps = append(read.Steps, step)
+-	c.SourceHost.BeginStatFormulaStep(step)
++	c.SourceHost.BeginStatFormulaStep(step, read)
+ 	return step
+ }
+ 

@@ -1,0 +1,96 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts (2 tests | 1 failed | 1 skipped) 402ms
+   × preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints 401ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/remaining-horizontal-source.test.ts > preserves accepted-input normal state and real periodic-reaction queues and RNG at before-frame checkpoints
+ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      0,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      1,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      2,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      3,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      4,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      5,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "dendroCoreContactLog",
+      6,
+      "eventPriority"
+    ],
+    "message": "Dendro-core contact requires priority 3 for hit or priority in (4, 5] for reactionDamage"
+  }
+]
+ ❯ simulateConfig packages/sim-core/src/simulator.ts:18793:38
+    18791|     config.reactionEngine?.mode === "aura-v9";
+    18792|   if (dendroCoreOutputEnabled) {
+    18793|     dendroCoreResultReferencesSchema.parse(simulationResult);
+       |                                      ^
+    18794|   } else {
+    18795|     // Aura modes before v5 cannot own Dendro-core lifecycle output. T…
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:19067:18
+ ❯ simulate packages/sim-core/src/simulator.ts:19125:12
+ ❯ assertHorizontalPeriodicMechanisms packages/sim-core/src/remaining-horizontal-source.test.ts:345:18
+ ❯ packages/sim-core/src/remaining-horizontal-source.test.ts:390:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 skipped (2)
+   Start at  12:34:48
+   Duration  2.89s (transform 1.89s, setup 0ms, import 2.42s, tests 402ms, environment 0ms)
+
+
+WALL_SECONDS=3.370

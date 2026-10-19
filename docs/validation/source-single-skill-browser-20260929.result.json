@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "source-single-skill-browser-v1",
+  "measurements": [
+    {
+      "lane": "classic",
+      "rawPath": "/tmp/gidps-single-skill-classic.json",
+      "executionArtifact": {
+        "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+        "wasmBytes": 44567991
+      },
+      "sourceMember": "kaeya",
+      "importedSyntheticGood": true,
+      "artifactOnlyStats": {},
+      "weapon": {
+        "key": "coolsteel",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 2
+      },
+      "constellation": 1,
+      "talentSkill": 8,
+      "durationSeconds": 6,
+      "acceptedActionSequence": 1,
+      "observedHitCount": 1,
+      "selectedAssociation": "creation",
+      "knownSubtotal": 1161.8921525418264,
+      "completeCast": false,
+      "firstHitReplayDifference": 0,
+      "editedScaling": 3.1592000000000002,
+      "editedHitDifference": 37.980261262481235,
+      "collectionRoundtrip": true,
+      "oldResultRetainedAfterInputChange": true
+    }
+  ],
+  "pageErrors": [],
+  "scope": "One actual Kaeya skill per pinned source from the independent calculator; finite observed collection, no team script entry or complete-cast inference."
+}

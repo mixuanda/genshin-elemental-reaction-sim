@@ -1,0 +1,38 @@
+{
+  "version.json": {
+    "bytes": 988,
+    "sha256": "e749c84a53bc1ecda55ca42aec8e732a43c3021e167ed782b455032e2e6d635f"
+  },
+  "charlist.json": {
+    "bytes": 73817,
+    "sha256": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc"
+  },
+  "mitya.en.json": {
+    "bytes": 67063,
+    "sha256": "d2a4847b10e6f2ec564f938d342a94e187ef30c1d42f1a0885e7d512db951eee"
+  },
+  "valeriy.en.json": {
+    "bytes": 63641,
+    "sha256": "8ec673ee3565491781ecdba004b146d1e18a4d28cf559b6a686040f824255f8a"
+  },
+  "mitya.chs.json": {
+    "bytes": 68242,
+    "sha256": "0f022833965ec620b62efa4531b5180af839278dd548cfeef83de28a4077b3b7"
+  },
+  "valeriy.chs.json": {
+    "bytes": 65028,
+    "sha256": "68d0699b13bffb81fef576bc445d5b02961ae8064478eae58042b11297fabf24"
+  },
+  "source.json.gz": {
+    "bytes": 39159,
+    "sha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf"
+  },
+  "retrieval-manifest.json": {
+    "bytes": 2700,
+    "sha256": "6ed24b46c8937059dfecd57ed6e8a36065c8cfb8a778be65076c8cf0f625b72a"
+  },
+  "capture-source.py": {
+    "bytes": 3299,
+    "sha256": "88a700f2103368a1384e00cccb9dc779689260aff1022625abca9eb19c4d923a"
+  }
+}

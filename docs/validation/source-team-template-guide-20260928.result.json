@@ -1,0 +1,218 @@
+{
+  "metadataOverride": {
+    "hostVariant": "classic",
+    "actor": "hutao",
+    "action": "attack",
+    "actualSourceStatus": "implemented",
+    "testStatus": "unsupported"
+  },
+  "previewMemberCount": 4,
+  "previewStepCount": 7,
+  "editedAction": {
+    "actorId": "hutao",
+    "kind": "charge",
+    "repeat": 3
+  },
+  "restoredDraft": {
+    "schemaVersion": 1,
+    "source": {
+      "hostVariant": "classic",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+    },
+    "templateId": "vaporize-hydro-pyro",
+    "name": "水火蒸发入门",
+    "members": [
+      {
+        "id": "hutao",
+        "characterKey": "hutao",
+        "level": 90,
+        "levelCap": 90,
+        "constellation": 0,
+        "talents": {
+          "auto": 8,
+          "skill": 8,
+          "burst": 8
+        },
+        "weapon": {
+          "key": "prototypestarglitter",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 1
+        },
+        "artifactSets": [
+          {
+            "key": "gladiatorsfinale",
+            "count": 5
+          }
+        ],
+        "artifactStats": {
+          "hp": 3967,
+          "cr": 0.5224,
+          "cd": 0.645,
+          "atk%": 0.7950999999999999,
+          "er": 0.38860000000000006,
+          "atk": 258,
+          "hp%": 0.1049,
+          "pyro%": 0.387
+        }
+      },
+      {
+        "id": "xingqiu",
+        "characterKey": "xingqiu",
+        "level": 90,
+        "levelCap": 90,
+        "constellation": 0,
+        "talents": {
+          "auto": 8,
+          "skill": 8,
+          "burst": 8
+        },
+        "weapon": {
+          "key": "favoniussword",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 1
+        },
+        "artifactSets": [
+          {
+            "key": "emblemofseveredfate",
+            "count": 5
+          }
+        ],
+        "artifactStats": {
+          "hp": 3967,
+          "cr": 0.5224,
+          "cd": 0.645,
+          "er": 0.8834,
+          "atk%": 0.3498,
+          "atk": 258,
+          "hp%": 0.1049,
+          "hydro%": 0.387
+        }
+      },
+      {
+        "id": "yelan",
+        "characterKey": "yelan",
+        "level": 90,
+        "levelCap": 90,
+        "constellation": 0,
+        "talents": {
+          "auto": 8,
+          "skill": 8,
+          "burst": 8
+        },
+        "weapon": {
+          "key": "prototypecrescent",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 1
+        },
+        "artifactSets": [
+          {
+            "key": "gladiatorsfinale",
+            "count": 5
+          }
+        ],
+        "artifactStats": {
+          "hp": 3967,
+          "cr": 0.5224,
+          "cd": 0.645,
+          "atk%": 0.7950999999999999,
+          "er": 0.38860000000000006,
+          "atk": 258,
+          "hp%": 0.1049,
+          "hydro%": 0.387
+        }
+      },
+      {
+        "id": "zhongli",
+        "characterKey": "zhongli",
+        "level": 90,
+        "levelCap": 90,
+        "constellation": 0,
+        "talents": {
+          "auto": 8,
+          "skill": 8,
+          "burst": 8
+        },
+        "weapon": {
+          "key": "prototypestarglitter",
+          "level": 90,
+          "levelCap": 90,
+          "refinement": 1
+        },
+        "artifactSets": [
+          {
+            "key": "gladiatorsfinale",
+            "count": 5
+          }
+        ],
+        "artifactStats": {
+          "hp": 3967,
+          "cr": 0.5224,
+          "cd": 0.645,
+          "atk%": 0.7950999999999999,
+          "er": 0.38860000000000006,
+          "atk": 258,
+          "hp%": 0.1049,
+          "geo%": 0.387
+        }
+      }
+    ],
+    "actions": [
+      {
+        "actorId": "zhongli",
+        "kind": "skill",
+        "params": {
+          "hold": 1
+        }
+      },
+      {
+        "actorId": "xingqiu",
+        "kind": "skill"
+      },
+      {
+        "actorId": "xingqiu",
+        "kind": "burst"
+      },
+      {
+        "actorId": "yelan",
+        "kind": "skill"
+      },
+      {
+        "actorId": "yelan",
+        "kind": "burst"
+      },
+      {
+        "actorId": "hutao",
+        "kind": "skill"
+      },
+      {
+        "actorId": "hutao",
+        "kind": "charge",
+        "repeat": 3
+      }
+    ],
+    "durationSeconds": 30,
+    "executionProfile": {
+      "version": "source-action-delay-v1",
+      "mode": "ideal",
+      "delays": {
+        "swap": 0,
+        "attack": 0,
+        "charge": 0,
+        "skill": 0,
+        "burst": 0,
+        "jump": 0,
+        "dash": 0,
+        "aim_delay": 0
+      }
+    },
+    "target": {
+      "level": 90,
+      "resistance": 0.1
+    }
+  },
+  "sourceExecutorRun": false,
+  "pageErrors": []
+}

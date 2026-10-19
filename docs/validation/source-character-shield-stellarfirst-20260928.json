@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 3.973,
+  "log": "docs/validation/source-character-shield-stellarfirst-20260928.log"
+}

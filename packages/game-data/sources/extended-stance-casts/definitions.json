@@ -1,0 +1,1271 @@
+{
+  "schemaVersion": 1,
+  "protocol": "explicit-extended-stance-v1",
+  "templates": [
+    {
+      "skillId": "extended-ifa-skill-c0",
+      "characterSlug": "ifa",
+      "sourceSlug": "ifa",
+      "talentSetId": "talent-set:ifa",
+      "abilityKey": "combat2",
+      "label": "空天救援·夜魂射击完整姿态（C0·实际动作日程）",
+      "protocol": "explicit-extended-stance-v1",
+      "scheduleKind": "ifa-skill",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "tonicShot": {
+          "mappingId": "extended-ifa-skill-c0-tonicShot",
+          "label": "夜魂秘药弹：点按／长按实际射击",
+          "element": "anemo",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.3336,
+                1.43362,
+                1.53364,
+                1.667,
+                1.76702,
+                1.86704,
+                2.0004,
+                2.13376,
+                2.26712,
+                2.40048,
+                2.53384,
+                2.6672,
+                2.8339,
+                3.0006,
+                3.1673
+              ],
+              "sourceValues": [
+                1.3336,
+                1.43362,
+                1.53364,
+                1.667,
+                1.76702,
+                1.86704,
+                2.0004,
+                2.13376,
+                2.26712,
+                2.40048,
+                2.53384,
+                2.6672,
+                2.8339,
+                3.0006,
+                3.1673
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skillDmg",
+              "sourcePath": "internal/characters/ifa/zz_ifa.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/zz_ifa.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/charge.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "战技本身没有起手伤害；每条实际普攻／重击分别排队一发，夜魂80点自第4帧起每6帧消耗0.8，自然第598帧结束，保留下落与已发射尾段。",
+        "本协议不含冲刺、俯冲、跳跃或外部夜魂增减；手动点按E可以结束。实际攻击速度与飞行时间逐动作明确。A4是否生效及面板已含EM逐击明确。"
+      ]
+    },
+    {
+      "skillId": "extended-dahlia-burst-c0",
+      "characterSlug": "dahlia",
+      "sourceSlug": "dahlia",
+      "talentSetId": "talent-set:dahlia",
+      "abilityKey": "combat3",
+      "label": "辉耀祈祝·无再生触发完整祈礼（C0·来源封闭分支）",
+      "protocol": "explicit-extended-stance-v1",
+      "scheduleKind": "dahlia-burst",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "roles": {
+        "initial": {
+          "mappingId": "extended-dahlia-burst-c0-initial",
+          "label": "祈祝水元素初击",
+          "element": "hydro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                4.064,
+                4.3688,
+                4.6736,
+                5.08,
+                5.3848,
+                5.6896,
+                6.096,
+                6.5024,
+                6.9088,
+                7.3152,
+                7.7216,
+                8.128,
+                8.636,
+                9.144,
+                9.652
+              ],
+              "sourceValues": [
+                4.064,
+                4.3688,
+                4.6736,
+                5.08,
+                5.3848,
+                5.6896,
+                6.096,
+                6.5024,
+                6.9088,
+                7.3152,
+                7.7216,
+                8.128,
+                8.636,
+                9.144,
+                9.652
+              ],
+              "parameterKey": "param1",
+              "sourceField": "burst",
+              "sourcePath": "internal/characters/dahlia/zz_dahlia.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/zz_dahlia.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/asc.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "第30帧初击、第31帧祈礼及首盾、751帧清理、752帧盾到期。全程明确无合资格普攻／冻结、无换人且护盾不破；否则不能省略祝福再生。",
+        "固定来源突破4以下未初始化攻速数组却访问；只支持实际突破4以上。Q仅计算攻速数值但未安装修饰（需换人钩子），本无换人分支不虚构攻速。数值更新空回调可继续，不宣称全局任务队列清空。"
+      ]
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "characterSlug": "varka",
+      "sourceSlug": "varka",
+      "talentSetId": "talent-set:varka",
+      "abilityKey": "combat2",
+      "label": "烈风终坠·四风充能完整姿态（C0·实际动作日程）",
+      "protocol": "explicit-extended-stance-v1",
+      "scheduleKind": "varka-skill",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "roles": {
+        "initial": {
+          "mappingId": "extended-varka-skill-c0-initial",
+          "label": "烈风终坠初击",
+          "element": "anemo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.784,
+                2.9928,
+                3.2016,
+                3.48,
+                3.6888,
+                3.8976,
+                4.176,
+                4.4544,
+                4.7328,
+                5.0112,
+                5.2896,
+                5.568,
+                5.916,
+                6.264,
+                6.612
+              ],
+              "sourceValues": [
+                2.784,
+                2.9928,
+                3.2016,
+                3.48,
+                3.6888,
+                3.8976,
+                4.176,
+                4.4544,
+                4.7328,
+                5.0112,
+                5.2896,
+                5.568,
+                5.916,
+                6.264,
+                6.612
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skillInitial",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal1": {
+          "mappingId": "extended-varka-skill-c0-normal1",
+          "label": "狂飙突进普攻第1段第1击",
+          "element": "physical",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param3",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.818247,
+                0.884848,
+                0.95145,
+                1.046595,
+                1.113196,
+                1.189312,
+                1.293972,
+                1.398631,
+                1.503291,
+                1.617465,
+                1.731639,
+                1.845813,
+                1.959987,
+                2.074161,
+                2.188335
+              ],
+              "sourceValues": [
+                0.818247,
+                0.884848,
+                0.95145,
+                1.046595,
+                1.113196,
+                1.189312,
+                1.293972,
+                1.398631,
+                1.503291,
+                1.617465,
+                1.731639,
+                1.845813,
+                1.959987,
+                2.074161,
+                2.188335
+              ],
+              "parameterKey": "param3",
+              "sourceField": "skillAttack[0][0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal2a": {
+          "mappingId": "extended-varka-skill-c0-normal2a",
+          "label": "狂飙突进普攻第2段第1击",
+          "element": "anemo",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param5",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.299856,
+                0.324263,
+                0.34867,
+                0.383537,
+                0.407944,
+                0.435837,
+                0.474191,
+                0.512545,
+                0.550899,
+                0.592739,
+                0.634579,
+                0.67642,
+                0.71826,
+                0.760101,
+                0.801941
+              ],
+              "sourceValues": [
+                0.299856,
+                0.324263,
+                0.34867,
+                0.383537,
+                0.407944,
+                0.435837,
+                0.474191,
+                0.512545,
+                0.550899,
+                0.592739,
+                0.634579,
+                0.67642,
+                0.71826,
+                0.760101,
+                0.801941
+              ],
+              "parameterKey": "param5",
+              "sourceField": "skillAttack[1][0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal2b": {
+          "mappingId": "extended-varka-skill-c0-normal2b",
+          "label": "狂飙突进普攻第2段第2击",
+          "element": "physical",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param4",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.556876,
+                0.602203,
+                0.64753,
+                0.712283,
+                0.75761,
+                0.809413,
+                0.880641,
+                0.951869,
+                1.023097,
+                1.100801,
+                1.178505,
+                1.256208,
+                1.333912,
+                1.411615,
+                1.489319
+              ],
+              "sourceValues": [
+                0.556876,
+                0.602203,
+                0.64753,
+                0.712283,
+                0.75761,
+                0.809413,
+                0.880641,
+                0.951869,
+                1.023097,
+                1.100801,
+                1.178505,
+                1.256208,
+                1.333912,
+                1.411615,
+                1.489319
+              ],
+              "parameterKey": "param4",
+              "sourceField": "skillAttack[1][1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal3a": {
+          "mappingId": "extended-varka-skill-c0-normal3a",
+          "label": "狂飙突进普攻第3段第1击",
+          "element": "anemo",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param7",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.405455,
+                0.438457,
+                0.471459,
+                0.518605,
+                0.551607,
+                0.589323,
+                0.641184,
+                0.693044,
+                0.744905,
+                0.80148,
+                0.858055,
+                0.91463,
+                0.971205,
+                1.02778,
+                1.084355
+              ],
+              "sourceValues": [
+                0.405455,
+                0.438457,
+                0.471459,
+                0.518605,
+                0.551607,
+                0.589323,
+                0.641184,
+                0.693044,
+                0.744905,
+                0.80148,
+                0.858055,
+                0.91463,
+                0.971205,
+                1.02778,
+                1.084355
+              ],
+              "parameterKey": "param7",
+              "sourceField": "skillAttack[2][0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal3b": {
+          "mappingId": "extended-varka-skill-c0-normal3b",
+          "label": "狂飙突进普攻第3段第2击",
+          "element": "physical",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param6",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.752987,
+                0.814277,
+                0.875566,
+                0.963123,
+                1.024413,
+                1.094458,
+                1.19077,
+                1.287082,
+                1.383395,
+                1.488463,
+                1.593531,
+                1.698599,
+                1.803666,
+                1.908734,
+                2.013802
+              ],
+              "sourceValues": [
+                0.752987,
+                0.814277,
+                0.875566,
+                0.963123,
+                1.024413,
+                1.094458,
+                1.19077,
+                1.287082,
+                1.383395,
+                1.488463,
+                1.593531,
+                1.698599,
+                1.803666,
+                1.908734,
+                2.013802
+              ],
+              "parameterKey": "param6",
+              "sourceField": "skillAttack[2][1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal4a": {
+          "mappingId": "extended-varka-skill-c0-normal4a",
+          "label": "狂飙突进普攻第4段第1击",
+          "element": "physical",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param8",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.692894,
+                0.749293,
+                0.805691,
+                0.88626,
+                0.942659,
+                1.007114,
+                1.09574,
+                1.184366,
+                1.272992,
+                1.369675,
+                1.466358,
+                1.563041,
+                1.659724,
+                1.756407,
+                1.85309
+              ],
+              "sourceValues": [
+                0.692894,
+                0.749293,
+                0.805691,
+                0.88626,
+                0.942659,
+                1.007114,
+                1.09574,
+                1.184366,
+                1.272992,
+                1.369675,
+                1.466358,
+                1.563041,
+                1.659724,
+                1.756407,
+                1.85309
+              ],
+              "parameterKey": "param8",
+              "sourceField": "skillAttack[3][0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal4b": {
+          "mappingId": "extended-varka-skill-c0-normal4b",
+          "label": "狂飙突进普攻第4段第2击",
+          "element": "anemo",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param9",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.373097,
+                0.403465,
+                0.433834,
+                0.477217,
+                0.507585,
+                0.542292,
+                0.590014,
+                0.637736,
+                0.685457,
+                0.737517,
+                0.789577,
+                0.841637,
+                0.893698,
+                0.945758,
+                0.997818
+              ],
+              "sourceValues": [
+                0.373097,
+                0.403465,
+                0.433834,
+                0.477217,
+                0.507585,
+                0.542292,
+                0.590014,
+                0.637736,
+                0.685457,
+                0.737517,
+                0.789577,
+                0.841637,
+                0.893698,
+                0.945758,
+                0.997818
+              ],
+              "parameterKey": "param9",
+              "sourceField": "skillAttack[3][1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal5a": {
+          "mappingId": "extended-varka-skill-c0-normal5a",
+          "label": "狂飙突进普攻第5段第1击",
+          "element": "physical",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param10",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.871872,
+                0.942839,
+                1.013805,
+                1.115186,
+                1.186152,
+                1.267256,
+                1.378775,
+                1.490293,
+                1.601812,
+                1.723469,
+                1.845125,
+                1.966782,
+                2.088438,
+                2.210095,
+                2.331751
+              ],
+              "sourceValues": [
+                0.871872,
+                0.942839,
+                1.013805,
+                1.115186,
+                1.186152,
+                1.267256,
+                1.378775,
+                1.490293,
+                1.601812,
+                1.723469,
+                1.845125,
+                1.966782,
+                2.088438,
+                2.210095,
+                2.331751
+              ],
+              "parameterKey": "param10",
+              "sourceField": "skillAttack[4][0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "normal5b": {
+          "mappingId": "extended-varka-skill-c0-normal5b",
+          "label": "狂飙突进普攻第5段第2击",
+          "element": "anemo",
+          "attackTag": "normal",
+          "abilityKey": "combat2",
+          "parameterKey": "param11",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.46947,
+                0.507682,
+                0.545895,
+                0.600485,
+                0.638697,
+                0.682369,
+                0.742417,
+                0.802466,
+                0.862514,
+                0.928022,
+                0.993529,
+                1.059036,
+                1.124544,
+                1.190051,
+                1.255559
+              ],
+              "sourceValues": [
+                0.46947,
+                0.507682,
+                0.545895,
+                0.600485,
+                0.638697,
+                0.682369,
+                0.742417,
+                0.802466,
+                0.862514,
+                0.928022,
+                0.993529,
+                1.059036,
+                1.124544,
+                1.190051,
+                1.255559
+              ],
+              "parameterKey": "param11",
+              "sourceField": "skillAttack[4][1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "chargedA": {
+          "mappingId": "extended-varka-skill-c0-chargedA",
+          "label": "姿态普通重击转换元素击",
+          "element": "physical",
+          "attackTag": "charged",
+          "abilityKey": "combat1",
+          "parameterKey": "param10",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.856388,
+                0.926094,
+                0.9958,
+                1.09538,
+                1.165086,
+                1.24475,
+                1.354288,
+                1.463826,
+                1.573364,
+                1.69286,
+                1.812356,
+                1.931852,
+                2.051348,
+                2.170844,
+                2.29034
+              ],
+              "sourceValues": [
+                0.856388,
+                0.926094,
+                0.9958,
+                1.09538,
+                1.165086,
+                1.24475,
+                1.354288,
+                1.463826,
+                1.573364,
+                1.69286,
+                1.812356,
+                1.931852,
+                2.051348,
+                2.170844,
+                2.29034
+              ],
+              "parameterKey": "param10",
+              "sourceField": "charge[0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "chargedB": {
+          "mappingId": "extended-varka-skill-c0-chargedB",
+          "label": "姿态普通重击风元素击",
+          "element": "anemo",
+          "attackTag": "charged",
+          "abilityKey": "combat1",
+          "parameterKey": "param11",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.461132,
+                0.498666,
+                0.5362,
+                0.58982,
+                0.627354,
+                0.67025,
+                0.729232,
+                0.788214,
+                0.847196,
+                0.91154,
+                0.975884,
+                1.040228,
+                1.104572,
+                1.168916,
+                1.23326
+              ],
+              "sourceValues": [
+                0.461132,
+                0.498666,
+                0.5362,
+                0.58982,
+                0.627354,
+                0.67025,
+                0.729232,
+                0.788214,
+                0.847196,
+                0.91154,
+                0.975884,
+                1.040228,
+                1.104572,
+                1.168916,
+                1.23326
+              ],
+              "parameterKey": "param11",
+              "sourceField": "charge[1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "azureA": {
+          "mappingId": "extended-varka-skill-c0-azureA",
+          "label": "苍噬转换元素击",
+          "element": "physical",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param16",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.936,
+                1.0062,
+                1.0764,
+                1.17,
+                1.2402,
+                1.3104,
+                1.404,
+                1.4976,
+                1.5912,
+                1.6848,
+                1.7784,
+                1.872,
+                1.989,
+                2.106,
+                2.223
+              ],
+              "sourceValues": [
+                0.936,
+                1.0062,
+                1.0764,
+                1.17,
+                1.2402,
+                1.3104,
+                1.404,
+                1.4976,
+                1.5912,
+                1.6848,
+                1.7784,
+                1.872,
+                1.989,
+                2.106,
+                2.223
+              ],
+              "parameterKey": "param16",
+              "sourceField": "skillAzureDevour[0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "azureB": {
+          "mappingId": "extended-varka-skill-c0-azureB",
+          "label": "苍噬风元素击",
+          "element": "anemo",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param17",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.504,
+                0.5418,
+                0.5796,
+                0.63,
+                0.6678,
+                0.7056,
+                0.756,
+                0.8064,
+                0.8568,
+                0.9072,
+                0.9576,
+                1.008,
+                1.071,
+                1.134,
+                1.197
+              ],
+              "sourceValues": [
+                0.504,
+                0.5418,
+                0.5796,
+                0.63,
+                0.6678,
+                0.7056,
+                0.756,
+                0.8064,
+                0.8568,
+                0.9072,
+                0.9576,
+                1.008,
+                1.071,
+                1.134,
+                1.197
+              ],
+              "parameterKey": "param17",
+              "sourceField": "skillAzureDevour[1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "specialA": {
+          "mappingId": "extended-varka-skill-c0-specialA",
+          "label": "四风将起转换元素击",
+          "element": "physical",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param14",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.7576,
+                1.88942,
+                2.02124,
+                2.197,
+                2.32882,
+                2.46064,
+                2.6364,
+                2.81216,
+                2.98792,
+                3.16368,
+                3.33944,
+                3.5152,
+                3.7349,
+                3.9546,
+                4.1743
+              ],
+              "sourceValues": [
+                1.7576,
+                1.88942,
+                2.02124,
+                2.197,
+                2.32882,
+                2.46064,
+                2.6364,
+                2.81216,
+                2.98792,
+                3.16368,
+                3.33944,
+                3.5152,
+                3.7349,
+                3.9546,
+                4.1743
+              ],
+              "parameterKey": "param14",
+              "sourceField": "skillAscension[0]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        },
+        "specialB": {
+          "mappingId": "extended-varka-skill-c0-specialB",
+          "label": "四风将起风元素击",
+          "element": "anemo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param15",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.9464,
+                1.01738,
+                1.08836,
+                1.183,
+                1.25398,
+                1.32496,
+                1.4196,
+                1.51424,
+                1.60888,
+                1.70352,
+                1.79816,
+                1.8928,
+                2.0111,
+                2.1294,
+                2.2477
+              ],
+              "sourceValues": [
+                0.9464,
+                1.01738,
+                1.08836,
+                1.183,
+                1.25398,
+                1.32496,
+                1.4196,
+                1.51424,
+                1.60888,
+                1.70352,
+                1.79816,
+                1.8928,
+                2.0111,
+                2.1294,
+                2.2477
+              ],
+              "parameterKey": "param15",
+              "sourceField": "skillAscension[1]",
+              "sourcePath": "internal/characters/varka/zz_varka.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "转换元素按队伍火、水、雷、冰优先级决定，否则物理。第40帧起720帧姿态；普攻、普通重击、苍噬和特殊E全部由实际动作行生成，不自动安排最大连击。",
+        "普通重击固定源码使用combat1的charge倍率向量，但按有效E等级索引；与目录E重击参数不同，不静默替换。苍噬四击使用两个源向量各两次。",
+        "A1基础系数倍率取完整队伍；伤害加成读取最近60帧刷新实际非额外攻击。A4按实际扩散事件、每触发角色60帧冷却与480帧层数期限执行，已含份额逐击扣除。",
+        "固定源码A4缺少突破门槛，限定实际突破4以上。苍噬第2/4击hitlag literal为54帧，本无卡肉协议不隐改原文，不声称游戏内实测。",
+        "普攻每个伤害包命中任意敌人最多缩减一次30/60帧冷却、全次最多15次；两个660帧充能回调顺序执行，退出后的排队攻击和惰性充能回调保留。"
+      ]
+    },
+    {
+      "skillId": "extended-prune-skill-c0",
+      "characterSlug": "prune",
+      "sourceSlug": "prune",
+      "talentSetId": "talent-set:prune",
+      "abilityKey": "combat2",
+      "label": "叮铃！巡猎魔女铃·扩散二段完整战技（C0·显式选择）",
+      "protocol": "explicit-extended-stance-v1",
+      "scheduleKind": "prune-skill",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "initial": {
+          "mappingId": "extended-prune-skill-c0-initial",
+          "label": "巡猎魔女铃风元素初击",
+          "element": "anemo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "dynamicElement": false,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.6744,
+                1.79998,
+                1.92556,
+                2.093,
+                2.21858,
+                2.34416,
+                2.5116,
+                2.67904,
+                2.84648,
+                3.01392,
+                3.18136,
+                3.3488,
+                3.5581,
+                3.7674,
+                3.9767
+              ],
+              "sourceValues": [
+                1.6744,
+                1.79998,
+                1.92556,
+                2.093,
+                2.21858,
+                2.34416,
+                2.5116,
+                2.67904,
+                2.84648,
+                3.01392,
+                3.18136,
+                3.3488,
+                3.5581,
+                3.7674,
+                3.9767
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skill",
+              "sourcePath": "internal/characters/prune/zz_prune.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/zz_prune.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/asc.go"
+          ]
+        },
+        "converted": {
+          "mappingId": "extended-prune-skill-c0-converted",
+          "label": "首次实际扩散元素的二段伤害",
+          "element": "physical",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "dynamicElement": true,
+          "coefficientTolerance": 0,
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.0456,
+                2.19902,
+                2.35244,
+                2.557,
+                2.71042,
+                2.86384,
+                3.0684,
+                3.27296,
+                3.47752,
+                3.68208,
+                3.88664,
+                4.0912,
+                4.3469,
+                4.6026,
+                4.8583
+              ],
+              "sourceValues": [
+                2.0456,
+                2.19902,
+                2.35244,
+                2.557,
+                2.71042,
+                2.86384,
+                3.0684,
+                3.27296,
+                3.47752,
+                3.68208,
+                3.88664,
+                4.0912,
+                4.3469,
+                4.6026,
+                4.8583
+              ],
+              "parameterKey": "param2",
+              "sourceField": "skillConvert",
+              "sourcePath": "internal/characters/prune/zz_prune.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/zz_prune.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/asc.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "第26帧初击；仅本初击实际对敌人的首次扩散按发生顺序决定二段元素。364帧窗口含第390帧；二段最早28帧开始并在30帧后命中。",
+        "明确魔女课题未启用；不省略未声明联动。A1属于Q实体反应，不属于本E；E二段A4只给其他队友增伤，不给自身加伤。允许明确放弃二段并观察窗口自然结束。"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,173 @@
+--- a/internal/characters/qiqi/skill.go
++++ b/internal/characters/qiqi/skill.go
+@@ -41,13 +41,13 @@
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+ 	// +1 to avoid end duration issues
+ 	// Qiqi E is a deployable after Initial Hit, so it shouldn't be hitlag extendable
+-	c.AddStatus(skillBuffKey, 15*60+1, false)
++	c.SourceHostAddOwnedGeneratorStatus("qiqi.skill.herald-status", skillBuffKey, 15*60+1, false)
+ 	c.skillLastUsed = c.Core.F
+ 	src := c.Core.F
+ 
+ 	// Initial damage
+ 	// Both healing and damage are snapshot
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("qiqi.skill.initial", c.Index(), func() {
+ 		ai := info.AttackInfo{
+ 			ActorIndex:         c.Index(),
+ 			Abil:               "Herald of Frost: Initial Damage",
+@@ -109,7 +109,7 @@
+ 
+ 		// assumes ruin guard hitlag as extra delay (E Tick 1 gets delayed by E Initial hitlag)
+ 		// can't use char queue for this because hitlag from other sources shouldn't count
+-		c.Core.Tasks.Add(c.skillDmgTickTask(src, &aiTick, &snapTick, 60), 57+7)
++		c.Core.SourceHostQueueTask("qiqi.skill.first-tick", c.Index(), c.skillDmgTickTask(src, &aiTick, &snapTick, 60), 57+7)
+ 
+ 		// Apply damage needs to take place after above takes place to ensure stats are handled correctly
+ 		c.Core.QueueAttackWithSnap(ai, snap, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 2.5), 0)
+@@ -131,24 +131,27 @@
+ func (c *char) skillDmgTickTask(src int, ai *info.AttackInfo, snap *info.Snapshot, lastTickDuration int) func() {
+ 	return func() {
+ 		if !c.StatusIsActive(skillBuffKey) {
++			c.Core.SourceHostAbilityProducerFact("qiqi.skill.tick.branch", 0)
+ 			return
+ 		}
+ 
+ 		// TODO: Not sure how this interacts with sac sword... Treat it as only one instance can be up at a time for now
+ 		if c.skillLastUsed > src {
++			c.Core.SourceHostAbilityProducerFact("qiqi.skill.tick.branch", 1)
+ 			return
+ 		}
+ 
+ 		// pattern shouldn't snapshot on attack event creation because the skill follows the player
+ 		ap := combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 2.5)
+ 
++		c.Core.SourceHostAbilityProducerFact("qiqi.skill.tick.branch", 2)
+ 		c.Core.QueueAttackWithSnap(*ai, *snap, ap, 0, c.particleCB, c.c1CB, c.c1RevelationCB)
+ 
+ 		nextTick := 60
+ 		if lastTickDuration == 60 {
+ 			nextTick = 135
+ 		}
+-		c.Core.Tasks.Add(c.skillDmgTickTask(src, ai, snap, nextTick), nextTick)
++		c.Core.SourceHostQueueTask("qiqi.skill.next-tick", c.Index(), c.skillDmgTickTask(src, ai, snap, nextTick), nextTick)
+ 	}
+ }
+ 
+@@ -241,7 +244,9 @@
+ 
+ 		// based on video it's the same frame. But to prevent issues due to delayed aura attachment,
+ 		// it's set to 1 frame after
+-		c.Core.QueueAttack(ai, ap, 1, 1, c.particleCB, c.c1CB, c.c1RevelationCB)
++		c.SourceHostTriggerOwnedGenerator("qiqi.skill.herald.enemy-hit", skillBuffKey, "enemy-hit", func() {
++			c.Core.SourceHostQueueOwnedAttack("qiqi.skill.coordinated-attack", ai, ap, 1, 1, c.particleCB, c.c1CB, c.c1RevelationCB)
++		})
+ 	}, "qiqi-e-hook")
+ }
+ 
+--- a/internal/characters/yaemiko/skill.go
++++ b/internal/characters/yaemiko/skill.go
+@@ -25,7 +25,7 @@
+ }
+ 
+ func (c *char) Skill(p map[string]int) (action.Info, error) {
+-	c.Core.Tasks.Add(func() { c.makeKitsune() }, skillStart)
++	c.Core.SourceHostQueueTask("yaemiko.skill.spawn", c.Index(), func() { c.makeKitsune() }, skillStart)
+ 	c.SetCDWithDelay(action.ActionSkill, 4*60, 16)
+ 
+ 	return action.Info{
+--- a/internal/characters/yaemiko/kitsune.go
++++ b/internal/characters/yaemiko/kitsune.go
+@@ -19,6 +19,7 @@
+ }
+ 
+ func (c *char) makeKitsune() {
++	c.Core.SourceHostAbilityProducerFact("yaemiko.skill.spawn.attack-count", 0)
+ 	k := &kitsune{}
+ 	k.src = c.Core.F
+ 	k.deleted = false
+@@ -27,9 +28,9 @@
+ 	k.kitsuneArea = combat.NewCircleHitOnTarget(c.Core.Combat.Player().Pos(), nil, c.kitsuneDetectionRadius)
+ 
+ 	// start ticking
+-	c.Core.Tasks.Add(c.kitsuneTick(k), 120-skillStart)
++	c.Core.SourceHostQueueTask("yaemiko.skill.first-tick", c.Index(), c.kitsuneTick(k), 120-skillStart)
+ 	// add task to delete this one if times out (and not deleted by anything else)
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("yaemiko.skill.expire", c.Index(), func() {
+ 		// i think we can just check for .deleted here
+ 		if k.deleted {
+ 			return
+@@ -109,6 +110,7 @@
+ 	return func() {
+ 		// if deleted do nothing
+ 		if totem.deleted {
++			c.Core.SourceHostAbilityProducerFact("yaemiko.skill.tick.branch", 0)
+ 			return
+ 		}
+ 
+@@ -128,6 +130,10 @@
+ 				Write("sakura level", lvl)
+ 
+ 			flatDmg, revCB, flatID := c.revelationEnhanceDMG()
++			c.Core.SourceHostAbilityProducerFact("yaemiko.skill.tick.revelation-callback", 0)
++			if revCB != nil {
++				c.Core.SourceHostAbilityProducerFact("yaemiko.skill.tick.revelation-callback", 1)
++			}
+ 
+ 			ai := info.AttackInfo{
+ 				Abil:             "Sesshou Sakura Tick",
+@@ -160,17 +166,21 @@
+ 		// try to target an enemy first
+ 		enemy := c.Core.Combat.RandomEnemyWithinArea(totem.kitsuneArea, nil)
+ 		if enemy != nil {
++			c.Core.SourceHostAbilityProducerFact("yaemiko.skill.tick.branch", 2)
+ 			tick(enemy.Pos())
+ 		} else {
+ 			// target gadget if no enemy was targeted
+ 			gadget := c.Core.Combat.RandomGadgetWithinArea(totem.kitsuneArea, nil)
+ 			if gadget != nil {
++				c.Core.SourceHostAbilityProducerFact("yaemiko.skill.tick.branch", 3)
+ 				tick(gadget.Pos())
++			} else {
++				c.Core.SourceHostAbilityProducerFact("yaemiko.skill.tick.branch", 1)
+ 			}
+ 		}
+ 
+ 		// tick per ~2.9s seconds
+-		c.Core.Tasks.Add(c.kitsuneTick(totem), 176)
++		c.Core.SourceHostQueueTask("yaemiko.skill.next-tick", c.Index(), c.kitsuneTick(totem), 176)
+ 	}
+ }
+ 
+--- a/internal/characters/yaemiko/asc.go
++++ b/internal/characters/yaemiko/asc.go
+@@ -51,6 +51,7 @@
+ 		ai.Mult = 0.5
+ 	}
+ 
++	c.Core.SourceHostAbilityProducerFact("yaemiko.skill.spawn.attack-count", 1)
+ 	c.Core.QueueAttack(ai, ap, 64, 64)
+ }
+ 
+--- a/internal/characters/yaemiko/stellar.go
++++ b/internal/characters/yaemiko/stellar.go
+@@ -83,6 +83,8 @@
+ 
+ 	done := false
+ 	cb := func(a info.AttackCB) {
++		c.Core.SourceHostLabelHitCallback("yaemiko.skill.revelation-hit", a)
++		c.Core.SourceHostHitCallbackFact("yaemiko.skill.revelation.attack-count", 0)
+ 		if a.Target.Type() != info.TargettableEnemy {
+ 			return
+ 		}
+@@ -107,7 +109,8 @@
+ 
+ 		ap := combat.NewSingleTargetHit(a.Target.Key())
+ 
+-		c.Core.QueueAttack(ai, ap, 12, 12)
++		c.Core.SourceHostHitCallbackFact("yaemiko.skill.revelation.attack-count", 1)
++		c.Core.SourceHostQueueHitAttack("yaemiko.skill.revelation-strike", ai, ap, 12, 12)
+ 	}
+ 
+ 	return dmg, cb, flatID

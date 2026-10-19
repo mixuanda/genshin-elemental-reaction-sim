@@ -1,0 +1,50 @@
+{
+  "scenes": [
+    {
+      "character": "nefer",
+      "hitIds": [
+        "nefer-skill-rush-hit"
+      ],
+      "expected": 3453.2289791999997,
+      "restoredExpected": 3453.2289791999997,
+      "absoluteDifference": 0,
+      "observedTraceNodes": 5,
+      "noContactStatus": "blocked",
+      "noContactBlockers": [
+        "nefer-observed:nefer-skill-rush-hit：所选E突进未接触该目标，不能当作已命中单击计算。 "
+      ],
+      "provenance": "Explicit teaching observation and panel, not an in-game measurement."
+    },
+    {
+      "character": "linnea",
+      "hitIds": [
+        "linnea-lumi-heavy-overdrive-hammer-component:hammer-120"
+      ],
+      "expected": 3238.1853658536584,
+      "restoredExpected": 3238.1853658536584,
+      "absoluteDifference": 0,
+      "observedTraceNodes": 1,
+      "noContactStatus": "blocked",
+      "noContactBlockers": [
+        "linnea-observed:linnea-lumi-heavy-overdrive-hammer-component:hammer-120：本次特殊组成未接触所选目标。"
+      ],
+      "provenance": "Explicit teaching observation and panel, not an in-game measurement."
+    },
+    {
+      "character": "sandrone",
+      "hitIds": [
+        "sandrone-charged-beamdmg-component-hit-1"
+      ],
+      "expected": 2029.4279999999999,
+      "restoredExpected": 2029.4279999999999,
+      "absoluteDifference": 0,
+      "observedTraceNodes": 2,
+      "noContactStatus": "blocked",
+      "noContactBlockers": [
+        "sandrone-observed:sandrone-charged-beamdmg-component-hit-1：所选事件没有确认命中目标；不能把一次落空计入伤害。"
+      ],
+      "provenance": "Explicit teaching observation and panel, not an in-game measurement."
+    }
+  ],
+  "pageErrors": []
+}

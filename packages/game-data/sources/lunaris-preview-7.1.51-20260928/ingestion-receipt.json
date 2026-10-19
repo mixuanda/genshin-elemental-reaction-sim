@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "commands": [
+    {
+      "command": "python3 packages/game-data/sources/lunaris-preview-7.1.51-20260928/capture-source.py",
+      "exitCode": 0,
+      "commandWallSeconds": 11.174622,
+      "timingSource": "Python time.perf_counter in capture script",
+      "result": "Six public HTTP 200 JSON responses saved with exact byte SHA-256; source.json.gz archive created."
+    },
+    {
+      "command": "python3 packages/game-data/sources/lunaris-preview-7.1.51-20260928/prepare-candidate.py",
+      "exitCode": 0,
+      "commandWallSeconds": null,
+      "timingSource": "No reliable full-process wall timer captured; exec_command wrapper timing omitted",
+      "result": "Two-character partial candidate and raw 7.1.50.2→7.1.51 structured diff generated."
+    },
+    {
+      "command": "node packages/game-data/scripts/update-data.mjs sync --store packages/game-data/sources/lunaris-preview-7.1.51-20260928/isolated-store --input packages/game-data/sources/lunaris-preview-7.1.51-20260928/candidate.bundle.json --metadata packages/game-data/sources/lunaris-preview-7.1.51-20260928/candidate.metadata.json",
+      "exitCode": 0,
+      "commandWallSeconds": 0.1,
+      "timingSource": "/usr/bin/time -p real, rounded to hundredths",
+      "result": "Candidate-local immutable snapshot created; no project pointer command invoked."
+    },
+    {
+      "command": "node packages/game-data/scripts/update-data.mjs validate --store packages/game-data/sources/lunaris-preview-7.1.51-20260928/isolated-store --id snapshot-77008c3d87b7116802ca00435af9b69290113c9e4ab8545877a5585d977af819",
+      "exitCode": 0,
+      "commandWallSeconds": 0.07,
+      "timingSource": "/usr/bin/time -p real, rounded to hundredths",
+      "result": "schemaValid true, errors 0, inventory unknown, readiness empty."
+    }
+  ],
+  "pointerCheck": {
+    "baselineSource": "docs/data-evidence-refresh-20260928.json localBaseline",
+    "baseline": {
+      "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+      "activeVerifiedSnapshotId": null,
+      "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217"
+    },
+    "observedAfter": {
+      "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+      "activeVerifiedSnapshotId": null,
+      "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217"
+    },
+    "mainPointerFileSha256ObservedAfter": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "runtimeSelectorSha256ObservedAfter": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "matchesBaseline": true
+  },
+  "note": "Project preview/active/verified pointers were not updated; no generator, CI, publication or deployment run."
+}

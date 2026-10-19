@@ -1,0 +1,1699 @@
+{
+  "schemaVersion": "1.0.0",
+  "purpose": "Independent hand-entered legal R1/R5 and branch expectations reviewed against pinned source coefficients; never computed by the production resolver. This task did not execute tests.",
+  "statsMeaning": "Sums of weapon passive contributions only; no character or equipment base stats.",
+  "hitMeaning": "Sum all matching dynamicHitBonuses for element and attackTag. Unsupported scoped CR/CD/additive damage/procs are absent, with mandatory effectBlockers.",
+  "cases": [
+    {
+      "weaponId": "weapon:11435",
+      "slug": "hereticsmoltenblade",
+      "context": {
+        "weaponEffectActive": true,
+        "weaponStacks": 18
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.36
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.72
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11306",
+      "slug": "skyridersword",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11410",
+      "slug": "thealleyflash",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.12
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.24
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11413",
+      "slug": "festeringdesire",
+      "context": {},
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.16
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.32
+          },
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11416",
+      "slug": "kagotsurubeisshin",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.15
+        },
+        "hits": []
+      },
+      "legalRefinements": [
+        1
+      ]
+    },
+    {
+      "weaponId": "weapon:11417",
+      "slug": "sapwoodblade",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 60
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11424",
+      "slug": "wolffang",
+      "context": {},
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0.16
+          },
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "bonus": 0.16
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0.32
+          },
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "bonus": 0.32
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11425",
+      "slug": "finaleofthedeep",
+      "context": {
+        "weaponEffectActive": true,
+        "weaponExtraEffectActive": true,
+        "clearedBondOfLife": 10000
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.12,
+          "flatAtk": 150
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.24,
+          "flatAtk": 300
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11426",
+      "slug": "fleuvecendreferryman",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "energyRechargeBonus": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "energyRechargeBonus": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11427",
+      "slug": "thedockhandsassistant",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11432",
+      "slug": "calamityofeshu",
+      "context": {
+        "shielded": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.2
+          },
+          {
+            "element": "cryo",
+            "attackTag": "charged",
+            "bonus": 0.2
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.4
+          },
+          {
+            "element": "cryo",
+            "attackTag": "charged",
+            "bonus": 0.4
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11433",
+      "slug": "serenityscall",
+      "context": {
+        "weaponEffectActive": true,
+        "moonsignLevel": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.32
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.64
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11434",
+      "slug": "moonweaversdawn",
+      "context": {
+        "wearerEnergyMax": 40
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "burst",
+            "bonus": 0.48
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "burst",
+            "bonus": 0.96
+          },
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11436",
+      "slug": "emberwell",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.16
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.32
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11503",
+      "slug": "freedomsworn",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.26
+          },
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "bonus": 0.26
+          },
+          {
+            "element": "anemo",
+            "attackTag": "skill",
+            "bonus": 0.1
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.52
+          },
+          {
+            "element": "anemo",
+            "attackTag": "plunge",
+            "bonus": 0.52
+          },
+          {
+            "element": "anemo",
+            "attackTag": "skill",
+            "bonus": 0.2
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11504",
+      "slug": "summitshaper",
+      "context": {
+        "weaponStacks": 5,
+        "shielded": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.8
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11509",
+      "slug": "mistsplitterreforged",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.4
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.12
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "characterId": "character:10000002",
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.8
+          },
+          {
+            "element": "pyro",
+            "attackTag": "normal",
+            "bonus": 0.24
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11512",
+      "slug": "lightoffoliarincision",
+      "context": {},
+      "expectedR1": {
+        "stats": {
+          "critRate": 0.04
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "critRate": 0.08
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11513",
+      "slug": "splendoroftranquilwaters",
+      "context": {
+        "weaponStacks": 3,
+        "secondaryWeaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "hpPercent": 0.28
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0.24
+          },
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "hpPercent": 0.56
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0.48
+          },
+          {
+            "element": "hydro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11515",
+      "slug": "absolution",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "critDamage": 0.2
+        },
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.48
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "critDamage": 0.4
+        },
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.96
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11516",
+      "slug": "peakpatrolsong",
+      "context": {
+        "weaponStacks": 2,
+        "weaponEffectActive": true,
+        "weaponSnapshotDef": 4000
+      },
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.456
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.32
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.912
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11517",
+      "slug": "azurelight",
+      "context": {
+        "weaponEffectActive": true,
+        "energyZero": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.48,
+          "critDamage": 0.4
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.96,
+          "critDamage": 0.8
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11518",
+      "slug": "athameartis",
+      "context": {
+        "weaponEffectActive": true,
+        "witchLessonsCompleted": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.35
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.7
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11519",
+      "slug": "lightbearingmoonshard",
+      "context": {},
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.2
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.4
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11520",
+      "slug": "whitelakefrostfeather",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12402",
+      "slug": "thebell",
+      "context": {
+        "shielded": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.12
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.24
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12412",
+      "slug": "luxurioussealord",
+      "context": {},
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.12
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "pyro",
+            "attackTag": "burst",
+            "bonus": 0.24
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12414",
+      "slug": "katsuragikirinagamasa",
+      "context": {},
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.06
+          },
+          {
+            "element": "electro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "electro",
+            "attackTag": "skill",
+            "bonus": 0.12
+          },
+          {
+            "element": "electro",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12417",
+      "slug": "forestregalia",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 60
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12426",
+      "slug": "ultimateoverlordsmegamagicsword",
+      "context": {
+        "weaponStacks": 6
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.24
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.48
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12427",
+      "slug": "portablepowersaw",
+      "context": {
+        "weaponStacks": 3
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12430",
+      "slug": "fruitfulhook",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.16
+          },
+          {
+            "element": "pyro",
+            "attackTag": "plunge",
+            "bonus": 0.16
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.32
+          },
+          {
+            "element": "pyro",
+            "attackTag": "plunge",
+            "bonus": 0.32
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12432",
+      "slug": "flameforgedinsight",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 60
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12433",
+      "slug": "masterkey",
+      "context": {
+        "weaponEffectActive": true,
+        "moonsignLevel": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 120
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 240
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12436",
+      "slug": "bladeofatonement",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "em": 64
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "em": 128
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12503",
+      "slug": "songofbrokenpines",
+      "context": {
+        "weaponEffectActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.36
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.72
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12510",
+      "slug": "redhornstonethresher",
+      "context": {},
+      "expectedR1": {
+        "stats": {
+          "defPercent": 0.28
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "defPercent": 0.56
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12511",
+      "slug": "beaconofthereedsea",
+      "context": {
+        "weaponStacks": 2,
+        "shielded": false
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.4,
+          "hpPercent": 0.32
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.8,
+          "hpPercent": 0.64
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12512",
+      "slug": "verdict",
+      "context": {
+        "weaponStacks": 2
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.36
+          },
+          {
+            "element": "geo",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.4
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.72
+          },
+          {
+            "element": "geo",
+            "attackTag": "burst",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12513",
+      "slug": "fangofthemountainking",
+      "context": {
+        "weaponStacks": 6
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 0.6
+          },
+          {
+            "element": "dendro",
+            "attackTag": "burst",
+            "bonus": 0.6
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "dendro",
+            "attackTag": "skill",
+            "bonus": 1.2
+          },
+          {
+            "element": "dendro",
+            "attackTag": "burst",
+            "bonus": 1.2
+          },
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12514",
+      "slug": "athousandblazingsuns",
+      "context": {
+        "weaponEffectActive": true,
+        "nightsoulBlessingActive": true
+      },
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.49,
+          "critDamage": 0.35
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.98,
+          "critDamage": 0.7
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12515",
+      "slug": "gestofthemightywolf",
+      "context": {
+        "weaponStacks": 4
+      },
+      "expectedR1": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.3
+          }
+        ]
+      },
+      "expectedR5": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.62
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12516",
+      "slug": "ateaspoonoftranscendence",
+      "context": {},
+      "expectedR1": {
+        "stats": {
+          "atkPercent": 0.28
+        },
+        "hits": []
+      },
+      "expectedR5": {
+        "stats": {
+          "atkPercent": 0.56
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11412",
+      "slug": "swordofdescension",
+      "context": {
+        "platformPassiveActive": true
+      },
+      "characterId": "character:10000005",
+      "legalRefinements": [
+        1
+      ],
+      "expectedR1": {
+        "stats": {
+          "flatAtk": 66
+        },
+        "hits": []
+      }
+    }
+  ],
+  "branches": [
+    {
+      "weaponId": "weapon:11425",
+      "slug": "finaleofthedeep",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false,
+        "weaponExtraEffectActive": true,
+        "clearedBondOfLife": 3000
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0,
+          "flatAtk": 72
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11425",
+      "slug": "finaleofthedeep",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": true,
+        "weaponExtraEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.12,
+          "flatAtk": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11516",
+      "slug": "peakpatrolsong",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 0,
+        "weaponEffectActive": true,
+        "weaponSnapshotDef": 2000
+      },
+      "expected": {
+        "stats": {
+          "defPercent": 0
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.16
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11516",
+      "slug": "peakpatrolsong",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 2,
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "defPercent": 0.16
+        },
+        "hits": [
+          {
+            "element": "geo",
+            "attackTag": "skill",
+            "bonus": 0.2
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11434",
+      "slug": "moonweaversdawn",
+      "refinement": 1,
+      "context": {
+        "wearerEnergyMax": 60
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "burst",
+            "bonus": 0.36
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11434",
+      "slug": "moonweaversdawn",
+      "refinement": 1,
+      "context": {
+        "wearerEnergyMax": 61
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "burst",
+            "bonus": 0.2
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11434",
+      "slug": "moonweaversdawn",
+      "refinement": 1,
+      "context": {
+        "wearerEnergyMax": 0
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "burst",
+            "bonus": 0.48
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11509",
+      "slug": "mistsplitterreforged",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 1
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.2
+          },
+          {
+            "element": "pyro",
+            "attackTag": "skill",
+            "bonus": 0.12
+          }
+        ]
+      },
+      "characterId": "character:10000002"
+    },
+    {
+      "weaponId": "weapon:11509",
+      "slug": "mistsplitterreforged",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 2
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.28
+          }
+        ]
+      },
+      "characterId": "character:10000002"
+    },
+    {
+      "weaponId": "weapon:11509",
+      "slug": "mistsplitterreforged",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 0
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "cryo",
+            "attackTag": "skill",
+            "bonus": 0.12
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11513",
+      "slug": "splendoroftranquilwaters",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 0,
+        "secondaryWeaponStacks": 2
+      },
+      "expected": {
+        "stats": {
+          "hpPercent": 0.28
+        },
+        "hits": [
+          {
+            "element": "hydro",
+            "attackTag": "skill",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11517",
+      "slug": "azurelight",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": true,
+        "energyZero": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.24,
+          "critDamage": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11517",
+      "slug": "azurelight",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0,
+          "critDamage": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11518",
+      "slug": "athameartis",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": true,
+        "witchLessonsCompleted": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12514",
+      "slug": "athousandblazingsuns",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": true,
+        "nightsoulBlessingActive": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.28,
+          "critDamage": 0.2
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12514",
+      "slug": "athousandblazingsuns",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0,
+          "critDamage": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11504",
+      "slug": "summitshaper",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 5,
+        "shielded": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.2
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11504",
+      "slug": "summitshaper",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 0
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12511",
+      "slug": "beaconofthereedsea",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 0,
+        "shielded": true
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0,
+          "hpPercent": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12426",
+      "slug": "ultimateoverlordsmegamagicsword",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 0
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.12
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12426",
+      "slug": "ultimateoverlordsmegamagicsword",
+      "refinement": 1,
+      "context": {
+        "weaponStacks": 3
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.18
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11433",
+      "slug": "serenityscall",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": true,
+        "moonsignLevel": 1
+      },
+      "expected": {
+        "stats": {
+          "hpPercent": 0.16
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11433",
+      "slug": "serenityscall",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "hpPercent": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:12433",
+      "slug": "masterkey",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": true,
+        "moonsignLevel": 1
+      },
+      "expected": {
+        "stats": {
+          "em": 60
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11503",
+      "slug": "freedomsworn",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0
+        },
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0.1
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11410",
+      "slug": "thealleyflash",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:11432",
+      "slug": "calamityofeshu",
+      "refinement": 1,
+      "context": {
+        "shielded": false
+      },
+      "expected": {
+        "stats": {},
+        "hits": [
+          {
+            "element": "physical",
+            "attackTag": "normal",
+            "bonus": 0
+          }
+        ]
+      }
+    },
+    {
+      "weaponId": "weapon:12503",
+      "slug": "songofbrokenpines",
+      "refinement": 1,
+      "context": {
+        "weaponEffectActive": false
+      },
+      "expected": {
+        "stats": {
+          "atkPercent": 0.16
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11412",
+      "slug": "swordofdescension",
+      "refinement": 1,
+      "context": {
+        "platformPassiveActive": false
+      },
+      "characterId": "character:10000005",
+      "expected": {
+        "stats": {
+          "flatAtk": 0
+        },
+        "hits": []
+      }
+    },
+    {
+      "weaponId": "weapon:11412",
+      "slug": "swordofdescension",
+      "refinement": 1,
+      "context": {
+        "platformPassiveActive": true
+      },
+      "characterId": "character:10000002",
+      "expected": {
+        "stats": {
+          "flatAtk": 0
+        },
+        "hits": []
+      }
+    }
+  ]
+}

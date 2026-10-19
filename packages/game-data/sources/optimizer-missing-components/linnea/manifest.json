@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "repository": "frzyc/genshin-optimizer",
+  "revision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "archivedAt": "2026-09-25T02:50:59.765036+00:00",
+  "evidenceStatus": "source-provisional",
+  "scope": "Observed individual source damage components and their per-hit dependencies. No automatic resource, entity, animation, cadence, complete lifecycle or team execution certification.",
+  "files": [
+    {
+      "path": "LICENSE",
+      "archivePath": "raw/LICENSE",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "bytes": 1071,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Linnea/index.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Linnea/index.tsx",
+      "sha256": "656028626c1bd7ebd5a17b4ac5a0dcfc49b598841f0896075c36017aea8f9aaa",
+      "bytes": 16555,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/skillParam.json",
+      "sha256": "5a7b0211aaa9da1cf830467cdc56caacadf7d217a6c874123d7ab41dc05555ce",
+      "bytes": 4751,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Linnea/data.json",
+      "archivePath": "raw/libs/gi/stats/Data/Characters/Linnea/data.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Linnea/data.json",
+      "sha256": "c2a5819dc89f1e2ab1147c9123edf32d4f3490d822ec983c8301f6e58edb37a4",
+      "bytes": 964,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Linnea_gen.json",
+      "sha256": "0dcfddeaa649c6c12bf99ba96f83d21cd630e7cd2eddf63ca644416079ac7ca3",
+      "bytes": 12399,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/formula/src/data/char/Linnea.ts",
+      "archivePath": "raw/libs/gi/formula/src/data/char/Linnea.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/formula/src/data/char/Linnea.ts",
+      "sha256": "497cc5256dfed1371793e620bde5d8c11fe76ea36bdf433eb18651de9c2824d8",
+      "bytes": 1919,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "archivePath": "raw/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+      "sha256": "8448d1c106e2ff7a77fe3a6a72cf3d7d79fe6802814243dcc6bd99ed6c91125f",
+      "bytes": 15409,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/formula.ts",
+      "archivePath": "raw/libs/gi/wr/src/formula.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+      "sha256": "392bdaa2950555b2d733959728c48105cd94495e17c5d32c3be60439a30c59bd",
+      "bytes": 15340,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/special.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/special.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts",
+      "sha256": "152819697395a9f7a5ca4f10948c96ae9655cb0ebfe592065056deb4f9f8a0aa",
+      "bytes": 2810,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/wr/src/reaction/lunar.ts",
+      "archivePath": "raw/libs/gi/wr/src/reaction/lunar.ts",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+      "sha256": "cc179b5b81e5707300bf2cf7cf9f092f466f438a1f4df43dce78699e38844d01",
+      "bytes": 885,
+      "retrieval": "fixed local checkout"
+    },
+    {
+      "path": "libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "archivePath": "raw/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "url": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+      "sha256": "f20816bb19c79a617a173d8bade6b7301810d92a893ee4495f2e190365f012dd",
+      "bytes": 38604,
+      "relevantJsonPointers": [
+        "/11300001"
+      ]
+    }
+  ],
+  "rejectedPlaceholders": {
+    "path": "libs/gi/formula/src/data/char/Linnea.ts",
+    "reason": "TODO formula-layer placeholder is archived for audit only. The production sheet, skill parameter vectors, localized talent text, and shared damage helpers provide the usable evidence."
+  },
+  "newComponentIds": [
+    "linnea-lumi-heavy-overdrive-hammer-component",
+    "linnea-lumi-million-ton-crush-component"
+  ],
+  "sourceCoefficientVectors": [
+    {
+      "field": "/skill/1",
+      "catalogParameter": "combat2.param2",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "lunar-crystallize-direct",
+      "stat": "def"
+    },
+    {
+      "field": "/skill/2",
+      "catalogParameter": "combat2.param3",
+      "levelCount": 15,
+      "tolerance": 0,
+      "kind": "lunar-crystallize-direct",
+      "stat": "def"
+    }
+  ],
+  "componentStatus": "partial",
+  "adjudication": [
+    {
+      "mechanic": "intrinsic lunar-crystallize base bonus",
+      "formula": "min(actual DEF * 0.007 / 100, 0.14)",
+      "source": "index.tsx a0_lunarcrystallize_baseDmg_; skillParam.json /passive3/0 and /passive3/1",
+      "accounting": "Separate special base bonus; not ordinary Geo or Skill damage bonus."
+    },
+    {
+      "mechanic": "A1 Geo resistance",
+      "formula": "ascension >= 1 and Lumi present and target in range ? (moonsignLevel >= 2 ? 0.30 : 0.15) : 0",
+      "source": "index.tsx a1Lumi_geo_enemyRes_; char_Linnea_gen passive1",
+      "accounting": "0.30 is total reduction, not 0.15+0.30; subtract the input already-included share."
+    },
+    {
+      "mechanic": "A4 EM recipient and conversion",
+      "formula": "ascension >= 4 and self receives A4 ? pre-conversion DEF * 0.05 : 0",
+      "source": "index.tsx a4_eleMas and active-character routing; char_Linnea_gen passive2",
+      "accounting": "Active Moonsign character receives A4; otherwise Linnea receives A4. If Linnea is the active Moonsign character she is also the recipient. Restore actual conversion basis and already-included EM; do not add twice."
+    },
+    {
+      "mechanic": "separate direct special components",
+      "source": "index.tsx skill.hammerDmg / crushDmg; tooltips_gen /11300001",
+      "meaning": "Hammer is the Super Power alternate attack in nearby Moondrift conditions; Crush is an Ultimate Power attack followed by Standard Power. Their explicit per-hit formulas do not prove timing or valid resource transition history."
+    }
+  ],
+  "remainingLifecycle": [
+    "Exact first-attack, inter-attack and pair-hit timings in Super and Standard Power forms.",
+    "Feeding input count, timing, interruption and exact transition into Ultimate Power.",
+    "E summon/replacement and Q existing-Lumi lifetime-reset ordering. Tooltip proves Q does not change an existing form, but not task ordering.",
+    "Moondrift-nearby detection, target selection, attack contact and full issued-tail completion.",
+    "C1+ Field Catalog consumption, C2 special Harmony/crit behavior and C4/C6 buffs."
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "artifact-stats-go-180a0a1",
+  "source": "genshin-optimizer",
+  "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "retrievedAt": "2026-09-23T06:25:48.778084+00:00",
+  "license": "MIT",
+  "gameVersion": "not-certified",
+  "releaseStatus": "unknown",
+  "numericEvidenceStatus": "unchecked",
+  "notes": "Fixed-source stat tables and legal slot/roll rules; no interpolation. Common rarity 1-5 data; not evidence of current live roster completeness. Runtime uses unrounded source decimals in binary64; no claim of matching all game float32 display rounding.",
+  "files": [
+    {
+      "file": "artifact_main.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_main.json",
+      "sha256": "b4ac7d336caa5298e6f78921e2790042592f8ae70ff2e2428f2a23d594783ab4"
+    },
+    {
+      "file": "artifact_sub.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Artifacts/artifact_sub.json",
+      "sha256": "5507dff48dc632ee6401adc518a6290d4607264738624ec51308ac7a2cb7e3e8"
+    },
+    {
+      "file": "consts-artifact.ts.txt",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/consts/src/artifact.ts",
+      "sha256": "704ea84c1555e999ad6057e822e29922c58cfbc0cd7d8c52a616af9d5fc35781"
+    },
+    {
+      "file": "artifactMeta.ts.txt",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/util/src/artifact/artifactMeta.ts",
+      "sha256": "2c916c6b73b2213129b24d20e74ca9d2eacdbe3b7a20112c1744984bc77855f3"
+    },
+    {
+      "file": "LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c"
+    }
+  ]
+}

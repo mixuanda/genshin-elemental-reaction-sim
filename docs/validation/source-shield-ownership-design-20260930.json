@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "112-private-source-audit-v1",
+  "status": "design-only; no source/cache/repository edits, build, or tests",
+  "sourceTrees": {
+    "classic": "/tmp/gidps-source-host-cache/build-Jv0OeE/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-pasFAn/source"
+  },
+  "sourceHashes": {
+    "pkg/core/player/shield/handler.go": {
+      "classic": "4b6470e23fe38deeea84abbea9092b21162745236d66f0dc9f2614dbc1c41ebc",
+      "stellar": "4b6470e23fe38deeea84abbea9092b21162745236d66f0dc9f2614dbc1c41ebc"
+    },
+    "pkg/core/player/shield/template.go": {
+      "classic": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61",
+      "stellar": "3afce591cbd9257056306b8382bdb37b4527e6536614c1b5af5d1d5915d2aa61"
+    },
+    "pkg/core/player/shield/shield.go": {
+      "classic": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "stellar": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c"
+    },
+    "pkg/core/player/shield/sourcehost_phase_state.go": {
+      "classic": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb",
+      "stellar": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb"
+    },
+    "pkg/core/sourcehost/bridge.go": {
+      "classic": "5234f52bb9734cb50980725cb316c7069aed4ddb9bb0045a06d5cdd1c6d773a0",
+      "stellar": "0971b6f9c3fbd8ddcfee6aa7af9b913b6a674075a05c7de0a6373a7ee52af597"
+    },
+    "pkg/core/info/sourcehost_origin.go": {
+      "classic": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961",
+      "stellar": "ef7e7f16addba4b4cd365e8f8be1df098a754f9f40b8519bd647dfb884c71961"
+    },
+    "pkg/core/info/sourcehost_task.go": {
+      "classic": "e729c1bf61fd334e934904d6f08694f20025f44fe94c744ea58443e4dd8994b7",
+      "stellar": "e729c1bf61fd334e934904d6f08694f20025f44fe94c744ea58443e4dd8994b7"
+    },
+    "pkg/core/core.go": {
+      "classic": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5",
+      "stellar": "53cb53eb19a01a600100efd7e330fd294d7b562fa6d79da06e105e1ce62c87e5"
+    },
+    "pkg/core/player/player.go": {
+      "classic": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "stellar": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46"
+    },
+    "internal/characters/xinyan/skill.go": {
+      "classic": "b2fb922f936877fe3b614454caf08f1211e3128b8206f45f7318b6a1b839316a",
+      "stellar": "b2fb922f936877fe3b614454caf08f1211e3128b8206f45f7318b6a1b839316a"
+    },
+    "internal/characters/xinyan/burst.go": {
+      "classic": "08a2d49862e67c377e9a3d21d35135a6b8f1089f021a6acdc6399bc3e76716f6",
+      "stellar": "08a2d49862e67c377e9a3d21d35135a6b8f1089f021a6acdc6399bc3e76716f6"
+    },
+    "internal/characters/xinyan/shield.go": {
+      "classic": "489b0a8f481517f03a754f14408b1e3396ed3d2db0b510e458109d9fce5a29d7",
+      "stellar": "b0f0e07a771ecfff68189307ad7639fa91ccfa7229906e14dca8e234c02ac0e7"
+    },
+    "internal/characters/xinyan/xinyan.go": {
+      "classic": "892de20a07ed905914e1fcebffe03e1fb5275ad05ace1203fcf40a6f17153a92",
+      "stellar": "24e9ca9c615fa34b3ab67effa41cc5aa60f19156b93fcfab8dfaed103562d8df"
+    },
+    "internal/characters/xinyan/asc.go": {
+      "classic": "c3e15fd3273703ecb811d2947c84a7529f395d43f05a9dd72ab13a971f0e1d4c",
+      "stellar": "c3e15fd3273703ecb811d2947c84a7529f395d43f05a9dd72ab13a971f0e1d4c"
+    },
+    "internal/characters/xinyan/cons.go": {
+      "classic": "d8b82f200caeda847374cc351ec3d0e84984ae23244e2f79d8bf861cd7924359",
+      "stellar": "d8b82f200caeda847374cc351ec3d0e84984ae23244e2f79d8bf861cd7924359"
+    },
+    "internal/characters/baizhu/burst.go": {
+      "classic": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09",
+      "stellar": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09"
+    },
+    "internal/characters/baizhu/shield.go": {
+      "classic": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364",
+      "stellar": "1f2ae2dc9f2ec3be583daff4236da926ab608e8bcf01c42bfe7293ef31719364"
+    },
+    "internal/characters/baizhu/skill.go": {
+      "classic": "981fc3681dbd44cee81225e52838ea78f3434af43547bab040a75fc3c8e69f80",
+      "stellar": "981fc3681dbd44cee81225e52838ea78f3434af43547bab040a75fc3c8e69f80"
+    },
+    "internal/characters/baizhu/cons.go": {
+      "classic": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+      "stellar": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72"
+    },
+    "internal/characters/baizhu/baizhu.go": {
+      "classic": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+      "stellar": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c"
+    },
+    "internal/characters/thoma/shield.go": {
+      "classic": "4bab7cada952731ea747f4a2420c8f72cfc354dd39c4249d225b4f400b9701e3",
+      "stellar": "4bab7cada952731ea747f4a2420c8f72cfc354dd39c4249d225b4f400b9701e3"
+    },
+    "internal/characters/zhongli/shield.go": {
+      "classic": "dcb48161e1ed8bdf40e07e11cb266520daf705d03b6d8d6a32a005685e0f0817",
+      "stellar": "dcb48161e1ed8bdf40e07e11cb266520daf705d03b6d8d6a32a005685e0f0817"
+    },
+    "internal/characters/noelle/shield.go": {
+      "classic": "293c6d080a0efed14b73b7ddd23aeff409a92b0f5941622ca224fe32e415557d",
+      "stellar": "90697d3099f62e47dc8903bfe68ea870d30f7a338f66554f4d3e39a555d665ba"
+    },
+    "internal/characters/layla/shield.go": {
+      "classic": "4b6a32b714125cd74d0379da7dbabf9d70a78145d9ab15d80d31797103bc535e",
+      "stellar": "4b6a32b714125cd74d0379da7dbabf9d70a78145d9ab15d80d31797103bc535e"
+    },
+    "internal/characters/dahlia/shield.go": {
+      "classic": "250b46c148b95597d62f579062b9dd9b5fcf9a4078653a28e8e7524d0a674263",
+      "stellar": "250b46c148b95597d62f579062b9dd9b5fcf9a4078653a28e8e7524d0a674263"
+    }
+  },
+  "currentNativeFacts": [
+    {
+      "source": "pkg/core/player/shield/handler.go:58-89",
+      "rule": "Add replaces the last active shield with equal (Type, ShieldTarget). It calls old.OnOverwrite before assigning new, then emits OnShielded for new. No OnExpire or OnShieldBreak on replacement."
+    },
+    {
+      "source": "pkg/core/player/shield/handler.go:96-158",
+      "rule": "OnDamage visits each applicable shield; an OnDamage return of false drops that exact object, and OnShieldBreak is emitted after compaction. Shield-specific OnDamage can queue damage before handler removal."
+    },
+    {
+      "source": "pkg/core/player/shield/handler.go:160-181",
+      "rule": "Tick expires only if shield.Expiry() == current frame; calls OnExpire before removal, then emits OnShieldBreak. It does not call OnOverwrite."
+    },
+    {
+      "source": "pkg/core/core.go:140-155; pkg/core/player/player.go:299-323",
+      "rule": "Core.Tick runs Player.Tick, including Shields.Tick, before Core.Tasks.Run in the same global frame. This order matters at an expiry/task boundary."
+    },
+    {
+      "source": "pkg/core/player/shield/template.go:25-48",
+      "rule": "ShieldOwner/Target/Type are semantic fields. Tmpl.Key() returns Src frame, which is not unique among same-frame shield instances. SourceHostHPID is mutable: Tmpl.OnDamage via Bridge.ShieldDamage replaces it with the latest HP calculation ID."
+    },
+    {
+      "source": "pkg/core/sourcehost/bridge.go:403-438; pkg/core/player/shield/sourcehost_phase_state.go:6-43",
+      "rule": "Current sourcehost captures player-shield HP arithmetic/provenance and a live phase snapshot. It does not emit shield instance birth/replacement/break/expiry, active owner, or terminal callback receipts; custom shield private state remains a phase coverage gap."
+    },
+    {
+      "source": "pkg/core/player/shield/shield.go:39-52",
+      "rule": "Shield interface exposes OnDamage, OnExpire and OnOverwrite separately, so a generic OnShieldBreak event alone cannot distinguish expiry from damage break."
+    }
+  ],
+  "laneDifference": {
+    "source": "internal/characters/xinyan/shield.go:13-27",
+    "classic": "newShield does not set Tmpl.Ele, leaving the native enum zero value.",
+    "stellar": "newShield explicitly sets Tmpl.Ele = Pyro.",
+    "implication": "Shield absorption/break behavior may differ by lane; do not collapse the two into a single inferred survival schedule. Stellar Noelle likewise explicitly sets Geo while classic leaves its constructor element unset."
+  },
+  "minimalObservationAPI": {
+    "principle": "All receipts are read-only observations of actual native events. Do not replace a shield hook, infer termination by elapsed time, or use Src frame as identity.",
+    "handlerHook": "Add an optional sourcehost lifecycle observer on shield.Handler. It receives exact Shield object at Add/OnDamage/Tick branches and brackets the existing OnOverwrite, OnDamage, OnExpire callbacks without changing order, arguments, return values or emitted events.",
+    "instanceIdentity": "Assign monotonically increasing simulation-local shieldInstanceId for every actual Add object; retain identity for that object through replacement/break/expiry and keep a separate birth HP calculation ID. Internal pointer identity may be used only to look up the assigned ID; never expose addresses. If a shield implementation cannot be keyed safely, expose an explicit coverage gap.",
+    "shieldInstancesRow": {
+      "shieldInstanceId": "positive int",
+      "actorIndex": "int from ShieldOwner",
+      "targetIndex": "int from ShieldTarget",
+      "type": "int",
+      "description": "string",
+      "sourceKeyFrame": "int from Shield.Key, nonunique",
+      "createdFrame": "int",
+      "nativeExpiryFrame": "int, including -1",
+      "initialHP": "number",
+      "birthHPSourceCalculationId": "optional positive int",
+      "creationOrigin": "SourceHostOrigin snapshot",
+      "creationSiteId": "optional audited source site",
+      "replacesInstanceId": "optional positive int when Handler.Add matches type+target",
+      "terminalFrame": "optional int",
+      "terminalReason": "overwritten | broken | expired; absent while active",
+      "lastHP": "number",
+      "lastHPSourceCalculationId": "optional positive int"
+    },
+    "shieldTransitionsRow": {
+      "sequence": "monotonic int",
+      "frame": "int",
+      "kind": "added | overwrite-hook | damage-hook | broken | expire-hook | expired | shielded-event | shield-break-event",
+      "instanceId": "positive int",
+      "replacementInstanceId": "optional positive int",
+      "playerAttackId": "optional positive int for damage branch",
+      "hpBefore": "optional number",
+      "hpAfter": "optional number",
+      "origin": "SourceHostOrigin snapshot"
+    },
+    "effectContext": "While invoking exact OnDamage/OnExpire/OnOverwrite of an instance, Bridge records active shieldInstanceId and hook cause; Restore after callback. Attack CaptureAttack receives this private owner plus source-site ID only when audited character source emits. Handler.Emit events retain original order. For direct refresh attack before Handler.Add, source code must explicitly bind the old `exist` shield object; generic OnOverwrite context cannot see this attack.",
+    "phaseState": "Expose live shieldInstanceId and terminal relation in SourceHostPhaseState; retain current HP/relative expiry and separate existing SourceHostHPID mutable provenance. Custom implementation private-state gaps remain unless reviewed, not blanket promoted."
+  },
+  "xinyan": {
+    "source": [
+      "internal/characters/xinyan/skill.go:31-85,103-185",
+      "internal/characters/xinyan/burst.go:30-124",
+      "internal/characters/xinyan/shield.go:8-39",
+      "internal/characters/xinyan/asc.go:11-21",
+      "internal/characters/xinyan/cons.go:55-82"
+    ],
+    "skill": "E queues one direct initial attack at skillHitmark 15. Each actual enemy-hit callback increments hitOpponents and schedules a character task to update shield level at a hitlag-sensitive time. If no XinyanSkill shield existed at cast time, a separate level-1 creation task is registered. A1 lowers level2/3 opponent-count thresholds. Level3 update starts the recurring shieldDot task and replaces the shield object.",
+    "burstC2": "Q at C2+ queues two additional direct shield-pulse attacks at c2PulseHitmarks in addition to initial physical hit and seven Q Pyro hits. A hitlag-sensitive character task at burstShieldStart 43 updates to level3 and starts shieldDot; C0-C1 has no Q-created shield. The two pulses are direct Q roots, not shieldDot emissions.",
+    "shieldHooks": "xinyanShield.OnExpire and broken OnDamage reset c.shieldLevel=1; inherited OnOverwrite is a no-op. Replacement does not run OnExpire/OnShieldBreak.",
+    "dotGate": "Each shieldDot task checks Get(XinyanSkill)!=nil, c.shieldLevel==3 and c.shieldTickSrc==captured src. It queues exactly one attack then one next task only when all three pass. The src is a frame, not a shield instance ID. An old task could pass under a newer shield if updates share a frame; record both task-chain owner and actual gate shieldInstanceId, never silently reassign ownership to the new object.",
+    "requiredProducerSites": [
+      "xinyan.skill.hit-to-shield-update (callback-owned character task; may update level2/3)",
+      "xinyan.skill.initial-level1 (non-damage task proving possible shield creation)",
+      "xinyan.burst.c2-level3 (Burst-owned character task; C2+ only)",
+      "xinyan.shield.level3-first-dot (registered by updateShield)",
+      "xinyan.shield.dot-next (recursive Core task)"
+    ],
+    "closure": "Use actual callback batches/hit count, shield transitions and task producer receipts. DoT chain closes only after its observed terminal task (gate failed) or an explicit cancellation receipt; a pending future task blocks complete scope. Do not presume 12-second shield expiry alone proves all ticks or fixed count. Same-frame replacement and concurrent E/Q require actual chain + gate identity receipts.",
+    "sourceLimit": "Current 108 ability producer helper only links registrations within an active invocation or producer. E hit callback schedules update task after Skill returned; it needs 111 callback-owned task registration linkage (not a heuristic creation-action ancestry) before E-shield DoT can be a complete intrinsic cast."
+  },
+  "baizhu": {
+    "source": [
+      "internal/characters/baizhu/burst.go:35-153",
+      "internal/characters/baizhu/shield.go:8-43",
+      "internal/characters/baizhu/cons.go:119-132",
+      "internal/characters/baizhu/skill.go:32-70,74-122"
+    ],
+    "burstTasks": "Q registers exactly six Core tasks: first shield at frame offset81 and five refresh tasks at offsets81+142+146*i, i=0..4. These tasks create new shield objects; five refresh tasks also directly call healing after summon. At summonSeamlessShield, if any BaizhuBurst shield exists, summonSpiritvein queues one attack before the new shield is added; then Handler.Add replaces old shield through inherited no-op OnOverwrite.",
+    "breakAndExpiry": "Baizhu shield OnDamage calls removeShield (heal + Spiritvein queue) when HP reaches zero. OnExpire calls the same. These happen before Handler removes the shield. A given actual shield instance can terminate by break, expiry or replacement; each observed reason must be distinct. No fixed Spiritvein total is valid without observing breaks, refreshes, C6 insertion and horizon.",
+    "c6": "C6 makeC6CB creates a Seamless Shield on its first executed sprite hit callback. In pinned skill.go it is attached to the first Skill attack when chain callback is present; in cons.go it is attached to the C2 Splice attack. The C6-created shield can overwrite a Q shield, and a later Q refresh can overwrite that C6 shield. It is a separate callback-origin creation, not automatically owned by the Q invocation.",
+    "requiredProducerSites": [
+      "baizhu.burst.first-shield (1 direct Q task)",
+      "baizhu.burst.refresh-shield (5 direct Q tasks)",
+      "baizhu.c6.sprite-shield (audited hit callback site, only when actual callback executes)",
+      "baizhu.shield.spiritvein (attack emit site with consumed existing shieldInstanceId and explicit cause: refresh, break, expiry)"
+    ],
+    "ownerRule": "Refresh Spiritvein is tied to the exact old `exist` shield, by explicit source wrapper around the call before Add. Break/expiry Spiritvein is tied to the exact current shield in Handler callback context. Every new shield carries its own creation origin/site, replacement relation and terminal reason. The Q action may create a new Q shield while consuming an old C6 shield; do not count that old C6 Spiritvein as a Q-owned shield emission merely because a Q task triggered replacement.",
+    "closure": "For standalone Q, all six Q creation tasks must complete, every resulting Q-owned shield must have an observed terminal relation, all old-shield Spiritvein emits attributable by instance must dispatch to terminal target outcomes, and any C6/external shield interleaving must remain separately identified. Do not infer final shield expiry from its configured 152-frame lifetime; observation must reach actual native Tick or break/replacement. If a C6 callback is pending, keep dependent shield scope partial."
+  },
+  "reuseInventory": [
+    {
+      "family": "Thoma",
+      "source": "internal/characters/thoma/shield.go:12-58",
+      "benefit": "Replacement computes capped stacked/refresh HP from old shield and previous SourceHostHPSource; instance relation plus stable birth and mutable HP provenance makes refresh trace auditable."
+    },
+    {
+      "family": "Zhongli",
+      "source": "internal/characters/zhongli/shield.go:13-115",
+      "benefit": "OnExpire/OnDamage reset shielded/A1 tags; refresh replacement does not invoke those hooks. Instance reason receipts prevent false tag-reset assumptions."
+    },
+    {
+      "family": "Noelle C4",
+      "source": "internal/characters/noelle/shield.go:28-48",
+      "benefit": "OnOverwrite, OnExpire, and broken OnDamage each call explodeShield; demonstrates why all three hook contexts must be captured separately."
+    },
+    {
+      "family": "Layla/Dahlia",
+      "source": "internal/characters/layla/shield.go:226-239; internal/characters/dahlia/shield.go:44-65",
+      "benefit": "Break/expiry may trigger character-specific effects or regeneration tasks. Generic lifecycle receipt can report cause without assuming their gameplay formulas."
+    }
+  ],
+  "notYetProven": [
+    "No native runtime receipts have been collected for the proposed API.",
+    "No claim of real-game shield timing or damage frequency is made; these are pinned simulator paths.",
+    "Character callbacks and task chains require source-site annotations before a finite-cast complete verdict; lifecycle events alone cannot close them."
+  ]
+}

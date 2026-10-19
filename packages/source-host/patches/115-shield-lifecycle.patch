@@ -1,0 +1,112 @@
+diff --git a/pkg/core/player/shield/handler.go b/pkg/core/player/shield/handler.go
+index c3058f7..e744213 100644
+--- a/pkg/core/player/shield/handler.go
++++ b/pkg/core/player/shield/handler.go
+@@ -6,6 +6,12 @@ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ )
+ 
++type SourceHostLifecycleObserver interface {
++	ShieldAdded(Shield, Shield)
++	BeginShieldHook(Shield, string, string) func()
++	ShieldEnded(Shield, string)
++}
++
+ // Handler keeps track of all the active shields
+ // However we do care which is active since:
+ // - global shields: only active is shielded
+@@ -16,10 +22,11 @@ type Handler struct {
+ 	events  event.Eventter
+ 	f       *int
+ 
+-	SourceHostDamage  SourceHostDamageFunc
+-	SourceHostMinimum func(float64, float64) float64
+-	SourceHostBonus   SourceHostBonusCallbacks
+-	shieldBonusMods   []shieldBonusMod
++	SourceHostLifecycle SourceHostLifecycleObserver
++	SourceHostDamage    SourceHostDamageFunc
++	SourceHostMinimum   func(float64, float64) float64
++	SourceHostBonus     SourceHostBonusCallbacks
++	shieldBonusMods     []shieldBonusMod
+ }
+ 
+ func New(f *int, log glog.Logger, events event.Eventter) *Handler {
+@@ -68,14 +75,21 @@ func (h *Handler) Add(shd Shield) {
+ 			ind = i
+ 		}
+ 	}
++	var replaced Shield
+ 	if ind > -1 {
++		replaced = h.shields[ind]
+ 		h.log.NewEvent("shield overridden", glog.LogShieldEvent, -1).
+ 			Write("overwrite", true).
+ 			Write("name", shd.Desc()).
+ 			Write("hp", shd.CurrentHP()).
+ 			Write("ele", shd.Element()).
+ 			Write("expiry", shd.Expiry())
++		endHook := h.sourceHostBeginHook(replaced, "overwrite")
+ 		h.shields[ind].OnOverwrite()
++		if endHook != nil {
++			endHook()
++			h.SourceHostLifecycle.ShieldEnded(replaced, "overwritten")
++		}
+ 		h.shields[ind] = shd
+ 	} else {
+ 		h.shields = append(h.shields, shd)
+@@ -86,6 +100,9 @@ func (h *Handler) Add(shd Shield) {
+ 			Write("ele", shd.Element()).
+ 			Write("expiry", shd.Expiry())
+ 	}
++	if h.SourceHostLifecycle != nil {
++		h.SourceHostLifecycle.ShieldAdded(shd, replaced)
++	}
+ 	h.events.Emit(event.OnShielded, shd)
+ }
+ 
+@@ -116,7 +133,11 @@ func (h *Handler) OnDamage(char, active int, dmg float64, ele attributes.Element
+ 			continue
+ 		}
+ 		preHp := v.CurrentHP()
++		endHook := h.sourceHostBeginHook(v, "damage")
+ 		taken, ok := v.OnDamage(dmg, ele, bonus)
++		if endHook != nil {
++			endHook()
++		}
+ 		h.log.NewEvent(
+ 			"shield taking damage",
+ 			glog.LogShieldEvent,
+@@ -137,6 +158,9 @@ func (h *Handler) OnDamage(char, active int, dmg float64, ele attributes.Element
+ 			h.shields[n] = v
+ 			n++
+ 		} else {
++			if h.SourceHostLifecycle != nil {
++				h.SourceHostLifecycle.ShieldEnded(v, "broken")
++			}
+ 			// shield broken
+ 			h.log.NewEvent(
+ 				"shield broken",
+@@ -162,7 +186,12 @@ func (h *Handler) Tick() {
+ 	broken := make([]Shield, 0)
+ 	for _, v := range h.shields {
+ 		if v.Expiry() == *h.f {
++			endHook := h.sourceHostBeginHook(v, "expiry")
+ 			v.OnExpire()
++			if endHook != nil {
++				endHook()
++				h.SourceHostLifecycle.ShieldEnded(v, "expired")
++			}
+ 			h.log.NewEvent("shield expired", glog.LogShieldEvent, -1).
+ 				Write("name", v.Desc()).
+ 				Write("hp", v.CurrentHP())
+@@ -179,3 +208,11 @@ func (h *Handler) Tick() {
+ 		}
+ 	}
+ }
++
++// Observe the exact callback without changing native hook/event ordering.
++func (h *Handler) sourceHostBeginHook(shd Shield, cause string) func() {
++	if h.SourceHostLifecycle == nil {
++		return nil
++	}
++	return h.SourceHostLifecycle.BeginShieldHook(shd, "", cause)
++}

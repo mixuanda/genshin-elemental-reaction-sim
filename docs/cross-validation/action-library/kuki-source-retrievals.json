@@ -1,0 +1,95 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "newlyRetrievedFiles": [
+    {
+      "path": "internal/weapons/sword/dullblade/dullblade.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/weapons/sword/dullblade/dullblade.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dullblade/dullblade.go",
+      "httpStatus": 200,
+      "sha256": "2b877396304d4f3a9a246b96f00d88b0c01e4763c911718c86306068de04630c",
+      "bytes": 392,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.406954+00:00"
+    },
+    {
+      "path": "internal/weapons/sword/dullblade/zz_dullblade.dm.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/weapons/sword/dullblade/zz_dullblade.dm.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dullblade/zz_dullblade.dm.go",
+      "httpStatus": 200,
+      "sha256": "0c2d351759b345d979fe4bef294914facc75cf0ffa181c9682270a845020d204",
+      "bytes": 231,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.409259+00:00"
+    },
+    {
+      "path": "internal/template/character/heal.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/template/character/heal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+      "httpStatus": 200,
+      "sha256": "8f3d39fdcb7812f2858cfd59b46d3b69a688a021d57f4338fafdee845804b095",
+      "bytes": 2632,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.417611+00:00"
+    },
+    {
+      "path": "internal/template/character/hp.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/internal/template/character/hp.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+      "httpStatus": 200,
+      "sha256": "98f005184a03c02d834ab114a59d0080249d2f79c2f97e66092aaa791b6b2005",
+      "bytes": 1572,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:47.397935+00:00"
+    },
+    {
+      "path": "pkg/core/attributes/stats.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/core/attributes/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "httpStatus": 200,
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "bytes": 1677,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:48.176039+00:00"
+    },
+    {
+      "path": "pkg/core/player/heal.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/core/player/heal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/heal.go",
+      "httpStatus": 200,
+      "sha256": "39231033df792ba3165ed9e569e9d7747a83209879b53f1e799bef9ce896eadd",
+      "bytes": 447,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:48.201866+00:00"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "httpStatus": 200,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:49.613377+00:00"
+    },
+    {
+      "path": "pkg/gcs/parser/parser.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/gcs/parser/parser.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/parser/parser.go",
+      "httpStatus": 200,
+      "sha256": "fc24279e9a247739273140c6f41bb1a636ba738b12b050b39d769f036c6cb35f",
+      "bytes": 4670,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:49.413938+00:00"
+    },
+    {
+      "path": "pkg/gcs/eval/sysfunc.go",
+      "archivedPath": "docs/cross-validation/action-library/kuki-source/pkg/gcs/eval/sysfunc.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/eval/sysfunc.go",
+      "httpStatus": 200,
+      "sha256": "0e5352aafe132b4a20d79bfbad30a0c0b932d7e421d7e3f132dd15434e2010ae",
+      "bytes": 12654,
+      "matchesFixedLocalCheckout": true,
+      "retrievedAt": "2026-09-23T19:26:49.488865+00:00"
+    }
+  ]
+}

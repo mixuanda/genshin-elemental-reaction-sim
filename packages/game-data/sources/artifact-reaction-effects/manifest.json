@@ -1,0 +1,212 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "read-only-source-audit",
+  "auditTime": "2026-09-23T08:14:12.369024+00:00",
+  "source": "genshinsim/gcsim",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "license": "MIT",
+  "licenseUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+  "status": "provisional-evidence-only",
+  "notes": [
+    "No production rules or tests were changed or executed in this audit.",
+    "Archived .txt files retain exact upstream bytes; hashes refer to the complete raw files.",
+    "The active catalog excerpts below are captured from the immutable local snapshot, not claimed to be whole upstream source files.",
+    "Current catalog stellar clauses are not automatically mapped to older pinned implementation tags."
+  ],
+  "activeCatalog": {
+    "snapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "source": {
+      "id": "genshin-db",
+      "name": "genshin-db",
+      "url": "https://github.com/theBowja/genshin-db",
+      "version": "5.2.14",
+      "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "license": "MIT",
+      "contentSha256": "6720353b1a8f5f9b26e96a7f117fcfe070c2be3ec469235b7dbae0eb5098d7e0",
+      "notes": "Projected combat data from a pinned Git tree. Source files hashed individually; no upstream code executed. This content hash identifies the imported projection, not a nonexistent upstream bundled file. Community values remain provisional."
+    },
+    "catalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "supplementalPath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/supplemental.json",
+    "supplementalSha256": "78d922ea7eb883b77c7101bd7be72159188aef4105ec5fc056fa3ec4aa722241",
+    "records": [
+      {
+        "id": "artifact-set:15002",
+        "slug": "viridescentvenerer",
+        "name": "翠绿之影",
+        "fourPieceDescription": "扩散反应造成的伤害提升60%，星扩散反应造成的伤害提升20%。根据扩散的元素类型，降低受到影响的敌人40%的对应元素抗性，持续10秒。对敌人触发星扩散反应时，也会降低其40%的冰元素抗性。同元素类型的抗性降低效果无法叠加。",
+        "upstreamDescriptionUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/viridescentvenerer.json"
+      },
+      {
+        "id": "artifact-set:15005",
+        "slug": "thunderingfury",
+        "name": "如雷的盛怒",
+        "fourPieceDescription": "超载、感电、超导、超绽放反应造成的伤害提升40%，超激化反应带来的伤害提升提高20%，月感电、星超导反应造成的伤害提升20%。触发上述元素反应或原激化反应时，元素战技冷却时间减少1秒。该效果每0.8秒最多触发一次。",
+        "upstreamDescriptionUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/thunderingfury.json"
+      },
+      {
+        "id": "artifact-set:15006",
+        "slug": "crimsonwitchofflames",
+        "name": "炽烈的炎之魔女",
+        "fourPieceDescription": "超载、燃烧、烈绽放反应造成的伤害提升40%，蒸发、融化反应的加成系数提高15%。施放元素战技后的10秒内，2件套的效果提高50%，该效果最多叠加3次。",
+        "upstreamDescriptionUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/crimsonwitchofflames.json"
+      },
+      {
+        "id": "artifact-set:15025",
+        "slug": "deepwoodmemories",
+        "name": "深林的记忆",
+        "fourPieceDescription": "元素战技或元素爆发命中敌人后，使命中目标的草元素抗性降低30%，持续8秒。装备者处于队伍后台时，依然能触发该效果。",
+        "upstreamDescriptionUrl": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/deepwoodmemories.json"
+      }
+    ]
+  },
+  "files": [
+    {
+      "file": "internal__artifacts__viridescent__viridescent.go.txt",
+      "upstreamPath": "internal/artifacts/viridescent/viridescent.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/viridescent/viridescent.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/viridescent/viridescent.go",
+      "sha256": "1b31af284b103c3903ff20bd7066c73f31456e509bf145cad44df49936a81f24",
+      "bytes": 3908,
+      "license": "MIT"
+    },
+    {
+      "file": "internal__artifacts__deepwood__deepwood.go.txt",
+      "upstreamPath": "internal/artifacts/deepwood/deepwood.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/deepwood/deepwood.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/deepwood/deepwood.go",
+      "sha256": "84b775e2d75897b32d3db389e4862849c1c5c3fbb1af5732e6d03cf465c7dfb9",
+      "bytes": 2057,
+      "license": "MIT"
+    },
+    {
+      "file": "internal__artifacts__thunderingfury__thunderingfury.go.txt",
+      "upstreamPath": "internal/artifacts/thunderingfury/thunderingfury.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thunderingfury/thunderingfury.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/thunderingfury/thunderingfury.go",
+      "sha256": "2c8890f37f1920ac86f782a8fb31c97afe79666f0927009d8b1f201fba2ff021",
+      "bytes": 3478,
+      "license": "MIT"
+    },
+    {
+      "file": "internal__artifacts__crimson__crimson.go.txt",
+      "upstreamPath": "internal/artifacts/crimson/crimson.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/crimson/crimson.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/crimson/crimson.go",
+      "sha256": "22ddd500ba3c8d7a6dc702e0bc8881978a61f9d1f28ff0ee16a2d8d4d464ebe2",
+      "bytes": 2308,
+      "license": "MIT"
+    },
+    {
+      "file": "pkg__enemy__mods.go.txt",
+      "upstreamPath": "pkg/enemy/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.go",
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "bytes": 4013,
+      "license": "MIT"
+    },
+    {
+      "file": "pkg__modifier__modifier.go.txt",
+      "upstreamPath": "pkg/modifier/modifier.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345,
+      "license": "MIT"
+    },
+    {
+      "file": "LICENSE.txt",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "license": "MIT"
+    }
+  ],
+  "additionalInspectedSources": [
+    {
+      "upstreamPath": "pkg/core/attacks/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go",
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "bytes": 1484,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/combat/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go",
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "bytes": 2494,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/combat/reaction.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/reaction.go",
+      "sha256": "f0acf39365cfd8d751a2a70c4b7fcc7e97f479fe6b9eadb0b56194360089d334",
+      "bytes": 1301,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/event/event.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go",
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "bytes": 4927,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/info/combat.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/combat.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/combat.go",
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "bytes": 4239,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/info/reaction.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/reaction.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/reaction.go",
+      "sha256": "e7eed4ea1a6e26dbb18e3b99ba3360110827270eb88e7a26c1f47e4050dc26be",
+      "bytes": 4124,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/player/character/character.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go",
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "bytes": 6364,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/enemy/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607,
+      "archivedLocally": false
+    },
+    {
+      "upstreamPath": "pkg/enemy/damage.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "archivedLocally": false
+    }
+  ]
+}

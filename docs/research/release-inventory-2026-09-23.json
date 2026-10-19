@@ -1,0 +1,3772 @@
+{
+  "schemaVersion": 1,
+  "scope": "Release observation and independent inventory research only; no dataset promotion or game-mechanic certification.",
+  "researchStartedAt": "2026-09-23T06:20:15Z",
+  "officialReleaseObservedAt": "2026-09-23T06:22:53Z",
+  "latestObservedOfficialRelease": {
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "basis": "Publisher storefront explicitly declares availability, corroborated by the official genshinimpact account update-details post. Not inferred from a scheduled maintenance date.",
+    "evidenceIds": [
+      "epic-publisher-71-available",
+      "official-account-71-update-details"
+    ],
+    "allRegionalServersIndependentlyTested": false,
+    "datasetPromotedByThisResearch": false
+  },
+  "independentVersionContentDelta": {
+    "gameVersion": "7.1",
+    "kind": "officially named new version content, not a complete all-version inventory or proof of immediate item obtainability",
+    "characters": [
+      "Vesna",
+      "Vodyanitsa"
+    ],
+    "weapons": [
+      {
+        "name": "Beyond the Chrysalis",
+        "type": "Sword",
+        "rarity": 5
+      },
+      {
+        "name": "Hymn of the Maelstrom",
+        "type": "Catalyst",
+        "rarity": 5
+      },
+      {
+        "name": "New Bough",
+        "type": "Sword",
+        "rarity": 4
+      },
+      {
+        "name": "Winter's Heavy Heart",
+        "type": "Catalyst",
+        "rarity": 4
+      },
+      {
+        "name": "Breezeborne Refrain",
+        "type": "Bow",
+        "rarity": 4
+      },
+      {
+        "name": "Silver Light",
+        "type": "Sword",
+        "rarity": 4
+      }
+    ],
+    "artifactSets": null,
+    "artifactSetsReason": "No independently verified complete 7.1 artifact-set change list was obtained from these official notices; null does not mean zero.",
+    "evidenceIds": [
+      "epic-publisher-71-available",
+      "official-account-71-new-weapons"
+    ]
+  },
+  "fullExpectedInventory": {
+    "status": "independently-enumerated-with-explicit-counting-conventions-and-partial-weapons",
+    "characters": {
+      "sourceNameCount": 122,
+      "expectedIdentityCountUnderProjectGenderConvention": 124,
+      "completeness": "enumerated-wiki-main-table",
+      "stableIdMappingPending": true
+    },
+    "artifactSets": {
+      "sourceNameCount": 63,
+      "completeness": "enumerated-wiki-set-list",
+      "stableIdMappingPending": true
+    },
+    "weapons": {
+      "observedNameCount": 252,
+      "expectedReleasedCount": null,
+      "completeness": "partial",
+      "reason": "All 252 independently named ordinary weapons mapped by the parent; three extra source records are explained as quest-only variants11419/11420/11421. This resolves this scope difference but does not prove exhaustive live-game inventory or complete mechanics."
+    },
+    "fullDenominatorEstablishedForAllCategories": false,
+    "importCountsUsedToDefineMembership": false
+  },
+  "preview72V1": {
+    "status": "no-version-pinned-snapshot-acquired",
+    "observedEntities": null,
+    "snapshotRevision": null,
+    "completeness": "unknown",
+    "unknownFields": [
+      "V1 revision identity",
+      "entity inventory",
+      "numeric fields",
+      "mechanic fields",
+      "source-to-field mapping"
+    ],
+    "evidenceIds": [
+      "ambr-redirect-shell",
+      "old-ambr-api-failure",
+      "homdgcat-failure",
+      "yatta-direct-failure"
+    ],
+    "notes": "Focused searches returned rumors and older V1 references, not a replayable 7.2 V1 snapshot. Failure to acquire is not evidence that the snapshot does not exist."
+  },
+  "evidence": [
+    {
+      "id": "epic-publisher-71-available",
+      "url": "https://store.epicgames.com/p/genshin-impact",
+      "retrievalStartedAt": "2026-09-23T06:22:50Z",
+      "retrievalCompletedAt": "2026-09-23T06:22:53Z",
+      "retrievalMethod": "web tool rendered/indexed page text",
+      "publisher": "COGNOSPHERE PTE. LTD.",
+      "observedClaim": "Version 7.1 A Rekviem for the Underworld is now available; names Vesna and Vodyanitsa.",
+      "sourceClass": "publisher-controlled storefront content",
+      "sourceByteSha256": null,
+      "hashReason": "Web tool does not expose source response bytes; direct HTTP retrieval at 2026-09-23T06:21:54.584686Z returned 403 Forbidden. No body hash is fabricated."
+    },
+    {
+      "id": "official-account-71-update-details",
+      "url": "https://www.reddit.com/r/Genshin_Impact/comments/1wnsx0u/a_rekviem_for_the_underworld_version_71_update/",
+      "retrievalStartedAt": "2026-09-23T06:22:50Z",
+      "retrievalCompletedAt": "2026-09-23T06:22:53Z",
+      "retrievalMethod": "web tool page text",
+      "author": "genshinimpact",
+      "publishedDate": "2026-09-23",
+      "contentScope": "Official account post and official account notice comment, excluding community replies from authority claims.",
+      "observedClaim": "Official account published the Version 7.1 update details and update compensation notice.",
+      "sourceByteSha256": null,
+      "hashReason": "Source response bytes unavailable from web tool; direct HTTP retrieval at 2026-09-23T06:21:53.456014Z returned 403 Blocked."
+    },
+    {
+      "id": "official-account-71-new-weapons",
+      "url": "https://www.reddit.com/r/Genshin_Impact/comments/1whmo0m/version_71_a_rekviem_for_the_underworld_new/",
+      "retrievalStartedAt": "2026-09-23T06:22:50Z",
+      "retrievalCompletedAt": "2026-09-23T06:22:53Z",
+      "retrievalMethod": "web tool page text",
+      "author": "genshinimpact",
+      "observedClaim": "Official prose names two five-star weapons, three four-star wish weapons, and the event weapon Silver Light.",
+      "sourceByteSha256": null,
+      "hashReason": "Raw source bytes not available from web tool."
+    },
+    {
+      "id": "ambr-redirect-shell",
+      "url": "https://ambr.top/en/changelog",
+      "resolvedUrl": "https://gi.yatta.moe/en/changelog",
+      "retrievedAt": "2026-09-23T06:21:56.182622Z",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 7131,
+      "sourceByteSha256": "923591d1261f62ba3060fd5107755e7ae0fb8b32580323fd4c86c0ad8713085b",
+      "lastModified": "Mon, 21 Sep 2026 05:59:16 GMT",
+      "contentType": "text/html",
+      "contentScope": "JavaScript application shell only; no verified 7.2 V1 snapshot body",
+      "snapshotBodyVerifiedByThisHash": false
+    },
+    {
+      "id": "old-ambr-api-failure",
+      "url": "https://api.ambr.top/v2/en/changelog",
+      "retrievedAt": "2026-09-23T06:21:59.110161Z",
+      "error": "DNS resolution failure: nodename nor servname provided, or not known"
+    },
+    {
+      "id": "homdgcat-failure",
+      "url": "https://homdgcat.wiki/gi/char?lang=EN",
+      "retrievedAt": "2026-09-23T06:21:59.299243Z",
+      "error": "Direct HTTP: DNS resolution failure; web tool: 502 Bad Gateway"
+    },
+    {
+      "id": "yatta-direct-failure",
+      "url": "https://gi.yatta.moe/en/changelog",
+      "retrievalWindow": {
+        "start": "2026-09-23T06:21:59Z",
+        "end": "2026-09-23T06:22:50Z"
+      },
+      "error": "Both direct HTTP and web tool returned 403 Forbidden; no bypass attempted."
+    },
+    {
+      "id": "wiki-characters",
+      "url": "https://wikiwiki.jp/genshinwiki/キャラクター一覧",
+      "retrievedAt": "2026-09-23T06:25:40.972695Z",
+      "httpStatus": 200,
+      "bytes": 504840,
+      "sourceByteSha256": "60326c3cdcd16125d7c76339745e2bad698865ca3bb399f46d8746b20a1e759a",
+      "contentType": "text/html; charset=utf-8",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Named inventory and grouping evidence only; no numeric-mechanic certification"
+    },
+    {
+      "id": "wiki-doll",
+      "url": "https://wikiwiki.jp/genshinwiki/ドール",
+      "retrievedAt": "2026-09-23T06:25:40.972991Z",
+      "httpStatus": 200,
+      "bytes": 241770,
+      "sourceByteSha256": "4df0d18508efa2bc7e380751c2eda438be41f53e99f73824c1477af8c9a7edad",
+      "contentType": "text/html; charset=utf-8",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Named inventory and grouping evidence only; no numeric-mechanic certification"
+    },
+    {
+      "id": "wiki-artifact-sets",
+      "url": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果",
+      "retrievedAt": "2026-09-23T06:25:40.973086Z",
+      "httpStatus": 200,
+      "bytes": 767365,
+      "sourceByteSha256": "506a4d45cade756304c7673c7a497e944383ca13cbb40413e9953f82ac9363c6",
+      "contentType": "text/html; charset=utf-8",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Named inventory and grouping evidence only; no numeric-mechanic certification"
+    },
+    {
+      "id": "wiki-weapon-index",
+      "url": "https://wikiwiki.jp/genshinwiki/武器/一覧",
+      "retrievedAt": "2026-09-23T06:25:40.973161Z",
+      "httpStatus": 200,
+      "bytes": 427653,
+      "sourceByteSha256": "79e7ea5db90072671b75db65f358ff6a3bdcf2cb9ca0a3eb848be815db95c32f",
+      "contentType": "text/html; charset=utf-8",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Named inventory and grouping evidence only; no numeric-mechanic certification"
+    },
+    {
+      "id": "wiki-weapon-type-片手剣",
+      "url": "https://wikiwiki.jp/genshinwiki/片手剣",
+      "retrievedAt": "2026-09-23T06:29:33.193248+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 892764,
+      "sourceByteSha256": "01b2a264e1c43c8a5c7162c986ae2f9c1ed2b69748c2b4e305547ebc5aec5a91",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-weapon-type-両手剣",
+      "url": "https://wikiwiki.jp/genshinwiki/両手剣",
+      "retrievedAt": "2026-09-23T06:29:33.193542+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 711929,
+      "sourceByteSha256": "ccc39eef38806a9f23d2fc2c1f73305307c4f1a4c7cfd8e7f08a30b782b7ea7a",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-weapon-type-長柄武器",
+      "url": "https://wikiwiki.jp/genshinwiki/長柄武器",
+      "retrievedAt": "2026-09-23T06:29:33.193629+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 699846,
+      "sourceByteSha256": "52f6c03effc14016291c88eddbeac559517eb194537ca37f3968519598e1c665",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-weapon-type-法器",
+      "url": "https://wikiwiki.jp/genshinwiki/法器",
+      "retrievedAt": "2026-09-23T06:29:33.193676+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 839417,
+      "sourceByteSha256": "d03f79e5b78b639ed45609f2a1bfe446afdec0e372c4b2db12de6d1621b14c37",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-weapon-type-弓",
+      "url": "https://wikiwiki.jp/genshinwiki/弓",
+      "retrievedAt": "2026-09-23T06:29:33.193715+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 766158,
+      "sourceByteSha256": "17048a758b98f14fd19cbad397fa4744c2b9997c02f1db5f792af78e32e24038",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-isshin-three-stages",
+      "url": "https://wikiwiki.jp/genshinwiki/片手剣/籠釣瓶一心",
+      "retrievedAt": "2026-09-23T06:34:55.240199+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 214846,
+      "sourceByteSha256": "9b719b9400d2b2566010b8cfc614cef2e6ce8cd4de9dd6d2413b61881bb125ce",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-kazuha-quest-trial-stages",
+      "url": "https://wikiwiki.jp/genshinwiki/伝説任務/稲妻",
+      "retrievedAt": "2026-09-23T06:34:55.240692+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "httpStatus": 200,
+      "bytes": 331332,
+      "sourceByteSha256": "f26a969e5345e3cb0c6dd633f61369ebc2a0c40424b6f28caec2c66f07a9b7e1",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "fandom-isshin-quest-exclusive",
+      "url": "https://genshin-impact.fandom.com/wiki/Prized_Isshin_Blade_(Awakened)",
+      "retrievalWindow": {
+        "start": "2026-09-23T06:32:47Z",
+        "end": "2026-09-23T06:34:59.363233+00:00"
+      },
+      "retrievalMethod": "web tool page text",
+      "sourceByteSha256": null,
+      "hashReason": "Web tool did not expose raw source bytes",
+      "observedClaim": "Quest-exclusive weapon, normal and weakened stages; points to Kagotsurube Isshin as obtainable weapon.",
+      "freshnessCaveat": "Search/page crawl about seven months old; used only to corroborate historical quest behavior, not current patch inventory."
+    },
+    {
+      "id": "wiki-low-rarity-11101",
+      "url": "https://wikiwiki.jp/genshinwiki/片手剣/無鋒の剣",
+      "retrievedAt": "2026-09-23T06:55:10.974010+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "httpStatus": 200,
+      "bytes": 209346,
+      "sourceByteSha256": "c7049b4c91af619fe0eb1f1a5f6c3a6634d1f1ca864684b1372a044b6a1a52b9",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-low-rarity-11201",
+      "url": "https://wikiwiki.jp/genshinwiki/片手剣/銀の剣",
+      "retrievedAt": "2026-09-23T06:55:10.974374+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "httpStatus": 200,
+      "bytes": 210593,
+      "sourceByteSha256": "21bb073940b2ba16bcf19b9996890c54f59a71d08bc62356d93014f78c2dddf2",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-low-rarity-12101",
+      "url": "https://wikiwiki.jp/genshinwiki/両手剣/訓練用大剣",
+      "retrievedAt": "2026-09-23T06:55:10.974460+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "httpStatus": 200,
+      "bytes": 209481,
+      "sourceByteSha256": "723d8035f483ac170fb5a576c774cd69108f39122f7acb782dd2dabcebdc7d0a",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-low-rarity-12201",
+      "url": "https://wikiwiki.jp/genshinwiki/両手剣/傭兵の重剣",
+      "retrievedAt": "2026-09-23T06:55:10.974522+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "httpStatus": 200,
+      "bytes": 209783,
+      "sourceByteSha256": "850385e8d2f21f1c5cb353ac1b1d9457156b98373eb802a72bcfd8301a511026",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-low-rarity-13101",
+      "url": "https://wikiwiki.jp/genshinwiki/長柄武器/新米の長槍",
+      "retrievedAt": "2026-09-23T06:55:10.974567+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "httpStatus": 200,
+      "bytes": 209336,
+      "sourceByteSha256": "5917f4edfc0b9359e9972a5350a9e714ed98d1e88c4d1ed087bff4b1d4f332e5",
+      "contentType": "text/html; charset=utf-8"
+    },
+    {
+      "id": "wiki-low-rarity-13201",
+      "url": "https://wikiwiki.jp/genshinwiki/長柄武器/鉄尖槍",
+      "retrievedAt": "2026-09-23T06:55:13.427865+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "error": "HTTP Error 429: Too Many Requests",
+      "httpStatus": 429,
+      "sourceByteSha256": null,
+      "sourceByteSha256UnavailableReason": "HTTP 429; no successful source body was retrieved in this attempt. Not retried."
+    },
+    {
+      "id": "wiki-low-rarity-14101",
+      "url": "https://wikiwiki.jp/genshinwiki/法器/生徒ノート",
+      "retrievedAt": "2026-09-23T06:55:13.432725+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "error": "HTTP Error 429: Too Many Requests",
+      "httpStatus": 429,
+      "sourceByteSha256": null,
+      "sourceByteSha256UnavailableReason": "HTTP 429; no successful source body was retrieved in this attempt. Not retried."
+    },
+    {
+      "id": "wiki-low-rarity-14201",
+      "url": "https://wikiwiki.jp/genshinwiki/法器/ポケット魔導書",
+      "retrievedAt": "2026-09-23T06:55:13.449879+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "error": "HTTP Error 429: Too Many Requests",
+      "httpStatus": 429,
+      "sourceByteSha256": null,
+      "sourceByteSha256UnavailableReason": "HTTP 429; no successful source body was retrieved in this attempt. Not retried."
+    },
+    {
+      "id": "wiki-low-rarity-15101",
+      "url": "https://wikiwiki.jp/genshinwiki/弓/狩猟弓",
+      "retrievedAt": "2026-09-23T06:55:13.901203+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "error": "HTTP Error 429: Too Many Requests",
+      "httpStatus": 429,
+      "sourceByteSha256": null,
+      "sourceByteSha256UnavailableReason": "HTTP 429; no successful source body was retrieved in this attempt. Not retried."
+    },
+    {
+      "id": "wiki-low-rarity-15201",
+      "url": "https://wikiwiki.jp/genshinwiki/弓/歴戦の狩猟弓",
+      "retrievedAt": "2026-09-23T06:55:13.901463+00:00",
+      "retrievalMethod": "Python urllib HTTP GET",
+      "scope": "Name and base-ATK-only stat table corroboration; missing row alone is not used as proof of no secondary stat.",
+      "error": "HTTP Error 429: Too Many Requests",
+      "httpStatus": 429,
+      "sourceByteSha256": null,
+      "sourceByteSha256UnavailableReason": "HTTP 429; no successful source body was retrieved in this attempt. Not retried."
+    },
+    {
+      "id": "fandom-explicit-no-secondary-ten-starters",
+      "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+      "retrievalWindow": {
+        "start": "2026-09-23T06:51:59Z",
+        "end": "2026-09-23T06:54:02Z"
+      },
+      "retrievalMethod": "web search indexed page body including Unlimited table; direct web open unavailable",
+      "sourceByteSha256": null,
+      "hashReason": "Indexed table text was available, but source response bytes were not. Japanese corroborating-page hashes do not stand in for this table hash.",
+      "sourceCrawlAgeAtObservation": "approximately two months",
+      "observedFields": {
+        "column": "2nd Stat (Lv. 1)",
+        "cellValueForEachNamedWeapon": "None",
+        "additionalColumn": "Passive Ability",
+        "additionalCellValueForEachNamedWeapon": "None"
+      },
+      "authorityScope": "Independent community Wiki field evidence; no current total inventory or game client test claim."
+    }
+  ],
+  "independentInventory": {
+    "schemaVersion": 1,
+    "retrievedAt": "2026-09-23T06:26:47Z",
+    "method": "Independent community Wiki named-list enumeration via web tool; separate direct HTTP observations and hashes below. Membership was not derived from genshin-db. Source-observed inventories do not certify numeric or mechanic readiness.",
+    "sourceCharacterListLastModifiedObservedInSearch": "2026-09-20 00:27:19 (timezone not supplied by source)",
+    "characters": {
+      "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧",
+      "count": 122,
+      "convention": "One row per wiki character; Traveler and Doll each grouped across genders and elements. Main table has122rows, of which120exclude Traveler/Doll. At7.0 the list contains120rows; two7.1 rows Vesna/Vodyanitsa have placeholder stats. Their release classification must come from official announcements.",
+      "names": [
+        "主人公",
+        "ドール",
+        "スカーク",
+        "ニコ",
+        "アーロイ",
+        "ドゥリン",
+        "ジン",
+        "アルベド",
+        "ディルック",
+        "ファルカ",
+        "エウルア",
+        "ローエン",
+        "クレー",
+        "モナ",
+        "ウェンティ",
+        "刻晴",
+        "七七",
+        "兹白",
+        "胡桃",
+        "魈",
+        "申鶴",
+        "鍾離",
+        "閑雲",
+        "白朮",
+        "夜蘭",
+        "甘雨",
+        "神里綾人",
+        "楓原万葉",
+        "神里綾華",
+        "千織",
+        "荒瀧一斗",
+        "雷電将軍",
+        "珊瑚宮心海",
+        "夢見月瑞希",
+        "八重神子",
+        "宵宮",
+        "ニィロウ",
+        "アルハイゼン",
+        "ディシア",
+        "セノ",
+        "放浪者",
+        "ナヒーダ",
+        "ティナリ",
+        "フリーナ",
+        "クロリンデ",
+        "ナヴィア",
+        "エミリエ",
+        "エスコフィエ",
+        "ヌヴィレット",
+        "リオセスリ",
+        "リネ",
+        "シグウィン",
+        "シロネン",
+        "マーヴィカ",
+        "キィニチ",
+        "ムアラニ",
+        "ヴァレサ",
+        "シトラリ",
+        "チャスカ",
+        "イネファ",
+        "フリンズ",
+        "コロンビーナ",
+        "ラウマ",
+        "ネフェル",
+        "リンネア",
+        "ヴェスナ",
+        "オデット",
+        "サンドローネ",
+        "アルレッキーノ",
+        "ヴォジャニーツァ",
+        "タルタリヤ",
+        "ベネット",
+        "ダリア",
+        "ガイア",
+        "レザー",
+        "ノエル",
+        "ロサリア",
+        "ミカ",
+        "バーバラ",
+        "スクロース",
+        "プルーネ",
+        "リサ",
+        "アンバー",
+        "フィッシュル",
+        "ディオナ",
+        "行秋",
+        "辛炎",
+        "嘉明",
+        "北斗",
+        "重雲",
+        "香菱",
+        "ヨォーヨ",
+        "雲菫",
+        "煙緋",
+        "藍硯",
+        "凝光",
+        "久岐忍",
+        "綺良々",
+        "早柚",
+        "トーマ",
+        "鹿野院平蔵",
+        "九条裟羅",
+        "ゴロー",
+        "レイラ",
+        "ドリー",
+        "カーヴェ",
+        "キャンディス",
+        "ファルザン",
+        "セトス",
+        "コレイ",
+        "リネット",
+        "フレミネ",
+        "シュヴルーズ",
+        "シャルロット",
+        "イアンサ",
+        "カチーナ",
+        "イファ",
+        "オロルン",
+        "アイノ",
+        "イルーガ",
+        "ヤフォダ",
+        "アリョーシャ"
+      ],
+      "rows": [
+        {
+          "line": 19,
+          "name": "主人公",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 20,
+          "name": "ドール",
+          "v": "6.10",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 21,
+          "name": "スカーク",
+          "v": "5.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 22,
+          "name": "ニコ",
+          "v": "6.61",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 23,
+          "name": "アーロイ",
+          "v": "2.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 26,
+          "name": "ドゥリン",
+          "v": "6.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 27,
+          "name": "ジン",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 28,
+          "name": "アルベド",
+          "v": "1.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 29,
+          "name": "ディルック",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 30,
+          "name": "ファルカ",
+          "v": "6.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 31,
+          "name": "エウルア",
+          "v": "1.52",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 32,
+          "name": "ローエン",
+          "v": "6.62",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 33,
+          "name": "クレー",
+          "v": "1.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 34,
+          "name": "モナ",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 35,
+          "name": "ウェンティ",
+          "v": "1.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 38,
+          "name": "刻晴",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 39,
+          "name": "七七",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 40,
+          "name": "兹白",
+          "v": "6.32",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 41,
+          "name": "胡桃",
+          "v": "1.33",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 42,
+          "name": "魈",
+          "v": "1.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 43,
+          "name": "申鶴",
+          "v": "2.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 44,
+          "name": "鍾離",
+          "v": "1.12",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 45,
+          "name": "閑雲",
+          "v": "4.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 46,
+          "name": "白朮",
+          "v": "3.62",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 47,
+          "name": "夜蘭",
+          "v": "2.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 48,
+          "name": "甘雨",
+          "v": "1.22",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 51,
+          "name": "神里綾人",
+          "v": "2.61",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 52,
+          "name": "楓原万葉",
+          "v": "1.62",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 53,
+          "name": "神里綾華",
+          "v": "2.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 54,
+          "name": "千織",
+          "v": "4.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 55,
+          "name": "荒瀧一斗",
+          "v": "2.32",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 56,
+          "name": "雷電将軍",
+          "v": "2.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 57,
+          "name": "珊瑚宮心海",
+          "v": "2.12",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 58,
+          "name": "夢見月瑞希",
+          "v": "5.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 59,
+          "name": "八重神子",
+          "v": "2.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 60,
+          "name": "宵宮",
+          "v": "2.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 63,
+          "name": "ニィロウ",
+          "v": "3.12",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 64,
+          "name": "アルハイゼン",
+          "v": "3.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 65,
+          "name": "ディシア",
+          "v": "3.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 66,
+          "name": "セノ",
+          "v": "3.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 67,
+          "name": "放浪者",
+          "v": "3.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 68,
+          "name": "ナヒーダ",
+          "v": "3.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 69,
+          "name": "ティナリ",
+          "v": "3.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 72,
+          "name": "フリーナ",
+          "v": "4.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 73,
+          "name": "クロリンデ",
+          "v": "4.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 74,
+          "name": "ナヴィア",
+          "v": "4.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 75,
+          "name": "エミリエ",
+          "v": "4.82",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 76,
+          "name": "エスコフィエ",
+          "v": "5.61",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 77,
+          "name": "ヌヴィレット",
+          "v": "4.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 78,
+          "name": "リオセスリ",
+          "v": "4.12",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 79,
+          "name": "リネ",
+          "v": "4.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 80,
+          "name": "シグウィン",
+          "v": "4.72",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 83,
+          "name": "シロネン",
+          "v": "5.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 84,
+          "name": "マーヴィカ",
+          "v": "5.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 85,
+          "name": "キィニチ",
+          "v": "5.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 86,
+          "name": "ムアラニ",
+          "v": "5.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 87,
+          "name": "ヴァレサ",
+          "v": "5.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 88,
+          "name": "シトラリ",
+          "v": "5.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 89,
+          "name": "チャスカ",
+          "v": "5.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 92,
+          "name": "イネファ",
+          "v": "5.81",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 93,
+          "name": "フリンズ",
+          "v": "6.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 94,
+          "name": "コロンビーナ",
+          "v": "6.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 95,
+          "name": "ラウマ",
+          "v": "6.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 96,
+          "name": "ネフェル",
+          "v": "6.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 97,
+          "name": "リンネア",
+          "v": "6.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 100,
+          "name": "ヴェスナ",
+          "v": "7.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 101,
+          "name": "オデット",
+          "v": "7.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 102,
+          "name": "サンドローネ",
+          "v": "6.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 103,
+          "name": "アルレッキーノ",
+          "v": "4.61",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 104,
+          "name": "ヴォジャニーツァ",
+          "v": "7.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 105,
+          "name": "タルタリヤ",
+          "v": "1.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 108,
+          "name": "ベネット",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 109,
+          "name": "ダリア",
+          "v": "5.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 110,
+          "name": "ガイア",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 111,
+          "name": "レザー",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 112,
+          "name": "ノエル",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 113,
+          "name": "ロサリア",
+          "v": "1.42",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 114,
+          "name": "ミカ",
+          "v": "3.52",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 115,
+          "name": "バーバラ",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 116,
+          "name": "スクロース",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 117,
+          "name": "プルーネ",
+          "v": "6.61",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 118,
+          "name": "リサ",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 119,
+          "name": "アンバー",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 120,
+          "name": "フィッシュル",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 121,
+          "name": "ディオナ",
+          "v": "1.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 124,
+          "name": "行秋",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 125,
+          "name": "辛炎",
+          "v": "1.12",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 126,
+          "name": "嘉明",
+          "v": "4.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 127,
+          "name": "北斗",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 128,
+          "name": "重雲",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 129,
+          "name": "香菱",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 130,
+          "name": "ヨォーヨ",
+          "v": "3.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 131,
+          "name": "雲菫",
+          "v": "2.41",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 132,
+          "name": "煙緋",
+          "v": "1.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 133,
+          "name": "藍硯",
+          "v": "5.32",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 134,
+          "name": "凝光",
+          "v": "1.00",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 137,
+          "name": "久岐忍",
+          "v": "2.72",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 138,
+          "name": "綺良々",
+          "v": "3.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 139,
+          "name": "早柚",
+          "v": "2.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 140,
+          "name": "トーマ",
+          "v": "2.22",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 141,
+          "name": "鹿野院平蔵",
+          "v": "2.81",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 142,
+          "name": "九条裟羅",
+          "v": "2.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 143,
+          "name": "ゴロー",
+          "v": "2.32",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 146,
+          "name": "レイラ",
+          "v": "3.22",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 147,
+          "name": "ドリー",
+          "v": "3.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 148,
+          "name": "カーヴェ",
+          "v": "3.62",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 149,
+          "name": "キャンディス",
+          "v": "3.11",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 150,
+          "name": "ファルザン",
+          "v": "3.31",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 151,
+          "name": "セトス",
+          "v": "4.71",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 152,
+          "name": "コレイ",
+          "v": "3.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 155,
+          "name": "リネット",
+          "v": "4.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 156,
+          "name": "フレミネ",
+          "v": "4.02",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 157,
+          "name": "シュヴルーズ",
+          "v": "4.32",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 158,
+          "name": "シャルロット",
+          "v": "4.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 161,
+          "name": "イアンサ",
+          "v": "5.51",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 162,
+          "name": "カチーナ",
+          "v": "5.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 163,
+          "name": "イファ",
+          "v": "5.61",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 164,
+          "name": "オロルン",
+          "v": "5.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 167,
+          "name": "アイノ",
+          "v": "6.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 168,
+          "name": "イルーガ",
+          "v": "6.32",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 169,
+          "name": "ヤフォダ",
+          "v": "6.21",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        },
+        {
+          "line": 172,
+          "name": "アリョーシャ",
+          "v": "7.01",
+          "source": "https://wikiwiki.jp/genshinwiki/キャラクター一覧"
+        }
+      ],
+      "completeness": "enumerated-wiki-main-table",
+      "expectedIdentityCountWithSeparateTravelerAndDollGenders": 124,
+      "identityExpansion": [
+        {
+          "wikiName": "主人公",
+          "identityNames": [
+            "Aether",
+            "Lumine"
+          ],
+          "additionalIdentityCount": 1
+        },
+        {
+          "wikiName": "ドール",
+          "identityNames": [
+            "Manekin",
+            "Manekina"
+          ],
+          "additionalIdentityCount": 1
+        }
+      ],
+      "stableIdMappingVerifiedByThisResearch": false
+    },
+    "artifacts": {
+      "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果",
+      "count": 63,
+      "convention": "46max5star +10normalmax4star +4onepiecePrayer sets +3max3star. The grouped〇祭りの人 entry is expanded into four elements explicitly stated by page lines293–300. Names normalized NFKC and decimal HTML entities decoded.",
+      "names": [
+        "氷風を彷徨う勇士",
+        "雷を鎮める尊者",
+        "烈火を渡る賢者",
+        "愛される少女",
+        "剣闘士のフィナーレ",
+        "翠緑の影",
+        "大地を流浪する楽団",
+        "雷のような怒り",
+        "燃え盛る炎の魔女",
+        "旧貴族のしつけ",
+        "血染めの騎士道",
+        "悠久の磐岩",
+        "逆飛びの流星",
+        "沈淪の心",
+        "千岩牢固",
+        "蒼白の炎",
+        "追憶のしめ縄",
+        "絶縁の旗印",
+        "華館夢醒形骸記",
+        "海染硨磲",
+        "辰砂往生録",
+        "来歆の余響",
+        "深林の記憶",
+        "金メッキの夢",
+        "砂上の楼閣の史話",
+        "楽園の絶花",
+        "水仙の夢",
+        "花海甘露の光",
+        "ファントムハンター",
+        "黄金の劇団",
+        "在りし日の歌",
+        "残響の森で囁かれる夜話",
+        "諧律奇想の断章",
+        "遂げられなかった想い",
+        "灰燼の都に立つ英雄の絵巻",
+        "黒曜の秘典",
+        "長き夜の誓い",
+        "深廊の終曲",
+        "天穹の顕現せし夜",
+        "月を紡ぐ夜の歌",
+        "暁の星と月の歌",
+        "風立ちの日",
+        "天からの贈り物",
+        "影に沈む幻",
+        "紅血の証",
+        "炉炎溶錬の心",
+        "旅人の心",
+        "奇跡",
+        "狂戦士",
+        "教官",
+        "亡命者",
+        "守護の心",
+        "勇士の心",
+        "武人",
+        "博徒",
+        "学者",
+        "火祭りの人",
+        "水祭りの人",
+        "雷祭りの人",
+        "氷祭りの人",
+        "冒険者",
+        "幸運",
+        "医者"
+      ],
+      "rows": [
+        {
+          "name": "氷風を彷徨う勇士",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#kfc356c1"
+        },
+        {
+          "name": "雷を鎮める尊者",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#z3984246"
+        },
+        {
+          "name": "烈火を渡る賢者",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#m223c0ef"
+        },
+        {
+          "name": "愛される少女",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#qab9ba7e"
+        },
+        {
+          "name": "剣闘士のフィナーレ",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#z7304efb"
+        },
+        {
+          "name": "翠緑の影",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#t5491b4b"
+        },
+        {
+          "name": "大地を流浪する楽団",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#wad2ffb5"
+        },
+        {
+          "name": "雷のような怒り",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#jd8af599"
+        },
+        {
+          "name": "燃え盛る炎の魔女",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#h08c1fd2"
+        },
+        {
+          "name": "旧貴族のしつけ",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#tc66eeed"
+        },
+        {
+          "name": "血染めの騎士道",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#j7c09022"
+        },
+        {
+          "name": "悠久の磐岩",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ae8dd8b0"
+        },
+        {
+          "name": "逆飛びの流星",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#jf52a5dd"
+        },
+        {
+          "name": "沈淪の心",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#hf8d6e7c"
+        },
+        {
+          "name": "千岩牢固",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#q2cf315a"
+        },
+        {
+          "name": "蒼白の炎",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#yf7b078f"
+        },
+        {
+          "name": "追憶のしめ縄",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#i6ba3247"
+        },
+        {
+          "name": "絶縁の旗印",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ue31f68e"
+        },
+        {
+          "name": "華館夢醒形骸記",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#z628eabc"
+        },
+        {
+          "name": "海染硨磲",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#q51e00fd"
+        },
+        {
+          "name": "辰砂往生録",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#t8944e47"
+        },
+        {
+          "name": "来歆の余響",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#o2d22cc4"
+        },
+        {
+          "name": "深林の記憶",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#k817aa9b"
+        },
+        {
+          "name": "金メッキの夢",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#xcaeb46b"
+        },
+        {
+          "name": "砂上の楼閣の史話",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#j1eb2249"
+        },
+        {
+          "name": "楽園の絶花",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#xc789da4"
+        },
+        {
+          "name": "水仙の夢",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#nymphsdream"
+        },
+        {
+          "name": "花海甘露の光",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#vourukashasglow"
+        },
+        {
+          "name": "ファントムハンター",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#MarechausseeHunter"
+        },
+        {
+          "name": "黄金の劇団",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#GoldenTroupe"
+        },
+        {
+          "name": "在りし日の歌",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#SongofDaysPast"
+        },
+        {
+          "name": "残響の森で囁かれる夜話",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#NighttimeWhispersintheEchoingWoods"
+        },
+        {
+          "name": "諧律奇想の断章",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#FragmentofHarmonicWhimsy"
+        },
+        {
+          "name": "遂げられなかった想い",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#UnfinishedReverie"
+        },
+        {
+          "name": "灰燼の都に立つ英雄の絵巻",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ScrolloftheHeroofCinderCity"
+        },
+        {
+          "name": "黒曜の秘典",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ObsidianCodex"
+        },
+        {
+          "name": "長き夜の誓い",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#LongNightsOath"
+        },
+        {
+          "name": "深廊の終曲",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#FinaleoftheDeepGalleries"
+        },
+        {
+          "name": "天穹の顕現せし夜",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#NightoftheSkysUnveiling"
+        },
+        {
+          "name": "月を紡ぐ夜の歌",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#SilkenMoonsSerenade"
+        },
+        {
+          "name": "暁の星と月の歌",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#AubadeofMorningstarandMoon"
+        },
+        {
+          "name": "風立ちの日",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#RisingWinds"
+        },
+        {
+          "name": "天からの贈り物",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#SelestialGift"
+        },
+        {
+          "name": "影に沈む幻",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#DeepShadow"
+        },
+        {
+          "name": "紅血の証",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ScarletProof"
+        },
+        {
+          "name": "炉炎溶錬の心",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#Furnace"
+        },
+        {
+          "name": "旅人の心",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ke8f0708"
+        },
+        {
+          "name": "奇跡",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#x211e120"
+        },
+        {
+          "name": "狂戦士",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#za239c63"
+        },
+        {
+          "name": "教官",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#n02aa3ed"
+        },
+        {
+          "name": "亡命者",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#eb049eef"
+        },
+        {
+          "name": "守護の心",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#ia39b17c"
+        },
+        {
+          "name": "勇士の心",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#d6b76226"
+        },
+        {
+          "name": "武人",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#lb1f609d"
+        },
+        {
+          "name": "博徒",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#k60d5370"
+        },
+        {
+          "name": "学者",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#if4fcbfd"
+        },
+        {
+          "name": "火祭りの人",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#n6e25142"
+        },
+        {
+          "name": "水祭りの人",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#n6e25142"
+        },
+        {
+          "name": "雷祭りの人",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#n6e25142"
+        },
+        {
+          "name": "氷祭りの人",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#n6e25142"
+        },
+        {
+          "name": "冒険者",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#Adventurer"
+        },
+        {
+          "name": "幸運",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#LuckyDog"
+        },
+        {
+          "name": "医者",
+          "source": "https://wikiwiki.jp/genshinwiki/聖遺物/セット効果#TravelingDoctor"
+        }
+      ],
+      "completeness": "enumerated-wiki-set-list"
+    },
+    "weapons": {
+      "sources": [
+        "https://wikiwiki.jp/genshinwiki/片手剣",
+        "https://wikiwiki.jp/genshinwiki/両手剣",
+        "https://wikiwiki.jp/genshinwiki/長柄武器",
+        "https://wikiwiki.jp/genshinwiki/法器",
+        "https://wikiwiki.jp/genshinwiki/弓"
+      ],
+      "indexSource": "https://wikiwiki.jp/genshinwiki/武器/一覧",
+      "count": 252,
+      "status": "partial_release_reconciliation_required",
+      "convention": "Union of235named3–5star index rows,10named1/2star entries,7additional names from type-page includes. Not an assertion that252is the complete released7.1inventory.",
+      "rows": [
+        {
+          "line": 18,
+          "name": "風鷹剣",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 19,
+          "name": "天空の刃",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 20,
+          "name": "斬山の刃",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 21,
+          "name": "磐岩結緑",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 22,
+          "name": "蒼古なる自由への誓い",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 23,
+          "name": "霧切の廻光",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 24,
+          "name": "波乱月白経津",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 25,
+          "name": "聖顕の鍵",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 26,
+          "name": "萃光の裁葉",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 27,
+          "name": "静水流転の輝き",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 28,
+          "name": "有楽御簾切",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 29,
+          "name": "赦罪",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 30,
+          "name": "岩峰を巡る歌",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 31,
+          "name": "蒼耀",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 32,
+          "name": "黒蝕",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 33,
+          "name": "三日月の含光",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 34,
+          "name": "白銀の湖を舞う翼",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 35,
+          "name": "星鋒の剣",
+          "rarity": "5",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 37,
+          "name": "西風剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 38,
+          "name": "笛の剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 39,
+          "name": "祭礼の剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 40,
+          "name": "旧貴族長剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 41,
+          "name": "匣中龍吟",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 42,
+          "name": "斬岩・試作",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 43,
+          "name": "鉄蜂の刺し",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 44,
+          "name": "黒岩の長剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 45,
+          "name": "黒剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 46,
+          "name": "降臨の剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 47,
+          "name": "腐植の剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 48,
+          "name": "ダークアレイの閃光",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 49,
+          "name": "天目影打",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 50,
+          "name": "シナバースピンドル",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 51,
+          "name": "籠釣瓶一心",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 52,
+          "name": "原木刀",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 53,
+          "name": "サイフォスの月明かり",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 54,
+          "name": "東花坊時雨",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 55,
+          "name": "狼牙",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 56,
+          "name": "海淵のフィナーレ",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 57,
+          "name": "サーンドルの渡し守",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 58,
+          "name": "船渠剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 59,
+          "name": "水仙十字の剣",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 60,
+          "name": "エズピツァルの笛",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 61,
+          "name": "ストロング・ボーン",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 62,
+          "name": "厄水の災い",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 63,
+          "name": "静謐の笛",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 64,
+          "name": "月紡ぎの曙光",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 65,
+          "name": "異端を狩る熔刃",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 66,
+          "name": "導炎の源",
+          "rarity": "4",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 68,
+          "name": "冷刃",
+          "rarity": "3",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 69,
+          "name": "黎明の神剣",
+          "rarity": "3",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 70,
+          "name": "旅道の剣",
+          "rarity": "3",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 71,
+          "name": "チ虎魚の刀",
+          "rarity": "3",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 72,
+          "name": "飛天御剣",
+          "rarity": "3",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 73,
+          "name": "暗鉄剣",
+          "rarity": "3",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 80,
+          "name": "天空の傲",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 81,
+          "name": "狼の末路",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 82,
+          "name": "無工の剣",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 83,
+          "name": "松韻の響く頃",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 84,
+          "name": "赤角石塵滅砕",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 85,
+          "name": "葦海の標",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 86,
+          "name": "裁断",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 87,
+          "name": "山の王の長牙",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 88,
+          "name": "千烈の日輪",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 89,
+          "name": "狼の武勲詩",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 90,
+          "name": "超越の鍵",
+          "rarity": "5",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 92,
+          "name": "西風大剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 93,
+          "name": "鐘の剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 94,
+          "name": "祭礼の大剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 95,
+          "name": "旧貴族大剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 96,
+          "name": "雨裁",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 97,
+          "name": "古華・試作",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 98,
+          "name": "白影の剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 99,
+          "name": "黒岩の斬刀",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 100,
+          "name": "螭龍の剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 101,
+          "name": "雪葬の星銀",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 102,
+          "name": "千岩古剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 103,
+          "name": "桂木斬長正",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 104,
+          "name": "銜玉の海皇",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 105,
+          "name": "惡王丸",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 106,
+          "name": "森林のレガリア",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 107,
+          "name": "マカイラの水色",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 108,
+          "name": "鉄彩の花",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 109,
+          "name": "話死合い棒",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 110,
+          "name": "タイダル・シャドー",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 111,
+          "name": "携帯型チェーンソー",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 112,
+          "name": "「スーパーアルティメット覇王魔剣」",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 113,
+          "name": "アースシェイカー",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 114,
+          "name": "実りの鉤鉈",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 115,
+          "name": "知恵の溶炎",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 116,
+          "name": "万能の鍵",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 117,
+          "name": "シンフォニーの鋳影",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 118,
+          "name": "救済の剣",
+          "rarity": "4",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 120,
+          "name": "鉄影段平",
+          "rarity": "3",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 121,
+          "name": "龍血を浴びた剣",
+          "rarity": "3",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 122,
+          "name": "白鉄の大剣",
+          "rarity": "3",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 123,
+          "name": "理屈責め",
+          "rarity": "3",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 124,
+          "name": "飛天大御剣",
+          "rarity": "3",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 131,
+          "name": "和璞鳶",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 132,
+          "name": "天空の脊",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 133,
+          "name": "破天の槍",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 134,
+          "name": "護摩の杖",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 135,
+          "name": "草薙の稲光",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 136,
+          "name": "息災",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 137,
+          "name": "赤砂の杖",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 138,
+          "name": "赤月のシルエット",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 139,
+          "name": "ルミドゥースの挽歌",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 140,
+          "name": "香りのシンフォニスト",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 141,
+          "name": "砕け散る光輪",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 142,
+          "name": "血染めの荒れ地",
+          "rarity": "5",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 144,
+          "name": "匣中滅龍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 145,
+          "name": "星鎌・試作",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 146,
+          "name": "流月の針",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 147,
+          "name": "黒岩の突槍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 148,
+          "name": "死闘の槍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 149,
+          "name": "西風長槍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 150,
+          "name": "旧貴族猟槍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 151,
+          "name": "ドラゴンスピア",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 152,
+          "name": "千岩長槍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 153,
+          "name": "喜多院十文字槍",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 154,
+          "name": "「漁獲」",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 155,
+          "name": "斬波のひれ長",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 156,
+          "name": "ムーンピアサー",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 157,
+          "name": "風信の矛",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 158,
+          "name": "フィヨルドの歌",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 159,
+          "name": "正義の報酬",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 160,
+          "name": "プロスペクタードリル",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 161,
+          "name": "砂中の賢者達の問答",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 162,
+          "name": "虹の行方",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 163,
+          "name": "鎮山の釘",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 164,
+          "name": "玉響停の御噺",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 165,
+          "name": "金掘りのシャベル",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 166,
+          "name": "聖祭者の輝杖",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 167,
+          "name": "氷の吐息",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 168,
+          "name": "遠望の歌",
+          "rarity": "4",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 170,
+          "name": "白纓槍",
+          "rarity": "3",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 171,
+          "name": "鉾槍",
+          "rarity": "3",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 172,
+          "name": "黒纓槍",
+          "rarity": "3",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 179,
+          "name": "天空の巻",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 180,
+          "name": "四風原典",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 181,
+          "name": "浮世の錠",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 182,
+          "name": "不滅の月華",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 183,
+          "name": "神楽の真意",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 184,
+          "name": "千夜に浮かぶ夢",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 185,
+          "name": "トゥライトゥーラの記憶",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 186,
+          "name": "碧落の瓏",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 187,
+          "name": "久遠流転の大典",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 188,
+          "name": "凛流の監視者",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 189,
+          "name": "鶴鳴の余韻",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 190,
+          "name": "サーフィンタイム",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 191,
+          "name": "祭星者の眺め",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 192,
+          "name": "寝正月の初晴",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 193,
+          "name": "ヴィヴィッド・ハート",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 194,
+          "name": "夜を紡ぐ天鏡",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 195,
+          "name": "真言の匣",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 196,
+          "name": "帳の夜曲",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 197,
+          "name": "塵と光の七つの誓約",
+          "rarity": "5",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 199,
+          "name": "西風秘典",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 200,
+          "name": "流浪楽章",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 201,
+          "name": "祭礼の断片",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 202,
+          "name": "旧貴族秘法録",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 203,
+          "name": "匣中日月",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 204,
+          "name": "金珀・試作",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 205,
+          "name": "万国諸海の図譜",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 206,
+          "name": "黒岩の緋玉",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 207,
+          "name": "昭心",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 208,
+          "name": "冬忍びの実",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 209,
+          "name": "ダークアレイの酒と詩",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 210,
+          "name": "ドドコの物語",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 211,
+          "name": "白辰の輪",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 212,
+          "name": "誓いの明瞳",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 213,
+          "name": "満悦の実",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 214,
+          "name": "彷徨える星",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 215,
+          "name": "古祠の瓏",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 216,
+          "name": "純水流華",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 217,
+          "name": "果てなき紺碧の唄",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 218,
+          "name": "ヤシュチェの環",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 219,
+          "name": "蒼紋の角杯",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 220,
+          "name": "波乗りの旋回",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 221,
+          "name": "天光のリュート",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 222,
+          "name": "烏髄の孤灯",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 223,
+          "name": "霜辰",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 224,
+          "name": "諸王の対局",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 225,
+          "name": "胸中の谺",
+          "rarity": "4",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 227,
+          "name": "魔導緒論",
+          "rarity": "3",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 228,
+          "name": "龍殺しの英傑譚",
+          "rarity": "3",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 229,
+          "name": "異世界旅行記",
+          "rarity": "3",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 230,
+          "name": "翡玉法珠",
+          "rarity": "3",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 231,
+          "name": "特級の宝玉",
+          "rarity": "3",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 238,
+          "name": "天空の翼",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 239,
+          "name": "アモスの弓",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 240,
+          "name": "終焉を嘆く詩",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 241,
+          "name": "飛雷の鳴弦",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 242,
+          "name": "冬極の白星",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 243,
+          "name": "若水",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 244,
+          "name": "狩人の道",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 245,
+          "name": "始まりの大魔術",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 246,
+          "name": "白雨心弦",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 247,
+          "name": "星鷲の紅き羽",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 248,
+          "name": "暁を告げる歴史",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 249,
+          "name": "霜契の金枝",
+          "rarity": "5",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 251,
+          "name": "西風猟弓",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 252,
+          "name": "絶弦",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 253,
+          "name": "祭礼の弓",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 254,
+          "name": "旧貴族長弓",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 255,
+          "name": "弓蔵",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 256,
+          "name": "澹月・試作",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 257,
+          "name": "リングボウ",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 258,
+          "name": "黒岩の戦弓",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 259,
+          "name": "蒼翠の狩猟弓",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 260,
+          "name": "ダークアレイの狩人",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 261,
+          "name": "風花の頌歌",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 262,
+          "name": "幽夜のワルツ",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 263,
+          "name": "破魔の弓",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 264,
+          "name": "プレデター",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 265,
+          "name": "曚雲の月",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 266,
+          "name": "落霞",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 267,
+          "name": "王の近侍",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 268,
+          "name": "竭沢",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 269,
+          "name": "トキの嘴",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 270,
+          "name": "烈日の後嗣",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 271,
+          "name": "静寂の唄",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 272,
+          "name": "レンジゲージ",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 273,
+          "name": "築雲",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 274,
+          "name": "チェーンブレイカー",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 275,
+          "name": "花飾りの羽",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 276,
+          "name": "冷寂の音",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 277,
+          "name": "羅網の針",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 278,
+          "name": "虹蛇の雨弦",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 279,
+          "name": "千鈞懸黎",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 280,
+          "name": "霜雪の契",
+          "rarity": "4",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 282,
+          "name": "鴉羽の弓",
+          "rarity": "3",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 283,
+          "name": "シャープシューターの誓い",
+          "rarity": "3",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 284,
+          "name": "リカーブボウ",
+          "rarity": "3",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 285,
+          "name": "弾弓",
+          "rarity": "3",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "line": 286,
+          "name": "文使い",
+          "rarity": "3",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/武器/一覧"
+        },
+        {
+          "name": "蝶の羽化",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 147
+        },
+        {
+          "name": "新たなる枝",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 179
+        },
+        {
+          "name": "銀灯",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 180
+        },
+        {
+          "name": "傭兵の重剣",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/両手剣",
+          "line": 162
+        },
+        {
+          "name": "訓練用大剣",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/両手剣",
+          "line": 164
+        },
+        {
+          "name": "災憾",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/長柄武器",
+          "line": 126
+        },
+        {
+          "name": "鉄尖槍",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/長柄武器",
+          "line": 158
+        },
+        {
+          "name": "新米の長槍",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/長柄武器",
+          "line": 160
+        },
+        {
+          "name": "旋流の讃美歌",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 144
+        },
+        {
+          "name": "雪に沈む心",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 173
+        },
+        {
+          "name": "ポケット魔導書",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 181
+        },
+        {
+          "name": "生徒ノート",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 183
+        },
+        {
+          "name": "風に遊ぶ弦",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/弓",
+          "line": 166
+        },
+        {
+          "name": "歴戦の狩猟弓",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/弓",
+          "line": 174
+        },
+        {
+          "name": "狩猟弓",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/弓",
+          "line": 176
+        },
+        {
+          "name": "銀の剣",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 120
+        },
+        {
+          "name": "無鋒の剣",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 121
+        }
+      ],
+      "additionalTypePageRows": [
+        {
+          "name": "蝶の羽化",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 147
+        },
+        {
+          "name": "新たなる枝",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 179
+        },
+        {
+          "name": "銀灯",
+          "type": "片手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/片手剣",
+          "line": 180
+        },
+        {
+          "name": "傭兵の重剣",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/両手剣",
+          "line": 162
+        },
+        {
+          "name": "訓練用大剣",
+          "type": "両手剣",
+          "source": "https://wikiwiki.jp/genshinwiki/両手剣",
+          "line": 164
+        },
+        {
+          "name": "災憾",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/長柄武器",
+          "line": 126
+        },
+        {
+          "name": "鉄尖槍",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/長柄武器",
+          "line": 158
+        },
+        {
+          "name": "新米の長槍",
+          "type": "長柄武器",
+          "source": "https://wikiwiki.jp/genshinwiki/長柄武器",
+          "line": 160
+        },
+        {
+          "name": "旋流の讃美歌",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 144
+        },
+        {
+          "name": "雪に沈む心",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 173
+        },
+        {
+          "name": "ポケット魔導書",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 181
+        },
+        {
+          "name": "生徒ノート",
+          "type": "法器",
+          "source": "https://wikiwiki.jp/genshinwiki/法器",
+          "line": 183
+        },
+        {
+          "name": "風に遊ぶ弦",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/弓",
+          "line": 166
+        },
+        {
+          "name": "歴戦の狩猟弓",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/弓",
+          "line": 174
+        },
+        {
+          "name": "狩猟弓",
+          "type": "弓",
+          "source": "https://wikiwiki.jp/genshinwiki/弓",
+          "line": 176
+        }
+      ],
+      "completeness": "partial",
+      "completeReleasedDenominator": null
+    },
+    "notes": [
+      "Wiki revision IDs were not exposed. Parent agent obtained independent raw200responses and hashes; attach those independently.",
+      "Do not present unverified placeholder numerical stats as verified. Version numbers in character table areA.BC whereCis banner phase; LunaI-VIII map6.0-6.7."
+    ]
+  },
+  "researchCompletedAt": "2026-09-23T06:55:14.949454+00:00",
+  "weaponScopeReconciliation": {
+    "researchedAt": "2026-09-23T06:34:59.382618+00:00",
+    "sourceRecordCountReportedByParent": 255,
+    "independentOrdinaryRetainableNamedInventory": 252,
+    "additionalQuestOnlyVariantCount": 3,
+    "additionalQuestOnlyVariantIds": [
+      11419,
+      11420,
+      11421
+    ],
+    "reconciliation": "The three source-only IDs are temporary quest equipment stages, not three missing normal retainable weapons. 255 = 252 ordinary named weapons + 3 quest variants under these two source scopes.",
+    "availabilityScope": "Usable in scripted quest combat on the trial Kazuha; not independently obtainable or freely assignable persistent inventory weapons.",
+    "notAlwaysObtainable": "Ordinary retainable inventory includes event-exclusive or otherwise no-longer-obtainable items; it does not mean every weapon is currently obtainable.",
+    "releaseStatus": "released historical quest content, not preview or unreleased",
+    "sourceEvidenceIds": [
+      "wiki-isshin-three-stages",
+      "wiki-kazuha-quest-trial-stages",
+      "fandom-isshin-quest-exclusive"
+    ],
+    "normalReward": {
+      "itemId": 11416,
+      "nameJa": "籠釣瓶一心",
+      "nameEn": "Kagotsurube Isshin",
+      "scope": "Permanent quest reward and ordinary retainable inventory; distinct from all three quest stages"
+    },
+    "variants": [
+      {
+        "itemId": 11419,
+        "slug": "prizedisshinblade",
+        "stage": 1,
+        "stageLabel": "Awakened / initial",
+        "localBaseATKPercent": 0.09,
+        "wikiLevel90ATKPercent": 41.3,
+        "wikiHealingPassivePresent": true
+      },
+      {
+        "itemId": 11421,
+        "slug": "prizedisshinblade-02",
+        "stage": 2,
+        "stageLabel": "Weakened",
+        "localBaseATKPercent": 0.045,
+        "wikiLevel90ATKPercent": 20.7,
+        "wikiHealingPassivePresent": true
+      },
+      {
+        "itemId": 11420,
+        "slug": "prizedisshinblade-01",
+        "stage": 3,
+        "stageLabel": "Shattered",
+        "localBaseATKPercent": 0,
+        "wikiLevel90ATKPercent": 0,
+        "wikiHealingPassivePresent": false
+      }
+    ],
+    "stageIdMapping": {
+      "method": "Wiki independently describes three stages and their ATK ratios/healing distinction. Numeric IDs are matched from existing local source records by those differentiators; the Wiki pages themselves do not publish these item IDs.",
+      "localCatalogPath": "packages/game-data/manifests/runtime/datasets/snapshot-7a04312fe7e39be842a84b1cacdfbd5838454a92304e4f367eb852b73f30e6c0/catalog.json",
+      "localCatalogSha256": "4daacff3b2c20f7488a80c56fcdf9283281f2bd8a1c0283baad39e481fd49cef"
+    },
+    "implementationConsequence": "Retain the three raw records for audit or explicit quest context, and separate them from ordinary equipment selection/counts. This research does not mark their damage/effects executable or verified.",
+    "fullGameCompletenessClaimed": false,
+    "completeReleasedDenominator": null
+  },
+  "noSecondaryWeapons": {
+    "researchStartedAt": "2026-09-23T06:51:59Z",
+    "researchCompletedAt": "2026-09-23T06:55:14.949445+00:00",
+    "status": "independently-cross-checked-explicit-none-for-ten-named-items",
+    "scope": "Only the listed ten stable IDs; does not turn arbitrary missing fields into none or zero.",
+    "count": 10,
+    "sourceEvidenceId": "fandom-explicit-no-secondary-ten-starters",
+    "rows": [
+      {
+        "itemId": 11101,
+        "nameZhCN": "无锋剑",
+        "nameEn": "Dull Blade",
+        "nameJa": "無鋒の剣",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Dull Blade",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/片手剣/無鋒の剣",
+        "corroboratingEvidenceId": "wiki-low-rarity-11101"
+      },
+      {
+        "itemId": 11201,
+        "nameZhCN": "银剑",
+        "nameEn": "Silver Sword",
+        "nameJa": "銀の剣",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Silver Sword",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/片手剣/銀の剣",
+        "corroboratingEvidenceId": "wiki-low-rarity-11201"
+      },
+      {
+        "itemId": 12101,
+        "nameZhCN": "训练大剑",
+        "nameEn": "Waster Greatsword",
+        "nameJa": "訓練用大剣",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Waster Greatsword",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/両手剣/訓練用大剣",
+        "corroboratingEvidenceId": "wiki-low-rarity-12101"
+      },
+      {
+        "itemId": 12201,
+        "nameZhCN": "佣兵重剑",
+        "nameEn": "Old Merc's Pal",
+        "nameJa": "傭兵の重剣",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Old Merc's Pal",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/両手剣/傭兵の重剣",
+        "corroboratingEvidenceId": "wiki-low-rarity-12201"
+      },
+      {
+        "itemId": 13101,
+        "nameZhCN": "新手长枪",
+        "nameEn": "Beginner's Protector",
+        "nameJa": "新米の長槍",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Beginner's Protector",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/長柄武器/新米の長槍",
+        "corroboratingEvidenceId": "wiki-low-rarity-13101"
+      },
+      {
+        "itemId": 13201,
+        "nameZhCN": "铁尖枪",
+        "nameEn": "Iron Point",
+        "nameJa": "鉄尖槍",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Iron Point",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/長柄武器/鉄尖槍",
+        "corroboratingEvidenceId": "wiki-low-rarity-13201"
+      },
+      {
+        "itemId": 14101,
+        "nameZhCN": "学徒笔记",
+        "nameEn": "Apprentice's Notes",
+        "nameJa": "生徒ノート",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Apprentice's Notes",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/法器/生徒ノート",
+        "corroboratingEvidenceId": "wiki-low-rarity-14101"
+      },
+      {
+        "itemId": 14201,
+        "nameZhCN": "口袋魔导书",
+        "nameEn": "Pocket Grimoire",
+        "nameJa": "ポケット魔導書",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Pocket Grimoire",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/法器/ポケット魔導書",
+        "corroboratingEvidenceId": "wiki-low-rarity-14201"
+      },
+      {
+        "itemId": 15101,
+        "nameZhCN": "猎弓",
+        "nameEn": "Hunter's Bow",
+        "nameJa": "狩猟弓",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Hunter's Bow",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/弓/狩猟弓",
+        "corroboratingEvidenceId": "wiki-low-rarity-15101"
+      },
+      {
+        "itemId": 15201,
+        "nameZhCN": "历练的猎弓",
+        "nameEn": "Seasoned Hunter's Bow",
+        "nameJa": "歴戦の狩猟弓",
+        "secondaryAttribute": "none",
+        "allowedNormalizedType": "FIGHT_PROP_NONE",
+        "explicitTableEvidence": {
+          "url": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability#Unlimited",
+          "section": "Shops > Unlimited",
+          "rowName": "Seasoned Hunter's Bow",
+          "column": "2nd Stat (Lv. 1)",
+          "observedCell": "None"
+        },
+        "corroboratingPage": "https://wikiwiki.jp/genshinwiki/弓/歴戦の狩猟弓",
+        "corroboratingEvidenceId": "wiki-low-rarity-15201"
+      }
+    ],
+    "normalizationContract": {
+      "missingSourcePaths": [
+        "mainStatType",
+        "stats.specialized"
+      ],
+      "evidenceBackedValue": "FIGHT_PROP_NONE",
+      "inferFromBaseSpecializedZero": false,
+      "inferFromAbsentWikiRow": false,
+      "applyToUnlistedItems": false,
+      "preserveRawSourceOmission": true,
+      "recordDerivedMappingProvenance": true,
+      "fieldTypeNote": "FIGHT_PROP_NONE denotes mainStatType and the catalog type field stats.specialized. The separate numeric field stats.base.specialized remains the source value 0; no enum is assigned to numeric fields."
+    },
+    "sourceLimitations": [
+      "Explicit None cells were retrieved from indexed Wiki table text; direct Fandom access unavailable and upstream byte hash unknown.",
+      "Japanese item pages contain a base-ATK-only table; this is supporting evidence, not an assertion that any absent row automatically means no stat.",
+      "No live game inspection was performed; this narrow finding does not certify other weapon fields or mechanics.",
+      "Raw-byte corroboration attempts for IDs 13201, 14101, 14201, 15101 and 15201 returned HTTP 429; hashes remain null and no retries were made. The independent explicit-None table observation is separate."
+    ]
+  }
+}

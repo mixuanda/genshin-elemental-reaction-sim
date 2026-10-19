@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-finite-weapon-formulas.spec.ts(203,7): error TS2322: Type '{ id: number; ruleId: "cinnabar" | "foliar" | "hunterspath"; value: number; targetKey: number; remainingBefore: number | undefined; remainingAfter: number | undefined; }[]' is not assignable to type '{ id: number; ruleId: "cinnabar" | "foliar" | "hunterspath"; value: number; targetKey: number; remainingBefore?: number; remainingAfter?: number; }[]'.
+  Type '{ id: number; ruleId: "cinnabar" | "foliar" | "hunterspath"; value: number; targetKey: number; remainingBefore: number | undefined; remainingAfter: number | undefined; }' is not assignable to type '{ id: number; ruleId: "cinnabar" | "foliar" | "hunterspath"; value: number; targetKey: number; remainingBefore?: number; remainingAfter?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'remainingBefore' are incompatible.
+      Type 'number | undefined' is not assignable to type 'number'.
+        Type 'undefined' is not assignable to type 'number'.

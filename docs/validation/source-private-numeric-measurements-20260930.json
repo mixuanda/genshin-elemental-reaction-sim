@@ -1,0 +1,253 @@
+{
+  "schemaVersion": "source-private-numeric-measurements-v1",
+  "date": "2026-09-30",
+  "baseHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "audit": "docs/validation/source-private-numeric-audit-20260930.json",
+  "receipts": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.905
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.266
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.92
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.109
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.161
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-private-numeric-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.835
+    },
+    "classic-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.74
+    },
+    "stellar-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.095
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.727
+    },
+    "browser-final": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-private-numeric-state.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.911
+    }
+  },
+  "nativeRunCount": 4,
+  "nativeRunExplanation": "Two initial lane captures and two final captures after restoring the omitted Lisa counter policy. No new baseline simulation; archived batch122 captures reused. No full matrix or performance sweep.",
+  "initialCapture": "docs/validation/source-private-numeric-state-20260930.capture.initial.json",
+  "finalCapture": "docs/validation/source-private-numeric-state-20260930.capture.json",
+  "lanes": [
+    {
+      "lane": "classic",
+      "executionArtifact": {
+        "wasmSha256": "98aa872c529ad3d70666e4d65e0733e6a0db43677b41c82efdf87a272b81ed2d",
+        "wasmBytes": 46865912
+      },
+      "observationFrame": 175,
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        54,
+        56,
+        174
+      ],
+      "applicationCount": 1,
+      "totalAppliedDamage": 45.39786424509601,
+      "historicalComparison": {
+        "applicationsEqual": true,
+        "actionLogsEqual": true,
+        "phaseFramesEqual": true,
+        "phasePlayerStateEqual": true
+      },
+      "finalGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 41 key \"barbara-a4\" has an undescribed callback",
+        "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+      ],
+      "finalGapCount": 3,
+      "initialGapCount": 4,
+      "historicalGapCount": 33,
+      "completePhaseBoundaryCount": 0
+    },
+    {
+      "lane": "stellar",
+      "executionArtifact": {
+        "wasmSha256": "6b36983daacbfc3a25106b83686ba7b8db9cf1b89736013018fdcf1892c3fe6f",
+        "wasmBytes": 70673108
+      },
+      "observationFrame": 175,
+      "phaseFrames": [
+        1,
+        2,
+        23,
+        27,
+        56,
+        174
+      ],
+      "applicationCount": 1,
+      "totalAppliedDamage": 45.39786424509601,
+      "historicalComparison": {
+        "applicationsEqual": true,
+        "actionLogsEqual": true,
+        "phaseFramesEqual": true,
+        "phasePlayerStateEqual": true
+      },
+      "finalGaps": [
+        "events: event 0 key \"lisa-skill-hold-mul\" has an undescribed callback",
+        "events: event 44 key \"barbara-a4\" has an undescribed callback",
+        "player: character[0].concrete.*.skillInitF: private numeric clock semantics have not been reviewed"
+      ],
+      "finalGapCount": 3,
+      "initialGapCount": 4,
+      "historicalGapCount": 33,
+      "completePhaseBoundaryCount": 0
+    }
+  ],
+  "pageErrors": [],
+  "registryCounts": {
+    "directRows": 28,
+    "producerRows": 74,
+    "rawRows": 102,
+    "mergedIds": 101,
+    "canonicalCharacterActions": 99,
+    "producerPlans": 74,
+    "producerSiteDeclarations": 101,
+    "uniqueProducerSites": 94
+  },
+  "sourceFrontierAfter125": {
+    "classic": {
+      "registeredCharacters": 117,
+      "eqBindings": 234,
+      "uniqueEQSourceMethods": 222,
+      "registeredScopeBindings": 99,
+      "remainingBindings": 135,
+      "remainingUniqueMethods": 123,
+      "scope": "Uses existing Go AST actionCapabilities metadata, including forwarded/alternate Traveler receivers. Source implemented and registered scope do not mean game verification or all branches runtime sampled."
+    },
+    "stellar": {
+      "registeredCharacters": 124,
+      "eqBindings": 248,
+      "uniqueEQSourceMethods": 234,
+      "registeredScopeBindings": 99,
+      "remainingBindings": 149,
+      "remainingUniqueMethods": 135,
+      "scope": "Uses existing Go AST actionCapabilities metadata, including forwarded/alternate Traveler receivers. Source implemented and registered scope do not mean game verification or all branches runtime sampled."
+    }
+  },
+  "numericPolicyCounts": {
+    "classic": {
+      "statsSlice": 81,
+      "unknownGap": 217,
+      "counter": 112,
+      "absoluteDeadlineExclusive": 8,
+      "preexistingReviewedException": 1,
+      "absoluteDeadlineInclusive": 1
+    },
+    "stellar": {
+      "statsSlice": 92,
+      "unknownGap": 242,
+      "counter": 117,
+      "absoluteDeadlineExclusive": 8,
+      "preexistingReviewedException": 1,
+      "absoluteDeadlineInclusive": 1
+    }
+  },
+  "sourceOnlyAdditions": [
+    "tighnari-skill",
+    "escoffier-burst",
+    "ororon-skill"
+  ],
+  "runtimeLimitations": [
+    "No new skill runtime sample in this batch; three additions have source audit and two successful host builds.",
+    "Numeric phase sample exercises Barbara and Lisa at six frames each; it does not sample every reviewed field, positive deadlines, or Raiden inclusive endpoint.",
+    "Remaining callback/generation gaps keep all sampled boundaries incomplete; no convergence or game-verification claim."
+  ],
+  "dataPointers": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  }
+}

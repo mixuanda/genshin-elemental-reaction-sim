@@ -1,0 +1,44 @@
+[WebServer] (node:12648) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:12649) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/imported-team-library.spec.ts:46:1 › synthetic GOOD batch becomes an isolated, persistent multi-preset source team (1.0s)
+
+
+  1) [chromium] › apps/web/e2e/imported-team-library.spec.ts:46:1 › synthetic GOOD batch becomes an isolated, persistent multi-preset source team 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 1
+    + Received  + 1
+
+      Array [
+    -   "ayaka",
+    +   "kamisatoayaka",
+        "kaeya",
+      ]
+
+      70 |   const replaced = await exportDraft(page);
+      71 |   expect(replaced.source?.hostVariant).toBe("classic");
+    > 72 |   expect(replaced.members.map(member => member.characterKey)).toEqual(["ayaka", "kaeya"]);
+         |                                                               ^
+      73 |   expect(replaced.members.map(member => member.weapon.key)).toEqual(["coolsteel", "coolsteel"]);
+      74 |   expect(replaced.actions).toEqual([]);
+      75 |
+        at /Users/evan/Documents/gidps/apps/web/e2e/imported-team-library.spec.ts:72:63
+
+    Error Context: test-results/imported-team-library-synt-8b335-nt-multi-preset-source-team-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/imported-team-library-synt-8b335-nt-multi-preset-source-team-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/imported-team-library-synt-8b335-nt-multi-preset-source-team-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/imported-team-library.spec.ts:46:1 › synthetic GOOD batch becomes an isolated, persistent multi-preset source team 

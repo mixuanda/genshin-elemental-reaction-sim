@@ -1,0 +1,29 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/favonius-runtime.test.ts (3 tests | 1 failed) 78ms
+     × feeds real seeded critical callbacks into delayed team particles and legal burst energy, retaining exact hit replay 48ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/favonius-runtime.test.ts > source-backed Favonius energy feedback > feeds real seeded critical callbacks into delayed team particles and legal burst energy, retaining exact hit replay
+Error: Trusted SimulationResult 1.53 integrity validation failed: particleEvents.length: particle event length must equal 0; received 2
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22519:11
+    22517|     const remainder =
+    22518|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22519|     throw new Error(
+       |           ^
+    22520|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22521|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:17966:10
+ ❯ simulate packages/sim-core/src/simulator.ts:17994:12
+ ❯ packages/sim-core/src/__tests__/favonius-runtime.test.ts:51:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  00:53:12
+   Duration  873ms (transform 567ms, setup 0ms, import 730ms, tests 78ms, environment 0ms)
+

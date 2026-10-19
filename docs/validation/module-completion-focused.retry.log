@@ -1,0 +1,37 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/source-cast-module-batch.test.ts (1 test | 1 failed) 210ms
+   × connects all four source groups to normal documents, shared calculation and final-panel JSON 210ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/source-cast-module-batch.test.ts > connects all four source groups to normal documents, shared calculation and final-panel JSON
+AssertionError: kokomi-skill-seven-ticks-no-burst-complete-c0: expected undefined to deeply equal { nonCritical: 12382.1901, …(2) }
+
+- Expected:
+{
+  "critical": 24764.3802,
+  "expected": 12382.1901,
+  "nonCritical": 12382.1901,
+}
+
++ Received:
+undefined
+
+ ❯ packages/sim-core/src/__tests__/source-cast-module-batch.test.ts:34:65
+     32|     expect(result.totals!.expected).toBeCloseTo(result.hits.reduce((su…
+     33|     const restored = parseCalculatorDocument(serializeCalculatorDocume…
+     34|     expect(calculateDocument(restored).totals, mapping.skillId).toEqua…
+       |                                                                 ^
+     35|     hitCount += doc.hits.length;
+     36|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 2 passed (3)
+   Start at  21:23:12
+   Duration  3.00s (transform 1.71s, setup 0ms, import 2.63s, tests 258ms, environment 0ms)
+

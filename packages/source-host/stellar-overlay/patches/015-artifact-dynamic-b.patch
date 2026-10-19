@@ -1,0 +1,273 @@
+--- a/internal/artifacts/archaic/archaic.go
++++ b/internal/artifacts/archaic/archaic.go
+@@ -33,6 +33,9 @@
+ 			Base:         modifier.NewBase("archaic-2pc", -1),
+ 			AffectedStat: attributes.GeoP,
+ 			Amount: func() []float64 {
++				if core.SourceHost != nil {
++					m[attributes.GeoP] = core.SourceHost.ArtifactScalar(char.Index(), "dynamic-archaic-2pc-geop", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -62,6 +65,24 @@
+ 					Base:         modifier.NewBaseWithHitlag("archaic-4pc", 10*60),
+ 					AffectedStat: attributes.NoStat,
+ 					Amount: func() []float64 {
++						if c.SourceHost != nil {
++							switch s.element {
++							case attributes.Pyro:
++								m[attributes.PyroP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-pyro", map[string]any{"state": map[string]any{}}, nil, 0)
++							case attributes.Hydro:
++								m[attributes.HydroP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-hydro", map[string]any{"state": map[string]any{}}, nil, 0)
++							case attributes.Cryo:
++								m[attributes.CryoP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-cryo", map[string]any{"state": map[string]any{}}, nil, 0)
++							case attributes.Electro:
++								m[attributes.ElectroP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-electro", map[string]any{"state": map[string]any{}}, nil, 0)
++							case attributes.Anemo:
++								m[attributes.AnemoP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-anemo", map[string]any{"state": map[string]any{}}, nil, 0)
++							case attributes.Geo:
++								m[attributes.GeoP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-geo", map[string]any{"state": map[string]any{}}, nil, 0)
++							case attributes.Dendro:
++								m[attributes.DendroP] = c.SourceHost.ArtifactScalar(c.Index(), "dynamic-archaic-4pc-dendro", map[string]any{"state": map[string]any{}}, nil, 0)
++							}
++						}
+ 						return m
+ 					},
+ 				})
+--- a/internal/artifacts/thunderingfury/thunderingfury.go
++++ b/internal/artifacts/thunderingfury/thunderingfury.go
+@@ -39,6 +39,9 @@
+ 			Base:         modifier.NewBase("tf-2pc", -1),
+ 			AffectedStat: attributes.ElectroP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ElectroP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-thunderingfury-2pc-electro", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -55,6 +58,9 @@
+ 		Base: modifier.NewBase("tf-4pc", -1),
+ 		Amount: func(ai info.AttackInfo) float64 {
+ 			if ai.Catalyzed && ai.CatalyzedType == info.ReactionTypeAggravate {
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-thunderingfury-4pc-a7", map[string]any{"state": map[string]any{"branch": 0}}, &ai, 0)
++				}
+ 				return 0.2
+ 			}
+ 			switch ai.AttackTag {
+@@ -62,10 +68,20 @@
+ 				attacks.AttackTagECDamage,
+ 				attacks.AttackTagSuperconductDamage,
+ 				attacks.AttackTagHyperbloom:
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-thunderingfury-4pc-a7", map[string]any{"state": map[string]any{"branch": 1}}, &ai, 0)
++				}
+ 				return 0.4
+ 			case attacks.AttackTagDirectLunarCharged,
+ 				attacks.AttackTagReactionLunarCharge,
+ 				attacks.AttackTagDirectStellarConduct:
++				branch := 2
++				if ai.AttackTag == attacks.AttackTagDirectStellarConduct {
++					branch = 3
++				}
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-thunderingfury-4pc-a7", map[string]any{"state": map[string]any{"branch": branch}}, &ai, 0)
++				}
+ 				return 0.2
+ 			}
+ 			return 0
+--- a/internal/artifacts/viridescent/viridescent.go
++++ b/internal/artifacts/viridescent/viridescent.go
+@@ -58,9 +58,15 @@
+ 				attacks.AttackTagSwirlElectro,
+ 				attacks.AttackTagSwirlHydro,
+ 				attacks.AttackTagSwirlPyro:
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-viridescent-4pc-a7", map[string]any{"state": map[string]any{"branch": 0}}, &ai, 0)
++				}
+ 				return 0.6
+ 			case attacks.AttackTagDirectStellarSwirl,
+ 				attacks.AttackTagReactionStellarSwirl:
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-viridescent-4pc-a7", map[string]any{"state": map[string]any{"branch": 1}}, &ai, 0)
++				}
+ 				return 0.2
+ 			default:
+ 				return 0
+--- a/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go
++++ b/internal/artifacts/flowerofparadiselost/flowerofparadiselost.go
+@@ -47,6 +47,9 @@
+ 			Base:         modifier.NewBase("flower-2pc", -1),
+ 			AffectedStat: attributes.EM,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.EM] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-flowerofparadiselost-2pc-em", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+@@ -62,10 +65,16 @@
+ 				case attacks.AttackTagHyperbloom:
+ 				case attacks.AttackTagBurgeon:
+ 				case attacks.AttackTagDirectLunarBloom:
++					if c.SourceHost != nil {
++						return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-flowerofparadiselost-4pc-base", map[string]any{"state": map[string]any{"branch": 1}}, &ai, 0)
++					}
+ 					return 0.1
+ 				default:
+ 					return 0
+ 				}
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-flowerofparadiselost-4pc-base", map[string]any{"state": map[string]any{"branch": 0}}, &ai, 0)
++				}
+ 				return 0.4
+ 			},
+ 		})
+@@ -98,10 +107,16 @@
+ 					case attacks.AttackTagHyperbloom:
+ 					case attacks.AttackTagBurgeon:
+ 					case attacks.AttackTagDirectLunarBloom:
++						if c.SourceHost != nil {
++							return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-flowerofparadiselost-4pc-stack", map[string]any{"state": map[string]any{"branch": 1, "stacks": s.stacks}}, &ai, 0)
++						}
+ 						return 0.1 * float64(s.stacks) * 0.25
+ 					default:
+ 						return 0
+ 					}
++					if c.SourceHost != nil {
++						return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-flowerofparadiselost-4pc-stack", map[string]any{"state": map[string]any{"branch": 0, "stacks": s.stacks}}, &ai, 0)
++					}
+ 					return 0.4 * float64(s.stacks) * 0.25
+ 				},
+ 			})
+--- a/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go
++++ b/internal/artifacts/disenchantmentindeepshadow/disenchantmentindeepshadow.go
+@@ -35,6 +35,9 @@
+ 		Base:         modifier.NewBase("disenchantment-2pc", -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if core.SourceHost != nil {
++				c2Buff[attributes.ATKP] = core.SourceHost.ArtifactScalar(char.Index(), "dynamic-disenchantmentindeepshadow-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return c2Buff
+ 		},
+ 	})
+@@ -48,8 +51,14 @@
+ 		Amount: func(ai info.AttackInfo) float64 {
+ 			switch ai.AttackTag {
+ 			case attacks.AttackTagSuperconductDamage:
++				if core.SourceHost != nil {
++					return core.SourceHost.ArtifactScalar(char.Index(), "dynamic-disenchantmentindeepshadow-4pc-react-a7", map[string]any{"state": map[string]any{"branch": 0}}, &ai, 0)
++				}
+ 				return 0.8
+ 			case attacks.AttackTagDirectStellarConduct:
++				if core.SourceHost != nil {
++					return core.SourceHost.ArtifactScalar(char.Index(), "dynamic-disenchantmentindeepshadow-4pc-react-a7", map[string]any{"state": map[string]any{"branch": 1}}, &ai, 0)
++				}
+ 				return 0.4
+ 			}
+ 
+@@ -61,16 +70,22 @@
+ 	m[attributes.CR] = 0.16
+ 	char.AddAttackMod(character.AttackMod{
+ 		Base: modifier.NewBase("disenchantment-4pc-cr", -1),
+-		Amount: func(_ *info.AttackEvent, t info.Target) []float64 {
++		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			e, ok := t.(*enemy.Enemy)
+ 			if !ok {
+ 				return nil
+ 			}
+ 			if e.StatusIsActive(reactable.SuperConductShredKey) {
++				if core.SourceHost != nil {
++					m[attributes.CR] = core.SourceHost.ArtifactScalar(atk.Info.ActorIndex, "dynamic-disenchantmentindeepshadow-4pc-cr-a7", map[string]any{"state": map[string]any{}}, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			}
+ 
+ 			if e.StatusIsActive(reactable.StellarConductShredKey) {
++				if core.SourceHost != nil {
++					m[attributes.CR] = core.SourceHost.ArtifactScalar(atk.Info.ActorIndex, "dynamic-disenchantmentindeepshadow-4pc-cr-a7", map[string]any{"state": map[string]any{}}, &atk.Info, atk.SourceHostAttackID, t.Key())
++				}
+ 				return m
+ 			}
+ 			return nil
+--- a/internal/artifacts/adaycarvedfromrisingwinds/adaycarvedfromrisingwinds.go
++++ b/internal/artifacts/adaycarvedfromrisingwinds/adaycarvedfromrisingwinds.go
+@@ -36,6 +36,9 @@
+ 		Base:         modifier.NewBase("a-day-carved-from-rising-winds-2pc", -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if core.SourceHost != nil {
++				c2Buff[attributes.ATKP] = core.SourceHost.ArtifactScalar(char.Index(), "dynamic-adaycarvedfromrisingwinds-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return c2Buff
+ 		},
+ 	})
+@@ -76,6 +79,9 @@
+ 			Base:         modifier.NewBaseWithHitlag("blessing-of-pastoral-winds", 6*60),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if core.SourceHost != nil {
++					c4Buff[attributes.ATKP] = core.SourceHost.ArtifactScalar(char.Index(), "dynamic-adaycarvedfromrisingwinds-4pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return c4Buff
+ 			},
+ 		})
+@@ -88,6 +94,9 @@
+ 			Base:         modifier.NewBaseWithHitlag("resolve-of-pastoral-winds", 6*60),
+ 			AffectedStat: attributes.CR,
+ 			Amount: func() []float64 {
++				if core.SourceHost != nil {
++					c4BuffHexerei[attributes.CR] = core.SourceHost.ArtifactScalar(char.Index(), "dynamic-adaycarvedfromrisingwinds-4pc-hexerei-cr", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return c4BuffHexerei
+ 			},
+ 		})
+--- a/internal/artifacts/finaleofthedeepgalleries/finaleofthedeepgalleries.go
++++ b/internal/artifacts/finaleofthedeepgalleries/finaleofthedeepgalleries.go
+@@ -54,6 +54,9 @@
+ 		Base:         modifier.NewBase("deep-galleries-2pc", -1),
+ 		AffectedStat: attributes.CryoP,
+ 		Amount: func() []float64 {
++			if s.c.SourceHost != nil {
++				m[attributes.CryoP] = s.c.SourceHost.ArtifactScalar(s.char.Index(), "dynamic-finaleofthedeepgalleries-2pc-cryop", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+@@ -85,6 +88,9 @@
+ 			if atk.Info.AttackTag == attacks.AttackTagElementalBurst && s.char.StatusIsActive(burstDebuffKey) {
+ 				return nil
+ 			}
++			if s.c.SourceHost != nil {
++				m[attributes.DmgP] = s.c.SourceHost.ArtifactScalar(atk.Info.ActorIndex, "dynamic-finaleofthedeepgalleries-4pc-dmgp", map[string]any{"state": map[string]any{}}, &atk.Info, atk.SourceHostAttackID, t.Key())
++			}
+ 			return m
+ 		},
+ 	})
+--- a/internal/artifacts/echoes/echoes.go
++++ b/internal/artifacts/echoes/echoes.go
+@@ -46,6 +46,9 @@
+ 			Base:         modifier.NewBase("echoes-2pc", -1),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-echoes-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})
+--- a/internal/artifacts/songofdayspast/songofdayspast.go
++++ b/internal/artifacts/songofdayspast/songofdayspast.go
+@@ -45,6 +45,9 @@
+ 			Base:         modifier.NewBase("sodp-2pc", -1),
+ 			AffectedStat: attributes.Heal,
+ 			Amount: func() []float64 {
++				if c.SourceHost != nil {
++					m[attributes.Heal] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-songofdayspast-2pc-heal", map[string]any{"state": map[string]any{}}, nil, 0)
++				}
+ 				return m
+ 			},
+ 		})

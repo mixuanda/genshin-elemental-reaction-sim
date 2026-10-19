@@ -1,0 +1,50 @@
+--- a/pkg/enemy/attack.go
++++ b/pkg/enemy/attack.go
+@@ -75,8 +75,17 @@
+ 
+ 	dmg, crit = e.attack(atk, evt, grpMult)
+ 
++	// One native damage/callback task belongs to this exact attack dispatch and
++	// enemy target. It may still be pending when ApplyAttack returns.
++	hitCallbackBatchID := 0
++	if e.Core.SourceHost != nil {
++		hitCallbackBatchID = e.Core.SourceHost.RegisterHitCallbackBatch(atk, int(e.Key()), hitConfirmBlocked)
++	}
+ 	// delay damage event to end of the frame
+ 	e.Core.Combat.Tasks.Add(func() {
++		if e.Core.SourceHost != nil {
++			e.Core.SourceHost.BeginHitCallbackBatchRun(hitCallbackBatchID)
++		}
+ 		// apply the damage
+ 		hpBefore := e.hp
+ 		applicationDamage := dmg
+@@ -91,6 +100,9 @@
+ 			atk.SourceHostTargetPhaseEffects.OnEnemyDamageGameplaySkipped = counts.GameplaySkipped
+ 			atk.SourceHostTargetPhaseEffects.OnEnemyDamageObserversEmitted = counts.ObserversEmitted
+ 			atk.SourceHostTargetPhaseEffects.HitCallbacksSkipped = len(atk.Callbacks)
++			if e.Core.SourceHost != nil {
++				e.Core.SourceHost.CompleteHitCallbackBatch(hitCallbackBatchID, true)
++			}
+ 		} else {
+ 			e.Core.Combat.Events.Emit(event.OnEnemyDamage, e, atk, actualDmg, crit)
+ 			cb := info.AttackCB{
+@@ -99,8 +111,17 @@
+ 				Damage:      actualDmg,
+ 				IsCrit:      crit,
+ 			}
+-			for _, f := range atk.Callbacks {
+-				f(cb)
++			for callbackIndex, f := range atk.Callbacks {
++				if e.Core.SourceHost != nil {
++					end := e.Core.SourceHost.BeginHitCallback(hitCallbackBatchID, callbackIndex, atk, int(e.Key()))
++					f(cb)
++					end()
++				} else {
++					f(cb)
++				}
++			}
++			if e.Core.SourceHost != nil {
++				e.Core.SourceHost.CompleteHitCallbackBatch(hitCallbackBatchID, false)
+ 			}
+ 		}
+ 	}, 0)

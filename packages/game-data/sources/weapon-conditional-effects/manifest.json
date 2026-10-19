@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "1.0.0",
+  "source": "genshinsim/gcsim",
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-23T08:27:25.993985+00:00",
+  "license": "MIT",
+  "licenseUrl": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+  "evidenceStatus": "provisional",
+  "notes": [
+    "Raw original source bytes retained unchanged.",
+    "Numeric clauses are cross-checked with the active catalog by runtime exact-description guards.",
+    "Conditioned states do not imply autonomous trigger, uptime or critical-feedback simulation."
+  ],
+  "files": [
+    {
+      "file": "LICENSE.txt",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067
+    },
+    {
+      "file": "internal__weapons__bow__blackcliff__blackcliff.go.txt",
+      "upstreamPath": "internal/weapons/bow/blackcliff/blackcliff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/blackcliff/blackcliff.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/blackcliff/blackcliff.go",
+      "sha256": "54e4bbf8231cafb6e7acf0967589bed7e6aad0da6c6e00da0c924a9fcfeb967b",
+      "bytes": 395
+    },
+    {
+      "file": "internal__weapons__bow__compound__compound.go.txt",
+      "upstreamPath": "internal/weapons/bow/compound/compound.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/compound/compound.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/compound/compound.go",
+      "sha256": "100aab64e225cc97ee04e77d4bc49f6caaab431fdc40cf340754370ac7188bb7",
+      "bytes": 2376
+    },
+    {
+      "file": "internal__weapons__bow__hamayumi__hamayumi.go.txt",
+      "upstreamPath": "internal/weapons/bow/hamayumi/hamayumi.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/hamayumi/hamayumi.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/hamayumi/hamayumi.go",
+      "sha256": "deee390edf1dc1b9ff2f52196d25ab9774e91e7848ccc5f8976fa1607adcbe29",
+      "bytes": 1251
+    },
+    {
+      "file": "internal__weapons__bow__prototype__prototype.go.txt",
+      "upstreamPath": "internal/weapons/bow/prototype/prototype.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/prototype/prototype.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/prototype/prototype.go",
+      "sha256": "3dc8db1f9e4de7946dc4f62a37f4669354b71aea365ab439e48f5ca298d967bc",
+      "bytes": 1227
+    },
+    {
+      "file": "internal__weapons__bow__royal__royal.go.txt",
+      "upstreamPath": "internal/weapons/bow/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/royal/royal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "file": "internal__weapons__bow__slingshot__slingshot.go.txt",
+      "upstreamPath": "internal/weapons/bow/slingshot/slingshot.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/slingshot/slingshot.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/slingshot/slingshot.go",
+      "sha256": "c68061746156a81b7d44db7d8b999cf5db1df18e2d26a327e9decd1a62f551c6",
+      "bytes": 1597
+    },
+    {
+      "file": "internal__weapons__catalyst__blackcliff__blackcliff.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/blackcliff/blackcliff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/blackcliff/blackcliff.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/blackcliff/blackcliff.go",
+      "sha256": "54e4bbf8231cafb6e7acf0967589bed7e6aad0da6c6e00da0c924a9fcfeb967b",
+      "bytes": 395
+    },
+    {
+      "file": "internal__weapons__catalyst__fruitoffulfillment__fruitoffulfillment.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/fruitoffulfillment/fruitoffulfillment.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/fruitoffulfillment/fruitoffulfillment.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/fruitoffulfillment/fruitoffulfillment.go",
+      "sha256": "638eafdba38bdfe8f26966d3158c128337dc47de27d8e71889b642602c418aa1",
+      "bytes": 3041
+    },
+    {
+      "file": "internal__weapons__catalyst__royal__royal.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/royal/royal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "file": "internal__weapons__catalyst__sacrificialjade__sacrificialjade.go.txt",
+      "upstreamPath": "internal/weapons/catalyst/sacrificialjade/sacrificialjade.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/sacrificialjade/sacrificialjade.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/sacrificialjade/sacrificialjade.go",
+      "sha256": "8ec936c620e08c724291243bd4ccbcd5b117d2f6c1bc995ef8f6ac6de8c6c639",
+      "bytes": 2545
+    },
+    {
+      "file": "internal__weapons__claymore__blackcliff__blackcliff.go.txt",
+      "upstreamPath": "internal/weapons/claymore/blackcliff/blackcliff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/blackcliff/blackcliff.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/blackcliff/blackcliff.go",
+      "sha256": "54e4bbf8231cafb6e7acf0967589bed7e6aad0da6c6e00da0c924a9fcfeb967b",
+      "bytes": 395
+    },
+    {
+      "file": "internal__weapons__claymore__bloodtainted__bloodtainted.go.txt",
+      "upstreamPath": "internal/weapons/claymore/bloodtainted/bloodtainted.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/bloodtainted/bloodtainted.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/bloodtainted/bloodtainted.go",
+      "sha256": "4d99c08af374761471cd3ca00f82ab6da96907920fa555e17ca4924d3641b64d",
+      "bytes": 1113
+    },
+    {
+      "file": "internal__weapons__claymore__ferrousshadow__ferrousshadow.go.txt",
+      "upstreamPath": "internal/weapons/claymore/ferrousshadow/ferrousshadow.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/ferrousshadow/ferrousshadow.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/ferrousshadow/ferrousshadow.go",
+      "sha256": "48088b1b48f6c1fe9f959b9bb09f51e4388b43c8fef72c205e25eff71d6cc15d",
+      "bytes": 1280
+    },
+    {
+      "file": "internal__weapons__claymore__rainslasher__rainslasher.go.txt",
+      "upstreamPath": "internal/weapons/claymore/rainslasher/rainslasher.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/rainslasher/rainslasher.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/rainslasher/rainslasher.go",
+      "sha256": "483dd518584f09d66d85c718584e4c30f5ded84216d6cb73e6fa1f4c3b73d914",
+      "bytes": 1008
+    },
+    {
+      "file": "internal__weapons__claymore__royal__royal.go.txt",
+      "upstreamPath": "internal/weapons/claymore/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/royal/royal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "file": "internal__weapons__common__blackcliff.go.txt",
+      "upstreamPath": "internal/weapons/common/blackcliff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/blackcliff.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/blackcliff.go",
+      "sha256": "b7a61bc7afbe2da53a46c155d73b00265d3fd50158611d5ff19c0ee50021fd84",
+      "bytes": 1837
+    },
+    {
+      "file": "internal__weapons__common__royal.go.txt",
+      "upstreamPath": "internal/weapons/common/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/royal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/royal.go",
+      "sha256": "c679666b0aacd358add08fc6c48cb45c78c71e33db31c8e1c650ce065843d119",
+      "bytes": 1586
+    },
+    {
+      "file": "internal__weapons__spear__blackcliff__blackcliff.go.txt",
+      "upstreamPath": "internal/weapons/spear/blackcliff/blackcliff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/blackcliff/blackcliff.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/blackcliff/blackcliff.go",
+      "sha256": "54e4bbf8231cafb6e7acf0967589bed7e6aad0da6c6e00da0c924a9fcfeb967b",
+      "bytes": 395
+    },
+    {
+      "file": "internal__weapons__spear__royal__royal.go.txt",
+      "upstreamPath": "internal/weapons/spear/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/royal/royal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "file": "internal__weapons__sword__blackcliff__blackcliff.go.txt",
+      "upstreamPath": "internal/weapons/sword/blackcliff/blackcliff.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/blackcliff/blackcliff.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/blackcliff/blackcliff.go",
+      "sha256": "54e4bbf8231cafb6e7acf0967589bed7e6aad0da6c6e00da0c924a9fcfeb967b",
+      "bytes": 395
+    },
+    {
+      "file": "internal__weapons__sword__royal__royal.go.txt",
+      "upstreamPath": "internal/weapons/sword/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/royal/royal.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    }
+  ]
+}

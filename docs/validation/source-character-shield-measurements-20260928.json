@@ -1,0 +1,190 @@
+{
+  "schemaVersion": "source-character-shield-measurements-v1",
+  "asOf": "2026-09-28",
+  "registryCounts": {
+    "descriptorKeys": 42,
+    "classicUniqueCalledRuleIDs": 42,
+    "stellarUniqueCalledRuleIDs": 42,
+    "classicOnly": [],
+    "stellarOnly": [],
+    "groupCounts": {
+      "a": 6,
+      "b": 14,
+      "c": 9,
+      "d": 9,
+      "e": 4
+    },
+    "byUnit": {
+      "*": 4,
+      "baizhu": 1,
+      "beidou": 2,
+      "candace": 1,
+      "citlali": 1,
+      "columbina": 1,
+      "dahlia": 1,
+      "diona": 1,
+      "hydro-traveler": 2,
+      "ineffa": 1,
+      "kaeya": 1,
+      "kirara": 5,
+      "lanyan": 3,
+      "layla": 1,
+      "nicole": 1,
+      "noelle": 2,
+      "sigewinne": 1,
+      "thoma": 5,
+      "xinyan": 5,
+      "yanfei": 1,
+      "yunjin": 1,
+      "zhongli": 1
+    }
+  },
+  "observedUniqueRuleCount": 14,
+  "observedRuleIds": [
+    "char-shield-bell",
+    "char-shield-crystallize-base",
+    "char-shield-crystallize-bonus-total",
+    "char-shield-crystallize-em",
+    "char-shield-kaeya-c4",
+    "char-shield-lanyan-base",
+    "char-shield-lanyan-restore",
+    "char-shield-lanyan-restore-fraction",
+    "char-shield-noelle-a1",
+    "char-shield-noelle-skill",
+    "char-shield-thoma-burst-base",
+    "char-shield-thoma-max",
+    "char-shield-thoma-skill-base",
+    "char-shield-thoma-stack"
+  ],
+  "unobservedRuleCount": 28,
+  "wasm": {
+    "classic": {
+      "sha256": "ba46e9be71b309eb9a1231282541b0569277df239439c47b5cec854214eee6a6",
+      "bytes": 43198584
+    },
+    "stellar": {
+      "sha256": "ac91cc2b675d249d5c5eb88da9c857195ecc6da722768383dea966d970859ca8",
+      "bytes": 64782501
+    }
+  },
+  "receipts": {
+    "corefirst": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/source-host-character-shield.test.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.86,
+      "log": "docs/validation/source-character-shield-corefirst-20260928.log"
+    },
+    "classicfirst": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.448,
+      "log": "docs/validation/source-character-shield-classicfirst-20260928.log"
+    },
+    "stellarfirst": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 3.973,
+      "log": "docs/validation/source-character-shield-stellarfirst-20260928.log"
+    },
+    "stellarretry1": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.057,
+      "log": "docs/validation/source-character-shield-stellarretry1-20260928.log"
+    },
+    "webfirst": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.805,
+      "log": "docs/validation/source-character-shield-webfirst-20260928.log"
+    },
+    "webretry1": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.934,
+      "log": "docs/validation/source-character-shield-webretry1-20260928.log"
+    },
+    "e2efirst": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-shield.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 7.496,
+      "log": "docs/validation/source-character-shield-e2efirst-20260928.log"
+    },
+    "e2eretry1": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-shield.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 3.99,
+      "log": "docs/validation/source-character-shield-e2eretry1-20260928.log"
+    },
+    "e2eretry2": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-character-shield.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 10.193,
+      "log": "docs/validation/source-character-shield-e2eretry2-20260928.log"
+    },
+    "diffcheck": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.071,
+      "log": "docs/validation/source-character-shield-diffcheck-20260928.log"
+    }
+  },
+  "pageResult": "docs/validation/source-character-shield-measurements-20260928.result.json",
+  "dataPointerHashes": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "gameVerifiedChange": false,
+  "goalStatus": "active",
+  "scope": "Implementation and selected source-runtime arithmetic replay; not independent game verification."
+}

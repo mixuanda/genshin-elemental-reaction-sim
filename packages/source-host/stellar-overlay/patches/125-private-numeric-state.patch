@@ -1,0 +1,169 @@
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -12,14 +12,14 @@
+ // artifact object. It does not invoke methods, call getters, or expose pointer
+ // addresses as phase data. Shared runtime references are represented by their
+ // semantic owners, whose state is captured by the other phase providers.
+-func sourceHostPrivatePhaseState(object any, path string) (any, []string) {
++func sourceHostPrivatePhaseState(object any, path string, frame int) (any, []string) {
+ 	if object == nil {
+ 		return nil, nil
+ 	}
+ 	if state, gaps, reviewed := sourceHostVentiDormantPhaseState(reflect.ValueOf(object), path); reviewed {
+ 		return state, gaps
+ 	}
+-	reader := privatePhaseReader{seen: make(map[privatePhaseIdentity]string)}
++	reader := privatePhaseReader{seen: make(map[privatePhaseIdentity]string), frame: frame}
+ 	value := reader.read(reflect.ValueOf(object), path, "", 0)
+ 	return value, reader.gaps
+ }
+@@ -68,6 +68,84 @@
+ 	gaps   []string
+ 	nodes  int
+ 	slices []privatePhaseSlice
++	frame  int
++}
++
++type privateNumericSemantics uint8
++
++const (
++	privateNumericUnknown privateNumericSemantics = iota
++	privateNumericCounter
++	privateNumericStats
++	privateNumericFrameDeadlineExclusive
++	privateNumericFrameDeadlineInclusive
++)
++
++func sourceHostPrivateNumericSemantics(name string) privateNumericSemantics {
++	switch name {
++	case "github.com/genshinsim/gcsim/internal/characters/aino.char.c1Buff", "github.com/genshinsim/gcsim/internal/characters/barbara.char.c2buff", "github.com/genshinsim/gcsim/internal/characters/chiori.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/clorinde.char.a4bonus",
++		"github.com/genshinsim/gcsim/internal/characters/columbina.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/columbina.char.c2Buff", "github.com/genshinsim/gcsim/internal/characters/columbina.char.c2LBBuff", "github.com/genshinsim/gcsim/internal/characters/columbina.char.c2LCBuff",
++		"github.com/genshinsim/gcsim/internal/characters/columbina.char.c2LCrBuff", "github.com/genshinsim/gcsim/internal/characters/columbina.char.c6Buff", "github.com/genshinsim/gcsim/internal/characters/dahlia.char.attackSpeedBuff", "github.com/genshinsim/gcsim/internal/characters/diluc.char.a4buff",
++		"github.com/genshinsim/gcsim/internal/characters/diluc.char.c2buff", "github.com/genshinsim/gcsim/internal/characters/diluc.char.c4buff", "github.com/genshinsim/gcsim/internal/characters/diona.char.c6buff", "github.com/genshinsim/gcsim/internal/characters/durin.char.c2Buff",
++		"github.com/genshinsim/gcsim/internal/characters/escoffier.char.c1Buff", "github.com/genshinsim/gcsim/internal/characters/eula.char.c1buff", "github.com/genshinsim/gcsim/internal/characters/furina.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/furina.char.burstBuff",
++		"github.com/genshinsim/gcsim/internal/characters/gorou.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/gorou.char.c6Buff", "github.com/genshinsim/gcsim/internal/characters/gorou.char.gorouBuff", "github.com/genshinsim/gcsim/internal/characters/heizou.char.a4Buff",
++		"github.com/genshinsim/gcsim/internal/characters/heizou.char.c1buff", "github.com/genshinsim/gcsim/internal/characters/hutao.char.a1buff", "github.com/genshinsim/gcsim/internal/characters/hutao.char.a4buff", "github.com/genshinsim/gcsim/internal/characters/hutao.char.c4buff",
++		"github.com/genshinsim/gcsim/internal/characters/hutao.char.c6buff", "github.com/genshinsim/gcsim/internal/characters/hutao.char.ppbuff", "github.com/genshinsim/gcsim/internal/characters/iansan.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/iansan.char.burstBuff",
++		"github.com/genshinsim/gcsim/internal/characters/iansan.char.c6Buff", "github.com/genshinsim/gcsim/internal/characters/jahoda.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/jahoda.char.c6Buff", "github.com/genshinsim/gcsim/internal/characters/jean.char.c2buff",
++		"github.com/genshinsim/gcsim/internal/characters/kazuha.char.c2buff", "github.com/genshinsim/gcsim/internal/characters/keqing.char.a4buff", "github.com/genshinsim/gcsim/internal/characters/keqing.char.c4buff", "github.com/genshinsim/gcsim/internal/characters/keqing.char.c6buff",
++		"github.com/genshinsim/gcsim/internal/characters/kirara.char.c6Buff", "github.com/genshinsim/gcsim/internal/characters/lynette.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/mavuika.char.a4buff", "github.com/genshinsim/gcsim/internal/characters/mavuika.char.c1buff",
++		"github.com/genshinsim/gcsim/internal/characters/mika.char.c6buff", "github.com/genshinsim/gcsim/internal/characters/mika.char.skillbuff", "github.com/genshinsim/gcsim/internal/characters/mizuki.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/mizuki.char.c2Buff",
++		"github.com/genshinsim/gcsim/internal/characters/mizuki.char.c6Buff", "github.com/genshinsim/gcsim/internal/characters/mona.char.a4Stats", "github.com/genshinsim/gcsim/internal/characters/nahida.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/nahida.char.a4Buff",
++		"github.com/genshinsim/gcsim/internal/characters/nahida.char.c4Buff", "github.com/genshinsim/gcsim/internal/characters/nahida.char.pyroBurstBuff", "github.com/genshinsim/gcsim/internal/characters/neuvillette.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/nicole.char.a1Buff",
++		"github.com/genshinsim/gcsim/internal/characters/nicole.char.c2Buff", "github.com/genshinsim/gcsim/internal/characters/nicole.char.skillBuff", "github.com/genshinsim/gcsim/internal/characters/noelle.char.burstBuff", "github.com/genshinsim/gcsim/internal/characters/ororon.char.c2Bonus",
++		"github.com/genshinsim/gcsim/internal/characters/ororon.char.c6bonus", "github.com/genshinsim/gcsim/internal/characters/prune.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/prune.char.c2Buff", "github.com/genshinsim/gcsim/internal/characters/prune.char.c6Buff",
++		"github.com/genshinsim/gcsim/internal/characters/prune.char.hexSelfBuff", "github.com/genshinsim/gcsim/internal/characters/prune.char.hexTeamBuff", "github.com/genshinsim/gcsim/internal/characters/raiden.char.a4Stats", "github.com/genshinsim/gcsim/internal/characters/razor.char.a4Bonus",
++		"github.com/genshinsim/gcsim/internal/characters/razor.char.c1bonus", "github.com/genshinsim/gcsim/internal/characters/razor.char.c2bonus", "github.com/genshinsim/gcsim/internal/characters/sara.char.c6buff", "github.com/genshinsim/gcsim/internal/characters/sethos.char.c4Buff",
++		"github.com/genshinsim/gcsim/internal/characters/shenhe.char.burstBuff", "github.com/genshinsim/gcsim/internal/characters/shenhe.char.c2buff", "github.com/genshinsim/gcsim/internal/characters/shenhe.char.skillBuff", "github.com/genshinsim/gcsim/internal/characters/skirk.char.c2Atk",
++		"github.com/genshinsim/gcsim/internal/characters/sucrose.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/sucrose.char.a4Buff", "github.com/genshinsim/gcsim/internal/characters/sucrose.char.c6buff", "github.com/genshinsim/gcsim/internal/characters/sucrose.char.hexereiBuffBurst",
++		"github.com/genshinsim/gcsim/internal/characters/sucrose.char.hexereiBuffSkill", "github.com/genshinsim/gcsim/internal/characters/thoma.char.c6buff", "github.com/genshinsim/gcsim/internal/characters/venti.char.c4bonus", "github.com/genshinsim/gcsim/internal/characters/xiao.char.a4buff",
++		"github.com/genshinsim/gcsim/internal/characters/xinyan.char.c2Buff", "github.com/genshinsim/gcsim/internal/characters/yaemiko.char.c4buff", "github.com/genshinsim/gcsim/internal/characters/yanfei.char.a1Buff", "github.com/genshinsim/gcsim/internal/characters/yanfei.char.burstBuff",
++		"github.com/genshinsim/gcsim/internal/characters/yelan.char.a4buff", "github.com/genshinsim/gcsim/internal/characters/yoimiya.char.a4Bonus", "github.com/genshinsim/gcsim/internal/characters/yunjin.char.c4bonus", "github.com/genshinsim/gcsim/internal/characters/yunjin.char.c6bonus":
++		return privateNumericStats
++	case "github.com/genshinsim/gcsim/internal/characters/albedo.char.c2stacks", "github.com/genshinsim/gcsim/internal/characters/alhaitham.char.mirrorCount", "github.com/genshinsim/gcsim/internal/characters/aloy.char.coils", "github.com/genshinsim/gcsim/internal/characters/ayato.char.stacks",
++		"github.com/genshinsim/gcsim/internal/characters/barbara.char.a4extendCount", "github.com/genshinsim/gcsim/internal/characters/candace.char.waveCount", "github.com/genshinsim/gcsim/internal/characters/charlotte.char.c2Hits", "github.com/genshinsim/gcsim/internal/characters/charlotte.char.markCount",
++		"github.com/genshinsim/gcsim/internal/characters/chasca.char.bulletsCharged", "github.com/genshinsim/gcsim/internal/characters/chevreuse.char.c4ShotsLeft", "github.com/genshinsim/gcsim/internal/characters/chiori.char.a1AttackCount", "github.com/genshinsim/gcsim/internal/characters/chiori.char.c4AttackCount",
++		"github.com/genshinsim/gcsim/internal/characters/citlali.char.numStellarBlades", "github.com/genshinsim/gcsim/internal/characters/clorinde.char.c6Stacks", "github.com/genshinsim/gcsim/internal/characters/clorinde.char.normalSCounter", "github.com/genshinsim/gcsim/internal/characters/collei.char.burstExtendCount",
++		"github.com/genshinsim/gcsim/internal/characters/columbina.char.a4MoondewCount", "github.com/genshinsim/gcsim/internal/characters/cyno.char.burstExtension", "github.com/genshinsim/gcsim/internal/characters/cyno.char.c2Stacks", "github.com/genshinsim/gcsim/internal/characters/cyno.char.c4Counter",
++		"github.com/genshinsim/gcsim/internal/characters/cyno.char.c6Stacks", "github.com/genshinsim/gcsim/internal/characters/cyno.char.normalBCounter", "github.com/genshinsim/gcsim/internal/characters/dahlia.char.benisonGenStackLimit", "github.com/genshinsim/gcsim/internal/characters/dahlia.char.currentBenisonStacks",
++		"github.com/genshinsim/gcsim/internal/characters/dahlia.char.normalAttackCount", "github.com/genshinsim/gcsim/internal/characters/dehya.char.burstCounter", "github.com/genshinsim/gcsim/internal/characters/dehya.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/diluc.char.c2stack",
++		"github.com/genshinsim/gcsim/internal/characters/diluc.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/diluc.char.eCounter", "github.com/genshinsim/gcsim/internal/characters/dori.char.afterCount", "github.com/genshinsim/gcsim/internal/characters/durin.char.a4stacks",
++		"github.com/genshinsim/gcsim/internal/characters/emilie.char.c6Scents", "github.com/genshinsim/gcsim/internal/characters/escoffier.char.a4HydroCryoCount", "github.com/genshinsim/gcsim/internal/characters/escoffier.char.c2Count", "github.com/genshinsim/gcsim/internal/characters/escoffier.char.c4Count",
++		"github.com/genshinsim/gcsim/internal/characters/escoffier.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/eula.char.burstCounter", "github.com/genshinsim/gcsim/internal/characters/eula.char.grimheartStacks", "github.com/genshinsim/gcsim/internal/characters/faruzan.char.hurricaneCount",
++		"github.com/genshinsim/gcsim/internal/characters/freminet.char.c4Stacks", "github.com/genshinsim/gcsim/internal/characters/freminet.char.c6Stacks", "github.com/genshinsim/gcsim/internal/characters/freminet.char.skillStacks", "github.com/genshinsim/gcsim/internal/characters/furina.char.c6Count",
++		"github.com/genshinsim/gcsim/internal/characters/gorou.char.c2Extension", "github.com/genshinsim/gcsim/internal/characters/gorou.char.geoCharCount", "github.com/genshinsim/gcsim/internal/characters/heizou.char.burstTaggedCount", "github.com/genshinsim/gcsim/internal/characters/heizou.char.decStack",
++		"github.com/genshinsim/gcsim/internal/characters/hutao.char.burstHealCount", "github.com/genshinsim/gcsim/internal/characters/iansan.char.c4Stacks", "github.com/genshinsim/gcsim/internal/characters/ifa.char.sedationMarkCounter", "github.com/genshinsim/gcsim/internal/characters/itto.char.a1Stacks",
++		"github.com/genshinsim/gcsim/internal/characters/itto.char.c2GeoMemberCount", "github.com/genshinsim/gcsim/internal/characters/itto.char.stacksConsumed", "github.com/genshinsim/gcsim/internal/characters/jahoda.char.flaskGauge", "github.com/genshinsim/gcsim/internal/characters/jahoda.char.robotCount",
++		"github.com/genshinsim/gcsim/internal/characters/kaeya.char.c2ProcCount", "github.com/genshinsim/gcsim/internal/characters/kaveh.char.a4Stacks", "github.com/genshinsim/gcsim/internal/characters/kinich.char.normalSCounter", "github.com/genshinsim/gcsim/internal/characters/kirara.char.a1Stacks",
++		"github.com/genshinsim/gcsim/internal/characters/kirara.char.cardamoms", "github.com/genshinsim/gcsim/internal/characters/lauma.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/layla.char.a1Stack", "github.com/genshinsim/gcsim/internal/characters/lisa.char.previousDischargeCount", "github.com/genshinsim/gcsim/internal/characters/lyney.char.c2Stacks",
++		"github.com/genshinsim/gcsim/internal/characters/lyney.char.propSurplusStacks", "github.com/genshinsim/gcsim/internal/characters/mavuika.char.a4stacks", "github.com/genshinsim/gcsim/internal/characters/mika.char.c4Count", "github.com/genshinsim/gcsim/internal/characters/mika.char.maxDetectorStacks",
++		"github.com/genshinsim/gcsim/internal/characters/mizuki.char.c4EnergyGenerationsRemaining", "github.com/genshinsim/gcsim/internal/characters/mizuki.char.dreamDrifterExtensionsRemaining", "github.com/genshinsim/gcsim/internal/characters/mizuki.char.particleGenerationsRemaining", "github.com/genshinsim/gcsim/internal/characters/mona.char.astralGlowStacks",
++		"github.com/genshinsim/gcsim/internal/characters/mualani.char.a1Count", "github.com/genshinsim/gcsim/internal/characters/nahida.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/nahida.char.electroCount", "github.com/genshinsim/gcsim/internal/characters/nahida.char.hydroCount",
++		"github.com/genshinsim/gcsim/internal/characters/nahida.char.markCount", "github.com/genshinsim/gcsim/internal/characters/nahida.char.pyroCount", "github.com/genshinsim/gcsim/internal/characters/navia.char.shrapnel", "github.com/genshinsim/gcsim/internal/characters/nicole.char.projections",
++		"github.com/genshinsim/gcsim/internal/characters/noelle.char.a4Counter", "github.com/genshinsim/gcsim/internal/characters/odette.char.a1StacksSelf", "github.com/genshinsim/gcsim/internal/characters/prune.char.c2BonusHits", "github.com/genshinsim/gcsim/internal/characters/qiqi.char.c6Stacks",
++		"github.com/genshinsim/gcsim/internal/characters/raiden.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/raiden.char.restoreCount", "github.com/genshinsim/gcsim/internal/characters/razor.char.sigils", "github.com/genshinsim/gcsim/internal/characters/sayu.char.c2BonusTicks",
++		"github.com/genshinsim/gcsim/internal/characters/sethos.char.a4Count", "github.com/genshinsim/gcsim/internal/characters/shenhe.char.c4count", "github.com/genshinsim/gcsim/internal/characters/sigewinne.char.bubbleHitLimit", "github.com/genshinsim/gcsim/internal/characters/sigewinne.char.currentBubbleTier",
++		"github.com/genshinsim/gcsim/internal/characters/skirk.char.a1PauseSSStacks", "github.com/genshinsim/gcsim/internal/characters/skirk.char.burstCount", "github.com/genshinsim/gcsim/internal/characters/sucrose.char.c4Count", "github.com/genshinsim/gcsim/internal/characters/thoma.char.a1Stack",
++		"github.com/genshinsim/gcsim/internal/characters/varka.char.fourWindsCDStacks", "github.com/genshinsim/gcsim/internal/characters/varka.char.fourWindsChargesAva", "github.com/genshinsim/gcsim/internal/characters/varka.char.fourWindsChargesStarted", "github.com/genshinsim/gcsim/internal/characters/wanderer.char.c6Count",
++		"github.com/genshinsim/gcsim/internal/characters/wanderer.char.maxSkydwellerPoints", "github.com/genshinsim/gcsim/internal/characters/wanderer.char.skydwellerPoints", "github.com/genshinsim/gcsim/internal/characters/wriothesley.char.a4Stack", "github.com/genshinsim/gcsim/internal/characters/xianyun.char.adeptalAssistStacks",
++		"github.com/genshinsim/gcsim/internal/characters/xianyun.char.skillCounter", "github.com/genshinsim/gcsim/internal/characters/xiao.char.a4stacks", "github.com/genshinsim/gcsim/internal/characters/xiao.char.c6Count", "github.com/genshinsim/gcsim/internal/characters/xilonen.char.samplersConverted",
++		"github.com/genshinsim/gcsim/internal/characters/xingqiu.char.burstCounter", "github.com/genshinsim/gcsim/internal/characters/xinyan.char.shieldLevel2Requirement", "github.com/genshinsim/gcsim/internal/characters/xinyan.char.shieldLevel3Requirement", "github.com/genshinsim/gcsim/internal/characters/yanfei.char.sealCount",
++		"github.com/genshinsim/gcsim/internal/characters/yaoyao.char.numYueguiJumping", "github.com/genshinsim/gcsim/internal/characters/yelan.char.c4count", "github.com/genshinsim/gcsim/internal/characters/yelan.char.c6count", "github.com/genshinsim/gcsim/internal/characters/yoimiya.char.a1Stacks",
++		"github.com/genshinsim/gcsim/internal/characters/yunjin.char.partyElementalTypes", "github.com/genshinsim/gcsim/internal/characters/zhongli.char.steleCount":
++		return privateNumericCounter
++	case "github.com/genshinsim/gcsim/internal/characters/aloy.char.coilICDExpiry", "github.com/genshinsim/gcsim/internal/characters/barbara.char.c6icd", "github.com/genshinsim/gcsim/internal/characters/ganyu.char.a1Expiry", "github.com/genshinsim/gcsim/internal/characters/kaeya.char.c4icd",
++		"github.com/genshinsim/gcsim/internal/characters/lisa.char.c6icd", "github.com/genshinsim/gcsim/internal/characters/raiden.char.c6ICD", "github.com/genshinsim/gcsim/internal/characters/raiden.char.eyeICD", "github.com/genshinsim/gcsim/internal/characters/yelan.char.c2icd":
++		return privateNumericFrameDeadlineExclusive
++	case "github.com/genshinsim/gcsim/internal/characters/raiden.char.restoreICD":
++		return privateNumericFrameDeadlineInclusive
++	default:
++		return privateNumericUnknown
++	}
+ }
+ 
+ type privatePhaseIdentity struct {
+@@ -97,7 +175,8 @@
+ 	if reference, shared := r.sharedReference(v, path); shared {
+ 		return reference
+ 	}
+-	if sourceHostUnreviewedNumericField(fieldName, v.Kind()) {
++	numericSemantics := sourceHostPrivateNumericSemantics(fieldName)
++	if numericSemantics == privateNumericUnknown && sourceHostUnreviewedNumericField(fieldName, v.Kind()) {
+ 		// A reflected number could be an absolute native frame stamp. Its
+ 		// raw equality across two different frames is not repeat proof.
+ 		r.gap(path, "private numeric clock semantics have not been reviewed")
+@@ -106,6 +185,21 @@
+ 	case reflect.Bool:
+ 		return v.Bool()
+ 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
++		if numericSemantics == privateNumericFrameDeadlineExclusive || numericSemantics == privateNumericFrameDeadlineInclusive {
++			deadline := v.Int()
++			remaining := deadline - int64(r.frame)
++			inclusive := numericSemantics == privateNumericFrameDeadlineInclusive
++			active := deadline > int64(r.frame)
++			boundary := "exclusive"
++			if inclusive {
++				active = deadline >= int64(r.frame)
++				boundary = "inclusive"
++			}
++			if !active {
++				remaining = 0
++			}
++			return map[string]any{"type": "frameDeadline", "active": active, "boundary": boundary, "remainingFrames": remaining}
++		}
+ 		return map[string]any{"type": v.Type().String(), "value": v.Int()}
+ 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+ 		return map[string]any{"type": v.Type().String(), "value": v.Uint()}
+@@ -195,7 +289,7 @@
+ 		}
+ 		items := make([]any, v.Len())
+ 		for i := 0; i < v.Len(); i++ {
+-			items[i] = r.read(v.Index(i), fmt.Sprintf("%s[%d]", path, i), "", depth+1)
++			items[i] = r.read(v.Index(i), fmt.Sprintf("%s[%d]", path, i), fieldName, depth+1)
+ 		}
+ 		state := map[string]any{"type": v.Type().String(), "items": items}
+ 		if v.Kind() == reflect.Slice {
+--- a/pkg/core/player/character/sourcehost_phase_state.go
++++ b/pkg/core/player/character/sourcehost_phase_state.go
+@@ -150,18 +150,18 @@
+ 	}
+ 	// Each retained implementation object is read without invoking its
+ 	// gameplay methods. Any unsupported private field remains an explicit gap.
+-	concreteState, concreteGaps := sourceHostPrivatePhaseState(c.Character, fmt.Sprintf("character[%d].concrete", c.index))
++	concreteState, concreteGaps := sourceHostPrivatePhaseState(c.Character, fmt.Sprintf("character[%d].concrete", c.index), *c.f)
+ 	state["concreteImplementation"] = concreteState
+ 	gaps = append(gaps, concreteGaps...)
+ 	if c.Equip.Weapon != nil {
+-		weaponState, weaponGaps := sourceHostPrivatePhaseState(c.Equip.Weapon, fmt.Sprintf("character[%d].weapon", c.index))
++		weaponState, weaponGaps := sourceHostPrivatePhaseState(c.Equip.Weapon, fmt.Sprintf("character[%d].weapon", c.index), *c.f)
+ 		state["weaponImplementation"] = weaponState
+ 		gaps = append(gaps, weaponGaps...)
+ 	}
+ 	setPrivate := make(map[string]any, len(c.Equip.Sets))
+ 	for key, set := range c.Equip.Sets {
+ 		name := key.String()
+-		setState, setGaps := sourceHostPrivatePhaseState(set, fmt.Sprintf("character[%d].artifactSet[%s]", c.index, name))
++		setState, setGaps := sourceHostPrivatePhaseState(set, fmt.Sprintf("character[%d].artifactSet[%s]", c.index, name), *c.f)
+ 		setPrivate[name] = setState
+ 		gaps = append(gaps, setGaps...)
+ 	}

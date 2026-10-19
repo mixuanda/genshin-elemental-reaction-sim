@@ -1,0 +1,20 @@
+
+> genshin-dps-lab@1.0.0 source:build:stellar
+> node packages/source-host/stellar-overlay/build.mjs
+
+go: downloading google.golang.org/protobuf v1.34.2
+go: downloading github.com/aclements/go-moremath v0.0.0-20210112150236-f10218a38794
+go: downloading github.com/mailru/easyjson v0.7.7
+go: downloading github.com/tinylib/msgp v1.1.9
+go: downloading github.com/josharian/intern v1.0.0
+go: downloading github.com/philhofer/fwd v1.1.2
+/tmp/gidps-source-host-cache/modules/google.golang.org/protobuf@v1.34.2/internal/editiondefaults/defaults.go:11:12: pattern editions_defaults.binpb: no matching files found
+file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21
+  if (result.error || result.status !== 0) throw new Error(`${command} ${args.join(' ')} failed: ${result.error ?? result.stderr ?? result.status}`);
+                                                 ^
+
+Error: /tmp/gidps-source-host-cache/go1.27.1/darwin-arm64/go/bin/go build -mod=readonly -trimpath -buildvcs=false -o /tmp/gidps-source-host-cache/stellar-build-SYJYZC/dist/source-host.wasm ./cmd/sourcehost failed: 1
+    at run (file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:21:50)
+    at file:///Users/evan/Documents/gidps/packages/source-host/stellar-overlay/build.mjs:315:1
+
+Node.js v24.15.0

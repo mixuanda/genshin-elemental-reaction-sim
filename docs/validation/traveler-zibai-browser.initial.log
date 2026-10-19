@@ -1,0 +1,50 @@
+
+Running 1 test using 1 worker
+
+(node:56587) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/traveler-zibai-calculator.spec.ts:37:1 › a level-14 Traveler cast keeps actual contacts and its historical snapshot while an independent Zibai hit remains editable and restorable (1.4s)
+
+
+  1) [chromium] › apps/web/e2e/traveler-zibai-calculator.spec.ts:37:1 › a level-14 Traveler cast keeps actual contacts and its historical snapshot while an independent Zibai hit remains editable and restorable 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 0
+    + Received  + 2
+
+    @@ -17,10 +17,12 @@
+            "zibai-finite:zibai-finite-burst-c0-ordinary",
+            "zibai-finite:schedule",
+            "zibai-finite:zibai-finite-burst-c0-ordinary",
+            "zibai-finite:schedule",
+            "zibai-finite:zibai-finite-burst-c0-ordinary",
+    +       "zibai-finite:schedule",
+    +       "zibai-finite:zibai-finite-burst-c0-ordinary",
+          ],
+          "effectiveResistance": 0,
+          "element": "geo",
+          "groupMultiplier": 1,
+          "id": "zibai-finite-burst-c0-ordinary",
+
+      162 |   const restored = await audit(page);
+      163 |   expect(restored.document.gameContext!.zibaiFiniteCast).toEqual(final.document.gameContext!.zibaiFiniteCast);
+    > 164 |   expect(restored.document.hits).toEqual(final.document.hits);
+          |                                  ^
+      165 |   expect(restored.result.totals).toEqual(final.result.totals);
+      166 |   expect(restored.result.hits[0]!.trace).toEqual(final.result.hits[0]!.trace);
+      167 |   console.info("Traveler and Zibai calculator browser measurements", JSON.stringify({ travelerLv14Expected: travelerExpected,
+        at /Users/evan/Documents/gidps/apps/web/e2e/traveler-zibai-calculator.spec.ts:164:34
+
+    Error Context: test-results/traveler-zibai-calculator--33782-ins-editable-and-restorable-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/traveler-zibai-calculator--33782-ins-editable-and-restorable-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/traveler-zibai-calculator--33782-ins-editable-and-restorable-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/traveler-zibai-calculator.spec.ts:37:1 › a level-14 Traveler cast keeps actual contacts and its historical snapshot while an independent Zibai hit remains editable and restorable 

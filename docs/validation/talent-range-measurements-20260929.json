@@ -1,0 +1,531 @@
+{
+  "schemaVersion": "source-talent-range-measurements-v1",
+  "batch": "098",
+  "date": "2026-09-29",
+  "commands": {
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.15
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.776
+    },
+    "registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.15
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.451
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-talent-range.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.863
+    }
+  },
+  "inventory": {
+    "classic": {
+      "oldInstrumentedSites": 514,
+      "instrumentedSites": 588,
+      "addedRangeSites": 74,
+      "addedFromPreviouslySkippedLiterals": 44,
+      "addedAssignmentSites": 30,
+      "characterDirectoriesWithNewRangeSites": 54,
+      "oldSitesPreservedExactly": true,
+      "oldTableCount": 498,
+      "tableCount": 571,
+      "oldTablesPreservedExactly": true,
+      "skippedSites": 188,
+      "newSkippedCandidates": [
+        {
+          "siteId": "internal/characters/raiden/attack.go:144:13",
+          "path": "internal/characters/raiden/attack.go",
+          "line": 144,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "local AttackInfo.Mult has a later write in the function"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/anemo/charge.go:50:13",
+          "path": "internal/characters/traveler/common/anemo/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/dendro/charge.go:50:13",
+          "path": "internal/characters/traveler/common/dendro/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/electro/charge.go:50:13",
+          "path": "internal/characters/traveler/common/electro/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/geo/charge.go:50:13",
+          "path": "internal/characters/traveler/common/geo/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/hydro/charge.go:50:13",
+          "path": "internal/characters/traveler/common/hydro/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/pyro/charge.go:55:13",
+          "path": "internal/characters/traveler/common/pyro/charge.go",
+          "line": 55,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/xingqiu/skill.go:52:13",
+          "path": "internal/characters/xingqiu/skill.go",
+          "line": 52,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "local AttackInfo.Mult has a later write in the function"
+        }
+      ],
+      "addedRangeExpressions": {
+        "attack[c.NormalCounter]": 43,
+        "skill": 1,
+        "charge": 15,
+        "attack[counter]": 2,
+        "skillHold[level-1]": 1,
+        "attackB[c.normalBCounter]": 1,
+        "auto[c.NormalCounter]": 3,
+        "burstBlackInitial": 1,
+        "burstWhiteInitial": 1,
+        "skillBlack": 1,
+        "skillAttack[c.NormalCounter]": 1,
+        "skillCharge": 1,
+        "attackE[c.NormalCounter]": 1,
+        "eCharge": 1,
+        "ca": 1
+      },
+      "runtimeCalculations": 102,
+      "runtimeApplications": 38,
+      "runtimeRangeReads": [
+        {
+          "calculationId": 34,
+          "indices": [
+            0,
+            0,
+            0
+          ],
+          "rangeFrame": 173,
+          "coefficientFrame": 173,
+          "tableValue": 0.46612
+        },
+        {
+          "calculationId": 48,
+          "indices": [
+            1,
+            0,
+            0
+          ],
+          "rangeFrame": 197,
+          "coefficientFrame": 197,
+          "tableValue": 0.47644
+        },
+        {
+          "calculationId": 53,
+          "indices": [
+            2,
+            0,
+            0
+          ],
+          "rangeFrame": 227,
+          "coefficientFrame": 227,
+          "tableValue": 0.28552
+        },
+        {
+          "calculationId": 56,
+          "indices": [
+            2,
+            1,
+            0
+          ],
+          "rangeFrame": 227,
+          "coefficientFrame": 227,
+          "tableValue": 0.28552
+        }
+      ]
+    },
+    "stellar": {
+      "oldInstrumentedSites": 543,
+      "instrumentedSites": 620,
+      "addedRangeSites": 77,
+      "addedFromPreviouslySkippedLiterals": 47,
+      "addedAssignmentSites": 30,
+      "characterDirectoriesWithNewRangeSites": 57,
+      "oldSitesPreservedExactly": true,
+      "oldTableCount": 524,
+      "tableCount": 600,
+      "oldTablesPreservedExactly": true,
+      "skippedSites": 204,
+      "newSkippedCandidates": [
+        {
+          "siteId": "internal/characters/raiden/attack.go:142:13",
+          "path": "internal/characters/raiden/attack.go",
+          "line": 142,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "local AttackInfo.Mult has a later write in the function"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/anemo/charge.go:50:13",
+          "path": "internal/characters/traveler/common/anemo/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/cryo/charge.go:62:13",
+          "path": "internal/characters/traveler/common/cryo/charge.go",
+          "line": 62,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/dendro/charge.go:50:13",
+          "path": "internal/characters/traveler/common/dendro/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/electro/charge.go:50:13",
+          "path": "internal/characters/traveler/common/electro/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/geo/charge.go:50:13",
+          "path": "internal/characters/traveler/common/geo/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/hydro/charge.go:50:13",
+          "path": "internal/characters/traveler/common/hydro/charge.go",
+          "line": 50,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/traveler/common/pyro/charge.go:60:13",
+          "path": "internal/characters/traveler/common/pyro/charge.go",
+          "line": 60,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "range source is not a numeric generated table"
+        },
+        {
+          "siteId": "internal/characters/xingqiu/skill.go:52:13",
+          "path": "internal/characters/xingqiu/skill.go",
+          "line": 52,
+          "column": 13,
+          "tableId": "",
+          "indexExpressions": [],
+          "reason": "local AttackInfo.Mult has a later write in the function"
+        }
+      ],
+      "addedRangeExpressions": {
+        "attack[c.NormalCounter]": 46,
+        "skill": 1,
+        "charge": 15,
+        "attack[counter]": 2,
+        "skillHold[level-1]": 1,
+        "attackB[c.normalBCounter]": 1,
+        "auto[c.NormalCounter]": 3,
+        "burstBlackInitial": 1,
+        "burstWhiteInitial": 1,
+        "skillBlack": 1,
+        "skillAttack[c.NormalCounter]": 1,
+        "skillCharge": 1,
+        "attackE[c.NormalCounter]": 1,
+        "eCharge": 1,
+        "ca": 1
+      },
+      "runtimeCalculations": 102,
+      "runtimeApplications": 38,
+      "runtimeRangeReads": [
+        {
+          "calculationId": 34,
+          "indices": [
+            0,
+            0,
+            0
+          ],
+          "rangeFrame": 173,
+          "coefficientFrame": 173,
+          "tableValue": 0.46612
+        },
+        {
+          "calculationId": 48,
+          "indices": [
+            1,
+            0,
+            0
+          ],
+          "rangeFrame": 197,
+          "coefficientFrame": 197,
+          "tableValue": 0.47644
+        },
+        {
+          "calculationId": 53,
+          "indices": [
+            2,
+            0,
+            0
+          ],
+          "rangeFrame": 227,
+          "coefficientFrame": 227,
+          "tableValue": 0.28552
+        },
+        {
+          "calculationId": 56,
+          "indices": [
+            2,
+            1,
+            0
+          ],
+          "rangeFrame": 227,
+          "coefficientFrame": 227,
+          "tableValue": 0.28552
+        }
+      ]
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-talent-range-browser-v1",
+    "seed": "11",
+    "script": "options iteration=1 duration=12;\nxingqiu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxingqiu add weapon=\"favoniussword\" refine=1 lvl=90/90;\nxingqiu add stats atk=200 er=0.2 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive xingqiu;\nxingqiu burst;\nxingqiu skill;\nfischl skill;\nxingqiu attack:3;\nwait(300);\n",
+    "measurements": [
+      {
+        "lane": "classic",
+        "rawPath": "/tmp/gidps-talent-range-classic.json",
+        "baselinePath": "docs/validation/talent-index-classic-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "360f7bf0aa47426f2d0971ae698c516c528b7e04b1fd3d69a09984723f7232e5",
+          "wasmBytes": 44550197
+        },
+        "newRangeReadCount": 4,
+        "newRangeSites": [
+          "internal/characters/xingqiu/attack.go:60:13"
+        ],
+        "selectedApplicationId": 35,
+        "selectedCalculationId": 34,
+        "selectedActorKey": "xingqiu",
+        "selectedFrame": 183,
+        "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#attack",
+        "siteId": "internal/characters/xingqiu/attack.go:60:13",
+        "indices": [
+          0,
+          0,
+          0
+        ],
+        "rangeFrame": 173,
+        "coefficientReadFrame": 173,
+        "rangeSource": {
+          "path": "internal/characters/xingqiu/attack.go",
+          "expression": "attack[c.NormalCounter]",
+          "rowVariable": "mult",
+          "indexVariable": "i",
+          "indexPosition": 1,
+          "line": 57
+        },
+        "rangeIndexId": "sourceTalentTable.34.rangeIndex",
+        "rangeIndexFormula": "iterationIndex",
+        "rangeIndexSubstitution": "0",
+        "tableValue": 0.46612,
+        "originalScaling": 0.46612,
+        "lookupFormula": "attack[index0][index1][index2]",
+        "lookupSubstitution": "attack[0][0][0]",
+        "lookupNodeId": "sourceTalentTable.34",
+        "replayDifference": 0,
+        "editedScaling": 0.56612,
+        "editedDamageDifference": 45.61263905742001,
+        "nativeGameplayUnchanged": true,
+        "oldTableReadsPreserved": true,
+        "calculatorRoundtrip": true
+      },
+      {
+        "lane": "stellar",
+        "rawPath": "/tmp/gidps-talent-range-stellar.json",
+        "baselinePath": "docs/validation/talent-index-stellar-20260929.capture.json",
+        "executionArtifact": {
+          "wasmSha256": "1355449e73380a071ee8efa27d2fd5c49e3efd2a7eb101c687bc97717cf1db2b",
+          "wasmBytes": 67394215
+        },
+        "newRangeReadCount": 4,
+        "newRangeSites": [
+          "internal/characters/xingqiu/attack.go:59:13"
+        ],
+        "selectedApplicationId": 35,
+        "selectedCalculationId": 34,
+        "selectedActorKey": "xingqiu",
+        "selectedFrame": 183,
+        "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#attack",
+        "siteId": "internal/characters/xingqiu/attack.go:59:13",
+        "indices": [
+          0,
+          0,
+          0
+        ],
+        "rangeFrame": 173,
+        "coefficientReadFrame": 173,
+        "rangeSource": {
+          "path": "internal/characters/xingqiu/attack.go",
+          "expression": "attack[c.NormalCounter]",
+          "rowVariable": "mult",
+          "indexVariable": "i",
+          "indexPosition": 1,
+          "line": 56
+        },
+        "rangeIndexId": "sourceTalentTable.34.rangeIndex",
+        "rangeIndexFormula": "iterationIndex",
+        "rangeIndexSubstitution": "0",
+        "tableValue": 0.46612,
+        "originalScaling": 0.46612,
+        "lookupFormula": "attack[index0][index1][index2]",
+        "lookupSubstitution": "attack[0][0][0]",
+        "lookupNodeId": "sourceTalentTable.34",
+        "replayDifference": 0,
+        "editedScaling": 0.56612,
+        "editedDamageDifference": 45.61263905742001,
+        "nativeGameplayUnchanged": true,
+        "oldTableReadsPreserved": true,
+        "calculatorRoundtrip": true
+      }
+    ],
+    "pageErrors": [],
+    "scope": "One native XQ/Fischl run per pinned source; actual three-dimensional range lookup and independent scaling edit."
+  },
+  "artifacts": {
+    "classic.capture": {
+      "path": "docs/validation/talent-range-classic-20260929.capture.json",
+      "sha256": "ad1f2288f8a981c469ed88dffb82d56acad0c8d9de26f7a9a94e4381b5cc0b7d"
+    },
+    "classic.manifest": {
+      "path": "docs/validation/talent-range-classic-20260929.manifest.json",
+      "sha256": "435c7adb4e3310412acef47044e6ff6cb0a91b88213c4113724f41ab1f67bfcb"
+    },
+    "classic.instrumentation": {
+      "path": "docs/validation/talent-range-classic-20260929.instrumentation.json",
+      "sha256": "467d84e7e7dd2d52ba5a2262a69bc5752d7f3ba040eb788117005d8e54905d1c"
+    },
+    "classic.registry": {
+      "path": "docs/validation/talent-range-classic-20260929.registry.json",
+      "sha256": "b4e31f7bb5aef0372a937b75d87b10fb4350709ae6df1d553aaa4e4ac72fb7f5"
+    },
+    "stellar.capture": {
+      "path": "docs/validation/talent-range-stellar-20260929.capture.json",
+      "sha256": "cd1ccc354852e7f370e6944a9e48f09a15adef62d73dcbae149a54e7fb92af70"
+    },
+    "stellar.manifest": {
+      "path": "docs/validation/talent-range-stellar-20260929.manifest.json",
+      "sha256": "97280ff46b3b1d7f60e3242434dc7da3b6279c4cb9ad202dde21035913a57296"
+    },
+    "stellar.instrumentation": {
+      "path": "docs/validation/talent-range-stellar-20260929.instrumentation.json",
+      "sha256": "43f36d991f3507f69276e389884d15ebea27ecb774b2893b135bc8a30c1a0758"
+    },
+    "stellar.registry": {
+      "path": "docs/validation/talent-range-stellar-20260929.registry.json",
+      "sha256": "a872d9e103c4bbcd6765bad7fc5333a128df1f37bcaeb0725fb73478d6253c02"
+    },
+    "generatedRegistry": {
+      "path": "packages/sim-core/src/source-host-talent-tables.generated.ts",
+      "sha256": "2fd6d29c1166e9a86fa09136d6df0f46e1dd5365fb5e1954906b3a05544b3ecc"
+    }
+  },
+  "scope": {
+    "baseline": "097; preserve every old talent read and all calculation fields; remove only new talent reads absent in baseline for comparison",
+    "checks": "Two native builds, fixed registry generation, TypeScript/Web build, one two-lane browser case. No new unit tests or full matrix.",
+    "runtime": "One 12-second seed-11 scenario per source lane. Delayed callback range/scalar frame divergence is source-inspected and compiled, not observed in this run.",
+    "remaining": [
+      "dynamic action-state generation",
+      "ambiguous alias and nested range bindings",
+      "table writes or later Mult modifications",
+      "other complete skill/entity scopes and external evidence"
+    ],
+    "unchanged": [
+      "existing table values and read sites",
+      "coverage classifications",
+      "verified status",
+      "released and preview activation pointers"
+    ]
+  }
+}

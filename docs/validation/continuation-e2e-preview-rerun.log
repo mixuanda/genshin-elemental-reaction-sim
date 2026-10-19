@@ -1,0 +1,49 @@
+
+Running 2 tests using 1 worker
+
+(node:92336) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/continuation.spec.ts:107:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile (6.6s)
+(node:92362) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/continuation.spec.ts:161:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries (3.4s)
+
+
+  1) [chromium] › apps/web/e2e/continuation.spec.ts:107:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('#randomSeedInput')
+    Expected: "continuation-critical-20260923"
+    Received: "discard-this-seed"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" with timeout 5000ms
+      - waiting for locator('#randomSeedInput')
+        14 × locator resolved to <input id="randomSeedInput"/>
+           - unexpected value "discard-this-seed"
+
+
+      144 |   await page.locator("#randomSeedInput").fill("discard-this-seed");
+      145 |   await page.locator("#importInput").setInputFiles({ name: "saved-random-run.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(record)) });
+    > 146 |   await expect(page.locator("#randomSeedInput")).toHaveValue("continuation-critical-20260923");
+          |                                                  ^
+      147 |   await waitForSimulation(page);
+      148 |   await expect(page.locator("#critModeInput")).toHaveValue("seeded-random-v1");
+      149 |   await expect(page.locator("#iterationInput")).toHaveValue("2");
+        at /Users/evan/Documents/gidps/apps/web/e2e/continuation.spec.ts:146:50
+
+    Error Context: test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/continuation.spec.ts:107:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile 
+  1 passed (10.7s)

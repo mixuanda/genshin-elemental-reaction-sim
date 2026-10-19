@@ -1,0 +1,53 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-capture.ts(260,21): error TS2339: Property 'levelBaseDamage' does not exist on type '{ ruleId: "char-shield-baizhu-burst" | "char-shield-beidou-c1-burst" | "char-shield-beidou-skill" | "char-shield-bell" | "char-shield-candace-skill" | "char-shield-citlali-skill" | ... 35 more ... | "char-shield-zhongli-jade"; sourceHolderIndex: number; state: Record<...>; } | { ...; }'.
+  Property 'levelBaseDamage' does not exist on type '{ ruleId: "char-shield-baizhu-burst" | "char-shield-beidou-c1-burst" | "char-shield-beidou-skill" | "char-shield-bell" | "char-shield-candace-skill" | "char-shield-citlali-skill" | ... 35 more ... | "char-shield-zhongli-jade"; sourceHolderIndex: number; state: Record<...>; }'.
+packages/sim-core/src/source-host-capture.ts(260,77): error TS2339: Property 'characterLevel' does not exist on type '{ ruleId: "char-shield-baizhu-burst" | "char-shield-beidou-c1-burst" | "char-shield-beidou-skill" | "char-shield-bell" | "char-shield-candace-skill" | "char-shield-citlali-skill" | ... 35 more ... | "char-shield-zhongli-jade"; sourceHolderIndex: number; state: Record<...>; } | { ...; }'.
+  Property 'characterLevel' does not exist on type '{ ruleId: "char-shield-baizhu-burst" | "char-shield-beidou-c1-burst" | "char-shield-beidou-skill" | "char-shield-bell" | "char-shield-candace-skill" | "char-shield-citlali-skill" | ... 35 more ... | "char-shield-zhongli-jade"; sourceHolderIndex: number; state: Record<...>; }'.
+packages/sim-core/src/source-host-formula.ts(703,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(720,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(758,11): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(758,30): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(761,16): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(776,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(812,9): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(812,28): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(815,14): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(837,9): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(839,11): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(871,9): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(871,28): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(894,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(894,26): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(897,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(908,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(908,26): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(910,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(932,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(932,26): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(934,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(953,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(953,26): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(955,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(966,5): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(990,9): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(990,28): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(995,5): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(995,24): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1013,5): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1013,24): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1036,7): error TS2322: Type 'number | undefined' is not assignable to type 'number'.
+  Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/source-host-formula.ts(1049,5): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1051,7): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1055,5): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1055,24): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1073,24): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1073,67): error TS2454: Variable 'calculated' is used before being assigned.
+packages/sim-core/src/source-host-formula.ts(1073,115): error TS2454: Variable 'calculated' is used before being assigned.

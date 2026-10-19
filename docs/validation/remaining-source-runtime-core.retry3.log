@@ -1,0 +1,28 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts (2 tests | 1 failed | 1 skipped) 107ms
+     × applies Noblesse delay, Instructor and Gilded without rewriting snapshots, and Paradise only to an actual Bloom 107ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts > six fixed-source artifact buff lifecycles through real simulation hooks > applies Noblesse delay, Instructor and Gilded without rewriting snapshots, and Paradise only to an actual Bloom
+AssertionError: expected 6961.276273584905 to be close to 6961.276071509434, received difference is 0.00020207547095196787, but expected 5e-9
+ ❯ packages/sim-core/src/__tests__/artifact-buff-runtime.test.ts:92:36
+     90|     // Fixed level-90 base 1446.853458; Bloom ×2; live EM120; Paradise…
+     91|     // Ordinary +ATK and damage bonus do not enter this transformative…
+     92|     expect(blooms[0]!.finalDamage).toBeCloseTo(1446.853458 * 2 * (1 + …
+       |                                    ^
+     93|     assertReplay(result, blooms[0]!.id);
+     94|     assertReplay(result, hitAt(result, "g", 24).id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 1 passed | 1 skipped (3)
+   Start at  09:45:56
+   Duration  1.63s (transform 841ms, setup 0ms, import 1.28s, tests 243ms, environment 0ms)
+
+
+wall_seconds=2.089

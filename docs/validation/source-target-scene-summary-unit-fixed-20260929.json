@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-target-summary.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 0.582
+}

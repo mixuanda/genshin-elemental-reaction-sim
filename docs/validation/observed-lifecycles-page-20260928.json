@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/observed-lifecycles.spec.ts"
+  ],
+  "startedAt": "2026-09-28T12:44:51.378028+00:00",
+  "finishedAt": "2026-09-28T12:44:55.153610+00:00",
+  "wallSeconds": 3.775,
+  "exitCode": 0,
+  "log": "docs/validation/observed-lifecycles-page-20260928.log"
+}

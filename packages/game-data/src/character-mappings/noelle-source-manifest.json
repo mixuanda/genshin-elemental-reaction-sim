@@ -1,0 +1,438 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "recordedAt": "2026-09-23T13:02:04.452905+00:00",
+  "status": "source-backed-provisional",
+  "coefficientComparison": "12 complete fifteen-level coefficient vectors exactly equal to active catalog; no label or display-percent inference",
+  "verifiedUniqueCoefficientPositions": 180,
+  "maximumAbsoluteDifference": 0,
+  "coefficients": {
+    "attack1": {
+      "abilityKey": "combat1",
+      "parameterKey": "param1",
+      "values": [
+        0.7912,
+        0.8556,
+        0.92,
+        1.012,
+        1.0764,
+        1.15,
+        1.2512,
+        1.3524,
+        1.4536,
+        1.564,
+        1.6744,
+        1.7848,
+        1.8952,
+        2.0056,
+        2.116
+      ]
+    },
+    "attack2": {
+      "abilityKey": "combat1",
+      "parameterKey": "param2",
+      "values": [
+        0.73358,
+        0.79329,
+        0.853,
+        0.9383,
+        0.99801,
+        1.06625,
+        1.16008,
+        1.25391,
+        1.34774,
+        1.4501,
+        1.55246,
+        1.65482,
+        1.75718,
+        1.85954,
+        1.9619
+      ]
+    },
+    "attack3": {
+      "abilityKey": "combat1",
+      "parameterKey": "param3",
+      "values": [
+        0.86258,
+        0.93279,
+        1.003,
+        1.1033,
+        1.17351,
+        1.25375,
+        1.36408,
+        1.47441,
+        1.58474,
+        1.7051,
+        1.82546,
+        1.94582,
+        2.06618,
+        2.18654,
+        2.3069
+      ]
+    },
+    "attack4": {
+      "abilityKey": "combat1",
+      "parameterKey": "param4",
+      "values": [
+        1.13434,
+        1.22667,
+        1.319,
+        1.4509,
+        1.54323,
+        1.64875,
+        1.79384,
+        1.93893,
+        2.08402,
+        2.2423,
+        2.40058,
+        2.55886,
+        2.71714,
+        2.87542,
+        3.0337
+      ]
+    },
+    "charge": {
+      "abilityKey": "combat1",
+      "parameterKey": "param5",
+      "values": [
+        0.5074,
+        0.5487,
+        0.59,
+        0.649,
+        0.6903,
+        0.7375,
+        0.8024,
+        0.8673,
+        0.9322,
+        1.003,
+        1.0738,
+        1.1446,
+        1.2154,
+        1.2862,
+        1.357
+      ]
+    },
+    "chargeFinal": {
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "values": [
+        0.90472,
+        0.97836,
+        1.052,
+        1.1572,
+        1.23084,
+        1.315,
+        1.43072,
+        1.54644,
+        1.66216,
+        1.7884,
+        1.91464,
+        2.04088,
+        2.16712,
+        2.29336,
+        2.4196
+      ]
+    },
+    "collision": {
+      "abilityKey": "combat1",
+      "parameterKey": "param9",
+      "values": [
+        0.745878,
+        0.806589,
+        0.8673,
+        0.95403,
+        1.014741,
+        1.084125,
+        1.179528,
+        1.274931,
+        1.370334,
+        1.47441,
+        1.578486,
+        1.682562,
+        1.786638,
+        1.890714,
+        1.99479
+      ]
+    },
+    "lowPlunge": {
+      "abilityKey": "combat1",
+      "parameterKey": "param10",
+      "values": [
+        1.49144,
+        1.612836,
+        1.734233,
+        1.907656,
+        2.029052,
+        2.167791,
+        2.358556,
+        2.549322,
+        2.740087,
+        2.948195,
+        3.156303,
+        3.364411,
+        3.572519,
+        3.780627,
+        3.988735
+      ]
+    },
+    "highPlunge": {
+      "abilityKey": "combat1",
+      "parameterKey": "param11",
+      "values": [
+        1.862889,
+        2.01452,
+        2.16615,
+        2.382765,
+        2.534396,
+        2.707688,
+        2.945964,
+        3.184241,
+        3.422517,
+        3.682455,
+        3.942393,
+        4.202331,
+        4.462269,
+        4.722207,
+        4.982145
+      ]
+    },
+    "burst": {
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "values": [
+        0.672,
+        0.7224,
+        0.7728,
+        0.84,
+        0.8904,
+        0.9408,
+        1.008,
+        1.0752,
+        1.1424,
+        1.2096,
+        1.2768,
+        1.344,
+        1.428,
+        1.512,
+        1.596
+      ]
+    },
+    "burstskill": {
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        0.928,
+        0.9976,
+        1.0672,
+        1.16,
+        1.2296,
+        1.2992,
+        1.392,
+        1.4848,
+        1.5776,
+        1.6704,
+        1.7632,
+        1.856,
+        1.972,
+        2.088,
+        2.204
+      ]
+    },
+    "defconv": {
+      "abilityKey": "combat3",
+      "parameterKey": "param3",
+      "values": [
+        0.4,
+        0.43,
+        0.46,
+        0.5,
+        0.53,
+        0.56,
+        0.6,
+        0.64,
+        0.68,
+        0.72,
+        0.76,
+        0.8,
+        0.85,
+        0.9,
+        0.95
+      ]
+    }
+  },
+  "sourceFiles": [
+    {
+      "path": "internal/characters/noelle/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/attack.go",
+      "sha256": "45c5e467e50ed82d0ee64fae4dd425f90a86d82bae19ebc09f6592130f03b1b8",
+      "gitBlobSha": "d0a03d5fb48ee67feb9d54591ec03b25e8381594",
+      "bytes": 3227,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/attack.go"
+    },
+    {
+      "path": "internal/characters/noelle/charge.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/charge.go",
+      "sha256": "d8c5644f132963aebf6c14bc17a852512e0197b5ddaf75317c8bd6da0ba74302",
+      "gitBlobSha": "b6e157229a0d61dde603e9f65389f90586601d8c",
+      "bytes": 5615,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/charge.go"
+    },
+    {
+      "path": "internal/characters/noelle/plunge.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/plunge.go",
+      "sha256": "c3373a9f2e201acfd7395c44cb28c70721b115f228b7b3fc88b43ef61f492d71",
+      "gitBlobSha": "15a7ca025826defe5e7817db1c0748c761b4c2c6",
+      "bytes": 4892,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/plunge.go"
+    },
+    {
+      "path": "internal/characters/noelle/burst.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/burst.go",
+      "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d",
+      "gitBlobSha": "ae4b7433645675eecd49144e5e39384088562842",
+      "bytes": 3922,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/burst.go"
+    },
+    {
+      "path": "internal/characters/noelle/noelle.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/noelle.go",
+      "sha256": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+      "gitBlobSha": "ce31150fa480543faf8402480a87d4c60cce9449",
+      "bytes": 1536,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/noelle.go"
+    },
+    {
+      "path": "internal/characters/noelle/asc.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/asc.go",
+      "sha256": "f06a358e6610eec48279f7bf87247935f90142c425dac47dcb09a698f9750809",
+      "gitBlobSha": "1f996e569e9c91a6a4108c290943895c9a955552",
+      "bytes": 2185,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/asc.go"
+    },
+    {
+      "path": "internal/characters/noelle/cons.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/cons.go",
+      "sha256": "d150c8f57ba79f38d2289510fa61d471edaaf7f109fea1d9275034aab9a9cfd5",
+      "gitBlobSha": "c3ed3c37af705af60fb857be7af73ed909c7cf28",
+      "bytes": 870,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/cons.go"
+    },
+    {
+      "path": "internal/characters/noelle/zz_noelle.dm.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/zz_noelle.dm.go",
+      "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe",
+      "gitBlobSha": "b98c2ce27278494a2aeefddaf571119a47d59240",
+      "bytes": 5059,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/zz_noelle.dm.go"
+    },
+    {
+      "path": "internal/characters/noelle/config.yml",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/config.yml",
+      "sha256": "fa7936b527e52cc88b869d3075415e93c3e0bf922e0b6907c4dcaa9388c42ff3",
+      "gitBlobSha": "fc2584ff204e91480283b8323da795bfcc75a785",
+      "bytes": 5163,
+      "archivePath": "docs/cross-validation/noelle/source/internal/characters/noelle/config.yml"
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+      "bytes": 11023,
+      "archivePath": "docs/cross-validation/noelle/source/pkg/enemy/damage.go"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "bytes": 2255,
+      "archivePath": "docs/cross-validation/noelle/source/pkg/core/attack.go"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha": "33d47f781e040dbabac6622360272235888cf663",
+      "bytes": 3321,
+      "archivePath": "docs/cross-validation/noelle/source/pkg/core/player/character/stats.go"
+    }
+  ],
+  "sourceLocations": [
+    {
+      "path": "internal/characters/noelle/attack.go",
+      "startLine": 45,
+      "endLine": 90,
+      "meaning": "Normal tag, physical base, attack[normalCounter] coefficient, direct ATK scaling; Q only changes ICD/hitbox here."
+    },
+    {
+      "path": "internal/characters/noelle/charge.go",
+      "startLine": 163,
+      "endLine": 200,
+      "meaning": "Separate cyclic and finisher coefficients; AttackTagExtra means charged attacks, not untyped procs."
+    },
+    {
+      "path": "internal/characters/noelle/charge.go",
+      "startLine": 66,
+      "endLine": 160,
+      "meaning": "Stateful charge hold, cancellation/finisher scheduling, five-second timeout; cannot infer a complete hold from two components."
+    },
+    {
+      "path": "internal/characters/noelle/plunge.go",
+      "startLine": 60,
+      "endLine": 174,
+      "meaning": "Explicit airborne eligibility, optional collision, distinct low/high ATK hits."
+    },
+    {
+      "path": "internal/characters/noelle/noelle.go",
+      "startLine": 41,
+      "endLine": 57,
+      "meaning": "Active burst forces Geo on normal, charged, and plunge snapshot; no talent-multiplier replacement."
+    },
+    {
+      "path": "internal/characters/noelle/burst.go",
+      "startLine": 33,
+      "endLine": 81,
+      "meaning": "Source assumes immediate DEF snapshot and ATK conversion at cast; timing TODO retained, C6 adds0.5 to conversion coefficient."
+    },
+    {
+      "path": "internal/characters/noelle/burst.go",
+      "startLine": 87,
+      "endLine": 126,
+      "meaning": "Two Geo burst-tag hits at +24 and +65. Second label Skill does not change attack tag."
+    },
+    {
+      "path": "internal/characters/noelle/cons.go",
+      "startLine": 12,
+      "endLine": 34,
+      "meaning": "C2 adds15% charged damage and changes stamina; not part of C0 base mapping."
+    },
+    {
+      "path": "internal/characters/noelle/asc.go",
+      "startLine": 19,
+      "endLine": 81,
+      "meaning": "A1 shield and A4 E cooldown reduction have no direct base N/CA/plunge damage coefficient."
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "startLine": 122,
+      "endLine": 166,
+      "meaning": "TotalDef(true) sums BaseDEF*(1+non-Extra DEFP)+non-Extra flatDEF, excluding Extra StatMod values."
+    }
+  ],
+  "scope": [
+    "C0 ordinary base actions with burst inactive and no external infusion",
+    "Charged cyclic and finisher are selected components, not a full held charged attack",
+    "Low/high landing damage assumes no collision; collision remains separately selectable component",
+    "Q cast covers exactly two source ordinary burst-tag hits using explicit actual ATK context, not subsequent normal inputs or a complete burst uptime rotation"
+  ],
+  "unverified": [
+    "Source comments do not confirm exact Q snapshot and buff-start timings; fixed-source conditioned calculation only",
+    "No automatic charge duration/stamina/cancel execution or airborne state reconstruction",
+    "No automatic C4 shield explosion, C6 extension, healing or energy ledger from these standalone mappings"
+  ],
+  "qSnapshotSemantics": "Only TotalDef(true) is locked at Q input. Debug Snapshot return is discarded. Extra flat ATK conversion is active before both damage tasks, and each +24/+65 hit snapshots its then-current damage context independently."
+}

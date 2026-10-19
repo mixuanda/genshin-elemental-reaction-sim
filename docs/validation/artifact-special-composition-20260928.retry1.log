@@ -1,0 +1,57 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/artifact-special-composition.test.ts (1 test | 1 failed) 158ms
+   × composes ordinary artifact callbacks with a live Lunar contributor snapshot 157ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/artifact-special-composition.test.ts > composes ordinary artifact callbacks with a live Lunar contributor snapshot
+ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "hitResolutionLog",
+      0,
+      "eventPriority"
+    ],
+    "message": "frozen 1.47 hit resolution: eventPriority, eventSequence, and intraEventSequence must be present or omitted together"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "hitResolutionLog",
+      1,
+      "eventPriority"
+    ],
+    "message": "frozen 1.47 hit resolution: eventPriority, eventSequence, and intraEventSequence must be present or omitted together"
+  },
+  {
+    "code": "custom",
+    "path": [
+      "hitResolutionLog",
+      2,
+      "eventPriority"
+    ],
+    "message": "frozen 1.47 hit resolution: eventPriority, eventSequence, and intraEventSequence must be present or omitted together"
+  }
+]
+ ❯ packages/sim-core/src/__tests__/artifact-special-composition.test.ts:36:33
+     34|   );
+     35|   expect(result.lunarBloomDamage).toBeGreaterThan(baseline.lunarBloomD…
+     36|   expect(simulationResultSchema.parse(JSON.parse(JSON.stringify(result…
+       |                                 ^
+     37|
+     38|   delete config.artifactEventModel;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  01:53:40
+   Duration  1.40s (transform 903ms, setup 0ms, import 1.18s, tests 158ms, environment 0ms)
+
+
+exit_code=1
+elapsed_seconds=1.884

@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "111-private-source-audit-v1",
+  "sourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-mQeWE1/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-EtvdCO/source"
+  },
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceHashes": {
+    "internal/characters/dori/skill.go": {
+      "classic": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f",
+      "stellar": "5096db49f0f521eab88263bc6a642db165b6471a26d7d4805a0bc17b53752d3f"
+    },
+    "internal/characters/dori/dori.go": {
+      "classic": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3",
+      "stellar": "d7b2b28f1b38964c8510ba194534cad8ebc2adb53919ea8270a3cc8948010bb3"
+    },
+    "internal/characters/dori/cons.go": {
+      "classic": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada",
+      "stellar": "5e78dea26f4713d4c5f06e5f76fb9b8841113e2e43d66037ab5b36f3f5a4aada"
+    },
+    "internal/characters/dori/asc.go": {
+      "classic": "530f6a5ae4a82cfd1d45cbe2a1df4038cfc85c2f55d69a3e22d6bf42bf74a6cf",
+      "stellar": "05ae97282ac1801137d7fb3a7daaf7616f118a04b658c12b687e7f47f0c625fa"
+    },
+    "internal/characters/mika/skill.go": {
+      "classic": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e",
+      "stellar": "657b48eed6ca413adb23dcf4152b2155001d274543b6953395b35f8ba9aa024e"
+    },
+    "internal/characters/mika/mika.go": {
+      "classic": "9733fd689d94758b40f815291f764c78459d5ab3e542d1a3d7e94af6f129190c",
+      "stellar": "9733fd689d94758b40f815291f764c78459d5ab3e542d1a3d7e94af6f129190c"
+    },
+    "internal/characters/mika/cons.go": {
+      "classic": "224e1cca216ad66b4a6809a749eb47f20774e567affdbef0968c5a381b672ea6",
+      "stellar": "224e1cca216ad66b4a6809a749eb47f20774e567affdbef0968c5a381b672ea6"
+    },
+    "internal/characters/mika/asc.go": {
+      "classic": "c4cc33374a3360b18f7a84157696cbd1da6c0654b1bbbfe38e24381cb7031595",
+      "stellar": "c4cc33374a3360b18f7a84157696cbd1da6c0654b1bbbfe38e24381cb7031595"
+    },
+    "pkg/core/attack.go": {
+      "classic": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e",
+      "stellar": "73d9a656f47bdf64823b5f191e2eb1b2d813961a30d9374e44cb296b3d48b66e"
+    },
+    "pkg/core/combat/attack.go": {
+      "classic": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8",
+      "stellar": "4bc7bd71b6d8274c9c0ca299e82a04420e4313bcd61b44f877bae080e95731a8"
+    },
+    "pkg/enemy/attack.go": {
+      "classic": "14a6446978e2c68d324629374e0a1c1bbe521e10409fb976f4abd19cc202d815",
+      "stellar": "14a6446978e2c68d324629374e0a1c1bbe521e10409fb976f4abd19cc202d815"
+    },
+    "pkg/core/combat/select.go": {
+      "classic": "2ce4ba8da65d2b7f0d7b5c521267a78c4f3e5e504fcd4f571094fcaafcfbe550",
+      "stellar": "2ce4ba8da65d2b7f0d7b5c521267a78c4f3e5e504fcd4f571094fcaafcfbe550"
+    },
+    "pkg/core/combat/hitbox.go": {
+      "classic": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "stellar": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679"
+    }
+  },
+  "sourcePatch": {
+    "classic": {
+      "path": "/tmp/gidps-111-dori-mika-classic.patch",
+      "sha256": "8731567e4b595ede0018a551e3b8b09f909fb0c5ed03040ed08912432c72b099",
+      "basis": "/tmp/gidps-source-host-cache/build-GGPmB1/source",
+      "cleanPreInstrumentationDryRunExit": 0
+    },
+    "stellar": {
+      "path": "/tmp/gidps-111-dori-mika-stellar.patch",
+      "sha256": "8731567e4b595ede0018a551e3b8b09f909fb0c5ed03040ed08912432c72b099",
+      "basis": "/tmp/gidps-source-host-cache/build-GGPmB1/source",
+      "cleanPreInstrumentationDryRunExit": 0
+    }
+  },
+  "nativeReceiptContract": {
+    "hitCallbackBatches": "One per actually resolved enemy parent application, registered after damage calculation and before end-of-frame application task; pending until run, completed or blocked by hitConfirm policy. Missed geometry and skipped dead enemies have no batch.",
+    "hitCallbacks": "One per actually executed post-nil-filter callback slot. The callback may be labelled by source site and produce exact tagged child queue IDs. A blocked batch executes no callback slots.",
+    "damageZero": "Damage immunity alone still executes callbacks; hitConfirm blocked suppresses them.",
+    "copySemantics": "The parent AttackEvent is copied per target, while each callback closure done flag is shared by all copies from that queued parent attack.",
+    "originRule": "Tagged children are callback-origin descendants of the one audited parent attack; do not count unrelated event/weapon/artifact queues or later player actions."
+  },
+  "rows": [
+    {
+      "id": "dori-skill",
+      "characterKey": "dori",
+      "action": "skill",
+      "method": "Skill",
+      "label": "多莉 E：烦恼解决炮与售后服务弹",
+      "parent": {
+        "directRootCount": 1,
+        "source": "internal/characters/dori/skill.go:28-78",
+        "ability": "Troubleshooter Shot",
+        "snapshotDelay": 0,
+        "damageDelay": "skillRelease(16)+travel(default10)"
+      },
+      "callback": {
+        "siteId": "dori.skill.after-sales",
+        "callbackIndexAfterNilFiltering": 0,
+        "parentCallbackCountRule": {
+          "ascensionGte4": 3,
+          "otherwise": 2
+        },
+        "source": "internal/characters/dori/skill.go:97-130",
+        "guard": "closure done bool is false only for first actually executed slot0 across all hit targets; no explicit Target.Type guard, but current native callback dispatch here is enemy-only",
+        "firstProductiveFact": {
+          "name": "dori.skill.after-count",
+          "valueRule": {
+            "constellationGte1": 3,
+            "otherwise": 2
+          },
+          "recordedOnlyOnFirstProductiveCallback": true
+        },
+        "noOpLaterCallbacks": {
+          "queuedChildren": 0,
+          "factAbsent": true
+        }
+      },
+      "children": {
+        "emitSiteId": "dori.skill.after-sales-round",
+        "countOnFirstCallback": {
+          "constellationGte1": 3,
+          "otherwise": 2
+        },
+        "countOnLaterCallbacks": 0,
+        "snapshotDelay": 0,
+        "damageDelaysAfterCallbackFrame": [
+          46,
+          59,
+          59
+        ],
+        "ability": "After-Sales Service Round",
+        "pattern": "CircleHit around current player/primary target at callback time; actual geometry/target hits are source receipts",
+        "maxDepth": 1,
+        "source": "internal/characters/dori/skill.go:119-129"
+      },
+      "termination": "All parent checked-target outcomes and any registered end-of-frame batches must be terminal; first executed intrinsic callback must have its exact 2/3 child queues and all children dispatched with each checked target terminal. If all parent targets miss/die/are hitConfirm blocked, zero callback children are valid only with those explicit terminal receipts.",
+      "parameterAndConstellationGates": "travel changes parent delivery frame, not attack count; Init sets afterCount=2 and C1 increments once to3. All constellations included for intrinsic E damage. C6 infusion affects later normal/charged/plunge actions.",
+      "excluded": "A1 reduces E cooldown via reaction events; A4 callback restores energy; particle callback makes particles; C6 infusion and later normal attacks are separate; stellar A1 also listens to StellarConduct but adds no E damage root.",
+      "proposedRule": {
+        "directRootCount": 1,
+        "callbackSites": [
+          {
+            "siteId": "dori.skill.after-sales",
+            "slot": 0,
+            "parentRoot": "direct",
+            "requiredForEachExecutedSlot": true,
+            "productiveCalls": {
+              "min": 0,
+              "max": 1,
+              "exactlyOneIfAnyExecuted": true
+            },
+            "factKeyOnProductive": "dori.skill.after-count",
+            "emitSiteId": "dori.skill.after-sales-round",
+            "childCount": "fact, source-constrained to 2 if C0 and 3 if C1+",
+            "nonProductiveChildCount": 0,
+            "maxDepth": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "mika-skill",
+      "characterKey": "mika",
+      "action": "skill",
+      "method": "Skill",
+      "label": "米卡 E 长按：霜星矢与实际命中的霜星碎片",
+      "eligibility": {
+        "holdParam": "nonzero selects hold branch; zero press branch already source-audited in batch 110"
+      },
+      "parent": {
+        "directRootCount": 1,
+        "source": "internal/characters/mika/skill.go:51-139",
+        "ability": "Rimestar Flare",
+        "pattern": "NewSingleTargetHit(primaryTarget.Key())",
+        "snapshotDelay": 12,
+        "damageDelay": 15
+      },
+      "callback": {
+        "siteId": "mika.skill.rimestar-shards",
+        "callbackIndexAfterNilFiltering": 1,
+        "parentCallbackCountRule": {
+          "consGte2AndAscGte1": 3,
+          "otherwise": 2
+        },
+        "source": "internal/characters/mika/skill.go:163-221",
+        "guard": "Requires Enemy target, then shared done false. Root is single-target, so normally at most one executed slot1.",
+        "firstProductiveFact": {
+          "name": "mika.skill.selected-shards",
+          "valueRange": [
+            0,
+            3
+          ],
+          "recordedEvenWhenZeroSelected": true
+        },
+        "noOpLaterCallbacks": {
+          "queuedChildren": 0,
+          "factAbsent": true
+        }
+      },
+      "children": {
+        "emitSiteId": "mika.skill.rimestar-shard",
+        "countOnProductiveCallback": "exact actual len(RandomEnemiesWithinArea), 0..3; equals mika.skill.selected-shards fact",
+        "selection": "Alive enemies within player-centered radius10 area, excluding hit parent target; Rand.Perm selects up to3 without duplicates. Do not infer which targets or count from static declarations.",
+        "snapshotDelay": 0,
+        "damageDelayAfterCallbackFrame": 46,
+        "ability": "Rimestar Shard",
+        "pattern": "NewSingleTargetHit(actual selected enemy key)",
+        "maxDepth": 1,
+        "source": "internal/characters/mika/skill.go:183-221"
+      },
+      "termination": "Parent must be dispatched with terminal target outcome; if resolved and hitConfirm normal, slot1 must execute and have 0..3 child queues equal recorded selected count. If missed/dead/blocked, no shards only when explicit terminal receipts prove it. Every queued shard must dispatch and have terminal target outcomes.",
+      "parameterAndConstellationGates": "hold !=0 required; shard callback exists at all ascension/constellation levels. C2 plus A1 adds optional slot2 detector stack callback, not damage. If C<2 or A<1, slot2 is nil and removed.",
+      "excluded": "Mika press has separate batch110 fixed-one-root branch; particle callback at slot0 creates particles; each shard optional A1 callback adds Detector stack, C2 adds stack on parent, A4 event subscription adds stack, C6 modifies later physical damage. applyBuffs character task does not emit attacks.",
+      "proposedRule": {
+        "directRootCount": 1,
+        "when": "source condition p[\"hold\"] != 0, including negative nonzero; current 109 DSL compare lacks neq, so use a lazy if(eq hold 0) branch or extend compare neq before integration",
+        "callbackSites": [
+          {
+            "siteId": "mika.skill.rimestar-shards",
+            "slot": 1,
+            "parentRoot": "direct",
+            "requiredForEachExecutedSlot": true,
+            "productiveCalls": {
+              "min": 0,
+              "max": 1,
+              "exactlyOneIfAnyExecuted": true
+            },
+            "factKeyOnProductive": "mika.skill.selected-shards",
+            "emitSiteId": "mika.skill.rimestar-shard",
+            "childCount": "fact, integer 0..3",
+            "nonProductiveChildCount": 0,
+            "maxDepth": 1
+          }
+        ]
+      },
+      "integrationConstraint": "Existing batch110 mika-skill plan has when hold==0. Widen only with callback rule; implement exact native !=0 branch (not >0). Otherwise hold remains partial, never root-only complete."
+    }
+  ],
+  "remainingGaps": [
+    "This is source-audited simulator behavior, not a claim of game-measured hit rates or shard target probabilities.",
+    "No native build, tests, or UI acceptance were run in this audit."
+  ]
+}

@@ -1,0 +1,39 @@
+[WebServer] (node:29770) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:29771) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-healing-sources.spec.ts:85:1 › native HealInfo producers replay their complete causal source chain and restore one edited healing calculation (2.9s)
+
+
+  1) [chromium] › apps/web/e2e/source-healing-sources.spec.ts:85:1 › native HealInfo producers replay their complete causal source chain and restore one edited healing calculation 
+
+    Error: 治疗捕获缺少所用装备支持记录，或包含无关记录。
+
+       at ../../../packages/sim-core/src/source-host-healing-capture.ts:246
+
+      244 |   const requiredSupport = new Set(sourceHostArtifactSupportClosureIds([...sourceRows, ...rows].map(row => row.request), map));
+      245 |   if (requiredSupport.size !== map.size || [...requiredSupport].some(id => !map.has(id)))
+    > 246 |     throw new Error("治疗捕获缺少所用装备支持记录，或包含无关记录。");
+          |           ^
+      247 |   for (const row of rows) {
+      248 |     if (map.has(row.request.id)) throw new Error("治疗捕获存在重复计算 ID。");
+      249 |     map.set(row.request.id, row);
+        at replaySourceHostHealing (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-healing-capture.ts:246:11)
+        at captureSourceHostHealing (/Users/evan/Documents/gidps/packages/sim-core/src/source-host-healing-capture.ts:202:10)
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-healing-sources.spec.ts:128:23
+
+    Error Context: test-results/source-healing-sources-nat-54fa3--edited-healing-calculation-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-healing-sources-nat-54fa3--edited-healing-calculation-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-healing-sources-nat-54fa3--edited-healing-calculation-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-healing-sources.spec.ts:85:1 › native HealInfo producers replay their complete causal source chain and restore one edited healing calculation 

@@ -1,0 +1,1061 @@
+{
+  "task": "110-finite-expansion-batch-d",
+  "proposalOnly": true,
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "currentSourceRoots": {
+    "classic": "/tmp/gidps-source-host-cache/build-eA1lto/source",
+    "stellar": "/tmp/gidps-source-host-cache/stellar-build-DSx6Wz/source"
+  },
+  "preTalentContextCheckedAgainst": "/tmp/gidps-source-host-cache/build-GGPmB1/source; stellar raw a7 source also checked",
+  "patches": {
+    "classic": "/tmp/gidps-110-finite-batch-d-classic.patch",
+    "stellar": "/tmp/gidps-110-finite-batch-d-stellar.patch"
+  },
+  "patchSha256": {
+    "classic": "8cb44423f09e9317e4e55776a1ce46c87b11578e95a1bb9377ca45a76a87d36f",
+    "stellar": "e45632cc7fdc13ec2711fc25b9fa01a3698540d410159d6c0d69c24dca484a2b"
+  },
+  "patchScope": [
+    "Ayato Q",
+    "Arlecchino Q",
+    "Neuvillette Q",
+    "Dehya Q automatic chain",
+    "Yae Q native fact capture"
+  ],
+  "patchCheckResults": {
+    "classicCurrent": 0,
+    "stellarCurrent": 0,
+    "classicPreTalent": 0,
+    "stellarRawA7": 0
+  },
+  "rows": [
+    {
+      "id": "tartaglia-burst",
+      "label": "Childe Q",
+      "characterKey": "tartaglia",
+      "action": "burst",
+      "method": "Burst",
+      "status": "initial-hit-only-proposal; full-Q-blocked",
+      "directRootCount": 1,
+      "taskRootCount": {
+        "damageProducerTasksFromMethod": 0,
+        "otherMethodTasks": "1 ranged energy-refund task; 0 melee",
+        "eventDrivenTasks": "OnTargetDied may schedule Riptide Burst task, requiring event ownership"
+      },
+      "sites": [],
+      "sourceRefs": [
+        "tartaglia/burst.go:41-96",
+        "tartaglia/riptide.go:203-242",
+        "tartaglia/riptide.go:251-283",
+        "tartaglia/tartaglia.go:47-58"
+      ],
+      "audit": "Both stance branches queue one initial Hydro Q attack. Melee rtBlastCallback queues one Riptide Blast per eligible hit target; ranged applies Riptide. Init subscribes OnTargetDied and can queue Riptide Burst through a delayed task. C6 only sets melee burst reset state here.",
+      "gate": "Full Q needs hit-callback and death-event producer identity, including target Riptide/ICD state. A separately named initial-strike scope has directRootCount=1 and explicitly excludes Blast and later Riptide Burst.",
+      "auditedFiles": [
+        "burst.go",
+        "riptide.go",
+        "tartaglia.go",
+        "asc.go",
+        "skill.go"
+      ],
+      "sourcePath": "internal/characters/tartaglia/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/tartaglia/burst.go": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+          "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+          "internal/characters/tartaglia/tartaglia.go": "1eae9b4969dcb137e298816286c25aecaec60d635ea0b4e23c84050da9e11632",
+          "internal/characters/tartaglia/asc.go": "6f583b9d92f2e3930ae46cb03d6d85204fbbc18d29e64cecbcb0405be37337b4",
+          "internal/characters/tartaglia/skill.go": "901bd7bb32877e6b93862d057300ffd9b237cbee9f292c65907e418777b2b9a2"
+        },
+        "stellar": {
+          "internal/characters/tartaglia/burst.go": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+          "internal/characters/tartaglia/riptide.go": "f00f09da998b16efeef89a1d744bddc1a313db95282aaca8efd38329dc1c1a6f",
+          "internal/characters/tartaglia/tartaglia.go": "1eae9b4969dcb137e298816286c25aecaec60d635ea0b4e23c84050da9e11632",
+          "internal/characters/tartaglia/asc.go": "6f583b9d92f2e3930ae46cb03d6d85204fbbc18d29e64cecbcb0405be37337b4",
+          "internal/characters/tartaglia/skill.go": "901bd7bb32877e6b93862d057300ffd9b237cbee9f292c65907e418777b2b9a2"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b",
+        "stellar": "fbeddeef4df27c63d4961b28dd1bc827eb3ad278e57d0a252b75cda5293d1e5b"
+      }
+    },
+    {
+      "id": "ayato-burst",
+      "label": "Ayato Q",
+      "characterKey": "ayato",
+      "action": "burst",
+      "method": "Burst",
+      "status": "task-producer-ready",
+      "directRootCount": 0,
+      "taskRootCount": 37,
+      "expectedRootAttackCount": 36,
+      "sites": [
+        {
+          "siteId": "ayato.burst.snapshot",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            }
+          ]
+        },
+        {
+          "siteId": "ayato.burst.rain-tick",
+          "rootCount": 36,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "ayato/burst.go:48-49",
+        "ayato/burst.go:59-77",
+        "ayato/burst.go:80-121",
+        "ayato/cons.go:64-107"
+      ],
+      "audit": "Snapshot task once at burstStart=101; loop i=0..1079 step30 registers 36 rain tasks, each queues exactly one attack after target/random point selection. Same callback may add normal-attack buff. C4 attack-speed buff and C6 normal attack follow-ups do not create Q attack roots. No recursion.",
+      "gate": "Require all 37 tagged tasks completed and all 36 dispatches terminal; later normal attacks and buff durations excluded.",
+      "auditedFiles": [
+        "burst.go",
+        "ayato.go",
+        "asc.go",
+        "cons.go"
+      ],
+      "sourcePath": "internal/characters/ayato/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/ayato/burst.go": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b",
+          "internal/characters/ayato/ayato.go": "96ad97e299ed5bd54e30d49436d8ac99af6f3fffb896de64e43b40f21eb37259",
+          "internal/characters/ayato/asc.go": "55e9af3f30366353a5c42b2c081a0fb0c60421db0fe2df47f71700532578593b",
+          "internal/characters/ayato/cons.go": "8431fcd506755e2f15083352f4e027e3a0d0c4b81f15803930e36bbed7e4e144"
+        },
+        "stellar": {
+          "internal/characters/ayato/burst.go": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b",
+          "internal/characters/ayato/ayato.go": "96ad97e299ed5bd54e30d49436d8ac99af6f3fffb896de64e43b40f21eb37259",
+          "internal/characters/ayato/asc.go": "55e9af3f30366353a5c42b2c081a0fb0c60421db0fe2df47f71700532578593b",
+          "internal/characters/ayato/cons.go": "8431fcd506755e2f15083352f4e027e3a0d0c4b81f15803930e36bbed7e4e144"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b",
+        "stellar": "8798dc828a6248c20109727f32d97ecdc9bd2c007d9ff0e9e97b8e832da3459b"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 0,
+        "sites": [
+          {
+            "siteId": "ayato.burst.snapshot",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 0,
+                "children": {}
+              }
+            ]
+          },
+          {
+            "siteId": "ayato.burst.rain-tick",
+            "rootCount": 36,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 1,
+                "children": {}
+              }
+            ]
+          }
+        ],
+        "expectedRootAttackCount": 36
+      },
+      "nonDamageMethodTasks": "Snapshot task is included as zero-attack audited producer; no additional method task."
+    },
+    {
+      "id": "wanderer-burst",
+      "label": "Wanderer Q",
+      "characterKey": "wanderer",
+      "action": "burst",
+      "method": "Burst",
+      "status": "direct-ready-after-narrow-onRemoved-audit-flag",
+      "directRootCount": 5,
+      "taskRootCount": 0,
+      "expectedRootAttackCount": 5,
+      "sites": [],
+      "sourceRefs": [
+        "wanderer/burst.go:46-121",
+        "wanderer/skill.go:92-132",
+        "wanderer/cons.go:38-76",
+        "wanderer/cons.go:78-113"
+      ],
+      "audit": "Both normal and Windfavored branches directly queue five burst attacks. Windfavored C2 changes bonus only. C6 follow-up applies to Windfavored normal attacks, not Q. Windfavored OnRemoved only calls checkForSkillEnd on SwapState; skillEndRoutine deletes statuses/mods, resets points/CD and sets plunge availability; it queues no attack.",
+      "gate": "Existing analyzer blanket hasOnRemoved guard needs source-reviewed plan flag allowing this exact non-damage callback, while still rejecting animation queued callbacks. No extra method-entry count fact is needed.",
+      "proposedPlanFlag": {
+        "allowsOnRemoved": true,
+        "sourceReviewedMethod": "wanderer.Burst Windfavored OnRemoved -> checkForSkillEnd -> skillEndRoutine"
+      },
+      "auditedFiles": [
+        "burst.go",
+        "skill.go",
+        "wanderer.go",
+        "asc.go",
+        "cons.go"
+      ],
+      "sourcePath": "internal/characters/wanderer/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/wanderer/burst.go": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143",
+          "internal/characters/wanderer/skill.go": "229a90ec9f69887eb3b270cb217a02d197228a548d29b8cff0f989ae24b6d5d2",
+          "internal/characters/wanderer/wanderer.go": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd",
+          "internal/characters/wanderer/asc.go": "d9ce452cb6010019cc70b3fd3115df224931079903839e53a7930ad3a5cf725c",
+          "internal/characters/wanderer/cons.go": "b9eb5043728a3585f9eed1fd8033a47ce431add22f0cc847f7cfc08de11a996f"
+        },
+        "stellar": {
+          "internal/characters/wanderer/burst.go": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143",
+          "internal/characters/wanderer/skill.go": "229a90ec9f69887eb3b270cb217a02d197228a548d29b8cff0f989ae24b6d5d2",
+          "internal/characters/wanderer/wanderer.go": "26a1c05cebcfee499c417b63938112f4882f074a5770d82f919101cb8ba9c6cd",
+          "internal/characters/wanderer/asc.go": "d9ce452cb6010019cc70b3fd3115df224931079903839e53a7930ad3a5cf725c",
+          "internal/characters/wanderer/cons.go": "b9eb5043728a3585f9eed1fd8033a47ce431add22f0cc847f7cfc08de11a996f"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143",
+        "stellar": "5df3cbc1794dc8bae9ea4a29919c1b28cee2040aa0873f201c37a38662304143"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 5,
+        "expectedRootAttackCount": 5,
+        "sites": [],
+        "allowsOnRemoved": true,
+        "scopeNotes": [
+          "两分支均直接排队五次Q攻击；仅对审阅后的Windfavored非伤害OnRemoved放行。"
+        ]
+      },
+      "nonDamageMethodTasks": "No Q method task; Windfavored OnRemoved is a returned action callback, not task queue."
+    },
+    {
+      "id": "navia-skill",
+      "label": "Navia E",
+      "characterKey": "navia",
+      "action": "skill",
+      "method": "Skill",
+      "status": "needs-hit-callback-and-dynamic-target-count-ABI",
+      "directRootCount": 0,
+      "taskRootCount": {
+        "damageFiringTask": 1,
+        "holdCrystalPullTasks": "0 when hold<=0; otherwise ceil((40+min(hold,241)-12)/30), i.e. 1..9, all state-only"
+      },
+      "sites": [],
+      "sourceRefs": [
+        "navia/skill.go:108-221",
+        "navia/skill.go:298-343",
+        "navia/cons.go:35-75",
+        "navia/skill.go:346-382"
+      ],
+      "audit": "Firing task queues one shotgun attack per enemy in area (unbounded by current DSL), then surgingBlade may register one 28f parent and one 36f child to queue one Arkhe attack if ICD inactive. At C2, each shotgun hit callback can queue a Cannon Fire Support attack once per ICD. Hold crystal-pull tasks change shrapnel, not attack count. Stellar skill.go adds Lunar Crystallize shrapnel ICD, changing state; both lane hashes retained.",
+      "gate": "Need native firing-time enemy loop count/keys and per-hit callback producer receipt linked to triggering attack+target; one fixed source task graph cannot certify full E. Do not infer per-target count from included hits.",
+      "auditedFiles": [
+        "skill.go",
+        "navia.go",
+        "asc.go",
+        "cons.go"
+      ],
+      "sourcePath": "internal/characters/navia/skill.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/navia/skill.go": "fa8b519bc124b38cd62c90761ea661afec25346b3570ece1c41835d493c8f779",
+          "internal/characters/navia/navia.go": "24af3cc73d007991996a4def5578d1ef0b17e71d6945b007daf47e6957b84434",
+          "internal/characters/navia/asc.go": "8438c3007108ff33e98b3540b12de9537ae47e9e4ecaf826ced2f49cd90beeb8",
+          "internal/characters/navia/cons.go": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994"
+        },
+        "stellar": {
+          "internal/characters/navia/skill.go": "3f554782aefae16c0cfda2b421d616a73ef4635665dc2902fa9b476ae8a94889",
+          "internal/characters/navia/navia.go": "24af3cc73d007991996a4def5578d1ef0b17e71d6945b007daf47e6957b84434",
+          "internal/characters/navia/asc.go": "8438c3007108ff33e98b3540b12de9537ae47e9e4ecaf826ced2f49cd90beeb8",
+          "internal/characters/navia/cons.go": "3033bf92484071862a759716cb14dac7b95d159324d0802108bde49f32f67994"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "fa8b519bc124b38cd62c90761ea661afec25346b3570ece1c41835d493c8f779",
+        "stellar": "3f554782aefae16c0cfda2b421d616a73ef4635665dc2902fa9b476ae8a94889"
+      },
+      "runtimePaths": {
+        "firingTask": "one attack per EnemiesWithinArea candidate; shots per candidate = 5+2*min(shrapnel,3), but root attacks count enemy candidates, not pellets",
+        "surgingBlade": "if arkheICD inactive, one parent task at +28 creates one child at +36 which queues one attack; otherwise no tasks",
+        "c2": "at C>=2, each successful shotgun hit callback may queue one Cannon Fire Support attack if C2 ICD inactive; shared ICD restricts to one within its 0.25s window"
+      }
+    },
+    {
+      "id": "arlecchino-burst",
+      "label": "Arlecchino Q",
+      "characterKey": "arlecchino",
+      "action": "burst",
+      "method": "Burst",
+      "status": "task-producer-ready",
+      "directRootCount": 0,
+      "taskRootCount": 2,
+      "expectedRootAttackCount": null,
+      "sites": [
+        {
+          "siteId": "arlecchino.burst.absorb-directives",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {},
+              "when": {
+                "op": "and",
+                "terms": [
+                  {
+                    "op": "compare",
+                    "cmp": "gte",
+                    "left": {
+                      "op": "constellation"
+                    },
+                    "right": 2
+                  },
+                  {
+                    "op": "compare",
+                    "cmp": "gte",
+                    "left": {
+                      "op": "ascension"
+                    },
+                    "right": 1
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "arlecchino.burst.main-hit",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "arlecchino/burst.go:46-81",
+        "arlecchino/skill.go:145-184",
+        "arlecchino/cons.go:21-64",
+        "arlecchino/cons.go:80-90"
+      ],
+      "audit": "At 22f absorbDirectives loops marked enemies; C2 with A1 and level>=2 may queue Balemoon Bloodfire once because c2 ICD is set before another mark. At 110f main task reads current BoL/C6 flat bonus and queues exactly one Q attack. Cooldown-reset and heal tasks queue no damage; A1 OnTargetDied changes debt, not attack.",
+      "gate": "Absorb site attackCount=0 at C<2 or A<1; at C>=2 and A>=1 runtime 0/1. Main site always 1. C2 attack is part of Q absorption and must be included; per-enemy directive state need not be guessed because task receipt records actual branch.",
+      "auditedFiles": [
+        "burst.go",
+        "skill.go",
+        "cons.go",
+        "asc.go",
+        "arlecchino.go"
+      ],
+      "sourcePath": "internal/characters/arlecchino/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/arlecchino/burst.go": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723",
+          "internal/characters/arlecchino/skill.go": "c7d87b2463495acb371813da651bf8b83973cfe0b94adfdc56f8246a414a01ce",
+          "internal/characters/arlecchino/cons.go": "3568001196d8f08c7bc9acae8ff9556374256a13899c807a5e9a29be0263b189",
+          "internal/characters/arlecchino/asc.go": "0aa989b82969de8d520cb97937475b9a1b0a9b9615349367e3c8b8faad6d1335",
+          "internal/characters/arlecchino/arlecchino.go": "3e30c5d38f8af43261b8dd11095792f19332bc3a3c098ec3b88f8470ecc735d5"
+        },
+        "stellar": {
+          "internal/characters/arlecchino/burst.go": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723",
+          "internal/characters/arlecchino/skill.go": "c7d87b2463495acb371813da651bf8b83973cfe0b94adfdc56f8246a414a01ce",
+          "internal/characters/arlecchino/cons.go": "3568001196d8f08c7bc9acae8ff9556374256a13899c807a5e9a29be0263b189",
+          "internal/characters/arlecchino/asc.go": "0aa989b82969de8d520cb97937475b9a1b0a9b9615349367e3c8b8faad6d1335",
+          "internal/characters/arlecchino/arlecchino.go": "3e30c5d38f8af43261b8dd11095792f19332bc3a3c098ec3b88f8470ecc735d5"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723",
+        "stellar": "2cdc1a8014a00a65b7827ececbfdd5da8fa4b713e9d306c2e6c280f890c4f723"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 0,
+        "sites": [
+          {
+            "siteId": "arlecchino.burst.absorb-directives",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 0,
+                "children": {}
+              },
+              {
+                "attackCount": 1,
+                "children": {},
+                "when": {
+                  "op": "and",
+                  "terms": [
+                    {
+                      "op": "compare",
+                      "cmp": "gte",
+                      "left": {
+                        "op": "constellation"
+                      },
+                      "right": 2
+                    },
+                    {
+                      "op": "compare",
+                      "cmp": "gte",
+                      "left": {
+                        "op": "ascension"
+                      },
+                      "right": 1
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "siteId": "arlecchino.burst.main-hit",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 1,
+                "children": {}
+              }
+            ]
+          }
+        ],
+        "scopeNotes": [
+          "22帧指令吸收任务在C2且突破1后可能排队一次额外攻击；110帧主击任务必排一次，均取原生实际任务回执。"
+        ]
+      },
+      "nonDamageMethodTasks": "Cooldown-reset task at 107f and heal task at 123f are excluded state/healing tasks; two damage-capable tasks are included in site graph."
+    },
+    {
+      "id": "neuvillette-burst",
+      "label": "Neuvillette Q",
+      "characterKey": "neuvillette",
+      "action": "burst",
+      "method": "Burst",
+      "status": "task-producer-ready",
+      "directRootCount": 0,
+      "taskRootCount": 3,
+      "expectedRootAttackCount": 3,
+      "sites": [
+        {
+          "siteId": "neuvillette.burst.waterfall-tick",
+          "rootCount": 3,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "neuvillette/burst.go:80-153",
+        "neuvillette/charge.go:94-145",
+        "neuvillette/cons.go:86-146",
+        "internal/template/sourcewaterdroplet/sourcewaterdroplet.go:14-30"
+      ],
+      "audit": "Loop i=0,1,2 registers three character tasks; each spawns 3,2,1 sourcewater droplets respectively, then queues exactly one Hydro Q attack. Droplets are later consumed by separate charged actions and do not cause Q attack damage. C4/C6 droplet and charged-attack paths are not Q-root additions. sourcewaterdroplet gadget has no OnThink/OnKill/OnExpiry attack emission; HandleAttack returns zero.",
+      "gate": "Require all three tasks and attack dispatches complete; six droplet spawns and later charged action damage are excluded non-damage/independent components.",
+      "auditedFiles": [
+        "burst.go",
+        "neuvillette.go",
+        "asc.go",
+        "cons.go",
+        "charge.go"
+      ],
+      "sourcePath": "internal/characters/neuvillette/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/neuvillette/burst.go": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523",
+          "internal/characters/neuvillette/neuvillette.go": "07d00528b984dae4aa9bd5f94b0efc1bacc3dbed3cadaf98407d3b0918fd44ae",
+          "internal/characters/neuvillette/asc.go": "c233f84280774837d5e7bf0ee5d728d6208dd3a763f1a5a904d91d2deb0b2669",
+          "internal/characters/neuvillette/cons.go": "b51b21ddc5e11da7ec2054f6e31b80a95e033f77242c9ac899d24b3a04188437",
+          "internal/characters/neuvillette/charge.go": "ae7fe25e02b721c7ce763eabd74201da573f7c90c0b726206857a0c970797855",
+          "internal/template/sourcewaterdroplet/sourcewaterdroplet.go": "9b8c2a856bfb79ad1264e4a6c026e24848be13710c2b60dea7d7dd395c54f712"
+        },
+        "stellar": {
+          "internal/characters/neuvillette/burst.go": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523",
+          "internal/characters/neuvillette/neuvillette.go": "07d00528b984dae4aa9bd5f94b0efc1bacc3dbed3cadaf98407d3b0918fd44ae",
+          "internal/characters/neuvillette/asc.go": "c233f84280774837d5e7bf0ee5d728d6208dd3a763f1a5a904d91d2deb0b2669",
+          "internal/characters/neuvillette/cons.go": "b51b21ddc5e11da7ec2054f6e31b80a95e033f77242c9ac899d24b3a04188437",
+          "internal/characters/neuvillette/charge.go": "ae7fe25e02b721c7ce763eabd74201da573f7c90c0b726206857a0c970797855",
+          "internal/template/sourcewaterdroplet/sourcewaterdroplet.go": "9b8c2a856bfb79ad1264e4a6c026e24848be13710c2b60dea7d7dd395c54f712"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523",
+        "stellar": "fed6e229c580862170ae2af1d20aaf6a512024415ba0894eeecbae4a34eb7523"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 0,
+        "sites": [
+          {
+            "siteId": "neuvillette.burst.waterfall-tick",
+            "rootCount": 3,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 1,
+                "children": {}
+              }
+            ]
+          }
+        ],
+        "expectedRootAttackCount": 3
+      },
+      "nonDamageMethodTasks": "Each of three damage-capable tick tasks also spawns droplets; no extra Q task."
+    },
+    {
+      "id": "clorinde-burst",
+      "label": "Clorinde Q",
+      "characterKey": "clorinde",
+      "action": "burst",
+      "method": "Burst",
+      "status": "direct-ready",
+      "directRootCount": 5,
+      "taskRootCount": {
+        "damageProducerTasks": 0,
+        "otherMethodTasks": "one 13f BoL mutation character task"
+      },
+      "expectedRootAttackCount": 5,
+      "sites": [],
+      "sourceRefs": [
+        "clorinde/burst.go:35-77",
+        "clorinde/cons.go:34-80",
+        "clorinde/cons.go:87-185"
+      ],
+      "audit": "Five hitmarks 97/103/109/115/121 queue five direct Electro Q attacks. The 13f task changes BoL only. C1 and C6 extra attacks are Normal-tag skill-state hooks; C4 changes Q damage bonus but not count. No Q damage task recursion.",
+      "gate": "All integer method params ignored for count; five direct roots only. Later normal/skill-state hits excluded.",
+      "auditedFiles": [
+        "burst.go",
+        "clorinde.go",
+        "asc.go",
+        "cons.go"
+      ],
+      "sourcePath": "internal/characters/clorinde/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/clorinde/burst.go": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45",
+          "internal/characters/clorinde/clorinde.go": "6c36126087cd42e83eb4f3428eaf45f7362cdbbbf891f6784782d2bb4d11b4cb",
+          "internal/characters/clorinde/asc.go": "051919a96b24bf30cf4ef2e9a74b6a3fad9a09a4eb85899605998530744536a5",
+          "internal/characters/clorinde/cons.go": "c6222607c0c38cd696ccb0fc98d2470c71547669584242c6dea8b5d9ef47d6f2"
+        },
+        "stellar": {
+          "internal/characters/clorinde/burst.go": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45",
+          "internal/characters/clorinde/clorinde.go": "6c36126087cd42e83eb4f3428eaf45f7362cdbbbf891f6784782d2bb4d11b4cb",
+          "internal/characters/clorinde/asc.go": "d71a76d444086805c803d3ebbc477326c5de5fa0a4a05ebf2b05a7c484b11100",
+          "internal/characters/clorinde/cons.go": "c6222607c0c38cd696ccb0fc98d2470c71547669584242c6dea8b5d9ef47d6f2"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45",
+        "stellar": "5dbeddcc869231793f5c9e0e12c2090ba336bdd9aad1014f6769cbd017167e45"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 5,
+        "sites": [],
+        "expectedRootAttackCount": 5
+      }
+    },
+    {
+      "id": "yaemiko-burst",
+      "label": "Yae Q",
+      "characterKey": "yaemiko",
+      "action": "burst",
+      "method": "Burst",
+      "status": "ready-after-shared-ability-fact-ABI",
+      "directRootCount": "1 + native entry kitsuneCount (0..3)",
+      "taskRootCount": {
+        "damageProducerTasks": 0,
+        "otherMethodTasks": "C1 energy refund task per thunderbolt, 0..3 depending native entry kitsuneCount"
+      },
+      "expectedRootAttackCount": "same as directRootCount",
+      "sites": [],
+      "sourceRefs": [
+        "yaemiko/burst.go:28-50",
+        "yaemiko/kitsune.go:83-100 classic / 86-101 stellar",
+        "yaemiko/kitsune.go:179-187 classic / 177-192 stellar",
+        "yaemiko/yaemiko.go:35-60 stellar"
+      ],
+      "audit": "Burst queues one initial attack, then kitsuneBurst queues one thunderbolt per current totem, 0..3; C1 energy tasks and A1 cooldown do not attack. Classic consumes all totems, stellar Revelation may preserve them. Neither source reads invocation params to choose count.",
+      "gate": "Record `yae.burst.kitsune-count` once at the existing synchronous kitsuneBurst branch before popAllKitsune, reusing the exact count that controls the loop. Require native fact 0..3 on this invocation; DSL direct/expected=1+fact. Never derive count from params or emitted attacks.",
+      "proposedEntryFact": {
+        "schemaVersion": 1,
+        "key": "yae.burst.kitsune-count",
+        "type": "integer",
+        "min": 0,
+        "max": 3,
+        "captureSite": "inside kitsuneBurst, immediately before its loop and before popAllKitsune; synchronous within Burst invocation",
+        "classicRead": "count := c.sakuraLevelCheck(); same count drives loop",
+        "stellarRead": "count := c.kitsuneCount(); same count drives loop"
+      },
+      "auditedFiles": [
+        "burst.go",
+        "kitsune.go",
+        "yaemiko.go",
+        "asc.go",
+        "cons.go",
+        "stellar.go"
+      ],
+      "sourcePath": "internal/characters/yaemiko/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/yaemiko/burst.go": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+          "internal/characters/yaemiko/kitsune.go": "01ed80e6baa4ab01395845ec6f60d477ad8ae824eebfec87afb8d489a6296615",
+          "internal/characters/yaemiko/yaemiko.go": "f8854654aec8cefeb69e5092222357d369d4af15b9c07f509bd86aa7363a37db",
+          "internal/characters/yaemiko/asc.go": "609f05ac77362b0257e0b30ebdf95d5afce71ca7c34e0f8d7397a58f0d433977",
+          "internal/characters/yaemiko/cons.go": "b6181f8a33557099a5ec714195deb6512da13f9f6d6086d5f69b553bc706a05b",
+          "internal/characters/yaemiko/stellar.go": null
+        },
+        "stellar": {
+          "internal/characters/yaemiko/burst.go": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+          "internal/characters/yaemiko/kitsune.go": "b75982c82312d54658a371d04ee85d6e01ac5157e0b6fa2e489b3105fb2539c0",
+          "internal/characters/yaemiko/yaemiko.go": "3af3e69fce635090e4cad7a0ec7cc2b9a562e1323a3695509049f3937cbac002",
+          "internal/characters/yaemiko/asc.go": "7de0aa83c6a411c88a15b914d4dcf1212e53f790f0111f2ee5c5a1f5bea19028",
+          "internal/characters/yaemiko/cons.go": "25f668a0376885392279c6c658f60bd64f2d0753c32a7bcaf4b0638d6074d4ae",
+          "internal/characters/yaemiko/stellar.go": "7117963c4e511c4963cfc08dcd8b5187c4bb25fd0e8c598a04d17c2cf435746b"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f",
+        "stellar": "ed9040629fed4268c90b9d86ab510543cb1acd3303d0a38808a24684b541c98f"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": {
+          "op": "add",
+          "left": 1,
+          "right": {
+            "op": "fact",
+            "name": "yae.burst.kitsune-count"
+          }
+        },
+        "expectedRootAttackCount": {
+          "op": "add",
+          "left": 1,
+          "right": {
+            "op": "fact",
+            "name": "yae.burst.kitsune-count"
+          }
+        },
+        "requiredFacts": [
+          "yae.burst.kitsune-count"
+        ],
+        "sites": []
+      }
+    },
+    {
+      "id": "tighnari-burst",
+      "label": "Tighnari Q",
+      "characterKey": "tighnari",
+      "action": "burst",
+      "method": "Burst",
+      "status": "direct-ready",
+      "directRootCount": 12,
+      "taskRootCount": 0,
+      "expectedRootAttackCount": 12,
+      "sites": [],
+      "sourceRefs": [
+        "tighnari/burst.go:30-64",
+        "tighnari/cons.go:60-119"
+      ],
+      "audit": "Six Tanglevine Shaft attacks and six secondary shafts queue directly. travel integer changes delivery timing, not root count. C4 OnBurst/on-hit effects change EM, not attack count; A1/A4 and other constellations do not add Q attack callbacks.",
+      "gate": "Twelve direct roots; later charged attacks separate actions. Dispatch terminal receipts determine actual enemy applications.",
+      "auditedFiles": [
+        "burst.go",
+        "tighnari.go",
+        "asc.go",
+        "cons.go"
+      ],
+      "sourcePath": "internal/characters/tighnari/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/tighnari/burst.go": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+          "internal/characters/tighnari/tighnari.go": "4628dcd1f8e5e305009958fee926666011d3786e42c7b0f4bea9f7280f861895",
+          "internal/characters/tighnari/asc.go": "c328b1c8aae7c04de11a96bb3cfbaeeb69d37730ae2ad8b776480bef2ea5b299",
+          "internal/characters/tighnari/cons.go": "26cc61ef1de925a8194b8bde9b1b954f84e71b6d3856616585c51f33db736cdf"
+        },
+        "stellar": {
+          "internal/characters/tighnari/burst.go": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+          "internal/characters/tighnari/tighnari.go": "4628dcd1f8e5e305009958fee926666011d3786e42c7b0f4bea9f7280f861895",
+          "internal/characters/tighnari/asc.go": "c328b1c8aae7c04de11a96bb3cfbaeeb69d37730ae2ad8b776480bef2ea5b299",
+          "internal/characters/tighnari/cons.go": "26cc61ef1de925a8194b8bde9b1b954f84e71b6d3856616585c51f33db736cdf"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f",
+        "stellar": "3558508dc36e9ca5f81391a7ce4e7594135ff9c5abcbc46d207593753774b61f"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 12,
+        "sites": [],
+        "expectedRootAttackCount": 12
+      },
+      "nonDamageMethodTasks": "No Q method task."
+    },
+    {
+      "id": "lyney-burst",
+      "label": "Lyney Q",
+      "characterKey": "lyney",
+      "action": "burst",
+      "method": "Burst",
+      "status": "needs-dynamic-tick-count-and-gadget-lifecycle-ABI",
+      "directRootCount": 0,
+      "taskRootCount": {
+        "root": 1,
+        "children": "one first burstTick and one explosiveFirework registered by root; burstTick recursively registers one next tick while status active",
+        "other": "hat OnKill/OnExpiry is entity callback, not task root"
+      },
+      "sites": [],
+      "sourceRefs": [
+        "lyney/burst.go:38-128",
+        "lyney/grinmalkinhat.go:24-113",
+        "lyney/cons.go:56-118"
+      ],
+      "audit": "Parent task creates status and tick+explosion children. Each burstTick queues one attack per newly eligible enemy (unbounded by current DSL), then one next tick while status active. ExplosiveFirework queues one attack if status active and creates hat; Q-created hat OnKill/OnExpiry queues Pyrotechnic Strike, and killing an older hat can emit another. Early Skill action can end the Q state.",
+      "gate": "Need native per-tick enemy loop count/keys, hat spawn/kill/expiry ownership and status/action cancellation event receipts. Fixed tick scheduling alone cannot certify full Q.",
+      "auditedFiles": [
+        "burst.go",
+        "grinmalkinhat.go",
+        "lyney.go",
+        "asc.go",
+        "cons.go",
+        "skill.go"
+      ],
+      "sourcePath": "internal/characters/lyney/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/lyney/burst.go": "eeea04faa6f229ed76d30cf6b235785f0c8b1ee6d94fd270a491d60a8e3f62e0",
+          "internal/characters/lyney/grinmalkinhat.go": "0b747cad164c62848a4536c002882bcd51c8296d3a705c41e7ae816d7dc5308a",
+          "internal/characters/lyney/lyney.go": "d7a13739d51c3eb776a0a0b6cec1e4a6c99a691d3b62c37c7e4a37380693fa41",
+          "internal/characters/lyney/asc.go": "8ed2b62d805aa77f4e073c8c790f89f1c5cd7c5f563aad2bf9a6f13eb950c0aa",
+          "internal/characters/lyney/cons.go": "ea2704eed97af603af0651608d44e1094ca832a67a594ed904e9cf215f714fb5",
+          "internal/characters/lyney/skill.go": "e740c165a7b3a7ccc49a621a7db4db5a9f9c02958c8a536ddbdcd994160bb33b"
+        },
+        "stellar": {
+          "internal/characters/lyney/burst.go": "eeea04faa6f229ed76d30cf6b235785f0c8b1ee6d94fd270a491d60a8e3f62e0",
+          "internal/characters/lyney/grinmalkinhat.go": "0b747cad164c62848a4536c002882bcd51c8296d3a705c41e7ae816d7dc5308a",
+          "internal/characters/lyney/lyney.go": "b85b765a019ede11d2a8095e317348338016f48fecbfd002312ebcff4937d227",
+          "internal/characters/lyney/asc.go": "8ed2b62d805aa77f4e073c8c790f89f1c5cd7c5f563aad2bf9a6f13eb950c0aa",
+          "internal/characters/lyney/cons.go": "ea2704eed97af603af0651608d44e1094ca832a67a594ed904e9cf215f714fb5",
+          "internal/characters/lyney/skill.go": "e740c165a7b3a7ccc49a621a7db4db5a9f9c02958c8a536ddbdcd994160bb33b"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "eeea04faa6f229ed76d30cf6b235785f0c8b1ee6d94fd270a491d60a8e3f62e0",
+        "stellar": "eeea04faa6f229ed76d30cf6b235785f0c8b1ee6d94fd270a491d60a8e3f62e0"
+      }
+    },
+    {
+      "id": "dehya-skill",
+      "label": "Dehya E",
+      "characterKey": "dehya",
+      "action": "skill",
+      "method": "Skill",
+      "status": "needs-entry-state-and-OnEnemyDamage-ABI",
+      "directRootCount": "one in placement/recast branch, zero if Skill delegates to Q-mode UseBurstAction",
+      "taskRootCount": "field placement/pickup tasks are state-only; Q-mode delegates to separate burstPunch/burstKick tasks",
+      "sites": [],
+      "sourceRefs": [
+        "dehya/skill.go:53-127",
+        "dehya/skill.go:129-164",
+        "dehya/skill.go:167-229",
+        "dehya/burst.go:178-215"
+      ],
+      "audit": "Skill first calls UseBurstAction; while Burst/kick active this may queue a Q-mode punch/kick instead of E. Otherwise initial or recast E queues one direct attack and installs/moves field. Init skillDmgHook OnEnemyDamage may emit follow-up whenever an eligible later hit occurs within active field, subject to field/ICD/area/damage guards.",
+      "gate": "Full E needs native method-entry burstKey/kickKey/field/hasRecastSkill facts plus OnEnemyDamage trigger receipt linked to field instance. Initial placement hit may be a named partial scope only; do not call the field lifetime complete from a direct count of one.",
+      "auditedFiles": [
+        "skill.go",
+        "burst.go",
+        "dehya.go",
+        "asc.go",
+        "cons.go"
+      ],
+      "sourcePath": "internal/characters/dehya/skill.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/dehya/skill.go": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b",
+          "internal/characters/dehya/burst.go": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+          "internal/characters/dehya/dehya.go": "0ba3d2bc7e87c695265106ab4f7876545d9460b4f1ce77ea7b752ae016a5d895",
+          "internal/characters/dehya/asc.go": "b262dcf6c0fb40348a6b4aa24e452076efaec28e2a17ab2cfafb977a213a05ad",
+          "internal/characters/dehya/cons.go": "96fc1d9fe89ddbd45c3b8a5e53a30bd9cdac3d580238dca07ad2a251d50a9104"
+        },
+        "stellar": {
+          "internal/characters/dehya/skill.go": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b",
+          "internal/characters/dehya/burst.go": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+          "internal/characters/dehya/dehya.go": "df64e45a5baf2e632ea52fda6fef1ceff47ed09c702544810286b81b6c2cfa92",
+          "internal/characters/dehya/asc.go": "b262dcf6c0fb40348a6b4aa24e452076efaec28e2a17ab2cfafb977a213a05ad",
+          "internal/characters/dehya/cons.go": "96fc1d9fe89ddbd45c3b8a5e53a30bd9cdac3d580238dca07ad2a251d50a9104"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b",
+        "stellar": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b"
+      },
+      "nonDamageMethodTasks": "Initial/recast field placement one task, initial replacement optionally one pickup task; extra status deletion task may be registered by pickup."
+    },
+    {
+      "id": "dehya-burst",
+      "label": "Dehya Q automatic chain",
+      "characterKey": "dehya",
+      "action": "burst",
+      "method": "Burst",
+      "status": "task-producer-ready-scoped",
+      "directRootCount": 0,
+      "taskRootCount": 1,
+      "expectedRootAttackCount": null,
+      "sites": [
+        {
+          "siteId": "dehya.burst.initial-auto-punch",
+          "rootCount": 1,
+          "parentSites": [],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {
+                "dehya.burst.next-auto-punch": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "dehya.burst.next-auto-punch",
+          "rootCount": 0,
+          "parentSites": [
+            "dehya.burst.initial-auto-punch",
+            "dehya.burst.next-auto-punch"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {
+                "dehya.burst.next-auto-punch": 1
+              }
+            },
+            {
+              "attackCount": 1,
+              "children": {
+                "dehya.burst.auto-kick": 1
+              }
+            }
+          ]
+        },
+        {
+          "siteId": "dehya.burst.auto-kick",
+          "rootCount": 0,
+          "parentSites": [
+            "dehya.burst.next-auto-punch"
+          ],
+          "outcomes": [
+            {
+              "attackCount": 0,
+              "children": {}
+            },
+            {
+              "attackCount": 1,
+              "children": {}
+            }
+          ]
+        }
+      ],
+      "sourceRefs": [
+        "dehya/burst.go:35-59",
+        "dehya/burst.go:61-121",
+        "dehya/burst.go:121-175",
+        "dehya/burst.go:178-215",
+        "dehya/cons.go:169-194",
+        "dehya/dehya.go:65-89",
+        "dehya/jump.go:10-31",
+        "dehya/dash.go:14-40"
+      ],
+      "audit": "Burst schedules one initial task at 105f; it creates status and runs first punch. Successful punch queues one attack and either next auto punch (status still active) or kick (status ended); stale src or swapped actor returns with zero. Kick queues zero/one by same guards. C6 crit callback can extend burst status up to four 30f increments; no hardcoded punch count. Later N/E actions call UseBurstAction; Jump in a kick window queues a manual kick, otherwise cancels the burst and can increment burstHitSrc/queue manual Q-mode punches; these are independent action invocations and may stop the original auto chain. Dash only opens a 17f jump-to-kick window; the later Jump performs the manual kick/cancellation.",
+      "gate": "Scope is only Q-origin automatic punch chain and its final automatic kick; explicitly excludes later player N/E/J manual Q-mode actions and any E field proc. Require tagged chain completion; prohibit same-character Q overlap because burstHitSrc/burstCounter/status are shared. Runtime graph, no fabricated maxDepth or fixed hit count.",
+      "prohibitOverlappingInvocations": true,
+      "auditedFiles": [
+        "burst.go",
+        "skill.go",
+        "attack.go",
+        "dehya.go",
+        "asc.go",
+        "cons.go",
+        "jump.go",
+        "dash.go"
+      ],
+      "sourcePath": "internal/characters/dehya/burst.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/dehya/burst.go": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+          "internal/characters/dehya/skill.go": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b",
+          "internal/characters/dehya/attack.go": "8b5ce1f4988733cc86f1c6b6d1144ffc7492890d0d6b27071db1dc58876964f5",
+          "internal/characters/dehya/dehya.go": "0ba3d2bc7e87c695265106ab4f7876545d9460b4f1ce77ea7b752ae016a5d895",
+          "internal/characters/dehya/asc.go": "b262dcf6c0fb40348a6b4aa24e452076efaec28e2a17ab2cfafb977a213a05ad",
+          "internal/characters/dehya/cons.go": "96fc1d9fe89ddbd45c3b8a5e53a30bd9cdac3d580238dca07ad2a251d50a9104",
+          "internal/characters/dehya/jump.go": "12c7b412311c956f1d055347b5a240b8fffb1bd4c4f89292903e7ac331df12f2",
+          "internal/characters/dehya/dash.go": "e3c5b8503ba0e34f8fcbfe0a97d7eed8e6bfd0c50fbd7b9b663a122399387049"
+        },
+        "stellar": {
+          "internal/characters/dehya/burst.go": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+          "internal/characters/dehya/skill.go": "82cbba9c796774664e865957a356b5ea75ac722eb908e4a16acd88c74b8e9f0b",
+          "internal/characters/dehya/attack.go": "8b5ce1f4988733cc86f1c6b6d1144ffc7492890d0d6b27071db1dc58876964f5",
+          "internal/characters/dehya/dehya.go": "df64e45a5baf2e632ea52fda6fef1ceff47ed09c702544810286b81b6c2cfa92",
+          "internal/characters/dehya/asc.go": "b262dcf6c0fb40348a6b4aa24e452076efaec28e2a17ab2cfafb977a213a05ad",
+          "internal/characters/dehya/cons.go": "96fc1d9fe89ddbd45c3b8a5e53a30bd9cdac3d580238dca07ad2a251d50a9104",
+          "internal/characters/dehya/jump.go": "12c7b412311c956f1d055347b5a240b8fffb1bd4c4f89292903e7ac331df12f2",
+          "internal/characters/dehya/dash.go": "e3c5b8503ba0e34f8fcbfe0a97d7eed8e6bfd0c50fbd7b9b663a122399387049"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7",
+        "stellar": "833fc9a4009a301c3e258a30d33742f8de15cab2f67022dc32fb0bd5049e3bb7"
+      },
+      "proposedPlanDeclaration": {
+        "directRootCount": 0,
+        "sites": [
+          {
+            "siteId": "dehya.burst.initial-auto-punch",
+            "rootCount": 1,
+            "parentSites": [],
+            "outcomes": [
+              {
+                "attackCount": 0,
+                "children": {}
+              },
+              {
+                "attackCount": 1,
+                "children": {
+                  "dehya.burst.next-auto-punch": 1
+                }
+              }
+            ]
+          },
+          {
+            "siteId": "dehya.burst.next-auto-punch",
+            "rootCount": 0,
+            "parentSites": [
+              "dehya.burst.initial-auto-punch",
+              "dehya.burst.next-auto-punch"
+            ],
+            "outcomes": [
+              {
+                "attackCount": 0,
+                "children": {}
+              },
+              {
+                "attackCount": 1,
+                "children": {
+                  "dehya.burst.next-auto-punch": 1
+                }
+              },
+              {
+                "attackCount": 1,
+                "children": {
+                  "dehya.burst.auto-kick": 1
+                }
+              }
+            ]
+          },
+          {
+            "siteId": "dehya.burst.auto-kick",
+            "rootCount": 0,
+            "parentSites": [
+              "dehya.burst.next-auto-punch"
+            ],
+            "outcomes": [
+              {
+                "attackCount": 0,
+                "children": {}
+              },
+              {
+                "attackCount": 1,
+                "children": {}
+              }
+            ]
+          }
+        ],
+        "prohibitOverlappingInvocations": true,
+        "scopeNotes": [
+          "仅Q起始自动拳链与自动终踢；后续N/E/J输入的手动动作另算。src、前台和Q状态按原生运行时分支决定0/1及后继任务。"
+        ]
+      },
+      "nonDamageMethodTasks": "If an E field was active, pickUpField registers one status-deletion task; successful automatic kick may register one field-restoration task. Neither queues a Q attack."
+    },
+    {
+      "id": "baizhu-skill",
+      "label": "Baizhu E",
+      "characterKey": "baizhu",
+      "action": "skill",
+      "method": "Skill",
+      "status": "needs-hit-callback-and-C6-shield-ABI",
+      "directRootCount": 1,
+      "taskRootCount": 0,
+      "sites": [],
+      "sourceRefs": [
+        "baizhu/skill.go:32-106",
+        "baizhu/cons.go:25-66",
+        "baizhu/cons.go:121-134",
+        "baizhu/burst.go:124-163"
+      ],
+      "audit": "Initial direct Gossamer Sprite queues one attack. Its chain callback can queue next attack after each resolved enemy hit until count==3, or heal on no next target; callback has no once guard per multi-target dispatch. C2 OnEnemyDamage may queue Splice; C6 skill-hit callback summons shield whose later Spiritvein can attack.",
+      "gate": "Need hit-callback producer identity per parent attack/target, C2 event receipt, and C6 shield lifecycle ownership; a task-only graph or fixed 1..3 count would silently miss branches.",
+      "auditedFiles": [
+        "skill.go",
+        "baizhu.go",
+        "asc.go",
+        "cons.go",
+        "burst.go"
+      ],
+      "sourcePath": "internal/characters/baizhu/skill.go",
+      "sourceHashes": {
+        "classic": {
+          "internal/characters/baizhu/skill.go": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+          "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+          "internal/characters/baizhu/asc.go": "310880877ce51bc5588576f7b8379662a50531ee7cce682f953c388871d69071",
+          "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+          "internal/characters/baizhu/burst.go": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09"
+        },
+        "stellar": {
+          "internal/characters/baizhu/skill.go": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+          "internal/characters/baizhu/baizhu.go": "029779d8a4168711ed00d1b34ec522b8d6131c0cfa61c52b547e8fa4e467e03c",
+          "internal/characters/baizhu/asc.go": "310880877ce51bc5588576f7b8379662a50531ee7cce682f953c388871d69071",
+          "internal/characters/baizhu/cons.go": "e1b0548b6b55159261ecc2af8fa9a524db18430921cefb47a88f412bde6feb72",
+          "internal/characters/baizhu/burst.go": "42e4fa475c116141014b637ce9e38ef12f7962db123596bb4e790aea4b21ff09"
+        }
+      },
+      "methodSourceSha256": {
+        "classic": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb",
+        "stellar": "695d6454c94f05c8547c7f48fb597959c3ca2c33d27d54203fdcc8dfa466aedb"
+      },
+      "nonDamageMethodTasks": "Healing is scheduled by hit callback/skillHealing, not a direct damage producer from Skill method."
+    }
+  ],
+  "integrationBoundary": "No repository/cache edit, build or test was made. JSON is an audited proposal, not a registered or game-verified complete scope. Source hashes refer to exact current build files before batch-D patch; patch hunks use one-line context intentionally away from talent-read instrumentation.",
+  "sharedABIDependency": "Yae source hunk calls c.Core.SourceHost.RecordAbilityFact, supplied by concurrent shared ABI work; private patch is proposal and is text-applicable before that helper exists."
+}

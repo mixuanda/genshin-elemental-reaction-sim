@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts (3 tests | 1 failed | 2 skipped) 106ms
+     × rejects malformed/old or forged health state, and failed actions never enqueue healing 105ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > rejects malformed/old or forged health state, and failed actions never enqueue healing
+AssertionError: expected [Function] to throw an error
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:91:74
+     89|     expect(() => migrateConfig({ ...config, playerDamageModel: { mode:…
+     90|     expect(() => migrateConfig({ ...config, duration: 1.001 })).toThro…
+     91|     expect(() => simulate(config, { compatibilityMode: "legacy-v0.1" }…
+       |                                                                          ^
+     92|     const dynamic = structuredClone(config);
+     93|     dynamic.timeline!.abilities[0]!.buffs = [{ stat: "hpPct", value: 0…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 skipped (3)
+   Start at  02:35:02
+   Duration  902ms (transform 574ms, setup 0ms, import 741ms, tests 106ms, environment 0ms)
+

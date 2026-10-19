@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/source-host-weapon-formula.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.835,
+  "log": "docs/validation/source-finite-weapon-core-retry1-20260928.log"
+}

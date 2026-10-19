@@ -1,0 +1,140 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "weapon-proc:sequenceofsolitude:r1",
+  "label": "冷寂迸音 R1 · 独立物理追击",
+  "scope": "single-hit",
+  "characterLevel": 1,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 61.0994,
+      "hp": 864.6514380000001,
+      "def": 50.358,
+      "em": 0,
+      "critRate": 0,
+      "critDamage": 0.5,
+      "energyRecharge": 1
+    },
+    "source": "外部 gcsim b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541 未舍入追击 calc 面板，无重复武器属性"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "weapon-proc:sequenceofsolitude:r1:hit",
+      "label": "冷寂迸音 · 本次实际追击",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sequenceofsolitude.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ],
+      "dependencies": [
+        "weapon-proc-source:sequenceofsolitude"
+      ],
+      "kind": "ordinary",
+      "element": "physical",
+      "attackTag": "proc",
+      "terms": [
+        {
+          "stat": "hp",
+          "coefficient": 0.4
+        }
+      ],
+      "baseDamageFormula": {
+        "ruleId": "weapon-proc-sequenceofsolitude-r1-b4ae769",
+        "label": "触发时最大生命值 × R1 固定来源倍率（40%）",
+        "expression": {
+          "kind": "multiply",
+          "terms": [
+            {
+              "kind": "variable",
+              "key": "hp"
+            },
+            {
+              "kind": "variable",
+              "key": "weaponProcCoefficient"
+            }
+          ]
+        },
+        "inputs": [
+          {
+            "key": "weaponProcCoefficient",
+            "value": 0.4,
+            "unit": "ratio",
+            "meaningKey": "冷寂迸音 R1 追击倍率",
+            "origin": "source-table",
+            "allowedValues": [
+              0.4
+            ]
+          }
+        ],
+        "sourceRefs": [
+          "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go",
+          "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sequenceofsolitude.json",
+          "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+          "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+        ],
+        "requirements": {
+          "elements": [
+            "physical"
+          ],
+          "attackTags": [
+            "proc"
+          ]
+        }
+      },
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "none",
+      "reactionBonus": 0,
+      "groupMultiplier": 1,
+      "excludedModifiers": [
+        {
+          "label": "宿主命中伤害",
+          "reason": "这是一条独立武器追击，单独结算自己的暴击、防御与物理抗性，不加入宿主的基础伤害加算。"
+        },
+        {
+          "label": "普通攻击／战技／爆发专属增伤",
+          "reason": "武器追击标签为 proc，不继承宿主的攻击类型专属增伤。"
+        }
+      ]
+    }
+  ],
+  "selectedHitIds": [
+    "weapon-proc:sequenceofsolitude:r1:hit"
+  ],
+  "assumptions": [
+    "条件输入：本次武器追击已经真实触发并命中所填目标；本计算不证明触发次数、冷却可用、前台状态或自动轮转。",
+    "触发时最大生命值和暴击等使用实际追击取样面板；最终面板可编辑，不重复加入武器白值或副属性。",
+    "此HP追击来源要求持有者前台并命中敌人；以触发时最大生命值为基数，不取当前剩余生命。",
+    "范围追击这里只计算一个已知实际命中目标；不将单目标伤害乘未知敌人数，不认证范围或命中几何。",
+    "固定来源在伤害回调取样后 +1 帧排程，名义冷却 900 帧；此独立计算器不执行这些时钟或卡肉。",
+    "R1–R5倍率来自固定源码与目录。结果仍为来源条件数值，未经当前游戏实测；改精炼需由对应来源定义重新生成文档。"
+  ],
+  "dependencies": [
+    {
+      "id": "weapon-proc-source:sequenceofsolitude",
+      "status": "provisional",
+      "reason": "固定来源的独立追击公式；实际触发与目标命中为明确输入前提，不是自动触发认证。",
+      "sourceRefs": [
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go",
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sequenceofsolitude.json",
+        "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/SequenceOfSolitude/index.tsx",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+      ]
+    }
+  ],
+  "dataIdentity": {
+    "datasetId": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+    "gameVersion": "7.1",
+    "releaseStatus": "released",
+    "evidenceStatus": "provisional"
+  }
+}

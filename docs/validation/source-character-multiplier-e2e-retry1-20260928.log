@@ -1,0 +1,11 @@
+[WebServer] (node:7095) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:7096) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"runs":[{"lane":"classic","sourceCommit":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","wasmSha256":"36b665b3d3c19ae08e81f100d0b9bf165bb3d9170be0755a9a4ce60042489daa","applications":7,"calculations":70,"observedRules":{"char-mult-varka-a1-cache":1,"char-mult-heizou-skill-declension":1,"char-mult-heizou-skill-conviction":1,"char-mult-varka-skill-normal":3,"char-mult-navia-shotgun":1},"heizou":{"setId":7,"addId":8,"stacks":4,"priorMultiplier":4.5504,"multiplier":5.688,"applicationId":12,"replayDifference":0},"varka":{"cacheId":2,"consumerId":19,"producerFrame":0,"consumerFrame":278,"factor":1.4,"applicationId":22,"replayDifference":0},"navia":{"producerId":41,"hits":5,"multiplier":4.737600011765957,"applicationId":52,"replayDifference":0},"edit":{"calculationId":8,"scope":"formula-only","originalValue":5.688,"editedValue":5.837999999999999,"originalCaptureUnchanged":true}},{"lane":"stellar","sourceCommit":"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd","wasmSha256":"a39b750c5c6c19dea9a8bf0aab228f66ba32bdd5b751c8a69719cfcf8c140dbc","applications":7,"calculations":71,"observedRules":{"char-mult-varka-a1-cache":1,"char-mult-heizou-skill-declension":1,"char-mult-heizou-skill-conviction":1,"char-mult-varka-skill-normal":3,"char-mult-navia-shotgun":1},"heizou":{"setId":7,"addId":8,"stacks":4,"priorMultiplier":4.5504,"multiplier":5.688,"applicationId":12,"replayDifference":0},"varka":{"cacheId":2,"consumerId":19,"producerFrame":0,"consumerFrame":278,"factor":1.4,"applicationId":22,"replayDifference":0},"navia":{"producerId":41,"hits":5,"multiplier":4.737600011765957,"applicationId":53,"replayDifference":0}}],"pageErrors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-character-multiplier.spec.ts:61:1 › native character Mult set/add and cached helper multiplication replay through final damage (4.6s)
+
+  1 passed (5.5s)

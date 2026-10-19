@@ -1,0 +1,5 @@
+{
+  "animationFailure": "运行停止：source-host strict player not ready at frame 28 for noelle attack: player still in animation; cannot execute action",
+  "energyFailure": "运行停止：source-host strict action not ready at frame 1 for noelle burst: action is not ready yet; cannot be executed",
+  "pageErrors": []
+}

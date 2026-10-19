@@ -1,0 +1,125 @@
+--- a/pkg/core/player/shield/bonus.go
++++ b/pkg/core/player/shield/bonus.go
+@@ -1,6 +1,9 @@
+ package shield
+ 
+-import "github.com/genshinsim/gcsim/pkg/core/glog"
++import (
++	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/info"
++)
+ 
+ //nolint:revive // stat name should be at the front for readibility so cannot just strip Shield in the front, will be changed as part of mod rewrite someday
+ type ShieldBonusModFunc func() (float64, bool)
+@@ -12,21 +15,61 @@
+ 	Event  glog.Event
+ }
+ 
++// SourceHostBonusCallbacks records this getter without importing sourcehost.
++// BeginDamage/EndDamage scope the read around all shield applications of a hit.
++type SourceHostBonusCallbacks struct {
++	BeginDamage  func()
++	EndDamage    func()
++	NewRead      func() *info.SourceHostScalarRead
++	CompleteRead func(*info.SourceHostScalarRead)
++	BeginStep    func(*info.SourceHostScalarStep)
++	EndStep      func(*info.SourceHostScalarStep)
++}
++
+ // TODO: this probably should be affected by hitlag as well
+ func (h *Handler) ShieldBonus() float64 {
++	var read *info.SourceHostScalarRead
++	if h.SourceHostBonus.NewRead != nil {
++		read = h.SourceHostBonus.NewRead()
++	}
+ 	n := 0
+ 	amt := 0.0
+ 	for _, mod := range h.shieldBonusMods {
++		var step *info.SourceHostScalarStep
++		if read != nil {
++			step = &info.SourceHostScalarStep{
++				Index: len(read.Steps), Key: mod.Key, ExpiryBefore: mod.Expiry, ExpiryAfter: mod.Expiry,
++				AffectedByHitlag: false, Element: "", ClosureOpaque: true,
++				Before: amt, After: amt, Dependencies: []*info.SourceHostStatRead{},
++			}
++			read.Steps = append(read.Steps, step)
++		}
+ 		if mod.Expiry > *h.f || mod.Expiry == -1 {
++			if step != nil {
++				h.SourceHostBonus.BeginStep(step)
++			}
+ 			a, done := mod.Amount()
++			if step != nil {
++				h.SourceHostBonus.EndStep(step)
++			}
+ 			amt += a
++			if step != nil {
++				delta := a
++				step.Outcome, step.Delta, step.After = "applied", &delta, amt
++			}
+ 			if !done {
+ 				h.shieldBonusMods[n] = mod
+ 				n++
+ 			}
++		} else if step != nil {
++			step.Outcome = "expired"
+ 		}
+ 	}
+ 	h.shieldBonusMods = h.shieldBonusMods[:n]
++	if read != nil {
++		read.Sum, read.Output = amt, amt
++		h.SourceHostBonus.CompleteRead(read)
++	}
+ 	return amt
+ }
+ 
+--- a/pkg/core/player/shield/handler.go
++++ b/pkg/core/player/shield/handler.go
+@@ -16,9 +16,10 @@
+ 	events  event.Eventter
+ 	f       *int
+ 
+-	SourceHostDamage SourceHostDamageFunc
++	SourceHostDamage  SourceHostDamageFunc
+ 	SourceHostMinimum func(float64, float64) float64
+-	shieldBonusMods []shieldBonusMod
++	SourceHostBonus   SourceHostBonusCallbacks
++	shieldBonusMods   []shieldBonusMod
+ }
+ 
+ func New(f *int, log glog.Logger, events event.Eventter) *Handler {
+@@ -93,6 +94,10 @@
+ }
+ 
+ func (h *Handler) OnDamage(char, active int, dmg float64, ele attributes.Element) float64 {
++	if h.SourceHostBonus.BeginDamage != nil {
++		h.SourceHostBonus.BeginDamage()
++		defer h.SourceHostBonus.EndDamage()
++	}
+ 	// find shield bonuses
+ 	bonus := h.ShieldBonus()
+ 	mintaken := dmg // min of damage taken
+--- a/internal/artifacts/bolide/bolide.go
++++ b/internal/artifacts/bolide/bolide.go
+@@ -24,6 +24,9 @@
+ 	if count >= 2 {
+ 		// shield bonus always active
+ 		c.Player.Shields.AddShieldBonusMod("bolide-2pc", -1, func() (float64, bool) {
++			if c.SourceHost != nil {
++				return c.SourceHost.ArtifactScalar(char.Index(), "bolide-2pc-shield", nil, nil, c.SourceHost.CurrentPlayerAttackID), false
++			}
+ 			return 0.35, false
+ 		})
+ 	}
+--- a/internal/artifacts/tenacity/tenacity.go
++++ b/internal/artifacts/tenacity/tenacity.go
+@@ -79,6 +79,9 @@
+ 
+ 			// TODO: this needs to be affected by hitlag as well
+ 			s.core.Player.Shields.AddShieldBonusMod("tom-4pc", 180, func() (float64, bool) {
++				if s.core.SourceHost != nil {
++					return s.core.SourceHost.ArtifactScalar(char.Index(), "tenacity-4pc-shield", nil, nil, s.core.SourceHost.CurrentPlayerAttackID), false
++				}
+ 				return 0.30, false
+ 			})
+ 

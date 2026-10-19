@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.531,
+  "log": "docs/validation/calculator-aggregation-build-20260928.log"
+}

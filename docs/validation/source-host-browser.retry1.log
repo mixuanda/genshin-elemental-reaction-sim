@@ -1,0 +1,11 @@
+
+Running 1 test using 1 worker
+
+(node:80136) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"durationFrames":1440,"hits":27,"calculations":34,"kinds":["damage","additive-base","transformative-base"],"ampedHits":1,"totalDamage":33451.32354597975,"restoredEditable":"编辑后公式伤害：280.09202865019205","errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-host.spec.ts:5:1 › runs source lifecycle formula families through the Worker and restores an editable independent hit (1.2s)
+
+  1 passed (1.5s)
+
+WALL_SECONDS=2.005

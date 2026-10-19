@@ -1,12 +1,24 @@
+import { hasEnemyShieldDamageLink } from "./enemy-shield-integrity";
+import { replayTargetHealth } from "./target-health-integrity";
 import type { RefinementCtx } from "zod";
+import { actionEventPriority, actionOwner, isActionHitSelected } from "./action-condition-integrity";
+import { resolveTimelineCommandAbilityId } from "./source-normal-chain";
+import { replayPeriodicEntities } from "./periodic-entity-replay";
+import { replayArtifactEvents } from "./artifact-event-replay";
 import type {
   AbilityDefinition,
   ActionDefinition,
   BuffDefinition,
+  DamageEvent,
+  EnergyCostLogEntry,
   EnergyEvent,
   FrameBuffDefinition,
   FrameEnergyEvent,
   FrameParticleDefinition,
+  FavoniusLogEntry,
+  NormalHitEnergyLogEntry,
+  NormalHitEnergyModel,
+  NormalHitEnergyWeaponType,
   ParticleCount,
   ParticleDefinition,
   SimulationResult,
@@ -51,6 +63,7 @@ interface NormalizedParticle {
   trigger?: {
     kind: "hit-confirm";
     hitIds: string[];
+    probability?: number;
     internalCooldown?: {
       key: string;
       duration: number;
@@ -68,6 +81,8 @@ interface ExpectedActionAttempt {
   frame: number;
   timeSeconds: number;
   energyCost: number;
+  energyCostFrame: number;
+  priority: number;
   buffs: NormalizedBuff[];
   energyGains: NormalizedEnergyGain[];
   particles: NormalizedParticle[];
@@ -82,6 +97,8 @@ interface ExpectedActionAttempt {
 }
 
 interface ExpectedBuffEvent {
+  priority: number;
+  creationPriority: number;
   frame: number;
   timeSeconds: number;
   creationFrame: number;
@@ -94,6 +111,10 @@ interface ExpectedBuffEvent {
 
 interface ExpectedFixedEnergyGroup {
   kind: "fixed";
+  artifactEventLogId?: number;
+  afterParticleEventId?: number | null;
+  priority: number;
+  creationPriority: number;
   energyLogStartIndex: number | null;
   frame: number;
   timeSeconds: number;
@@ -109,6 +130,9 @@ interface ExpectedFixedEnergyGroup {
 }
 
 interface ExpectedParticleSpawn {
+  origin?: import("./types").DeclaredParticleOrigin;
+  priority: number;
+  producerDamageEventId?: number;
   particle: NormalizedParticle;
   actorId: string;
   actionId: string;
@@ -124,6 +148,8 @@ interface ExpectedParticleSpawn {
 
 interface ExpectedParticleEnergyGroup {
   kind: "particle";
+  priority: number;
+  creationPriority: number;
   energyLogStartIndex: number | null;
   frame: number;
   timeSeconds: number;
@@ -160,7 +186,7 @@ interface ReplayStats {
 
 interface ReplayOperationAction {
   kind: "action";
-  priority: 0;
+  priority: number;
   frame: number;
   timeSeconds: number;
   order: number;
@@ -169,7 +195,7 @@ interface ReplayOperationAction {
 
 interface ReplayOperationBuff {
   kind: "buff";
-  priority: 1;
+  priority: number;
   frame: number;
   timeSeconds: number;
   order: number;
@@ -178,17 +204,39 @@ interface ReplayOperationBuff {
 
 interface ReplayOperationEnergy {
   kind: "energy";
-  priority: 2;
+  priority: number;
   frame: number;
   timeSeconds: number;
   order: number;
   group: ExpectedEnergyGroup;
 }
 
+interface ReplayOperationDebit {
+  kind: "debit";
+  priority: number;
+  frame: number;
+  timeSeconds: number;
+  order: number;
+  attempt: ExpectedActionAttempt;
+}
+
+interface ReplayOperationNormalHitEnergy {
+  kind: "normal-hit-energy";
+  priority: number;
+  frame: number;
+  timeSeconds: number;
+  order: number;
+  source: DamageEvent;
+  attackTag: "normal" | "extra";
+  weaponType: NormalHitEnergyWeaponType;
+}
+
 type ReplayOperation =
   | ReplayOperationAction
   | ReplayOperationBuff
-  | ReplayOperationEnergy;
+  | ReplayOperationEnergy
+  | ReplayOperationDebit
+  | ReplayOperationNormalHitEnergy;
 
 function addIssue(
   context: RefinementCtx,
@@ -433,6 +481,7 @@ function normalizedLegacyParticle(
           trigger: {
             kind: particle.trigger.kind,
             hitIds: [...particle.trigger.hitIds],
+            ...(particle.trigger.probability === undefined ? {} : { probability: particle.trigger.probability }),
             ...(particle.trigger.internalCooldown === undefined
               ? {}
               : {
@@ -468,6 +517,7 @@ function normalizedFrameParticle(
           trigger: {
             kind: particle.trigger.kind,
             hitIds: [...particle.trigger.hitIds],
+            ...(particle.trigger.probability === undefined ? {} : { probability: particle.trigger.probability }),
             ...(particle.trigger.internalCooldown === undefined
               ? {}
               : {
@@ -508,6 +558,8 @@ function appendLegacyAttempt(
         ? (action.energyCost as number)
         : 0
     ),
+    energyCostFrame: action.energyCostFrame ?? 0,
+    priority: actionEventPriority(action),
     buffs: (action.buffs ?? []).map(normalizedLegacyBuff),
     energyGains: (action.energyGains ?? []).map(
       normalizedLegacyGain
@@ -563,6 +615,8 @@ function legalAbilityAttempt(
         ? (ability.energyCost as number)
         : 0
     ),
+    energyCostFrame: ability.energyCostFrame ?? 0,
+    priority: actionEventPriority(ability),
     buffs: (ability.buffs ?? []).map(normalizedFrameBuff),
     energyGains: (ability.energyGains ?? []).map(
       normalizedFrameGain
@@ -617,6 +671,8 @@ function appendSyntheticLegalAttempt(
     frame: processed.frame,
     timeSeconds: processed.timeSeconds,
     energyCost: 0,
+    energyCostFrame: 0,
+    priority: actionEventPriority(actionOwner(result.config, input)),
     buffs: [],
     energyGains: [],
     particles: [],
@@ -741,7 +797,8 @@ function buildExpectedActionAttempts(
           );
           continue;
         }
-        const ability = abilitiesById.get(command.abilityId);
+        const resolvedAbilityId = resolveTimelineCommandAbilityId(command, commandResult.abilityId, result.config.sourceAbilityBindings);
+        const ability = resolvedAbilityId === undefined ? undefined : abilitiesById.get(resolvedAbilityId);
         if (ability === undefined || commandResult.startFrame === null) {
           addIssue(
             context,
@@ -790,7 +847,7 @@ function buildExpectedActionAttempts(
         });
         continue;
       }
-      if (command.type === "dash" || command.type === "jump") {
+      if (command.type === "dash" || command.type === "jump" || command.type === "walk") {
         if (
           commandResult.startFrame === null ||
           commandResult.endFrame === null
@@ -806,7 +863,7 @@ function buildExpectedActionAttempts(
           scheduleOrder: scheduleOrder++,
           actorId: command.actorId,
           actionId: `__${command.type}#${commandIndex}`,
-          actionName: command.type === "dash" ? "冲刺" : "跳跃",
+          actionName: command.type === "dash" ? "冲刺" : command.type === "walk" ? "行走" : "跳跃",
           frame: commandResult.startFrame,
           timelineCommandIndex: commandIndex,
           cancelFrame: commandResult.endFrame,
@@ -822,7 +879,8 @@ function buildExpectedActionAttempts(
         );
         continue;
       }
-      const ability = abilitiesById.get(command.abilityId);
+      const resolvedAbilityId = resolveTimelineCommandAbilityId(command, commandResult.abilityId, result.config.sourceAbilityBindings);
+      const ability = resolvedAbilityId === undefined ? undefined : abilitiesById.get(resolvedAbilityId);
       if (ability === undefined || commandResult.startFrame === null) {
         addIssue(
           context,
@@ -853,7 +911,7 @@ function buildExpectedActionAttempts(
         left.timeSeconds,
         right.frame,
         right.timeSeconds
-      ) || left.scheduleOrder - right.scheduleOrder
+      ) || left.priority - right.priority || left.scheduleOrder - right.scheduleOrder
   );
   attempts.forEach((attempt, ordinal) => {
     attempt.ordinal = ordinal;
@@ -1022,6 +1080,9 @@ function validateTrustedEnergyDomains(
     );
   });
 
+  const declaredSpawns = buildDeclaredParticleSpawns(result);
+  const isDeclaredSource = (entry: { sourceActorId: string; sourceActionId: string; source: string; spawnFrame: number | null }): boolean =>
+    declaredSpawns.some(spawn => entry.sourceActorId === spawn.actorId && entry.sourceActionId === spawn.actionId && entry.source === spawn.source && entry.spawnFrame === spawn.spawnFrame);
   const validateActor = (
     path: IssuePath,
     actorId: string | null,
@@ -1085,7 +1146,7 @@ function validateTrustedEnergyDomains(
 
   result.energyLog.forEach((entry, index) => {
     const path = ["energyLog", index] satisfies IssuePath;
-    validateActor(
+    if (entry.kind !== "particle" || !isDeclaredSource(entry)) validateActor(
       [...path, "sourceActorId"],
       entry.sourceActorId,
       false
@@ -1151,7 +1212,7 @@ function validateTrustedEnergyDomains(
 
   result.particleEvents.forEach((entry, index) => {
     const path = ["particleEvents", index] satisfies IssuePath;
-    validateActor(
+    if (entry.origin === undefined || !isDeclaredSource(entry)) validateActor(
       [...path, "sourceActorId"],
       entry.sourceActorId,
       false
@@ -1359,6 +1420,8 @@ function buildExpectedFixedAndBuffEvents(
       );
       fixedGroups.push({
         kind: "fixed",
+        priority: 2 + (attempt.priority === 8 && processed.frame === attempt.frame ? 10 : 0),
+        creationPriority: attempt.priority,
         energyLogStartIndex: null,
         frame: processed.frame,
         timeSeconds: processed.timeSeconds,
@@ -1386,6 +1449,8 @@ function buildExpectedFixedAndBuffEvents(
         continue;
       }
       buffEvents.push({
+        priority: 1 + (attempt.priority === 8 && processed.frame === attempt.frame ? 10 : 0),
+        creationPriority: attempt.priority,
         frame: processed.frame,
         timeSeconds: processed.timeSeconds,
         creationFrame: attempt.frame,
@@ -1421,6 +1486,7 @@ function buildExpectedParticleSpawns(
   attempts: ExpectedActionAttempt[]
 ): ExpectedParticleSpawn[] {
   const expected: ExpectedParticleSpawn[] = [];
+  const periodicTicks = replayPeriodicEntities(result).filter(row => row.operation === "tick");
   const executedByActionCycle = new Map<
     string,
     ExpectedActionAttempt[]
@@ -1454,6 +1520,7 @@ function buildExpectedParticleSpawns(
         particle
       );
       expected.push({
+        priority: 2 + (attempt.priority === 8 && processed.frame === attempt.frame ? 10 : 0),
         particle,
         actorId: attempt.actorId,
         actionId: attempt.actionId,
@@ -1551,6 +1618,13 @@ function buildExpectedParticleSpawns(
       consumedCount + 1
     );
     const definition = match.particle.trigger!;
+    expectOptionalEqual(
+      context,
+      ["particleTriggerLog", triggerIndex, "probability"],
+      trigger.probability,
+      definition.probability,
+      "particle trigger configured probability"
+    );
     const expectedDuration =
       definition.internalCooldown === undefined
         ? null
@@ -1588,7 +1662,13 @@ function buildExpectedParticleSpawns(
       "particle trigger status"
     );
     if (!trigger.triggered) return;
+    const periodicTick = periodicTicks.find(tick => tick.actionLogIndex === match.attempt.actionLogIndex &&
+      tick.definition.hitIds.includes(trigger.hitId) && tick.frame + tick.definition.hitDelayFrames === trigger.frame);
+    const latePhase = periodicTick === undefined
+      ? match.attempt.priority === 8 && trigger.frame === match.attempt.frame
+      : periodicTick.eventPriority >= 10 && periodicTick.frame === trigger.frame;
     expected.push({
+      priority: 2 + (latePhase ? 10 : 0),
       particle: match.particle,
       actorId: match.attempt.actorId,
       actionId: match.attempt.actionId,
@@ -1640,7 +1720,8 @@ function fnv1a32(value: string): number {
   return hash >>> 0;
 }
 
-class EnergyReplayRandom {
+/** Independent audit PRNG shared by energy and particle probability proofs. */
+export class EnergyReplayRandom {
   private state: number;
 
   constructor(seed: string) {
@@ -1659,6 +1740,307 @@ class EnergyReplayRandom {
   }
 }
 
+/** Independently authenticate each Favonius callback before granting its particle source. */
+function buildFavoniusParticleSpawns(
+  result: SimulationResult,
+  context: RefinementCtx,
+  attempts: ExpectedActionAttempt[]
+): ExpectedParticleSpawn[] {
+  const model = result.config.favoniusModel;
+  const rows = result.favoniusLog;
+  if (model === undefined) {
+    if (rows !== undefined) addIssue(context, ["favoniusLog"], "requires its explicit configured Favonius model");
+    return [];
+  }
+  if (rows === undefined) addIssue(context, ["favoniusLog"], "configured Favonius requires its complete callback audit, including an empty audit when no callbacks execute");
+  const execution = result.resolvedRuntimeOptions.execution;
+  if (result.resolvedRuntimeOptions.critMode === "average" && execution?.criticalSampling !== "seeded-random-v1") {
+    addIssue(context, ["resolvedRuntimeOptions", "critMode"], "Favonius requires actual allCrit/noCrit outcomes or seeded critical sampling");
+  }
+  if (result.executionAudit === undefined || execution?.captureHits === false) {
+    addIssue(context, ["executionAudit"], "Favonius requires captured direct critical outcomes");
+  }
+  if (execution !== undefined && [execution.lunarCharged, execution.lunarCrystallize, execution.lunarMixed, execution.lunarMixedV2, execution.stellarConduct, execution.stellarSwirl, execution.lunarBloom].some(value => value !== undefined)) {
+    addIssue(context, ["config", "favoniusModel"], "this Favonius profile supports ordinary direct callbacks; special reaction execution profiles are not covered");
+  }
+  const actors = new Map(model.actors.map(actor => [actor.actorId, actor]));
+  const sources = result.damageEvents.filter(event => event.kind === "direct" && actors.has(event.sourceActorId) && !hasEnemyShieldDamageLink(result, event));
+  expectEqual(context, ["favoniusLog"], rows?.length ?? 0, sources.length, "Favonius callback cardinality");
+  const expectedSpawns: ExpectedParticleSpawn[] = [];
+  const random = new EnergyReplayRandom(`${result.resolvedRuntimeOptions.randomSeed}\u0000favonius-v1`);
+  const readyFrames = new Map<string, number>();
+  let draws = 0;
+  const orderedAttempts = [...attempts].filter(attempt => !attempt.legalProbeSkip).sort((left, right) =>
+    primaryOrder(result, left.frame, left.timeSeconds, right.frame, right.timeSeconds) || left.priority - right.priority || left.ordinal - right.ordinal);
+  let activeCharacterId = result.config.timeline?.initialActiveCharacterId ?? result.config.characters[0]?.id ?? null;
+  let actionIndex = 0;
+  for (const [index, source] of sources.entries()) {
+    const actor = actors.get(source.sourceActorId)!;
+    const path: IssuePath = ["favoniusLog", index];
+    const row = rows?.[index];
+    // Current direct damage integrity also independently proves configured hit
+    // geometry and timing. Resolve the producer here rather than granting a
+    // particle merely because a proc-shaped audit row names a damage event.
+    const prefix = `${source.actionId}:${source.cycle}:`;
+    const suffix = `:${source.frame}`;
+    const indexText = source.hitGroupId.startsWith(prefix) && source.hitGroupId.endsWith(suffix)
+      ? source.hitGroupId.slice(prefix.length, -suffix.length) : "";
+    const hitIndex = /^(0|[1-9]\d*)$/.test(indexText) ? Number(indexText) : -1;
+    const owner = source.sourceAbilityId === undefined
+      ? result.config.rotation.find(action => action.actorId === source.sourceActorId && action.id === source.actionId)
+      : result.config.timeline?.abilities.find(ability => ability.actorId === source.sourceActorId && ability.id === source.sourceAbilityId);
+    const hit = Number.isSafeInteger(hitIndex) && hitIndex >= 0 ? owner?.hits?.[hitIndex] : undefined;
+    const resolution = result.hitResolutionLog[source.targetResolutionId];
+    const attempt = attempts.find(candidate => candidate.actionLogIndex !== null && candidate.actorId === source.sourceActorId &&
+      candidate.actionId === source.actionId && candidate.cycle === source.cycle && candidate.timelineCommandIndex === source.timelineCommandIndex && candidate.sourceAbilityId === source.sourceAbilityId);
+    if (hit === undefined || (hit.id ?? `${source.actionId}:hit-${hitIndex}`) !== source.hitId || attempt === undefined ||
+      resolution?.resolutionKind !== "direct" || !resolution.landed || resolution.damageEventId !== source.id ||
+      resolution.sourceActorId !== source.sourceActorId || resolution.sourceActionId !== source.actionId ||
+      resolution.hitGroupId !== source.hitGroupId || resolution.targetId !== source.targetId) {
+      addIssue(context, path, "Favonius requires an exact executed configured hit and landed direct callback");
+      continue;
+    }
+    if (!isActionHitSelected(result, attempt.actionLogIndex!, source.hitId)) {
+      addIssue(context, path, "Favonius cannot originate from an unselected conditional hit");
+      continue;
+    }
+    while (actionIndex < orderedAttempts.length) {
+      const action = orderedAttempts[actionIndex]!;
+      const clockOrder = primaryOrder(result, action.frame, action.timeSeconds, source.frame, source.timeSeconds);
+      if (clockOrder > 0 || (clockOrder === 0 && action.priority > source.eventPriority)) break;
+      activeCharacterId = action.actorId;
+      actionIndex++;
+    }
+    expectOptionalEqual(context, ["damageEvents", source.id, "activeCharacterId"], source.activeCharacterId, activeCharacterId, "Favonius callback active character");
+    const capture = result.executionAudit?.hits[source.id];
+    if (capture?.eventId !== source.id || capture.inputKind !== "ordinary" || capture.critical.outcome === "expected") {
+      addIssue(context, path, "Favonius requires the independently validated actual direct critical outcome");
+      continue;
+    }
+    const critical = capture.critical.outcome === "critical";
+    const probability = 0.5 + actor.refinement * 0.1;
+    const cooldownFrames = 810 - actor.refinement * 90;
+    const readyBefore = readyFrames.get(actor.actorId) ?? 0;
+    const drawCountBefore = draws;
+    let outcome: FavoniusLogEntry["outcome"];
+    let roll: number | null = null;
+    let drawIndex: number | null = null;
+    if (source.finalDamage === 0) outcome = "zero-damage";
+    else if (!critical) outcome = "noncritical";
+    else if (activeCharacterId !== actor.actorId) outcome = "off-field";
+    else if (source.frame < readyBefore) outcome = "cooldown-blocked";
+    else {
+      roll = random.next();
+      drawIndex = draws++;
+      outcome = roll <= probability ? "triggered" : "failed-roll";
+    }
+    const readyAfter = outcome === "triggered" ? source.frame + cooldownFrames : readyBefore;
+    readyFrames.set(actor.actorId, readyAfter);
+    const particleId = `favonius:${actor.actorId}:${source.id}`;
+    const particleSource = `favonius:${actor.weaponId}`;
+    const matchingParticle = outcome !== "triggered" ? undefined : result.particleEvents.find(event =>
+      event.particleId === particleId && event.source === particleSource && event.sourceActorId === actor.actorId &&
+      event.sourceActionId === source.actionId && event.cycle === source.cycle && event.spawnFrame === source.frame &&
+      event.spawnTimeSeconds === source.timeSeconds && event.triggerLogId === null && event.triggerHitId === null);
+    const expected: FavoniusLogEntry = {
+      id: index,
+      sourceProfileId: "gcsim-favonius-reference-v1",
+      sourceRef: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/favonius.go",
+      rngStream: "favonius-v1", actorId: actor.actorId, weaponId: actor.weaponId, refinement: actor.refinement,
+      frame: source.frame, timeSeconds: source.timeSeconds, eventPriority: source.eventPriority, eventSequence: source.eventSequence,
+      damageEventId: source.id, activeCharacterId, damage: source.finalDamage, critical, outcome,
+      probability, cooldownFrames, readyFrameBefore: readyBefore, readyFrameAfter: readyAfter,
+      roll, drawIndex, drawCountBefore, drawCountAfter: draws, particleEventId: matchingParticle?.id ?? null
+    };
+    if (row !== undefined) for (const [key, expectedValue] of Object.entries(expected)) {
+      expectOptionalEqual(context, [...path, key], row[key as keyof FavoniusLogEntry], expectedValue, `Favonius ${key}`);
+    }
+    if (outcome !== "triggered") continue;
+    expectedSpawns.push({
+      priority: 2 + (source.eventPriority >= 10 ? 10 : 0),
+      producerDamageEventId: source.id,
+      particle: { index, id: particleId, source: particleSource, kind: "particle", element: "neutral", count: 3, spawnOffset: 0, travelTime: actor.particleDelayFrames / 60 },
+      actorId: actor.actorId, actionId: source.actionId, actionName: source.actionName, cycle: source.cycle,
+      spawnFrame: source.frame, spawnTimeSeconds: source.timeSeconds, particleId, source: particleSource, triggerLogId: null, triggerHitId: null
+    });
+  }
+  return expectedSpawns;
+}
+
+/** Shared proof used by the separate particle cardinality/order validator. */
+export function replayFavoniusParticleSpawns(result: SimulationResult, context: RefinementCtx): ExpectedParticleSpawn[] {
+  if (result.config.favoniusModel === undefined) return [];
+  const attempts = buildExpectedActionAttempts(result, context);
+  bindActionOutputs(result, context, attempts);
+  return buildFavoniusParticleSpawns(result, context, attempts);
+}
+
+const NORMAL_HIT_ENERGY_IDENTITY = {
+  sourceProfileId: "gcsim-normal-hit-energy-reference-v1",
+  rngStream: "normal-hit-energy-v1",
+  sourceRef: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go#L30-L89"
+} as const;
+
+const NORMAL_HIT_ENERGY_INCREMENT: Record<NormalHitEnergyWeaponType, number> = {
+  sword: 0.05,
+  claymore: 0.10,
+  polearm: 0.04,
+  bow: 0.05,
+  catalyst: 0.10
+};
+
+function normalHitEnergyBaseline(weaponType: NormalHitEnergyWeaponType): number {
+  return weaponType === "sword" ? 0.10 : 0;
+}
+
+interface NormalHitEnergyReplayState {
+  model: NormalHitEnergyModel;
+  random: EnergyReplayRandom;
+  probabilities: Map<string, number>;
+  readyFrame: number;
+  drawCount: number;
+  logIndex: number;
+  eventSequences: Set<number>;
+  damageEventSequences: Set<number>;
+  costEventSequences: Set<number>;
+  previousEvent: NormalHitEnergyLogEntry | null;
+}
+
+function createNormalHitEnergyReplay(
+  result: SimulationResult,
+  context: RefinementCtx
+): NormalHitEnergyReplayState | null {
+  const model = result.config.normalHitEnergyModel;
+  if (model === undefined) {
+    if (result.normalHitEnergyLog !== undefined) {
+      addIssue(context, ["normalHitEnergyLog"],
+        "normal-hit energy audit requires its explicit configured model");
+    }
+    return null;
+  }
+  if (result.normalHitEnergyLog === undefined) {
+    addIssue(context, ["normalHitEnergyLog"],
+      "configured normal-hit energy requires its audit, including an empty audit when no callbacks execute");
+  }
+  expectEqual(context, ["config", "normalHitEnergyModel", "mode"],
+    model.mode, "fixed-source-independent-stream-v1", "normal-hit energy model");
+  const characterIds = new Set(result.config.characters.map(character => character.id));
+  const actorIds = new Set<string>();
+  const probabilities = new Map<string, number>();
+  for (const [index, actor] of model.actors.entries()) {
+    const path = ["config", "normalHitEnergyModel", "actors", index] satisfies IssuePath;
+    if (!characterIds.has(actor.actorId) || actorIds.has(actor.actorId)) {
+      addIssue(context, [...path, "actorId"],
+        "normal-hit energy actors must be distinct configured characters");
+    }
+    actorIds.add(actor.actorId);
+    if (!Object.hasOwn(NORMAL_HIT_ENERGY_INCREMENT, actor.weaponType)) {
+      addIssue(context, [...path, "weaponType"], "unknown normal-hit energy weapon type");
+    }
+    probabilities.set(actor.actorId, normalHitEnergyBaseline(actor.weaponType));
+  }
+  if (actorIds.size !== characterIds.size || model.actors.length < 1 || model.actors.length > 4) {
+    addIssue(context, ["config", "normalHitEnergyModel", "actors"],
+      "normal-hit energy must declare each configured party character exactly once");
+  }
+  return {
+    model,
+    random: new EnergyReplayRandom(`${result.resolvedRuntimeOptions.randomSeed}\u0000normal-hit-energy-v1`),
+    probabilities,
+    readyFrame: 0,
+    drawCount: 0,
+    logIndex: 0,
+    eventSequences: new Set(),
+    damageEventSequences: new Set(result.damageEvents.map(event => event.eventSequence)),
+    costEventSequences: new Set((result.energyCostLog ?? []).map(event => event.eventSequence)),
+    previousEvent: null
+  };
+}
+
+/** The ordinary direct-hit proof authenticates geometry and target outcomes.
+ * Bind each resulting landed callback back to its exact configured hit here;
+ * a visible hit ID, positive damage, or an audit row alone is never a source.
+ */
+function buildNormalHitEnergyOperations(
+  result: SimulationResult,
+  context: RefinementCtx,
+  attempts: ExpectedActionAttempt[],
+  replay: NormalHitEnergyReplayState | null
+): ReplayOperationNormalHitEnergy[] {
+  if (replay === null) return [];
+  const operations: ReplayOperationNormalHitEnergy[] = [];
+  const periodicTicks = replayPeriodicEntities(result).filter(row => row.operation === "tick");
+  const actors = new Map(replay.model.actors.map(actor => [actor.actorId, actor]));
+  for (const source of result.damageEvents) {
+    if (source.kind !== "direct") continue;
+    // Independent procs have their own validated occurrence and carry the
+    // proc tag, not a configured normal/Extra hit. They consume no such draw.
+    if (source.weaponProcLogId !== undefined) continue;
+    const prefix = `${source.actionId}:${source.cycle}:`;
+    const suffix = `:${source.frame}`;
+    const indexText = source.hitGroupId.startsWith(prefix) && source.hitGroupId.endsWith(suffix)
+      ? source.hitGroupId.slice(prefix.length, -suffix.length) : "";
+    const hitIndex = /^(0|[1-9]\d*)$/.test(indexText) ? Number(indexText) : -1;
+    const owner = source.sourceAbilityId === undefined
+      ? result.config.rotation.find(action => action.actorId === source.sourceActorId && action.id === source.actionId)
+      : result.config.timeline?.abilities.find(ability => ability.actorId === source.sourceActorId && ability.id === source.sourceAbilityId);
+    const hit = Number.isSafeInteger(hitIndex) && hitIndex >= 0 ? owner?.hits?.[hitIndex] : undefined;
+    if (hit === undefined || (hit.id ?? `${source.actionId}:hit-${hitIndex}`) !== source.hitId) {
+      addIssue(context, ["damageEvents", source.id, "hitGroupId"],
+        "normal-hit energy source must resolve an exact configured direct hit occurrence");
+      continue;
+    }
+    if (hit.normalHitEnergyTag === undefined) continue;
+    const actor = actors.get(source.sourceActorId);
+    const resolution = result.hitResolutionLog[source.targetResolutionId];
+    const attempt = attempts.find(candidate => candidate.actionLogIndex !== null &&
+      candidate.actorId === source.sourceActorId && candidate.actionId === source.actionId &&
+      candidate.cycle === source.cycle && candidate.timelineCommandIndex === source.timelineCommandIndex &&
+      candidate.sourceAbilityId === source.sourceAbilityId);
+    if (actor === undefined || attempt === undefined || resolution === undefined ||
+      resolution.resolutionKind !== "direct" || !resolution.landed ||
+      resolution.damageEventId !== source.id || resolution.sourceActorId !== source.sourceActorId ||
+      resolution.sourceActionId !== source.actionId || resolution.hitGroupId !== source.hitGroupId ||
+      resolution.targetId !== source.targetId) {
+      addIssue(context, ["damageEvents", source.id],
+        "normal-hit energy requires a landed direct target linked to its executed configured actor and action");
+      continue;
+    }
+    if (!isActionHitSelected(result, attempt.actionLogIndex!, source.hitId)) {
+      addIssue(context, ["damageEvents", source.id], "normal-hit energy cannot originate from an unselected conditional hit");
+      continue;
+    }
+    const offset = "frame" in hit ? hit.frame / 60 : hit.offset;
+    const periodicOwner = owner?.periodicEntities?.find(entity => entity.hitIds.includes(source.hitId));
+    const periodicTick = periodicOwner === undefined ? undefined : periodicTicks.find(tick =>
+      tick.actionLogIndex === attempt.actionLogIndex && tick.definition.id === periodicOwner.id &&
+      tick.frame + tick.definition.hitDelayFrames === source.frame);
+    if (periodicOwner !== undefined && periodicTick === undefined) {
+      addIssue(context, ["damageEvents", source.id, "frame"],
+        "normal-hit energy periodic source must resolve a configuration-derived live entity tick");
+      continue;
+    }
+    const clock = periodicTick === undefined ? processedTime(result, attempt.timeSeconds + offset)
+      : { frame: periodicTick.frame + periodicTick.definition.hitDelayFrames,
+        timeSeconds: (periodicTick.frame + periodicTick.definition.hitDelayFrames) / 60 };
+    expectEqual(context, ["damageEvents", source.id, "frame"], source.frame,
+      clock.frame, "configured normal-hit energy source frame");
+    expectNearlyEqual(context, ["damageEvents", source.id, "timeSeconds"], source.timeSeconds,
+      clock.timeSeconds, "configured normal-hit energy source clock");
+    const latePhase = periodicTick === undefined
+      ? attempt.priority === 8 && clock.frame === attempt.frame
+      : periodicTick.eventPriority >= 10 && periodicTick.frame === clock.frame;
+    expectEqual(context, ["damageEvents", source.id, "eventPriority"], source.eventPriority,
+      3 + (latePhase ? 10 : 0), "normal-hit energy direct source priority");
+    operations.push({
+      kind: "normal-hit-energy", priority: 3.5 + (latePhase ? 10 : 0), ...clock,
+      order: source.eventSequence, source,
+      attackTag: hit.normalHitEnergyTag, weaponType: actor.weaponType
+    });
+  }
+  return operations;
+}
+
 function resolveParticleCount(
   count: ParticleCount,
   random: EnergyReplayRandom
@@ -1674,6 +2056,18 @@ function resolveParticleCount(
       random.integer(stepCount + 1) * step
     ).toFixed(12)
   );
+}
+
+function buildDeclaredParticleSpawns(result: SimulationResult): ExpectedParticleSpawn[] {
+  return replayTargetHealth(result).drops.map(({ definition, origin, frame, timeSeconds, cycle, priority }) => ({
+    priority, origin, ...(origin.damageEventId === null ? {} : { producerDamageEventId: origin.damageEventId }),
+    particle: { index: 0, id: definition.id, source: definition.sourceRef, kind: definition.kind,
+      element: definition.element, count: definition.count, spawnOffset: 0, travelTime: definition.travelFrames / 60 },
+    actorId: origin.kind === "external" ? `external:${definition.id}` : `enemy:${origin.targetId}`,
+    actionId: `declared-drop:${definition.id}`, actionName: definition.sourceRef, cycle,
+    spawnFrame: frame, spawnTimeSeconds: timeSeconds, particleId: definition.id, source: definition.sourceRef,
+    triggerLogId: null, triggerHitId: null
+  }));
 }
 
 function bindParticleEvents(
@@ -1743,6 +2137,10 @@ function bindParticleEvents(
       );
       return;
     }
+    const originKeys = ["kind", "dropId", "targetId", "targetHealthLogId", "damageEventId", "sourceRef"] as const;
+    const originMatches = expected.origin === undefined ? event.origin === undefined
+      : event.origin !== undefined && originKeys.every(key => event.origin?.[key] === expected.origin?.[key]);
+    if (!originMatches) addIssue(context, [...path, "origin"], "must match the exact declared source, or remain absent for configured character particles");
     spawnByParticleEvent.set(eventIndex, expected);
     const expectedCount = resolveParticleCount(
       expected.particle.count,
@@ -1819,6 +2217,8 @@ function bindParticleEvents(
     ) {
       particleGroups.push({
         kind: "particle",
+        priority: 2 + (expected.priority >= 10 && receive.frame === expected.spawnFrame ? 10 : 0),
+        creationPriority: expected.priority,
         energyLogStartIndex: null,
         frame: receive.frame,
         timeSeconds: receive.timeSeconds,
@@ -1876,6 +2276,7 @@ function energyGroupMatchesAt(
     }
     if (group.kind === "fixed") {
       if (
+        row.artifactEventLogId !== group.artifactEventLogId ||
         row.sourceActorId !== group.actorId ||
         row.sourceActionId !== group.actionId ||
         row.source !== group.source ||
@@ -1885,6 +2286,7 @@ function energyGroupMatchesAt(
         return false;
       }
     } else if (
+      row.artifactEventLogId !== undefined ||
       row.sourceActorId !== group.spawn.actorId ||
       row.sourceActionId !== group.spawn.actionId ||
       row.source !== group.spawn.source ||
@@ -1911,7 +2313,8 @@ function energyGroupMatchesAt(
 function bindEnergyGroupsToLog(
   result: SimulationResult,
   context: RefinementCtx,
-  groups: ExpectedEnergyGroup[]
+  groups: ExpectedEnergyGroup[],
+  particleProjection = false
 ): void {
   const usedIndices = new Set<number>();
   const bindingOrder = [...groups].sort((left, right) => {
@@ -1923,6 +2326,7 @@ function bindEnergyGroupsToLog(
       right.timeSeconds
     );
     if (eventOrder !== 0) return eventOrder;
+    if (left.priority !== right.priority) return left.priority - right.priority;
     const creationOrder = primaryOrder(
       result,
       left.creationFrame,
@@ -1931,6 +2335,7 @@ function bindEnergyGroupsToLog(
       right.creationTimeSeconds
     );
     if (creationOrder !== 0) return creationOrder;
+    if (left.creationPriority !== right.creationPriority) return left.creationPriority - right.creationPriority;
     if (left.kind !== right.kind) {
       return left.kind === "fixed" ? -1 : 1;
     }
@@ -1984,7 +2389,22 @@ function bindEnergyGroupsToLog(
     }
   }
 
-  result.energyLog.forEach((_row, index) => {
+  if (!particleProjection) {
+    for (const group of groups) {
+      if (group.kind !== "fixed" || group.afterParticleEventId == null) continue;
+      const parent = groups.find(candidate => candidate.kind === "particle" &&
+        candidate.particleEventIndex === group.afterParticleEventId);
+      if (parent?.energyLogStartIndex == null || group.energyLogStartIndex === null) continue;
+      expectEqual(context, ["energyLog", group.energyLogStartIndex, "artifactEventLogId"],
+        group.energyLogStartIndex, parent.energyLogStartIndex + result.config.characters.length,
+        "Scholar fixed refunds must immediately follow their complete parent particle receipt");
+    }
+  }
+
+  result.energyLog.forEach((row, index) => {
+    // Only the source-binding projection may leave artifact rows for the
+    // independent artifact replay. The complete energy facet binds them below.
+    if (particleProjection && row.artifactEventLogId !== undefined) return;
     if (!usedIndices.has(index)) {
       addIssue(
         context,
@@ -1995,14 +2415,130 @@ function bindEnergyGroupsToLog(
   });
 }
 
+/** Bind actual receive groups using the same source proof as the energy
+ * facet. This projection does not replay energy balances or trust weapon
+ * lifecycle rows; the full energy facet independently verifies its front
+ * character and all numeric energy state. */
+export function replayActualParticleReceives(result: SimulationResult, context?: RefinementCtx): Array<{
+  particleEventId: number;
+  frame: number;
+  timeSeconds: number;
+  priority: number;
+  order: number;
+  activeCharacterId: string | null;
+  creationFrame: number;
+  creationPriority: number;
+  creationOrder: number;
+}> {
+  let hasBindingIssue = false;
+  const bindingContext: RefinementCtx = {
+    value: result,
+    issues: [],
+    addIssue(issue) {
+      hasBindingIssue = true;
+      context?.addIssue(issue);
+    }
+  };
+  const attempts = buildExpectedActionAttempts(result, bindingContext);
+  bindActionOutputs(result, bindingContext, attempts);
+  const { fixedGroups } = buildExpectedFixedAndBuffEvents(result, bindingContext, attempts);
+  const spawns = buildExpectedParticleSpawns(result, bindingContext, attempts);
+  spawns.push(...buildFavoniusParticleSpawns(result, bindingContext, attempts), ...buildDeclaredParticleSpawns(result));
+  const { particleGroups } = bindParticleEvents(result, bindingContext, spawns);
+  bindEnergyGroupsToLog(result, bindingContext, [...fixedGroups, ...particleGroups], true);
+  if (hasBindingIssue) return [];
+  return projectParticleReceives(result, particleGroups);
+}
+
+function projectParticleReceives(result: SimulationResult, particleGroups: ExpectedParticleEnergyGroup[]) {
+  return [...particleGroups].sort((left, right) => compareEnergyGroups(result, left, right)).flatMap(group => {
+    const order = group.energyLogStartIndex;
+    if (order === null) return [];
+    return [{ particleEventId: group.particleEventIndex, frame: group.frame, timeSeconds: group.timeSeconds,
+      priority: group.priority, order, activeCharacterId: result.energyLog[order]!.activeCharacterId,
+      creationFrame: group.creationFrame, creationPriority: group.creationPriority, creationOrder: group.creationOrder }];
+  });
+}
+
+function buildExpectedArtifactEnergyGroups(
+  result: SimulationResult,
+  particleGroups: ExpectedParticleEnergyGroup[],
+  attempts: ExpectedActionAttempt[]
+): ExpectedFixedEnergyGroup[] {
+  return replayArtifactEvents(result, projectParticleReceives(result, particleGroups)).energyGrants.map(grant => ({
+    kind: "fixed",
+    artifactEventLogId: grant.artifactEventLogId,
+    afterParticleEventId: grant.afterParticleEventId,
+    priority: grant.eventPriority,
+    creationPriority: grant.creationPriority,
+    energyLogStartIndex: null,
+    frame: grant.frame,
+    timeSeconds: grant.timeSeconds,
+    creationFrame: grant.creationFrame,
+    creationTimeSeconds: grant.creationFrame / 60,
+    // Exile's accepted Q uses the same producer ordinal as its configured
+    // gains/debit, including earlier failed attempts and timeline waits.
+    creationOrder: grant.source === "artifact:exile-4pc"
+      ? attempts.find(attempt => attempt.actionId === grant.sourceActionId &&
+          attempt.frame === grant.creationFrame)?.ordinal ?? grant.creationOrder
+      : grant.creationOrder,
+    gainOrder: grant.afterParticleEventId === null ? grant.gainOrder : 1,
+    actorId: grant.actorId,
+    actionId: grant.sourceActionId,
+    source: grant.source,
+    targets: grant.receivers.map(receiver => receiver.receiverId),
+    gain: { amount: grant.receivers[0]!.amount, offset: (grant.frame - grant.creationFrame) / 60 }
+  }));
+}
+
 interface EnergyReplayState {
   energies: Map<string, number>;
+  reservedEnergy: Map<string, number>;
+  pendingDebits: Set<ExpectedActionAttempt>;
   stats: Map<string, ReplayStats>;
   activeCharacterId: string | null;
   activeBuffs: ActiveEnergyRechargeBuff[];
   fixedCooldownReadyFrames: Map<string, number>;
   energyLogIndex: number;
+  energyCostLogIndex: number;
+  costEventSequences: Set<number>;
+  reservationSequences: Map<ExpectedActionAttempt, number>;
+  previousCostEvent: EnergyCostLogEntry | null;
   energyCurveIndex: number;
+  normalHitEnergy: NormalHitEnergyReplayState | null;
+}
+
+function validateDelayedEnergyContract(
+  result: SimulationResult,
+  context: RefinementCtx
+): boolean {
+  let hasDelayedCosts = false;
+  const validateOwner = (
+    owner: ActionDefinition | AbilityDefinition,
+    path: IssuePath
+  ): void => {
+    const frame = owner.energyCostFrame;
+    if (frame === undefined) return;
+    if (!Number.isInteger(frame) || frame < 0) {
+      addIssue(context, [...path, "energyCostFrame"],
+        "energyCostFrame must be a non-negative integer relative to action start");
+      return;
+    }
+    if (frame > 0) hasDelayedCosts = true;
+  };
+  result.config.rotation.forEach((action, index) =>
+    validateOwner(action, ["config", "rotation", index]));
+  result.config.timeline?.abilities.forEach((ability, index) =>
+    validateOwner(ability, ["config", "timeline", "abilities", index]));
+  if (hasDelayedCosts && result.energyCostLog === undefined) {
+    addIssue(context, ["energyCostLog"],
+      "a configured delayed energy cost requires its reservation/debit log, including an empty log when no reservation executes");
+  }
+  if (!hasDelayedCosts && result.energyCostLog !== undefined) {
+    addIssue(context, ["energyCostLog"],
+      "energyCostLog must be absent when no delayed energy cost is configured");
+  }
+  return hasDelayedCosts;
 }
 
 function compareBuffEvents(
@@ -2025,6 +2561,7 @@ function compareBuffEvents(
       right.creationFrame,
       right.creationTimeSeconds
     ) ||
+    left.creationPriority - right.creationPriority ||
     left.creationOrder - right.creationOrder ||
     left.buffOrder - right.buffOrder
   );
@@ -2043,6 +2580,7 @@ function compareEnergyGroups(
     right.timeSeconds
   );
   if (eventOrder !== 0) return eventOrder;
+  if (left.priority !== right.priority) return left.priority - right.priority;
 
   /*
    * The 1.42 wire omits heap sequence. A configured group was already bound
@@ -2068,6 +2606,7 @@ function compareEnergyGroups(
     right.creationTimeSeconds
   );
   if (creationTimeOrder !== 0) return creationTimeOrder;
+  if (left.creationPriority !== right.creationPriority) return left.creationPriority - right.creationPriority;
   if (left.kind !== right.kind) {
     return left.kind === "fixed" ? -1 : 1;
   }
@@ -2087,12 +2626,14 @@ function buildReplayOperations(
   result: SimulationResult,
   attempts: ExpectedActionAttempt[],
   buffEvents: ExpectedBuffEvent[],
-  energyGroups: ExpectedEnergyGroup[]
+  energyGroups: ExpectedEnergyGroup[],
+  hasDelayedCosts: boolean,
+  normalHitEnergyOperations: ReplayOperationNormalHitEnergy[]
 ): ReplayOperation[] {
   const operations: ReplayOperation[] = attempts.map(
     (attempt, order) => ({
       kind: "action",
-      priority: 0,
+      priority: attempt.priority,
       frame: attempt.frame,
       timeSeconds: attempt.timeSeconds,
       order,
@@ -2105,7 +2646,7 @@ function buildReplayOperations(
     .forEach((event, order) => {
       operations.push({
         kind: "buff",
-        priority: 1,
+        priority: event.priority,
         frame: event.frame,
         timeSeconds: event.timeSeconds,
         order,
@@ -2120,13 +2661,23 @@ function buildReplayOperations(
     .forEach((group, order) => {
       operations.push({
         kind: "energy",
-        priority: 2,
+        priority: group.priority,
         frame: group.frame,
         timeSeconds: group.timeSeconds,
         order,
         group
       });
     });
+
+  for (const attempt of attempts) {
+    if (attempt.energyCostFrame <= 0 || attempt.energyCost <= 0) continue;
+    const debit = processedTime(result,
+      attempt.timeSeconds + attempt.energyCostFrame / 60);
+    if (debit.timeSeconds > result.config.duration + FLOAT_TOLERANCE) continue;
+    operations.push({ kind: "debit", priority: 2, ...debit,
+      order: attempt.ordinal, attempt });
+  }
+  operations.push(...normalHitEnergyOperations);
 
   operations.sort(
     (left, right) =>
@@ -2138,9 +2689,48 @@ function buildReplayOperations(
         right.timeSeconds
       ) ||
       left.priority - right.priority ||
+      (hasDelayedCosts && (left.kind === "energy" || left.kind === "debit") &&
+        (right.kind === "energy" || right.kind === "debit") && left.priority === right.priority
+        ? compareEnergyEnqueueOrder(result, left, right)
+        : 0) ||
       left.order - right.order
   );
   return operations;
+}
+
+/**
+ * Configured gains follow the debit from their accepted action. Exile ticks
+ * are enqueued by its earlier burst hook, and therefore precede that debit.
+ * Receipts are enqueued later by their particle spawn; Scholar follows inline.
+ * Only producer ordering is needed here; unrelated heap events may occupy
+ * any number of global sequence values between these energy operations.
+ */
+function compareEnergyEnqueueOrder(
+  result: SimulationResult,
+  left: ReplayOperationEnergy | ReplayOperationDebit,
+  right: ReplayOperationEnergy | ReplayOperationDebit
+): number {
+  const producer = (operation: ReplayOperationEnergy | ReplayOperationDebit) => {
+    if (operation.kind === "debit") return {
+      frame: operation.attempt.frame,
+      timeSeconds: operation.attempt.timeSeconds,
+      priority: operation.attempt.priority,
+      order: operation.attempt.ordinal,
+      slot: -1
+    };
+    const group = operation.group;
+    return {
+      frame: group.creationFrame,
+      timeSeconds: group.creationTimeSeconds,
+      priority: group.creationPriority,
+      order: group.kind === "fixed" ? group.creationOrder : group.particleEventIndex,
+      slot: group.kind === "fixed" ? group.gainOrder : 0
+    };
+  };
+  const a = producer(left);
+  const b = producer(right);
+  return primaryOrder(result, a.frame, a.timeSeconds, b.frame, b.timeSeconds) ||
+    a.priority - b.priority || a.order - b.order || a.slot - b.slot;
 }
 
 function initialEnergyForCharacter(
@@ -2427,6 +3017,195 @@ function validateActionIdentity(
   }
 }
 
+function consumeNormalHitEnergyLog(
+  result: SimulationResult,
+  context: RefinementCtx,
+  replay: NormalHitEnergyReplayState,
+  expected: Pick<NormalHitEnergyLogEntry,
+    "kind" | "frame" | "timeSeconds" | "eventPriority" |
+    "globalIcdReadyFrameBefore" | "globalIcdReadyFrameAfter" |
+    "drawCountBefore" | "drawCountAfter">
+): { row: NormalHitEnergyLogEntry | undefined; path: IssuePath } {
+  const index = replay.logIndex++;
+  const path = ["normalHitEnergyLog", index] satisfies IssuePath;
+  const row = result.normalHitEnergyLog?.[index];
+  if (row === undefined) {
+    addIssue(context, path, `missing configured normal-hit energy ${expected.kind} callback`);
+    return { row, path };
+  }
+  for (const key of ["sourceProfileId", "rngStream", "sourceRef"] as const) {
+    expectEqual(context, [...path, key], row[key], NORMAL_HIT_ENERGY_IDENTITY[key],
+      `normal-hit energy ${key}`);
+  }
+  for (const key of ["kind", "frame", "eventPriority", "globalIcdReadyFrameBefore",
+    "globalIcdReadyFrameAfter", "drawCountBefore", "drawCountAfter"] as const) {
+    expectEqual(context, [...path, key], row[key], expected[key],
+      `replayed normal-hit energy ${key}`);
+  }
+  expectNearlyEqual(context, [...path, "timeSeconds"], row.timeSeconds,
+    expected.timeSeconds, "normal-hit energy clock");
+  if (!Number.isSafeInteger(row.eventSequence) || row.eventSequence < 0 ||
+    replay.eventSequences.has(row.eventSequence)) {
+    addIssue(context, [...path, "eventSequence"],
+      "normal-hit energy callbacks must belong to distinct non-negative queue events");
+  }
+  replay.eventSequences.add(row.eventSequence);
+  const previous = replay.previousEvent;
+  if (previous !== null && primaryOrder(result, previous.frame, previous.timeSeconds,
+    expected.frame, expected.timeSeconds) === 0 && row.eventPriority === previous.eventPriority && row.eventSequence <= previous.eventSequence) {
+    addIssue(context, [...path, "eventSequence"],
+      "same-clock normal-hit energy callbacks must follow their action and direct-hit producer queue sequence");
+  }
+  replay.previousEvent = row;
+  return { row, path };
+}
+
+function replayNormalHitEnergySwap(
+  result: SimulationResult,
+  context: RefinementCtx,
+  state: EnergyReplayState,
+  attempt: ExpectedActionAttempt
+): void {
+  const replay = state.normalHitEnergy;
+  if (replay === null || attempt.legalProbeSkip || state.activeCharacterId === null ||
+    state.activeCharacterId === attempt.actorId) return;
+  const probabilitiesBefore = new Map(replay.probabilities);
+  for (const actor of replay.model.actors) {
+    replay.probabilities.set(actor.actorId, normalHitEnergyBaseline(actor.weaponType));
+  }
+  const { row, path } = consumeNormalHitEnergyLog(result, context, replay, {
+    kind: "swap", frame: attempt.frame, timeSeconds: attempt.timeSeconds,
+    eventPriority: attempt.priority,
+    globalIcdReadyFrameBefore: replay.readyFrame,
+    globalIcdReadyFrameAfter: replay.readyFrame,
+    drawCountBefore: replay.drawCount, drawCountAfter: replay.drawCount
+  });
+  if (row?.kind !== "swap") return;
+  expectEqual(context, [...path, "activeActorId"], row.activeActorId,
+    attempt.actorId, "normal-hit energy actual active-actor change");
+  for (const key of ["probabilitiesBefore", "probabilitiesAfter"] as const) {
+    const expected = key === "probabilitiesBefore" ? probabilitiesBefore : replay.probabilities;
+    expectEqual(context, [...path, key, "length"], row[key].length,
+      replay.model.actors.length, "normal-hit energy probability roster length");
+    replay.model.actors.forEach((actor, index) => {
+      const actual = row[key][index];
+      if (actual === undefined) return;
+      expectEqual(context, [...path, key, index, "actorId"], actual.actorId,
+        actor.actorId, "normal-hit energy probability owner");
+      expectEqual(context, [...path, key, index, "weaponType"], actual.weaponType,
+        actor.weaponType, "normal-hit energy configured weapon");
+      expectNearlyEqual(context, [...path, key, index, "probability"], actual.probability,
+        expected.get(actor.actorId)!, "normal-hit energy swap probability");
+    });
+  }
+  const reservation = result.energyCostLog?.find(entry => entry.operation === "reserve" &&
+    entry.actionLogIndex === attempt.actionLogIndex);
+  if (reservation !== undefined) {
+    expectEqual(context, [...path, "eventSequence"], row.eventSequence,
+      reservation.eventSequence, "swap and reservation must share their action event");
+  }
+  if (replay.damageEventSequences.has(row.eventSequence) ||
+    (result.energyCostLog ?? []).some(cost => cost.eventSequence === row.eventSequence &&
+      (cost.operation !== "reserve" || cost.actionLogIndex !== attempt.actionLogIndex))) {
+    addIssue(context, [...path, "eventSequence"],
+      "normal-hit energy swap must belong to its own action, not a damage or unrelated cost event");
+  }
+  if (result.damageEvents.some(source => source.kind === "direct" &&
+    source.sourceActorId === attempt.actorId && source.actionId === attempt.actionId &&
+    source.cycle === attempt.cycle && source.eventSequence <= row.eventSequence)) {
+    addIssue(context, [...path, "eventSequence"],
+      "swap action must precede the queue insertion of its configured direct hits");
+  }
+}
+
+function replayNormalHitEnergyDamage(
+  result: SimulationResult,
+  context: RefinementCtx,
+  state: EnergyReplayState,
+  operation: ReplayOperationNormalHitEnergy,
+  energyMaxByCharacter: Map<string, number>
+): void {
+  const replay = state.normalHitEnergy;
+  if (replay === null) return;
+  const actorId = operation.source.sourceActorId;
+  const probabilityBefore = replay.probabilities.get(actorId)!;
+  const readyBefore = replay.readyFrame;
+  const drawCountBefore = replay.drawCount;
+  const blocked = operation.frame < readyBefore;
+  const baseline = normalHitEnergyBaseline(operation.weaponType);
+  const increment = NORMAL_HIT_ENERGY_INCREMENT[operation.weaponType];
+  let roll: number | null = null;
+  let drawIndex: number | null = null;
+  let outcome: "gained" | "failed-roll" | "icd-blocked" = "icd-blocked";
+  if (!blocked) {
+    drawIndex = replay.drawCount++;
+    roll = replay.random.next();
+    if (roll <= probabilityBefore) {
+      outcome = "gained";
+      replay.readyFrame = operation.frame + 12;
+      replay.probabilities.set(actorId, baseline);
+    } else {
+      outcome = "failed-roll";
+      replay.probabilities.set(actorId, probabilityBefore + increment);
+    }
+  }
+  const requested = outcome === "gained" ? 1 : 0;
+  const before = state.energies.get(actorId) ?? 0;
+  const after = quantizeEnergy(clamp(before + requested, 0, energyMaxByCharacter.get(actorId) ?? 0));
+  const gained = quantizeEnergy(after - before);
+  const wasted = quantizeEnergy(requested - gained);
+  const { row, path } = consumeNormalHitEnergyLog(result, context, replay, {
+    kind: "damage", frame: operation.frame, timeSeconds: operation.timeSeconds,
+    eventPriority: operation.priority,
+    globalIcdReadyFrameBefore: readyBefore,
+    globalIcdReadyFrameAfter: replay.readyFrame,
+    drawCountBefore, drawCountAfter: replay.drawCount
+  });
+  if (row?.kind === "damage") {
+    const exact = {
+      actorId, weaponType: operation.weaponType, attackTag: operation.attackTag,
+      damageEventId: operation.source.id, hitGroupId: operation.source.hitGroupId,
+      outcome, energyRequested: requested, roll, drawIndex, icdBlocked: blocked
+    };
+    for (const key of Object.keys(exact) as Array<keyof typeof exact>) {
+      expectEqual(context, [...path, key], row[key], exact[key],
+        `replayed normal-hit energy ${key}`);
+    }
+    const numeric = {
+      baselineProbability: baseline, failureIncrement: increment,
+      probabilityBefore, probabilityAfter: replay.probabilities.get(actorId)!,
+      energyBefore: before, energyAfter: after, gainedEnergy: gained, wastedEnergy: wasted
+    };
+    for (const key of Object.keys(numeric) as Array<keyof typeof numeric>) {
+      expectNearlyEqual(context, [...path, key], row[key], numeric[key],
+        `replayed normal-hit energy ${key}`);
+    }
+    if (row.eventSequence <= operation.source.eventSequence) {
+      addIssue(context, [...path, "eventSequence"],
+        "normal-hit energy task must be enqueued after its actual direct-hit producer");
+    }
+    if (replay.damageEventSequences.has(row.eventSequence) ||
+      replay.costEventSequences.has(row.eventSequence)) {
+      addIssue(context, [...path, "eventSequence"],
+        "normal-hit energy delivery must have its own queue event distinct from damage and action-cost events");
+    }
+  }
+  state.energies.set(actorId, after);
+  const stats = state.stats.get(actorId);
+  if (stats !== undefined) {
+    stats.gained = quantizeEnergy(stats.gained + gained);
+    stats.fixedGained = quantizeEnergy(stats.fixedGained + gained);
+    stats.wasted = quantizeEnergy(stats.wasted + wasted);
+  }
+  if (requested > 0) {
+    consumeEnergyCurvePoint(result, context, state, {
+      frame: operation.frame, timeSeconds: operation.timeSeconds,
+      kind: "fixed", receiverId: actorId,
+      source: `normal-hit-energy:${operation.source.id}`
+    });
+  }
+}
+
 function replayAction(
   result: SimulationResult,
   context: RefinementCtx,
@@ -2461,12 +3240,15 @@ function replayAction(
    * run's active-character replay.
    */
   if (!attempt.legalProbeSkip) {
+    replayNormalHitEnergySwap(result, context, state, attempt);
     state.activeCharacterId = attempt.actorId;
   }
 
   const currentEnergy = quantizeEnergy(
     Math.max(0, state.energies.get(attempt.actorId) ?? 0)
   );
+  const reservedBefore = state.reservedEnergy.get(attempt.actorId) ?? 0;
+  const availableEnergy = quantizeEnergy(Math.max(0, currentEnergy - reservedBefore));
   const energyCost = quantizeEnergy(
     Math.max(
       0,
@@ -2476,7 +3258,7 @@ function replayAction(
     )
   );
   const shouldSkip =
-    energyCost > currentEnergy + ENERGY_COMPARISON_EPSILON;
+    energyCost > availableEnergy + ENERGY_COMPARISON_EPSILON;
   const actionRow =
     attempt.actionLogIndex === null
       ? undefined
@@ -2490,7 +3272,7 @@ function replayAction(
     addIssue(
       context,
       ["actionLog", attempt.actionLogIndex ?? 0, "energyBefore"],
-      `configured energy cost ${energyCost} exceeds replayed energy ${currentEnergy}; action must be skipped`
+      `configured energy cost ${energyCost} exceeds replayed available energy ${availableEnergy}; action must be skipped`
     );
   }
   if (!shouldSkip && skippedRow !== undefined) {
@@ -2501,7 +3283,7 @@ function replayAction(
         attempt.skippedActionIndex ?? 0,
         "energyBefore"
       ],
-      `replayed energy ${currentEnergy} satisfies configured cost ${energyCost}; action must execute`
+      `replayed available energy ${availableEnergy} satisfies configured cost ${energyCost}; action must execute`
     );
   }
   if (
@@ -2542,7 +3324,7 @@ function replayAction(
         context,
         [...path, "energyBefore"],
         skippedRow.energyBefore,
-        currentEnergy,
+        availableEnergy,
         "skipped action energyBefore"
       );
       expectNearlyEqual(
@@ -2556,7 +3338,7 @@ function replayAction(
         context,
         [...path, "reason"],
         skippedRow.reason,
-        `能量不足 ${Number(currentEnergy.toFixed(1))}/${energyCost}`,
+        `能量不足 ${Number(availableEnergy.toFixed(1))}/${energyCost}`,
         "skipped action reason"
       );
     }
@@ -2565,9 +3347,9 @@ function replayAction(
     return;
   }
 
-  const energyAfter = quantizeEnergy(
-    Math.max(0, currentEnergy - energyCost)
-  );
+  const delayed = attempt.energyCostFrame > 0 && energyCost > 0;
+  const energyAfter = delayed ? currentEnergy : quantizeEnergy(
+    Math.max(0, currentEnergy - energyCost));
   const spent = quantizeEnergy(currentEnergy - energyAfter);
   if (actionRow !== undefined) {
     const path = [
@@ -2589,6 +3371,18 @@ function replayAction(
       "action energyAfter"
     );
   }
+  if (delayed) {
+    const reservedAfter = quantizeEnergy(reservedBefore + energyCost);
+    state.reservedEnergy.set(attempt.actorId, reservedAfter);
+    state.pendingDebits.add(attempt);
+    consumeEnergyCostLogRow(result, context, state, attempt, {
+      operation: "reserve", frame: attempt.frame,
+      timeSeconds: attempt.timeSeconds, eventPriority: attempt.priority,
+      energyCost, energyBefore: currentEnergy, energyAfter,
+      reservedBefore, reservedAfter
+    });
+    return;
+  }
   state.energies.set(attempt.actorId, energyAfter);
   const stats = state.stats.get(attempt.actorId);
   if (stats !== undefined) {
@@ -2603,6 +3397,100 @@ function replayAction(
       source: `${attempt.actionId}:energy-cost`
     });
   }
+}
+
+function consumeEnergyCostLogRow(
+  result: SimulationResult,
+  context: RefinementCtx,
+  state: EnergyReplayState,
+  attempt: ExpectedActionAttempt,
+  expected: Omit<EnergyCostLogEntry, "actionLogIndex" | "eventSequence">
+): void {
+  const index = state.energyCostLogIndex++;
+  const path = ["energyCostLog", index] satisfies IssuePath;
+  const row = result.energyCostLog?.[index];
+  if (row === undefined) {
+    addIssue(context, path, `missing configured energy ${expected.operation} record`);
+    return;
+  }
+  expectEqual(context, [...path, "operation"], row.operation, expected.operation,
+    "energy cost operation");
+  expectEqual(context, [...path, "actionLogIndex"], row.actionLogIndex,
+    attempt.actionLogIndex, "energy cost action owner");
+  expectEqual(context, [...path, "frame"], row.frame, expected.frame,
+    "energy cost frame");
+  expectEqual(context, [...path, "eventPriority"], row.eventPriority,
+    expected.eventPriority, "energy cost event priority");
+  for (const field of ["timeSeconds", "energyCost", "energyBefore", "energyAfter",
+    "reservedBefore", "reservedAfter"] as const) {
+    expectNearlyEqual(context, [...path, field], row[field], expected[field],
+      `replayed energy cost ${field}`);
+  }
+  if (!Number.isInteger(row.eventSequence) || row.eventSequence < 0) {
+    addIssue(context, [...path, "eventSequence"],
+      "energy cost eventSequence must be a non-negative integer");
+  }
+  if (state.costEventSequences.has(row.eventSequence)) {
+    addIssue(context, [...path, "eventSequence"],
+      "each energy cost record must belong to a distinct queue event");
+  }
+  state.costEventSequences.add(row.eventSequence);
+  const previous = state.previousCostEvent;
+  if (previous !== null && primaryOrder(result, previous.frame, previous.timeSeconds,
+    expected.frame, expected.timeSeconds) === 0 &&
+    previous.eventPriority === expected.eventPriority &&
+    row.eventSequence <= previous.eventSequence) {
+    addIssue(context, [...path, "eventSequence"],
+      "same-clock energy cost events at one priority must follow queue sequence order");
+  }
+  if (expected.operation === "reserve") {
+    state.reservationSequences.set(attempt, row.eventSequence);
+  } else {
+    const reserveSequence = state.reservationSequences.get(attempt);
+    if (reserveSequence !== undefined && row.eventSequence <= reserveSequence) {
+      addIssue(context, [...path, "eventSequence"],
+        "a delayed debit must be enqueued after its reserving action");
+    }
+  }
+  // Sequence is an ordering witness only. State is always computed from
+  // config and the producer-order replay, never taken from this audit row.
+  state.previousCostEvent = row;
+}
+
+function replayDelayedDebit(
+  result: SimulationResult,
+  context: RefinementCtx,
+  state: EnergyReplayState,
+  operation: ReplayOperationDebit
+): void {
+  const attempt = operation.attempt;
+  if (!state.pendingDebits.delete(attempt)) return;
+  const energyCost = quantizeEnergy(Math.max(0, attempt.energyCost));
+  const energyBefore = state.energies.get(attempt.actorId) ?? 0;
+  const reservedBefore = state.reservedEnergy.get(attempt.actorId) ?? 0;
+  const energyAfter = quantizeEnergy(Math.max(0, energyBefore - energyCost));
+  const reservedAfter = quantizeEnergy(Math.max(0, reservedBefore - energyCost));
+  if (energyCost > energyBefore + ENERGY_COMPARISON_EPSILON ||
+    energyCost > reservedBefore + ENERGY_COMPARISON_EPSILON) {
+    addIssue(context, ["energyCostLog", state.energyCostLogIndex],
+      "a configured delayed debit requires its full reserved energy");
+  }
+  state.energies.set(attempt.actorId, energyAfter);
+  state.reservedEnergy.set(attempt.actorId, reservedAfter);
+  consumeEnergyCostLogRow(result, context, state, attempt, {
+    operation: "debit", frame: operation.frame,
+    timeSeconds: operation.timeSeconds, eventPriority: operation.priority,
+    energyCost, energyBefore, energyAfter, reservedBefore, reservedAfter
+  });
+  const stats = state.stats.get(attempt.actorId);
+  if (stats !== undefined) {
+    stats.spent = quantizeEnergy(stats.spent + energyBefore - energyAfter);
+  }
+  consumeEnergyCurvePoint(result, context, state, {
+    frame: operation.frame, timeSeconds: operation.timeSeconds,
+    kind: "spend", receiverId: attempt.actorId,
+    source: `${attempt.actionId}:energy-cost`
+  });
 }
 
 function cleanupReplayBuffs(
@@ -2879,6 +3767,8 @@ function replayFixedEnergyGroup(
         receiverId,
         activeCharacterId: state.activeCharacterId
       });
+      expectEqual(context, [...path, "artifactEventLogId"], row.artifactEventLogId,
+        group.artifactEventLogId, "independently replayed artifact energy provenance");
       expectNearlyEqual(
         context,
         [...path, "energyBefore"],
@@ -3296,13 +4186,18 @@ function validateReplayStats(
 }
 
 /**
- * Replays every 1.42 energy mutation from the versioned input configuration.
+ * Replays energy mutations from the versioned input configuration, retaining
+ * the historical immediate-cost path and the current delayed-cost contract.
  *
  * This is intentionally independent of sim-core. It binds action costs,
  * fixed gains, particle definitions and deterministic particle rolls back to
- * config, then reconstructs the priority-0/1/2 event state machine. Every
- * EnergyLog row, cap/waste calculation, summary bucket and EnergyCurve point
- * is checked against that independent replay.
+ * config, then reconstructs the priority-0/1/2 event state machine. The opt-in
+ * normal-hit callback runs at 3.5, after every same-clock direct hit and its
+ * priority-2 particle receipts, using a separate independently rebuilt RNG.
+ * Current reservations keep actual energy capped normally until their queued debit;
+ * debits beyond the run end remain reserved without a spend. Every EnergyLog
+ * and EnergyCostLog row, cap/waste calculation, summary bucket and EnergyCurve
+ * point is checked against that independent replay.
  */
 export function validateEnergyReplayIntegrity(
   result: SimulationResult,
@@ -3310,9 +4205,14 @@ export function validateEnergyReplayIntegrity(
 ): void {
   const { energyMaxByCharacter } =
     validateTrustedEnergyDomains(result, context);
+  const hasDelayedCosts = validateDelayedEnergyContract(result, context);
+  const normalHitEnergy = createNormalHitEnergyReplay(result, context);
   const attempts = buildExpectedActionAttempts(result, context);
   bindActionOutputs(result, context, attempts);
   validateBoundOutputOrdering(context, attempts);
+  const normalHitEnergyOperations = buildNormalHitEnergyOperations(
+    result, context, attempts, normalHitEnergy
+  );
 
   const { fixedGroups, buffEvents } =
     buildExpectedFixedAndBuffEvents(
@@ -3325,6 +4225,7 @@ export function validateEnergyReplayIntegrity(
     context,
     attempts
   );
+  expectedParticleSpawns.push(...buildFavoniusParticleSpawns(result, context, attempts), ...buildDeclaredParticleSpawns(result));
   const { particleGroups } = bindParticleEvents(
     result,
     context,
@@ -3334,12 +4235,20 @@ export function validateEnergyReplayIntegrity(
     ...fixedGroups,
     ...particleGroups
   ];
+  // Artifact replay needs proven pickup order, but must not recurse through
+  // this complete energy facet or treat reported artifact rows as its source.
+  if (result.config.artifactEventModel !== undefined) {
+    bindEnergyGroupsToLog(result, context, energyGroups, true);
+    energyGroups.push(...buildExpectedArtifactEnergyGroups(result, particleGroups, attempts));
+  }
   bindEnergyGroupsToLog(result, context, energyGroups);
   const operations = buildReplayOperations(
     result,
     attempts,
     buffEvents,
-    energyGroups
+    energyGroups,
+    hasDelayedCosts,
+    normalHitEnergyOperations
   );
 
   const energies = new Map<string, number>();
@@ -3360,6 +4269,8 @@ export function validateEnergyReplayIntegrity(
   }
   const state: EnergyReplayState = {
     energies,
+    reservedEnergy: new Map(),
+    pendingDebits: new Set(),
     stats,
     activeCharacterId:
       result.config.timeline?.initialActiveCharacterId ??
@@ -3368,7 +4279,12 @@ export function validateEnergyReplayIntegrity(
     activeBuffs: [],
     fixedCooldownReadyFrames: new Map(),
     energyLogIndex: 0,
-    energyCurveIndex: 0
+    energyCostLogIndex: 0,
+    costEventSequences: new Set(),
+    reservationSequences: new Map(),
+    previousCostEvent: null,
+    energyCurveIndex: 0,
+    normalHitEnergy
   };
 
   consumeEnergyCurvePoint(result, context, state, {
@@ -3388,6 +4304,10 @@ export function validateEnergyReplayIntegrity(
       replayAction(result, context, state, operation.attempt);
     } else if (operation.kind === "buff") {
       replayBuff(result, context, state, operation.event);
+    } else if (operation.kind === "debit") {
+      replayDelayedDebit(result, context, state, operation);
+    } else if (operation.kind === "normal-hit-energy") {
+      replayNormalHitEnergyDamage(result, context, state, operation, energyMaxByCharacter);
     } else if (operation.group.kind === "fixed") {
       replayFixedEnergyGroup(
         result,
@@ -3405,6 +4325,18 @@ export function validateEnergyReplayIntegrity(
         energyMaxByCharacter
       );
     }
+  }
+
+  for (let index = normalHitEnergy?.logIndex ?? 0;
+    index < (result.normalHitEnergyLog?.length ?? 0); index += 1) {
+    addIssue(context, ["normalHitEnergyLog", index],
+      "unexpected normal-hit energy row without an actual configured swap or landed direct-hit callback");
+  }
+
+  for (let index = state.energyCostLogIndex;
+    index < (result.energyCostLog?.length ?? 0); index += 1) {
+    addIssue(context, ["energyCostLog", index],
+      "unexpected energy cost record without a configured reservation or in-range debit");
   }
 
   if (state.energyLogIndex !== result.energyLog.length) {

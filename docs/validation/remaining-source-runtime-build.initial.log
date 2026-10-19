@@ -1,0 +1,52 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/artifact-buff-controls.ts(55,5): error TS2322: Type '{ mode: "fixed-source-no-character-hitlag-v1"; actors: { actorId: string; effectId: "fragment-4pc" | "gilded-4pc" | "instructor-4pc" | "noblesse-4pc" | "paradise-4pc" | "vermillion-4pc"; noblesseSelfDelayFrames?: 0 | ... 1 more ... | undefined; }[]; }' is not assignable to type 'ArtifactBuffModel'.
+  Types of property 'actors' are incompatible.
+    Type '{ actorId: string; effectId: "fragment-4pc" | "gilded-4pc" | "instructor-4pc" | "noblesse-4pc" | "paradise-4pc" | "vermillion-4pc"; noblesseSelfDelayFrames?: 0 | 1 | undefined; }[]' is not assignable to type 'ArtifactBuffActor[]'.
+      Type '{ actorId: string; effectId: "fragment-4pc" | "gilded-4pc" | "instructor-4pc" | "noblesse-4pc" | "paradise-4pc" | "vermillion-4pc"; noblesseSelfDelayFrames?: 0 | 1 | undefined; }' is not assignable to type 'ArtifactBuffActor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+        Types of property 'noblesseSelfDelayFrames' are incompatible.
+          Type '0 | 1 | undefined' is not assignable to type '0 | 1'.
+            Type 'undefined' is not assignable to type '0 | 1'.
+apps/web/src/player-health-ledger.ts(34,284): error TS7053: Element implicitly has an 'any' type because expression of type 'PlayerHpTimelineOperation' can't be used to index type '{ initial: string; damage: string; heal: string; consume: string; "bond-add": string; "bond-remove": string; "max-hp-change": string; "simulation-end": string; }'.
+  Property 'shield-hit' does not exist on type '{ initial: string; damage: string; heal: string; consume: string; "bond-add": string; "bond-remove": string; "max-hp-change": string; "simulation-end": string; }'.
+packages/schemas/src/artifact-buff-integrity.ts(60,49): error TS2379: Argument of type '{ event: { kind: "swap"; frame: number; previousActorId: string | null; nextActorId: string; }; priority: number; sequence: number | undefined; actionOrder: number; slot: number; links: { parentDamageEventId: number | null; playerHealthEventId: number | null; reactionTaskLogId: number | null; parentArtifactBuffLogId...' is not assignable to parameter of type 'Hook' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sequence' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/schemas/src/artifact-buff-integrity.ts(63,101): error TS2379: Argument of type '{ event: { kind: "burst"; frame: number; sourceActorId: string; activeCharacterId: string; }; priority: number; sequence: number | undefined; actionOrder: number; slot: number; links: { parentDamageEventId: number | null; playerHealthEventId: number | null; reactionTaskLogId: number | null; parentArtifactBuffLogId: ...' is not assignable to parameter of type 'Hook' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sequence' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/schemas/src/artifact-buff-integrity.ts(95,75): error TS2379: Argument of type '{ event: { kind: "stats-sample"; frame: number; actorId: string; }; priority: number; sequence: number | undefined; actionOrder: number | undefined; slot: number; links: Links; }' is not assignable to parameter of type 'Hook' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sequence' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/schemas/src/artifact-buff-integrity.ts(103,16): error TS2379: Argument of type '{ event: { kind: "react-bonus-read"; actorId: string; reaction: string; frame: number; }; priority: number; sequence: number | undefined; slot: number; links: Links; }' is not assignable to parameter of type 'Hook' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sequence' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/schemas/src/artifact-buff-integrity.ts(163,67): error TS2379: Argument of type '{ event: { kind: "delayed-buff"; frame: number; task: ArtifactBuffDelayedApplication; }; priority: number; slot: number; sequence: number | undefined; links: { actionLogIndex: number | null; parentDamageEventId: number | null; playerHealthEventId: number | null; reactionTaskLogId: number | null; parentArtifactBuffLo...' is not assignable to parameter of type 'Hook' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sequence' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/schemas/src/artifact-buff-model.ts(78,61): error TS2345: Argument of type 'string' is not assignable to parameter of type '"flower-4pc-buff" | "fragmentofharmonicwhimsy-4pc" | "gd-4pc" | "instructor-4pc" | "nob-4pc" | "verm-4pc"'.
+packages/schemas/src/schema.ts(33688,176): error TS2538: Type 'null' cannot be used as an index type.
+packages/schemas/src/schema.ts(33688,176): error TS2538: Type '{}' cannot be used as an index type.
+packages/sim-core/src/mixed-source-formulas.ts(90,107): error TS2379: Argument of type '{ templateRole: string; frame: number; snapshotFrame: number; snapshotId: string; targetId: string; dewConsumed?: number | undefined; laumaOwnShredActive?: boolean | undefined; odetteA1Stacks?: number | undefined; id: string; }' is not assignable to parameter of type 'MixedSourceCandidate' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'dewConsumed' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+packages/sim-core/src/mixed-source-schedule.ts(15,168): error TS2379: Argument of type '{ dewConsumed?: number; laumaOwnShredActive?: boolean; odetteA1Stacks?: number; id: string; templateRole: string; frame: number; snapshotFrame: number; snapshotId: string; targetId: string; contact: boolean | undefined; }' is not assignable to parameter of type 'MixedSourceCandidate' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'contact' are incompatible.
+    Type 'boolean | undefined' is not assignable to type 'boolean'.
+      Type 'undefined' is not assignable to type 'boolean'.
+packages/sim-core/src/remaining-source-batch.test.ts(14,153): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+
+wall_seconds=2.513

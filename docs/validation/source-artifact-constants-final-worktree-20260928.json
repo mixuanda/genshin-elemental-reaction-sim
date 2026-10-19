@@ -1,0 +1,72 @@
+{
+  "command": "git diff --check; scoped added-file whitespace checks",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "tracked": {
+    "exitCode": 0,
+    "output": ""
+  },
+  "addedFiles": [
+    {
+      "path": "packages/sim-core/src/source-host-artifact-constant-group-a.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-constant-group-b.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-constant-formula.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-formula.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/sim-core/src/source-host-artifact-support.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/source-host/go/pkg/core/sourcehost/artifact_scalar.go",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/go/pkg/core/sourcehost/artifact_scalar.go",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/source-host/stellar-overlay/build.mjs",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "apps/web/src/source-host-calculator.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "apps/web/e2e/source-artifact-constants.spec.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "packages/sim-core/src/__tests__/source-host-artifact-constants.test.ts",
+      "exitCode": 1,
+      "output": ""
+    },
+    {
+      "path": "docs/source-artifact-constants-20260928.zh-CN.md",
+      "exitCode": 1,
+      "output": ""
+    }
+  ],
+  "wallSeconds": 0.137,
+  "interpretation": "Tracked diff returned 0. Added-file no-index checks returned 1 because each file differs from /dev/null, with no whitespace diagnostics; this is not a failing test."
+}

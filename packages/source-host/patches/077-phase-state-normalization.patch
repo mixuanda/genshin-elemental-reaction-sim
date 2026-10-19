@@ -1,0 +1,176 @@
+diff --git a/internal/template/character/sourcehost_phase_state.go b/internal/template/character/sourcehost_phase_state.go
+--- a/internal/template/character/sourcehost_phase_state.go
++++ b/internal/template/character/sourcehost_phase_state.go
+@@ -18,16 +18,19 @@
+ 		if len(queue) > 0 {
+ 			remaining = c.cdQueueWorkerStartedAt[index] + queue[0] - c.Core.F
+ 		}
+-		cooldowns = append(cooldowns, map[string]any{
++		entry := map[string]any{
+ 			"action":                   action.Action(index).String(),
+ 			"actionCD":                 c.ActionCD[index],
+ 			"availableCharges":         c.AvailableCDCharge[index],
+ 			"additionalCharges":        c.additionalCDCharge[index],
+ 			"queueDurations":           queue,
+-			"workerStartedAgo":         c.Core.F - c.cdQueueWorkerStartedAt[index],
+ 			"currentCooldownRemaining": remaining,
+ 			"workerPresent":            workerPresent,
+-		})
++		}
++		if len(queue) > 0 {
++			entry["workerStartedAgo"] = c.Core.F - c.cdQueueWorkerStartedAt[index]
++		}
++		cooldowns = append(cooldowns, entry)
+ 		if workerPresent {
+ 			gaps = append(gaps, fmt.Sprintf("character[%d].cooldown[%d] worker callback", c.Index(), index))
+ 		}
+diff --git a/pkg/core/player/animation/sourcehost_phase_state.go b/pkg/core/player/animation/sourcehost_phase_state.go
+--- a/pkg/core/player/animation/sourcehost_phase_state.go
++++ b/pkg/core/player/animation/sourcehost_phase_state.go
+@@ -4,16 +4,21 @@
+ // action's CanUse, CanQueueNext or Tick methods.
+ func (h *AnimationHandler) SourceHostPhaseState() (map[string]any, []string) {
+ 	frame := *h.f
++	if h.aniEvt == nil {
++		// CurrentStateStart remains observable after the action ends. The old
++		// character, action and expiry fields have no live reader in this state.
++		return map[string]any{
++			"active": false, "state": h.state.String(),
++			"startedAgo": frame - h.started,
++		}, nil
++	}
+ 	state := map[string]any{
+ 		"characterIndex":       h.char,
+ 		"startedAgo":           frame - h.started,
+ 		"lastAction":           h.lastAct.String(),
+ 		"state":                h.state.String(),
+ 		"stateExpiryRemaining": h.stateExpiry - frame,
+-		"active":               h.aniEvt != nil,
+-	}
+-	if h.aniEvt == nil {
+-		return state, nil
++		"active":               true,
+ 	}
+ 	info, gaps := h.aniEvt.SourceHostPhaseState()
+ 	state["actionInfo"] = info
+diff --git a/pkg/core/player/character/sourcehost_phase_state.go b/pkg/core/player/character/sourcehost_phase_state.go
+--- a/pkg/core/player/character/sourcehost_phase_state.go
++++ b/pkg/core/player/character/sourcehost_phase_state.go
+@@ -107,8 +107,8 @@
+ 		"normalHitNum": c.NormalHitNum, "normalCounter": c.NormalCounter,
+ 		"tags": tags, "baseStats": baseStats, "modifiers": mods,
+ 		"remainingDashCD": c.RemainingDashCD, "dashLockout": c.DashLockout,
+-		"timePassed": c.TimePassed, "localClockLag": *c.f - c.TimePassed,
+-		"frozenFrames": c.frozenFrames,
++		"localClockLag": *c.f - c.TimePassed,
++		"frozenFrames":  c.frozenFrames,
+ 	}
+ 	if concrete, ok := c.Character.(interface {
+ 		SourceHostTemplatePhaseState() (map[string]any, []string)
+diff --git a/pkg/core/player/infusion/sourcehost_phase_state.go b/pkg/core/player/infusion/sourcehost_phase_state.go
+--- a/pkg/core/player/infusion/sourcehost_phase_state.go
++++ b/pkg/core/player/infusion/sourcehost_phase_state.go
+@@ -5,6 +5,10 @@
+ func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
+ 	entries := make([]map[string]any, len(h.infusion))
+ 	for index, inf := range h.infusion {
++		if inf.Expiry < float64(*h.f) && inf.Expiry != -1 {
++			entries[index] = map[string]any{"characterIndex": index, "expired": true}
++			continue
++		}
+ 		tags := make([]int, len(inf.Tags))
+ 		for i, tag := range inf.Tags {
+ 			tags[i] = int(tag)
+@@ -16,7 +20,7 @@
+ 		entries[index] = map[string]any{
+ 			"characterIndex": index, "key": inf.Key, "element": inf.Ele.String(),
+ 			"attackTags": tags, "expiryRemaining": expiryRemaining,
+-			"canBeOverridden": inf.CanBeOverridden,
++			"canBeOverridden": inf.CanBeOverridden, "permanent": inf.Expiry == -1,
+ 		}
+ 	}
+ 	return map[string]any{"entries": entries}, nil
+diff --git a/pkg/core/player/shield/sourcehost_phase_state.go b/pkg/core/player/shield/sourcehost_phase_state.go
+--- a/pkg/core/player/shield/sourcehost_phase_state.go
++++ b/pkg/core/player/shield/sourcehost_phase_state.go
+@@ -31,6 +31,8 @@
+ 		expiry := mod.Expiry - *h.f
+ 		if mod.Expiry == -1 {
+ 			expiry = -1
++		} else if expiry < 0 {
++			expiry = -2
+ 		}
+ 		bonusMods = append(bonusMods, map[string]any{
+ 			"key": mod.Key, "expiryRemaining": expiry, "active": mod.Expiry == -1 || mod.Expiry > *h.f,
+diff --git a/pkg/core/player/sourcehost_phase_state.go b/pkg/core/player/sourcehost_phase_state.go
+--- a/pkg/core/player/sourcehost_phase_state.go
++++ b/pkg/core/player/sourcehost_phase_state.go
+@@ -27,6 +27,8 @@
+ 		remaining := mod.Expiry - *h.F
+ 		if mod.Expiry == -1 {
+ 			remaining = -1
++		} else if remaining < 0 {
++			remaining = -2
+ 		}
+ 		staminaMods = append(staminaMods, map[string]any{
+ 			"key": mod.Key, "expiryRemaining": remaining,
+@@ -42,21 +44,29 @@
+ 	gaps = append(gaps, animationGaps...)
+ 	gaps = append(gaps, shieldGaps...)
+ 	gaps = append(gaps, infusionGaps...)
++	staminaAge := *h.F - h.LastStamUse
++	if staminaAge > StamCDFrames {
++		staminaAge = StamCDFrames + 1
++	}
++	dewRemaining := h.verdantDewExpiryFrame - *h.F
++	if dewRemaining < 0 {
++		dewRemaining = -1
++	}
+ 	state := map[string]any{
+ 		"activeCharacter": h.active, "characterPositions": positions,
+ 		"characters": characters,
+-		"stamina":    h.Stam, "lastStaminaUseAgo": *h.F - h.LastStamUse,
++		"stamina":    h.Stam, "lastStaminaUseAgo": staminaAge,
+ 		"staminaModifiers": staminaMods,
+ 		"airborneSource":   int(h.airborne),
+ 		"swapCooldown":     h.SwapCD, "swapInterval": h.SwapICD,
+ 		"dashCooldownRemaining": h.DashCDExpirationFrame - *h.F,
+ 		"dashLockout":           h.DashLockout,
+ 		"lastAction": map[string]any{
+-			"usedAgo": *h.F - h.LastAction.UsedAt, "type": h.LastAction.Type.String(),
++			"type":       h.LastAction.Type.String(),
+ 			"parameters": params, "characterIndex": h.LastAction.Char,
+ 		},
+ 		"verdantDew":                h.verdantDew,
+-		"verdantDewExpiryRemaining": h.verdantDewExpiryFrame - *h.F,
++		"verdantDewExpiryRemaining": dewRemaining,
+ 		"partialDewCount":           h.partialDewCount,
+ 		"moonridgeDew":              h.moonridgeDew,
+ 		"animation":                 animationState, "infusions": infusionState, "shields": shieldState,
+diff --git a/pkg/core/status/sourcehost_phase_state.go b/pkg/core/status/sourcehost_phase_state.go
+--- a/pkg/core/status/sourcehost_phase_state.go
++++ b/pkg/core/status/sourcehost_phase_state.go
+@@ -2,8 +2,8 @@
+ 
+ import "sort"
+ 
+-// SourceHostPhaseState includes retained expired entries because their presence
+-// can affect a later refresh, even when Duration would currently return zero.
++// SourceHostPhaseState keeps only live statuses. Duration, Add and Extend all
++// treat expiry at or before the current frame as inactive.
+ func (h *Handler) SourceHostPhaseState() (map[string]any, []string) {
+ 	keys := make([]string, 0, len(h.status))
+ 	for key := range h.status {
+@@ -13,9 +13,11 @@
+ 	entries := make([]map[string]any, 0, len(keys))
+ 	for _, key := range keys {
+ 		entry := h.status[key]
++		if entry.expiry <= *h.f {
++			continue
++		}
+ 		entries = append(entries, map[string]any{
+ 			"key": key, "expiryRemaining": entry.expiry - *h.f,
+-			"active": entry.expiry > *h.f,
+ 		})
+ 	}
+ 	return map[string]any{"entries": entries}, nil

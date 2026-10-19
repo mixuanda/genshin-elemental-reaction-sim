@@ -1,0 +1,10 @@
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -34,6 +34,7 @@
+ 
+ type AttackInfo struct {
+ 	SourceHostComponents []SourceHostComponent `json:"-"`
++	SourceHostMultiplierID int `json:"-"`
+ 	ActorIndex       int       // character this attack belongs to
+ 	DamageSrc        TargetKey // source of this attack; should be a unique key identifying the target
+ 	Abil             string    // name of ability triggering the damage

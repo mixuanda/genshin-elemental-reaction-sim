@@ -1,0 +1,228 @@
+{
+  "schemaVersion": "1.53.0",
+  "engineVersion": "1.53.0-callback-bus",
+  "dataVersion": "external-gcsim-v2.44.1-resolved-context",
+  "randomSeed": "controlled-two-character-no-crit",
+  "meta": {
+    "name": "固定 gcsim 双角色反向蒸发对照",
+    "version": "gcsim-v2.44.1-barbara-amber-reverse-vaporize",
+    "verificationStatus": "provisional",
+    "note": "Controlled resolved stats and action mapping against a pinned external executable; not a complete character or current patch claim."
+  },
+  "duration": 8,
+  "cycleLength": 8,
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defReduction": 0
+  },
+  "playerDamageModel": {
+    "mode": "disabled"
+  },
+  "targetClockModel": {
+    "mode": "disabled"
+  },
+  "targetTaskModel": {
+    "mode": "legacy-event-heap-v1"
+  },
+  "reactionDeliveryModel": {
+    "mode": "deferred-event-heap-v1"
+  },
+  "electroChargedPropagationModel": {
+    "mode": "single-target-v1"
+  },
+  "reactionFormulaModel": {
+    "mode": "classic-formula-profile-v1",
+    "profileId": "gcsim-b4ae769-classic-provisional-v1"
+  },
+  "directDamageGroupModel": {
+    "mode": "fixed-gcsim-direct-damage-group-v1",
+    "profileId": "gcsim-b4ae769-damage-groups-provisional-v1"
+  },
+  "elementalApplicationIcdModel": {
+    "mode": "fixed-gcsim-elemental-application-v1",
+    "profileId": "gcsim-b4ae769-elemental-application-provisional-v1"
+  },
+  "reactionOwnedElementalApplicationModel": {
+    "mode": "fixed-gcsim-reaction-owned-application-v2",
+    "policyId": "gcsim-b4ae769-reaction-owned-elemental-application-policy-provisional-v2"
+  },
+  "reactionDamageGroupModel": {
+    "mode": "fixed-gcsim-reaction-damage-task-order-v2",
+    "policyId": "gcsim-b4ae769-reaction-damage-group-task-order-provisional-v2"
+  },
+  "basicReactionSchedulerModel": {
+    "mode": "fixed-gcsim-basic-reaction-scheduler-v2",
+    "policyId": "gcsim-b4ae769-basic-reaction-scheduler-provenance-provisional-v2"
+  },
+  "freezeBrokenAttackModel": {
+    "mode": "fixed-gcsim-freeze-broken-callback-dispatch-v3",
+    "policyId": "gcsim-b4ae769-freeze-broken-callback-dispatch-provisional-v3"
+  },
+  "callbackBusModel": {
+    "mode": "fixed-gcsim-versioned-callback-bus-v2",
+    "policyId": "gcsim-b4ae769-versioned-callback-bus-normalized-provisional-v2"
+  },
+  "characters": [
+    {
+      "id": "barbara",
+      "name": "Barbara",
+      "element": "hydro",
+      "color": "#0000ff",
+      "level": 1,
+      "energyMax": 80,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 36.601,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 820.6119,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 56.0805,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 0,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    },
+    {
+      "id": "amber",
+      "name": "Amber",
+      "element": "pyro",
+      "color": "#ff0000",
+      "level": 1,
+      "energyMax": 40,
+      "initialEnergy": 0,
+      "stats": {
+        "baseAtk": 41.9434,
+        "atkPct": 0,
+        "flatAtk": 0,
+        "baseHp": 793.2582,
+        "hpPct": 0,
+        "flatHp": 0,
+        "baseDef": 50.358,
+        "defPct": 0,
+        "flatDef": 0,
+        "em": 100,
+        "critRate": 0,
+        "critDmg": 0.5,
+        "dmgBonus": 0,
+        "defIgnore": 0,
+        "reactionBonus": 0,
+        "energyRecharge": 1
+      }
+    }
+  ],
+  "rotation": [],
+  "reactionEngine": {
+    "mode": "aura-v3",
+    "initialAura": []
+  },
+  "timeline": {
+    "mode": "legal-frame-v1",
+    "fps": 60,
+    "legalityMode": "strict",
+    "initialActiveCharacterId": "barbara",
+    "swapFrames": 1,
+    "abilities": [
+      {
+        "id": "barbara-n1",
+        "actorId": "barbara",
+        "name": "Normal 0",
+        "kind": "normal",
+        "cancelFrame": 6,
+        "animationEndFrame": 23,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "barbara-n1-hit",
+            "label": "Normal 0",
+            "frame": 6,
+            "scaling": 0.3784,
+            "scalingStat": "atk",
+            "element": "hydro",
+            "snapshot": "hit",
+            "application": {
+              "gaugeUnits": 1,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "normal",
+                "groupId": "default"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "id": "amber-aim",
+        "actorId": "amber",
+        "name": "Fully-Charged Aimed Shot",
+        "kind": "charge",
+        "cancelFrame": 86,
+        "cancelFrames": {
+          "charge": 96
+        },
+        "animationEndFrame": 96,
+        "cooldownFrames": 0,
+        "hits": [
+          {
+            "id": "amber-aim-hit",
+            "label": "Fully-Charged Aimed Shot",
+            "frame": 96,
+            "scaling": 1.24,
+            "scalingStat": "atk",
+            "element": "pyro",
+            "snapshot": "hit",
+            "application": {
+              "gaugeUnits": 2,
+              "icd": {
+                "mode": "fixed-gcsim-application-v1",
+                "icdTag": "extra",
+                "groupId": "amber"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "type": "wait",
+        "frames": 1
+      },
+      {
+        "type": "normal",
+        "actorId": "barbara",
+        "abilityId": "barbara-n1"
+      },
+      {
+        "type": "wait",
+        "frames": 60
+      },
+      {
+        "type": "swap",
+        "characterId": "amber"
+      },
+      {
+        "type": "charge",
+        "actorId": "amber",
+        "abilityId": "amber-aim"
+      },
+      {
+        "type": "charge",
+        "actorId": "amber",
+        "abilityId": "amber-aim"
+      },
+      {
+        "type": "wait",
+        "frames": 480
+      }
+    ]
+  }
+}

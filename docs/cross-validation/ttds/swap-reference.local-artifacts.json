@@ -1,0 +1,85 @@
+{
+  "kind": "hashing-saved-artifacts-only-no-simulation",
+  "files": [
+    {
+      "path": "docs/cross-validation/ttds/compare-local.mjs",
+      "bytes": 11173,
+      "sha256": "2f9685c89b94ec54b65b9515542d93d8ba70880f61ce8898182e642de655368e"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.local-config.json",
+      "bytes": 9072,
+      "sha256": "e0b4c55c3b0fdee4b6e2887420b00ebb00d85a52ece4fff2ebd0e07621a0c69a"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.local-metrics.json",
+      "bytes": 45050,
+      "sha256": "123c63716c2db25879c56acb1e8d8ac7bc06e4bb49d40d7b49dae871067d82a3"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.local-result.json",
+      "bytes": 324011,
+      "sha256": "b5999e0a026d0fa9a7e52833684d653aa7ee45c4d171f69e07143a96fa2bc4e8"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-0.capture.json",
+      "bytes": 344616,
+      "sha256": "e9629b09ed5c8c8f7373595668afdf97fe0871a0a35d0745e6dc2994f8a0639e"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-1.capture.json",
+      "bytes": 344616,
+      "sha256": "49e6fd41006ed092e8b9f23e6a88df9a1d59ebe3e502f9b6860289d46d88753d"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-2.capture.json",
+      "bytes": 344616,
+      "sha256": "2391d9f138b376aeca8beb6ee4ca75d19a9c82f0c668ad16fbc5c0407d834d62"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-3.capture.json",
+      "bytes": 344616,
+      "sha256": "768a6ae6ce6def6f006f264bc3ccd3b704df2b5ca976507c20f2cd33b155de9a"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-4.capture.json",
+      "bytes": 344616,
+      "sha256": "fa9536cc9dfa37e7cf355e0895bdc15a242b42449d216f65f5959ff861dd338b"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-5.capture.json",
+      "bytes": 344616,
+      "sha256": "b724fe5331caa62972e6b24e5b413c35a0d69bece22a7ba8c677507cc1ef4010"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-0.replay.json",
+      "bytes": 406857,
+      "sha256": "95dbe2f89548e3eaa1cbd2fb54d7d395046eead05af9da123adcf812cf67aa71"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-1.replay.json",
+      "bytes": 406825,
+      "sha256": "ffb011ab2a69b28c64e5058a41ac17c4165c880189e1a7148c2bb7a96cf0d414"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-2.replay.json",
+      "bytes": 403736,
+      "sha256": "bdb04a3400c830667204e5d68949ffd9e71beae8db769351c83de1e269dbf3fc"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-3.replay.json",
+      "bytes": 406826,
+      "sha256": "de2cd94d11e9553e9624a4f20470faa42be67b2f685da4f608c53650e0b9eb6f"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-4.replay.json",
+      "bytes": 403711,
+      "sha256": "7bdbd2cebb3fde2cd0eb4a8d587983c55d048344446db089507a25554d50f1cd"
+    },
+    {
+      "path": "docs/cross-validation/ttds/swap-reference.hit-5.replay.json",
+      "bytes": 403683,
+      "sha256": "ab2ee28eaa85fee47b779cfb87f20f972fb5d652151f8e9322bf8c80c3541d7f"
+    }
+  ]
+}

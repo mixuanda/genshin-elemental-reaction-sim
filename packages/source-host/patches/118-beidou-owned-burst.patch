@@ -1,0 +1,27 @@
+--- a/internal/characters/beidou/burst.go
++++ b/internal/characters/beidou/burst.go
+@@ -53,7 +53,7 @@
+ 
+ 	dur := 15 * 60
+ 	// beidou burst is not hitlag extendable
+-	c.AddStatus(burstKey, dur, false)
++	c.SourceHostAddOwnedGeneratorStatus("beidou.burst.stormbreaker-status", burstKey, dur, false)
+ 
+ 	procAI := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+@@ -161,7 +161,14 @@
+ 			atk.Callbacks = append(atk.Callbacks, cb)
+ 		}
+ 		c.Core.SourceHostEventListenerFact("beidou.burst.attack-count", 1)
+-		c.Core.SourceHostQueueEventAttackEvent("beidou.burst.first-bounce", &atk, 1)
++		c.SourceHostTriggerOwnedGenerator("beidou.burst.stormbreaker.enemy-damage", burstKey, "enemy-damage", func() {
++			if c.Core.SourceHost != nil {
++				if owner := c.Core.SourceHost.Origin.Snapshot().StatusOwner; owner != nil {
++					c.Core.SourceHostEventListenerFact("beidou.burst.status-instance", float64(owner.InstanceID))
++				}
++			}
++			c.Core.SourceHostQueueOwnedEventAttackEvent("beidou.burst.bounce", "beidou.burst.first-bounce", &atk, 1)
++		})
+ 
+ 		c.Core.Log.NewEvent("Stormbreaker bounce triggered", glog.LogCharacterEvent, c.Index()).
+ 			Write("char", ae.Info.ActorIndex).

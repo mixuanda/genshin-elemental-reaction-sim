@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "recordedAt": "2026-09-23T23:44:21.133752+00:00",
+  "gcsimRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogRevision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "files": [
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/catalyst/thrilling/thrilling.go",
+      "file": "../weapon-catalyst-effects/gcsim/internal__weapons__catalyst__thrilling__thrilling.go.txt",
+      "reused": true,
+      "bytes": 1926,
+      "sha256": "24e87efc11b764814cca1964901b84f19c895a99d3454231c65486df5976ff28",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/thrilling/thrilling.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/thrilling/thrilling.go",
+      "license": "MIT",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/gcsim/internal__weapons__catalyst__thrilling__thrilling.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/player.go",
+      "file": "../weapon-additional-effects/gcsim/pkg__core__player__player.go.txt",
+      "reused": true,
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "license": "MIT",
+      "archivedPath": "packages/game-data/sources/weapon-additional-effects/gcsim/pkg__core__player__player.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/stats.go",
+      "file": "../weapon-catalyst-effects/gcsim/pkg__core__player__character__stats.go.txt",
+      "reused": true,
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "license": "MIT",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/gcsim/pkg__core__player__character__stats.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/hitlag.go",
+      "file": "../weapon-lifecycle-next/gcsim/pkg__core__player__character__hitlag.go.txt",
+      "reused": true,
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go",
+      "license": "MIT",
+      "archivedPath": "packages/game-data/sources/weapon-lifecycle-next/gcsim/pkg__core__player__character__hitlag.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/modifier/modifier.go",
+      "file": "../artifact-reaction-effects/pkg__modifier__modifier.go.txt",
+      "reused": true,
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "license": "MIT",
+      "archivedPath": "packages/game-data/sources/artifact-reaction-effects/pkg__modifier__modifier.go.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/thrillingtalesofdragonslayers.json",
+      "file": "../weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__thrillingtalesofdragonslayers.json.txt",
+      "reused": true,
+      "bytes": 4060,
+      "sha256": "726b25b56bdf9b572392a3abdf714c8ee2efda9403ae322d8508084280367282",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thrillingtalesofdragonslayers.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thrillingtalesofdragonslayers.json",
+      "license": "MIT",
+      "archivedPath": "packages/game-data/sources/weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__thrillingtalesofdragonslayers.json.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/attributes/stats.go",
+      "archivePath": "packages/game-data/sources/charlotte-c2/source.json.gz",
+      "archiveEntry": "pkg/core/attributes/stats.go",
+      "archiveSha256": "7c154431a94e02d9bfd83da5347c49935c93e8e8bcaff1a41c9a337db84cac2e",
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "reused": true,
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    }
+  ],
+  "coefficients": [
+    0.24,
+    0.3,
+    0.36,
+    0.42,
+    0.48
+  ],
+  "nominalDurationFrames": 600,
+  "nominalCooldownFrames": 1200,
+  "scope": "Incoming TTDS ATK accounting uses actual per-hit buff state and included panel share; standalone does not execute swaps, cooldowns, hitlag or recipient selection."
+}

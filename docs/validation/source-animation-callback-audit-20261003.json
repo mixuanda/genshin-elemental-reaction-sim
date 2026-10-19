@@ -1,0 +1,282 @@
+{
+  "scope": "Source-reviewed shared callback migration; no native execution yet.",
+  "sourceFile": "/tmp/gidps-130-phase-frontier/manifest.json",
+  "data": {
+    "classic": {
+      "source": "/Users/evan/Library/Caches/gidps-source-host/build-voBklW/source",
+      "core": [
+        "pkg/core/action/action.go",
+        "pkg/core/action/sourcehost_phase_state.go",
+        "pkg/core/player/animation/animation.go"
+      ],
+      "sites": [
+        {
+          "path": "internal/characters/hutao/charge.go",
+          "method": "ppChargeAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.BurstState {\n\t\t\t\tc.ExtendStatus(paramitaBuff, -1.8*60)\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/hutao/attack.go",
+          "method": "ppAttack",
+          "mode": "next-action-equality"
+        },
+        {
+          "path": "internal/characters/keqing/attack.go",
+          "method": "Attack",
+          "mode": "next-action-equality"
+        },
+        {
+          "path": "internal/characters/mavuika/charge.go",
+          "method": "BikeCharge",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.ChargeAttackState {\n\t\t\t\tc.caState = ChargeState{}\n\t\t\t\tc.bikeChargeAttackUnhook()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/skirk/burst.go",
+          "method": "BurstExtinction",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.DeleteStatus(burstAbsorbRiftAnimKey) }"
+        },
+        {
+          "path": "internal/characters/sigewinne/skill.go",
+          "method": "Skill",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tc.removeC2Shield()\n\t\t}"
+        },
+        {
+          "path": "internal/characters/sigewinne/burst.go",
+          "method": "Burst",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\t// need to calculate correct swap cd in case of early cancel\n\t\t\tswitch next {\n\t\t\tcase action.DashState, action.JumpState:\n\t\t\t\tc.Core.Player.SwapCD = max(player.SwapCDFrames-(c.Core.F-c.lastSwap), 0)\n\t\t\t}\n\t\t\tc.removeC2Shield()\n\t\t}"
+        },
+        {
+          "path": "internal/characters/neuvillette/charge.go",
+          "method": "chargeAttackJudgement",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\t// need to calculate correct swap cd in case of early cancel\n\t\t\tswitch next {\n\t\t\tcase action.SkillState, action.BurstState, action.DashState, action.JumpState:\n\t\t\t\tc.Core.Player.SwapCD = max(player.SwapCDFrames-(c.Core.F-c.lastSwap), 0)\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/noelle/charge.go",
+          "method": "ChargeAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.ChargeAttackState {\n\t\t\t\tc.caState = ChargeState{}\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/varesa/plunge.go",
+          "method": "highPlungeCA",
+          "mode": "actor-capture",
+          "originalCallback": "c.clearNightsoulCB"
+        },
+        {
+          "path": "internal/characters/varesa/plunge.go",
+          "method": "highPlungeXY",
+          "mode": "actor-capture",
+          "originalCallback": "c.clearNightsoulCB"
+        },
+        {
+          "path": "internal/characters/varesa/plunge.go",
+          "method": "lowPlungeXY",
+          "mode": "actor-capture",
+          "originalCallback": "c.clearNightsoulCB"
+        },
+        {
+          "path": "internal/characters/varesa/burst.go",
+          "method": "volcanicKablam",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tc.clearNightsoulCB(next)\n\t\t\tc.usedShortBurst = false\n\t\t}"
+        },
+        {
+          "path": "internal/characters/xilonen/attack.go",
+          "method": "nightsoulAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif !c.canUseNightsoul() {\n\t\t\t\tc.exitNightsoul()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/mona/dash.go",
+          "method": "Dash",
+          "mode": "actor-capture",
+          "originalCallback": "c.c6OnDashEnd"
+        },
+        {
+          "path": "internal/characters/wanderer/burst.go",
+          "method": "WindfavoredBurst",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next == action.SwapState {\n\t\t\t\tc.checkForSkillEnd()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/traveler/common/hydro/skill.go",
+          "method": "skillPress",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.c4Remove() }"
+        },
+        {
+          "path": "internal/characters/traveler/common/hydro/skill.go",
+          "method": "skillShortHold",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.c4Remove() }"
+        },
+        {
+          "path": "internal/characters/traveler/common/hydro/skill.go",
+          "method": "skillHold",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.c4Remove() }"
+        },
+        {
+          "path": "internal/characters/fischl/burst.go",
+          "method": "Burst",
+          "mode": "opaque",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\t// other actions are handled by burstFullOzFunc\n\t\t\tif next == action.SwapState {\n\t\t\t\tburstShortOzFunc()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/klee/attack.go",
+          "method": "Attack",
+          "mode": "opaque",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tswitch next {\n\t\t\tcase action.SkillState,\n\t\t\t\taction.BurstState,\n\t\t\t\taction.DashState,\n\t\t\t\taction.JumpState:\n\t\t\t\ttryPerformAttack()\n\t\t\t}\n\t\t}"
+        }
+      ]
+    },
+    "stellar": {
+      "source": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-F7xhXt/source",
+      "core": [
+        "pkg/core/action/action.go",
+        "pkg/core/action/sourcehost_phase_state.go",
+        "pkg/core/player/animation/animation.go"
+      ],
+      "sites": [
+        {
+          "path": "internal/characters/hutao/charge.go",
+          "method": "ppChargeAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.BurstState {\n\t\t\t\tc.ExtendStatus(paramitaBuff, -1.8*60)\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/hutao/attack.go",
+          "method": "ppAttack",
+          "mode": "next-action-equality"
+        },
+        {
+          "path": "internal/characters/keqing/attack.go",
+          "method": "Attack",
+          "mode": "next-action-equality"
+        },
+        {
+          "path": "internal/characters/mavuika/charge.go",
+          "method": "BikeCharge",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.ChargeAttackState {\n\t\t\t\tc.caState = ChargeState{}\n\t\t\t\tc.bikeChargeAttackUnhook()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/skirk/burst.go",
+          "method": "BurstExtinction",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.DeleteStatus(burstAbsorbRiftAnimKey) }"
+        },
+        {
+          "path": "internal/characters/sigewinne/skill.go",
+          "method": "Skill",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tc.removeC2Shield()\n\t\t}"
+        },
+        {
+          "path": "internal/characters/sigewinne/burst.go",
+          "method": "Burst",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\t// need to calculate correct swap cd in case of early cancel\n\t\t\tswitch next {\n\t\t\tcase action.DashState, action.JumpState:\n\t\t\t\tc.Core.Player.SwapCD = max(player.SwapCDFrames-(c.Core.F-c.lastSwap), 0)\n\t\t\t}\n\t\t\tc.removeC2Shield()\n\t\t}"
+        },
+        {
+          "path": "internal/characters/neuvillette/charge.go",
+          "method": "chargeAttackJudgement",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\t// need to calculate correct swap cd in case of early cancel\n\t\t\tswitch next {\n\t\t\tcase action.SkillState, action.BurstState, action.DashState, action.JumpState:\n\t\t\t\tc.Core.Player.SwapCD = max(player.SwapCDFrames-(c.Core.F-c.lastSwap), 0)\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/noelle/charge.go",
+          "method": "ChargeAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.ChargeAttackState {\n\t\t\t\tc.caState = ChargeState{}\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/varesa/plunge.go",
+          "method": "highPlungeCA",
+          "mode": "actor-capture",
+          "originalCallback": "c.clearNightsoulCB"
+        },
+        {
+          "path": "internal/characters/varesa/plunge.go",
+          "method": "highPlungeXY",
+          "mode": "actor-capture",
+          "originalCallback": "c.clearNightsoulCB"
+        },
+        {
+          "path": "internal/characters/varesa/plunge.go",
+          "method": "lowPlungeXY",
+          "mode": "actor-capture",
+          "originalCallback": "c.clearNightsoulCB"
+        },
+        {
+          "path": "internal/characters/varesa/burst.go",
+          "method": "volcanicKablam",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tc.clearNightsoulCB(next)\n\t\t\tc.usedShortBurst = false\n\t\t}"
+        },
+        {
+          "path": "internal/characters/xilonen/attack.go",
+          "method": "nightsoulAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif !c.canUseNightsoul() {\n\t\t\t\tc.exitNightsoul()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/mona/dash.go",
+          "method": "Dash",
+          "mode": "actor-capture",
+          "originalCallback": "c.c6OnDashEnd"
+        },
+        {
+          "path": "internal/characters/wanderer/burst.go",
+          "method": "WindfavoredBurst",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next == action.SwapState {\n\t\t\t\tc.checkForSkillEnd()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/traveler/common/hydro/skill.go",
+          "method": "skillPress",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.c4Remove() }"
+        },
+        {
+          "path": "internal/characters/traveler/common/hydro/skill.go",
+          "method": "skillShortHold",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.c4Remove() }"
+        },
+        {
+          "path": "internal/characters/traveler/common/hydro/skill.go",
+          "method": "skillHold",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) { c.c4Remove() }"
+        },
+        {
+          "path": "internal/characters/fischl/burst.go",
+          "method": "Burst",
+          "mode": "opaque",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\t// other actions are handled by burstFullOzFunc\n\t\t\tif next == action.SwapState {\n\t\t\t\tburstShortOzFunc()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/klee/attack.go",
+          "method": "Attack",
+          "mode": "opaque",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tswitch next {\n\t\t\tcase action.SkillState,\n\t\t\t\taction.BurstState,\n\t\t\t\taction.DashState,\n\t\t\t\taction.JumpState:\n\t\t\t\ttryPerformAttack()\n\t\t\t}\n\t\t}"
+        },
+        {
+          "path": "internal/characters/itto/charge.go",
+          "method": "ChargeAttack",
+          "mode": "actor-capture",
+          "originalCallback": "func(next action.AnimationState) {\n\t\t\tif next != action.ChargeAttackState {\n\t\t\t\tc.slashState = InvalidSlash\n\t\t\t\tc.a1Stacks = 0\n\t\t\t\tc.stacksConsumed = 0\n\t\t\t}\n\t\t}"
+        }
+      ]
+    }
+  },
+  "integrationStatus": "Integrated; both native builds, registry, Web/typecheck and focused aggregate page check passed within the recorded scope.",
+  "measurements": "docs/validation/source-animation-eye-frontier-measurements-20261003.json"
+}

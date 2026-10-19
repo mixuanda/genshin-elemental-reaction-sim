@@ -1,0 +1,22 @@
+--- a/pkg/core/info/combat.go
++++ b/pkg/core/info/combat.go
+@@ -39,6 +39,7 @@
+ 	SourceHostComponents []SourceHostComponent `json:"-"`
+ 	SourceHostMultiplierID int `json:"-"`
+ 	SourceHostTalentTableRead *SourceHostTalentTableRead `json:"-"`
++	SourceHostTalentExpressionRead *SourceHostTalentExpressionRead `json:"-"`
+ 	ActorIndex       int       // character this attack belongs to
+ 	DamageSrc        TargetKey // source of this attack; should be a unique key identifying the target
+ 	Abil             string    // name of ability triggering the damage
+--- a/pkg/core/player/character/sourcehost_private_phase.go
++++ b/pkg/core/player/character/sourcehost_private_phase.go
+@@ -147,7 +147,8 @@
+ 			// A generated talent-table receipt records an earlier scalar read,
+ 			// never a gameplay property of the retained AttackInfo.
+ 			if v.Type().PkgPath() == "github.com/genshinsim/gcsim/pkg/core/info" &&
+-				v.Type().Name() == "AttackInfo" && field.Name == "SourceHostTalentTableRead" {
++				v.Type().Name() == "AttackInfo" &&
++				(field.Name == "SourceHostTalentTableRead" || field.Name == "SourceHostTalentExpressionRead") {
+ 				continue
+ 			}
+ 			// Captured Status ownership is trace-only; duration and active

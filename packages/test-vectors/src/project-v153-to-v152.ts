@@ -11,6 +11,7 @@ import {
   createSimulationConfigHash,
   createSimulationReproducibilityKey,
   simulationResultV152Schema,
+  simConfigV152Schema,
   simulationResultV153Schema,
   type SimConfigV152,
   type SimulationResultForV152,
@@ -104,12 +105,12 @@ export function projectSimulationResultV153ToV152(
     freezeBrokenAttackModel: _freezeBrokenAttackModel,
     ...configRest
   } = result.config;
-  const config: SimConfigV152 = {
+  const config: SimConfigV152 = simConfigV152Schema.parse({
     ...configRest,
     schemaVersion: FREEZE_BROKEN_ATTACK_SCHEMA_VERSION,
     engineVersion: FREEZE_BROKEN_ATTACK_ENGINE_VERSION,
     freezeBrokenAttackModel: selectedFreezeBrokenModel,
-  };
+  });
   const configHash = createSimulationConfigHash(config);
 
   const {

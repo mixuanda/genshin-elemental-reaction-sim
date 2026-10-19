@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAtUtc": "2026-09-30T05:53:23.763071Z",
+  "localDate": "2026-09-30 Asia/Hong_Kong",
+  "scope": "Read-only refresh of the same Lunaris version index and latest indexed charlist, genshin-db GitHub HEAD and latest release, and publisher release evidence recorded in docs/data-evidence-refresh-20260929.json. No character detail refetch, ingestion, candidate normalization, pointer change, promotion, build, or test.",
+  "commandsAndQueries": [
+    {
+      "method": "Python 3 urllib.request HTTPS GET; User-Agent gidps-source-evidence/1.0; 30-second timeout; SHA-256 over exact response bytes. JSON requests used Accept: application/json; publisher news index used Accept: text/html.",
+      "targets": [
+        "https://api.lunaris.moe/data/version.json",
+        "https://api.lunaris.moe/data/7.1.51/charlist.json (selected from the version index response)",
+        "https://api.github.com/repos/theBowja/genshin-db/commits/HEAD",
+        "https://api.github.com/repos/theBowja/genshin-db/releases/latest",
+        "https://genshin.hoyoverse.com/de/news"
+      ],
+      "requestCount": 5,
+      "resultUsed": "Captured each public endpoint once. No unchanged character detail endpoints were revisited."
+    },
+    {
+      "method": "Publisher-domain web search index",
+      "queries": [
+        "site:genshin.hoyoverse.com/de/news/detail Genshin Version 7.2 update 2026 September OR October",
+        "site:genshin.hoyoverse.com/m/es/news/detail \"Version 7.2\" Genshin 2026"
+      ],
+      "resultUsed": "The returned official publisher pages identify Version 7.1 update details (published 2026-09-23) and 7.1 event/news items; neither query surfaced an official 7.2 update detail. The returned Version 7.1 detail index snippet states the update maintenance time and describes new content including Vesna. This is search-index text, not a locally archived official article response."
+    },
+    {
+      "method": "Local read-only state comparison",
+      "targets": [
+        "packages/game-data/manifests/pointers.json",
+        "packages/game-data/manifests/observations.json",
+        "packages/game-data/manifests/sync-state.json",
+        "packages/game-data/manifests/runtime/current.ts",
+        "docs/data-candidates-20260928.zh-CN.md",
+        "docs/update-status.md",
+        "packages/game-data/sources/lunaris-preview-7.1.51-20260928/"
+      ],
+      "resultUsed": "Confirmed current pointer identities, sync state, archived candidate identity, and documented candidate isolation. No manifests or runtime data were written."
+    }
+  ],
+  "externalObservations": [
+    {
+      "id": "lunaris-version-index",
+      "url": "https://api.lunaris.moe/data/version.json",
+      "observedAtUtc": "2026-09-30T05:53:20.858164Z",
+      "httpStatus": 200,
+      "responseBytes": 989,
+      "responseSha256": "3f7fc2a2d0c8a1a422fccf130281c22bc4077c20ac233a4da27139719d51e11d",
+      "httpLastModified": "Wed, 30 Sep 2026 03:57:13 GMT",
+      "etag": "W/\"dlsckq3c9ythrh-gzip\"",
+      "latestProviderVersion": "7.1.51",
+      "versionCount": 49,
+      "versionLabels": [
+        "7.1.51",
+        "7.1.50.2",
+        "7.1.50",
+        "7.1.0",
+        "7.0.54.2",
+        "7.0.54",
+        "7.0.53.2",
+        "7.0.53",
+        "7.0.52.2",
+        "7.0.52",
+        "7.0.51.2",
+        "7.0.51",
+        "7.0.50",
+        "7.0.0",
+        "6.7.54.2",
+        "6.7.54",
+        "6.7.53.2",
+        "6.7.53",
+        "6.7.52.3",
+        "6.7.52.2",
+        "6.7.52",
+        "6.7.51.2",
+        "6.7.51",
+        "6.7.50",
+        "6.7.0",
+        "6.6.54.3",
+        "6.6.54.2",
+        "6.6.54",
+        "6.6.53.2",
+        "6.6.53",
+        "6.6.52",
+        "6.6.51",
+        "6.6.50",
+        "6.6.0",
+        "6.5.54.2",
+        "6.5.54",
+        "6.5.53.2",
+        "6.5.53",
+        "6.5.52",
+        "6.5.52",
+        "6.5.51",
+        "6.5.50",
+        "6.5.0",
+        "6.4.54",
+        "6.4.53",
+        "6.4.52",
+        "6.4.51",
+        "6.4.50",
+        "6.4.0"
+      ],
+      "providerTimestamp": 1791194400,
+      "changeFrom20260929": "The exact response-byte hash, byte count, Last-Modified, and ETag changed from the Sep 29 capture (988 bytes; SHA-256 e749c84a53bc1ecda55ca42aec8e732a43c3021e167ed782b455032e2e6d635f). The latest label remains 7.1.51, the version count remains 49, the returned list includes no 7.2-prefixed label, and providerTimestamp remains 1791194400. The prior report retained only this summary, not its complete version array, so a full entry-by-entry comparison is unavailable and the byte-level difference is not attributed to a specific field. The provider timestamp resolves to 2026-10-05T10:00:00Z; its meaning is undocumented and it is not treated as a release date."
+    },
+    {
+      "id": "lunaris-latest-charlist",
+      "url": "https://api.lunaris.moe/data/7.1.51/charlist.json",
+      "observedAtUtc": "2026-09-30T05:53:21.170589Z",
+      "httpStatus": 200,
+      "responseBytes": 73817,
+      "responseSha256": "28b2bb053ee07b16bb3486879472be57f6f6320e72d46ed182bcc7bd882c27dc",
+      "httpLastModified": "Wed, 30 Sep 2026 03:29:59 GMT",
+      "etag": "W/\"dlsbzvlnabfn1kyh-gzip\"",
+      "keyedEntryCount": 139,
+      "changeFrom20260929": "Byte-for-byte same SHA-256 and byte count as the Sep 29 response and the locally archived 7.1.50.2 charlist. The provider's version index still calls 7.1.51 latest. Entries include multiple Traveler forms; this listing is not a complete version-wide combat-data archive."
+    },
+    {
+      "id": "genshin-db-head",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/commits/HEAD",
+      "observedAtUtc": "2026-09-30T05:53:21.782377Z",
+      "httpStatus": 200,
+      "responseBytes": 860463,
+      "responseSha256": "e71fe1b0ac96cbae4d8cc5897e3eaa00085b56cf60d872f6355a72a561280751",
+      "httpLastModified": "Mon, 21 Sep 2026 20:39:46 GMT",
+      "etag": "W/\"073d7ce3d50836bfa1b06da6c38620931a7881b7a663193cc892b5b711bc77aa\"",
+      "headSha": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "commitDateUtc": "2026-09-21T20:39:46Z",
+      "changeFrom20260929": "Response byte count, response hash, immutable HEAD SHA, and commit date all match the Sep 29 report. This is a community repository revision, not publisher release certification."
+    },
+    {
+      "id": "genshin-db-latest-release",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/releases/latest",
+      "humanReadableUrl": "https://github.com/theBowja/genshin-db/releases/tag/v5.2.14",
+      "observedAtUtc": "2026-09-30T05:53:23.071549Z",
+      "httpStatus": 200,
+      "responseBytes": 1759,
+      "responseSha256": "4735b4be0c53153170e497fdf5355ec619d9a1def2d6a8ee04b0a29c71136b11",
+      "httpLastModified": "Mon, 21 Sep 2026 20:38:35 GMT",
+      "tagName": "v5.2.14",
+      "releaseTitle": "Genshin 7.1 update",
+      "publishedAtUtc": "2026-09-21T20:38:35Z",
+      "changeFrom20260929": "Response bytes, response hash, release tag, title, and publication date match the Sep 29 report. The upstream community release remains labeled 7.1."
+    },
+    {
+      "id": "official-publisher-news-index",
+      "url": "https://genshin.hoyoverse.com/de/news",
+      "updateDetailUrls": [
+        "https://genshin.hoyoverse.com/de/news/detail/166383",
+        "https://genshin.hoyoverse.com/m/es/news/detail/166383"
+      ],
+      "observedAtUtc": "2026-09-30T05:53:23.763071Z",
+      "httpStatus": 200,
+      "responseBytes": 11355,
+      "responseSha256": "95c2141c6fb094e9bb8f33a03fa3a57db719ca0a9e6e85196edcd36b13a49a67",
+      "httpLastModified": "Tue, 22 Sep 2026 22:56:09 GMT",
+      "etag": "\"7e7d57c49770d36fc1c53e75dad2f521\"",
+      "webIndexQueries": [
+        "site:genshin.hoyoverse.com/de/news/detail Genshin Version 7.2 update 2026 September OR October",
+        "site:genshin.hoyoverse.com/m/es/news/detail \"Version 7.2\" Genshin 2026"
+      ],
+      "indexedOfficialEvidence": {
+        "updateDetailUrl": "https://genshin.hoyoverse.com/de/news/detail/166383",
+        "title": "Erläuterungen zur Aktualisierung auf Version 7.1 „Ein Requiem für die Unterwelt“",
+        "publicationDate": "2026-09-23",
+        "indexedTextSupports": "The page is the publisher's Version 7.1 update-detail announcement and includes the listed maintenance time and updated-content description.",
+        "indexResultUrl": "https://genshin.hoyoverse.com/de/news/detail/166383"
+      },
+      "changeFrom20260929": "The direct publisher news-index response still has the same 11,355-byte application-shell response hash, not article-body bytes. Publisher-domain search still returns the 7.1 detail and late-September 7.1 news, with no indexed 7.2 detail in the focused queries. Search-result absence does not prove no later or unindexed notice exists."
+    }
+  ],
+  "localCandidateAndPointers": {
+    "existingIsolatedCandidate": "packages/game-data/sources/lunaris-preview-7.1.51-20260928",
+    "candidateRawArchiveSha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf",
+    "candidateRetrievalManifestSha256": "6ed24b46c8937059dfecd57ed6e8a36065c8cfb8a778be65076c8cf0f625b72a",
+    "isolatedSnapshotId": "snapshot-77008c3d87b7116802ca00435af9b69290113c9e4ab8545877a5585d977af819",
+    "projectPointersSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "runtimeCurrentSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "lastSyncStatus": "success",
+    "lastSuccessfulSyncUtc": "2026-09-28T02:29:19.724Z",
+    "changeFrom20260929": "Pointer and runtime selector hashes and snapshot identities match the existing project state. The 7.1.51 candidate remains isolated; no candidate normalization or data promotion was triggered because no new version label, charlist bytes, upstream repository revision, or official 7.2 mapping appeared."
+  },
+  "conclusions": {
+    "newEligibleSourceRevisionDetected": false,
+    "candidateAction": "No new raw candidate was created. The provider index response bytes and HTTP metadata changed, but its reported latest label, entry count, and timestamp summary match the prior report, and today's returned list contains no 7.2-prefixed label. The latest charlist, genshin-db HEAD/release, and official news application-shell bytes are unchanged. The prior index's full label array was not retained, so a complete array-to-array diff cannot be claimed. Do not repeat the same fetches unless a relevant source identity or scope changes.",
+    "releasedIdentity": "Publisher-domain indexed evidence supports the Version 7.1 update-detail announcement published 2026-09-23. The publisher's direct index fetch returned only an unchanged application shell, so no claim is made that the full article bytes were archived.",
+    "preview72V1Identity": "unconfirmed",
+    "contentVerification": "This refresh establishes only the returned source identities and index evidence. It does not verify character values, combat mechanics, complete roster, provider completeness, or redistribution rights.",
+    "remainingBlocker": "No observed immutable source revision explicitly maps complete version-specific data to 7.2 V1. Lunaris's latest label remains 7.1.51 with an unchanged charlist, genshin-db's community HEAD/release remain at the 7.1-labeled revision, and the focused official index search surfaced Version 7.1 only. The search result is not proof that no other official notice exists."
+  }
+}

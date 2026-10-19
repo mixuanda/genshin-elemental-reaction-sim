@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build",
+    "--workspace",
+    "@genshin-dps-lab/web"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 1.146,
+  "log": "docs/validation/source-auxiliary-formulas-web-label-bundle-20260928.log"
+}

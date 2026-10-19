@@ -1,0 +1,45 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/noelle-source-action.test.ts (2 tests | 2 failed) 90ms
+     × matches the single external damage fixture and restores actual conversion, delayed energy and RNG context 77ms
+     × takes live DEF at cast, preserves its value after DEF buff expiry and removes ATK/Geo exactly at conversion expiry 12ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/noelle-source-action.test.ts > Noelle source Q to normal chain > matches the single external damage fixture and restores actual conversion, delayed energy and RNG context
+Error: Trusted SimulationResult 1.53 integrity validation failed: hitResolutionLog.2.element: configured direct hit element must equal physical; received geo; hitResolutionLog.3.element: configured direct hit element must equal physical; received geo; hitResolutionLog.4.element: configured direct hit element must equal physical; received geo; hitResolutionLog.5.element: configured direct hit element must equal physical; received geo
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22511:11
+    22509|     const remainder =
+    22510|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22511|     throw new Error(
+       |           ^
+    22512|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22513|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:17931:10
+ ❯ simulate packages/sim-core/src/simulator.ts:17959:12
+ ❯ packages/sim-core/src/__tests__/noelle-source-action.test.ts:19:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/noelle-source-action.test.ts > Noelle source Q to normal chain > takes live DEF at cast, preserves its value after DEF buff expiry and removes ATK/Geo exactly at conversion expiry
+Error: Trusted SimulationResult 1.53 integrity validation failed: hitResolutionLog.0.element: configured direct hit element must equal physical; received geo
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22511:11
+    22509|     const remainder =
+    22510|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22511|     throw new Error(
+       |           ^
+    22512|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22513|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:17931:10
+ ❯ simulate packages/sim-core/src/simulator.ts:17959:12
+ ❯ packages/sim-core/src/__tests__/noelle-source-action.test.ts:48:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  21:32:31
+   Duration  895ms (transform 567ms, setup 0ms, import 737ms, tests 90ms, environment 0ms)
+

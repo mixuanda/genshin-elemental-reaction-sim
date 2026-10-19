@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-shield-ownership.spec.ts",
+    "--workers=1"
+  ],
+  "exitCode": 1,
+  "elapsedSeconds": 6.56
+}

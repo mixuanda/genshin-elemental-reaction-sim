@@ -1,0 +1,71 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+
+> @genshin-dps-lab/web@1.0.0 build
+> vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 808 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                         30.06 kB │ gzip:   9.41 kB
+dist/assets/source-host-worker-BSOSKxeC.js           1,520.64 kB
+dist/assets/analysis-worker-cnCVC6jI.js              3,346.90 kB
+dist/assets/simulation-worker-BfdHuoQW.js           10,867.90 kB
+dist/assets/lunar-simulation-worker-B2bg_pBA.js     10,879.78 kB
+dist/assets/build-workshop-B8fjee3Y.css                  0.82 kB │ gzip:   0.37 kB
+dist/assets/source-team-builder-zyZI6itG.css             5.31 kB │ gzip:   1.36 kB
+dist/assets/index-DVrelbCO.css                          24.00 kB │ gzip:   5.48 kB
+dist/assets/rolldown-runtime-DK3Fl9T5.js                 0.15 kB │ gzip:   0.15 kB
+dist/assets/source-team-handoff-D5BfAIxY.js              1.28 kB │ gzip:   0.80 kB
+dist/assets/catalog-index-CPhRT2fx.js                    1.94 kB │ gzip:   0.88 kB
+dist/assets/catalog-index-DdTo7vOa.js                    1.94 kB │ gzip:   0.88 kB
+dist/assets/source-host-action-origin-BZ_mlczo.js        2.02 kB │ gzip:   0.82 kB
+dist/assets/runtime-metadata-CXseFRLs.js                 2.73 kB │ gzip:   1.45 kB
+dist/assets/update-schema-BN9S8DlR.js                    3.09 kB │ gzip:   1.32 kB
+dist/assets/source-single-skill-import-CeaDrYDB.js       3.47 kB │ gzip:   1.71 kB
+dist/assets/supplemental-BJOGrvZa.js                     6.78 kB │ gzip:   2.46 kB
+dist/assets/supplemental-BtdzD0Lr.js                     6.90 kB │ gzip:   2.48 kB
+dist/assets/equipment-team-handoff-Cc77llKm.js          12.91 kB │ gzip:   5.30 kB
+dist/assets/artifact-build-42HS4-hg.js                  16.54 kB │ gzip:   6.05 kB
+dist/assets/equipment-controls-CRqtYp5z.js              18.34 kB │ gzip:   6.61 kB
+dist/assets/update-panel-D__ccrQ1.js                    19.77 kB │ gzip:   7.59 kB
+dist/assets/build-workshop-zMfDWNmR.js                  21.94 kB │ gzip:   8.53 kB
+dist/assets/source-single-skill-panel-CR9zUEMA.js       27.17 kB │ gzip:   9.97 kB
+dist/assets/character-calculations-Bo7SYOGw.js          63.41 kB │ gzip:  22.17 kB
+dist/assets/source-team-builder-CMaqN5MM.js             65.60 kB │ gzip:  22.88 kB
+dist/assets/catalog-Dnbj9awR.js                         68.36 kB │ gzip:  12.20 kB
+dist/assets/catalog-BFSWA7Ce.js                         71.10 kB │ gzip:  11.69 kB
+dist/assets/lunar-simulation-panel-C_tPLyX2.js          74.78 kB │ gzip:  23.99 kB
+dist/assets/source-action-library-Buq37raD.js          120.90 kB │ gzip:  39.47 kB
+dist/assets/src-ypxvfDP8.js                            148.30 kB │ gzip:  32.98 kB
+dist/assets/calculator-bridge-CP84rzHa.js              167.91 kB │ gzip:  49.41 kB
+dist/assets/build-import-CkauD_f-.js                   173.11 kB │ gzip:  28.60 kB
+dist/assets/evidence-v1-ybQAWRem.js                    181.37 kB │ gzip:   6.95 kB
+dist/assets/evidence-v1-GxB6lYLs.js                    183.33 kB │ gzip:   6.98 kB
+dist/assets/supplemental-BPsYQT-n.js                   341.70 kB │ gzip:  69.05 kB
+dist/assets/calculator-ui-BKqJXkox.js                  571.60 kB │ gzip: 160.27 kB
+dist/assets/index-eiML68PK.js                          621.94 kB │ gzip: 187.92 kB
+dist/assets/definitions-BbDZSIBO.js                    743.97 kB │ gzip: 113.34 kB
+dist/assets/update-status-OGOBRJNH.js                  848.15 kB │ gzip: 195.43 kB
+dist/assets/equipment-build-CfRbfcJC.js                936.49 kB │ gzip: 178.19 kB
+dist/assets/character-build-presets-Bn_NRGaa.js      1,049.04 kB │ gzip: 217.01 kB
+dist/assets/src-DqZFgZhO.js                          1,506.72 kB │ gzip: 347.14 kB
+dist/assets/catalog-Di-KhCvA.js                      1,971.42 kB │ gzip: 319.09 kB
+dist/assets/src-oYvS4rX5.js                          2,935.30 kB │ gzip: 734.07 kB
+dist/assets/current-DwtAwxB3.js                      3,386.83 kB │ gzip: 111.31 kB
+
+[33m[INEFFECTIVE_DYNAMIC_IMPORT] [0msrc/workspace-panels.ts is dynamically imported by src/app.ts but also statically imported by src/app.ts, dynamic import will not move module into another chunk.
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.31s

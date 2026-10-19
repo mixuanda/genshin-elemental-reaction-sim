@@ -514,7 +514,9 @@ describe("Durin black E partial mechanics audit vector", () => {
   });
 
   it("keeps the compact browser projection equivalent to the authoring vector", () => {
-    const authoring = simulate(createDurinBlackSkillAuditConfig(), {
+    const authoringConfig = createDurinBlackSkillAuditConfig();
+    expect(durinBlackSkillAuditPreset).toEqual(authoringConfig);
+    const authoring = simulate(authoringConfig, {
       critMode: "noCrit"
     });
     const browser = simulate(durinBlackSkillAuditPreset, {
@@ -563,7 +565,15 @@ describe("Durin white E partial mechanics audit vector", () => {
         {
           id: "durin-white-e",
           frame: 35,
-          scaling: 1.9008
+          scaling: 1.9008,
+          application: {
+            gaugeUnits: 1,
+            icd: {
+              mode: "fixed-gcsim-application-v1",
+              icdTag: "durin-elemental-art",
+              groupId: "default"
+            }
+          }
         }
       ],
       energyGains: [
@@ -682,16 +692,16 @@ describe("Durin white E partial mechanics audit vector", () => {
       hitId: "durin-white-e",
       hitLabel: "白 E",
       scaling: 1.9008,
-      reaction: "none",
-      displayDamage: 1625,
+      reaction: "melt",
+      displayDamage: 3250,
       reactionAudit: {
-        icdAllowed: null,
-        icdTag: null,
-        icdGroup: null
+        icdAllowed: true,
+        icdTag: "durin-elemental-art",
+        icdGroup: "default"
       }
     });
     expect(result.damageEvents[0]?.finalDamage).toBeCloseTo(
-      1625.184,
+      3250.368,
       10
     );
     expect(result.damageCurve).toEqual([
@@ -701,15 +711,15 @@ describe("Durin white E partial mechanics audit vector", () => {
       })
     ]);
     expect(result.damageCurve[0]?.cumulativeDamage).toBeCloseTo(
-      1625.184,
+      3250.368,
       10
     );
     expect(result.auraTimeline[0]).toMatchObject({
       frame: 50,
-      icdAllowed: null,
-      reaction: "none",
+      icdAllowed: true,
+      reaction: "melt",
       auraBefore: [expect.objectContaining({ element: "cryo" })],
-      auraAfter: [expect.objectContaining({ element: "cryo" })]
+      auraAfter: []
     });
     expect(result.particleTriggerLog).toEqual([
       expect.objectContaining({
@@ -753,6 +763,44 @@ describe("Durin white E partial mechanics audit vector", () => {
         expiresAtFrame: 1815
       })
     ]);
+  });
+
+  it("derives Melt from the restored Cryo aura and reproduces independent arithmetic", () => {
+    const result = simulate(createDurinWhiteSkillAuditConfig(), {
+      critMode: "noCrit"
+    });
+    // Independent ordinary-hit calculation, not a copied historical golden:
+    // 2,000 ATK × 1.9008 × 190 / (190 + 210) × 0.9 × 2 Melt.
+    const ordinaryDamage = 2000 * 1.9008 * (190 / 400) * 0.9;
+    expect(ordinaryDamage).toBeCloseTo(1625.184, 10);
+    expect(result.totalDamage).toBeCloseTo(ordinaryDamage * 2, 10);
+    expect(result.totalDamage).toBeCloseTo(3250.368, 10);
+    expect(result.elementalApplicationIcdLog).toHaveLength(1);
+    expect(result.elementalApplicationIcdLog[0]).toMatchObject({
+      nominalGaugeUnits: 1,
+      effectiveGaugeUnits: 1,
+      selector: {
+        mode: "fixed-gcsim-application-v1",
+        icdTag: "durin-elemental-art",
+        groupId: "default"
+      }
+    });
+  });
+
+  it("applies Pyro without inventing amplification when no eligible aura exists", () => {
+    const result = simulate(
+      createDurinWhiteSkillAuditConfig({ initialCryoAura: false }),
+      { critMode: "noCrit" }
+    );
+    expect(result.totalDamage).toBeCloseTo(1625.184, 10);
+    expect(result.damageEvents[0]).toMatchObject({
+      reaction: "none",
+      reactionAudit: { icdAllowed: true, icdGroup: "default" }
+    });
+    expect(result.auraTimeline[0]).toMatchObject({
+      auraBefore: [],
+      auraAfter: [expect.objectContaining({ element: "pyro" })]
+    });
   });
 
   it("rejects white E without the transformation state", () => {
@@ -822,7 +870,9 @@ describe("Durin white E partial mechanics audit vector", () => {
   });
 
   it("keeps the compact white branch equivalent to the authoring vector", () => {
-    const authoring = simulate(createDurinWhiteSkillAuditConfig(), {
+    const authoringConfig = createDurinWhiteSkillAuditConfig();
+    expect(durinWhiteSkillAuditPreset).toEqual(authoringConfig);
+    const authoring = simulate(authoringConfig, {
       critMode: "noCrit"
     });
     const browser = simulate(durinWhiteSkillAuditPreset, {

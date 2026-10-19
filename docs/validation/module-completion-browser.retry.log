@@ -1,0 +1,81 @@
+
+Running 8 tests using 2 workers
+
+(node:77552) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:77553) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [chromium] › apps/web/e2e/calculator.spec.ts:72:1 › calculator independently renders fixture A arithmetic from its execution trace (857ms)
+  ✓  3 [chromium] › apps/web/e2e/calculator.spec.ts:141:1 › editing inputs and final-panel conversion recalculate without stale values or double counting (994ms)
+{"moduleCompleteCast":{"hits":7,"before":{"nonCritical":13881.779999999999,"critical":30539.915999999997,"expected":25542.475199999997},"after":{"nonCritical":16844.355,"critical":37057.581,"expected":30993.613199999996}}}
+  ✓  4 [chromium] › apps/web/e2e/calculator.spec.ts:176:1 › editable two-hit example keeps per-hit totals and JSON roundtrip separate from the counterexample (1.5s)
+  ✓  5 [chromium] › apps/web/e2e/calculator.spec.ts:242:1 › formal skill selection tolerates unrelated gaps but blocks missing selected dependencies (1.1s)
+  ✓  6 [chromium] › apps/web/e2e/calculator.spec.ts:283:1 › public showcase imports preserve final stats while unknown identities cannot borrow talents (1.0s)
+  ✓  7 [chromium] › apps/web/e2e/calculator.spec.ts:324:1 › a simulator hit opens in Calculator with identical trace and roundtrips its complete capture (1.2s)
+  ✘  8 [chromium] › apps/web/e2e/calculator.spec.ts:351:1 › mobile examples preserve special-reaction readiness and preview identity (1.2s)
+  ✘  1 [chromium] › apps/web/e2e/module-completion.spec.ts:3:1 › module controls preserve an independent complete cast and expose ordinary team editors (8.4s)
+
+
+  1) [chromium] › apps/web/e2e/calculator.spec.ts:351:1 › mobile examples preserve special-reaction readiness and preview identity 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: true
+    Received: false
+
+      369 |     await page.locator('[data-field="build.flatAtk"]').fill("300");
+      370 |     closeTo((await audit(page)).result.totals?.expected, 5589);
+    > 371 |     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+          |                                                                                                  ^
+      372 |     await page.locator('[data-action="examples"]').click();
+      373 |     await page.locator('[data-example-id="fixture-b"]').click();
+      374 |     await expect(page.getByTestId("calc-expected")).toHaveText("3,864");
+        at /Users/evan/Documents/gidps/apps/web/e2e/calculator.spec.ts:371:98
+
+    Error Context: test-results/calculator-mobile-examples-60f57-diness-and-preview-identity-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/calculator-mobile-examples-60f57-diness-and-preview-identity-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/calculator-mobile-examples-60f57-diness-and-preview-identity-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/module-completion.spec.ts:3:1 › module controls preserve an independent complete cast and expose ordinary team editors 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('#rotation-add-walk')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('#rotation-add-walk')
+
+
+      30 |   await expect(page.locator("[data-target-health-toggle]").first()).toBeVisible();
+      31 |   await page.getByRole("link", { name: "行动编辑", exact: true }).click();
+    > 32 |   await expect(page.locator("#rotation-add-walk")).toBeVisible();
+         |                                                    ^
+      33 |   await expect(page.locator("#rotation-add-plunge")).toBeVisible();
+      34 | });
+      35 |
+        at /Users/evan/Documents/gidps/apps/web/e2e/module-completion.spec.ts:32:52
+
+    Error Context: test-results/module-completion-module-c-7e4db-xpose-ordinary-team-editors-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/module-completion-module-c-7e4db-xpose-ordinary-team-editors-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/module-completion-module-c-7e4db-xpose-ordinary-team-editors-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › apps/web/e2e/calculator.spec.ts:351:1 › mobile examples preserve special-reaction readiness and preview identity 
+    [chromium] › apps/web/e2e/module-completion.spec.ts:3:1 › module controls preserve an independent complete cast and expose ordinary team editors 
+  6 passed (9.1s)

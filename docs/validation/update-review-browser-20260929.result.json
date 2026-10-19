@@ -1,0 +1,10 @@
+{
+  "fixture": "docs/validation/update-discovery-fixture-20260929.review.json",
+  "generatedAt": "2026-09-28T18:04:17.608Z",
+  "failureCount": 2,
+  "candidateStatus": "failed",
+  "importDisplayed": true,
+  "invalidImportClearedOutput": true,
+  "pageErrors": [],
+  "remoteWorkflowExecuted": false
+}

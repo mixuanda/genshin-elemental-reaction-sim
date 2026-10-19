@@ -1,0 +1,335 @@
+{
+  "measurements": {
+    "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nraiden char lvl=90/90 cons=0 talent=1,1,1;\nraiden add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"whitetassel\" refine=1 lvl=1/20;\nyanfei char lvl=90/90 cons=0 talent=1,1,1;\nyanfei add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nmika char lvl=90/90 cons=0 talent=1,1,1;\nmika add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive raiden;\nphase(\"rotation\");\nraiden skill;\nhutao skill;\nhutao attack;\nhutao charge;\nphase(\"hutao charge\");\nyanfei burst;\nphase(\"yanfei burst\");\nmika burst;\nphase(\"mika burst\");\nmika attack;\nwait(1900);\nphase(\"end\");",
+    "seed": "20261003130",
+    "baselinePath": "docs/validation/source-animation-eye-frontier-20261003.baseline.json",
+    "capturePath": "docs/validation/source-animation-eye-frontier-20261003.capture.json",
+    "runs": [],
+    "scope": "One combined C0 Raiden E / Hu Tao E and attack/charge / Yanfei Q / Mika Q and normal / wait / return-to-Raiden scene in each source lane. Native receipts are archived before assertions; unknown actor gaps remain measured and do not imply complete phase state.",
+    "mode": "both-lane-pre-130-baseline",
+    "nativeRunsPerformed": true,
+    "baseline": {
+      "classic": {
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "1457e6d10188d8d070ed9efeb2e3b0bfbf1ad83c82986316b8b723c834ec9a88",
+          "wasmBytes": 46966082
+        },
+        "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nraiden char lvl=90/90 cons=0 talent=1,1,1;\nraiden add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"whitetassel\" refine=1 lvl=1/20;\nyanfei char lvl=90/90 cons=0 talent=1,1,1;\nyanfei add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nmika char lvl=90/90 cons=0 talent=1,1,1;\nmika add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive raiden;\nphase(\"rotation\");\nraiden skill;\nhutao skill;\nhutao attack;\nhutao charge;\nphase(\"hutao charge\");\nyanfei burst;\nphase(\"yanfei burst\");\nmika burst;\nphase(\"mika burst\");\nmika attack;\nwait(1900);\nphase(\"end\");",
+        "seed": "20261003130",
+        "applicationCount": 17,
+        "actionLogCount": 61,
+        "phaseFrames": [
+          1,
+          93,
+          171,
+          255,
+          2177
+        ],
+        "playerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 0,
+              "parameters": {},
+              "type": "invalid"
+            },
+            "lastStaminaUseAgo": 1,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 0,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 93,
+            "activeCharacter": 1,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -55,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 1,
+              "parameters": {},
+              "type": "charge"
+            },
+            "lastStaminaUseAgo": 1,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 215,
+            "staminaModifiers": [],
+            "swapCooldown": 5,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 171,
+            "activeCharacter": 2,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -36,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 2,
+              "parameters": {},
+              "type": "burst"
+            },
+            "lastStaminaUseAgo": 79,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 215,
+            "staminaModifiers": [],
+            "swapCooldown": 24,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 255,
+            "activeCharacter": 3,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -59,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 3,
+              "parameters": {},
+              "type": "burst"
+            },
+            "lastStaminaUseAgo": 91,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 1,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 2177,
+            "activeCharacter": 3,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -1981,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 3,
+              "parameters": {},
+              "type": "attack"
+            },
+            "lastStaminaUseAgo": 91,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 0,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          }
+        ]
+      },
+      "stellar": {
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "a2154d404d6f395d066d50658b3acf965e0dec6b982ac15498bb752d7330104b",
+          "wasmBytes": 71015367
+        },
+        "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nraiden char lvl=90/90 cons=0 talent=1,1,1;\nraiden add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\nhutao char lvl=90/90 cons=0 talent=1,1,1;\nhutao add weapon=\"whitetassel\" refine=1 lvl=1/20;\nyanfei char lvl=90/90 cons=0 talent=1,1,1;\nyanfei add weapon=\"apprenticesnotes\" refine=1 lvl=1/20;\nmika char lvl=90/90 cons=0 talent=1,1,1;\nmika add weapon=\"beginnersprotector\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,2.4;\nactive raiden;\nphase(\"rotation\");\nraiden skill;\nhutao skill;\nhutao attack;\nhutao charge;\nphase(\"hutao charge\");\nyanfei burst;\nphase(\"yanfei burst\");\nmika burst;\nphase(\"mika burst\");\nmika attack;\nwait(1900);\nphase(\"end\");",
+        "seed": "20261003130",
+        "applicationCount": 17,
+        "actionLogCount": 61,
+        "phaseFrames": [
+          1,
+          93,
+          171,
+          255,
+          2177
+        ],
+        "playerState": [
+          {
+            "frame": 1,
+            "activeCharacter": 0,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -1,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 0,
+              "parameters": {},
+              "type": "invalid"
+            },
+            "lastStaminaUseAgo": 1,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 0,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 93,
+            "activeCharacter": 1,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -55,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 1,
+              "parameters": {},
+              "type": "charge"
+            },
+            "lastStaminaUseAgo": 1,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 215,
+            "staminaModifiers": [],
+            "swapCooldown": 5,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 171,
+            "activeCharacter": 2,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -36,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 2,
+              "parameters": {},
+              "type": "burst"
+            },
+            "lastStaminaUseAgo": 79,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 215,
+            "staminaModifiers": [],
+            "swapCooldown": 24,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 255,
+            "activeCharacter": 3,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -59,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 3,
+              "parameters": {},
+              "type": "burst"
+            },
+            "lastStaminaUseAgo": 91,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 1,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          },
+          {
+            "frame": 2177,
+            "activeCharacter": 3,
+            "airborneSource": 0,
+            "characterPositions": {
+              "hutao": 1,
+              "mika": 3,
+              "raidenshogun": 0,
+              "yanfei": 2
+            },
+            "dashCooldownRemaining": -1981,
+            "dashLockout": false,
+            "hitlagEnabled": true,
+            "lastAction": {
+              "characterIndex": 3,
+              "parameters": {},
+              "type": "attack"
+            },
+            "lastStaminaUseAgo": 91,
+            "moonridgeDew": 0,
+            "partialDewCount": 0,
+            "stamina": 240,
+            "staminaModifiers": [],
+            "swapCooldown": 0,
+            "swapInterval": 60,
+            "verdantDew": 0,
+            "verdantDewExpiryRemaining": -1
+          }
+        ]
+      }
+    }
+  },
+  "pageErrors": []
+}

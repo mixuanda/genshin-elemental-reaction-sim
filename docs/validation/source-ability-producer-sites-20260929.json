@@ -1,0 +1,605 @@
+{
+  "schemaVersion": 1,
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "coordinateSystem": "fixed source after patch107, before patch108; line numbers are not upstream originals",
+  "scope": "Source-audited intrinsic AttackEvent generation graph for the listed method branch only. Independent weapon/artifact/team/reaction attacks, later player actions, healing/buffs, and status lifetime are outside this contract. Per-callback counts concern AttackEvent queue calls, not targets, hits, dispatches or damage.",
+  "sharedPatch": "packages/source-host/patches/108-ability-producer-sites.patch",
+  "sharedPatchSha256": "6cef1ddbc4cc491ff9501344881c438abeb1ec2c744b84bc0781d1f851065d26",
+  "sourceFiles": {
+    "internal/characters/rosaria/skill.go": {
+      "classicSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43",
+      "stellarSha256": "febd8d68eef1434ab3a5661938d075f460fd37fef6266ed7240734b2c57d2f43"
+    },
+    "internal/characters/rosaria/burst.go": {
+      "classicSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0",
+      "stellarSha256": "030ee165e4d3fb6801df5996b5ead7814b1f380c512d1105959d8cb6b16065e0"
+    },
+    "internal/characters/albedo/burst.go": {
+      "classicSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd",
+      "stellarSha256": "787aeaad9b8f69b591c68820231ed571348c873abc9fa6905594a7d9400a54fd"
+    },
+    "internal/characters/raiden/burst.go": {
+      "classicSha256": "687ee6b6163161445ad6d97f5ada1d9b4d0a90e0582c80d3fa71cb625babcbc9",
+      "stellarSha256": "2a4291b81d07850b5b4c811e0a6f84405bf0e66cec63e2bc5a8d3a89122bfaf0"
+    },
+    "internal/characters/lisa/burst.go": {
+      "classicSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c",
+      "stellarSha256": "2d0e5fa8448791919518c635ec408045c3160aa0955c66205fe25a2c628fbc6c"
+    },
+    "internal/characters/diona/burst.go": {
+      "classicSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77",
+      "stellarSha256": "858bca7ced47308f24b0f0a5a7087cb27ef877fdad897da3bb0e1289d2a97c77"
+    },
+    "internal/characters/navia/burst.go": {
+      "classicSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413",
+      "stellarSha256": "503a826db0b215889c6a90f597629bdf8d568253c16fe491805a6333f2c38413"
+    },
+    "internal/characters/kaeya/burst.go": {
+      "classicSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce",
+      "stellarSha256": "46672cfe2e71d8f42590707a52e13b246fb65e731d6a27985f4fcd83bcc352ce"
+    },
+    "internal/characters/bennett/skill.go": {
+      "classicSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65",
+      "stellarSha256": "68a972a159e59eb2b5be607763968611311cb44df36a5e2e97df8b884a979c65"
+    },
+    "internal/characters/venti/burst.go": {
+      "classicSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895",
+      "stellarSha256": "f91d10713ca335ac6812c8a1cdcc123324eae0871d3f4f8a1d4d657095310895"
+    },
+    "internal/characters/ganyu/burst.go": {
+      "classicSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0",
+      "stellarSha256": "f919fdb2954360f27e36cf726f80b13408565a8f4de2a259cece515ad2a48de0"
+    },
+    "internal/characters/sucrose/burst.go": {
+      "classicSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841",
+      "stellarSha256": "8bc551d361fe16529c38e9392914851197e76f2d25cde3fdab71309a99915841"
+    }
+  },
+  "families": [
+    {
+      "ability": "rosaria.skill",
+      "method": "Skill",
+      "path": "internal/characters/rosaria/skill.go",
+      "directAttackEventsPerInvocation": [
+        1
+      ],
+      "producerSiteIds": [
+        "rosaria.skill.followup"
+      ],
+      "intrinsicTotalAttackEvents": [
+        2
+      ],
+      "scope": "Second E hit is queued by the one tagged character task; hit callbacks produce particles/status only."
+    },
+    {
+      "ability": "rosaria.burst",
+      "method": "Burst",
+      "path": "internal/characters/rosaria/burst.go",
+      "directAttackEventsPerInvocation": [
+        1
+      ],
+      "producerSiteIds": [
+        "rosaria.burst.lance"
+      ],
+      "intrinsicTotalAttackEvents": {
+        "C<2": 6,
+        "C>=2": 8
+      },
+      "scope": "Count is initial slash plus lance callback second hit and four/six DoT queues. Burst status and A4/C6 debuffs are outside damage opportunity closure."
+    },
+    {
+      "ability": "albedo.burst",
+      "method": "Burst",
+      "path": "internal/characters/albedo/burst.go",
+      "directAttackEventsPerInvocation": [
+        1
+      ],
+      "producerSiteIds": [
+        "albedo.burst.fatal-blossoms"
+      ],
+      "intrinsicTotalAttackEvents": [
+        1,
+        8
+      ],
+      "scope": "Fatal Blossoms depend on c.skillActive at task run; no count should be predicted from cast-time state."
+    },
+    {
+      "ability": "raiden.burst.initial",
+      "method": "Burst",
+      "path": "internal/characters/raiden/burst.go",
+      "directAttackEventsPerInvocation": [
+        0
+      ],
+      "producerSiteIds": [
+        "raiden.burst.initial-strike"
+      ],
+      "intrinsicTotalAttackEvents": [
+        1
+      ],
+      "scope": "Only initial Musou strike, excluding stance normal/charge attacks from later actions, C4 buff task, and status lifetime."
+    },
+    {
+      "ability": "lisa.burst",
+      "method": "Burst",
+      "path": "internal/characters/lisa/burst.go",
+      "directAttackEventsPerInvocation": [
+        1
+      ],
+      "producerSiteIds": [
+        "lisa.burst.discharge-tick"
+      ],
+      "intrinsicTotalAttackEvents": "One initial AttackEvent plus actual emissions from 30 discharge callbacks; total is not predicted from a per-callback range because previousDischargeCount and target/RNG state couple ticks.",
+      "scope": "Thirty discharge callbacks plus one initial low-mult hit. Snapshot and status-only tasks are excluded. Actual per-tick emissions are read from callback receipts, not inferred from target count; the first C4 tick with at least three entities can return without emitting."
+    },
+    {
+      "ability": "diona.burst",
+      "method": "Burst",
+      "path": "internal/characters/diona/burst.go",
+      "directAttackEventsPerInvocation": [
+        1
+      ],
+      "producerSiteIds": [
+        "diona.burst.schedule-ticks",
+        "diona.burst.tick"
+      ],
+      "intrinsicTotalAttackEvents": [
+        7
+      ],
+      "scope": "Parent registers six child tick tasks; C1 energy, C6 buff, heal output and burst status lifecycle are separate components."
+    },
+    {
+      "ability": "navia.burst",
+      "method": "Burst",
+      "path": "internal/characters/navia/burst.go",
+      "directAttackEventsPerInvocation": [
+        1
+      ],
+      "producerSiteIds": [
+        "navia.burst.schedule-cannons",
+        "navia.burst.cannon"
+      ],
+      "intrinsicTotalAttackEvents": [
+        18
+      ],
+      "scope": "One direct initial hit, one character parent task, seventeen child cannon tasks. Shrapnel/status effects are excluded components."
+    },
+    {
+      "ability": "kaeya.burst",
+      "method": "Burst",
+      "path": "internal/characters/kaeya/burst.go",
+      "directAttackEventsPerInvocation": [
+        0
+      ],
+      "producerSiteIds": [
+        "kaeya.burst.initial-ticker",
+        "kaeya.burst.next-ticker"
+      ],
+      "intrinsicTotalAttackEvents": "Observed guarded ticker chain only; no fixed count. Three roots at C<6, four at C>=6, each live tick emits one attack and schedules one next tick.",
+      "scope": "C2 OnTargetDied can extend status; overlapping Burst changes burstTickSrc and kills old chain. C6 energy task excluded."
+    },
+    {
+      "ability": "bennett.skill.hold",
+      "method": "Skill",
+      "path": "internal/characters/bennett/skill.go",
+      "directAttackEventsPerInvocation": {
+        "effectiveHold=1": 0,
+        "effectiveHold=1+activeC4": 1,
+        "effectiveHold=2": 1
+      },
+      "producerSiteIds": [
+        "bennett.skill.hold-hit"
+      ],
+      "intrinsicTotalAttackEvents": {
+        "effectiveHold=1": 2,
+        "effectiveHold=1+activeC4": 3,
+        "effectiveHold=2": 3
+      },
+      "scope": "Press (effectiveHold=0) is a separate direct-only branch and has no tagged task. hold_c4=1 with C>=4 forces hold1."
+    },
+    {
+      "ability": "venti.burst",
+      "method": "Burst",
+      "path": "internal/characters/venti/burst.go",
+      "directAttackEventsPerInvocation": [
+        0
+      ],
+      "producerSiteIds": [
+        "venti.burst.anemo-tick",
+        "venti.burst.absorb-check-initial",
+        "venti.burst.absorb-check-next"
+      ],
+      "intrinsicTotalAttackEvents": [
+        20,
+        35
+      ],
+      "scope": "Twenty eager Anemo tick tasks plus optional fifteen absorbed attacks generated once by check callback; no same-character Burst overlap before this graph closes because qAbsorb/aiAbsorb/snapAbsorb are shared mutable fields and src is not checked. Snapshot-only and A4 energy tasks excluded."
+    },
+    {
+      "ability": "ganyu.burst",
+      "method": "Burst",
+      "path": "internal/characters/ganyu/burst.go",
+      "directAttackEventsPerInvocation": [
+        0
+      ],
+      "producerSiteIds": [
+        "ganyu.burst.shower-tick"
+      ],
+      "intrinsicTotalAttackEvents": [
+        50
+      ],
+      "scope": "Fifty eager shower tasks, each queues one intrinsic attack after position selection; C4 debuff and A4 buff are excluded components."
+    },
+    {
+      "ability": "sucrose.burst",
+      "method": "Burst",
+      "path": "internal/characters/sucrose/burst.go",
+      "directAttackEventsPerInvocation": {
+        "C<2": 3,
+        "C>=2": 4
+      },
+      "producerSiteIds": [
+        "sucrose.burst.absorbed-tick",
+        "sucrose.burst.absorb-check-initial",
+        "sucrose.burst.absorb-check-next"
+      ],
+      "intrinsicTotalAttackEvents": {
+        "C<2": [
+          3,
+          6
+        ],
+        "C>=2": [
+          4,
+          8
+        ]
+      },
+      "scope": "Direct Anemo attacks are queued in Burst. Absorbed-tick callbacks conditionally queue an equal number of absorbed attacks. Check chain only changes qAbsorb. No same-character Burst overlap before closure because qAbsorb is shared and src is not checked; C6 buff excluded."
+    }
+  ],
+  "sites": [
+    {
+      "siteId": "rosaria.skill.followup",
+      "path": "internal/characters/rosaria/skill.go",
+      "lineClassic": 84,
+      "queueKind": "character",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "Queued at Skill return; callback queues second E hit once."
+    },
+    {
+      "siteId": "rosaria.burst.lance",
+      "path": "internal/characters/rosaria/burst.go",
+      "lineClassic": 78,
+      "queueKind": "character",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        5,
+        7
+      ],
+      "childrenPerCallback": [],
+      "rule": "At C<2 callback queues second initial hit plus four DoT AttackEvents; at C>=2 plus six DoT events."
+    },
+    {
+      "siteId": "albedo.burst.fatal-blossoms",
+      "path": "internal/characters/albedo/burst.go",
+      "lineClassic": 72,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0,
+        7
+      ],
+      "childrenPerCallback": [],
+      "rule": "Checks actual c.skillActive at run; false emits none, true queues exactly seven blossoms."
+    },
+    {
+      "siteId": "raiden.burst.initial-strike",
+      "path": "internal/characters/raiden/burst.go",
+      "lineClassic": 68,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "lineStellar": 67,
+      "rule": "Initial Musou strike only; excludes later stance attacks from separate actions and C4 buff task."
+    },
+    {
+      "siteId": "lisa.burst.discharge-tick",
+      "path": "internal/characters/lisa/burst.go",
+      "lineClassic": 64,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 30,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "childrenPerCallback": [],
+      "rule": "C<4 selects zero or one enemy. C>=4 selects zero to three attacks by enemy/gadget/RNG branch; first tick with >=3 entities can return without emitting."
+    },
+    {
+      "siteId": "diona.burst.schedule-ticks",
+      "path": "internal/characters/diona/burst.go",
+      "lineClassic": 69,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "diona.burst.tick",
+          "count": [
+            6
+          ]
+        }
+      ],
+      "rule": "Parent task unconditionally registers six tick callbacks; C6 buff is non-attack."
+    },
+    {
+      "siteId": "diona.burst.tick",
+      "path": "internal/characters/diona/burst.go",
+      "lineClassic": 72,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 0,
+      "allowedParentSites": [
+        "diona.burst.schedule-ticks"
+      ],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "Each tick queues one intrinsic attack, then may heal."
+    },
+    {
+      "siteId": "navia.burst.schedule-cannons",
+      "path": "internal/characters/navia/burst.go",
+      "lineClassic": 58,
+      "queueKind": "character",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "navia.burst.cannon",
+          "count": [
+            17
+          ]
+        }
+      ],
+      "rule": "Parent task registers ticks at offsets 0,42,90,132,174,222,264,306,354,396,438,486,528,570,618,660,702."
+    },
+    {
+      "siteId": "navia.burst.cannon",
+      "path": "internal/characters/navia/burst.go",
+      "lineClassic": 72,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 0,
+      "allowedParentSites": [
+        "navia.burst.schedule-cannons"
+      ],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "Each callback queues one intrinsic cannon attack."
+    },
+    {
+      "siteId": "kaeya.burst.initial-ticker",
+      "path": "internal/characters/kaeya/burst.go",
+      "lineClassic": 67,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": {
+        "C!=6": 3,
+        "C==6": 4
+      },
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0,
+        1
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "kaeya.burst.next-ticker",
+          "count": [
+            0,
+            1
+          ]
+        }
+      ],
+      "rule": "If burst status absent or burstTickSrc differs, emits none and schedules none; otherwise emits one tick and schedules one successor."
+    },
+    {
+      "siteId": "kaeya.burst.next-ticker",
+      "path": "internal/characters/kaeya/burst.go",
+      "lineClassic": 109,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 0,
+      "allowedParentSites": [
+        "kaeya.burst.initial-ticker",
+        "kaeya.burst.next-ticker"
+      ],
+      "attackEventsPerCallback": [
+        0,
+        1
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "kaeya.burst.next-ticker",
+          "count": [
+            0,
+            1
+          ]
+        }
+      ],
+      "rule": "Same guarded recursive callback as initial ticker; successor only follows one emitted tick."
+    },
+    {
+      "siteId": "bennett.skill.hold-hit",
+      "path": "internal/characters/bennett/skill.go",
+      "lineClassic": 177,
+      "queueKind": "character",
+      "rootRegistrationsPerInvocation": {
+        "effectiveHold=0": 0,
+        "effectiveHold=1|2": 2
+      },
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "Skill normalizes hold to 0..2; hold_c4=1 with C>=4 forces effective hold1, even if requested hold2. Two table rows per hold level."
+    },
+    {
+      "siteId": "venti.burst.anemo-tick",
+      "path": "internal/characters/venti/burst.go",
+      "lineClassic": 66,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 20,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "Twenty eager Anemo tick tasks."
+    },
+    {
+      "siteId": "venti.burst.absorb-check-initial",
+      "path": "internal/characters/venti/burst.go",
+      "lineClassic": 71,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0,
+        15
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "venti.burst.absorb-check-next",
+          "count": [
+            0,
+            1
+          ]
+        }
+      ],
+      "rule": "At successful absorb, burstAbsorbedTicks queues 15 attacks and no successor; unsuccessful count<21 schedules one successor; count==21 emits none and stops."
+    },
+    {
+      "siteId": "venti.burst.absorb-check-next",
+      "path": "internal/characters/venti/burst.go",
+      "lineClassic": 124,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 0,
+      "allowedParentSites": [
+        "venti.burst.absorb-check-initial",
+        "venti.burst.absorb-check-next"
+      ],
+      "attackEventsPerCallback": [
+        0,
+        15
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "venti.burst.absorb-check-next",
+          "count": [
+            0,
+            1
+          ]
+        }
+      ],
+      "rule": "Recursive check counts 1..21, with the same success/terminal alternatives."
+    },
+    {
+      "siteId": "ganyu.burst.shower-tick",
+      "path": "internal/characters/ganyu/burst.go",
+      "lineClassic": 57,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 50,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "Fifty eager tasks, each queues one shower AttackEvent after target/random-position selection."
+    },
+    {
+      "siteId": "sucrose.burst.absorbed-tick",
+      "path": "internal/characters/sucrose/burst.go",
+      "lineClassic": 87,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": {
+        "C<2": 3,
+        "C>=2": 4
+      },
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0,
+        1
+      ],
+      "childrenPerCallback": [],
+      "rule": "One callback per direct Anemo tick; queues absorbed attack iff qAbsorb is nonempty at callback time."
+    },
+    {
+      "siteId": "sucrose.burst.absorb-check-initial",
+      "path": "internal/characters/sucrose/burst.go",
+      "lineClassic": 96,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 1,
+      "allowedParentSites": [],
+      "attackEventsPerCallback": [
+        0
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "sucrose.burst.absorb-check-next",
+          "count": [
+            0,
+            1
+          ]
+        }
+      ],
+      "rule": "On absorb or terminal count==duration/18, no successor; otherwise one successor. This check mutates qAbsorb but emits no attack directly."
+    },
+    {
+      "siteId": "sucrose.burst.absorb-check-next",
+      "path": "internal/characters/sucrose/burst.go",
+      "lineClassic": 124,
+      "queueKind": "core",
+      "rootRegistrationsPerInvocation": 0,
+      "allowedParentSites": [
+        "sucrose.burst.absorb-check-initial",
+        "sucrose.burst.absorb-check-next"
+      ],
+      "attackEventsPerCallback": [
+        0
+      ],
+      "childrenPerCallback": [
+        {
+          "siteId": "sucrose.burst.absorb-check-next",
+          "count": [
+            0,
+            1
+          ]
+        }
+      ],
+      "rule": "Recursive check counts 1..20 at C<2 or 1..26 at C>=2."
+    }
+  ]
+}

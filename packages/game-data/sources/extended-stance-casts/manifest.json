@@ -1,0 +1,710 @@
+{
+  "schemaVersion": 1,
+  "repository": "genshinsim/gcsim",
+  "revisions": {
+    "b4": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "a7": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "protocol": "explicit-extended-stance-v1",
+  "evidenceStatus": "fixed-source-provisional",
+  "archive": {
+    "path": "packages/game-data/sources/extended-stance-casts/source.json.gz",
+    "bytes": 202220,
+    "sha256": "40328795f48ee9c1ee8fc9efd99c9d52306607897dfdc7f8230927388cb87f28"
+  },
+  "definitions": {
+    "path": "packages/game-data/sources/extended-stance-casts/definitions.json",
+    "sha256": "36b074a375b5c344c6855f16a6b55d0d3a2223030ec068de215988f5e30e5acc",
+    "templates": 4,
+    "roles": 20
+  },
+  "coefficientBindings": [
+    {
+      "skillId": "extended-ifa-skill-c0",
+      "role": "tonicShot",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "sourceField": "skillDmg",
+      "catalogAbility": "combat2",
+      "parameterKey": "param1",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-dahlia-burst-c0",
+      "role": "initial",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "burst",
+      "catalogAbility": "combat3",
+      "parameterKey": "param1",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "initial",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillInitial",
+      "catalogAbility": "combat2",
+      "parameterKey": "param1",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal1",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[0][0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param3",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal2a",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[1][0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param5",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal2b",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[1][1]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param4",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal3a",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[2][0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param7",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal3b",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[2][1]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param6",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal4a",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[3][0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param8",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal4b",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[3][1]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param9",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal5a",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[4][0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param10",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "normal5b",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAttack[4][1]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param11",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "chargedA",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "charge[0]",
+      "catalogAbility": "combat1",
+      "parameterKey": "param10",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "chargedB",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "charge[1]",
+      "catalogAbility": "combat1",
+      "parameterKey": "param11",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "azureA",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAzureDevour[0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param16",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "azureB",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAzureDevour[1]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param17",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "specialA",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAscension[0]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param14",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-varka-skill-c0",
+      "role": "specialB",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "sourceField": "skillAscension[1]",
+      "catalogAbility": "combat2",
+      "parameterKey": "param15",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-prune-skill-c0",
+      "role": "initial",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "sourceField": "skill",
+      "catalogAbility": "combat2",
+      "parameterKey": "param1",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    },
+    {
+      "skillId": "extended-prune-skill-c0",
+      "role": "converted",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "sourceField": "skillConvert",
+      "catalogAbility": "combat2",
+      "parameterKey": "param2",
+      "all15LevelsExactlyMatch": true,
+      "rawStatsExactlyMatch": true
+    }
+  ],
+  "verification": {
+    "exactCanonicalAndRawVectors": 20,
+    "coefficientTolerance": 0,
+    "catalogSha256": "92eb478fbe1f84292c12b8a623e43233d233973563d4519a5af68192247094df",
+    "catalogSourceRevision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "b4GitTreeCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "b4GitTreeTruncated": false,
+    "a7Verification": "Existing pinned source manifest for covered character files; archive provenance retained for additional engine files. No unobserved tree verification claimed."
+  },
+  "files": [
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/LICENSE",
+      "bytes": 35211,
+      "sha256": "bdef457104e8696158ed0f1bf4c165602b8f5db72d6c2f9bf564f21ee90a1906"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/retrieval.json",
+      "bytes": 366,
+      "sha256": "bf76d4b143e4c5d5e71bd405d31692a4a65e65989016159256cbac9897c06289"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/skill.go",
+      "bytes": 6198,
+      "sha256": "0281b9eacea8a6a82f6cf0fddae90336ee43ec14c4cf478147c9254a20bcf0a7",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/dash.go",
+      "bytes": 848,
+      "sha256": "f1be2a49d45625f9d888640527a8fe2aad4b9b8c9baf5b19c907693b1e91baed",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/jump.go",
+      "bytes": 400,
+      "sha256": "ec90801f17f3f5793731e414289a00b3ab9577797cce9d8f51aa20587f09c896",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/charge.go",
+      "bytes": 3145,
+      "sha256": "53d1e42c88dd71663a4f7fbf0daf5fb7de883a3b1884ed76a3c528b088f726d0",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/zz_ifa.dm.go",
+      "bytes": 3843,
+      "sha256": "e5df087efaa813a1741106fc76acd79f8f73ae38dc7b0d57de271ac16447b0f2",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/ifa.go",
+      "bytes": 2005,
+      "sha256": "5a4311efff2711b07d55e7c3e2be6826fe5ab9117d984ed46775c1b47008651c",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/plunge.go",
+      "bytes": 2498,
+      "sha256": "306297b8edaff4bf9e61480b92762933aaded407c6045e58df1f71c4662adc0b",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/burst.go",
+      "bytes": 3657,
+      "sha256": "bbfa6d260c3e054a0ee6a275b284636907d5825e2a8ef90569b5bc9564fa752a",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/attack.go",
+      "bytes": 3520,
+      "sha256": "1f520d59c62e259fd86fd7f3c0c725215ec6ffeae09e5074fa15f671965fb307",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/cons.go",
+      "bytes": 2067,
+      "sha256": "9461194d95f2399dc67ce739468e8b032291fd80d3412b25c3176ea54c5e4957",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/asc.go",
+      "bytes": 1761,
+      "sha256": "73f94c0bbaac3de09d483c853bb7ccd9d3c802ce5e81263ec950cd9fcd77fcdb",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/ifa/config.yml",
+      "bytes": 3216,
+      "sha256": "9fe881dbd28f51e0f57d3d317de2f38e3cf201401f139917691557d2af8dfe62"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/skill.go",
+      "bytes": 5344,
+      "sha256": "0b468650b02f23c07000a570678680d03a8e6c977925799e6d95b7f13126dec8",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/charge.go",
+      "bytes": 1883,
+      "sha256": "c1de46a648d8c6a9aaa42d7f9e7408d308a0c25123bf6193d0dfbe5de9f4b0a4",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/prune.go",
+      "bytes": 1906,
+      "sha256": "2a88ca7e2ba1a2bdf7b8205936523f6bc27d62dd66fdb0fa876997cfab6e6307",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/burst.go",
+      "bytes": 2703,
+      "sha256": "20d2bc2dfe558a88385c7f56dfa5b04f47d9858efb447f908fc91026d8ed00bf",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/attack.go",
+      "bytes": 2295,
+      "sha256": "b1523b55cc404e5c8ed23577220ae260c04b1952a3e8e7d0bdb4c8dc8289b21f",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/cons.go",
+      "bytes": 4739,
+      "sha256": "1b559599a78cd46d96cc85d3f1306bc50dd4ba27580d6cd20ce7211a31425e0c",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/asc.go",
+      "bytes": 5308,
+      "sha256": "ea518c78403705cf8eb79c634d68fd2c63cbad2ee931541c1003af5f49d4238f",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/zz_prune.dm.go",
+      "bytes": 3622,
+      "sha256": "cbaa51ddbb73fff7d3aa0ff57a4f3ea31a29b49a6881f4c375fe0a9015c63a8b",
+      "matchesExistingPinnedSourceManifest": true
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/prune/config.yml",
+      "bytes": 3192,
+      "sha256": "1b9607c982396e0525c314a1afac363812499bf26940f5a4a41b59bc62b0804b"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/action/action.go",
+      "bytes": 4148,
+      "sha256": "4d47f16b2e3f39455827e75eb6b2128e5624c387834cac48345cf525978d1973"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/animation/animation.go",
+      "bytes": 3445,
+      "sha256": "5cfed6e7ef6f3d1ac61d88a8c0fd11e914082ec62c3c5591845613580a7bfbe9"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/character/character.go",
+      "bytes": 5080,
+      "sha256": "9ce84f961f0981c72d34137877d284e41033457dbc4c3acd1b6b5c7aa0e436b8"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/mods.go",
+      "bytes": 9924,
+      "sha256": "1a9f7efce7e50cbab51a89cb44b63dd5e3541ecfad065448807a426bfd5f14a4"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/shield/handler.go",
+      "bytes": 3879,
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/template/nightsoul/nightsoul.go",
+      "bytes": 5077,
+      "sha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/exec.go",
+      "bytes": 7607,
+      "sha256": "7256ca1d27b03e1855f3cdb014644115003e7585f3f6bf6023871a78c76a180c"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/player.go",
+      "bytes": 8881,
+      "sha256": "d2ec7fcbf7c27b4609a86fdeea3f06eca3bbf3ebfeb37ae8373f97fc678b8b46"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/player/shield/shield.go",
+      "bytes": 995,
+      "sha256": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/simulation/run.go",
+      "bytes": 9886,
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76"
+    },
+    {
+      "path": "gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/simulation/setup.go",
+      "bytes": 18287,
+      "sha256": "7dca1b632e5d95c4ded0813993f53103e9fc621eb13d12be680e670859ad4caa"
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/retrieval.json",
+      "bytes": 309,
+      "sha256": "f146b2799ec2621acb665c84bed7912dc9afdd15a415cfe384d74b476f2084bc"
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/dahlia.go",
+      "bytes": 991,
+      "sha256": "ee537d715fe7dd2d728711d31baea9726a97174353f53f87d8026a1968b1c461",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/skill.go",
+      "bytes": 2670,
+      "sha256": "1c859bc70b9b3e9c691f2c16f47bfed8c690a3831fff43a29de81d565915b791",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/zz_dahlia.dm.go",
+      "bytes": 4431,
+      "sha256": "e14659136df02ebf56b41430d12643237961f87fe243922bcf608ddaf92413ba",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/charge.go",
+      "bytes": 1822,
+      "sha256": "c56fabf351d2e96682a0daf5c7ceb915696f87add2e8df60412b9865183cdbb3",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/shield.go",
+      "bytes": 1518,
+      "sha256": "1be859aee951191a0d69e3d6669f8cfeabdcf1d4671841302c055f6555d9ff6a",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/burst.go",
+      "bytes": 4708,
+      "sha256": "fee9a4660176838da14bad6645a9306f951d6b0a0ea0d877e9739c5263a3b77d",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/attack.go",
+      "bytes": 3096,
+      "sha256": "cab5504ed2d84df7b9bb28831a9aca888e82cc31843c695d89de62d09dcc9b32",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/cons.go",
+      "bytes": 2486,
+      "sha256": "947d32967063020d62db6f56abca9b608226e0478a61993b387807ad74592578",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/asc.go",
+      "bytes": 3381,
+      "sha256": "b78f1d1d03f2568da5c4611c4a743fc7d8fe5eab60bce2ec441ed019b9af5f62",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/dahlia/config.yml",
+      "bytes": 2290,
+      "sha256": "1141791ca92c0d69c23ca757adb613df345baf0663344398a3aaf1dfeb32c155",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/skill.go",
+      "bytes": 8006,
+      "sha256": "7953a93f2d08a13ba26a0146d33f48904c72a93143d9156fa9dee32eda5aef2d",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/varka.go",
+      "bytes": 3162,
+      "sha256": "1275e9fa03dbc07f7ab2a8ca88e0b042f4fcbe2b3e01fd22f43f7608c33b7d4f",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/charge.go",
+      "bytes": 6429,
+      "sha256": "75fe5aa0d06d39853cf13b1fdc14c4b52ca9975c3dc87582b181613456227623",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/burst.go",
+      "bytes": 2013,
+      "sha256": "85b3a4f50d103b41eb89153bd512ee64f1f9a8c7e640a6cc7be355cda5ab091c",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/attack.go",
+      "bytes": 6651,
+      "sha256": "09c174e9f9a75833c10b80cb43ddbc9e0eba98974e14e0987a698f83d4dd161a",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/zz_varka.dm.go",
+      "bytes": 9250,
+      "sha256": "079704e1f2cde43fd9ee78555e00255a7185839aa97832fa7b2a52dc5a1791fc",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/cons.go",
+      "bytes": 3691,
+      "sha256": "3964bb166c8e8af5f26a9541cda1315127e768efe1c2f0bdd4f24f866a876a5b",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/asc.go",
+      "bytes": 3439,
+      "sha256": "d2a0e5693fbf73f4a6acdc524b4753ec70375b9e866485421685ca5879ca0fe2",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/varka/config.yml",
+      "bytes": 3490,
+      "sha256": "be1aaa8944ed79c0fb0ec65f092879e3a4399c65d2fa86dfc1b9af5dd1d1464f",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/action/action.go",
+      "bytes": 4043,
+      "sha256": "5074744fa1f71db33c1d13230b3b929fe0df3b87f26fc84a70693ace1cc2ab69",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/animation/animation.go",
+      "bytes": 3385,
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go",
+      "bytes": 3879,
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/nightsoul/nightsoul.go",
+      "bytes": 5077,
+      "sha256": "2d28c81f13b7f1809f7be85f091f65129fbb43b1344a5c0d8754478236cf57c8",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go",
+      "bytes": 7052,
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/shield.go",
+      "bytes": 995,
+      "sha256": "b0913e353e4217e640ff810c2b0cc87bfc008da60eaf5ec020168c7ff76eab9c",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/run.go",
+      "bytes": 9886,
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/setup.go",
+      "bytes": 18223,
+      "sha256": "14d39712021e9e149ff7c3a5d0e042b7150087e825dac2bb8fd9268e1eeeba67",
+      "matchesPinnedGitTree": true
+    },
+    {
+      "path": "genshin-db/LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1"
+    },
+    {
+      "path": "genshin-db/src/data/stats/talents.json",
+      "bytes": 566511,
+      "sha256": "a6e87c30c325f6dd5f7441cbeded21b329175286c92bfd9757ce9be2680048d7"
+    },
+    {
+      "path": "genshin-db/src/data/ChineseSimplified/talents/ifa.json",
+      "bytes": 9123,
+      "sha256": "48e9b788435ab4e4318eede96396daea8d8da8aec1b627860ab5eb72929b2e95"
+    },
+    {
+      "path": "genshin-db/src/data/ChineseSimplified/talents/dahlia.json",
+      "bytes": 9094,
+      "sha256": "4be90a76b904866c9fb6d83a3017f3029cda416d7ca0124871d316fbe3ddfb60"
+    },
+    {
+      "path": "genshin-db/src/data/ChineseSimplified/talents/varka.json",
+      "bytes": 11756,
+      "sha256": "94efcc19fe474d91e8c90bc3de11287f396d48a137209b6f62ec1baef1cca7eb"
+    },
+    {
+      "path": "genshin-db/src/data/ChineseSimplified/talents/prune.json",
+      "bytes": 8943,
+      "sha256": "7b2bdbf379036344349089f6008ceee604f2bfa2f0444b9a2809bc9f25ac08a7"
+    }
+  ]
+}

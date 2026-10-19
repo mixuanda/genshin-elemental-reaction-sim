@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:30010) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/stateful-weapon-proc-calculator.spec.ts:21:1 › Stateful weapon procs remain independent single hits with editable panels, source conflict notes and complete formula explanations
+[chromium] › apps/web/e2e/stateful-weapon-proc-calculator.spec.ts:21:1 › Stateful weapon procs remain independent single hits with editable panels, source conflict notes and complete formula explanations
+Stateful standalone proc browser measurements {"fluteR1":{"nonCritical":450,"critical":900,"expected":675},"fluteR1Edited":{"nonCritical":675,"critical":1350,"expected":1012.5},"fluteR5Edited":{"nonCritical":1350,"critical":2700,"expected":2025},"crescentR5OneHit":{"nonCritical":270,"critical":540,"expected":405}}
+
+  1 passed (842ms)

@@ -1,0 +1,10 @@
+[WebServer] (node:57532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:57533) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/snapshot-stamina.spec.ts:31:1 › Ningguang twelve-gem Q keeps the previous E snapshot independent and round-trips full and selected hits (39.4s)
+
+  1 passed (40.4s)

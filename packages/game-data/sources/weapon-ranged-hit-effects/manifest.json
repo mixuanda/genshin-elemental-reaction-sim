@@ -1,0 +1,382 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "weapon-ranged-hit-effects",
+  "verification": "provisional",
+  "reviewedAt": "2026-09-23",
+  "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+  "sources": [
+    {
+      "id": "gcsim",
+      "repository": "genshinsim/gcsim",
+      "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "license": "MIT"
+    },
+    {
+      "id": "genshin-db",
+      "repository": "theBowja/genshin-db",
+      "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "license": "MIT"
+    }
+  ],
+  "notes": [
+    "Reuse immutable archived files and original MIT licenses; no new download or duplicate raw file.",
+    "Four scoped hit clauses, twenty actual refinement descriptions; this is not a claim that four complete weapon mechanics are implemented.",
+    "All R1–R5 coefficients checked individually against Chinese values and fixed gcsim expressions; only explicit hit-time state is restored.",
+    "Current hit-time final HP or EM is required for the two additive-base clauses, including conversion-derived stats. Historical attack snapshots cannot replace these live bindings."
+  ],
+  "files": [
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/hunterspath.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/hunterspath.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/hunterspath.json",
+      "sha256": "fa7555892773b46a19816604518b10819253a6b27bbac13ae8513fa93b8b03d7",
+      "bytes": 5931,
+      "evidenceRole": "catalog-original",
+      "file": "../weapon-bow-effects/genshin-db/src__data__ChineseSimplified__weapons__hunterspath.json.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/bow/hunterspath/hunterspath.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/hunterspath/hunterspath.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/hunterspath/hunterspath.go",
+      "sha256": "0b199fef1775e0bcc615b332cd8b4e4b1f83c8be3fef2687c9187fabccb35f14",
+      "bytes": 2406,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-bow-effects/gcsim/internal__weapons__bow__hunterspath__hunterspath.go.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/silvershowerheartstrings.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/silvershowerheartstrings.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/silvershowerheartstrings.json",
+      "sha256": "bd9e51b9bcaadd71baf8882b94c2d11835ee0bc67055f46e3321147918f6e5d2",
+      "bytes": 9004,
+      "evidenceRole": "catalog-original",
+      "file": "../weapon-bow-effects/genshin-db/src__data__ChineseSimplified__weapons__silvershowerheartstrings.json.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/bow/heartstrings/heartstrings.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/heartstrings/heartstrings.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/heartstrings/heartstrings.go",
+      "sha256": "3c06b119d64186d20be6c56fa0d854ac0e70959d347d220ea73a477b279cd12e",
+      "bytes": 4336,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-bow-effects/gcsim/internal__weapons__bow__heartstrings__heartstrings.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/catalyst/moonglow/moonglow.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/moonglow/moonglow.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/moonglow/moonglow.go",
+      "sha256": "b708c8e646ab7b177ee3ed1eb1f74325410b8172df989528de319be9faf8715e",
+      "bytes": 2283,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-catalyst-effects/gcsim/internal__weapons__catalyst__moonglow__moonglow.go.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/everlastingmoonglow.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/everlastingmoonglow.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/everlastingmoonglow.json",
+      "sha256": "8a8c09aef4470f01528bc3b592abb2c014c3ff0f2f03d63317f4dfa9304a21f3",
+      "bytes": 6176,
+      "evidenceRole": "exact-Chinese-r1-r5-catalog",
+      "file": "../weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__everlastingmoonglow.json.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "internal/weapons/catalyst/vividnotions/vividnotions.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/vividnotions/vividnotions.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/vividnotions/vividnotions.go",
+      "sha256": "1c18617f2bfb508aa285dacedb9b103395ba9ad7dce082ec69fa9d3b26117371",
+      "bytes": 2868,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-catalyst-effects/gcsim/internal__weapons__catalyst__vividnotions__vividnotions.go.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "src/data/ChineseSimplified/weapons/vividnotions.json",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/vividnotions.json",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/vividnotions.json",
+      "sha256": "372cb85f928060c4f68bced7e448293fadbefde9247eff9d3104e79c84c4bdcb",
+      "bytes": 7315,
+      "evidenceRole": "exact-Chinese-r1-r5-catalog",
+      "file": "../weapon-catalyst-effects/genshin-db/src__data__ChineseSimplified__weapons__vividnotions.json.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/enemy/damage.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-catalyst-effects/gcsim/pkg__enemy__damage.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-catalyst-effects/gcsim/pkg__core__player__character__mods.go.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "bytes": 1067,
+      "evidenceRole": "license",
+      "file": "../weapon-catalyst-effects/gcsim/LICENSE.txt"
+    },
+    {
+      "source": "genshin-db",
+      "upstreamPath": "LICENSE",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/theBowja/genshin-db/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE",
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "bytes": 1065,
+      "evidenceRole": "license",
+      "file": "../weapon-catalyst-effects/genshin-db/LICENSE.txt"
+    },
+    {
+      "source": "gcsim",
+      "upstreamPath": "pkg/core/player/character/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321,
+      "evidenceRole": "reference-implementation",
+      "file": "../weapon-catalyst-effects/gcsim/pkg__core__player__character__stats.go.txt"
+    }
+  ],
+  "records": [
+    {
+      "id": "weapon:15511",
+      "slug": "hunterspath",
+      "name": "猎人之径",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "获得12%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的160%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+          "values": [
+            "12%",
+            "160%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "获得15%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的200%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+          "values": [
+            "15%",
+            "200%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "获得18%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的240%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+          "values": [
+            "18%",
+            "240%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "获得21%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的280%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+          "values": [
+            "21%",
+            "280%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "获得24%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的320%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+          "values": [
+            "24%",
+            "320%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/hunterspath.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/hunterspath/hunterspath.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+      ]
+    },
+    {
+      "id": "weapon:15513",
+      "slug": "silvershowerheartstrings",
+      "name": "白雨心弦",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升12%/24%/40%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升28%，该效果将在疗护不足3层4秒后移除。",
+          "values": [
+            "12%/24%/40%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升15%/30%/50%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升35%，该效果将在疗护不足3层4秒后移除。",
+          "values": [
+            "15%/30%/50%",
+            "35%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升18%/36%/60%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升42%，该效果将在疗护不足3层4秒后移除。",
+          "values": [
+            "18%/36%/60%",
+            "42%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升21%/42%/70%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升49%，该效果将在疗护不足3层4秒后移除。",
+          "values": [
+            "21%/42%/70%",
+            "49%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升24%/48%/80%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升56%，该效果将在疗护不足3层4秒后移除。",
+          "values": [
+            "24%/48%/80%",
+            "56%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/silvershowerheartstrings.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/heartstrings/heartstrings.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+      ]
+    },
+    {
+      "id": "weapon:14506",
+      "slug": "everlastingmoonglow",
+      "name": "不灭月华",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "治疗加成提升10%；普通攻击造成的伤害增加，增加值为装备该武器的角色生命值上限的1%。在施放元素爆发后的12秒内，普通攻击命中敌人时恢复0.6点元素能量，每0.1秒至多通过这种方式恢复一次元素能量。",
+          "values": [
+            "10%",
+            "1%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "治疗加成提升12.5%；普通攻击造成的伤害增加，增加值为装备该武器的角色生命值上限的1.5%。在施放元素爆发后的12秒内，普通攻击命中敌人时恢复0.6点元素能量，每0.1秒至多通过这种方式恢复一次元素能量。",
+          "values": [
+            "12.5%",
+            "1.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "治疗加成提升15%；普通攻击造成的伤害增加，增加值为装备该武器的角色生命值上限的2%。在施放元素爆发后的12秒内，普通攻击命中敌人时恢复0.6点元素能量，每0.1秒至多通过这种方式恢复一次元素能量。",
+          "values": [
+            "15%",
+            "2%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "治疗加成提升17.5%；普通攻击造成的伤害增加，增加值为装备该武器的角色生命值上限的2.5%。在施放元素爆发后的12秒内，普通攻击命中敌人时恢复0.6点元素能量，每0.1秒至多通过这种方式恢复一次元素能量。",
+          "values": [
+            "17.5%",
+            "2.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "治疗加成提升20%；普通攻击造成的伤害增加，增加值为装备该武器的角色生命值上限的3%。在施放元素爆发后的12秒内，普通攻击命中敌人时恢复0.6点元素能量，每0.1秒至多通过这种方式恢复一次元素能量。",
+          "values": [
+            "20%",
+            "3%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/everlastingmoonglow.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/moonglow/moonglow.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+      ]
+    },
+    {
+      "id": "weapon:14519",
+      "slug": "vividnotions",
+      "name": "溢彩心念",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "攻击力提升28%；进行下落攻击时，获得「初霞之彩」效果：下落攻击造成的暴击伤害提升28%；施放元素战技或元素爆发时，获得「苍暮之辉」效果：下落攻击造成的暴击伤害提升40%；上述两种效果各自持续15秒，并将在坠地冲击命中后的0.1秒后解除。",
+          "values": [
+            "28%",
+            "28%",
+            "40%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "攻击力提升35%；进行下落攻击时，获得「初霞之彩」效果：下落攻击造成的暴击伤害提升35%；施放元素战技或元素爆发时，获得「苍暮之辉」效果：下落攻击造成的暴击伤害提升50%；上述两种效果各自持续15秒，并将在坠地冲击命中后的0.1秒后解除。",
+          "values": [
+            "35%",
+            "35%",
+            "50%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "攻击力提升42%；进行下落攻击时，获得「初霞之彩」效果：下落攻击造成的暴击伤害提升42%；施放元素战技或元素爆发时，获得「苍暮之辉」效果：下落攻击造成的暴击伤害提升60%；上述两种效果各自持续15秒，并将在坠地冲击命中后的0.1秒后解除。",
+          "values": [
+            "42%",
+            "42%",
+            "60%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "攻击力提升49%；进行下落攻击时，获得「初霞之彩」效果：下落攻击造成的暴击伤害提升49%；施放元素战技或元素爆发时，获得「苍暮之辉」效果：下落攻击造成的暴击伤害提升70%；上述两种效果各自持续15秒，并将在坠地冲击命中后的0.1秒后解除。",
+          "values": [
+            "49%",
+            "49%",
+            "70%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "攻击力提升56%；进行下落攻击时，获得「初霞之彩」效果：下落攻击造成的暴击伤害提升56%；施放元素战技或元素爆发时，获得「苍暮之辉」效果：下落攻击造成的暴击伤害提升80%；上述两种效果各自持续15秒，并将在坠地冲击命中后的0.1秒后解除。",
+          "values": [
+            "56%",
+            "56%",
+            "80%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/vividnotions.json",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/vividnotions/vividnotions.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+        "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/source-host-startup-panel.ts(18,9): error TS18048: 'key' is possibly 'undefined'.
+apps/web/src/source-host-startup-panel.ts(19,13): error TS2538: Type 'undefined' cannot be used as an index type.
+apps/web/src/source-host-startup-panel.ts(139,242): error TS2367: This comparison appears to be unintentional because the types 'HTMLInputElement' and 'HTMLTextAreaElement' have no overlap.
+packages/sim-core/src/__tests__/source-host-reexecution.test.ts(64,5): error TS18048: 'changedRequest.startupState' is possibly 'undefined'.
+packages/sim-core/src/__tests__/source-host-reexecution.test.ts(67,5): error TS18048: 'changedStartup.startupState' is possibly 'undefined'.

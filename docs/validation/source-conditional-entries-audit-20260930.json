@@ -1,0 +1,758 @@
+{
+  "schemaVersion": 1,
+  "status": "PRE124 static source audit; proposals only; no registry edits, runtime or build verification asserted",
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-CHWLQf/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-9hFTdx/source"
+  },
+  "sourceReceipts": {
+    "classic": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch124/classic/receipt.json",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7"
+    },
+    "stellar": {
+      "path": "/Users/evan/Library/Caches/gidps-source-host/frozen/batch124/stellar/receipt.json",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6"
+    }
+  },
+  "registryBaseline": {
+    "finiteUniqueIdsAfterBatch123": 90,
+    "canonicalCharacterActionPairsAfterBatch123": 88,
+    "source": "current Batch123 direct finite-cast and producer registries: 90 unique finite IDs / 88 canonical pairs; 7 complete proposed pairs and the Sara gap are absent."
+  },
+  "recommendedScope": [
+    "chasca-skill",
+    "xilonen-skill",
+    "qiqi-burst",
+    "jean-skill",
+    "lanyan-burst",
+    "varka-burst",
+    "aloy-skill"
+  ],
+  "candidateAssessments": [
+    {
+      "id": "chasca-skill",
+      "characterKey": "chasca",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/chasca/skill.go",
+      "rootRule": "entry fact: blessing-at-entry ? 0 : 1",
+      "branchFact": "chasca.skill.blessing-at-entry",
+      "sourceEvidence": "skill.go:120-155; one direct QueueAttack at 148 on the false HasBlessing branch; true branch exits Nightsoul and returns before queueing. Hit frame 3; plan closes only when pending-aim-release fact is 0.",
+      "audit": "Skill calls HasBlessing once at entry; false queues one hit then enters Nightsoul, true exits and queues none. particleCB only sets its per-use flag and grants particles (158-167); point-reduction tasks alter Nightsoul state only (109-117). Init installs A1/A4 state/hooks (chasca.go:46-64); A4 independently reacts to OnNightsoulBurst and queues shell damage (asc.go:58-92), and C2/C4 callbacks attach to later Shadowhunt shell attacks (cons.go:40-94), not E. If recast occurs in AimState, exitNightsoul schedules fireBullets for previously charged aimed shots (skill.go:83-107; aimed.go:190-244); when exitNightsoul selects AimState, the helper schedules fireBullets for previously charged aimed shots (skill.go:88-93; aimed.go:190-244); without an owner binding to that prior aimed action the E plan is partial on this branch. The plan is enabled only when native fact `chasca.skill.pending-aim-release` is 0. PRE124 Stellar skill differs in animation-frame table and tag type; branch/root behavior is same.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/chasca/skill.go",
+          "lines": [
+            83,
+            107
+          ],
+          "purpose": "Nightsoul exit; AimState may release prior charged bullets"
+        },
+        {
+          "path": "internal/characters/chasca/skill.go",
+          "lines": [
+            120,
+            167
+          ],
+          "purpose": "Skill branch, direct queue, and particle callback"
+        },
+        {
+          "path": "internal/characters/chasca/chasca.go",
+          "lines": [
+            46,
+            64
+          ],
+          "purpose": "Init setup and passive hook registration"
+        },
+        {
+          "path": "internal/characters/chasca/asc.go",
+          "lines": [
+            58,
+            92
+          ],
+          "purpose": "A4 independently queues attacks on Nightsoul Burst"
+        },
+        {
+          "path": "internal/characters/chasca/cons.go",
+          "lines": [
+            40,
+            94
+          ],
+          "purpose": "C2/C4 shell hit callbacks queue later attacks"
+        },
+        {
+          "path": "internal/characters/chasca/aimed.go",
+          "lines": [
+            190,
+            244
+          ],
+          "purpose": "prior AimState bullet release path"
+        },
+        {
+          "path": "internal/characters/chasca/skill.go",
+          "lines": [
+            88,
+            93
+          ],
+          "purpose": "original AimState exit branch schedules fireBullets from a previously charged aimed shot"
+        }
+      ],
+      "status": "partial unless the native pending AimState fact is 0; AimState branch remains unowned"
+    },
+    {
+      "id": "xilonen-skill",
+      "characterKey": "xilonen",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/xilonen/skill.go",
+      "rootRule": "entry fact: blessing-at-entry ? 0 : 1",
+      "branchFact": "xilonen.skill.blessing-at-entry",
+      "sourceEvidence": "skill.go:160-210; one direct QueueAttack at 192 on false HasBlessing branch; true branch exits and returns before queueing. Hit frame 6.",
+      "audit": "Skill calls HasBlessing once before the branch; true exits and returns zero direct roots, false queues one root then initializes Nightsoul and constellation status. particleCB is particle-only (213-221), sampler activation tasks add resistance modifiers without attacks (102-158), and stamina restoration is non-damage. Init installs passive/constellation hooks (xilonen.go:49-75); A1 modifies later Normal/Plunge damage and points, C4 modifies later Normal/Extra/Plunge hits, and C6 applies later attack modifiers/heals (asc.go:22-89; cons.go:131-260). Stellar changes AdditionalTags Go type only; method branch/root count unchanged.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/xilonen/skill.go",
+          "lines": [
+            74,
+            100
+          ],
+          "purpose": "exit helper; no attack roots"
+        },
+        {
+          "path": "internal/characters/xilonen/skill.go",
+          "lines": [
+            160,
+            221
+          ],
+          "purpose": "Skill entry branch, queue, and particle-only callback"
+        },
+        {
+          "path": "internal/characters/xilonen/skill.go",
+          "lines": [
+            102,
+            158
+          ],
+          "purpose": "sampler tasks apply RES modifiers only"
+        },
+        {
+          "path": "internal/characters/xilonen/xilonen.go",
+          "lines": [
+            49,
+            75
+          ],
+          "purpose": "Init hooks"
+        },
+        {
+          "path": "internal/characters/xilonen/asc.go",
+          "lines": [
+            22,
+            89
+          ],
+          "purpose": "passive modifiers and point generation"
+        },
+        {
+          "path": "internal/characters/xilonen/cons.go",
+          "lines": [
+            131,
+            260
+          ],
+          "purpose": "C4/C6 affect later actions or healing"
+        }
+      ]
+    },
+    {
+      "id": "qiqi-burst",
+      "characterKey": "qiqi",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/qiqi/burst.go",
+      "rootRule": "plan fact: 2 + Stellar Conduct branch (0/1)",
+      "branchFact": "qiqi.burst.stellar-conduct-at-entry",
+      "sourceEvidence": "burst.go:28-71 Classic queues Cryo damage at frame 82 and a zero-damage talisman-application attack at frame 40. Stellar queues the same two; under `revelation && getRadiance()==radianceStellarConduct` it additionally queues a direct Stellar Conduct attack at frame 82.",
+      "audit": "The cast always queues two deliveries: one Cryo damage root at 82 and one zero-damage AttackTagNone/Physical talisman-application root at 40. The talisman callback applies a 15s enemy status only if that zero-damage attack hits an enemy (Classic burst.go:53-60; Stellar burst.go:27-43). Stellar has an additional direct Q attack only in the original revelation/Stellar Conduct condition and calls c6OnBurst, which changes status/energy/heal behavior; source lane diff is semantically material and represented by branch fact `qiqi.burst.stellar-conduct-at-entry`. Init subscriptions heal on later enemy damage and process later Qiqi NA/CA hooks; they do not create another Q attack (qiqi.go:40-48; Classic burst.go:73-120; Stellar burst.go:77 onward). A1/C1/C2 are heal, energy, or later NA/CA modifier hooks (asc.go:15-45; cons.go:13-53); Stellar C4 adds healing when talisman healing occurs; C6-on-Burst sets status/stacks whose additive hook applies to later Normal/Extra hits (cons.go:238-252), not a new Q root. Never claim talisman was applied unless the zero-damage callback actually dispatched to an enemy. Complete E-scope caveat: omitted because E grants persistent global Crowfeather Cover that can later drive a Tengu Juurai: Ambush from fully charged Aimed Shot; this delayed status-to-aimed trigger is outside the direct cast method (skill.go:39-57; aimed.go:66-141).",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/qiqi/burst.go",
+          "lines": [
+            28,
+            71
+          ],
+          "purpose": "two common deliveries and lane-specific Stellar Conduct branch"
+        },
+        {
+          "path": "internal/characters/qiqi/burst.go",
+          "lines": [
+            73,
+            120
+          ],
+          "purpose": "talisman callback and heal-on-enemy-damage listener; Stellar offsets differ"
+        },
+        {
+          "path": "internal/characters/qiqi/qiqi.go",
+          "lines": [
+            40,
+            48
+          ],
+          "purpose": "Init callbacks"
+        },
+        {
+          "path": "internal/characters/qiqi/asc.go",
+          "lines": [
+            15,
+            45
+          ],
+          "purpose": "A1 reaction healing bonus only"
+        },
+        {
+          "path": "internal/characters/qiqi/cons.go",
+          "lines": [
+            13,
+            53
+          ],
+          "purpose": "C1 energy and C2 modifier"
+        },
+        {
+          "path": "internal/characters/qiqi/cons.go",
+          "lines": [
+            132,
+            178
+          ],
+          "purpose": "Stellar C4 healing callback only",
+          "lane": "stellar"
+        },
+        {
+          "path": "internal/characters/qiqi/cons.go",
+          "lines": [
+            238,
+            249
+          ],
+          "lane": "stellar",
+          "purpose": "C6 Burst hook applies status/stacks for later hit modifiers; no additional Burst queue"
+        }
+      ],
+      "status": "excluded from complete contract fragment; retained as explicit open coverage gap"
+    },
+    {
+      "id": "sara-skill",
+      "characterKey": "sara",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/sara/skill.go",
+      "rootRule": "method-local only: below C2=0 roots, C2+=1 root; incomplete full-E scope",
+      "branchFact": null,
+      "sourceEvidence": "skill.go:37-68; only QueueAttack at 56 is guarded by Base.Cons>=2; attack hitmark is c2Hitmark 103 (start 50).",
+      "audit": "C2 and above queues one direct Elemental Art root; below C2 the cast applies Crowfeather Cover and cooldown only and queues zero attacks. On hit, A4 callback grants party energy (asc.go:19-37) and `attackBuff` schedules ATK buff/cooldown logic/drain bookkeeping but does not queue damage (skill.go:81-136). C1 only reduces E cooldown after hit (cons.go:21-28); Init C6 installs modifier/event handling (sara.go:30-33; cons.go:31-63), with no additional E hit. Stellar only changes a C6 listener event name unrelated to E root count. Full E-scope gap: Skill grants persistent Crowfeather Cover; a later fully charged Aimed Shot can create a Crowfeather and delayed Tengu Juurai: Ambush (aimed.go:66,121-141). Until that global status-to-aimed producer path is traced, the method-local C2 root count is not a complete E contract.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/sara/skill.go",
+          "lines": [
+            37,
+            68
+          ],
+          "purpose": "C2 direct root branch"
+        },
+        {
+          "path": "internal/characters/sara/skill.go",
+          "lines": [
+            81,
+            136
+          ],
+          "purpose": "attackBuff callback/task: modifier and zero drain only"
+        },
+        {
+          "path": "internal/characters/sara/asc.go",
+          "lines": [
+            19,
+            37
+          ],
+          "purpose": "A4 gives energy on Ambush hit"
+        },
+        {
+          "path": "internal/characters/sara/sara.go",
+          "lines": [
+            30,
+            33
+          ],
+          "purpose": "Init C6 setup"
+        },
+        {
+          "path": "internal/characters/sara/cons.go",
+          "lines": [
+            21,
+            63
+          ],
+          "purpose": "C1 cooldown, C6 modifier/listener only"
+        },
+        {
+          "path": "internal/characters/sara/aimed.go",
+          "lines": [
+            66,
+            141
+          ],
+          "purpose": "E-created cover gates later fully charged aimed shot and delayed Tengu Juurai damage"
+        },
+        {
+          "path": "internal/characters/sara/skill.go",
+          "lines": [
+            37,
+            60
+          ],
+          "purpose": "E creates persistent cover; direct C2 root branch"
+        }
+      ],
+      "status": "excluded from complete contract fragment; retained as explicit open coverage gap"
+    },
+    {
+      "id": "jean-skill",
+      "characterKey": "jean",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/jean/skill.go",
+      "rootRule": "constant 1",
+      "branchFact": null,
+      "sourceEvidence": "skill.go:27-65; one QueueAttackWithSnap at 49. hitmark 21+min(hold,300); hold changes duration only.",
+      "audit": "Tap/hold converge on one QueueAttackWithSnap; C1 modifies snapshot damage when hold>=60 and does not add an attack (skill.go:27-56; cons.go:14-19). baseParticleCB and extraParticleCB create particles only; the second callback is random particle count and does not alter root count (skill.go:68-90). Init C2 subscribes to particle receipt for team ATK SPD; C6 is explicitly unimplemented (jean.go:31-39; cons.go:23-50,68-73). A4/field effects concern Burst or later damage, not E. Both lanes identical for reviewed skill, Init, passive and constellation files.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/jean/skill.go",
+          "lines": [
+            27,
+            65
+          ],
+          "purpose": "single attack and hold timing"
+        },
+        {
+          "path": "internal/characters/jean/skill.go",
+          "lines": [
+            68,
+            90
+          ],
+          "purpose": "particle callbacks only"
+        },
+        {
+          "path": "internal/characters/jean/jean.go",
+          "lines": [
+            31,
+            39
+          ],
+          "purpose": "Init"
+        },
+        {
+          "path": "internal/characters/jean/cons.go",
+          "lines": [
+            14,
+            19
+          ],
+          "purpose": "C1 snapshot modifier"
+        },
+        {
+          "path": "internal/characters/jean/cons.go",
+          "lines": [
+            23,
+            50
+          ],
+          "purpose": "C2 particle listener buff"
+        },
+        {
+          "path": "internal/characters/jean/asc.go",
+          "lines": [
+            1,
+            55
+          ],
+          "purpose": "passives; no E-created attack"
+        }
+      ]
+    },
+    {
+      "id": "lanyan-burst",
+      "characterKey": "lanyan",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/lanyan/burst.go",
+      "rootRule": "constant 3",
+      "branchFact": null,
+      "sourceEvidence": "burst.go:26-68; direct loop queues exactly three roots with hitmarks 30, 46, 51.",
+      "audit": "Three direct Burst attacks are queued in fixed hitmark order 30,46,51. C4 applies a team EM status at cast (burst.go:60; cons.go:43-61) but no attack; Init C2 shield refresh and C6 E charges are unrelated (lanyan.go:33-41; cons.go:16-40). A4 shield absorption changes later Anemo hits only; no cast callback generates another Q root. Both lanes byte-identical for audited source files.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/lanyan/burst.go",
+          "lines": [
+            26,
+            68
+          ],
+          "purpose": "three direct Burst roots and C4 helper"
+        },
+        {
+          "path": "internal/characters/lanyan/lanyan.go",
+          "lines": [
+            33,
+            41
+          ],
+          "purpose": "Init"
+        },
+        {
+          "path": "internal/characters/lanyan/cons.go",
+          "lines": [
+            16,
+            61
+          ],
+          "purpose": "C2 shield and C4 buff only"
+        },
+        {
+          "path": "internal/characters/lanyan/asc.go",
+          "lines": [
+            1,
+            19
+          ],
+          "purpose": "passives; no Burst-created root"
+        }
+      ]
+    },
+    {
+      "id": "varka-burst",
+      "characterKey": "varka",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/varka/burst.go",
+      "rootRule": "constant 2",
+      "branchFact": null,
+      "sourceEvidence": "burst.go:29-69; loop queues two roots at frames 112 and 131.",
+      "audit": "Burst loops over two fixed hitmarks [112,131], no callbacks. It extends E status by 138 frames but creates no child attack (burst.go:57-58). Init determines conversion element and attaches A1/A4/C4/C6 hooks (varka.go:53-60); these modify damage/status or later special-skill actions. C2 direct QueueAttack is in c2OnSpecialSkill (cons.go:41-61) and that helper is called from the special charged skill, not Burst. Stellar changes conversion/skill machinery and C2 tag type, not the Burst queue loop/count.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/varka/burst.go",
+          "lines": [
+            29,
+            69
+          ],
+          "purpose": "two direct roots and E extension"
+        },
+        {
+          "path": "internal/characters/varka/varka.go",
+          "lines": [
+            53,
+            60
+          ],
+          "purpose": "Init element selection and hooks"
+        },
+        {
+          "path": "internal/characters/varka/cons.go",
+          "lines": [
+            21,
+            61
+          ],
+          "purpose": "C1/C2 actions are special-skill-only, not Q"
+        },
+        {
+          "path": "internal/characters/varka/asc.go",
+          "lines": [
+            22,
+            120
+          ],
+          "purpose": "A1/A4 modifiers and event hooks"
+        },
+        {
+          "path": "internal/characters/varka/cons.go",
+          "lines": [
+            63,
+            195
+          ],
+          "purpose": "C4/C6 hooks; no Q child roots"
+        }
+      ]
+    },
+    {
+      "id": "aloy-skill",
+      "characterKey": "aloy",
+      "action": "skill",
+      "method": "Skill",
+      "sourcePath": "internal/characters/aloy/skill.go",
+      "rootRule": "plan expression: 1 + max(0, bomblets)",
+      "branchFact": null,
+      "sourceEvidence": "skill.go:44-114; always queues main root (72), then one direct root per loop iteration for i=0..<bomblets (96-104). Missing param defaults to 2; no artificial upper bound.",
+      "audit": "Each invocation queues one Freeze Bomb root and exactly one Chillwater Bomblets root for each integer `i` with 0<=i<bomblets. Missing `bomblets` defaults to 2; zero/negative values add no roots. `travel` defaults 5 and `bomb_delay` defaults 0; both affect timing only (skill.go:45-58,72-104). Main particle callback is particle-only (116-128); bomblet coil callback advances stack/state and adds A1/A4 modifiers on reaching four stacks but queues no attack (131-183; asc.go:11-68). Init sets up those modifiers/listeners; no E child attack (aloy.go:41 onward). Stellar only reorders action frame defaults for Dash/Swap; root algorithm unchanged.",
+      "sourceRefs": [
+        {
+          "path": "internal/characters/aloy/skill.go",
+          "lines": [
+            44,
+            114
+          ],
+          "purpose": "parameter defaults, one main root, bomblet loop"
+        },
+        {
+          "path": "internal/characters/aloy/skill.go",
+          "lines": [
+            116,
+            183
+          ],
+          "purpose": "particle and coil callbacks; no extra root"
+        },
+        {
+          "path": "internal/characters/aloy/aloy.go",
+          "lines": [
+            41,
+            55
+          ],
+          "purpose": "Init and coil state setup"
+        },
+        {
+          "path": "internal/characters/aloy/asc.go",
+          "lines": [
+            11,
+            67
+          ],
+          "purpose": "A1/A4 modifiers only"
+        }
+      ]
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "internal/characters/aloy/aloy.go",
+      "classicSha256": "3f180094807cf4f4521344ed0fa5ffb020bd28420cfec775feb17c5484049114",
+      "stellarSha256": "3f180094807cf4f4521344ed0fa5ffb020bd28420cfec775feb17c5484049114"
+    },
+    {
+      "path": "internal/characters/aloy/asc.go",
+      "classicSha256": "2f16edebbe7e687de140fe573cf4343513e38c0ea1436ee025f6dd1786e6ac55",
+      "stellarSha256": "2f16edebbe7e687de140fe573cf4343513e38c0ea1436ee025f6dd1786e6ac55"
+    },
+    {
+      "path": "internal/characters/aloy/skill.go",
+      "classicSha256": "51c55a070d25b8c54ca2a770f74b73ffe77b28030cc2c03cdd1a5f6f726fae45",
+      "stellarSha256": "daa40f3c27371d06b5e1353142db11c1828a249b41f560d564976cb8b58e506f"
+    },
+    {
+      "path": "internal/characters/chasca/aimed.go",
+      "classicSha256": "8cdb4c54f399838ab88b106bebd004f7bc0d3acc37c1e4b71ca14fef3719403f",
+      "stellarSha256": "a0ec6f3f80864bf5cbd55433a588a53f994305afc022ca228b20940e2a715950"
+    },
+    {
+      "path": "internal/characters/chasca/asc.go",
+      "classicSha256": "79fc9066b5cf35ebd1e7cade93a279d79f1ed718aa15064b56aa98e15e3a34db",
+      "stellarSha256": "b124fa7fbe37c277112a4a6b5ea98679b6359c1ce3aa6eade557b05d63e45f36"
+    },
+    {
+      "path": "internal/characters/chasca/chasca.go",
+      "classicSha256": "90634a5065f83cca59db2b69c34217fe50bc1a565fe5798d53ea40bd0030c5d2",
+      "stellarSha256": "90634a5065f83cca59db2b69c34217fe50bc1a565fe5798d53ea40bd0030c5d2"
+    },
+    {
+      "path": "internal/characters/chasca/cons.go",
+      "classicSha256": "2a0900e3beba0f19bba239d1cc0d977e8d87e0c619b4e54babf9a2ef967256fa",
+      "stellarSha256": "bb3729ed7604d81d028973b55ff84dc9764418fae0aa5767ff3c1010167e6238"
+    },
+    {
+      "path": "internal/characters/chasca/skill.go",
+      "classicSha256": "76f1c1a93b7acc9d7e14a9749957688d246bb5ae7b0a91af5f37677c0df33fed",
+      "stellarSha256": "65a1694f59e5507fb6ef92f78b5f1e25c85c1e2d16ecb8b12b6c781a09549d3a"
+    },
+    {
+      "path": "internal/characters/jean/asc.go",
+      "classicSha256": "7b3049fbb9f64e1071fb29fc3604f786df089cf34fe2a6b0069c0b331e37191b",
+      "stellarSha256": "7b3049fbb9f64e1071fb29fc3604f786df089cf34fe2a6b0069c0b331e37191b"
+    },
+    {
+      "path": "internal/characters/jean/cons.go",
+      "classicSha256": "7ac2b13c01de65815ca7476c4abc1676587ebb14d615885e8553b2889636cffe",
+      "stellarSha256": "7ac2b13c01de65815ca7476c4abc1676587ebb14d615885e8553b2889636cffe"
+    },
+    {
+      "path": "internal/characters/jean/jean.go",
+      "classicSha256": "7178e8e54c1c5664c292229e01834e872f6a0c1f8c42471aaa3dbb6e73170b16",
+      "stellarSha256": "7178e8e54c1c5664c292229e01834e872f6a0c1f8c42471aaa3dbb6e73170b16"
+    },
+    {
+      "path": "internal/characters/jean/skill.go",
+      "classicSha256": "946858a956e042012e2fa1ff5d4bc3d2f3b869ea1329e7ebff4eb7ead7111072",
+      "stellarSha256": "946858a956e042012e2fa1ff5d4bc3d2f3b869ea1329e7ebff4eb7ead7111072"
+    },
+    {
+      "path": "internal/characters/lanyan/asc.go",
+      "classicSha256": "ec9e57fb195eb9bc9ec18103e9050534dae4238b81745061a03767a2abd42d0a",
+      "stellarSha256": "ec9e57fb195eb9bc9ec18103e9050534dae4238b81745061a03767a2abd42d0a"
+    },
+    {
+      "path": "internal/characters/lanyan/burst.go",
+      "classicSha256": "c5a72b1e8aeaa0afeeecde53bc37ca582a4163b0accff8ef092ac8ece8495843",
+      "stellarSha256": "c5a72b1e8aeaa0afeeecde53bc37ca582a4163b0accff8ef092ac8ece8495843"
+    },
+    {
+      "path": "internal/characters/lanyan/cons.go",
+      "classicSha256": "c566eaddbae950fb60f88763d3c2939016efe42605d21354380c9139e31a640f",
+      "stellarSha256": "c566eaddbae950fb60f88763d3c2939016efe42605d21354380c9139e31a640f"
+    },
+    {
+      "path": "internal/characters/lanyan/lanyan.go",
+      "classicSha256": "70ca1e98b389bd605632e1b0b4692a060ad8dd379ac6aa04d247c1b1f8209a74",
+      "stellarSha256": "70ca1e98b389bd605632e1b0b4692a060ad8dd379ac6aa04d247c1b1f8209a74"
+    },
+    {
+      "path": "internal/characters/qiqi/asc.go",
+      "classicSha256": "97017c0aaa74b666c4345c52873719dda64555a5040c63abe68087cff49eb948",
+      "stellarSha256": "dadc5f0df4b34c99c767f77fd85a864ef09a3725fda5a7e55e0ac18cd499d593"
+    },
+    {
+      "path": "internal/characters/qiqi/burst.go",
+      "classicSha256": "d697c809b4aa2db212787a265f1393794432f68acaf1cfa820c0507d4267d233",
+      "stellarSha256": "c8872d218a139d9b12f0e4610a902396140d40ff2f40c7edb88d0b8986b52d40"
+    },
+    {
+      "path": "internal/characters/qiqi/cons.go",
+      "classicSha256": "dc3b4c4fcd0083dbb3dbc7a4d0d9beb6116d22eef4c5e6686ef64f2d53181ad0",
+      "stellarSha256": "ada99337f2808a9e51651868baf1db4d12e0808d1134e69a4b0341d44c1f3bb7"
+    },
+    {
+      "path": "internal/characters/qiqi/qiqi.go",
+      "classicSha256": "0511a9b079ce3dbf8d6012975a618ee0bc461395e0888528b1a2ce906c556e60",
+      "stellarSha256": "3fa28926000174de5017ff1399175f54aa6beadcf2906e0893b05fdf15b55b68"
+    },
+    {
+      "path": "internal/characters/sara/aimed.go",
+      "classicSha256": "4580522e0afbd3d3b78fc63c7bf62e5bc6023dfc5ebc773fe7c55d9a792d9c3d",
+      "stellarSha256": "4580522e0afbd3d3b78fc63c7bf62e5bc6023dfc5ebc773fe7c55d9a792d9c3d"
+    },
+    {
+      "path": "internal/characters/sara/asc.go",
+      "classicSha256": "7a8e22f8368b5a3343674ce8d7c05d42aaa47afcd1a7fd32f9f58b648d12a999",
+      "stellarSha256": "7a8e22f8368b5a3343674ce8d7c05d42aaa47afcd1a7fd32f9f58b648d12a999"
+    },
+    {
+      "path": "internal/characters/sara/cons.go",
+      "classicSha256": "1cdff4a72ae2dfea37740e1bf719e4ad3e4404a22c95b5ada4a067cbc0c08b82",
+      "stellarSha256": "a2b8ec29df9c6aeb15685034b88867306c26a7f764da5b8738df966faeadf7d0"
+    },
+    {
+      "path": "internal/characters/sara/sara.go",
+      "classicSha256": "0711a9bb4aaf52693401de564cd756205d32f56527991ef2ed90d3eb1e420f22",
+      "stellarSha256": "0711a9bb4aaf52693401de564cd756205d32f56527991ef2ed90d3eb1e420f22"
+    },
+    {
+      "path": "internal/characters/sara/skill.go",
+      "classicSha256": "7c6a6839ed7c5ca4259853b1d2bb65618c40b73dff3c976a844e7354bbaf5cc6",
+      "stellarSha256": "7c6a6839ed7c5ca4259853b1d2bb65618c40b73dff3c976a844e7354bbaf5cc6"
+    },
+    {
+      "path": "internal/characters/varka/asc.go",
+      "classicSha256": "8e9771a5d9844b0da18851fe0f77fc28b739b06e35b6de6d7c92575609329a4f",
+      "stellarSha256": "280e1a644dfd21fd18e4a65d00d60394d4169e5e14c98580a2f4b17baf4bc449"
+    },
+    {
+      "path": "internal/characters/varka/burst.go",
+      "classicSha256": "85b3a4f50d103b41eb89153bd512ee64f1f9a8c7e640a6cc7be355cda5ab091c",
+      "stellarSha256": "85b3a4f50d103b41eb89153bd512ee64f1f9a8c7e640a6cc7be355cda5ab091c"
+    },
+    {
+      "path": "internal/characters/varka/cons.go",
+      "classicSha256": "a85f1b3255ce327762e9c537a6d77b636b9aeeeba6aead14bc93904feeb1c048",
+      "stellarSha256": "f464a91193cf7b2a185c4fe6df4fcdf67da6e3716b661356b2b0f9bb2d1ed5f1"
+    },
+    {
+      "path": "internal/characters/varka/varka.go",
+      "classicSha256": "737d59229c4cd016be4d03e10e9cf9ac865333c0362617e538aa22212b2189d7",
+      "stellarSha256": "2146a17fba147533721c5d015b4f299240643411e87a20c93fe3788830a10a03"
+    },
+    {
+      "path": "internal/characters/xilonen/asc.go",
+      "classicSha256": "babc80611f2a9ebab6d2d37d4765cdc36a3a5a80ae3d1084a3eb222f1f609fda",
+      "stellarSha256": "230b57a5c1c1dae6141c0803c41d4a52744794d169d8558a2d8befdb9024c273"
+    },
+    {
+      "path": "internal/characters/xilonen/cons.go",
+      "classicSha256": "0096e28088a4688656ff5ac22bfd8092b1b8868ff25247a10c477c9abdbae05c",
+      "stellarSha256": "2737d8206a68496fe90ad526fb3592adee96ceae01cc71f47fbf4223b9206efc"
+    },
+    {
+      "path": "internal/characters/xilonen/skill.go",
+      "classicSha256": "c0d108ee670d06963aedf5fd95ce5d60d9a227b2a4ca1f380be30ef96fd41826",
+      "stellarSha256": "f8d15f674c93727b595e843c39d7a2929937e0db8abde5eff35ce438adac073d"
+    },
+    {
+      "path": "internal/characters/xilonen/xilonen.go",
+      "classicSha256": "146982ab4dacfb52f749484baec7f331a15b955e827bde6d02e22a2b0e19bfef",
+      "stellarSha256": "146982ab4dacfb52f749484baec7f331a15b955e827bde6d02e22a2b0e19bfef"
+    }
+  ],
+  "laneComparisonNotes": [
+    "Chasca skill differs in animation frame table and AdditionalTags static Go type; E branch/root semantics are unchanged.",
+    "Xilonen skill differs only in AdditionalTags Go type; direct queue and branch semantics are unchanged.",
+    "Qiqi Burst differs materially: Stellar has the conditional extra Stellar Conduct direct root and moves the talisman queue before the standard hit; the two common roots remain one zero-damage at40 and one Cryo at82.",
+    "Varka Burst method is byte-identical; supporting character/cons files differ for Stellar skill/conversion mechanics, not Q root count.",
+    "Aloy Skill differs in action frame table only; direct root loop is identical. Other reviewed files are lane-identical where hashes show matching values.",
+    "Sara cons.go differs in the C6 reaction event listener (Lunar vs special-reaction event); this does not resolve the separate E-created cover to later fully charged aimed-shot damage gap."
+  ],
+  "entryFactMetadata": {
+    "schemaVersion": 1,
+    "purpose": "Private PRE124 metadata requests for native ability-invocation entryFacts; no source patches applied. Facts are captured at the original source branch decision and reused, never queried a second time.",
+    "facts": [
+      {
+        "id": "chasca.skill.blessing-at-entry",
+        "characterKey": "chasca",
+        "action": "skill",
+        "sourceCondition": "internal/characters/chasca/skill.go:121 `c.nightsoulState.HasBlessing()`",
+        "captureRule": "Record the result of the existing single HasBlessing() call immediately before the existing if. 1=true/zero-root recast; 0=false/one-root initial cast. Do not repeat the query.",
+        "browserAssertions": [
+          "0 => one direct root at frame 3",
+          "1 => zero direct roots and completed exit branch; use Idle state to avoid prior AimState fireBullets"
+        ]
+      },
+      {
+        "id": "xilonen.skill.blessing-at-entry",
+        "characterKey": "xilonen",
+        "action": "skill",
+        "sourceCondition": "internal/characters/xilonen/skill.go:161 `c.nightsoulState.HasBlessing()`",
+        "captureRule": "Record the result of the existing single HasBlessing() call immediately before the existing if. 1=true/zero-root recast; 0=false/one-root initial cast. Do not repeat the query.",
+        "browserAssertions": [
+          "0 => one direct root at frame 3",
+          "1 => zero direct roots and completed exit branch"
+        ]
+      },
+      {
+        "id": "qiqi.burst.stellar-conduct-at-entry",
+        "characterKey": "qiqi",
+        "action": "burst",
+        "sourceCondition": "Stellar internal/characters/qiqi/burst.go, original `c.revelation && c.getRadiance() == radianceStellarConduct` branch",
+        "captureRule": "Capture the exact existing branch result once and reuse it; Classic serializes 0 because this lane has no Stellar Conduct branch.",
+        "browserAssertions": [
+          "0 => 2 direct deliveries (one zero-damage at frame 40, one Cryo at82)",
+          "1 => 3 direct deliveries (additional Stellar Conduct root at82)"
+        ]
+      },
+      {
+        "id": "chasca.skill.pending-aim-release",
+        "characterKey": "chasca",
+        "action": "skill",
+        "sourceCondition": "internal/characters/chasca/skill.go:88-93, original `exitNightsoul` AimState switch branch",
+        "captureRule": "Set 0 at Skill entry; overwrite with 1 only inside the original AimState branch when it schedules `fireBullets`. No extra state query. If 1, do not return a complete cast plan until prior charged-shot ownership is bound.",
+        "browserAssertions": [
+          "baseline Idle path remains 0 and uses ordinary 1/0 blessing branches",
+          "plan stays partial when AimState branch writes 1; no new browser matrix requested"
+        ]
+      }
+    ]
+  },
+  "configurationRecommendations": [
+    "Chasca: test initial `blessing-at-entry=0` (one root at frame 3), then a successful E recast with `blessing-at-entry=1` (zero roots); recast while idle; the browser should assert `pending-aim-release=0`. No separate matrix needed for the AimState partial branch.",
+    "Xilonen: test initial `blessing-at-entry=0` (one root at frame 6) then recast with `blessing-at-entry=1`; inspect one-root and zero-root completion separately.",
+    "Qiqi: in both lanes expect talisman-application zero-damage delivery at40 plus Cryo Q at82; add Stellar Conduct entry fact 0/1 to test the lane-only third attack at82. Only say talisman applied if actual enemy callback occurs.",
+    "Jean E: hold=0 and hold=60 exercise hitframes21/81 while count remains1.",
+    "Lanyan Q: wait through hitframe51 and terminal dispatch for three attacks.",
+    "Varka Q: wait through hitframe131 and terminal dispatch for two attacks.",
+    "Aloy E: omitted bomblets=>3 roots; bomblets=0 or negative=>1; e.g. default travel5/bomb_delay0 final bomblet hitframe37; do not impose a max count."
+  ],
+  "exclusions": [
+    "Klee E excluded: skill creates explosive entity/mine attacks, not plain direct-only cast roots.",
+    "Mona Q excluded: enemy-hit bubble detonation is a separate event proc.",
+    "Heizou Q excluded: element-dependent Swirl follow-up damage path requires event producer coverage.",
+    "Yumemizuki Mizuki E and Q excluded: persistent skill ticks and snack entities complicate whole-cast direct root scope.",
+    "Ororon E excluded: skill proc establishes recurring off-field attack generator.",
+    "Ningguang Q excluded: Jade Screen-dependent branch adds variable direct attack count.",
+    "Aloy E is not constant-count: it is included only with its exact unbounded `bomblets` parameter formula.",
+    "Sara E excluded from complete contracts: the E method has a C2-only direct attack, but its persistent Crowfeather Cover causes a later fully charged Aimed Shot to emit Tengu Juurai damage; requires global status-to-aimed producer ownership (aimed.go:66,121-141)."
+  ],
+  "scopeSummary": "Seven complete direct-cast candidates proposed. Sara E remains an explicit open family gap because persistent E-created cover can cause delayed damage from a later aimed action."
+}

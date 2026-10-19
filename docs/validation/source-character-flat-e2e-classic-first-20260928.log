@@ -1,0 +1,39 @@
+[WebServer] (node:90253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:90261) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-flat.spec.ts:98:1 › native queued FlatDmg preserves set/add/multiply, saved values, recipient identity, and formula edits (7.9s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-flat.spec.ts:98:1 › native queued FlatDmg preserves set/add/multiply, saved values, recipient identity, and formula edits 
+
+    Error: classic: Chiori E must hit with its multiplied snapshot DEF
+
+    expect(received).toBeDefined()
+
+    Received: undefined
+
+      135 |     if (scene === "chiori-kokomi") {
+      136 |       const upward = hitWith(result, rules.chioriMultiply)[0];
+    > 137 |       expect(upward, `${lane}: Chiori E must hit with its multiplied snapshot DEF`).toBeDefined();
+          |                                                                                     ^
+      138 |       const scale = upward!.flat;
+      139 |       const originalSet = rows(rules.chioriSet).find(row => scale.request.componentIds.includes(row.request.id));
+      140 |       expect(originalSet, `${lane}: multiply must link the earlier set`).toBeDefined();
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-flat.spec.ts:137:85
+
+    Error Context: test-results/source-character-flat-nati-78ead--identity-and-formula-edits-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-flat-nati-78ead--identity-and-formula-edits-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-flat-nati-78ead--identity-and-formula-edits-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-flat.spec.ts:98:1 › native queued FlatDmg preserves set/add/multiply, saved values, recipient identity, and formula edits 

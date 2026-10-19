@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "1.0.0",
+  "scope": "Research evidence for explicit special-state profiles; no claim of game/server verification",
+  "sources": [
+    {
+      "sourceId": "b4ae769d7c1c__pkg__reactable__lunarcharged.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcharged.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/reactable/lunarcharged.go",
+      "retrievedAt": "2026-09-23T06:25:14.695609+00:00",
+      "sha256": "3c2bb57d4e6b79cb6f5c85d7275882baad5aeddfef116ccb5a8e18aea150d4a3",
+      "bytes": 7172,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__reactable__lunarcharged.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__reactable__lunarcrystallize.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcrystallize.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/reactable/lunarcrystallize.go",
+      "retrievedAt": "2026-09-23T06:25:15.412762+00:00",
+      "sha256": "3bf2316fd56bc51fd61d0b3bca41dca8a6e9540e590f7dd8b60064e41126e419",
+      "bytes": 7420,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__reactable__lunarcrystallize.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__reactable__lunarcrystallize_construct.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/lunarcrystallize_construct.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/reactable/lunarcrystallize_construct.go",
+      "retrievedAt": "2026-09-23T06:25:15.980672+00:00",
+      "sha256": "62c913b2f8a0cf7b1e52658680db111574ee4fd3762056c5e85a3c0a53d947c2",
+      "bytes": 1068,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__reactable__lunarcrystallize_construct.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__core__player__verdantdew.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/verdantdew.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/core/player/verdantdew.go",
+      "retrievedAt": "2026-09-23T06:25:16.708813+00:00",
+      "sha256": "ff0c23d92fc5ef087d8b5f99f29c64eef8f113b78b1d2c92aa6b12f31dd923d9",
+      "bytes": 2965,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__core__player__verdantdew.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__pkg__reactable__stellarconduct.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "pkg/reactable/stellarconduct.go",
+      "retrievedAt": "2026-09-23T06:25:17.271930+00:00",
+      "sha256": "a2b71bcf3b2e73bb5de25f2e673252b8a1d12cfd3fa613df7c65dd77d8a10260",
+      "bytes": 2453,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__pkg__reactable__stellarconduct.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__pkg__reactable__stellarconduct_gadget.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarconduct_gadget.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "pkg/reactable/stellarconduct_gadget.go",
+      "retrievedAt": "2026-09-23T06:25:17.833819+00:00",
+      "sha256": "c6b6cb0721705d1060e0fb4a0f36873b9bd181a042545e9e01f63476b74347bc",
+      "bytes": 4507,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__pkg__reactable__stellarconduct_gadget.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__pkg__reactable__stellarswirl.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarswirl.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "pkg/reactable/stellarswirl.go",
+      "retrievedAt": "2026-09-23T06:25:18.394331+00:00",
+      "sha256": "1a90e83efa5034b32747ee4ca3d9a4268d846cf3011159ebf65d619e32499363",
+      "bytes": 6801,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__pkg__reactable__stellarswirl.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__pkg__reactable__stellarswirl_gadget.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/reactable/stellarswirl_gadget.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "pkg/reactable/stellarswirl_gadget.go",
+      "retrievedAt": "2026-09-23T06:25:18.995068+00:00",
+      "sha256": "d29cda200530382aabd325c404caa2937cde31d6c1feb16e30646a6152a55b53",
+      "bytes": 2237,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__pkg__reactable__stellarswirl_gadget.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__internal__characters__odette__stellar.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "internal/characters/odette/stellar.go",
+      "retrievedAt": "2026-09-23T06:25:19.756393+00:00",
+      "sha256": "063da35c708feaa39877bfc4c8195106a71443a3916a4688959df2b13e032256",
+      "bytes": 2636,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__internal__characters__odette__stellar.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__internal__characters__traveler__common__cryo__stellar.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/traveler/common/cryo/stellar.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "internal/characters/traveler/common/cryo/stellar.go",
+      "retrievedAt": "2026-09-23T06:25:20.565430+00:00",
+      "sha256": "5d7e1bd5a831686113f3d5d5e77eb3ed3cdb413046039c4bb0610516561c4dd7",
+      "bytes": 2429,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__internal__characters__traveler__common__cryo__stellar.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__internal__characters__qiqi__stellar.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/qiqi/stellar.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "internal/characters/qiqi/stellar.go",
+      "retrievedAt": "2026-09-23T06:25:21.117938+00:00",
+      "sha256": "2c28c38021d7460d2f1629e3cbcf6277204f1ccb0d3389101f33a4cabc04935b",
+      "bytes": 3008,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__internal__characters__qiqi__stellar.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "a7dc4bf4f5e1__pkg__gadget__gadget.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/pkg/gadget/gadget.go",
+      "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "repositoryPath": "pkg/gadget/gadget.go",
+      "retrievedAt": "2026-09-23T06:28:12.829864+00:00",
+      "sha256": "2a874bb5a9717883ac177f5edfa5dcae461cd159379d08a1e4fda14fc440b76b",
+      "bytes": 1707,
+      "localArtifact": "/tmp/gidps-special-state-sources/a7dc4bf4f5e1__pkg__gadget__gadget.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__reactable__reactable.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/reactable.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/reactable/reactable.go",
+      "retrievedAt": "2026-09-23T06:29:49.777406+00:00",
+      "sha256": "6c32ee43c5deba75eb679818ef8d79e7e6c009745d3cdc7acfa69fc732e98307",
+      "bytes": 11418,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__reactable__reactable.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__core__info__reaction.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/reaction.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/core/info/reaction.go",
+      "retrievedAt": "2026-09-23T06:29:50.494646+00:00",
+      "sha256": "e7eed4ea1a6e26dbb18e3b99ba3360110827270eb88e7a26c1f47e4050dc26be",
+      "bytes": 4124,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__core__info__reaction.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__core__attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/core/attack.go",
+      "retrievedAt": "2026-09-23T07:35:19.788949+00:00",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "bytes": 2255,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__core__attack.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__core__combat__attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/core/combat/attack.go",
+      "retrievedAt": "2026-09-23T07:35:19.789245+00:00",
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "bytes": 2494,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__core__combat__attack.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__enemy__attack.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/enemy/attack.go",
+      "retrievedAt": "2026-09-23T07:35:19.789311+00:00",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__enemy__attack.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__enemy__damage.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/enemy/damage.go",
+      "retrievedAt": "2026-09-23T07:35:19.789348+00:00",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__enemy__damage.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__enemy__mods.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/mods.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/enemy/mods.go",
+      "retrievedAt": "2026-09-23T07:35:19.789382+00:00",
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "bytes": 4013,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__enemy__mods.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    },
+    {
+      "sourceId": "b4ae769d7c1c__pkg__reactable__crystallize.go",
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/reactable/crystallize.go",
+      "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "repositoryPath": "pkg/reactable/crystallize.go",
+      "retrievedAt": "2026-09-23T07:35:19.789410+00:00",
+      "sha256": "77ee890f061b8d50c67de7b32b9e2073eeb779683587fd300fa63322c63faff6",
+      "bytes": 3704,
+      "localArtifact": "/tmp/gidps-special-state-sources/b4ae769d7c1c__pkg__reactable__crystallize.go",
+      "evidenceStatus": "fixed-upstream-implementation-only"
+    }
+  ]
+}

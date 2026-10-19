@@ -1,0 +1,42 @@
+diff --git a/internal/characters/nilou/asc.go b/internal/characters/nilou/asc.go
+--- a/internal/characters/nilou/asc.go
++++ b/internal/characters/nilou/asc.go
+@@ -47,7 +47,7 @@
+ 			return
+ 		}
+ 
+-		b := newBountifulCore(c.Core, g.Pos(), atk)
++		b := newBountifulCore(c.Core, g.Pos(), atk, c.Index())
+ 		b.SetKey(g.Key())
+ 		c.Core.Combat.ReplaceGadget(g.Key(), b)
+ 		// prevent blowing up
+diff --git a/internal/characters/nilou/bountifulcore.go b/internal/characters/nilou/bountifulcore.go
+--- a/internal/characters/nilou/bountifulcore.go
++++ b/internal/characters/nilou/bountifulcore.go
+@@ -16,7 +16,7 @@
+ 	*gadget.Gadget
+ }
+ 
+-func newBountifulCore(c *core.Core, p info.Point, a *info.AttackEvent) *BountifulCore {
++func newBountifulCore(c *core.Core, p info.Point, a *info.AttackEvent, sourceHolderIndex int) *BountifulCore {
+ 	b := &BountifulCore{
+ 		srcFrame: c.F,
+ 	}
+@@ -38,7 +38,16 @@
+ 
+ 			// self damage
+ 			ai.Abil += info.SelfDamageSuffix
+-			ai.FlatDmg = 0.02 * ai.FlatDmg
++			priorFlat := ai.FlatDmg
++			if c.SourceHost != nil {
++				priorComponents := c.SourceHost.CharacterFlatPrior(&ai, &snap)
++				value, id := c.SourceHost.CharacterFlatComputeForActor(ai.ActorIndex, sourceHolderIndex,
++					"char-flat-nilou-bountiful-self-hit", priorFlat, map[string]any{}, nil, &snap, priorComponents)
++				ai.FlatDmg = value
++				c.SourceHost.CharacterFlatAttach(&ai, &snap, id, value)
++			} else {
++				ai.FlatDmg = 0.02 * priorFlat
++			}
+ 			ap.SkipTargets[info.TargettablePlayer] = false
+ 			ap.SkipTargets[info.TargettableEnemy] = true
+ 			ap.SkipTargets[info.TargettableGadget] = true

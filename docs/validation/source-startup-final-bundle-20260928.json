@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build",
+    "--workspace",
+    "@genshin-dps-lab/web"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 1.162,
+  "reason": "UI text clarifies native readiness-retry count; no arithmetic or event code changed",
+  "log": "docs/validation/source-startup-final-bundle-20260928.log"
+}

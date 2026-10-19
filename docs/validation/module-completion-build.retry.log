@@ -1,0 +1,88 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/calculator-ui.ts(198,52): error TS2379: Argument of type '{ characterId: string; weaponId: string; level: number; ascension: number; weaponLevel: number; weaponAscension: number; refinement: number; sourceVersion: string; sourceRefs: string[]; derivedStats: { ...; }[]; ... 18 more ...; effectsDisabled: true; }' is not assignable to parameter of type 'EquipmentBuildInput' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'artifacts' are incompatible.
+    Type '{ slot: "circlet" | "flower" | "goblet" | "plume" | "sands"; setId: string; rarity: number; level: number; mainStat: string; initialSubstats: number; substats: { stat: string; rolls: number[]; }[]; }[] | undefined' is not assignable to type 'ArtifactPieceInput[]'.
+      Type 'undefined' is not assignable to type 'ArtifactPieceInput[]'.
+packages/game-data/src/artifact-remaining-effects.test.ts(66,3): error TS18048: 'doc.build.equipment' is possibly 'undefined'.
+packages/game-data/src/artifact-remaining-effects.ts(70,188): error TS2379: Argument of type '{ id: string; label: string; expression: FormulaExpression; inputs: EquipmentFormulaInput[]; attackTags: EquipmentEffectAttackTag[] | undefined; inputPolicy: "final-panel"; sourceRefs: string[]; }' is not assignable to parameter of type 'EquipmentAdditiveBaseBonus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'attackTags' are incompatible.
+    Type 'EquipmentEffectAttackTag[] | undefined' is not assignable to type 'EquipmentEffectAttackTag[]'.
+      Type 'undefined' is not assignable to type 'EquipmentEffectAttackTag[]'.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"actionConditionLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "periodicEntityLog" | ... 10 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: artifactEventLog" | "Expected: literal string: actionConditionLog, Actual: literal string: nightsoulBurstLog" | ... 35 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: nightsoulBurstLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: artifactEventLog" | "Expected: literal string: actionConditionLog, Actual: literal string: nightsoulBurstLog" | ... 35 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: nightsoulBurstLog"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "periodicEntityLog" | ... 10 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: artifactEventLog" | "Expected: literal string: actionConditionLog, Actual: literal string: nightsoulBurstLog" | ... 35 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: nightsoulBurstLog"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: artifactEventLog" | "Expected: literal string: actionConditionLog, Actual: literal string: nightsoulBurstLog" | ... 35 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: nightsoulBurstLog"'.
+packages/schemas/src/schema.ts(18591,67): error TS2379: Argument of type '{ timeline?: { mode: "legal-frame-v1"; fps: 60; legalityMode: TimelineLegalityMode; initialActiveCharacterId: string; swapFrames: number; commands: FrozenLegalTimelineCommand[]; abilities: { ...; }[]; }; sacrificialModel?: { ...; }; artifactEventModel?: { ...; }; }' is not assignable to parameter of type 'Pick<SimConfigV153, "artifactEventModel" | "sacrificialModel" | "timeline">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  The types of 'artifactEventModel.partyWeaponTypes' are incompatible between these types.
+    Type '{ actorId: string; weaponType: "bow" | "catalyst" | "claymore" | "polearm" | "sword"; }[] | undefined' is not assignable to type '{ actorId: string; weaponType: "bow" | "catalyst" | "claymore" | "polearm" | "sword"; }[]'.
+      Type 'undefined' is not assignable to type '{ actorId: string; weaponType: "bow" | "catalyst" | "claymore" | "polearm" | "sword"; }[]'.
+packages/schemas/src/types.ts(1533,18): error TS2430: Interface 'SimConfigV153' incorrectly extends interface 'SimConfigCommon<ElementalApplication>'.
+  Types of property 'timeline' are incompatible.
+    Type 'LegalTimelineConfig<ElementalApplication>' is not assignable to type 'FrozenLegalTimelineConfig<ElementalApplication>'.
+      Type 'LegalTimelineConfig<ElementalApplication>' is not assignable to type '{ abilities: FrozenAbilityDefinition<ElementalApplication>[]; commands: FrozenLegalTimelineCommand[]; }'.
+        Types of property 'abilities' are incompatible.
+          Type 'AbilityDefinition<ElementalApplication>[]' is not assignable to type 'FrozenAbilityDefinition<ElementalApplication>[]'.
+            Type 'AbilityDefinition<ElementalApplication>' is not assignable to type 'FrozenAbilityDefinition<ElementalApplication>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+              Type 'AbilityDefinition<ElementalApplication>' is not assignable to type '{ kind: "burst" | "charge" | "normal" | "skill"; cancelFrames?: Partial<Record<"burst" | "charge" | "dash" | "jump" | "normal" | "skill" | "swap", number>>; hits?: FrozenFrameHitDefinition<...>[]; particles?: FrozenFrameParticleDefinition[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                Types of property 'kind' are incompatible.
+                  Type 'AbilityKind' is not assignable to type '"burst" | "charge" | "normal" | "skill"'.
+                    Type '"plunge"' is not assignable to type '"burst" | "charge" | "normal" | "skill"'.
+packages/sim-core/src/__tests__/artifact-event-runtime.test.ts(28,99): error TS2353: Object literal may only specify known properties, and 'spawnOffset' does not exist in type 'FrameParticleDefinition'.
+packages/sim-core/src/calculator-trust.ts(90,58): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(rule: { elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }) => boolean' is not assignable to parameter of type '(value: { id: string; value: number; sourceRef: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | ... 5 more ... | "skill")[] | undefined; weaponTypes?: ("bow" | ... 3 more ... | "sword")[] | undefined; }, index:...'.
+      Types of parameters 'rule' and 'value' are incompatible.
+        Type '{ id: string; value: number; sourceRef: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | ... 5 more ... | "skill")[] | undefined; weaponTypes?: ("bow" | ... 3 more ... | "sword")[] | undefined; }' is not assignable to type '{ elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'elements' are incompatible.
+            Type '("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined' is not assignable to type 'readonly string[]'.
+              Type 'undefined' is not assignable to type 'readonly string[]'.
+packages/sim-core/src/calculator-trust.ts(91,72): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(rule: { elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }) => boolean' is not assignable to parameter of type '(value: { id: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | "charged" | "normal" | "plunge" | "proc" | "reaction" | "skill")[] | undefined; ... 4 more ...; sourceRefs: string[]; }, index: number, array: { ......'.
+      Types of parameters 'rule' and 'value' are incompatible.
+        Type '{ id: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | "charged" | "normal" | "plunge" | "proc" | "reaction" | "skill")[] | undefined; ... 4 more ...; sourceRefs: string[]; }' is not assignable to type '{ elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'elements' are incompatible.
+            Type '("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined' is not assignable to type 'readonly string[]'.
+              Type 'undefined' is not assignable to type 'readonly string[]'.
+packages/sim-core/src/calculator-trust.ts(92,76): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Argument of type '(rule: { elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }) => boolean' is not assignable to parameter of type '(value: { id: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | "charged" | "normal" | "plunge" | "proc" | "reaction" | "skill")[] | undefined; ... 4 more ...; sourceRefs: string[]; }, index: number, array: { ......'.
+      Types of parameters 'rule' and 'value' are incompatible.
+        Type '{ id: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | "charged" | "normal" | "plunge" | "proc" | "reaction" | "skill")[] | undefined; ... 4 more ...; sourceRefs: string[]; }' is not assignable to type '{ elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+          Types of property 'elements' are incompatible.
+            Type '("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined' is not assignable to type 'readonly string[]'.
+              Type 'undefined' is not assignable to type 'readonly string[]'.
+packages/sim-core/src/calculator-trust.ts(93,113): error TS2379: Argument of type '{ id: string; label: string; elements?: ("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined; attackTags?: ("burst" | "charged" | "normal" | "plunge" | "proc" | "reaction" | "skill")[] | undefined; ... 5 more ...; target: "critDamage" | "critRate"; }' is not assignable to parameter of type '{ elements?: readonly string[]; attackTags?: readonly string[]; weaponTypes?: readonly string[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'elements' are incompatible.
+    Type '("anemo" | "cryo" | "dendro" | "electro" | "geo" | "hydro" | "physical" | "pyro")[] | undefined' is not assignable to type 'readonly string[]'.
+      Type 'undefined' is not assignable to type 'readonly string[]'.
+packages/sim-core/src/calculator.ts(315,3): error TS2375: Type '{ additiveBaseDamage: number; critRate: number; critDamage: number; finalizedEquipmentEffects: { ruleId: string; label: string; kind: "additive-base" | "critDamage" | "critRate"; amount: number; expression: FormulaExpression; inputs: { ...; }[]; sourceRefs: string[]; }[]; convertedPanel: ConvertedEquipmentPanel | un...' is not assignable to type 'CalculatorHitEquipmentContext' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ additiveBaseDamage: number; critRate: number; critDamage: number; finalizedEquipmentEffects: { ruleId: string; label: string; kind: "additive-base" | "critDamage" | "critRate"; amount: number; expression: FormulaExpression; inputs: { ...; }[]; sourceRefs: string[]; }[]; convertedPanel: ConvertedEquipmentPanel | un...' is not assignable to type '{ convertedPanel?: ConvertedEquipmentPanel; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'convertedPanel' are incompatible.
+      Type 'ConvertedEquipmentPanel | undefined' is not assignable to type 'ConvertedEquipmentPanel'.
+        Type 'undefined' is not assignable to type 'ConvertedEquipmentPanel'.
+packages/sim-core/src/simulator.ts(3111,7): error TS2375: Type '{ id: string; element: ParticleElement; kind: ParticleKind | undefined; count: number; spawnOffset: number; travelTime: number; source: string; }' is not assignable to type 'ParticleDefinition' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'kind' are incompatible.
+    Type 'ParticleKind | undefined' is not assignable to type 'ParticleKind'.
+      Type 'undefined' is not assignable to type 'ParticleKind'.
+packages/sim-core/src/simulator.ts(9648,30): error TS2345: Argument of type '{ sourceProfileId: "gcsim-nightsoul-burst-v1"; sourceRef: "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/setup.go"; natlanActorIds: readonly string[]; ... 12 more ...; activeCharacterId: string | null; }' is not assignable to parameter of type 'NightsoulBurstLogEntry'.
+  Types of property 'natlanActorIds' are incompatible.
+    The type 'readonly string[]' is 'readonly' and cannot be assigned to the mutable type 'string[]'.
+packages/test-vectors/src/project-v153-to-v152.ts(107,9): error TS2375: Type '{ dataVersion: string; randomSeed: string; meta: ConfigMeta; duration: number; cycleLength: number; enemy: EnemyProfile; characters: CharacterProfile[]; actorPoses?: ActorPoseDefinition[]; ... 25 more ...; freezeBrokenAttackModel: FreezeBrokenAttackModelV152; }' is not assignable to type 'SimConfigV152' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'timeline' are incompatible.
+    Type 'LegalTimelineConfig<ElementalApplication>' is not assignable to type 'FrozenLegalTimelineConfig<ElementalApplication>'.
+      Type 'LegalTimelineConfig<ElementalApplication>' is not assignable to type '{ abilities: FrozenAbilityDefinition<ElementalApplication>[]; commands: FrozenLegalTimelineCommand[]; }'.
+        Types of property 'abilities' are incompatible.
+          Type 'AbilityDefinition<ElementalApplication>[]' is not assignable to type 'FrozenAbilityDefinition<ElementalApplication>[]'.
+            Type 'AbilityDefinition<ElementalApplication>' is not assignable to type 'FrozenAbilityDefinition<ElementalApplication>' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+              Type 'AbilityDefinition<ElementalApplication>' is not assignable to type '{ kind: "burst" | "charge" | "normal" | "skill"; cancelFrames?: Partial<Record<"burst" | "charge" | "dash" | "jump" | "normal" | "skill" | "swap", number>>; hits?: FrozenFrameHitDefinition<...>[]; particles?: FrozenFrameParticleDefinition[]; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+                Types of property 'kind' are incompatible.
+                  Type 'AbilityKind' is not assignable to type '"burst" | "charge" | "normal" | "skill"'.
+                    Type '"plunge"' is not assignable to type '"burst" | "charge" | "normal" | "skill"'.

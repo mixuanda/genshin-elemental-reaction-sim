@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/source-host-character-shield.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.86,
+  "log": "docs/validation/source-character-shield-corefirst-20260928.log"
+}

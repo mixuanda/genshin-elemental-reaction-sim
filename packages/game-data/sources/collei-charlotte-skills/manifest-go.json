@@ -1,0 +1,62 @@
+{
+  "repository": "frzyc/genshin-optimizer",
+  "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+  "verificationStatus": "provisional",
+  "files": [
+    {
+      "path": "libs/gi/sheets/src/Characters/Collei/index.tsx",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/libs/gi/sheets/src/Characters/Collei/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Collei/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Collei/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:51:11.688258+00:00",
+      "sha256": "3838deb6edc41cf94e7b435f86a2d5ab5d4f3b999141d0519b7a1443aa3c1fa5",
+      "gitBlobSha": "ad99e380cd826fa090645844f23880ae5d99dbe9",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Collei/skillParam.json",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/libs/gi/stats/Data/Characters/Collei/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Collei/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Collei/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:51:11.629716+00:00",
+      "sha256": "b70c40ad84e0556d92d8cd9273564e4a273f4eadc61bcaca515036459d2a5700",
+      "gitBlobSha": "c7d597557956ceed7186c8d3208154febf5f7911",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/sheets/src/Characters/Charlotte/index.tsx",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/libs/gi/sheets/src/Characters/Charlotte/index.tsx",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Charlotte/index.tsx",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Charlotte/index.tsx",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:51:11.640073+00:00",
+      "sha256": "f7c37a71458148ad0ccd545c7fcc58ad276ffe7d52748b27da47348a30847d43",
+      "gitBlobSha": "7e753dca81beacb4d32dab02b51e6fad721e2211",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Charlotte/skillParam.json",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/libs/gi/stats/Data/Characters/Charlotte/skillParam.json",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Charlotte/skillParam.json",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Charlotte/skillParam.json",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:51:11.629772+00:00",
+      "sha256": "ade3ebdf1dc796c462f953f892959d2662f1d4322a4285bc596d4032803329ff",
+      "gitBlobSha": "300139b68a931aff5a2df1dea060a7c5a2cba612",
+      "matchesPinnedTree": true
+    },
+    {
+      "path": "LICENSE",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/LICENSE",
+      "rawUrl": "https://raw.githubusercontent.com/frzyc/genshin-optimizer/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "url": "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/LICENSE",
+      "httpStatus": 200,
+      "retrievedAt": "2026-09-23T21:51:12.684496+00:00",
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/app.ts(2707,212): error TS18047: 'lastResult' is possibly 'null'.
+apps/web/src/keqing-xingqiu-calculation-context.ts(57,102): error TS2379: Argument of type '{ active: boolean; included: boolean; baseAttack: number | undefined; characterBaseAttack?: number; weaponBaseAttack?: number; }' is not assignable to parameter of type '{ active: boolean; included: boolean; baseAttack?: number; characterBaseAttack?: number; weaponBaseAttack?: number; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'baseAttack' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+apps/web/src/player-health-controls.ts(32,33): error TS2345: Argument of type '`${string}/${string}` | `${string}/undefined` | `undefined/${string}`' is not assignable to parameter of type '`${number}/${string}`'.
+  Type '`${string}/${string}`' is not assignable to type '`${number}/${string}`'.
+apps/web/src/player-health-ledger.ts(16,25): error TS2550: Property 'findLast' does not exist on type 'PlayerHpTimelinePoint[]'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2023' or later.
+apps/web/src/player-health-ledger.ts(16,34): error TS7006: Parameter 'point' implicitly has an 'any' type.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "stamina" | "statConversionLog" | "summonLog"' does not satisfy the constraint '"Expected: literal string: callbackDeliveryLog, Actual: literal string: playerHealthEvents" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: playerHealthEvents" | ... 6 more ... | "Expected: literal string: summonLog, Actual: literal string: playerHealthEvents"'.
+  Type '"callbackDeliveryLog"' is not assignable to type '"Expected: literal string: callbackDeliveryLog, Actual: literal string: playerHealthEvents" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: playerHealthEvents" | ... 6 more ... | "Expected: literal string: summonLog, Actual: literal string: playerHealthEvents"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"callbackDeliveryLog" | "callbackRegistrationLog" | "energyCostLog" | "executionAudit" | "favoniusLog" | "normalHitEnergyLog" | "stamina" | "statConversionLog" | "summonLog"' does not satisfy the constraint '"Expected: literal string: callbackDeliveryLog, Actual: literal string: playerHealthEvents" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: playerHealthEvents" | ... 6 more ... | "Expected: literal string: summonLog, Actual: literal string: playerHealthEvents"'.
+  Type '"callbackDeliveryLog"' is not assignable to type '"Expected: literal string: callbackDeliveryLog, Actual: literal string: playerHealthEvents" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: playerHealthEvents" | ... 6 more ... | "Expected: literal string: summonLog, Actual: literal string: playerHealthEvents"'.
+packages/schemas/src/schema.ts(14362,9): error TS2365: Operator '+' cannot be applied to types 'number' and '{}'.
+packages/schemas/src/schema.ts(14362,59): error TS2363: The right-hand side of an arithmetic operation must be of type 'any', 'number', 'bigint' or an enum type.

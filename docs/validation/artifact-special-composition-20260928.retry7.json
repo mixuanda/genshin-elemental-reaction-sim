@@ -1,0 +1,6 @@
+{
+  "command": "npx vitest run packages/sim-core/src/__tests__/artifact-special-composition.test.ts",
+  "exit_code": 0,
+  "elapsed_seconds": 2.014,
+  "log": "/Users/evan/Documents/gidps/docs/validation/artifact-special-composition-20260928.retry7.log"
+}

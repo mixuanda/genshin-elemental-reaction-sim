@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "117-immediate-attack-occurrence-native-audit-v1",
+  "status": "implemented; native-source review and gofmt only; no build or runtime test by this agent",
+  "lanes": {
+    "classic": {
+      "files": {
+        "pkg/core/sourcehost/attack.go": {
+          "beforeSha256": "c3519ae94391797e5b2e2638ad96c8fcc6e4ea5b140d131e402c6d79e395f27b",
+          "afterSha256": "1879e4b20541babae4f6df7e6ff22321c9f9b678b3c1ecb3ae5707d9febd2453"
+        },
+        "pkg/core/sourcehost/ability_receipt.go": {
+          "beforeSha256": "c1176844148de2be81f181860e7edd35bc1cfea320e8e73a5b8034d95e872b3a",
+          "afterSha256": "915f552b59dbac2f9a05b7c7eb76fcf4a08f1474ad622301cce4d53023ff0922"
+        },
+        "pkg/core/sourcehost_attack_occurrence.go": {
+          "beforeSha256": null,
+          "afterSha256": "6d98e17930d2232759fac2e083432a47a18895d8901f5d4352884f98ba85adce"
+        }
+      }
+    },
+    "stellar": {
+      "files": {
+        "pkg/core/sourcehost/attack.go": {
+          "beforeSha256": "a2085fdc335198ac1928d0b30f24ca5f52f00b4f9872ce36e3d17083a42c4bbc",
+          "afterSha256": "d710e2468040a6a45aa3c02dc0226411235fae0f005e49426afac84bfe0fdf62"
+        },
+        "pkg/core/sourcehost/ability_receipt.go": {
+          "beforeSha256": "c1176844148de2be81f181860e7edd35bc1cfea320e8e73a5b8034d95e872b3a",
+          "afterSha256": "915f552b59dbac2f9a05b7c7eb76fcf4a08f1474ad622301cce4d53023ff0922"
+        },
+        "pkg/core/sourcehost_attack_occurrence.go": {
+          "beforeSha256": null,
+          "afterSha256": "6d98e17930d2232759fac2e083432a47a18895d8901f5d4352884f98ba85adce"
+        }
+      }
+    }
+  },
+  "api": "Core.SourceHostQueueAttackEventImmediateOccurrence(ae *info.AttackEvent)",
+  "scope": "Explicit synchronous zero-delay reuse of one native AttackEvent inside ordinary ability invocation/producer scope. Delayed or arbitrary event/entity scope reuse is not claimed.",
+  "changes": [
+    "BeginImmediateAttackOccurrence saves, clears and restores only SourceHostOrigin, SourceHostQueuedObservationIndex, SourceHostAttackID and SourceHostDispatchID.",
+    "Core wrapper calls the existing QueueAttackEvent(ae, 0) exactly once on the same native pointer.",
+    "Existing CaptureAttack, PrepareAttack and BeginAttackDispatch allocate independent queue/attack/dispatch identities for each explicit occurrence.",
+    "Ability invocation and ability producer finalizers resolve AttackID through their immutable queued row QueueID into the queued AttackObservation, not from a reused pointer later.",
+    "Native Info, Snapshot, Pattern, SourceFrame, Callbacks and reaction fields are neither copied nor restored. Existing gameplay mutations remain on the native reused object."
+  ],
+  "sourceReview": {
+    "roots": {
+      "classic": "/Users/evan/Library/Caches/gidps-source-host/build-XZWitQ/source",
+      "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-wrBc8S/source"
+    },
+    "evidence": [
+      "pkg/core/attack.go: QueueAttackEvent calls CaptureAttack then queueDmg; queueDmg delay 0 calls Combat.ApplyAttack synchronously.",
+      "pkg/core/combat/attack.go: native per-target attack already performs cpy := *a before HandleAttack; the later enemy application and hit callback tasks retain this occurrence identity on that native per-target copy.",
+      "internal/characters/kirara/skill.go: short/long hold mutates the existing d.Pattern, then QueueAttackEvent(d,0); long hold reuses d across core tasks.",
+      "OnApplyAttack listeners reviewed: Xianyun only plunge path; Flins and Columbina only lunar tags; Stellar Odette only stellar tags. No matching Kirara hold path retains the original pointer for delayed work."
+    ]
+  },
+  "limitations": [
+    "No new support for delayed reuse of one AttackEvent, where concurrent pending queues would need explicit occurrence state through task execution.",
+    "Other event/entity/hit/shield reference finalizers remain unchanged; this explicit helper is used only within audited ordinary ability scope."
+  ],
+  "checks": {
+    "buildsRun": 0,
+    "testsRun": 0,
+    "gofmtListOutput": ""
+  }
+}

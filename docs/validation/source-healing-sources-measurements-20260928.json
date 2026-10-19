@@ -1,0 +1,354 @@
+{
+  "schemaVersion": "source-healing-sources-measurements-v1",
+  "date": "2026-09-28",
+  "baselineHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "scope": "93 fixed-source HealInfo producer arithmetic rules; source execution equivalence only, not game verification. Native gates and state lifecycle remain native.",
+  "lanes": {
+    "classic": {
+      "wasm": {
+        "path": "source-host.wasm",
+        "sha256": "0f9f88393b50ccfcc3bdd9783ccd85fce8c676744f15f2795ce029caa04b3dd1",
+        "size": 43521359
+      },
+      "patchHashesMatch": true,
+      "checkedPatches": [
+        "059-healing-source-bridge.patch",
+        "060-healing-source-a.patch",
+        "061-healing-source-b.patch",
+        "062-healing-source-c.patch",
+        "063-healing-source-d.patch",
+        "064-healing-source-e.patch",
+        "065-healing-source-f.patch"
+      ],
+      "servedArtifacts": [
+        {
+          "path": "apps/web/public/source-host/source-host.wasm",
+          "sha256": "0f9f88393b50ccfcc3bdd9783ccd85fce8c676744f15f2795ce029caa04b3dd1",
+          "bytes": 43521359,
+          "matchesManifest": true
+        },
+        {
+          "path": "apps/web/dist/source-host/source-host.wasm",
+          "sha256": "0f9f88393b50ccfcc3bdd9783ccd85fce8c676744f15f2795ce029caa04b3dd1",
+          "bytes": 43521359,
+          "matchesManifest": true
+        }
+      ],
+      "healingApplications": 98,
+      "replayedApplications": 98,
+      "uniqueObservedRules": [
+        "heal-source-barbara-burst",
+        "heal-source-barbara-normal",
+        "heal-source-barbara-skill-tick",
+        "heal-source-charlotte-burst-dot",
+        "heal-source-charlotte-burst-initial",
+        "heal-source-gaming-burst",
+        "heal-source-info-bonus-snapshot",
+        "heal-source-info-bonus-stat",
+        "heal-source-info-bonus-stats",
+        "heal-source-kuki-ring-a4",
+        "heal-source-qiqi-skill-attack",
+        "heal-source-qiqi-skill-initial",
+        "heal-source-qiqi-skill-tick",
+        "heal-source-qiqi-talisman",
+        "heal-source-sayu-burst-initial",
+        "heal-source-sayu-burst-tick-c6",
+        "heal-source-weapon-blacksword",
+        "heal-source-weapon-prototype"
+      ],
+      "observedRuleCount": 18,
+      "unobservedApplicableRuleCount": 70
+    },
+    "stellar": {
+      "wasm": {
+        "path": "source-host.wasm",
+        "sha256": "ebbea15f0e537f3015de291b55da5eeef1416e7a5c6d156beae1e954a001bb70",
+        "bytes": 65076238
+      },
+      "patchHashesMatch": true,
+      "checkedPatches": [
+        "059-healing-source-bridge.patch",
+        "060-healing-source-a.patch",
+        "061-healing-source-b.patch",
+        "062-healing-source-c.patch",
+        "063-healing-source-d.patch",
+        "064-healing-source-e.patch",
+        "065-healing-source-f.patch",
+        "066-healing-source-g.patch"
+      ],
+      "servedArtifacts": [
+        {
+          "path": "apps/web/public/source-host-stellar/source-host.wasm",
+          "sha256": "ebbea15f0e537f3015de291b55da5eeef1416e7a5c6d156beae1e954a001bb70",
+          "bytes": 65076238,
+          "matchesManifest": true
+        },
+        {
+          "path": "apps/web/dist/source-host-stellar/source-host.wasm",
+          "sha256": "ebbea15f0e537f3015de291b55da5eeef1416e7a5c6d156beae1e954a001bb70",
+          "bytes": 65076238,
+          "matchesManifest": true
+        }
+      ],
+      "healingApplications": 108,
+      "replayedApplications": 108,
+      "uniqueObservedRules": [
+        "heal-source-barbara-burst",
+        "heal-source-barbara-normal",
+        "heal-source-barbara-skill-tick",
+        "heal-source-charlotte-burst-dot",
+        "heal-source-charlotte-burst-initial",
+        "heal-source-gaming-burst",
+        "heal-source-info-bonus-snapshot",
+        "heal-source-info-bonus-stat",
+        "heal-source-info-bonus-stats",
+        "heal-source-kuki-ring-a4",
+        "heal-source-qiqi-c4-stellar",
+        "heal-source-qiqi-skill-attack",
+        "heal-source-qiqi-skill-initial",
+        "heal-source-qiqi-skill-tick",
+        "heal-source-qiqi-talisman",
+        "heal-source-sayu-burst-initial",
+        "heal-source-sayu-burst-tick-c6",
+        "heal-source-weapon-blacksword",
+        "heal-source-weapon-prototype"
+      ],
+      "observedRuleCount": 19,
+      "unobservedApplicableRuleCount": 74
+    }
+  },
+  "totalReplayedApplications": 206,
+  "maximumReplayDifference": 0,
+  "uniqueObservedRulesAcrossLanes": 19,
+  "unobservedRegistryRules": 74,
+  "pageMeasurements": "docs/validation/source-healing-sources-measurements-20260928.result.json",
+  "pageErrors": [],
+  "edit": {
+    "applicationId": 10,
+    "sourceId": 74,
+    "originalRatio": 0.176,
+    "editedRatio": 0.376,
+    "originalAmount": 5246.509849267135,
+    "editedAmount": 9283.13251888888,
+    "originalReceived": 5246.509849267135,
+    "editedReceived": 9283.13251888888,
+    "originalOverheal": 3746.509849267135,
+    "editedOverheal": 7783.13251888888,
+    "difference": 4036.6226696217454,
+    "originalCaptureUnchanged": true,
+    "editablePath": "docs/validation/source-healing-sources-calculator-20260928.result.json"
+  },
+  "executedChecks": [
+    {
+      "receipt": "docs/validation/source-healing-sources-classicfirst-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 3.602,
+      "log": "docs/validation/source-healing-sources-classicfirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-classicretry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.877,
+      "log": "docs/validation/source-healing-sources-classicretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-classicretry2-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.344,
+      "log": "docs/validation/source-healing-sources-classicretry2-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-classicretry3-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.688,
+      "log": "docs/validation/source-healing-sources-classicretry3-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-stellarfirst-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 5.918,
+      "log": "docs/validation/source-healing-sources-stellarfirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-stellarretry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.523,
+      "log": "docs/validation/source-healing-sources-stellarretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-webfirst-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 2.809,
+      "log": "docs/validation/source-healing-sources-webfirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-webretry1-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 4.05,
+      "log": "docs/validation/source-healing-sources-webretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-webretry2-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.959,
+      "log": "docs/validation/source-healing-sources-webretry2-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-webretry3-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.905,
+      "log": "docs/validation/source-healing-sources-webretry3-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-webretry4-20260928.json",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 3.913,
+      "log": "docs/validation/source-healing-sources-webretry4-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-e2efirst-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-healing-sources.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 8.155,
+      "log": "docs/validation/source-healing-sources-e2efirst-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-e2eretry1-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-healing-sources.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 4.384,
+      "log": "docs/validation/source-healing-sources-e2eretry1-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-e2eretry2-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-healing-sources.spec.ts"
+      ],
+      "exitCode": 1,
+      "wallSeconds": 17.692,
+      "log": "docs/validation/source-healing-sources-e2eretry2-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-e2eretry3-20260928.json",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-healing-sources.spec.ts"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 34.693,
+      "log": "docs/validation/source-healing-sources-e2eretry3-20260928.log"
+    },
+    {
+      "receipt": "docs/validation/source-healing-sources-diffcheck-20260928.json",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exitCode": 0,
+      "wallSeconds": 0.053,
+      "log": "docs/validation/source-healing-sources-diffcheck-20260928.log",
+      "scope": "Tracked diffs only; does not check untracked files."
+    }
+  ],
+  "focusedReplay": {
+    "document": "docs/validation/source-healing-sources-focused-replay-20260928.md",
+    "testsPassed": 1,
+    "applicationCount": 54,
+    "reportedVitestSeconds": 5.85,
+    "scope": "Earlier diagnostic TypeScript replay; same-name scene raw input was subsequently overwritten by the final E2E and is not an immutable input for this earlier check. Final E2E independently replays all 206 applications."
+  },
+  "dataPointers": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "dataPointersUnchangedFromPriorBatch": true,
+  "staticCensus": "docs/source-healing-source-registry-20260928.json",
+  "staticCensusScope": "Before the final F-group variable-shadowing repair; rule IDs and registered site inventory did not change. Final artifact/patch hashes above identify executable delivery.",
+  "remainingDrainInventory": "docs/source-drain-producers-census-20260928.json",
+  "limits": [
+    "93 registered rules are not 93 game-verified mechanics; 74 had no page observation in these runs.",
+    "ObservedRules occurrence values in the page result count source references across captures and can repeat a producer; use uniqueObservedRules for coverage.",
+    "Escoffier C4 helper history, Jahoda saved A1 state, upstream Zhongli damage and HP-debt histories retain declared explanation gaps.",
+    "Drain-specific producers, Dehya special self-damage, Nilou player core damage, general native phase convergence and external data evidence are still outstanding."
+  ],
+  "goalStatus": "active"
+}

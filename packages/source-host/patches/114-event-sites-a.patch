@@ -1,0 +1,44 @@
+diff --git a/internal/characters/traveler/common/electro/burst.go b/internal/characters/traveler/common/electro/burst.go
+--- a/internal/characters/traveler/common/electro/burst.go
++++ b/internal/characters/traveler/common/electro/burst.go
+@@ -93,6 +93,8 @@
+ 	//  When Falling Thunder hits opponents, it will regenerate Energy for that character.
+ 	//  One instance of Falling Thunder can be generated every 0.5s.
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("traveler.electro.bellowing-thunder.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("traveler.electro.bellowing-thunder.enemy-damage.attack-count", 0)
+ 		ae := args[1].(*info.AttackEvent)
+ 		t := args[0].(info.Target)
+ 
+@@ -136,7 +138,8 @@
+ 			}
+ 		}
+ 
+-		c.Core.QueueAttackEvent(&atk, 1)
++		c.Core.SourceHostEventListenerFact("traveler.electro.bellowing-thunder.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttackEvent("traveler.electro.bellowing-thunder.attack", &atk, 1)
+ 
+ 		c.Core.Log.NewEvent("travelerelectro Q proc'd", glog.LogCharacterEvent, c.Index()).
+ 			Write("char", ae.Info.ActorIndex).
+diff --git a/internal/characters/traveler/common/pyro/skill.go b/internal/characters/traveler/common/pyro/skill.go
+--- a/internal/characters/traveler/common/pyro/skill.go
++++ b/internal/characters/traveler/common/pyro/skill.go
+@@ -192,6 +192,8 @@
+ 
+ func (c *Traveler) scorchingThresholdOnDamage() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("traveler.pyro.scorching-threshold.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("traveler.pyro.scorching-threshold.enemy-damage.attack-count", 0)
+ 		_, ok := args[0].(*enemy.Enemy)
+ 		ae := args[1].(*info.AttackEvent)
+ 		dmg := args[2].(float64)
+@@ -230,7 +232,8 @@
+ 		if c.Base.Ascension >= 1 && c.nightsoulState.Points() >= 20 {
+ 			radius = 4.
+ 		}
+-		c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, radius),
++		c.Core.SourceHostEventListenerFact("traveler.pyro.scorching-threshold.enemy-damage.attack-count", 1)
++		c.Core.SourceHostQueueEventAttack("traveler.pyro.scorching-threshold.attack", ai, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, radius),
+ 			scorchingThresholdHitmarkDelay, scorchingThresholdHitmarkDelay, c.particleCB)
+ 
+ 		c.AddStatus(scorchingThresholdICDKey, scorchingThresholdICD, true)

@@ -1,0 +1,41 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/action-library/kuki-eq-same-frame.gcsl",
+    "-out",
+    "docs/cross-validation/action-library/kuki-eq-same-frame.result.json",
+    "-sample",
+    "docs/cross-validation/action-library/kuki-eq-same-frame.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executableSha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "executableRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "startedAt": "2026-09-23T20:03:27.211034+00:00",
+  "finishedAt": "2026-09-23T20:03:27.233079+00:00",
+  "wallSeconds": 0.021687083004508168,
+  "exitCode": 0,
+  "stdout": "Average duration of 16.00 seconds (min: 16.00 max: 16.00 std: 0.00)\nAverage 2227.18 damage over 16.00 seconds, resulting in 139 dps (min: 139.20 max: 139.20 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 4622440989320708706 to docs/cross-validation/action-library/kuki-eq-same-frame.sample.json\n",
+  "stderr": "",
+  "invocationCount": 1,
+  "aggregateIterations": 1,
+  "sampleTrajectories": 1,
+  "randomnessScope": "Aggregate and sample are independent seeded trajectories, not portable cross-engine RNG streams.",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/action-library/kuki-eq-same-frame.gcsl",
+      "bytes": 543,
+      "sha256": "ae562fd9df4d0634152d20e01b835fb5023dfdaf44fa8efb5b4661e604af9108"
+    },
+    {
+      "path": "docs/cross-validation/action-library/kuki-eq-same-frame.result.json",
+      "bytes": 13881,
+      "sha256": "53f5014c05d62bb6e26ba26bcaca6a73629df8f9b5249f0c86d755f3cfd1e6ec"
+    },
+    {
+      "path": "docs/cross-validation/action-library/kuki-eq-same-frame.sample.json",
+      "bytes": 71043,
+      "sha256": "50e9ad489fa8cb8efdead196ea6fa4060e3af092aea7cd0b4aa9e93f7132e0f6"
+    }
+  ]
+}

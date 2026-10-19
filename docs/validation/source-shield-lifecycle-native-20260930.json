@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "115-source-shield-native-audit-v1",
+  "status": "implemented; gofmt and private patch apply checks only; no build or gameplay test by this agent",
+  "patch": {
+    "path": "/Users/evan/Library/Caches/gidps-source-host/115-shield-native/classic.patch",
+    "sha256": "3c97bc84f1f1021673b7c4da6d58e725a4d4b53f333689e86e31c62ae471d6ae",
+    "bytes": 3451,
+    "appliesIdenticallyBothLanes": true,
+    "repositoryPath": "packages/source-host/patches/115-shield-lifecycle.patch"
+  },
+  "lanes": {
+    "classic": {
+      "frozenSource": "/Users/evan/Library/Caches/gidps-source-host/build-ACTabI/source",
+      "files": {
+        "pkg/core/sourcehost/shield_lifecycle.go": {
+          "beforeSha256": null,
+          "afterSha256": "82e74a349456a5b6c1c91975067a8c8e3254f5c5226a32d93d3b8360d628821d"
+        },
+        "pkg/core/sourcehost_shield.go": {
+          "beforeSha256": null,
+          "afterSha256": "ea2a65d7d6b800965ef812d4df9b5a32e493e5f7a2ae4d516cc69abe1d34f9e0"
+        },
+        "pkg/core/sourcehost/bridge.go": {
+          "beforeSha256": "56dae7a096bb6c1bcc83810e6937c13d5fdab38ecad8a9c81af08da6fc91116b",
+          "afterSha256": "4bf43394794e6b8512b221001b2dd299450169cf88d79ecac0c17d3101907c1f"
+        },
+        "pkg/core/sourcehost/attack.go": {
+          "beforeSha256": "fafdf3b2083e2cb94424ca8a8e91945dc4509f01c9d507438da6dd0df6b59983",
+          "afterSha256": "4576bd15793f7acdd165952bfef1e05ca82d2cd76a9ce0d537211fb6dd1063c1"
+        },
+        "pkg/core/sourcehost/ability_receipt.go": {
+          "beforeSha256": "2beb5022d1d50a9f5615e10daed9fff3f1a3c41b1d37d14a4e8611df30296f1f",
+          "afterSha256": "c5a1b7faf6f4b24714599f851c74ed84f3def620ac71cfa1bff85d7a46eb68c5"
+        },
+        "pkg/core/sourcehost/ability_producer.go": {
+          "beforeSha256": "ce94a273754a9ebe89804dd14bc9586101096215fc35da1ac9fa3de44ad05721",
+          "afterSha256": "a334dd1d77bdee6a9ce948a17e9cbd05563984f479efb4fe9bfce5fc3004ffb9"
+        },
+        "cmd/sourcehost/main.go": {
+          "beforeSha256": "9efb99241356e0ba73623724a80b5b68c6d834277ac3fe8b47e4560199b57412",
+          "afterSha256": "004d5dd779108b80c841a0e64be61d370bf7f700297cbb07cd62c6eefbb729fb"
+        },
+        "pkg/core/player/shield/handler.go": {
+          "beforeSha256": "4b6470e23fe38deeea84abbea9092b21162745236d66f0dc9f2614dbc1c41ebc",
+          "afterSha256": "ddc3ab395261ad4f1ae7fc503b83482481e7cf27477898e2bb419926f4b3cb0f"
+        },
+        "pkg/core/player/shield/sourcehost_phase_state.go": {
+          "beforeSha256": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb",
+          "afterSha256": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb"
+        }
+      }
+    },
+    "stellar": {
+      "frozenSource": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-Auuwtl/source",
+      "files": {
+        "pkg/core/sourcehost/shield_lifecycle.go": {
+          "beforeSha256": null,
+          "afterSha256": "82e74a349456a5b6c1c91975067a8c8e3254f5c5226a32d93d3b8360d628821d"
+        },
+        "pkg/core/sourcehost_shield.go": {
+          "beforeSha256": null,
+          "afterSha256": "ea2a65d7d6b800965ef812d4df9b5a32e493e5f7a2ae4d516cc69abe1d34f9e0"
+        },
+        "pkg/core/sourcehost/bridge.go": {
+          "beforeSha256": "75f826d8f14738f54872965299f95f07f42b80e7738a7d60282f964478673f42",
+          "afterSha256": "4a887fab730dd10746c89258912a04aba91c12fb771e4c0da53e10abe13b74de"
+        },
+        "pkg/core/sourcehost/attack.go": {
+          "beforeSha256": "edbec1c4ddea7179cf2190806731eca6b8b9c825c401137ac3acb6f997cd9f1a",
+          "afterSha256": "d5fafc4a2267ff45688e4dbb413d6042cf6f41336bb71c575b6c84e8847020e7"
+        },
+        "pkg/core/sourcehost/ability_receipt.go": {
+          "beforeSha256": "2beb5022d1d50a9f5615e10daed9fff3f1a3c41b1d37d14a4e8611df30296f1f",
+          "afterSha256": "c5a1b7faf6f4b24714599f851c74ed84f3def620ac71cfa1bff85d7a46eb68c5"
+        },
+        "pkg/core/sourcehost/ability_producer.go": {
+          "beforeSha256": "ce94a273754a9ebe89804dd14bc9586101096215fc35da1ac9fa3de44ad05721",
+          "afterSha256": "a334dd1d77bdee6a9ce948a17e9cbd05563984f479efb4fe9bfce5fc3004ffb9"
+        },
+        "cmd/sourcehost/main.go": {
+          "beforeSha256": "856d7d48cb11b5630a365a392815c327200eb8c8feac38f8861071c6035ed6e8",
+          "afterSha256": "0685fd599fa593f7c5611c62c5e47aa54b6d561f50e36c94f04287b88bfe9a40"
+        },
+        "pkg/core/player/shield/handler.go": {
+          "beforeSha256": "4b6470e23fe38deeea84abbea9092b21162745236d66f0dc9f2614dbc1c41ebc",
+          "afterSha256": "ddc3ab395261ad4f1ae7fc503b83482481e7cf27477898e2bb419926f4b3cb0f"
+        },
+        "pkg/core/player/shield/sourcehost_phase_state.go": {
+          "beforeSha256": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb",
+          "afterSha256": "0ad0e7139a14cb948e3bc25f2bae1dbc28fbe1db737972176114d0b553916ecb"
+        }
+      }
+    }
+  },
+  "facts": [
+    "Handler original hook calls, return values, compaction and event order are preserved.",
+    "Each actual Add installation allocates a new ID after OnOverwrite and before OnShielded; map is object to latest installed instance, not once-per-pointer.",
+    "Diona skill.go re-adds the same *Tmpl, so its old/new installation receipts remain separate.",
+    "All audited Shield implementations derive ShieldOwner from *Tmpl and actual constructors/Add sites pass *Tmpl or pointers to custom shield structs; no address exposed.",
+    "Birth HP source and mutable last HP source are separate.",
+    "Only explicit birth site allows ability producer/invocation ownership; active hit callback takes precedence and remains separately identified.",
+    "Shield hooks capture exact tagged queued attack census; generic ability producer and invocation census excludes those references.",
+    "Phase snapshot remains unchanged; monotonic observational shield identity is confined to separate shieldInstances and shieldHooks receipts."
+  ],
+  "limitations": [
+    "Only audited character queue sites emit attributed damage; lifecycle observation does not establish full skill scope.",
+    "Shield dot task chains and delayed shield child tasks need separate explicit producer bindings.",
+    "Generic lifecycle receipts do not resolve custom implementation private-state phase coverage gaps."
+  ],
+  "checks": {
+    "gofmtListOutput": "",
+    "classicPatchApplyExitCode": 0,
+    "stellarPatchApplyExitCode": 0
+  }
+}

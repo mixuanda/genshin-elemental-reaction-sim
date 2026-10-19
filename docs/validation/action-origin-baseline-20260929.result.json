@@ -1,0 +1,23 @@
+{
+  "receipts": [
+    {
+      "lane": "classic",
+      "artifact": {
+        "wasmSha256": "35548a34a9ce33367ebc13a53d53bafccd44f84392ebf2a76f866a408c1333fc",
+        "wasmBytes": 44496857
+      },
+      "applications": 38,
+      "path": "/tmp/gidps-action-origin-baseline-classic.json"
+    },
+    {
+      "lane": "stellar",
+      "artifact": {
+        "wasmSha256": "36b833e9ac379a89346d3c3e61c2a1866ac6e115d96e25f80de39c801b9235b3",
+        "wasmBytes": 66059562
+      },
+      "applications": 38,
+      "path": "/tmp/gidps-action-origin-baseline-stellar.json"
+    }
+  ],
+  "pageErrors": []
+}

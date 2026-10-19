@@ -1,0 +1,38 @@
+[WebServer] (node:64542) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:64543) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-phase-captures.spec.ts:18:1 › native live captures establish a sourced damage cycle and keep random opaque cycles unestablished (4.1s)
+
+
+  1) [chromium] › apps/web/e2e/source-phase-captures.spec.ts:18:1 › native live captures establish a sourced damage cycle and keep random opaque cycles unestablished 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: "established-for-declared-native-state"
+    Received: "not-established"
+
+      52 |     expect(negativeAnalysis.steadyStateDps).toBeNull();
+      53 |     for (const analysis of analyses) {
+    > 54 |       expect(analysis.status).toBe('established-for-declared-native-state');
+         |                               ^
+      55 |       expect(analysis.periodDamage).toBeGreaterThan(0);
+      56 |       expect(analysis.periodCycles).toBe(1);
+      57 |     }
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-phase-captures.spec.ts:54:31
+
+    Error Context: test-results/source-phase-captures-nati-8fc8f-opaque-cycles-unestablished-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-phase-captures-nati-8fc8f-opaque-cycles-unestablished-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-phase-captures-nati-8fc8f-opaque-cycles-unestablished-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-phase-captures.spec.ts:18:1 › native live captures establish a sourced damage cycle and keep random opaque cycles unestablished 

@@ -1,0 +1,501 @@
+{
+  "schemaVersion": "noelle-fixed-source-evidence-v1",
+  "reviewedAt": "2026-09-23T13:08:14.217989+00:00",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "evidenceStatus": "fixed-source-assumed",
+  "scope": "C0 effective NA/Q talent levels 1..10; Q and N1..N4; no-hitlag controlled source behavior, not complete character or game validation",
+  "sourceMethod": "existing fixed archive; no new retrieval",
+  "archiveProvenance": "packages/game-data/sources/artifact-additional-effects/manifest.json#gcsimExtractionProvenance",
+  "arrays": {
+    "normal": [
+      [
+        0.7912,
+        0.8556,
+        0.92,
+        1.012,
+        1.0764,
+        1.15,
+        1.2512,
+        1.3524,
+        1.4536,
+        1.564
+      ],
+      [
+        0.73358,
+        0.79329,
+        0.853,
+        0.9383,
+        0.99801,
+        1.06625,
+        1.16008,
+        1.25391,
+        1.34774,
+        1.4501
+      ],
+      [
+        0.86258,
+        0.93279,
+        1.003,
+        1.1033,
+        1.17351,
+        1.25375,
+        1.36408,
+        1.47441,
+        1.58474,
+        1.7051
+      ],
+      [
+        1.13434,
+        1.22667,
+        1.319,
+        1.4509,
+        1.54323,
+        1.64875,
+        1.79384,
+        1.93893,
+        2.08402,
+        2.2423
+      ]
+    ],
+    "burst": [
+      0.672,
+      0.7224,
+      0.7728,
+      0.84,
+      0.8904,
+      0.9408,
+      1.008,
+      1.0752,
+      1.1424,
+      1.2096
+    ],
+    "burstskill": [
+      0.928,
+      0.9976,
+      1.0672,
+      1.16,
+      1.2296,
+      1.2992,
+      1.392,
+      1.4848,
+      1.5776,
+      1.6704
+    ],
+    "defconv": [
+      0.4,
+      0.43,
+      0.46,
+      0.5,
+      0.53,
+      0.56,
+      0.6,
+      0.64,
+      0.68,
+      0.72
+    ]
+  },
+  "entries": [
+    {
+      "upstreamPath": "internal/characters/noelle/zz_noelle.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/zz_noelle.dm.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/characters/noelle/zz_noelle.dm.go",
+      "sha256": "1ff9e5ab08e7b4a288bf6301b131a77eee304633dd7dd0aaa7161c41918bc0fe",
+      "bytes": 5059,
+      "relevantLines": [
+        [
+          38,
+          107
+        ],
+        [
+          306,
+          359
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/characters/noelle/noelle.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/noelle.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/characters/noelle/noelle.go",
+      "sha256": "f7e8ef9f1e6da86d55d8ffcc4d403638432c4befc830127aed8fabf990b8cfbf",
+      "bytes": 1536,
+      "relevantLines": [
+        [
+          20,
+          38
+        ],
+        [
+          41,
+          57
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/characters/noelle/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/attack.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/characters/noelle/attack.go",
+      "sha256": "45c5e467e50ed82d0ee64fae4dd425f90a86d82bae19ebc09f6592130f03b1b8",
+      "bytes": 3227,
+      "relevantLines": [
+        [
+          14,
+          43
+        ],
+        [
+          45,
+          99
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/characters/noelle/burst.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/burst.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/characters/noelle/burst.go",
+      "sha256": "100aac6614e96f6a074156ae0b545472dc28d99ad886d577b4cc5be6da31132d",
+      "bytes": 3922,
+      "relevantLines": [
+        [
+          17,
+          31
+        ],
+        [
+          33,
+          49
+        ],
+        [
+          73,
+          85
+        ],
+        [
+          87,
+          136
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/characters/noelle/config.yml",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/noelle/config.yml",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/characters/noelle/config.yml",
+      "sha256": "fa7936b527e52cc88b869d3075415e93c3e0bf922e0b6907c4dcaa9388c42ff3",
+      "bytes": 5163
+    },
+    {
+      "upstreamPath": "internal/frames/frames.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/frames/frames.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/frames/frames.go",
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "bytes": 1589,
+      "relevantLines": [
+        [
+          9,
+          42
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/player/character/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321,
+      "relevantLines": [
+        [
+          11,
+          42
+        ],
+        [
+          69,
+          69
+        ],
+        [
+          96,
+          119
+        ],
+        [
+          122,
+          166
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/player/character/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963,
+      "relevantLines": [
+        [
+          156,
+          159
+        ],
+        [
+          180,
+          189
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/player/character/energy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/player/character/energy.go",
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "bytes": 2327,
+      "relevantLines": [
+        [
+          9,
+          32
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/modifier/modifier.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345,
+      "relevantLines": [
+        [
+          45,
+          65
+        ],
+        [
+          117,
+          125
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/catalog/character.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/character.dm.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/catalog/character.dm.go",
+      "sha256": "fb4a505b7bc2917c3f91eba0bdd0e8f18e77f9d0e0ee8772a4ffb187e151b906",
+      "bytes": 436821,
+      "relevantLines": [
+        [
+          12323,
+          12343
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/catalog/weapon.dm.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/catalog/weapon.dm.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/catalog/weapon.dm.go",
+      "sha256": "c12aa95256f7a075b13a79e9531d1429300468fefdc7a542c0ae277b4b966351",
+      "bytes": 410160,
+      "relevantLines": [
+        [
+          17404,
+          17425
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/player/character/basestat.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/basestat.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/player/character/basestat.go",
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+      "bytes": 3278,
+      "relevantLines": [
+        [
+          73,
+          97
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/weapons/claymore/waster/waster.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/waster/waster.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/weapons/claymore/waster/waster.go",
+      "sha256": "3e1a80978d4073084a0d1e7913019f7e5522aad0a8d239da95101b987f8e489d",
+      "bytes": 389,
+      "relevantLines": [
+        [
+          11,
+          14
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/gcs/eval/sysfunc.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/eval/sysfunc.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/gcs/eval/sysfunc.go",
+      "sha256": "0e5352aafe132b4a20d79bfbad30a0c0b932d7e421d7e3f132dd15434e2010ae",
+      "bytes": 12654
+    },
+    {
+      "upstreamPath": "pkg/core/energy.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/energy.go",
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "bytes": 2639,
+      "relevantLines": [
+        [
+          30,
+          89
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/template/character/character.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/character.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/template/character/character.go",
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "bytes": 4270,
+      "relevantLines": [
+        [
+          56,
+          96
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/combat/hitbox.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/hitbox.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/combat/hitbox.go",
+      "sha256": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679",
+      "bytes": 2372,
+      "relevantLines": [
+        [
+          68,
+          86
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "internal/template/character/cooldown.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/cooldown.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/internal/template/character/cooldown.go",
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "bytes": 7269,
+      "relevantLines": [
+        [
+          34,
+          55
+        ],
+        [
+          86,
+          96
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/core.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/core.go",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "bytes": 5508,
+      "relevantLines": [
+        [
+          75,
+          101
+        ],
+        [
+          185,
+          195
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/enemy/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607,
+      "relevantLines": [
+        [
+          26,
+          78
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/enemy/damage.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "bytes": 11023,
+      "relevantLines": [
+        [
+          94,
+          102
+        ]
+      ]
+    },
+    {
+      "upstreamPath": "pkg/core/info/weapon.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/info/weapon.go",
+      "localSource": "/tmp/gidps-gcsim-b4ae769/pkg/core/info/weapon.go",
+      "sha256": "3da40cb2bd5c1d5449043ec0fdb0726972cbbb83a71428a7521a26928c622f41",
+      "bytes": 1211,
+      "relevantLines": [
+        [
+          12,
+          19
+        ]
+      ]
+    }
+  ],
+  "upstreamTODOs": [
+    {
+      "file": "internal/characters/noelle/burst.go",
+      "lines": [
+        17,
+        19
+      ],
+      "statement": "burstStart = 80 has TODO not sure about this"
+    },
+    {
+      "file": "internal/characters/noelle/burst.go",
+      "lines": [
+        34,
+        41
+      ],
+      "statement": "Snapshot immediately upon cast is an explicit assumption"
+    },
+    {
+      "file": "internal/characters/noelle/burst.go",
+      "lines": [
+        73,
+        75
+      ],
+      "statement": "Exact buff timing not confirmed; C0 duration uses 900 + 80"
+    }
+  ],
+  "expirySemantics": {
+    "statAmount": "Stat/SelectStat require expiry > F; Stats() also removes StatMod with expiry <= F",
+    "statusLookupBeforeSnapshot": "FindCheckExpiry treats expiry == F as active until Stats() removes the modifier",
+    "snapshotOrder": "Noelle.Snapshot calls Character.Snapshot -> Stats cleanup before checking own Geo infusion; exact expiry yields physical normals without conversion ATK",
+    "normalPreSnapshotGeometry": "Attack callback checks active status before snapshot; if no earlier Stats() removed the expired modifier, exact-expiry callback selects enlarged Q geometry and ICDTagNone, then snapshot deletes modifier and damage is physical",
+    "noHitlagC0ExpiryOffset": 980,
+    "warning": "Full call order is required; isolated active-status helper alone does not prove Geo damage at expiry. Source-only boundary, not exercised by the six-second external fixture."
+  },
+  "normalEnergy": {
+    "trigger": "OnEnemyDamage after current-frame global task applyDamage, before attack callbacks; Normal/Extra tags only",
+    "baseProbability": {
+      "sword": 0.1,
+      "claymore": 0,
+      "spear": 0,
+      "bow": 0,
+      "catalyst": 0
+    },
+    "probabilityIncrementOnFailure": {
+      "sword": 0.05,
+      "claymore": 0.1,
+      "spear": 0.04,
+      "bow": 0.05,
+      "catalyst": 0.1
+    },
+    "probabilityStorage": "actor x weapon class",
+    "successCondition": "shared Core.Rand.Float64() <= current probability",
+    "success": "AddEnergy 1 then reset actor/weapon probability; shared global 12-frame ICD",
+    "expiryBoundary": "roll allowed at F == ICD ready frame",
+    "swap": "reset every actor/weapon probability, sword to .1 and all other classes to0; shared ICD is not reset",
+    "fullEnergy": "does not skip roll or probability/ICD update; AddEnergy clamps actual gain at EnergyMax",
+    "zeroDamage": "no actual-damage-positive guard in emit or subscriber; landed HandleAttack can still trigger",
+    "seed": "same Core.Rand (math/rand.NewSource(opt.Seed)) as critical rolls; zero CR still consumes ordinary crit RNG draw",
+    "sourceTODOs": [
+      "12-frame ICD unconfirmed assumption",
+      "probability reset on swap unconfirmed assumption"
+    ]
+  }
+}

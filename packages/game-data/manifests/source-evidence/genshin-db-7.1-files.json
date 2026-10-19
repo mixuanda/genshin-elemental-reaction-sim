@@ -1,0 +1,3541 @@
+{
+  "commit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "generatedAt": "2026-09-22T14:48:43.352Z",
+  "records": [
+    {
+      "path": "src/data/ChineseSimplified/characters/aether.json",
+      "bytes": 2613,
+      "sha256": "0b2907c1fc9b1c2746cc1fedefde7bdb94a176b9e6337507c51186f1acc33d52"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/aino.json",
+      "bytes": 3091,
+      "sha256": "d130ec367f4845e196b8c275bc34f02ed7dbf38278add17344b62c46fca9040d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/albedo.json",
+      "bytes": 3023,
+      "sha256": "17f2dfc78915f4acdcc4e932938e592744e605f0f849cec639a90133dc4baf15"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/alhaitham.json",
+      "bytes": 3024,
+      "sha256": "231b3b016f6a52a0d365b5df34bf321a7e3ab9dfdad2ec49c16e2e578cad54af"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/aloy.json",
+      "bytes": 2999,
+      "sha256": "316ae74e1a7407399472d1e854fadfd9b8e2dfca5e5cacc13ce180e76978cfb1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/alyosha.json",
+      "bytes": 3038,
+      "sha256": "cdb0147dbee0866a909c918bd20df3f11dd1b0f1987b64e34b776676fef3a7f9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/amber.json",
+      "bytes": 2975,
+      "sha256": "adfecd608f32b281782f0a738e5b7af5a4d9fb470e2865acd62e5a60dbacb3a2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/aratakiitto.json",
+      "bytes": 3005,
+      "sha256": "2144a895341467a1c8743fb6459e5dc2c4ff44147ea4e6483b087c3047d855fd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/arlecchino.json",
+      "bytes": 3094,
+      "sha256": "cf329193212b2761b0240586cd7dabc61b65cfb12789bb1b6f0b34b3380b6b2b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/baizhu.json",
+      "bytes": 3007,
+      "sha256": "f7128a31af21acc4f80f96ea50561401cdc736431056c72f16585aaf8e8e8c4b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/barbara.json",
+      "bytes": 2984,
+      "sha256": "e3b472f7baca18c848a85764452fe4051ea4c65dde0dceb9f771b6a4c898c934"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/beidou.json",
+      "bytes": 2966,
+      "sha256": "2d460d7b7111fcd5bcea6d7fce4b55bffdf4bd9d205be2599366ad94f4c72fdf"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/bennett.json",
+      "bytes": 2993,
+      "sha256": "09a1966b2f77a614268d94ff70fa5ed28d77b9818f2e400666a215f9b7ec59df"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/candace.json",
+      "bytes": 2947,
+      "sha256": "a0e6808d3c07c4251c63151accdfd805dba4939bcf7899bdf44cbdb7bc59a9dd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/charlotte.json",
+      "bytes": 3039,
+      "sha256": "5de381cc5cfdf92e9cf9b18c14759dd065b2935a1baefcdfeb1d28a0fd7e5be8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/chasca.json",
+      "bytes": 3014,
+      "sha256": "d4a4d07849ea871b7eeb7954eaf1dd0ec12abc647522fb9c5b8a412a40dc265b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/chevreuse.json",
+      "bytes": 2989,
+      "sha256": "33ac70ddf9181185e696304b6b2b139e7b5c653872eb176d0c94a6a3ef24a4e9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/chiori.json",
+      "bytes": 3020,
+      "sha256": "ac7ebf7599bcd285536b4d7bb559ac7cc75e8da3e03d07bb6e8e56ec12a087b0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/chongyun.json",
+      "bytes": 2952,
+      "sha256": "d38dfa5b85734a138f787b6eabd3bc4fb1b4f78da9f7a202ebbf43a75c15a939"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/citlali.json",
+      "bytes": 2999,
+      "sha256": "ee69df91d63289d060d659c75ba4c5b6288a29cbf998eacf3284c12624d15d5e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/clorinde.json",
+      "bytes": 2988,
+      "sha256": "dbcea89d80baf2b0b466bff3365658ffc5ad75875113bea21583054ea1bbd1a3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/collei.json",
+      "bytes": 3020,
+      "sha256": "7730a7a18e1673924788838b13e1bfd08a188238ae94f032820e894d543d08f9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/columbina.json",
+      "bytes": 2954,
+      "sha256": "c81d35dcb01d7f01ad5d100965abf01b0865633cba7abd908a93fd49869c3a3c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/cyno.json",
+      "bytes": 3023,
+      "sha256": "72623ddc5e248d1360d167a088759e8b5d8b6339ea120c0438145af816b1cf6e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/dahlia.json",
+      "bytes": 2964,
+      "sha256": "d202dc50d954df7b1d81a293aa1a28ba6bd1d8b738018e8e3e1babfca0b8a2a5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/dehya.json",
+      "bytes": 3016,
+      "sha256": "76f8e835ac925991805f0eefe3f9b18f71fbbc6f798bb0dca1a9ba9c5d4dae5e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/diluc.json",
+      "bytes": 2980,
+      "sha256": "437d236ed723adc660d86504a5a54ee35bd82b28ed0cac6d909565b4ca8f11fc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/diona.json",
+      "bytes": 2982,
+      "sha256": "3aa68aa8ab5bcc1480cd54355039fd5ffa6d97fc41099128b43b6c9dcf59cef6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/dori.json",
+      "bytes": 2957,
+      "sha256": "da78a575befc52ce57779301a1502e232e954a0071245b8fa72208e7b70ba617"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/durin.json",
+      "bytes": 3087,
+      "sha256": "e7ea08bdaa744769490d8956d98df2f93af0f6f0250ae0c3ac76ec9cbb103bbb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/emilie.json",
+      "bytes": 3021,
+      "sha256": "086e8fa0f4771516218db3b56c4bfb34ea57d7cb5094dce537171f80eb4a6eb3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/escoffier.json",
+      "bytes": 3033,
+      "sha256": "e986d6faf2a5a4cb5091e3c269c4868e81db6403dde07f2a1671cbccdc17340c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/eula.json",
+      "bytes": 3101,
+      "sha256": "e32c10455b618a7097c48768d287f8fe128a54d140a1bd83b615bd213889eb78"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/faruzan.json",
+      "bytes": 3009,
+      "sha256": "681e381ab89110c99c43183a8daf38b00d73e64d0f2cb6b6e95a9744e4e31eb3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/fischl.json",
+      "bytes": 3030,
+      "sha256": "f97c532c146dbffa29ea66145f5552aeffd19685869c3b50134c0975c1bd9a73"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/flins.json",
+      "bytes": 3104,
+      "sha256": "2db0e6774f5302449c1a08aa9347923657a43e335161dc6b2d766d2ffdbc7f31"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/freminet.json",
+      "bytes": 3096,
+      "sha256": "bf17d81e6a7fd0ebd25c00912cf87a847065ab54fe905d26d318018fba7c0fec"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/furina.json",
+      "bytes": 3017,
+      "sha256": "da68f2b4a4239da9aaa0b6908604daaa6007c76c8a5336e72fe3bab1073e46be"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/gaming.json",
+      "bytes": 2924,
+      "sha256": "b2560d49d750b2e8efc4e8a22a296bd2f841b5a1990a24290a0c10bd61d0d8ce"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/ganyu.json",
+      "bytes": 2925,
+      "sha256": "53bc59f1be3a4fac682aa3e15559b615d5fd63a2ebbf82d7accf6140b92fa630"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/gorou.json",
+      "bytes": 2955,
+      "sha256": "d85bea8d1e0a7c2a6fc2469a1972408c57c02658d4751384d73e65eda8953317"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/hutao.json",
+      "bytes": 2959,
+      "sha256": "7e8cc4572dddea6d5ec057823001e5eb4bc555cd08c2e43b2e48327f9bf941ba"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/iansan.json",
+      "bytes": 3028,
+      "sha256": "da0cd1a68d75fc9af568763be7570b3228fd1673923c2d70f15b99b473950302"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/ifa.json",
+      "bytes": 3076,
+      "sha256": "77f2fcdfe6322207bbcce47b5613fbbf5057780cdee7e5ca13ea0ca861176212"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/illuga.json",
+      "bytes": 3026,
+      "sha256": "e9e13b661f04e029f8e7628627275dbfba9110e156da1c42483b96e85fb70d95"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/ineffa.json",
+      "bytes": 3064,
+      "sha256": "5a425413bfd887ba8956d1257428e073d561321f0bea0df46de310b6d261063d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/jahoda.json",
+      "bytes": 2963,
+      "sha256": "cb2eed74308c2853d87528d254edf18741f8c0bdd33f952b6035c872891641e6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/jean.json",
+      "bytes": 2993,
+      "sha256": "c802bec6dddded55549ab399428fc66bb2376b3c6a77e2605121210944fadd5d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kachina.json",
+      "bytes": 3064,
+      "sha256": "f3da247a07352ae3d9963c19e3de6f65f0c2abbd9af84be4604be290aa79f6ed"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kaedeharakazuha.json",
+      "bytes": 3023,
+      "sha256": "e4f5586a7ced14ac28ac6d3f45d22cd7791215306ad9bc6f223e0adae535e6ce"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kaeya.json",
+      "bytes": 2972,
+      "sha256": "2fe5873969dfe168e77da9a25b7a4123ee8d2049cbff5f797ab6507decc45bf1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kamisatoayaka.json",
+      "bytes": 3011,
+      "sha256": "e7f46c77783c2d5401bd94a7783dbf3d1d806210886cc0eae284977652ee53f0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kamisatoayato.json",
+      "bytes": 2993,
+      "sha256": "56f9d7db8a8ba33f8c8c52083e4cf875c979a69a4ec469e5647d98ba4e40c448"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kaveh.json",
+      "bytes": 2999,
+      "sha256": "bb177ccc7f61765fb466c87d273ce2f66c2b3411f765dee0431d594940f812ef"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/keqing.json",
+      "bytes": 2998,
+      "sha256": "0f35ff0090002844a976a0ba6a35c0eb755f35d223815f1f9ab6fcefd3d038bc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kinich.json",
+      "bytes": 3042,
+      "sha256": "6f9d22db0666af07865261cb6cae5b83deabc65f8450212b486ac50d7ecb3017"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kirara.json",
+      "bytes": 3004,
+      "sha256": "7360fb84db9e6949ca0f1b044f7f5a7e7a3bbbaa1001beac7f0acff110b69dd3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/klee.json",
+      "bytes": 2997,
+      "sha256": "d2933c220e0e8dc17b66bd3484472ea84b86ef3a08fcd117fa2545a5b98cad5d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kujousara.json",
+      "bytes": 2937,
+      "sha256": "8eff59d4e41b1d18988980c2d02314cf46426d85d6b31953f2e7a1b64dacb8ef"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/kukishinobu.json",
+      "bytes": 2983,
+      "sha256": "2cc03b3e98168002e3b693ef166ff7439afa4fb1bc4a40c1ff1f016cb755cb12"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lanyan.json",
+      "bytes": 2981,
+      "sha256": "e17ac7102e737ff179cb3d0b0f5153d04dffd13abe184fc3bd9aaddaf8f57ead"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lauma.json",
+      "bytes": 3012,
+      "sha256": "0da0cfc340e03220151df14e7ed8d70eb7e2232c4b9fe721655757b6affc8290"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/layla.json",
+      "bytes": 2978,
+      "sha256": "807342c7cc78a96ddf115a9be99dcad7c4478bf41396743000a5cc68500664de"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/linnea.json",
+      "bytes": 2960,
+      "sha256": "9ab79a58fa8b7a1c4839c0cd749d3907043a85784336a93e47a46881cb573248"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lisa.json",
+      "bytes": 2979,
+      "sha256": "6fb807c89fad0b4bd5f23e588cd1f53951490e24c72743202d852c63cd165847"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lohen.json",
+      "bytes": 3005,
+      "sha256": "e193bc5a7e7f4f3de008e042bf3fff20b4fe4684bc984e5189f18a5e85c4f98a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lumine.json",
+      "bytes": 2621,
+      "sha256": "86120a1eba3aa3622d8e090a6d2c498a392af7b03bb1e6d2ac84f369d64600cc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lynette.json",
+      "bytes": 3107,
+      "sha256": "f44eb3f63d2e95b330ae0e88ee597c56903b86e2db3d77af6c09abd69458b1c2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/lyney.json",
+      "bytes": 3010,
+      "sha256": "0bed745b945de35d4c5139c91115925c4bf5554fd7a400804d7f2d3ed5145c3a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/manekin.json",
+      "bytes": 1152,
+      "sha256": "c0580ea691561b6a599c8b96c66dd66289c17aa4343221beebbf97161161a1a7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/manekina.json",
+      "bytes": 1153,
+      "sha256": "9f9d152079e38c9863b5374f7f0e35a7f84d14f745d790b81c349650eef8acd9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/mavuika.json",
+      "bytes": 3084,
+      "sha256": "a3b81f5ebcc6f104a485551eafde8c16a8d2bd1005ffdb2a756d8841771780e6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/mika.json",
+      "bytes": 3010,
+      "sha256": "9473929ccff0f4163125c57b18a9d7260db5b49935098475d4d18757e3e81ed2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/mona.json",
+      "bytes": 3044,
+      "sha256": "cd1aec89fd542fb899da48bc47b9c1e8e27b667070fea183ddfe86fff1a287a9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/mualani.json",
+      "bytes": 3065,
+      "sha256": "722d995174fb69fba73de4ae9cbd06e4a773d393448c979fcba6ce543f843b83"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/nahida.json",
+      "bytes": 2963,
+      "sha256": "c170ea163df1a946954702939d748d93d3037d8c0d6ca2fa7aaab5c6f9b96d30"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/navia.json",
+      "bytes": 3059,
+      "sha256": "7fde364ba556f502fbef605fa5dc415a80db55443caa658fe3c0e32ec310534f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/nefer.json",
+      "bytes": 2956,
+      "sha256": "b9c2d55fe27d46baff6433ce38651548610da362c286d7fc25743335190f619c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/neuvillette.json",
+      "bytes": 2978,
+      "sha256": "39d531f0461ecc6d53ab6c723834caa68e24eeadfc2fb9166839b732aaf39036"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/nicole.json",
+      "bytes": 2909,
+      "sha256": "1e9e22c78814e825ba3b092ff05c2927688a0f731e3f1525493f6e808999c608"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/nilou.json",
+      "bytes": 2974,
+      "sha256": "144017c2fe9142c43cf154222b81910077f015f01ea6cee42e0969cde6af3a3f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/ningguang.json",
+      "bytes": 3019,
+      "sha256": "878306336361cb41880bc7d652862899e06b77113c43f57c3ec69d22f8a96a19"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/noelle.json",
+      "bytes": 2988,
+      "sha256": "e84e80ea32fbba329bb359c5d6cf2a0d04df7a395b4b7f981b2a10b37541228f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/odette.json",
+      "bytes": 2984,
+      "sha256": "91763f931a30d2caabfb6f7d57c51875eba5c913df152d7c3598fcf364dcd500"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/ororon.json",
+      "bytes": 3028,
+      "sha256": "1ecc08816bbfb9276dae60decfe88f690611dd3418e59c80eced2077ecb4ead7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/prune.json",
+      "bytes": 3019,
+      "sha256": "b957f0cb9eee04a079fd32da30cc757991165896f8fd983e3f9889cdeac7daaf"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/qiqi.json",
+      "bytes": 2995,
+      "sha256": "029d48fc1149fc7238fc9306f5e35ff722eca7d007bf71f6b8b0f005c1b08982"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/raidenshogun.json",
+      "bytes": 3001,
+      "sha256": "4c0528c8496e76471e4df5bdd0c736038f5b0d0ac1689ef8e4b3ebed21446048"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/razor.json",
+      "bytes": 3010,
+      "sha256": "9776fb0381d90625f28974499e0f49d63d349a74dc99f73b90083bf87ad319c5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/rosaria.json",
+      "bytes": 3012,
+      "sha256": "03de599001fe592f28fea08a87e066621e49a8c7e07988e266b89de49d7ec6b5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/sandrone.json",
+      "bytes": 3027,
+      "sha256": "399709341c83705958e1e21a0d392c592432e73783db177a3e5a4ff5d8bf8c0c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/sangonomiyakokomi.json",
+      "bytes": 2977,
+      "sha256": "3be341b732d7131e5b1bb533de1d31f0b599b5ff1f3746002c5d3e3e0a4b5cef"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/sayu.json",
+      "bytes": 2964,
+      "sha256": "3e23809743e22a4900345f8fd411aa5199a78669c1abb53e448bdb593700fe4d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/sethos.json",
+      "bytes": 2936,
+      "sha256": "278a612426440dc98c6cbeddcdb0cd67ed73492ec463b72016215687f2b90279"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/shenhe.json",
+      "bytes": 2963,
+      "sha256": "6ac2946e90f9aa87c8cff27c81724c701562e1dd25dafebe2fe4c68352061a39"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/shikanoinheizou.json",
+      "bytes": 2953,
+      "sha256": "5630f7c052619359f0c4fe25a25db6bfc966346fb430a55bd04230c9a5bb69cf"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/sigewinne.json",
+      "bytes": 3022,
+      "sha256": "109da72fd10551f3ef78d86e5255aaf907fce5bb3b278fc017b323be72d5813f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/skirk.json",
+      "bytes": 3069,
+      "sha256": "12cf63c63d4153f27f342d6fbf68f877c3f0b024b81592906d88a01f6ee59e47"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/sucrose.json",
+      "bytes": 2961,
+      "sha256": "920cc63d61aca721647c6c75a927e58b19cb0cc26d8dfdfd762a0d135c22cfbe"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/tartaglia.json",
+      "bytes": 2948,
+      "sha256": "f19c6f1d8a062a7543320ead429449e69cd844dca8d82e6f6f7505a7e4a5b37b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/thoma.json",
+      "bytes": 2933,
+      "sha256": "d29d4f1e7cf89269407314c71e62c7e0afd72b30c4370bbeceb7bc0f1c3fe915"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/tighnari.json",
+      "bytes": 2972,
+      "sha256": "6d0d935f6e30606cbb0de7df0dedac90e5ede73e4701d4dc3fbf9204bab23b21"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/varesa.json",
+      "bytes": 3066,
+      "sha256": "0a3c0563a33cd51e6e5657cf16498605ed194d751ba6f9458bd01d979c943240"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/varka.json",
+      "bytes": 2953,
+      "sha256": "27de4360954ec82783826f622caaac77d8f30fe45dcb324c8874e9adcc617a7a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/venti.json",
+      "bytes": 2999,
+      "sha256": "3717f847451b5a1f03240a0fd5abf4a4425d81f926eb84e4ac52dbb747ca4e83"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/vesna.json",
+      "bytes": 2914,
+      "sha256": "dc54badc20793ba7eb271e3fb818b15010e90df51b7afb404278ad7ad7669418"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/vodyanitsa.json",
+      "bytes": 2957,
+      "sha256": "343a7cb8b62a5e3a3700f2cddde405475facaa84a54eae44735ea644b274c2e8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/wanderer.json",
+      "bytes": 3002,
+      "sha256": "95060b9e11fd02258a522aa5e9875f31df1a2f99d10aa22354502fd55f063a6b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/wriothesley.json",
+      "bytes": 3040,
+      "sha256": "936bb3f081f965e346ed716e6be5422f48594d825665bedd30047058b86a506b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/xiangling.json",
+      "bytes": 3004,
+      "sha256": "4a59fedb3dcf6f2de8684cc3c4898a3e0a49575cb5f921be93fb1b416bd5eb55"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/xianyun.json",
+      "bytes": 3034,
+      "sha256": "6ac61af40bc7c8f6f1d4c2539344c548d12b8b3f788a8a12ba99a635b8da85d6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/xiao.json",
+      "bytes": 2960,
+      "sha256": "f4e9fd70ca32313902d84760a41bda9aefa23f7c8e89ad7548ecbb22b9dadeee"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/xilonen.json",
+      "bytes": 3069,
+      "sha256": "b938e0d40668fff7e9432c84c6f6e03831f232ad3985585d50e51c5b72adb594"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/xingqiu.json",
+      "bytes": 2999,
+      "sha256": "78d43d732f5db611ab5e4a6f4544726ac661ea91e316d690451ac83aa1e76c00"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/xinyan.json",
+      "bytes": 2966,
+      "sha256": "7dec863089fac9f6aa78a441cff03de643a8b7f2ee49061ac77a7680ea44390a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yaemiko.json",
+      "bytes": 2997,
+      "sha256": "fb3c2026e288fb9264e3d09be0b6b15c6c20b2a829f187c29cd984d821d1784b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yanfei.json",
+      "bytes": 2978,
+      "sha256": "ed9bb07885cc66349e4cb4001a988df494966d1991581b4a973ef6a25bf81e90"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yaoyao.json",
+      "bytes": 2989,
+      "sha256": "1ff45f8b79c59ab3b21ed3894838096f28aff6ab3faa81e5de014a5fb5350db3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yelan.json",
+      "bytes": 2942,
+      "sha256": "550322f0dce2a3dfc2f80e42eeaacce4dd56fc9c03249e96dc7021a2e9f7eb28"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yoimiya.json",
+      "bytes": 2949,
+      "sha256": "e6f6a4b08ed0b2de6d118d1062255372f2eadee42f37b1e51cdd35a873edf8f2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yumemizukimizuki.json",
+      "bytes": 3022,
+      "sha256": "206827256960d8b016f02684e42844c1a1c7c999b63a3e9995703cffa266e59a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/yunjin.json",
+      "bytes": 3058,
+      "sha256": "4a0db468e1fbd3f1c004bb31d188b8f4224db6cdd7ff9d6f5e09ac204318eb48"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/zhongli.json",
+      "bytes": 2972,
+      "sha256": "ccc72679fe8d786b3be3c68ac95e883aa7acef7f105b4da87568ffdd2ef28a61"
+    },
+    {
+      "path": "src/data/ChineseSimplified/characters/zibai.json",
+      "bytes": 2977,
+      "sha256": "bd8b1658b47b7efe992302942ed088bf61068b917af609bd345ad7e341d6ac0f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/aino.json",
+      "bytes": 6979,
+      "sha256": "3e810de410316d69d49b82f0f72aac92fe8cf8207172f5b692b5c9cac8c53164"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/albedo.json",
+      "bytes": 7436,
+      "sha256": "f96923605263531da15d2040139aa47e605aab7cb5f60eec5b21c2a3f08432d2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/alhaitham.json",
+      "bytes": 8345,
+      "sha256": "30c0993ca44bc037d9b0b55e43be9187f3208629e233ea78ad95e632dc4ab118"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/aloy.json",
+      "bytes": 8113,
+      "sha256": "60b75fb699349147360ddb6cdd034ca80880bf3ca216df946450bd96351956df"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/alyosha.json",
+      "bytes": 9053,
+      "sha256": "cf2b077c61ee4182fb2eb8a8f1af2cf42900b9406a8e61a7155753c6835eb843"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/amber.json",
+      "bytes": 6295,
+      "sha256": "840b889d2ea5ceefe7a97ae570cb9ad3026cddee888a2d63e292ffdb84c9b55a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/aratakiitto.json",
+      "bytes": 10371,
+      "sha256": "3bb7c64dfce425d934f49feeedd59ac005dabcf80e130c8d9331c16f202c584b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/arlecchino.json",
+      "bytes": 10755,
+      "sha256": "aef9b76d1942247f8280bcf6d535258f5850cd9ad25004fa75e81d404ad8ad11"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/baizhu.json",
+      "bytes": 8364,
+      "sha256": "1f3a39b86febc2e96ba9142448ed949d3886a37599d73db3b00b3df20c4340a1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/barbara.json",
+      "bytes": 6849,
+      "sha256": "d64212cd95cc7be3609adafd5054963ee613e1ee199b0198d90f43600cb098c0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/beidou.json",
+      "bytes": 7908,
+      "sha256": "602516806958e091530cda26ce5c170d1a62976958a849a3ab479069415985b3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/bennett.json",
+      "bytes": 7797,
+      "sha256": "e494c99b55a54c371b2cea2a68dc3df39eea2dc3082a0289328adf73e96eb7c8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/candace.json",
+      "bytes": 8267,
+      "sha256": "aadee08c7f149c2159811eca8ed57666927a8d83f48c450358dac2109e5f7a21"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/charlotte.json",
+      "bytes": 10455,
+      "sha256": "f082073842b1e4c3bedf27bc280719c30520807b94337d45568e19396e3b5dd5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/chasca.json",
+      "bytes": 14215,
+      "sha256": "06c6f8281bfe9860e9f35da0d36fda6ac600e49fd8f6c91ce8c0cf969a791798"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/chevreuse.json",
+      "bytes": 9751,
+      "sha256": "135c47ea5b209f2430aae11ec1c44c696d155431144afda5a4a8904311c74ae9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/chiori.json",
+      "bytes": 9389,
+      "sha256": "2f80f8631b2b6249819bf73ae09648fee31b616807a7e08f93ee730396616216"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/chongyun.json",
+      "bytes": 6786,
+      "sha256": "280ef19ebcb9b34a577bbf764953dd0b3a31fc60bf8e838eb3a72b15a275bdc4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/citlali.json",
+      "bytes": 12606,
+      "sha256": "e84b05d22240695786e7685d199b71172fa992ba68c3d846f3856fc47423bc42"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/clorinde.json",
+      "bytes": 11115,
+      "sha256": "cc71d9a676f06f7c366099cc1492ae004b502d7e20784e1b49ae4a360fd3721a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/collei.json",
+      "bytes": 7720,
+      "sha256": "41d0e70fcb0082f9eee11a6529866d278ab5d732f762010b5e1737281bfd2103"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/columbina.json",
+      "bytes": 10330,
+      "sha256": "e663dadbbf3ad3e2d50442ed07ffa24fdb0a1e4c23efe1ae3bd99f1ff64caf4f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/cyno.json",
+      "bytes": 8250,
+      "sha256": "053ddc549eab00bff336c00d56f47ecbb2191c18a273370c23d8202f30eab2b3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/dahlia.json",
+      "bytes": 9094,
+      "sha256": "4be90a76b904866c9fb6d83a3017f3029cda416d7ca0124871d316fbe3ddfb60"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/dehya.json",
+      "bytes": 11473,
+      "sha256": "15a386251bbaf3ae9918660334b2bc02162222a575b34423ceafda69da8affeb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/diluc.json",
+      "bytes": 6674,
+      "sha256": "c905316cf9c552e107ba701ea47f42af9fa3554b07d03c28a78757174868ed8b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/diona.json",
+      "bytes": 7655,
+      "sha256": "7a318122cb5da9c18f7e4f4f7d441a5ae2259d46d51cc9b5faead3aecc1f6914"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/dori.json",
+      "bytes": 8104,
+      "sha256": "3d547dcb2766970b2f3c55c24f8d2bcd32b7977ad1c12906323e43af1dc7f761"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/durin.json",
+      "bytes": 11427,
+      "sha256": "fe861760a92c3d21973f72b9ce495a90bca3710208bc5746c5fb58c55a4f8976"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/emilie.json",
+      "bytes": 9813,
+      "sha256": "07ee393bf848ecd9b689de925bad32a348e9c65a33b9cc385e32f2ad75a63601"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/escoffier.json",
+      "bytes": 8522,
+      "sha256": "37b5e6ebdf9701358d60a497d1b646df89e5189060e28aee9f97b079393c5ae3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/eula.json",
+      "bytes": 8928,
+      "sha256": "6e99dab8baf6d56aaf6de8f7003361e5c8618e35d4087ddfc9b3ad7ba8c023a1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/faruzan.json",
+      "bytes": 9397,
+      "sha256": "c70d818fceb90fe13b6f34fbb477b108b172329e93c59d6794c2e8aa2c12d657"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/fischl.json",
+      "bytes": 8170,
+      "sha256": "95bcb2c35a0d2a6663bda246d9913af2b299d83de0feab5d8a3ceb3a8ba8c215"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/flins.json",
+      "bytes": 9931,
+      "sha256": "db394362a5f6472b182f201414f83139e54103166ec7cc5613ba48e090366c94"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/freminet.json",
+      "bytes": 9307,
+      "sha256": "ae90720eb9093fd1c6013df3ddd54d09fe1559cee5a2e838be09f211b7e9ffeb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/furina.json",
+      "bytes": 12212,
+      "sha256": "46d27e4f7158e1c50eec53b3f0eb5c5e943ac848003b449fa16723cabc8662bd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/gaming.json",
+      "bytes": 8683,
+      "sha256": "0fb7be88eeba71338fd00f306a927e9e20754e7e920432cd270931d306ef19a6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/ganyu.json",
+      "bytes": 7307,
+      "sha256": "a0acf49d08ea1a0083cbca656270d1434039d02eadb6a7360452eeef8b35b761"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/gorou.json",
+      "bytes": 9513,
+      "sha256": "46e1638498001a3c0abfeb3a39e6a9079b1f2330c597c1f89dbc9c02d63e4046"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/hutao.json",
+      "bytes": 8341,
+      "sha256": "0627584088b96e473faf3f3724a40f8f7612a9eeed454019066119bc636c946a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/iansan.json",
+      "bytes": 12703,
+      "sha256": "b1726201360f7ca5ca22763a38175350cc97a96ee478458ea9c5b629e5d1f583"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/ifa.json",
+      "bytes": 9123,
+      "sha256": "48e9b788435ab4e4318eede96396daea8d8da8aec1b627860ab5eb72929b2e95"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/illuga.json",
+      "bytes": 10174,
+      "sha256": "3c848d6641aac005aeebd62106437b362c5bbd56372294c0a1c8fb6843f7f268"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/ineffa.json",
+      "bytes": 8077,
+      "sha256": "6574496d07fc95b87e7196ce4fcfc6bbb5d21a4b487de0c8f0737cdf6432b95c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/jahoda.json",
+      "bytes": 11822,
+      "sha256": "3e8706f580aa2f17a297ab145023981bd55ec7e9abeaf05e0ddb0d2fb33950bb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/jean.json",
+      "bytes": 6956,
+      "sha256": "d5989b2a464e5ce61d64f9a80e682f2b6cd7ceefcb98ef9a9242454c7054f27f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kachina.json",
+      "bytes": 9885,
+      "sha256": "e59eace251cfa336c6d7d6d318e533270252ef9d223eda3ceddb3cde6fab2372"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kaedeharakazuha.json",
+      "bytes": 9677,
+      "sha256": "40d5f3867ddd5ab1e8babc3a4d6d811720f83db597282f9f56e3d67ce94aecac"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kaeya.json",
+      "bytes": 5993,
+      "sha256": "8ff31973b5d19ab45df6730c433821f634199bed880fa641004b1f2ac31602de"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kamisatoayaka.json",
+      "bytes": 7330,
+      "sha256": "09a9ff4074db43da1139ee12b28152da10a21f5aa822ac86af4c1c88d8cf4108"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kamisatoayato.json",
+      "bytes": 8573,
+      "sha256": "6a11e437f9c7a989ec4d5066b685eb04a038cf68489fc7eb8ac3ed54eed6d5fc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kaveh.json",
+      "bytes": 7835,
+      "sha256": "5a29e5a751222f140277ade07f73b4b4318cda37f7bf5c4bfedd643eb42c6dc6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/keqing.json",
+      "bytes": 7481,
+      "sha256": "780b8928532e47fff2c28900e29a7448af170278ab8eb94e756c855d15249fba"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kinich.json",
+      "bytes": 12846,
+      "sha256": "d299f9321511b638c9268a315d8f89a30437892e36b8db63429d4a686f589a3f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kirara.json",
+      "bytes": 10340,
+      "sha256": "42cf8c662d8629409a453af711ca8a7c9bc536979f5860dcf0359dc56df85e83"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/klee.json",
+      "bytes": 6746,
+      "sha256": "57c4e38b8b434a9b3960fa14c392dcd7c4e603d10f61174c0e9444ead6cc40df"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kujousara.json",
+      "bytes": 8562,
+      "sha256": "3965541193a4d151fca88990626f603b51c9adbd48741bc4a4343b3d4c3b29db"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/kukishinobu.json",
+      "bytes": 6974,
+      "sha256": "2c7de2fb20e2562d991d99e0a7e5ee2918e89ce6c7206e2b8c05a17b886446c0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/lanyan.json",
+      "bytes": 8327,
+      "sha256": "f53f8d9bf1aedb477caeef54df41d70858357bc3edb9dfaa7bca9ef553d5fa53"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/lauma.json",
+      "bytes": 12803,
+      "sha256": "1833656f0c5fb7bb02d8359e57fdd296b3bc5bf92e45ff25a2b1d7beae4e489c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/layla.json",
+      "bytes": 8262,
+      "sha256": "12f0f5e68f674366bade01e9a172b6af39036a1ff3062bcf9556d05921ff92ad"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/linnea.json",
+      "bytes": 11853,
+      "sha256": "0d8e210d76ad8b72dee84592ef865a1dbf5a30ddb350b79ff763cbdf24d190d8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/lisa.json",
+      "bytes": 6789,
+      "sha256": "711516734aa980f2fdaa574c1460f4b177a52abec7249939d6a868da013c6a54"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/lohen.json",
+      "bytes": 8785,
+      "sha256": "1666866548d0be0969829535ba50733212bbce2b008be1d4c5989c38985e07dd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/lynette.json",
+      "bytes": 9419,
+      "sha256": "3c942cb51e170d5b29dd5edc536ece754987f81d782f4127bcc45664c8a21562"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/lyney.json",
+      "bytes": 11101,
+      "sha256": "6fd5511f8ea844a492b954dbee54fd7748e7f09074a3e203cd20897fb0537ee7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/mavuika.json",
+      "bytes": 12633,
+      "sha256": "f60d0874fb69ff8926bba98f213a4f78aab088b3333a60f7d5f4fbbbc196b521"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/mika.json",
+      "bytes": 9217,
+      "sha256": "ab15a30e6780382557d12a3d81a42b6388b27b7e72f3e011d53d63894b0e5b22"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/mona.json",
+      "bytes": 8924,
+      "sha256": "a0838b084d4d2f692a7d377a2b87f420cd2a8478580b5287107298b2dcf7a0f7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/mualani.json",
+      "bytes": 11499,
+      "sha256": "3ab98d72d73bf27d08a40b9f46dd84f0427b8bbf539359cd142778a175a0a97f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/nahida.json",
+      "bytes": 10093,
+      "sha256": "b7fa8d5317fbfb241223fc24df31985c29e90af7b384839fdc7b5d3cf64538a4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/navia.json",
+      "bytes": 9697,
+      "sha256": "a9c960239dfc139575d6b067eb892cb929a631486c05109bab7fec20cea62a13"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/nefer.json",
+      "bytes": 11661,
+      "sha256": "5b3f8e27a25f3c3347047b71289098e8aacaffbd96f33ef9712109c987165198"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/neuvillette.json",
+      "bytes": 9437,
+      "sha256": "b65ac149e6beb9edd82d8ff50ba96cb4b4e3682e1a1e2e9e15d97939729e7240"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/nicole.json",
+      "bytes": 9093,
+      "sha256": "3c55a4af6f0209f019f80a0e342396d9a69eef316d8c9fb44073eb6c0f23220f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/nilou.json",
+      "bytes": 10106,
+      "sha256": "510741c753d04df3954eb0c85c111dd04d12e57904f74cfa31b78601e4ad1c48"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/ningguang.json",
+      "bytes": 6554,
+      "sha256": "c93b9a53091c35c85a3c7b84e838846da6fc64f4e1cecf1cf622d0bc30bd60a1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/noelle.json",
+      "bytes": 7553,
+      "sha256": "8d55d1f7ee6ed0f36445fa473f50179dc8dc14e8bb64b8f88297c3a17af943bb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/odette.json",
+      "bytes": 9921,
+      "sha256": "a8d9241554047658bdc07d84b0bc488ab8032e7763baa215ce39cddab2a21445"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/ororon.json",
+      "bytes": 11694,
+      "sha256": "f2ba48a3fd5ed62efe4989690bee6d19afae133e062ffb1fbcf87cbb0b3c8138"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/prune.json",
+      "bytes": 8943,
+      "sha256": "7b2bdbf379036344349089f6008ceee604f2bfa2f0444b9a2809bc9f25ac08a7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/qiqi.json",
+      "bytes": 7260,
+      "sha256": "13e4eb6102700adf40581c1dbac63b1db7c1a5e4bc38e8daadb339f6c99f3f34"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/raidenshogun.json",
+      "bytes": 10610,
+      "sha256": "44ee52fa89cbbf2423d8e56c0145466d8cc15ef72ba39c62596310256ab7b4b1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/razor.json",
+      "bytes": 8085,
+      "sha256": "da67102a9326ddfc2935677ffddff299c5fe1eb6f95bc7a9c15cdae18deb0f2a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/rosaria.json",
+      "bytes": 7042,
+      "sha256": "f294ff7916c263b002117ffc828a5b4de82242ab4358be3b7cb9771b2d3dad5d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/sandrone.json",
+      "bytes": 12093,
+      "sha256": "9dab8d3fc9cffb50ec44608a372c1ca6c7566b679b41809cbc08a6476b1b0d25"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/sangonomiyakokomi.json",
+      "bytes": 8203,
+      "sha256": "cea87044848a815e71835b9025c56de74115deaf63d7baae47cc25f0f44c7cb2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/sayu.json",
+      "bytes": 10713,
+      "sha256": "8c24d0d0d7abc95a2323233a32c0299775fd60231b75b877245b51b04fa0a26c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/sethos.json",
+      "bytes": 9033,
+      "sha256": "9cd02f66ef6105862f7b60b1774f5a5372d1846a62ddd59e4a631f623085ac9f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/shenhe.json",
+      "bytes": 8519,
+      "sha256": "061ba2083fc2779f6516d7262c52987c1b127b6eab74e024feb3d90a6ce190f0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/shikanoinheizou.json",
+      "bytes": 8500,
+      "sha256": "958291e181d3bca2a3eabd3d2c7da82196a65649d4d2ea15f1036b2cd2cd370b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/sigewinne.json",
+      "bytes": 11564,
+      "sha256": "311ae07f8c79c991ac7bd35f578a3224184c5096fa343fdbdb76d596e5cac5e8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/skirk.json",
+      "bytes": 11830,
+      "sha256": "fe430474d731049134bc7f5b334087d97c157ba37686993d34ebb3ef4c913de3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/sucrose.json",
+      "bytes": 7342,
+      "sha256": "e434eaa5bbd5bd1b56cdd08318add330faecfb1cf45db8c09778f7e27c8f3997"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/tartaglia.json",
+      "bytes": 10758,
+      "sha256": "760070d3658a6b513199fb7bedf1e56b8de552dc3383f74b4d332f4f48626fa8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/thoma.json",
+      "bytes": 9065,
+      "sha256": "d8d42f75b68f6c96927e5669ff95a814a9380aad0ac1ecf9634c517aa6e6afdc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/tighnari.json",
+      "bytes": 7663,
+      "sha256": "08b441d2a19cf476de46b618d09d0d9587a84059ec7fbbc25bf6901e9406e6a5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/traveleranemo.json",
+      "bytes": 7130,
+      "sha256": "04179a0bf977ef3e40b80b609fcf7fce37e17f60194923a9b20da64ed2475dc6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/travelercryo.json",
+      "bytes": 9084,
+      "sha256": "21f0c20204a61dabaaab1faebb1386514c7acf294baf59792c0ca366f42503cc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/travelerdendro.json",
+      "bytes": 6815,
+      "sha256": "b14502890a6236c59cf512e4d786340980401df4976f667706d1ad1d5c9a4df3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/travelerelectro.json",
+      "bytes": 6745,
+      "sha256": "faf088a6f074548cc84d31a1c0373aa7d5975e3c2f5784dd6bc7c8501c4bc35e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/travelergeo.json",
+      "bytes": 5823,
+      "sha256": "05d71f22dc788657dfa9ae0eab75ed368d39b9d815d2ef691d069f8e1a1241a2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/travelerhydro.json",
+      "bytes": 7514,
+      "sha256": "d3bac6a1e66a9b6d9705ba4ad07d2911e8f990beb2c09064e429202cbac9ec2e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/travelerpyro.json",
+      "bytes": 8594,
+      "sha256": "150fa2ddc974f0fc64a15457d82f3a18317e3477a2508d8e44188844c02b7e32"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/varesa.json",
+      "bytes": 16949,
+      "sha256": "f880dd7bb5035b84d650b0cbb1dfccc616141e65d88c2e6a406cb9a5f58b3ac5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/varka.json",
+      "bytes": 11756,
+      "sha256": "94efcc19fe474d91e8c90bc3de11287f396d48a137209b6f62ec1baef1cca7eb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/venti.json",
+      "bytes": 7815,
+      "sha256": "937bec085d2f513635d0948e5a0555de33cf451666492d93ee09eb870ad5b54c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/vesna.json",
+      "bytes": 12226,
+      "sha256": "ba621237701584370e1145d288204d8fa697f9897e5bfa4e751fc54fc6f7cae4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/vodyanitsa.json",
+      "bytes": 9280,
+      "sha256": "3c4193852def96b5209763ed0b73d98a6cb84249c23e399e7d40657af84fcdbe"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/wanderer.json",
+      "bytes": 9774,
+      "sha256": "55c22485c396b69b8aa7a2242a9f4c9add4f789fec7f12d605ebc8fffdb7aade"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/wriothesley.json",
+      "bytes": 8924,
+      "sha256": "5f9e4711c50b0ed7f4392aecbd5447b75339ebf4b9578a35bf725591492e42cd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/xiangling.json",
+      "bytes": 5833,
+      "sha256": "3a40e54eaaa9a85138f280d33f06be11d4e61631ace7c1bc07badfae511e8143"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/xianyun.json",
+      "bytes": 10216,
+      "sha256": "a60081412c1c902cd2a1325d6628f8a0ec8d0785fb91e94855388bdbce795f80"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/xiao.json",
+      "bytes": 7197,
+      "sha256": "0c19749c3915e6f37a05c05eaa958b32913263f21f01a4902ae2faa95ffa8584"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/xilonen.json",
+      "bytes": 15262,
+      "sha256": "7fad0a4141869ba4ce6a03cfb82eb48e75fef9cadbf10f711cb7d37aa9399e67"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/xingqiu.json",
+      "bytes": 6823,
+      "sha256": "7a9f2805afb430850e67716697165e5171580fefb96bc08e9591bea0d85bf0bd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/xinyan.json",
+      "bytes": 7903,
+      "sha256": "b05765b7ecf0018e692888c00742c3c077f8e83609295e4f134f39ab488ca154"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yaemiko.json",
+      "bytes": 8450,
+      "sha256": "5037aea41cf26bd329a2f1f5aa1d60c41fcce024331b3fdc408cde7f97d0666d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yanfei.json",
+      "bytes": 7682,
+      "sha256": "f43da66070529c56abc8c873218c5cd5570acecaa315cea575f87ce2828426c6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yaoyao.json",
+      "bytes": 10314,
+      "sha256": "2e1692a20dcb3fb4a4f5f2086db6e3a00bee29b82e6583a224a5fc405e8cbd33"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yelan.json",
+      "bytes": 8863,
+      "sha256": "b3815bc2398259b3d04b7da53b6fe9d6f3f4ffe5e1c636beef29b9aaebe9832a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yoimiya.json",
+      "bytes": 9625,
+      "sha256": "74b2e93303cd57365eaa5ce8c28c1af583ce7ad4e5f88666afc4aad3533fa54a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yumemizukimizuki.json",
+      "bytes": 9844,
+      "sha256": "7ed3a2723c05960e6288ba159c0d2f0aeeb5c4dff5290248438e8ae5518acb56"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/yunjin.json",
+      "bytes": 7962,
+      "sha256": "ec26899958b97fd23e426b08325395780cbb6aeffb922f6eaf6f2a4206efd905"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/zhongli.json",
+      "bytes": 8815,
+      "sha256": "150901bec78e190d31e38c8dd4be195b0e58c0d894a49774b169339b27fe26be"
+    },
+    {
+      "path": "src/data/ChineseSimplified/talents/zibai.json",
+      "bytes": 8918,
+      "sha256": "7428818538e16eb33fa1cb788e6ac23ca81ba8a6489338c4ffc1f43cf6c8f6ce"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/absolution.json",
+      "bytes": 7159,
+      "sha256": "8db0c51606ac002319493bce0f2f1f9cc7d2b27d292f9254d94e800d969e846e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/akuoumaru.json",
+      "bytes": 5325,
+      "sha256": "a3627c082b94d9bce2db748999508dbe86e03d793e854a0d01906e078a84f9f9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/alleyhunter.json",
+      "bytes": 5444,
+      "sha256": "a839b99df5c9a2ec1f252bfb057f98e6ac09f05316630fad2d2aada093b0673c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/amenomakageuchi.json",
+      "bytes": 5372,
+      "sha256": "2e7202f3cfc6f7acacb50c7d6363abb83ae352182e37d7bf1d4a5ea2436bd5c4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/amosbow.json",
+      "bytes": 5191,
+      "sha256": "d0c5618a82aea116863eb6980f0910df1c8c3725bb982fa15fc533f05dfa0265"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/angelosheptades.json",
+      "bytes": 9089,
+      "sha256": "da685c1a05c1e295f1c8b0f3e472c38a3c3a241ebdfd73a80158e325e8eaf0fe"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/apprenticesnotes.json",
+      "bytes": 1769,
+      "sha256": "9006fab5a2d3741429e5e661d5f6638ee41a54a0205d0ccb5282f963e622dc5a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/aquasimulacra.json",
+      "bytes": 5205,
+      "sha256": "e3c8f0ea8834a78d23f03e405ae5115feed416116cb5f8399be83d7ae9bea2cd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/aquilafavonia.json",
+      "bytes": 5175,
+      "sha256": "45a3f2b3c0bc6f705babefeced627931473c3b7c5c31f169207fd1f662cf4e56"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ashgravendrinkinghorn.json",
+      "bytes": 6023,
+      "sha256": "e5cf46b23783fea9388037397f9b62d1b3d332ef2fb5ebea034b0c53567ae1fa"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/astralvulturescrimsonplumage.json",
+      "bytes": 7451,
+      "sha256": "b4c65caaf8f4b47bde34d32bfbe9312d9dd7112d2d611af49a626cc9de21083c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ateaspoonoftranscendence.json",
+      "bytes": 8266,
+      "sha256": "50b8c4da16964c8a0096ffb9654ce52ac1a6c0618b214e1b0888325a066ae7ee"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/athameartis.json",
+      "bytes": 9017,
+      "sha256": "bf158ff8740ff63d02aa26f04d1237372104db5288a36f646a139cac22ae86fb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/athousandblazingsuns.json",
+      "bytes": 8314,
+      "sha256": "17372bd0772aa0c6c5973c329b7660fa08d35085d0c622b7e606b95c0ccef068"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/athousandfloatingdreams.json",
+      "bytes": 6912,
+      "sha256": "654d4b6084eb7bbb765553d60d85481dcd58403b87dcb76531a3005fb9673b46"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/azurelight.json",
+      "bytes": 5587,
+      "sha256": "b73fb61c361e88ba9bb033703eecc99555bb29a069c979c9d78f50ea1c13c3b7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/balladoftheboundlessblue.json",
+      "bytes": 4780,
+      "sha256": "192fc7ef2850abf2467dffbb8d3974ca66ec91a5dc66af535610a7bc3752da38"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/balladofthefjords.json",
+      "bytes": 5123,
+      "sha256": "1f5382eb9e6ebc998d08859d005987393add3789850ab338d76f78b86a46b547"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/beaconofthereedsea.json",
+      "bytes": 6042,
+      "sha256": "64d45b731db7e97a750c6d7e55f173d81145f73c44b1d54e0df22c6645c4130a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/beginnersprotector.json",
+      "bytes": 1871,
+      "sha256": "b13b3ad77f72f406218dea2086708e2b57e1f53617fc7dc36cd46b62627000ea"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/beyondthechrysalis.json",
+      "bytes": 9125,
+      "sha256": "b538d7a0f23997dca8ea3291129f1c7209a71229ec1f59bff4c52b08a2bb2220"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blackcliffagate.json",
+      "bytes": 4841,
+      "sha256": "bcaf2e67553ecfdfb3bd1ecd505641a4848c181f01021a912c7d8a34465cf1cc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blackclifflongsword.json",
+      "bytes": 4919,
+      "sha256": "a5605ca90fd135e617805ad8134077a4e67c3780b47de82349121b7a7e4e833d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blackcliffpole.json",
+      "bytes": 5110,
+      "sha256": "8ca3e29cb3d7d1a7d311523fac0456136130dc66c80d6bd8800fce9413fd3b41"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blackcliffslasher.json",
+      "bytes": 4805,
+      "sha256": "358508f186d3bd7aad978f6faf2bd6665679fbd2c7d0c605f2a4fd742860b400"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blackcliffwarbow.json",
+      "bytes": 4815,
+      "sha256": "43e3cfa92761b501dbdb8c5353f85b46bcc78f420a72506d4591a137c6f423a7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blackmarrowlantern.json",
+      "bytes": 6719,
+      "sha256": "48e97e7f4376066840b02f4bc4f8f234c16bb7e6606825d4a67c7732eda3a759"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/blacktassel.json",
+      "bytes": 3342,
+      "sha256": "9c1b45010d921296f4ff6c04343d5d43a56daf9dd277f3124067d10035b24fb8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/bladeofatonement.json",
+      "bytes": 6717,
+      "sha256": "9392681fa27aa9000b8c1ef08b4bcdea1f123f40d983337ed2fabfc74fd10d04"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/bloodsoakedruins.json",
+      "bytes": 6792,
+      "sha256": "5e9f4190a2f807c00081d25bd8791c12ac8f7fa03754f38075865f4876374af0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/bloodtaintedgreatsword.json",
+      "bytes": 3734,
+      "sha256": "01ee4786676b034f4402ba4bb66e8f1f10aafa80663cbd3cac26a4d28c7ed80e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/breezebornerefrain.json",
+      "bytes": 9744,
+      "sha256": "cfd14ea7005d7a0864ce2be26bd3a4bb94e67ecd510968a84a794bed0edb07c5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/calamityofeshu.json",
+      "bytes": 5981,
+      "sha256": "72a018611091f4b53eeb0c49483e5f1a7b2fec74626d31c8881f172c431b24f1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/calamityqueller.json",
+      "bytes": 5561,
+      "sha256": "996434b6a96f15d016d2e67c4f8dad06ef20386946d93999e13a052af0140768"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/cashflowsupervision.json",
+      "bytes": 7189,
+      "sha256": "6ee7ff20984fc86bc892d37fa4a6eb6e25aa03cc69aa24513f6984e9c26092c8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/chainbreaker.json",
+      "bytes": 4019,
+      "sha256": "2e7ddbc841bca9c97987a46cefd7037c8e687094a685928aea70eb25c05d134f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/cinnabarspindle.json",
+      "bytes": 4171,
+      "sha256": "da4c06bba7b094763d07702a9e54c7023e0e8ef972b7a6f4e3a0ba5c12178ef8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/clashofkings.json",
+      "bytes": 8127,
+      "sha256": "54671d7771d3bc4d1e005856447e48fb2e5fa4c1b5282300f1bc8e59b48eb1de"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/cloudforged.json",
+      "bytes": 5823,
+      "sha256": "a8a51372ebd9c9f5b060ea70b4514abcb37e263bf5d23e929bc39a1eb9affcff"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/compoundbow.json",
+      "bytes": 4871,
+      "sha256": "e7dfbc463aafe7b682a41d71befd970f6157dbd9afca246c3122e44c2da47b59"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/coolsteel.json",
+      "bytes": 3568,
+      "sha256": "aeb92c765f433ac187b2792c5c39b995be5256163d393f259ba424d4fd3f6539"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/covenantoffrostandsnow.json",
+      "bytes": 5880,
+      "sha256": "8611df06758da62e333923106e22884ae31bab7e924a447ef6013f82ec94e4f9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/cranesechoingcall.json",
+      "bytes": 7179,
+      "sha256": "0cd23e6ecff9a0574b177fe246bc593274595db8e00cc54fd55a49880be80a41"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/crescentpike.json",
+      "bytes": 4628,
+      "sha256": "ce0ec74cf0241bb1c538cda7a8736b6e5541a4c0e041ce8e25b234c849802f8b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/crimsonmoonssemblance.json",
+      "bytes": 6501,
+      "sha256": "8ee86acaff5525a40c97523cc90bb640901580dac12eff699f1b2176f9d8d509"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/darkironsword.json",
+      "bytes": 4160,
+      "sha256": "f8242224165dac9ee6eddf734358205d6ff6dab1cdd765c97c51c945c302a020"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/dawningfrost.json",
+      "bytes": 6369,
+      "sha256": "8930e903cfe5721f36bd658be28f88c6a46d28d4e260bf882e06865ea5486457"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/deathmatch.json",
+      "bytes": 5314,
+      "sha256": "8fa38f4c21b850b66a015cc0f441117074d4ddba94bcb47470fd18523eda3db4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/debateclub.json",
+      "bytes": 3967,
+      "sha256": "cc3ef4ea58b93d2791d535ee9a080bb8c7107330fb1e233930176de41dc43c2e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/dialoguesofthedesertsages.json",
+      "bytes": 5438,
+      "sha256": "cafad5b2be9125c5b57f1e427ea7ff4d029f418550d2b8d9f976445008fdec0e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/disasterandremorse.json",
+      "bytes": 8672,
+      "sha256": "0d183ce5c37ad03484065366050c4b9d04688d84a4bf56569b30aad2d7dc9fee"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/dodocotales.json",
+      "bytes": 5802,
+      "sha256": "2f0db6fe59f67b93902729dec5ae0e09c848734d20681a56d89cdd2e3e33bac5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/dragonsbane.json",
+      "bytes": 3970,
+      "sha256": "88c59359b9757319060ca7f34b9dd78be9bdde92603f98301957b331b8f53e96"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/dragonspinespear.json",
+      "bytes": 5209,
+      "sha256": "357c08380a75551a06ce5a03926fe4171949502d1aba488f90af7912d0eecfd9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/dullblade.json",
+      "bytes": 1843,
+      "sha256": "7b50361aeac8d9909fa2b54c8fe4bba062e2b76b9e35d475a7f9c91e26fae4ec"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/earthshaker.json",
+      "bytes": 3890,
+      "sha256": "12930f6ad89f6f97e80200c4cb1779c13b04f20534def86e925c5de5d8ed83ff"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/echoesoftheheart.json",
+      "bytes": 6227,
+      "sha256": "c1c2401f92de473717d668c4966fbdceea119413ee5f5301f47454170c6e2802"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/elegyfortheend.json",
+      "bytes": 7946,
+      "sha256": "9287c8d73e51f05f9a7b576196964800103c935e0b279d80c2f21e6f5f619429"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/emberwell.json",
+      "bytes": 7245,
+      "sha256": "7edf91f85765c02e555b2cd912a61e4a80d13089791239e2d609ef811503cda8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/emeraldorb.json",
+      "bytes": 3790,
+      "sha256": "27e65c18c4166084cfee1d5da5c3d7b5e457dc651f6a1e5bcdf45f1c61435592"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/endoftheline.json",
+      "bytes": 4869,
+      "sha256": "a09dcf2adad0229aaf77de42a2cc31ef00c74192fbc473d02c9bf17326ea0433"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/engulfinglightning.json",
+      "bytes": 5461,
+      "sha256": "6ac09739eea0bc74e7b62d004683917a5e8b4100be05d33227a95ee4d29fdc9e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/etherlightspindlelute.json",
+      "bytes": 4805,
+      "sha256": "a2154e7033dd7b682c3ef7b42f6c3fe3d1a71e43a3cad19b8e0e9c749dc39e25"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/everlastingmoonglow.json",
+      "bytes": 6176,
+      "sha256": "8a8c09aef4470f01528bc3b592abb2c014c3ff0f2f03d63317f4dfa9304a21f3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/exaiphanesblade.json",
+      "bytes": 3400,
+      "sha256": "29ec45193168f11d983f86ccdbb285fc831fd4ba147a61c1879e799936f09f5c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/eyeofperception.json",
+      "bytes": 5162,
+      "sha256": "d199f323362f3609adc673e00e237f4040bae845f5494eb064f1c5d9befd82ca"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fadingtwilight.json",
+      "bytes": 5795,
+      "sha256": "929c21c1ee9a63752634e93b82d77454087ab6280404c90b6ab1c535c1b2feda"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fangofthemountainking.json",
+      "bytes": 7065,
+      "sha256": "47f63490a07944a8e67729c2362ff6cb363b5bf43465568a9e9cd464716aa813"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/favoniuscodex.json",
+      "bytes": 4750,
+      "sha256": "4d25c1b9f4cbd7173640bac68cc52915c418e2d8ff9b852c6a512fc5b5e56de4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/favoniusgreatsword.json",
+      "bytes": 4980,
+      "sha256": "878a725610b2df32bf094afc1fc33dd71eddf6099537aef87cf28ae1b119d9fe"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/favoniuslance.json",
+      "bytes": 5112,
+      "sha256": "d7280eeee29d3a5e48530617dc77d162311c950c7ba447f24d15129ee23f8b56"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/favoniussword.json",
+      "bytes": 4835,
+      "sha256": "426d2a67c440071bbd8f00278ff9b9035369ac8510057d79044fb7b5ad991953"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/favoniuswarbow.json",
+      "bytes": 4658,
+      "sha256": "f3eb09f2f9ac7b894c95a15f84e2c5f078974db981b5c8e6001be7fb4e1afa61"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ferrousshadow.json",
+      "bytes": 3886,
+      "sha256": "5f52668717c789ac4e4824834e0f29f1cfee6a3e9e1acc32a81a27b5e19d1ad1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/festeringdesire.json",
+      "bytes": 3978,
+      "sha256": "aa0affce4e9f79cbcd73b56c0976b4b066c3270e601dff657b71ce49a81d1843"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/filletblade.json",
+      "bytes": 3697,
+      "sha256": "0bb135be5707616260e584d0ec1e1774f93b26c8cfbee12ce383ba16a1c0155e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/finaleofthedeep.json",
+      "bytes": 6401,
+      "sha256": "6b01bdeebdcb6b575c72ae1b32b01090ba6a9f2505597612a9d226619b112e6b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/flameforgedinsight.json",
+      "bytes": 6669,
+      "sha256": "7b3dfb943a75ea67db57cbcb6e9ef79b94a9dd493735ce95d3dd003b08c8f751"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fleuvecendreferryman.json",
+      "bytes": 5901,
+      "sha256": "a8fa07c42549a6e2a00b609da7a783e5f15966db97a6c3b908558b22bf28ace6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/flowerwreathedfeathers.json",
+      "bytes": 6181,
+      "sha256": "cc33871c0c2c99fa617be3480d0a5818d9be607cb5b2fd414e224b61981a6ba4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/flowingpurity.json",
+      "bytes": 7355,
+      "sha256": "f49b46de3896f1bb469276ee2e903057bf17837b332e9dddf82d3145912520ce"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fluteofezpitzal.json",
+      "bytes": 3175,
+      "sha256": "6273469fdc4dc2a84782c0bf9b1a79e73f46f00be408eec8d1316b6d53430897"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/footprintoftherainbow.json",
+      "bytes": 3115,
+      "sha256": "0f021c109aa93c2e5826ce5e6fc4297c99d71c563dde5688286d0ccbfe55ca2b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/forestregalia.json",
+      "bytes": 6897,
+      "sha256": "585b0a8f4450c407da6f683ae08f8641f2fd4bf4c4403406257d5d40925f82cd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/forgedbythegoldenmelody.json",
+      "bytes": 9017,
+      "sha256": "95e186bed4d5cd95876ca1987ca30c6650f43935cf12c6b34b5df11e79e8b4e0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fracturedhalo.json",
+      "bytes": 6542,
+      "sha256": "a16180403d171eb439de37371bbb711b38ea2fe59864799ebeb07776ec5f1147"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/freedomsworn.json",
+      "bytes": 8305,
+      "sha256": "243492a0abb80eadb03eb5bfe0993c5dc3b662c2ef194b2b47658f6932247a99"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/frostbearer.json",
+      "bytes": 5690,
+      "sha256": "f6dd8067e0d3f2cd65116c09537fb71d27b9d587a3c2df24bf0e9772928cfc3e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/frostbreath.json",
+      "bytes": 6906,
+      "sha256": "e20a6d15a01a9a2b691043e8adf89fdbeef57ef444b81864112e415787298fb4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fruitfulhook.json",
+      "bytes": 6635,
+      "sha256": "c6ea068c3da618a1d73705fb702913ffc0383c0a27984bc9fdf1e794c7b50f47"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/fruitoffulfillment.json",
+      "bytes": 5606,
+      "sha256": "cb629497d94aa1f2d378ed547dc228ad595e5ed31e5137121910f2500daa911b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/gestofthemightywolf.json",
+      "bytes": 8360,
+      "sha256": "efa7d1abae9d25adb6ad91d3a1c20e25957a53efcd13ee003cf058e9b67ae21a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/goldenfrostboundoath.json",
+      "bytes": 8665,
+      "sha256": "cc577c9567fc94d4636d122148770f913cfa8c42f2429b2773b2e810d6013fd1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/hakushinring.json",
+      "bytes": 7326,
+      "sha256": "800c0d714063ba18f1466fafe57859583c42832879deae7339435de4478c155a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/halberd.json",
+      "bytes": 4136,
+      "sha256": "d94e36fc93da7e379aeae239d80613ba5d54d6c3c031f8b3538bee0357e811f3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/hamayumi.json",
+      "bytes": 4711,
+      "sha256": "311ebe7a5c90579970b8a64d44979f62dc6f7482165a873f943bf08de33ebd29"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/harangeppakufutsu.json",
+      "bytes": 8627,
+      "sha256": "bf18186e305ddb997cd188593cc6a53f8484cd6918cb457b66bd994171cea415"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/harbingerofdawn.json",
+      "bytes": 3489,
+      "sha256": "eeea8ea0adc4f5a620e39d5384a468cedfd2253521d88eb6b31f9d081154b3ed"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/hereticsmoltenblade.json",
+      "bytes": 8425,
+      "sha256": "92282b2531757ac286897ac46850188c3c5f2792bac7a9efb8e4134ea18571f5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/huntersbow.json",
+      "bytes": 1805,
+      "sha256": "30afa11cb5621dceac749dc3a545b18ecb442d0f05b55532facca70ac4cdb93e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/hunterspath.json",
+      "bytes": 5931,
+      "sha256": "fa7555892773b46a19816604518b10819253a6b27bbac13ae8513fa93b8b03d7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/hymnofthemaelstrom.json",
+      "bytes": 9164,
+      "sha256": "fe24f2aaa0ff8692dfcfc521c470e4e1e3e92da5b456c857616cbae045b73885"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ibispiercer.json",
+      "bytes": 6642,
+      "sha256": "6702ef32310c86a63e0d0ccd79d7f73ae9327f9d33b4ba98f4201eb2761f7eff"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ironpoint.json",
+      "bytes": 1784,
+      "sha256": "807a7f565dd157ee6024673c48cf5250552ebedaba44d03fea3617c01ddc5f75"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ironsting.json",
+      "bytes": 4455,
+      "sha256": "2fbe9427bbbd2f87d461a7aa82f500ec00451e373960d8b1f12be9946fcaff80"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/jadefallssplendor.json",
+      "bytes": 7026,
+      "sha256": "c7906a8add004978306488031889868935bda96deaeb61e9d88f5b503c717a2f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/jadevista.json",
+      "bytes": 6470,
+      "sha256": "7467e11e918be55a0a483abbdc5d16c6b136614be7ae7d71f94d48156182692f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/kagotsurubeisshin.json",
+      "bytes": 5079,
+      "sha256": "4512b9f574944489b19bee067208e6743e0b268ebd952bc73dfcd6aaed2b2bc4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/kagurasverity.json",
+      "bytes": 7612,
+      "sha256": "03fc2332859e31a5375cbe7a36efc1c316470a37efb9ad5d38ec82b66dd34ec6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/katsuragikirinagamasa.json",
+      "bytes": 5089,
+      "sha256": "f8641b6c6903e3a85bc16e1cb2513040ebb1cdfa025ff1ba31e3bb19386b8e26"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/keyofkhajnisut.json",
+      "bytes": 7887,
+      "sha256": "2eb31f720811949591cb94e76641d57c530020331c031e115648136d2a9e73a4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/kingssquire.json",
+      "bytes": 7064,
+      "sha256": "068c3727f54a940faff30f0f38cccb26f77188c688cfeeba2c9f39cb2bd88a29"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/kitaincrossspear.json",
+      "bytes": 4868,
+      "sha256": "37a8f359eadd02c49353afebc3ddc768a595faa3383be753e194b5c9eb30cd7c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lightbearingmoonshard.json",
+      "bytes": 5684,
+      "sha256": "a7d067108f65756fa0675cc7f30831eead79a2aca89321a4910a5a5822f5ea3f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lightoffoliarincision.json",
+      "bytes": 6482,
+      "sha256": "cbd134a3c589593ec5fda49684d27b9f270c44e60365016fbb62d717e9913ad4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lionsroar.json",
+      "bytes": 4137,
+      "sha256": "bdb1346cffaa9bdc9eb316af6719ccf66caf42e670189b6447d25c739ac16b1b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lithicblade.json",
+      "bytes": 4629,
+      "sha256": "b42211e8759c8a1952bef60db0ed4e36f5c478a59da8c230792a8ff3cf937d73"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lithicspear.json",
+      "bytes": 4646,
+      "sha256": "164e69d26499f4b7738e0c303468c495d34e1cc1fbae8800b2027b1360375f9b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lostprayertothesacredwinds.json",
+      "bytes": 4851,
+      "sha256": "f2d933f7bec38eb467cb589f9ba36ec2e371a487006c442d04f4245f31d4237a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/lumidouceelegy.json",
+      "bytes": 9574,
+      "sha256": "86310dfdac69336af896d99d1c704d096c86e27dea9d6109c42f07a018364f22"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/luxurioussealord.json",
+      "bytes": 4995,
+      "sha256": "b45fcf0ae103f8e08cd71b787b512d53646177586c526e1218a5bacc23a0fa96"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/magicguide.json",
+      "bytes": 3572,
+      "sha256": "fa0d46eab5f9b05d23e7ff85d501981a7002f6fb6e58bddbe8db24a84e624f9f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/mailedflower.json",
+      "bytes": 4851,
+      "sha256": "4e85d9983fee0d89de169b46b0a8aa5441a8895d83b1b9013fcabaeaaf77484c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/makhairaaquamarine.json",
+      "bytes": 6391,
+      "sha256": "d4132ffc111859c3c3708626c573ad20e7176ffee94f5c001f8b73e1205f4582"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/mappamare.json",
+      "bytes": 4499,
+      "sha256": "385a2c8da136905b129dc2fd143ea1d39344f5666da04c5e218492e4025f62ec"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/masterkey.json",
+      "bytes": 6504,
+      "sha256": "1d08e053a2e6b5279b374c18a02a5d12216b0544ab18599e1a5dff7351451817"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/memoryofdust.json",
+      "bytes": 5467,
+      "sha256": "aadbab679addd2fc84fa466370d3fe438243e3715019c8e153815097d50b92d5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/messenger.json",
+      "bytes": 3682,
+      "sha256": "93c733471ac22f608864340600773f7820678115d4a293d9f4bb339032528403"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/missivewindspear.json",
+      "bytes": 5375,
+      "sha256": "4b53bae08c819ef51806fe53ddab6d00eeb2eef488acbaddc7b76a83d0942090"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/mistsplitterreforged.json",
+      "bytes": 7844,
+      "sha256": "54cf91b3f9a96e78b7f2cafc641d743bb049d90b068089810deb49436d671023"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/mitternachtswaltz.json",
+      "bytes": 5751,
+      "sha256": "2514f347f6f306b93d2bb8512471f48ba0e259c722b552cecd4978759bf837a7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/moonpiercer.json",
+      "bytes": 6706,
+      "sha256": "3e601b9607555bf60737a2a6c27daf637c5aa54ee5cac5f9ba172abf843ce41e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/moonweaversdawn.json",
+      "bytes": 5983,
+      "sha256": "6c5d21a0c802592106abed86d3019abcde9521b0c75e3671f1746b16017f8e2b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/mountainbracingbolt.json",
+      "bytes": 6862,
+      "sha256": "2c0d0e94bcfa237a204f2a80b53a0330535a3a26470b52b7a0b8196c787aa0d3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/mouunsmoon.json",
+      "bytes": 5318,
+      "sha256": "e248a50e2ec7cec81c3706852de45bfe4502057b4b8f26745cc6b6f1d98813a8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/newbough.json",
+      "bytes": 7469,
+      "sha256": "c5b03215245e4133b8e3e742fd6dee40172292f685c02cd91664bec24045ae0f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/nightweaverslookingglass.json",
+      "bytes": 10284,
+      "sha256": "5d43aaec7323744bbe4ec965410e9ce89e54fdb968e5748a6c0f8f601c903457"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/nocturnescurtaincall.json",
+      "bytes": 7888,
+      "sha256": "176cfc49e1721321a1c2cfa616488a024de4cdc1c4a443d2fa39c404f7886c2b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/oathsworneye.json",
+      "bytes": 4575,
+      "sha256": "4fe059e07483215229354fd71e57e26d3daf26a46a3eb029fab1c872f66df4a9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/oldmercspal.json",
+      "bytes": 1797,
+      "sha256": "6049100b3b4bf5f9b5aa6ff248d44f0fe47428f3eb99342f7321f42da67cbbea"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/otherworldlystory.json",
+      "bytes": 3553,
+      "sha256": "b060fe272ec030aedc0381e3f2b551b8bdf549cf3641e89dd31fff0b0eb8b068"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/peakpatrolsong.json",
+      "bytes": 7680,
+      "sha256": "0c928724d1746d2ebd1aec519e5dbb5a71ac3fd50e7f71be092139125148a2e5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/pocketgrimoire.json",
+      "bytes": 1816,
+      "sha256": "a4a628f9c5f6ecc2a9f46c45121363f26847d24b1d9e361160c0a6c723e3dcb3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/polarstar.json",
+      "bytes": 6086,
+      "sha256": "68dba7c2e32dc2bb0844652e807327fa679b1a59ce907272185457d97f17c29d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/portablepowersaw.json",
+      "bytes": 6611,
+      "sha256": "901729805b4c91723df5bb74a2eb158e4f566a97fa6dd5bc4259c3e60b255877"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/predator.json",
+      "bytes": 3488,
+      "sha256": "1fa372c40a1666ae9295236482ca151221f610984c04ed48c441a2baabfecc19"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/primordialjadecutter.json",
+      "bytes": 4478,
+      "sha256": "bf2e633f9c57f0c2a111252dec9da75901aec46f8138de59695d42e62956884b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/primordialjadewingedspear.json",
+      "bytes": 4531,
+      "sha256": "83d8648c6d41c8581e1b281b580c520571e97b24ca2c2da4d1d6a49e5f1ac6e4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prizedisshinblade-01.json",
+      "bytes": 1604,
+      "sha256": "121c9e7ce2e0377f1e59cbed07744b3d0bf84f1feeab3122ee29c668d457edc4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prizedisshinblade-02.json",
+      "bytes": 1661,
+      "sha256": "960599a1e171df945422847235b8f7606ea19b2fc3f75d94a8ef05e6365d4057"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prizedisshinblade.json",
+      "bytes": 1653,
+      "sha256": "e356d246b7232c7c7138c5a1d21974bf2c9a1181b00e365f75b8e26cace157d2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prospectorsdrill.json",
+      "bytes": 6258,
+      "sha256": "530d7920ceb98d9220d03d4ba0b207f2effca6353b07a4a42d2907e211e8470e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prospectorsshovel.json",
+      "bytes": 6778,
+      "sha256": "6b6aabd94df5b5e2544d643b8e10202104594db3d59bc6346924ecd2ba21b90e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prototypeamber.json",
+      "bytes": 4611,
+      "sha256": "32d207f2704033817856f00384ca28c558594734769fc4c7053247e8b790686f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prototypearchaic.json",
+      "bytes": 4608,
+      "sha256": "e7ff59647c8d5f04d6a2718fd529b0ea4dcdf4accde3d4f8b3c4d46eb6e425c0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prototypecrescent.json",
+      "bytes": 4200,
+      "sha256": "934f30c7efbc63afe5f00e2d8740adcd29f99362d894459b39e1fb786cf43f12"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prototyperancour.json",
+      "bytes": 4338,
+      "sha256": "3e7b95aebc28710d446cc177420fb16ff6667b25891c9b430d0eb264eea7f46b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/prototypestarglitter.json",
+      "bytes": 4458,
+      "sha256": "5fd934fed372da615380659ff9fc9b9924721041b7886dcbca886dc86a273e83"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/rainbowserpentsrainbow.json",
+      "bytes": 6617,
+      "sha256": "e66f2d66b701b86b40ffbe2d84906f4f7e5ca6e067f9b6ab61233fe9e0259c10"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/rainslasher.json",
+      "bytes": 3939,
+      "sha256": "4fcfa6058df43104ba780ab4e473b48135c1fa4c718a5eea6717406396a46152"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/rangegauge.json",
+      "bytes": 6185,
+      "sha256": "25265016b702637d6dba886ded833f1268131ab561c1b85368f00b65c8ba9d80"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ravenbow.json",
+      "bytes": 3421,
+      "sha256": "e8dc8b9233346ef18c120014e5495e0430ab1c2f7e7f428e588f3f53457bdf59"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/recurvebow.json",
+      "bytes": 3189,
+      "sha256": "e65cc62009b5da383121bae1080fa6c14a1524e6b4ff9bc6b872c483745da038"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/redhornstonethresher.json",
+      "bytes": 5749,
+      "sha256": "b4739bc044cbabd5f6dff2cd6eedb10e11d05a9a006e5a0ae0a1ba9ba27143e7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/reliquaryoftruth.json",
+      "bytes": 8858,
+      "sha256": "9cd538b718b2dfedca51c37a66e8d4a0c4d208d9dbe402c02e38e1c1968bea88"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/rightfulreward.json",
+      "bytes": 4846,
+      "sha256": "db9b93b31015c197a085eb416933d0058788c5ff4c10d598df1baf6f3bf2fcb2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ringofyaxche.json",
+      "bytes": 4164,
+      "sha256": "ebb01529c70d69acf27bcdbe73d503c4b44210d9bff201c609cea630e40ea44e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/royalbow.json",
+      "bytes": 4589,
+      "sha256": "802ef4ed47d20f146806c1c1363c95f33113e120868a6bd93a475e24a878e3f1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/royalgreatsword.json",
+      "bytes": 4343,
+      "sha256": "f714db2da94eb9417c121fb842443c3d08872dea7309dabb78420cbff5375047"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/royalgrimoire.json",
+      "bytes": 4536,
+      "sha256": "a9f7aa9ca4a4a79605f306d30202f5641b0fe953b04c09a4ff87b4c18d9efdc3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/royallongsword.json",
+      "bytes": 4379,
+      "sha256": "78b90c91cb4eb4056eb75286698951b4534ab019ad0c8663c37257b1d217b66f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/royalspear.json",
+      "bytes": 4532,
+      "sha256": "62c1470f6cdcd7c1c4fd18cb524dce3cc39cc51e0f0bb4762fd9036d06bb9dfd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/rust.json",
+      "bytes": 3892,
+      "sha256": "34d9c96182c1a426f0fba692b37ec55799c95039f94e42d464e74ac05a6f57ab"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sacrificersstaff.json",
+      "bytes": 6831,
+      "sha256": "b84e0f4ac4b793a75c3b181b2bff57ae133db84b2a55bb0c3beca689e1a9a1bd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sacrificialbow.json",
+      "bytes": 4408,
+      "sha256": "5a1b3eef524cd67068637f1cf3f3adc04ca808a844b23f3fcf2119610e468a0b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sacrificialfragments.json",
+      "bytes": 4386,
+      "sha256": "80288f1adf731994fa0ae33aeee00dd51cb53da2dac32c1717be4a56f55faba9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sacrificialgreatsword.json",
+      "bytes": 4611,
+      "sha256": "f83f68ed54c595ed8218a8fb501ae68963ed9d3f3595f14d0ad42bd31b0e13f2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sacrificialjade.json",
+      "bytes": 5140,
+      "sha256": "1c9e0757aeb3d70a267d754ca76987d56b89e0eb6b38ae4f30c2c90130976034"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sacrificialsword.json",
+      "bytes": 4282,
+      "sha256": "e3cf406b35965ebd2d045f7fe7813e549f479247882eaee31f11b00895823e14"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sapwoodblade.json",
+      "bytes": 5790,
+      "sha256": "d4f8b68919c8077df5d004ce1bdb7ec360cf7a642dbfee9a46edaefe634487d9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/scionoftheblazingsun.json",
+      "bytes": 6691,
+      "sha256": "085c9ffb96fc5551d330f99814eed65918f66e1e5501846a7d8b3cd395381651"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/seasonedhuntersbow.json",
+      "bytes": 1821,
+      "sha256": "e76a282b32db6a7a53e334f7fb842c0b719f13df6ca4e6fe4f44136c88589d72"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sequenceofsolitude.json",
+      "bytes": 5656,
+      "sha256": "57dc059a88389440a2050c130ad2852c2adb57071b063229ced717aef5d72eb6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/serenityscall.json",
+      "bytes": 5319,
+      "sha256": "44b0b24f32caa2573f640bf421dcae823f1e143b95b1ecdfc20b7ba927c8d8a2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/serpentspine.json",
+      "bytes": 5209,
+      "sha256": "d2031e977bf6fb018589b1ea45d30520989f06561b2285e973879fed383e4a2c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sharpshootersoath.json",
+      "bytes": 3414,
+      "sha256": "8bb7172e1d06087746005b023c2358eb420e76fe71cb634c85bf422c3a281e67"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/silverlight.json",
+      "bytes": 6848,
+      "sha256": "2395289d933212b6f7ce6f0b20366632a9a9502a075998d092b76154cd06199d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/silvershowerheartstrings.json",
+      "bytes": 9004,
+      "sha256": "bd9e51b9bcaadd71baf8882b94c2d11835ee0bc67055f46e3321147918f6e5d2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/silversword.json",
+      "bytes": 1751,
+      "sha256": "fe1adb00e53dcbe006cc78915bd83b2579545c212db97c3f00c72a55f4147d54"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skyridergreatsword.json",
+      "bytes": 3847,
+      "sha256": "f5ffee6adcd62f9de390bc8764da2a003831b1ad8d04fb23bd8d655ba000b4b4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skyridersword.json",
+      "bytes": 3555,
+      "sha256": "18cbc78d640d52be621b230e6d3c8c303abfae78cbe15f35c560f3dbb873972b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skywardatlas.json",
+      "bytes": 5326,
+      "sha256": "105f285369a832978170e225d398f5942f07d353471f8eae5e55156a21fe2d91"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skywardblade.json",
+      "bytes": 5596,
+      "sha256": "5e399583ceb27c1fb5145f7e9a14c651c7bc4d78eea427d29bb4d96bb540addc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skywardharp.json",
+      "bytes": 5148,
+      "sha256": "1cdeb8758ddf99b445dc4f709f4b233fcff533cbe6197a008daae024b71808c7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skywardpride.json",
+      "bytes": 5690,
+      "sha256": "d649189c401803dc05315d08a983c3371971fcd63fe16dec10d9a796a9414ba4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/skywardspine.json",
+      "bytes": 5820,
+      "sha256": "39248090ccc86dbb76ee047ffd77e0dc1094651904823bf740387a742d6b20ab"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/slingshot.json",
+      "bytes": 3982,
+      "sha256": "b98008129f391ccaf7a42fb1751933bdd93fb130f96a4006ff1822b021b6fc2e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/snarehook.json",
+      "bytes": 6848,
+      "sha256": "805a2427c0aeade380ab099df46171ad40ac07dc3da739aef129bdb4c62c4a24"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/snowtombedstarsilver.json",
+      "bytes": 5977,
+      "sha256": "4836a177f443a5bb37d16b148bf6c51253b74359106f8b4045184066bc0fa8ac"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/solarpearl.json",
+      "bytes": 4653,
+      "sha256": "65eecb39b8b053a90d7851aeb0a169db2cc4baf8a04d043ffb3ea0c142c1da67"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/songofbrokenpines.json",
+      "bytes": 7651,
+      "sha256": "55fc9a6ca72f7a5eaf800a9ff7c774fe253d967017666680e20c0178525e2470"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/songofstillness.json",
+      "bytes": 4796,
+      "sha256": "6acfcedf73062a8c8cc39f7bf379c558c80fc0a4b43a4868726ec496da124def"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/songofthevigil.json",
+      "bytes": 6593,
+      "sha256": "825e4e627739a15cf5cc9d9a37e758e2ed3a49b9ff980dccc42761f14fe996a8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/splendoroftranquilwaters.json",
+      "bytes": 5246,
+      "sha256": "7e53a2a070e724ce788675deeca840fcd98c50cddb25aa5e0857f5f74d6b6bd4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/staffofhoma.json",
+      "bytes": 5343,
+      "sha256": "ab6f04f54d03f2b1d9febfd3b17db2d9263ef23b4ef46abeefacd6b161cb6ff7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/staffofthescarletsands.json",
+      "bytes": 6857,
+      "sha256": "29f353799846a2f50543320441ef23b2ae294642524165cd569e16b5c2cb6ca5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/starcallerswatch.json",
+      "bytes": 7172,
+      "sha256": "5f8e6a7db4979356241fe34623098bd90d80e7558fdad0eac331f7c94b0ca62d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sturdybone.json",
+      "bytes": 7116,
+      "sha256": "eb7d98093ea4c97e2c3a52f55534fbbb1da75e36c878c58f9421370f7b54e116"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/summitshaper.json",
+      "bytes": 5545,
+      "sha256": "eef59b96871728b821b23120c0749ac3b29a7b667b3eba7e845921eb421308e3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/sunnymorningsleepin.json",
+      "bytes": 7387,
+      "sha256": "66bd0814da3fe441bfdb30f0ee432df2cabae57ea77a0647680b203411c3c7d8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/surfsup.json",
+      "bytes": 9996,
+      "sha256": "a284d121b4eab33163981a0283b90fc4b04da585cf2b705b05594372876a696d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/swordofdescension.json",
+      "bytes": 4535,
+      "sha256": "21beb0cd6cb23bc021a5724175265313f0c96dccf183f6ab2793849a1d29b9c0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/swordofnarzissenkreuz.json",
+      "bytes": 4785,
+      "sha256": "7fb365b6103959e84d4cab39985865de6b62da3541d57f38c8dd84b1d4c078e3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/symphonistofscents.json",
+      "bytes": 6962,
+      "sha256": "a24167366d775d38db00ee4cb56977507ead47046a5b6bff6b8e8e343f8b007e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/talkingstick.json",
+      "bytes": 7326,
+      "sha256": "5ffbc9e1fd9b9f0e5914acc5cba586c47da1f315f153991cd3eaf94833c33113"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/tamayurateinoohanashi.json",
+      "bytes": 5178,
+      "sha256": "5d1e8b6545c55de5c519ca12449769e6ac12ca9ec80ff1bd3e7407c7bc1b89e0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thealleyflash.json",
+      "bytes": 4536,
+      "sha256": "c1e1d8f24b649997c39e391a37e6f15b90282c2803e225e3a3c2fc97662991e7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thebell.json",
+      "bytes": 5180,
+      "sha256": "93ba654d21c2e5cd4a2333a13efb960c97811f99e6e4047160fe20e58dad1452"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/theblacksword.json",
+      "bytes": 5415,
+      "sha256": "59d44c48c212f4e909f70fb11617810cd575a56d09ae8c7e50e140d301da4163"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thecatch.json",
+      "bytes": 4446,
+      "sha256": "285c554976185c23c884c815d40666ee907d14af5d0085a9c39002bb05609225"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thedaybreakchronicles.json",
+      "bytes": 8994,
+      "sha256": "6295d6b560beccc2fd9301ef925311da865b18b50518ac04d9350cabd58fa787"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thedockhandsassistant.json",
+      "bytes": 6489,
+      "sha256": "cbd090ce0818d89a664f1f18014ff997531aec2ebadac4a24e0adec7e1d5d493"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thefirstgreatmagic.json",
+      "bytes": 8075,
+      "sha256": "b925df09fa4d8882598d0ee1fdba3456386dadfb04d73c95714ab56d4a474f0e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/theflute.json",
+      "bytes": 4780,
+      "sha256": "5a8dafc81992cb350696db285245c6d57ad2ac36e36b1174110774fa03e45df3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thestringless.json",
+      "bytes": 4225,
+      "sha256": "6373f6533dd00ead65ce66a531deeac3c3528cdc2ad19480c01dfd9012f1e79e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/theunforged.json",
+      "bytes": 5083,
+      "sha256": "ffd5e37726ba9ac41d547fedd36d33fe8dd03b08cb244608cb809c91de5dd813"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "bytes": 5421,
+      "sha256": "fc1666150448c9f3725490fdeb60dd578b8dd9fdc22c3ea6ef70f1fe971c9f6a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thewidsith.json",
+      "bytes": 4828,
+      "sha256": "479aa26cec587438ec40d73e2a22cec3444e256d5f247ecfe3ace428bf03b9af"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thrillingtalesofdragonslayers.json",
+      "bytes": 4060,
+      "sha256": "726b25b56bdf9b572392a3abdf714c8ee2efda9403ae322d8508084280367282"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/thunderingpulse.json",
+      "bytes": 7909,
+      "sha256": "d985476813af878e0eafc196ff5ee9261c5e014c984cc955683852cc6c83cbcd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/tidalshadow.json",
+      "bytes": 5587,
+      "sha256": "c37dcd4300a4f0ea7f37fc27cb157f5a23c4c2c935bc1470d155b72b6f39f5d0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/tomeoftheeternalflow.json",
+      "bytes": 6856,
+      "sha256": "f6b6fe5d5206c7e41ae7cdc08c69abfe44f6275a0e76222d542a2f2ac2a0cbf6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/toukaboushigure.json",
+      "bytes": 7482,
+      "sha256": "b0d69d13b4e1a8208fd06878edcbe557deca799c4ef9b2bb4a8b3daba7644c6b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/travelershandysword.json",
+      "bytes": 3419,
+      "sha256": "d54b219619dd69c829423aac386ee4a72a2fe4bb5dac5ca7a9ccaf273c20301b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/tulaytullahsremembrance.json",
+      "bytes": 7293,
+      "sha256": "1ec637bc667e1596cdc74e8bc4c18227cb14484110bcbc94099a963dc005a056"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/twinnephrite.json",
+      "bytes": 3370,
+      "sha256": "8cfd4b7ada5529551ec21b35c6eabebed35a4ff4d8561922b2c7996feb02cb90"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/ultimateoverlordsmegamagicsword.json",
+      "bytes": 8612,
+      "sha256": "f4c78f4f607c60b2834603739b0305d224a58b5ceb295782516a27c4c9e848a0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/urakumisugiri.json",
+      "bytes": 8731,
+      "sha256": "0679cbb26f13d1421547c7e2aa90f1b6ee08788e3eeafefbefe3c2daef1471a2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/verdict.json",
+      "bytes": 8525,
+      "sha256": "cca9c3d531a7e98e0e346cbd6025bf815140c13aeca91678c99bf8ddf35eb11a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/vividnotions.json",
+      "bytes": 7315,
+      "sha256": "372cb85f928060c4f68bced7e448293fadbefde9247eff9d3104e79c84c4bdcb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/vortexvanquisher.json",
+      "bytes": 5370,
+      "sha256": "2dc7a9e69295cf98f7cad635eaeb78c81c5d39f537724fa7f49e3a7396fb9545"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wanderingevenstar.json",
+      "bytes": 5896,
+      "sha256": "7d3cb00975f1967ee9ffde4c025500b5d56432b269db4217f269fd805bebf5c8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wastergreatsword.json",
+      "bytes": 1790,
+      "sha256": "1067e86cb15fbfa29f400b30f8ac654240b1a436db23e0dad814dbaddd7409e2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wavebreakersfin.json",
+      "bytes": 5138,
+      "sha256": "a31b0a1a7c5bbc570e08511661bbd8705cc77f86753911a6da9d06b9441f421d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/waveridingwhirl.json",
+      "bytes": 6978,
+      "sha256": "6118cd23badc8810fc72c01116c56315ba59dd60d70c86f09e3d81d2452737d1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/whiteblind.json",
+      "bytes": 5138,
+      "sha256": "6bc5dd8a989a6f9360a252b9c625bb86346fa56ba60b53e7e0212ca033454b97"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/whiteirongreatsword.json",
+      "bytes": 3515,
+      "sha256": "93e6e163f69851859a353416faf7e4aaf21529308d92307feab979c02a9e733b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/whitelakefrostfeather.json",
+      "bytes": 5869,
+      "sha256": "d2806a36373941b11413a57710cd2174fb4903ab578786fbf4966f4a953f3fef"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/whitetassel.json",
+      "bytes": 3467,
+      "sha256": "863a085a97563894dc10ba78d12016948bf1d949afc80f51b758ab2955716479"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/windblumeode.json",
+      "bytes": 5449,
+      "sha256": "ff4ae8f5f6260300021b14baba78e907e13e87463ce1b72dcde139b6059b3798"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wineandsong.json",
+      "bytes": 5899,
+      "sha256": "0eb21248dba149351a9b0a772bf5e67887fd20ac18eeb39d117816b7b94f1d3a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wintersheavyheart.json",
+      "bytes": 9369,
+      "sha256": "03b68e93a1e4b1291b2389a8f618124c4b135e6289258ee1da89ca10d5befe8b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wolffang.json",
+      "bytes": 7393,
+      "sha256": "88c4696557267c4edaa1ff4a3757c1eb0e5b34243c1687e4c3cda65a63ee3343"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/wolfsgravestone.json",
+      "bytes": 4813,
+      "sha256": "a3396b4b3ce2e51f85db11ed825df07107e8ee6f7b29a707d9a4fcf71c849d4f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/weapons/xiphosmoonlight.json",
+      "bytes": 6683,
+      "sha256": "55c601448d12d330e28a9bd572a927d7a50242b77e9028ba8e54081b080405d3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/adaycarvedfromrisingwinds.json",
+      "bytes": 11482,
+      "sha256": "15f6ad284448b73af4e0c100a254e54ba9f64b35580781c21fa8c55a01f99082"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/adventurer.json",
+      "bytes": 2816,
+      "sha256": "76a97c1f2cef6652671052a7301682b19726139317d8405b9994b466140d152a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/archaicpetra.json",
+      "bytes": 3871,
+      "sha256": "2cfc1d9a52f96fb17b3292127a3767dd29ad1340a5c0db37e393c4541b22c0a8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/aubadeofmorningstarandmoon.json",
+      "bytes": 7230,
+      "sha256": "78bfb28e9c67eaed777c317f0c0a59fb8137fd7904067f445254d57f94ddea00"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/berserker.json",
+      "bytes": 2949,
+      "sha256": "5f0c200c865715c18700b7e5972301f9c5801e3ec14e8704b69b9b5ece65a66c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/blizzardstrayer.json",
+      "bytes": 4878,
+      "sha256": "568e85469f376fddbd80ec5df8666087caa5e11c10e3df3cabaa3deaba22da8c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/bloodstainedchivalry.json",
+      "bytes": 4074,
+      "sha256": "fd6a7fa5df4162a2aec1c1864d0f51f0475fec276c4ae5c6f1d974d8d1a698ca"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/braveheart.json",
+      "bytes": 3436,
+      "sha256": "c8f2ebc08137d95c1b91e34cfb0c64c01c75013d362e5d7c4ce1fbb1de3a7b19"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/celestialgift.json",
+      "bytes": 10992,
+      "sha256": "781f7b8bcb4f556f0bc0520c6d1ed44022cd7611c1787495cb29af1f3144c2af"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/crimsonwitchofflames.json",
+      "bytes": 4034,
+      "sha256": "42cc19a44b32a5d0257ee3c34ea6e379fb904519d38810e14f1da13ecab8e701"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/deepwoodmemories.json",
+      "bytes": 9436,
+      "sha256": "7265b39c2640ef52a627984b925fec79ab12503b2a5196105ae5fcff4847e0f6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/defenderswill.json",
+      "bytes": 3292,
+      "sha256": "c357b422bc384342c7aaab8b80a8a24808d89ca04556727cf5268e1577007187"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/desertpavilionchronicle.json",
+      "bytes": 10053,
+      "sha256": "bb72d337fe2f0e0564cf52f9693262d789b82d8347b580852a090f601636c5c9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/disenchantmentindeepshadow.json",
+      "bytes": 11772,
+      "sha256": "dd4eff9ee56fc251589c9aae868f04a3e6fd9fe52dc2e358ddf4c8e50bb83fe6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/echoesofanoffering.json",
+      "bytes": 6853,
+      "sha256": "6dcaefd96b1181535594cf64ab4d1f7ce4def16433f7d48098029b82f1eae237"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/emblemofseveredfate.json",
+      "bytes": 7519,
+      "sha256": "8e19fd4d973f6c0ec1c7ab4df513d216469e778bd7a7addb74dc494199b82a0a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/finaleofthedeepgalleries.json",
+      "bytes": 10081,
+      "sha256": "ac91359d27fea80cd4096a8053d331969dc6aca629fabcde24c58f2249a5a689"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/flowerofparadiselost.json",
+      "bytes": 9283,
+      "sha256": "d04050f7ef7b67f756c3443144d8c4342b838861f8850c1c3f79ee1711c6b5aa"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/fragmentofharmonicwhimsy.json",
+      "bytes": 9317,
+      "sha256": "0b66f03246525ff7f72d7faea61c77e34303cfbbf798ceb514f3c4100b551cc4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/gambler.json",
+      "bytes": 2871,
+      "sha256": "e11021eac702f2967d2687346df83a5cdcf7a8b52ccb4b5ad77735b60bc1c27d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/gildeddreams.json",
+      "bytes": 6357,
+      "sha256": "cbd8b06c84f6a62b73c22a9d5b42981fafdd2511bcadfb9c0712b2060f4dbcde"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/gladiatorsfinale.json",
+      "bytes": 4625,
+      "sha256": "8da834d0e32e1ec44bd0f7a34f84a4f1a6485dd02ebd07929f4a4c3bc8b7033e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/goldentroupe.json",
+      "bytes": 9005,
+      "sha256": "f850aeae5a4fd2d94f2247704eda568b9796c0cc20f9acad3c11e990e8448fd6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/heartofdepth.json",
+      "bytes": 4991,
+      "sha256": "efe3e8b218cd0ff9b126fb6149e9736cfee374687533409e5b818f469e5fd9b3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/heartofthefurnace.json",
+      "bytes": 10429,
+      "sha256": "1c4f2ea37c35cb43b67d2a160f8faa04ca0dd4ffc774ba8a73db525abeae8fe4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/huskofopulentdreams.json",
+      "bytes": 7637,
+      "sha256": "a466d04d6ef62973ea2d1ebdfd1af07a771b7c7f66b3b9172ff50c93580a96d7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/instructor.json",
+      "bytes": 2955,
+      "sha256": "158f243677e2cac1b544fcbd88713fef510362ac1c01869be4594efbb47af807"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/lavawalker.json",
+      "bytes": 4193,
+      "sha256": "de408e936a7c2554e42198f09b45a036ac2ec840f09cde9b1220b1a889211cda"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/longnightsoath.json",
+      "bytes": 9609,
+      "sha256": "994d8250fd317bd0fec4d54a28f833324bb6c7ad611eb5fae479652dd58c5f0f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/luckydog.json",
+      "bytes": 3134,
+      "sha256": "3df9a7c0ad359bbb76d0274a1c833f005a45d447ef037c3cbfa6410da92edbbd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/maidenbeloved.json",
+      "bytes": 3389,
+      "sha256": "52eb9cfada13c2a43f3380ebe1ae95647dbcc23920a93dea01b09783f3ec2478"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/marechausseehunter.json",
+      "bytes": 8506,
+      "sha256": "66b6ca1830a445ba3ffe29e765fd37b9dfea7fefb8384560a48e3ab1df44a2a3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/martialartist.json",
+      "bytes": 2701,
+      "sha256": "a5d7c1e65d648497390d102e111b01d22d97f243af16e16d632a6d2469cf66f3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/nightoftheskysunveiling.json",
+      "bytes": 8434,
+      "sha256": "2e33030c2a10b68b9bdc08cda29cdd555a9d9c5bbb9e37c5cfda2e6828c38e85"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/nighttimewhispersintheechoingwoods.json",
+      "bytes": 11864,
+      "sha256": "9f67bd2d7ce8f34c14114bc72e3ea97e71fe52cdb5c50d296f9b376f530f31df"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/noblesseoblige.json",
+      "bytes": 4179,
+      "sha256": "b34f917aac259616bc4c7ed067e39a21f92fadcd719bae90ab6c2affd2e94609"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/nymphsdream.json",
+      "bytes": 7613,
+      "sha256": "d07e720bf2c2e5789b9379c9684705f84d876b785af44dfdaee2ef1513963de4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/obsidiancodex.json",
+      "bytes": 9793,
+      "sha256": "77124283c25c14ad9f7736438e6c8c335bddc416b7ba128c37b50e28b5086726"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/oceanhuedclam.json",
+      "bytes": 5619,
+      "sha256": "e2ab14b9383840a88c6dec5085c9aa24901dab4b72f623c92f738eaec95ae5be"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/paleflame.json",
+      "bytes": 5918,
+      "sha256": "aad597fcbd8c6546a4f4ae2af03ca01b98c53fcf54c0a60b12a74f046bbbf96b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/prayersfordestiny.json",
+      "bytes": 1054,
+      "sha256": "9c1a2b8847cec7d883c013f061ffe119d8d185b0f31d54dd2efb91a575f43701"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/prayersforillumination.json",
+      "bytes": 1042,
+      "sha256": "b0f0fb8078e6930a49da459b7b2ba95eda1dc3c2c74187143e925acee8c04836"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/prayersforwisdom.json",
+      "bytes": 1104,
+      "sha256": "bbd88ba14687df50658ddbd4a6e19d08a34264dc939d4db5892fca4184a9d427"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/prayerstospringtime.json",
+      "bytes": 1189,
+      "sha256": "fc7c98478fce64af46429e63860b8b971035335f220a4b02e2ff1a2b27e86bf2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/resolutionofsojourner.json",
+      "bytes": 4358,
+      "sha256": "88ed5876205ab5f28554fa4ceb46aa2d24bc7b0a100cee64168d9f18523b6f70"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/retracingbolide.json",
+      "bytes": 4809,
+      "sha256": "930b480335b509826c41c25d775fcfa1c6f12b3ef38d98d1009126a85dfd496d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/scarletproof.json",
+      "bytes": 23323,
+      "sha256": "0a35da3e68ced583aa27953e7d5e28311414260e6ec525fb3372d687482cf3ba"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/scholar.json",
+      "bytes": 2957,
+      "sha256": "e71e2bdd906385e630dc93f1239efa306334ae5cbaff4301facf6fd359ddd5f4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/scrolloftheheroofcindercity.json",
+      "bytes": 10511,
+      "sha256": "fe3f91845f634ab87c2d5c4c4bd097b18589cc9b6bb1145ad0ff3ae262bb90b3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/shimenawasreminiscence.json",
+      "bytes": 6873,
+      "sha256": "10567bc8c5cb83befbdc113ad156bf50e6de7f0c9bd44b6cf188e77867dc6d09"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/silkenmoonsserenade.json",
+      "bytes": 10070,
+      "sha256": "ef41b00c5868985fa6ab47a0dc96252e8d7d3c58f4ea352fd1bcacf3ec71fd10"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/songofdayspast.json",
+      "bytes": 10069,
+      "sha256": "a81f2387a2118d4cc9ca7b8ede3c928311cf24bc7524b700de3c0fdd3ebbb715"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/tenacityofthemillelith.json",
+      "bytes": 5339,
+      "sha256": "3acf250a358fb0bdf18262d93419f543a6d562b29f62e30825e45e72355d0f4e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/theexile.json",
+      "bytes": 2865,
+      "sha256": "9e5ccfc45471369594dc3ca4cc27b860ca9d0e900317b7377df600b518c9f277"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/thunderingfury.json",
+      "bytes": 4949,
+      "sha256": "0319755c3ea7ff594344b721102fa20daaebe50f7893e483bcfb787ee0783968"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/thundersoother.json",
+      "bytes": 3702,
+      "sha256": "f68c3a9165e10287400dca58f9de02719ad4369e7ac7fc66445535cfaa6a0608"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/tinymiracle.json",
+      "bytes": 2066,
+      "sha256": "b7c8d111d04fb0c25799fbd435f8404949992bf7b80f1ce59814eedc2e7e9e4d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "bytes": 2447,
+      "sha256": "156e4606a69b00d1a161073182b6f214aac518cc84d3ebfe8e0096fb83362f39"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/unfinishedreverie.json",
+      "bytes": 10710,
+      "sha256": "61e7079ffb43325aa9c7f055d83d94748f5a0cb63fd20856aba7bb53b4ec297b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/vermillionhereafter.json",
+      "bytes": 5940,
+      "sha256": "c4e27a6238d35e5f5d3754c2f5ea1be89d52935da17f85efa60196ccd5b1bb91"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/viridescentvenerer.json",
+      "bytes": 4392,
+      "sha256": "390fbb410c225f5d3766891cd5c992e8acffa1d1fe203590420318a2d4fd7538"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/vourukashasglow.json",
+      "bytes": 7378,
+      "sha256": "b7fa008d51946f365823c80251045ada906dcdff2f4da22a4bbdceb093781942"
+    },
+    {
+      "path": "src/data/ChineseSimplified/artifacts/wandererstroupe.json",
+      "bytes": 3728,
+      "sha256": "54f8be54cce0afb4de0b9f111137ee3418b2e46bad2f7380fc8e37e053f94d04"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/aino.json",
+      "bytes": 3410,
+      "sha256": "36b18d0626f1dc6c93af118e154e84f95e6d58554c065821a35b9f15f008dcf0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/albedo.json",
+      "bytes": 2510,
+      "sha256": "808940b85e81614de550c475fdd8af2c40509e163072712dbb814efc8c7ffab3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/alhaitham.json",
+      "bytes": 3184,
+      "sha256": "0b25e037fe9702c54298e281f807593191a7b684aea9ccc5ef119f3989ce5625"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/aloy.json",
+      "bytes": 1075,
+      "sha256": "a909f99d9736776fb26f225f2ddfa2506ff07dc41d58d58e200dafb4231560d9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/alyosha.json",
+      "bytes": 2546,
+      "sha256": "faa98a771dc349a48921c913200bafb4e0f7a02078f727964458262f29c77a49"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/amber.json",
+      "bytes": 1840,
+      "sha256": "c77f329d44954098e6be9520fd2b3e2cef2dd7b5253a9e3f9c6cdf1326b3b555"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/aratakiitto.json",
+      "bytes": 2605,
+      "sha256": "ff6bff7b3ff4b5cf74b04dd08ef34c8dc78acb09d0e477873a2eb38a1b989ab8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/arlecchino.json",
+      "bytes": 3069,
+      "sha256": "bbe4288a4e0765458ad4f0af0e9922b8173187aaddc1aa795189bf2660c6cd0b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/baizhu.json",
+      "bytes": 2565,
+      "sha256": "1d07352a6ded4ba50afe6de57a80ca0a5ec436e0e36157425db7000b5477b8f1"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/barbara.json",
+      "bytes": 1923,
+      "sha256": "ff5ce89289825d78fb6ac619c507bd70640c0d139fd10211ecd4b3c785dcff83"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/beidou.json",
+      "bytes": 1666,
+      "sha256": "86880a7a8b60bfc23c5d462c29b8da08750a9115d751ff95e453f74d6086b4fa"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/bennett.json",
+      "bytes": 1972,
+      "sha256": "d04542a59cc3869c4e1c8ba896545576dc2ed675d4bdd9391303b6034aa652b5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/candace.json",
+      "bytes": 2180,
+      "sha256": "72ec37e0c7484464c23ccec25253f4573e45e7f09213705b2b8280104f4ac9c8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/charlotte.json",
+      "bytes": 3164,
+      "sha256": "98c49e594147dbf7e5ea69b7269196ff29de25aa7fb00c0d07767bd297e48926"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/chasca.json",
+      "bytes": 4933,
+      "sha256": "83462621afc480abb7ea3a1df24114a875bc9803b9d5cf896b3ada14665dd101"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/chevreuse.json",
+      "bytes": 3186,
+      "sha256": "98ba2b6cae1ad4d99b970801d5885cc7a0f873543fb731c872419e2f2b1472ea"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/chiori.json",
+      "bytes": 4095,
+      "sha256": "2e1369a0149adf4c057ac77f52701ab28418e04468d10f2fe063cad63e12bb0c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/chongyun.json",
+      "bytes": 2026,
+      "sha256": "00d6775ac30cdfaa66ae2fde1dbb3d75547bc30c1ea0b1f8ac2fe37c60284d31"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/citlali.json",
+      "bytes": 6093,
+      "sha256": "811999889afc09b64bcffe78e7817e40407cb5ba30ca989651ec595169b59890"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/clorinde.json",
+      "bytes": 4869,
+      "sha256": "8a4d84e322be2a7e4b4e8e7edfd3506f5f723176b44c9ebfc0ba156cd85d59ba"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/collei.json",
+      "bytes": 3183,
+      "sha256": "31574a18afeb73c7c469017194068cbac30965a9728bf523a2e21f182a970130"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/columbina.json",
+      "bytes": 6583,
+      "sha256": "5ea98ac8587e7920c1ed22f07be4cdce34f5a36fe0086323339886548d3d4c51"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/cyno.json",
+      "bytes": 3528,
+      "sha256": "e5ddec94e7e43b24cae214a4156ed78454dad688b9fca4fb878c37de4515c516"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/dahlia.json",
+      "bytes": 2524,
+      "sha256": "aee33451b4fe4534f1b360d43ba097cae11fa770bbd7b54a515ad42da795619d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/dehya.json",
+      "bytes": 3146,
+      "sha256": "beb8d093c994b97662c0852fdf0faab02e59f46f8fed2cce2c67a8f16b6644bb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/diluc.json",
+      "bytes": 2006,
+      "sha256": "67bd0eab78e9816e6801c7199f9bf902f76e813a2524739ae999e57475e0f32e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/diona.json",
+      "bytes": 2112,
+      "sha256": "dfd8849a0eb0d314f70d3aaaeb1ea85cc51a0531a5971bceb0e51315f2b5d2b0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/dori.json",
+      "bytes": 2461,
+      "sha256": "d11d52210b387081518ef536819a20dc75b709c96cbcfcebdf243bb23ff91f28"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/durin.json",
+      "bytes": 4870,
+      "sha256": "c12dc2f56ac5d6de7880aac848b5b1be1cae0d1306bce78aa74244e21a92021d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/emilie.json",
+      "bytes": 3284,
+      "sha256": "b944105af1cb622c7619144467238b0655859e4d3a79593c23be7ebc32e7bd12"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/escoffier.json",
+      "bytes": 4591,
+      "sha256": "33109fc96a67d719c6138ec9ec5b37da7336742172415358c1700a4e6b2daba8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/eula.json",
+      "bytes": 2062,
+      "sha256": "51562f265a69e50574fe8dac3b90bedafe5f84d314f334ae7ed51d80a91f8186"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/faruzan.json",
+      "bytes": 2658,
+      "sha256": "95c90e83efec3f443036fefea8cc8ddc5960b2d48ca6223def87676e830a99e0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/fischl.json",
+      "bytes": 2077,
+      "sha256": "497ce09ecbbf649ae4f2d9a94b48d607efb469b85ab2e3bc800c3f28781e74d6"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/flins.json",
+      "bytes": 3277,
+      "sha256": "8f96922c44995f3bfe2e075ac3a38099a3fcd2a44e9681abec860210d759976e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/freminet.json",
+      "bytes": 2015,
+      "sha256": "cdf82854326ffa5ea380d69ba9d6102d77c042b0a375726b251260e197371ff7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/furina.json",
+      "bytes": 4726,
+      "sha256": "998aa5de9b08a73caac193ee4d569ab7b2e51596e7d4d79a838f720be987b318"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/gaming.json",
+      "bytes": 1821,
+      "sha256": "9128e82a1a787f7fc91c0cfb7bd176d25935f72bb6551b50b9e973c07bf3896d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/ganyu.json",
+      "bytes": 2182,
+      "sha256": "929562f6404887beb8c1be5192c9963f1018ac104a4464c06643016084bda250"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/gorou.json",
+      "bytes": 3118,
+      "sha256": "aac917da8fc094a7716297dcb300105663c66e5a1b333779549f7be96234bf4c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/hutao.json",
+      "bytes": 2610,
+      "sha256": "ba7d42f5cf9bda3de9de9c5feb8985beb2fe3b2236ed30cdb3653d4d678fe446"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/iansan.json",
+      "bytes": 3573,
+      "sha256": "82529e611e50664ce62dfbc80fdf2dbe4a8e3b5544a052b14f464505d6f12330"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/ifa.json",
+      "bytes": 3054,
+      "sha256": "ae328c5ab090f6971d0453ad49578770ec654d27052f45467ce5c05fde959d04"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/illuga.json",
+      "bytes": 2970,
+      "sha256": "9f72bd353702e0787e8f537526795aaa9ba0ef74f28424c6567880ca79ef08bd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/ineffa.json",
+      "bytes": 3422,
+      "sha256": "a4f5331f98e47c936eb90a683ef9e9c2a6c130869d554ac70aae2d1305b65dcc"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/jahoda.json",
+      "bytes": 2999,
+      "sha256": "018ca0f0dc7df29f373e6810a9cb3efb24527bc51c5d2ab1adccacfa3d027e3e"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/jean.json",
+      "bytes": 1836,
+      "sha256": "2ee91cb6e629dd3879111d681922244a0503a86cb8b856cc9677323b7575a236"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kachina.json",
+      "bytes": 2720,
+      "sha256": "434294b2f9ae6d1b06d1e4b37bfc986c5478c422f67df36bfc700d3800d9a24c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kaedeharakazuha.json",
+      "bytes": 2612,
+      "sha256": "ae2f125b21a91bfe3eb2837809089698d2212e1a57f5e419f852b609b5eeee62"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kaeya.json",
+      "bytes": 1950,
+      "sha256": "595089a4cfa8defb85655e220b589083cbdc531bf9fdc9a63ca01234935f17d7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kamisatoayaka.json",
+      "bytes": 2148,
+      "sha256": "6f7a40f96d340070325c08ca326fdd855de4b81dfeaf391f21a80b1d81acdc95"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kamisatoayato.json",
+      "bytes": 2042,
+      "sha256": "d6db2b46226f74a61b364c2a6d4910fc21699f03c7142f4e4ee1a77a6d082ea2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kaveh.json",
+      "bytes": 2061,
+      "sha256": "ce8c0e0faff8b41cb4a5604a06afe50144fca95a99beb996216c82b0d8de9b94"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/keqing.json",
+      "bytes": 2043,
+      "sha256": "561524477a46ac84b71392540e68281e610a41331b1022411beef3658dba5e97"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kinich.json",
+      "bytes": 2854,
+      "sha256": "364ed9ebfd49e0512bca263d67017ec4f666b29334c4110de4456ef0151635e3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kirara.json",
+      "bytes": 3230,
+      "sha256": "35d3071a80e817721bb3818632dd7216b98e8c20c816194b13dc2726cceb3960"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/klee.json",
+      "bytes": 2039,
+      "sha256": "4ce0b35781ecd190935e4b7b02cfe97db9a258f20cc6ca2f24b160fe7ec6b296"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kujousara.json",
+      "bytes": 1944,
+      "sha256": "8c1479909248f3601f2e3023f55845393e0c12f89bad0d6f04d5edd354cb9849"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/kukishinobu.json",
+      "bytes": 2317,
+      "sha256": "415c85dd352bb797310bf435770d9418001e8a9ea7c6c9c703c893c6edd94a78"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/lanyan.json",
+      "bytes": 2315,
+      "sha256": "9cc1b8a8c196090cf35cabe08fdc36134087fd105da387effa88713110a78a2a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/lauma.json",
+      "bytes": 5509,
+      "sha256": "5f56be7cba3f4fa263fd74ef1b0704c279d008017950a5085c3eab65270c2c28"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/layla.json",
+      "bytes": 2913,
+      "sha256": "6f49c63486d35aeb85dafee445a3e76ae6d547538b0f8c13284a91eb3eeb40f2"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/linnea.json",
+      "bytes": 4876,
+      "sha256": "3de5ce19983056862b563bfea73b6135ccaa8e6277c89c0f9ab2df5748e90f03"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/lisa.json",
+      "bytes": 1782,
+      "sha256": "a06556fe0beee91974653332e9ffa62a7e958110b03936f403b4430108b67ea3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/lohen.json",
+      "bytes": 4822,
+      "sha256": "01d57f1c9007b86e778e0b42d8e84b52986791abb8f2d1c50fb257dc3915941c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/lynette.json",
+      "bytes": 1874,
+      "sha256": "98bdfb71b9961a67a524fdb0035dcad5e5e98a391cd4038461a7eb4067061cad"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/lyney.json",
+      "bytes": 2261,
+      "sha256": "1a744cd0c0c5c2c6f9e1c5175a2832f9c49d930c9152961032bbac3819e516ce"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/mavuika.json",
+      "bytes": 3979,
+      "sha256": "843eace67b2a1e583f8478bfc85f89ea183581f00b6c40c843e8d306b1a6b6ae"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/mika.json",
+      "bytes": 2591,
+      "sha256": "929695ded38fe32998dc08dddde6ce1e31fb3476f6980d7657dcfe18915fc512"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/mona.json",
+      "bytes": 2408,
+      "sha256": "38e10f8b3b1a7aaa6aa12763b7289841419a05641bade9dbde9e386f6b0a6c3c"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/mualani.json",
+      "bytes": 2873,
+      "sha256": "4834736b93ad40c9e99790d10a3fa85484c4d55d8be7876bf7d50c5b4a85b4ca"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/nahida.json",
+      "bytes": 3541,
+      "sha256": "f9fcb97ec4c1b42ac0a975e59babfd83279aa1006e6952ecc1801dda94f813a8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/navia.json",
+      "bytes": 3159,
+      "sha256": "e3555f8ce466bc4f515c26f57b06532ef17ef93c93c8b588bc04a034433a3413"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/nefer.json",
+      "bytes": 4182,
+      "sha256": "d8a86fe6177d81a270d255d7ccdb9b1f799982ed73aa4802de05eec3e7be0353"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/neuvillette.json",
+      "bytes": 3025,
+      "sha256": "e0a99819c23ce1a74a09cf161c49ebc363c91115394e8cf73d0cd4b89366fc74"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/nicole.json",
+      "bytes": 4978,
+      "sha256": "4464679b70e805169fe5f8c42b27559ebdd75509da8fe77d6587ea28fd0c3244"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/nilou.json",
+      "bytes": 2576,
+      "sha256": "e0141f131d2cbe638fc50775b71de1c4cdf32a030a379ebd9e74de3b32edffab"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/ningguang.json",
+      "bytes": 1463,
+      "sha256": "882434d3cbd2da5b7b4886644a8d24114541fe6716747f76f8f040fdf878e24a"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/noelle.json",
+      "bytes": 1916,
+      "sha256": "c7068ed01a0f0f3fff88afb43fe52a79d33e746af734da6debd71cabe81d0024"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/odette.json",
+      "bytes": 5602,
+      "sha256": "0bf7eb2c1fedc93ce9b78bd6e4d004c828908b1605796e94ea4c79c1ed63aeb5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/ororon.json",
+      "bytes": 3778,
+      "sha256": "f9784e44d5f60c927a457e856dad60876d1a5a15a8bdb19ef3c8040823b08967"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/prune.json",
+      "bytes": 3592,
+      "sha256": "588913d302fcd237af4cdc81555f30c66776aa2fdb8dc1f7d0e741f3f1db8782"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/qiqi.json",
+      "bytes": 1700,
+      "sha256": "c678c7eaea15481d34276fc776ebcd62bc2c42599beeaa5d5fee49e7cf7a6ed3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/raidenshogun.json",
+      "bytes": 2623,
+      "sha256": "6d9d9db8aa9b8ef38617275a1a446c63f8dc549ba190b0812a956afaef826ee3"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/razor.json",
+      "bytes": 1826,
+      "sha256": "c4d2d833c03913225a0d2c14a845bf02bf92a94e982e079cfdb6bac2fa09f5b8"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/rosaria.json",
+      "bytes": 1701,
+      "sha256": "ae6902dc227548def31ab1ea69c1f2427980f326d944da55a0dca3d5f8fbcd19"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/sandrone.json",
+      "bytes": 3969,
+      "sha256": "23720ce1e5c81bcdfd9994d96d40be66cc17b4a962f13d9938de78ea8f82cf90"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/sangonomiyakokomi.json",
+      "bytes": 2850,
+      "sha256": "7ad5b342c0ee20a524d1af85cc7970b6897ea247666d2d6678aa4c9b81ff9e61"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/sayu.json",
+      "bytes": 2925,
+      "sha256": "0f8a095787575976f8564173356c15cc5b19b03e40b6f9eff801ce28942a2b89"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/sethos.json",
+      "bytes": 2448,
+      "sha256": "274484ba232b3953a2fa539797ecf23cdf92d35d172327c1f44897339654bffa"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/shenhe.json",
+      "bytes": 2284,
+      "sha256": "0a73f014447164b25b7bba0785291625867435b0913be10fefbb3da0e0847fed"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/shikanoinheizou.json",
+      "bytes": 2402,
+      "sha256": "d79e5782d509e5516f515c5b26266075d5acbf123a8356e7e7f6069078689d85"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/sigewinne.json",
+      "bytes": 3544,
+      "sha256": "30b748992de79577ca330c16d03a963211cf5ef3c5358e4c42daf64a61ce7559"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/skirk.json",
+      "bytes": 5419,
+      "sha256": "376f944f92ac420f18b81c81936fd141962c86c1973b368d25f7ff6696d1ee41"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/sucrose.json",
+      "bytes": 1924,
+      "sha256": "09d5d5cd05e000b80e7350d35f15c284064d7abd68234fa3f8d9753c926c7f3f"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/tartaglia.json",
+      "bytes": 2248,
+      "sha256": "381539b189343bba0e1df0b81e09b1c018d5cdcf5973d7f5b281f529e6d29b02"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/thoma.json",
+      "bytes": 2062,
+      "sha256": "01f3ec609b580c78791fb34b062daeb94d53606556ae4ac111023d641a344532"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/tighnari.json",
+      "bytes": 2249,
+      "sha256": "03dc3b1b42a21871d742d23c81d33aabe4c07162cc8aad3c4ef3f36ebdc8fce4"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/traveleranemo.json",
+      "bytes": 1550,
+      "sha256": "15adfa19a48a957f7344ab3e74e6b81beb8ccf92b0c797094f66338c2b441d26"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/travelercryo.json",
+      "bytes": 2497,
+      "sha256": "fa53f5b33c025d6fca0f1d6eaaa12796c963ba02faf4bbf640b5b88e8f9bde23"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/travelerdendro.json",
+      "bytes": 1865,
+      "sha256": "629157a2fd123eec11b734ae6713ff0cc4857cdc24b60cdd52d32a1b4bea70cb"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/travelerelectro.json",
+      "bytes": 1905,
+      "sha256": "0d8a2afd4edef1e358a4734d1b538c65076a58b3f33a028999f16f22a97fa686"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/travelergeo.json",
+      "bytes": 1932,
+      "sha256": "e21898849c1e1b077e248a312beeabaa012d2745c12a5f5b58b3f61ac802acd9"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/travelerhydro.json",
+      "bytes": 2421,
+      "sha256": "0eee78dc9e3e209ff5fa96c6cad2ac42ef910590b80d075d3fb9198f55805951"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/travelerpyro.json",
+      "bytes": 2476,
+      "sha256": "f536389c5471413e1968b886adc9bb7632307dd2de0da41976965914a12a6ac7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/varesa.json",
+      "bytes": 4536,
+      "sha256": "b7223b1faa51e98e30bdc77ae85682add3c5f4178e73b9dbc4441f838e915fbd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/varka.json",
+      "bytes": 4619,
+      "sha256": "d8e3f104c4ecc84a1e7cbbf5f766b0b28fa44a9a94f0975bd3eddf753f793fef"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/venti.json",
+      "bytes": 2018,
+      "sha256": "c62e159990d4b5b00aa4b45c6f4a99fc8e147fa93c45bbbfe53135f997ad6b26"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/vesna.json",
+      "bytes": 3874,
+      "sha256": "e5a2e5698bfc2d06ef94f26def52b6506c9fdf71e6bc45bd02cd1d9907718fcd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/vodyanitsa.json",
+      "bytes": 4159,
+      "sha256": "6271260fb2729786edb7ea5c03455ebcfc5fe225a1d2368ff8b9af3c73dd7caf"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/wanderer.json",
+      "bytes": 3460,
+      "sha256": "6a8a49bec955536270826c4784b1fed9a08113b1613d7def5fd56f78037fc9bd"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/wriothesley.json",
+      "bytes": 4165,
+      "sha256": "0b1e02921878ebc109d129209ad3a20286cc0362831b8630dbd40dd81af2ddd0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/xiangling.json",
+      "bytes": 1649,
+      "sha256": "d32938bf342247dbba0b9f8bf18185cc1aee768b1784ac74e3e92cba3152ac8d"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/xianyun.json",
+      "bytes": 3476,
+      "sha256": "a2288cc0c6ac7580b1da65e6865926ecc534ae9c4823cfc92617cf71c79cd025"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/xiao.json",
+      "bytes": 1674,
+      "sha256": "a94cc890703ec7723ef462e1f9e0dbb47c83c9602aa2c67c924f572482ae14e5"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/xilonen.json",
+      "bytes": 4979,
+      "sha256": "fa4a98f028a8d4106b69d6972754f8d140879e7f84745892254b4fd2f7683e8b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/xingqiu.json",
+      "bytes": 1833,
+      "sha256": "bf38fc8f21384fe9a7e7053027acf6898d97e7a1162a34898f4021238a229610"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/xinyan.json",
+      "bytes": 1768,
+      "sha256": "cd8eb12962b97649b6a86658d5d45ddfaeb132e809e4b3066150a94a95aa1787"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yaemiko.json",
+      "bytes": 1781,
+      "sha256": "906e135470a661bfcb5e08c10a27e88c102000c9205fb75ededc0fb48d0d7f25"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yanfei.json",
+      "bytes": 1776,
+      "sha256": "6653ff60f37ec1c194851551f58549f9effa05ef67a350b5988133d80d1b38c7"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yaoyao.json",
+      "bytes": 3065,
+      "sha256": "d3caca1f717e7937ea09d107b470711c7f54fa438b5e2bace26cce7ddc8ddef0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yelan.json",
+      "bytes": 2538,
+      "sha256": "28dcee9a8fbc368ab6097050c100445016bbb51864de0c64f39b9af400ce6493"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yoimiya.json",
+      "bytes": 2237,
+      "sha256": "596b7776537de7a8d163eba669ea12479b2bb03ea3c79ba614d9308255a52973"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yumemizukimizuki.json",
+      "bytes": 3311,
+      "sha256": "f1076249f13d3bc8875dac2857dd7d501c3378c1b61bfb47030eaa10aa4999f0"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/yunjin.json",
+      "bytes": 1537,
+      "sha256": "c58126955c95a8205249ca0419d761309d6a1e8d2479b5194547b92d15c2a532"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/zhongli.json",
+      "bytes": 1719,
+      "sha256": "12a14c85987edb7e07b2a5ccfcc5b1c71b8b01302882afbde31281dd674f613b"
+    },
+    {
+      "path": "src/data/ChineseSimplified/constellations/zibai.json",
+      "bytes": 4153,
+      "sha256": "9711214fe736be0122a70d5bd1db029b9af760b0ac9ed8aaea12eff25bd7c6cd"
+    },
+    {
+      "path": "src/data/stats/characters.json",
+      "bytes": 144145,
+      "sha256": "00c40710eba757f5f6cf1fefc3f13905204b9381798310726a81082435f6035c"
+    },
+    {
+      "path": "src/data/stats/talents.json",
+      "bytes": 566511,
+      "sha256": "a6e87c30c325f6dd5f7441cbeded21b329175286c92bfd9757ce9be2680048d7"
+    },
+    {
+      "path": "src/data/stats/weapons.json",
+      "bytes": 152307,
+      "sha256": "2d4952882fd9954e5f5b08ca21f4c8cb641c6b01e6b5dde311f2c5477493db15"
+    },
+    {
+      "path": "src/data/curve/characters.json",
+      "bytes": 13545,
+      "sha256": "51c4f9c13e61f227af59660f8a89336f1397009d84d7ce479593fd7a4c62709c"
+    },
+    {
+      "path": "src/data/curve/weapons.json",
+      "bytes": 62773,
+      "sha256": "1beab74a929e0d47b6ce3fe3fe70336544c8990eb8f691ad12988432e9e6957d"
+    },
+    {
+      "path": "src/data/version/characters.json",
+      "bytes": 2328,
+      "sha256": "10d48725d2653724de9e6b3240c055808c95af66e8435e0ac76169f55eca78e0"
+    },
+    {
+      "path": "src/data/version/talents.json",
+      "bytes": 2427,
+      "sha256": "5c9f081ec6b589da12d13c0bbf428e8d6a8e21c6f2a74e0d6de98bcae3c9b2e7"
+    },
+    {
+      "path": "src/data/version/weapons.json",
+      "bytes": 6867,
+      "sha256": "bcdbe53e956eca74d645650db66df76011b117f2d87cbf534928cf971e9cb214"
+    },
+    {
+      "path": "src/data/version/artifacts.json",
+      "bytes": 1778,
+      "sha256": "14bc9f81fc0c6caee74877e7a763259ae3e6194ca60b4085b84264cbe0a9e894"
+    },
+    {
+      "path": "src/data/version/constellations.json",
+      "bytes": 2427,
+      "sha256": "2d2f378564773d9e9d53438887d3c255a856e6a5428f3c9059edb90ea047a670"
+    },
+    {
+      "path": "package.json",
+      "bytes": 1619,
+      "sha256": "95a6df4c2aa4a6910aaf2d965f8c8853ecc2ce98e0e9137edff5df8984ab05e9"
+    }
+  ]
+}

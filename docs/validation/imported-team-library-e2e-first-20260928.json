@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/imported-team-library.spec.ts"
+  ],
+  "exitCode": 1,
+  "wallSeconds": 2.316,
+  "log": "docs/validation/imported-team-library-e2e-first-20260928.log"
+}

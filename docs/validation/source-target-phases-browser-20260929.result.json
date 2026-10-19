@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "source-target-phases-browser-v1",
+  "measurements": {
+    "rawPath": "/tmp/gidps-target-phases.json",
+    "actualFrame": 29,
+    "byTarget": [
+      {
+        "targetIndex": 0,
+        "targetKey": 1,
+        "phaseId": null,
+        "rawDamage": 1161.8921525418264,
+        "appliedDamage": 1161.8921525418264,
+        "hpLoss": 0,
+        "auraApplied": true,
+        "applicationCalculationId": null,
+        "targetPhaseEffects": null
+      },
+      {
+        "targetIndex": 1,
+        "targetKey": 2,
+        "phaseId": "immune-at-29",
+        "rawDamage": 1161.8921525418264,
+        "appliedDamage": 0,
+        "hpLoss": 0,
+        "auraApplied": true,
+        "applicationCalculationId": 17,
+        "targetPhaseEffects": {
+          "hitCallbacksSkipped": 0,
+          "onEnemyHitGameplaySkipped": 0,
+          "onEnemyHitObserversEmitted": 0,
+          "onEnemyDamageGameplaySkipped": 0,
+          "onEnemyDamageObserversEmitted": 0
+        }
+      },
+      {
+        "targetIndex": 2,
+        "targetKey": 3,
+        "phaseId": "aura-block-at-29",
+        "rawDamage": 1161.8921525418264,
+        "appliedDamage": 1161.8921525418264,
+        "hpLoss": 0,
+        "auraApplied": false,
+        "applicationCalculationId": 26,
+        "targetPhaseEffects": {
+          "hitCallbacksSkipped": 0,
+          "onEnemyHitGameplaySkipped": 0,
+          "onEnemyHitObserversEmitted": 0,
+          "onEnemyDamageGameplaySkipped": 0,
+          "onEnemyDamageObserversEmitted": 0
+        }
+      },
+      {
+        "targetIndex": 3,
+        "targetKey": 4,
+        "phaseId": "hit-confirm-block-at-29",
+        "rawDamage": 1161.8921525418264,
+        "appliedDamage": 1161.8921525418264,
+        "hpLoss": 0,
+        "auraApplied": true,
+        "applicationCalculationId": 35,
+        "targetPhaseEffects": {
+          "hitCallbacksSkipped": 3,
+          "onEnemyHitGameplaySkipped": 0,
+          "onEnemyHitObserversEmitted": 0,
+          "onEnemyDamageGameplaySkipped": 2,
+          "onEnemyDamageObserversEmitted": 1
+        }
+      },
+      {
+        "targetIndex": 4,
+        "targetKey": 5,
+        "phaseId": null,
+        "rawDamage": 1161.8921525418264,
+        "appliedDamage": 1161.8921525418264,
+        "hpLoss": 0,
+        "auraApplied": true,
+        "applicationCalculationId": null,
+        "targetPhaseEffects": null
+      },
+      {
+        "targetIndex": 5,
+        "targetKey": 6,
+        "phaseId": null,
+        "rawDamage": 1161.8921525418264,
+        "appliedDamage": 1161.8921525418264,
+        "hpLoss": 0,
+        "auraApplied": true,
+        "applicationCalculationId": null,
+        "targetPhaseEffects": null
+      }
+    ],
+    "total": {
+      "rawDamage": 6971.352915250958,
+      "appliedDamage": 5809.460762709132
+    },
+    "replays": [
+      {
+        "applicationId": 9,
+        "rawDifference": 0,
+        "appliedDifference": 0,
+        "applicationDifference": null
+      },
+      {
+        "applicationId": 18,
+        "rawDifference": 0,
+        "appliedDifference": 0,
+        "applicationDifference": 0
+      },
+      {
+        "applicationId": 27,
+        "rawDifference": 0,
+        "appliedDifference": 0,
+        "applicationDifference": 0
+      },
+      {
+        "applicationId": 36,
+        "rawDifference": 0,
+        "appliedDifference": 0,
+        "applicationDifference": 0
+      },
+      {
+        "applicationId": 37,
+        "rawDifference": 0,
+        "appliedDifference": 0,
+        "applicationDifference": null
+      },
+      {
+        "applicationId": 45,
+        "rawDifference": 0,
+        "appliedDifference": 0,
+        "applicationDifference": null
+      }
+    ],
+    "teamDraftPreserved": true,
+    "formulaScreenshot": "docs/validation/source-target-phases-immune-formula-20260929.png"
+  },
+  "pageErrors": [],
+  "scope": "One classic native Kaeya E at frame 29 against six colocated synthetic target-phase scenarios. Half-open windows, native aura logs, outgoing damage and target application remain separate receipts; team draft was compiled without a second native run."
+}

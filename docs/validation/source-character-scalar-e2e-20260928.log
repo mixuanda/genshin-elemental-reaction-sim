@@ -1,0 +1,37 @@
+[WebServer] (node:60654) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:60655) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-scalar.spec.ts:72:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay (1.8s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-scalar.spec.ts:72:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay 
+
+    Error: expect(received).toBeDefined()
+
+    Received: undefined
+
+      168 |       expect(mona!.scalar.request.input.sourceHolderIndex).toBe(2);
+      169 |       const hit = result.applications.find(row => row.calculationId === mona!.consumer.request.id);
+    > 170 |       expect(hit).toBeDefined();
+          |                   ^
+      171 |       const hitCapture = captureSourceHostHit(result, hit!.id);
+      172 |       const hitReplay = replaySourceHostHit(hitCapture);
+      173 |       expect(hitReplay.difference).toBe(0);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-scalar.spec.ts:170:19
+
+    Error Context: test-results/source-character-scalar-na-1d215-t-through-standalone-replay-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-scalar-na-1d215-t-through-standalone-replay-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-scalar-na-1d215-t-through-standalone-replay-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-scalar.spec.ts:72:1 › native character scalar receipts preserve heal, cooldown and reaction support through standalone replay 

@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 1,
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-BDpBxv/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-grUlgg/source"
+  },
+  "summary": {
+    "sourceRoots": {
+      "classic": "/Users/evan/Library/Caches/gidps-source-host/build-BDpBxv/source",
+      "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-grUlgg/source"
+    },
+    "inventoryMetadata": {
+      "classic": {
+        "path": "/Users/evan/Documents/gidps/apps/web/public/source-host/inventory-metadata.json",
+        "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "treeSnapshotSha256": "15965fb70c98aba229279056e9dc98a4ce2c042919135b807e5cbcb1651f0ad7"
+      },
+      "stellar": {
+        "path": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-J8MwI1/dist/inventory-metadata.json",
+        "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "treeSnapshotSha256": "df033c73db725aa999692b167c8c0c7d762f97c1cd217a5f489140cf4a9140b6"
+      }
+    },
+    "registry": {
+      "directContractIds": 28,
+      "producerContractIds": 76,
+      "totalRows": 104,
+      "canonicalCharacterActionPairs": 101,
+      "uniqueSourceMethods": 101
+    },
+    "missingEAndQ": {
+      "classic": {
+        "missingImplementedCharacterEAndQBindings": 133,
+        "missingUniqueSourceMethods": 121
+      },
+      "stellar": {
+        "missingImplementedCharacterEAndQBindings": 147,
+        "missingUniqueSourceMethods": 133
+      }
+    },
+    "limitations": "Inventory is an exhaustive actionCapabilities crosswalk for implemented character Skill/Burst bindings absent from the current direct+producer registry. callSites/callsiteTriage are source-text cues only, not completed semantic classifications or attack counts. Site totals do not infer target counts. Repeated Aether/Lumine bindings are listed per canonical key while unique methods are separately counted."
+  },
+  "selected": [
+    {
+      "id": "xiao-burst",
+      "characterKey": "xiao",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/xiao/burst.go",
+      "laneSourceSha256": {
+        "classic": "f80b8ad62edc2bacd25f5b21ea2c5109af09da02592a00d736e5856361a311c0",
+        "stellar": "f80b8ad62edc2bacd25f5b21ea2c5109af09da02592a00d736e5856361a311c0"
+      },
+      "laneMethodLines": {
+        "classic": [
+          25,
+          69
+        ],
+        "stellar": [
+          25,
+          69
+        ]
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 0
+      },
+      "scopeBoundary": "burst.go:25-69 has no attack queue. It installs the burst state and schedules HP drain only; plunge damage is a later player action.",
+      "sourceReferences": [
+        {
+          "sourcePath": "internal/characters/xiao/xiao.go",
+          "symbol": "Init",
+          "lineRef": "46-56",
+          "sha256ByLane": {
+            "classic": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+            "stellar": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d"
+          },
+          "review": "Initialization installs the field-exit and constellation handlers; it does not queue burst damage."
+        },
+        {
+          "sourcePath": "internal/characters/xiao/asc.go",
+          "symbol": "a1",
+          "lineRef": "16-34",
+          "sha256ByLane": {
+            "classic": "0a6011fe9235cbfba9f3b29eb0bc2868c20f18c135868e92014599487be71bc7",
+            "stellar": "0a6011fe9235cbfba9f3b29eb0bc2868c20f18c135868e92014599487be71bc7"
+          },
+          "review": "A1 updates the burst damage bonus state only."
+        },
+        {
+          "sourcePath": "internal/characters/xiao/cons.go",
+          "symbol": "c6cb",
+          "lineRef": "61-88",
+          "sha256ByLane": {
+            "classic": "ae3606aedf799108c59d7ea987ebd8620e10b8ad93e1de4d1ad4310d876f4d86",
+            "stellar": "ae3606aedf799108c59d7ea987ebd8620e10b8ad93e1de4d1ad4310d876f4d86"
+          },
+          "review": "C6 callback affects later plunge-triggered skill availability; later E casts are outside Q direct roots."
+        }
+      ],
+      "directMethodAudit": "Burst method includes status setup, A1 invocation, and HP-drain scheduling only; no QueueAttack site and no later ability helper is called from that method. The zero count is the native direct damage-root count, not a claim that the state has no effect."
+    },
+    {
+      "id": "chevreuse-burst",
+      "characterKey": "chevreuse",
+      "action": "burst",
+      "method": "Burst",
+      "sourcePath": "internal/characters/chevreuse/burst.go",
+      "laneSourceSha256": {
+        "classic": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de",
+        "stellar": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de"
+      },
+      "laneMethodLines": {
+        "classic": [
+          29,
+          105
+        ],
+        "stellar": [
+          29,
+          105
+        ]
+      },
+      "expectedRootAttackCount": {
+        "kind": "constant",
+        "count": 9
+      },
+      "reviewStatus": "source-reviewed-proposed",
+      "directMethodAudit": "Burst method queues one initial grenade at burst.go:62-67 and eight secondary shells in the fixed 5-group loop at 78-93; the loop counts are hard-coded 1+2+2+2+1. Total is 9 QueueAttack roots independent of enemy count. c.c4() only opens later E hold availability.",
+      "sourceReferences": [
+        {
+          "sourcePath": "internal/characters/chevreuse/chevreuse.go",
+          "symbol": "Init",
+          "lineRef": "11-29",
+          "sha256ByLane": {
+            "classic": "842513e3f5c97c452305477f0b8d0c36857f576e2783e07a9d07d3c7aa9c52b1",
+            "stellar": "842513e3f5c97c452305477f0b8d0c36857f576e2783e07a9d07d3c7aa9c52b1"
+          },
+          "review": "Init installs passive/event handling; none adds a Burst damage root."
+        },
+        {
+          "sourcePath": "internal/characters/chevreuse/asc.go",
+          "symbol": "a1/a4",
+          "lineRef": "20-91",
+          "sha256ByLane": {
+            "classic": "24a2c283943ea303d9b0a13ccf41f627bb5c108e4ae7c211d0409b543f170bf9",
+            "stellar": "24a2c283943ea303d9b0a13ccf41f627bb5c108e4ae7c211d0409b543f170bf9"
+          },
+          "review": "A1 listens for Overloaded to apply resistance modifiers; A4 applies an ATK modifier after an E Overcharged Ball. Neither queues another Burst root."
+        },
+        {
+          "sourcePath": "internal/characters/chevreuse/cons.go",
+          "symbol": "c2/c4/c6TeamHeal",
+          "lineRef": "59-165",
+          "sha256ByLane": {
+            "classic": "61efb759d84bd91ad11921419045d2abd1cc81bcbee1429650122d42d55ae40d",
+            "stellar": "61efb759d84bd91ad11921419045d2abd1cc81bcbee1429650122d42d55ae40d"
+          },
+          "review": "C2 callback produces two delayed explosions only for E Skill hits; C4 sets later E hold state; C6 heal is tied to E healing, not Burst."
+        },
+        {
+          "sourcePath": "internal/characters/chevreuse/burst.go",
+          "symbol": "Burst",
+          "lineRef": "29-105",
+          "sha256ByLane": {
+            "classic": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de",
+            "stellar": "bfcd89d37dc05839dde8c7068c59bdf0e289b7e8cf5fa7537667e8d68ebb08de"
+          },
+          "review": "One initial QueueAttack and fixed eight secondary QueueAttack calls; no hit callback/generator/char task in Burst."
+        }
+      ]
+    }
+  ],
+  "notes": [
+    "Only Xiao Q zero-root activation scope and Chevreuse Q fixed 9-root action are proposed in contract-fragments.json.",
+    "Raiden E, Candace Q, and Geo Traveler E remain explicitly uncontracted pending owned producer/construct closure.",
+    "No source patches were authored: proposed rows require only the existing direct method/QueueAttack observation, including zero-root method completion."
+  ],
+  "notProposed": [
+    {
+      "id": "raidenshogun-skill",
+      "status": "frontier-blocker",
+      "reason": "Not proposed as complete finite E: raiden.Init registers eyeOnDamage; internal/characters/raiden/skill.go:112-166 listens to OnEnemyDamage and emits coordinated Eye attacks while E state is active. The one immediate root is not the whole finite E-owned damage generation. Needs owned-generator closure/origin accounting."
+    },
+    {
+      "id": "candace-burst",
+      "status": "frontier-blocker",
+      "reason": "Not proposed as complete finite Q: burst.go applies infusion state; burstSwap/burstInit handlers (115-182) support later Q-owned swap waves/infusion, and C6 registers an OnEnemyDamage wave producer in cons.go:38-98. A one-root cast row would omit Q-owned generation."
+    },
+    {
+      "id": "aethergeo-skill / luminegeo-skill",
+      "status": "frontier-blocker",
+      "reason": "Not proposed as complete finite E: E creates a construct; at C2, traveler/common/geo/skill.go:157-182 queues Rockcore Meltdown on construct destruction. The one initial root is insufficient without construct-owner/constellation-aware closure."
+    }
+  ],
+  "integrationStatus": "Two source-reviewed direct contracts integrated; no new runtime character samples in this batch. Reviewed against both exact source hashes. Registered scope does not imply gameplay or private-state verification.",
+  "parentReview": "Direct Burst methods reviewed: Xiao schedules status and HP drain but no enemy attack; Chevreuse immediately queues 1+8 roots with fixed delay groups and no attack-producing callback. Rejected Raiden E, Candace Q and Geo Traveler E remain uncontracted."
+}

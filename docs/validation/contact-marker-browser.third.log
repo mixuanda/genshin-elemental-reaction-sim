@@ -1,0 +1,12 @@
+
+Running 1 test using 1 worker
+
+(node:20799) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent
+[chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent
+Observed contact and mark browser measurements {"kaeya":{"nonCritical":4190.399999999999,"critical":8380.799999999997,"expected":6285.600000000001},"aloy":{"nonCritical":979.2,"critical":1958.4,"expected":1468.8000000000002},"hutao":{"nonCritical":2031.8739840000003,"critical":4063.7479680000006,"expected":3047.810976},"equipment":{"nonCritical":793.0114714677612,"critical":1494.033612245262,"expected":828.0625785066362},"restoredFinal":{"nonCritical":793.0114714677612,"critical":1494.033612245262,"expected":828.0625785066362},"independentPastHit":{"nonCritical":111.794261279904,"critical":210.62038825133914,"expected":116.73556762847576}}
+
+  1 passed (2.6s)

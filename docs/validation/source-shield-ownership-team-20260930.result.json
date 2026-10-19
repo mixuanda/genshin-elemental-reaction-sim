@@ -1,0 +1,167 @@
+{
+  "schemaVersion": "source-shield-ownership-browser-v1",
+  "measurements": {
+    "nativeRunPerformed": false,
+    "nativeResultArchived": true,
+    "rawPath": "docs/validation/source-shield-ownership-team-20260930.capture.json",
+    "baizhuQ": {
+      "invocationId": 1,
+      "actionSequence": 1,
+      "firstQShieldFrame": 82,
+      "qActionFrame": 1,
+      "eActionFrame": 105,
+      "qShieldIds": [
+        1,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "qShieldTerminals": [
+        {
+          "id": 1,
+          "reason": "overwritten",
+          "terminalFrame": 118
+        },
+        {
+          "id": 4,
+          "reason": "overwritten",
+          "terminalFrame": 370,
+          "replacesInstanceId": 3
+        },
+        {
+          "id": 5,
+          "reason": "overwritten",
+          "terminalFrame": 516,
+          "replacesInstanceId": 4
+        },
+        {
+          "id": 6,
+          "reason": "overwritten",
+          "terminalFrame": 662,
+          "replacesInstanceId": 5
+        },
+        {
+          "id": 7,
+          "reason": "overwritten",
+          "terminalFrame": 808,
+          "replacesInstanceId": 6
+        },
+        {
+          "id": 8,
+          "reason": "expired",
+          "terminalFrame": 960,
+          "replacesInstanceId": 7
+        }
+      ],
+      "c6ShieldIds": [
+        2,
+        3
+      ],
+      "c2ShieldId": 3,
+      "c2CallbackId": 4,
+      "c2TriggerAttackId": 2,
+      "c2ParentAbility": "Gossamer Sprite: Splice. (C2)",
+      "finiteCast": {
+        "contract": {
+          "id": "baizhu-burst",
+          "label": "白术 Q：无郤气护盾生命周期与灵气脉",
+          "characterKey": "baizhu",
+          "action": "burst",
+          "method": "Burst",
+          "sourcePath": "internal/characters/baizhu/burst.go",
+          "sourceSha256": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+          "sourceHashes": {
+            "classicSha256": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb",
+            "stellarSha256": "ba5406e685cb2d4b9f9c66bb2c082ae23e5620740a51454e93b412cd5b916edb"
+          },
+          "sourceEvidence": "Q方法注册六次固定延迟的护盾出生任务；实际实例分别绑定任务与Q调用。刷新在Add之前向旧盾登记一次灵气脉，破裂或到期由原生钩子登记一次；覆盖钩子本身不发出攻击。攻击总数按实际实例和钩子回执确认。",
+          "nonDamageCallbacksAndInitAudit": "治疗、A4增益、C4精通增益、E链、C2追击、独立C6护盾及另行派发的反应伤害排除。Q盾被C6替换时旧盾灵气脉仍属Q；Q任务刷新C6盾时该攻击不属Q。",
+          "producerContract": true,
+          "ownedShieldContract": true,
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/baizhu/burst.go"
+          ]
+        },
+        "expectedRootAttackCount": 6,
+        "completedRootAttackCount": 6,
+        "closed": true,
+        "rootCountKind": "runtime",
+        "observedRootAttackCount": 6,
+        "producerCount": 6,
+        "completedProducerCount": 6,
+        "pendingProducerCount": 0,
+        "generatorCount": 0,
+        "endedGeneratorCount": 0,
+        "openGeneratorCount": 0,
+        "triggerCount": 0,
+        "entityCount": 0,
+        "endedEntityCount": 0,
+        "openEntityCount": 0,
+        "entityTriggerCount": 0,
+        "entityProducerCount": 0,
+        "completedEntityProducerCount": 0,
+        "pendingEntityProducerCount": 0,
+        "shieldInstanceIds": [
+          1,
+          4,
+          5,
+          6,
+          7,
+          8
+        ],
+        "shieldCount": 6,
+        "endedShieldCount": 6,
+        "openShieldCount": 0,
+        "shieldHookCount": 11,
+        "shieldRelatedExcludedInstanceIds": [
+          2,
+          3
+        ],
+        "hitCallbackBatchCount": 0,
+        "completedHitCallbackBatchCount": 0,
+        "pendingHitCallbackBatchCount": 0,
+        "hitCallbackCount": 0,
+        "reasons": [],
+        "includedComponents": [
+          "本次技能方法及已审阅后续任务创建的固有攻击，对本次场景敌人的实际伤害应用",
+          "每击独立的快照、增伤、暴击及已支持的增幅／加算反应",
+          "本次技能创建的明确护盾实例在刷新、破裂或到期时发出的固有攻击；替换它的 C6 护盾仍独立归属"
+        ],
+        "excludedComponents": [
+          "另行派发的剧变或其他反应伤害",
+          "独立武器／圣遗物追击、其他角色及后续动作自身的伤害",
+          "治疗、护盾量与持续增益效果",
+          "未被本技能固定源码规则识别为直接固有根攻击的其他伤害应用。（7 次应用）"
+        ],
+        "scopeNotes": [
+          "Q固有伤害按本次Q实际创建的六个护盾实例归属；出生任务实际偏移81、223、369、515、661、807帧，原生到期偏移152帧。出生次数不等同于固定攻击次数：每个实例须有真实覆盖、破裂或到期终点，灵气脉按对应钩子排队及逐目标派发回执闭合。独立C6护盾保留替换关系但不加入Q伤害；治疗、护盾量、A4/C4增益、E/C2伤害和独立反应伤害另算。"
+        ]
+      },
+      "includedHitCount": 6,
+      "componentSubtotal": 5525.524907224306,
+      "appliedDamageSubtotal": 5525.524907224306,
+      "replayDifferences": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "missingBirthClosed": false,
+      "missingBirthReasons": [
+        "本次 Q 的六次实际护盾出生尚未完整记录。",
+        "护盾出生 #1 缺少对应的实际任务或来源规定的执行帧。"
+      ],
+      "missingExpiryHookClosed": false,
+      "missingExpiryHookReasons": [
+        "护盾实例 #8：到期终点与唯一到期钩子或原生到期帧不一致。"
+      ],
+      "originUiEditedAndRoundTripped": true
+    }
+  },
+  "pageErrors": [],
+  "scope": "One classic Baizhu C6 native run covers Q-owned shield birth/refresh/expiry, E and C2 C6-created shield replacements, and exact Q ownership. No enemy-damage break or all-character shield behavior is established."
+}

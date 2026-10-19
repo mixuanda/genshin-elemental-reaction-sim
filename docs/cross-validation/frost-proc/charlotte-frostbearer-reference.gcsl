@@ -1,0 +1,12 @@
+# Fixed gcsim b4ae769; one external CLI call, no hitlag.
+# Charlotte N1 radius 1 only reaches target 1; its Cryo application occurs
+# before Frostbearer's callback. The radius 3 icicle reaches both targets.
+options iteration=1 duration=3 workers=1 hitlag=false;
+charlotte char lvl=1/20 cons=0 talent=1,1,1 +params=[start_energy=0];
+charlotte add weapon="frostbearer" refine=5 lvl=1/20;
+charlotte add stats cr=-0.05;
+target lvl=90 resist=0.1 pos=0,2 radius=0.25;
+target lvl=90 resist=0.1 pos=2.5,2 radius=0.25;
+active charlotte;
+charlotte attack;
+wait(180 - f());

@@ -1,0 +1,462 @@
+{
+  "schemaVersion": 1,
+  "protocol": "observed-nefer-phantasm-finite-v1",
+  "constants": {
+    "initialSkillCharges": 2,
+    "shadowDanceDurationSeconds": 9,
+    "phantasmLimitPerShadowDance": 3,
+    "minimumVerdantDew": 1,
+    "verdantDewPerFirstShadeSummon": 1,
+    "ordinaryHitCount": 2,
+    "shadeHitCount": 3,
+    "a1MinimumAscension": 1,
+    "a1MoonsignThreshold": 2,
+    "veilStackCap": 3,
+    "veilDurationSeconds": 9,
+    "fullVeilEm": 100,
+    "fullVeilEmDurationSeconds": 8,
+    "seedConversionDurationSeconds": 15,
+    "phantasmBonusPerVeil": 0.08,
+    "intrinsicLunarBloomEmRate": 0.000175,
+    "intrinsicLunarBloomBaseBonusCap": 0.14
+  },
+  "templates": [
+    {
+      "skillId": "nefer-phantasm-observed-c0",
+      "characterSlug": "nefer",
+      "talentSetId": "talent-set:nefer",
+      "abilityKey": "combat2",
+      "label": "奈芙尔 C0 幻戏 · 本人两段与影子三段",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "roles": {
+        "nefer1": {
+          "mappingId": "nefer-phantasm-observed-c0-nefer1",
+          "label": "幻戏 · 本人第1段",
+          "kind": "ordinary",
+          "element": "dendro",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param5",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.2464,
+                0.26488,
+                0.28336,
+                0.308,
+                0.32648,
+                0.34496,
+                0.3696,
+                0.39424,
+                0.41888,
+                0.44352,
+                0.46816,
+                0.4928,
+                0.5236,
+                0.5544,
+                0.5852
+              ],
+              "sourceValues": [
+                0.2464,
+                0.26488,
+                0.28336,
+                0.308,
+                0.32648,
+                0.34496,
+                0.3696,
+                0.39424,
+                0.41888,
+                0.44352,
+                0.46816,
+                0.4928,
+                0.5236,
+                0.5544,
+                0.5852
+              ],
+              "parameterKey": "param5",
+              "sourceField": "/skill/4",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.nefer1Atk",
+              "coefficientTolerance": 0
+            },
+            {
+              "stat": "em",
+              "values": [
+                0.4928,
+                0.52976,
+                0.56672,
+                0.616,
+                0.65296,
+                0.68992,
+                0.7392,
+                0.78848,
+                0.83776,
+                0.88704,
+                0.93632,
+                0.9856,
+                1.0472,
+                1.1088,
+                1.1704
+              ],
+              "sourceValues": [
+                0.4928,
+                0.52976,
+                0.56672,
+                0.616,
+                0.65296,
+                0.68992,
+                0.7392,
+                0.78848,
+                0.83776,
+                0.88704,
+                0.93632,
+                0.9856,
+                1.0472,
+                1.1088,
+                1.1704
+              ],
+              "parameterKey": "param6",
+              "sourceField": "/skill/5",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.nefer1EleMas",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        },
+        "nefer2": {
+          "mappingId": "nefer-phantasm-observed-c0-nefer2",
+          "label": "幻戏 · 本人第2段",
+          "kind": "ordinary",
+          "element": "dendro",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param7",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.32032,
+                0.344344,
+                0.368368,
+                0.4004,
+                0.424424,
+                0.448448,
+                0.48048,
+                0.512512,
+                0.544544,
+                0.576576,
+                0.608608,
+                0.64064,
+                0.68068,
+                0.72072,
+                0.76076
+              ],
+              "sourceValues": [
+                0.32032,
+                0.344344,
+                0.368368,
+                0.4004,
+                0.424424,
+                0.448448,
+                0.48048,
+                0.512512,
+                0.544544,
+                0.576576,
+                0.608608,
+                0.64064,
+                0.68068,
+                0.72072,
+                0.76076
+              ],
+              "parameterKey": "param7",
+              "sourceField": "/skill/6",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.nefer2Atk",
+              "coefficientTolerance": 0
+            },
+            {
+              "stat": "em",
+              "values": [
+                0.64064,
+                0.688688,
+                0.736736,
+                0.8008,
+                0.848848,
+                0.896896,
+                0.96096,
+                1.025024,
+                1.089088,
+                1.153152,
+                1.217216,
+                1.28128,
+                1.36136,
+                1.44144,
+                1.52152
+              ],
+              "sourceValues": [
+                0.64064,
+                0.688688,
+                0.736736,
+                0.8008,
+                0.848848,
+                0.896896,
+                0.96096,
+                1.025024,
+                1.089088,
+                1.153152,
+                1.217216,
+                1.28128,
+                1.36136,
+                1.44144,
+                1.52152
+              ],
+              "parameterKey": "param8",
+              "sourceField": "/skill/7",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.nefer2EleMas",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        },
+        "shade1": {
+          "mappingId": "nefer-phantasm-observed-c0-shade1",
+          "label": "幻戏 · 影子第1段月绽放",
+          "kind": "lunar-bloom-direct",
+          "element": "dendro",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param9",
+          "terms": [
+            {
+              "stat": "em",
+              "values": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "sourceValues": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "parameterKey": "param9",
+              "sourceField": "/skill/8",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.shade1",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        },
+        "shade2": {
+          "mappingId": "nefer-phantasm-observed-c0-shade2",
+          "label": "幻戏 · 影子第2段月绽放",
+          "kind": "lunar-bloom-direct",
+          "element": "dendro",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param10",
+          "terms": [
+            {
+              "stat": "em",
+              "values": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "sourceValues": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "parameterKey": "param10",
+              "sourceField": "/skill/9",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.shade2",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        },
+        "shade3": {
+          "mappingId": "nefer-phantasm-observed-c0-shade3",
+          "label": "幻戏 · 影子第3段月绽放",
+          "kind": "lunar-bloom-direct",
+          "element": "dendro",
+          "attackTag": "charged",
+          "abilityKey": "combat2",
+          "parameterKey": "param11",
+          "terms": [
+            {
+              "stat": "em",
+              "values": [
+                1.28,
+                1.376,
+                1.472,
+                1.6,
+                1.696,
+                1.792,
+                1.92,
+                2.048,
+                2.176,
+                2.304,
+                2.432,
+                2.56,
+                2.72,
+                2.88,
+                3.04
+              ],
+              "sourceValues": [
+                1.28,
+                1.376,
+                1.472,
+                1.6,
+                1.696,
+                1.792,
+                1.92,
+                2.048,
+                2.176,
+                2.304,
+                2.432,
+                2.56,
+                2.72,
+                2.88,
+                3.04
+              ],
+              "parameterKey": "param11",
+              "sourceField": "/skill/10",
+              "sourcePath": "libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+              "sheetField": "dm.skill.shade3",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Nefer/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Nefer/skillParam.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Nefer_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/tooltips_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/dataUtil.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/formula.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        }
+      },
+      "orderedChains": [
+        [
+          "nefer1",
+          "nefer2"
+        ],
+        [
+          "shade1",
+          "shade2",
+          "shade3"
+        ]
+      ],
+      "assumptions": [
+        "C0；只恢复一次已实际合法发动并完整观察的幻戏特殊重击。本人两段普通草伤、影子三段直接月绽放，由五个独立实际候选组成。",
+        "本人段按重击伤害处理，但倍率索引采用元素战技有效天赋等级；影子段通过共享直接月绽放公式，不能用普通草伤替代。",
+        "幻戏起手需真实影舞状态、至少1草露且本轮影舞尚有可用幻戏次数；本次首次召影只消耗1草露，不按三段影子重复消费。",
+        "所有命中时刻、快照、目标实际接触及完整观察终点由实际输入恢复。只核本人1→2与影子1→2→3各自顺序，不猜测两条攻击链的全局交错或动画帧。",
+        "A1在突破≥1、月兆≥2时对幻戏天赋项应用1+0.08×本击实际帷幕数；C0最多3层，最高1.24，不使用1.08的层数次方。普通独立加算与特殊加算均不随此倍率重复放大。",
+        "达到3层或刷新第3层可给予100EM、持续8秒。此状态独立于当前剩余帷幕数，须恢复各击实际生效状态和面板已含EM份额。",
+        "本人固有月绽放基础提升为min(实际EM×0.000175,0.14)，独立于普通增伤、A1帷幕倍率、特殊反应增伤和擢升。"
+      ],
+      "exclusions": [
+        "完整性只指一次有限幻戏的五个来源候选，不指9秒影舞的全部攻击、整个E技能、自动资源回转或团队可执行能力。",
+        "不重建种子生成、吸收范围/时点、逐层9秒到期、草露额外获得、E两充能与重复施放/退出的事件顺序。",
+        "不把三次使用上限当作已发生三次幻戏，也不将9秒持续时间用于猜测五段命中帧。",
+        "C1额外0.6EM系数、C2更高帷幕和精通、C4减抗及C6本人第二段转换/额外尾击均不在本C0协议内。",
+        "旧E突进的帷幕作用域争议保持原有记录；本幻戏映射不修改、替换或晋升nefer-skill-rush。",
+        "固定源码与天赋描述形成source-provisional条件协议，未宣称实机验证。"
+      ]
+    }
+  ]
+}

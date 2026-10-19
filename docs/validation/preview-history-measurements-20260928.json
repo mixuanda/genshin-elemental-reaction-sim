@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "preview-history-measurements-v1",
+  "date": "2026-09-28",
+  "result": "docs/validation/preview-history-20260928.result.json",
+  "fullComparisonExport": "docs/validation/preview-history-comparison-20260928.result.json",
+  "previews": {
+    "from": {"snapshotId": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc", "gameVersion": "7.1.50", "contentSha256": "b5281065d42479f0215ccc29310a2d58593d81abc1590d556eb8fe580fb86c7d"},
+    "to": {"snapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217", "gameVersion": "7.1.50.2", "contentSha256": "f744f0aef052fae3a5bd6aa007457154cac01205f4c4c515a6f29ed5850dcb08"},
+    "bothRemainPreview": true,
+    "numericEvidence": "missing",
+    "mechanicEvidence": "missing"
+  },
+  "comparison": {
+    "totalChangedFields": 529,
+    "added": 297,
+    "removed": 47,
+    "changed": 185,
+    "numericChangedFields": 43,
+    "displayLimit": 200,
+    "fullJsonExportContainsAllChanges": true,
+    "comparisonBasis": "validated raw snapshot catalog/supplemental entities, matched by stable IDs and numeric array indexes; provenance and generated metadata are separate",
+    "numericDifferencesMayReflectFloatRepresentation": true
+  },
+  "previewCalculator": {
+    "calculatorSelector": "#calc-preview-snapshot",
+    "snapshotUrlParameter": "snapshot=ID",
+    "deepLinkedHistoricalSnapshot": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+    "selectedNewSnapshot": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "switchBackAndReloadRestoredOriginal": true,
+    "unknownSnapshotUrlBehavior": "load-fails-without-fallback-teaching-damage",
+    "unknownSnapshotUrlTested": false,
+    "releasedCharacterCount": 124,
+    "placeholderOptionCount": 1,
+    "releasedAndPlaceholderOptionCount": 125,
+    "jsonImportHistoricalPreviewSelectionTested": false
+  },
+  "isolation": {
+    "runtimeCurrentTsSha256BeforeAndAfter": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "runtimePointersJsonSha256BeforeAndAfter": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "selectionChangesOnlyPreviewWorkspace": true
+  },
+  "checks": {
+    "coreFirst": {"exitCode": 1, "wallSeconds": 2.374, "receipt": "docs/validation/preview-history-core-first-20260928.json", "finding": "Typed-catalog comparison omitted sourceCombatMetadata, yielding a real comparison gap"},
+    "coreRetry1": {"exitCode": 0, "wallSeconds": 2.478, "testsPassed": 2, "receipt": "docs/validation/preview-history-core-retry1-20260928.json"},
+    "pipelineFirst": {"exitCode": 0, "wallSeconds": 3.498, "testsPassed": 1, "testsSkipped": 8, "receipt": "docs/validation/preview-history-pipeline-first-20260928.json", "fixture": "temporary synthetic store; did not change persisted real data"},
+    "webFirst": {"exitCode": 1, "wallSeconds": 2.879, "receipt": "docs/validation/preview-history-web-first-20260928.json", "failure": "Missing exported RuntimeDatasetMetadata type"},
+    "webRetry1": {"exitCode": 1, "wallSeconds": 3.057, "receipt": "docs/validation/preview-history-web-retry1-20260928.json", "failure": "Fallback ability id remained typed as unknown"},
+    "webRetry2": {"exitCode": 0, "wallSeconds": 3.867, "receipt": "docs/validation/preview-history-web-retry2-20260928.json", "modules": 739, "viteMilliseconds": 872},
+    "e2e": {"exitCode": 0, "wallSeconds": 3.639, "testSeconds": 2.4, "runnerSeconds": 3.1, "receipt": "docs/validation/preview-history-e2e-first-20260928.json", "testsPassed": 1, "pageErrors": []},
+    "trackedDiffCheck": {"exitCode": 0, "wallSeconds": 0.068, "receipt": "docs/validation/preview-history-diff-check-20260928.json", "scope": "tracked files only"}
+  },
+  "boundaries": {
+    "previewIdentityMappedTo72V1": false,
+    "providerLicenseKnown": false,
+    "previewExecutableDefinitions": 0,
+    "gameVerified": false,
+    "fullGoalComplete": false
+  }
+}

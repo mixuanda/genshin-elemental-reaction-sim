@@ -1,0 +1,265 @@
+{
+  "repository": "genshinsim/gcsim",
+  "revision": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "rootTreeResponseSha": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+  "rootTreeResponseSha256": "898affa52cb190212170ae84018180e18868cd7b54363270937078bc2a8b141d",
+  "treeUrl": "https://api.github.com/repos/genshinsim/gcsim/git/trees/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd?recursive=1",
+  "truncated": false,
+  "selectionOnly": true,
+  "tree": [
+    {
+      "path": "internal/characters/traveler/common/anemo/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4a44ea0e614bc7b397cf7c94e11117d559743dca",
+      "size": 2498,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4a44ea0e614bc7b397cf7c94e11117d559743dca"
+    },
+    {
+      "path": "internal/characters/traveler/common/anemo/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4d18cd9772000d9f648f0f075c37b2566082348f",
+      "size": 3424,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4d18cd9772000d9f648f0f075c37b2566082348f"
+    },
+    {
+      "path": "internal/characters/traveler/anemo/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "0861268581d0daa0edd0605eb24cb8b865a91f03",
+      "size": 660,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/0861268581d0daa0edd0605eb24cb8b865a91f03"
+    },
+    {
+      "path": "internal/characters/traveler/common/geo/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "661323c9a30332f0e64cac59ced3c1514f5e024d",
+      "size": 2496,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/661323c9a30332f0e64cac59ced3c1514f5e024d"
+    },
+    {
+      "path": "internal/characters/traveler/common/geo/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "3793b71e863c74e3d906a9266dfbd4919b19c80f",
+      "size": 2005,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/3793b71e863c74e3d906a9266dfbd4919b19c80f"
+    },
+    {
+      "path": "internal/characters/traveler/geo/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "fbde8efa54e87f310677aca63c73e04c7ccf8c99",
+      "size": 499,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/fbde8efa54e87f310677aca63c73e04c7ccf8c99"
+    },
+    {
+      "path": "internal/characters/traveler/common/electro/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ef3ae4d6fbc5649030bc36474fafe4a362b8926d",
+      "size": 2500,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/ef3ae4d6fbc5649030bc36474fafe4a362b8926d"
+    },
+    {
+      "path": "internal/characters/traveler/common/electro/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "8f1512e99237b7e1a360368bb603d51be67b55c6",
+      "size": 2433,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/8f1512e99237b7e1a360368bb603d51be67b55c6"
+    },
+    {
+      "path": "internal/characters/traveler/electro/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "b279bdeec93ab6623bb603445ffd9915530df639",
+      "size": 511,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/b279bdeec93ab6623bb603445ffd9915530df639"
+    },
+    {
+      "path": "internal/characters/traveler/common/dendro/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ab1246ebadaeb0315499b513d98595770b158ee8",
+      "size": 2499,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/ab1246ebadaeb0315499b513d98595770b158ee8"
+    },
+    {
+      "path": "internal/characters/traveler/common/dendro/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6bb73dc9877cba0c53736ac721fc4d47365608a7",
+      "size": 2219,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/6bb73dc9877cba0c53736ac721fc4d47365608a7"
+    },
+    {
+      "path": "internal/characters/traveler/dendro/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ff86e955797df3512898768cebe73d6a93b85b97",
+      "size": 508,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/ff86e955797df3512898768cebe73d6a93b85b97"
+    },
+    {
+      "path": "internal/characters/traveler/common/hydro/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "60815e1455a542031f9e96a984d865313982cb14",
+      "size": 2498,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/60815e1455a542031f9e96a984d865313982cb14"
+    },
+    {
+      "path": "internal/characters/traveler/common/hydro/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "955d67b5199e7593f2f78c35f71b0ae47f8395c5",
+      "size": 2580,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/955d67b5199e7593f2f78c35f71b0ae47f8395c5"
+    },
+    {
+      "path": "internal/characters/traveler/hydro/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e398bb60ad737f02ab4165d5b714e44dd61d577d",
+      "size": 505,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/e398bb60ad737f02ab4165d5b714e44dd61d577d"
+    },
+    {
+      "path": "internal/characters/traveler/common/pyro/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "9725885d91c725b7a77cea1ab4573f954ea6d4b6",
+      "size": 2815,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/9725885d91c725b7a77cea1ab4573f954ea6d4b6"
+    },
+    {
+      "path": "internal/characters/traveler/common/pyro/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "61d31baf226295c676fbaaab5866d0ae281c82ae",
+      "size": 3236,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/61d31baf226295c676fbaaab5866d0ae281c82ae"
+    },
+    {
+      "path": "internal/characters/traveler/pyro/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "abe25b7445ca2547bc7c7a805ee0069461a53e91",
+      "size": 502,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/abe25b7445ca2547bc7c7a805ee0069461a53e91"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/charge.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "6388c9620bde029a5bf719a52db932ef4865f7ed",
+      "size": 5637,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/6388c9620bde029a5bf719a52db932ef4865f7ed"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/stats.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "ac6c84b922d5a796815f6bb98fae84ce382e5634",
+      "size": 4186,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/ac6c84b922d5a796815f6bb98fae84ce382e5634"
+    },
+    {
+      "path": "internal/characters/traveler/cryo/aether/aether.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "013e49e947b4ed4165dc662530c65e14fae1710c",
+      "size": 656,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/013e49e947b4ed4165dc662530c65e14fae1710c"
+    },
+    {
+      "path": "LICENSE",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "1cab5eaeabc11fb5ef260c2f60ed2ea918763e17",
+      "size": 35211,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/1cab5eaeabc11fb5ef260c2f60ed2ea918763e17"
+    },
+    {
+      "path": "internal/characters/traveler/common/storybuffs.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4a200edbe93ef5abdf563e3de5c8399fb1eb40ef",
+      "size": 1779,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4a200edbe93ef5abdf563e3de5c8399fb1eb40ef"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/asc.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "99ebeb118b6ea596a410d98a36880cffcd13590d",
+      "size": 1406,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/99ebeb118b6ea596a410d98a36880cffcd13590d"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/skill.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4c67e5518bedbc7136ab0b39d9087cd993b46123",
+      "size": 5326,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4c67e5518bedbc7136ab0b39d9087cd993b46123"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/stellar.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "48bd41e6501eec1fa0b5c0c5d45d6efd2d3475a8",
+      "size": 2429,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/48bd41e6501eec1fa0b5c0c5d45d6efd2d3475a8"
+    },
+    {
+      "path": "internal/characters/traveler/common/cryo/travelercryo.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "09b30ee9a0251e1ef15274b2f38cdd949436531f",
+      "size": 1699,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/09b30ee9a0251e1ef15274b2f38cdd949436531f"
+    },
+    {
+      "path": "internal/template/character/character.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "f25b799d41269c2088e35e5668e20737d905f27e",
+      "size": 5080,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/f25b799d41269c2088e35e5668e20737d905f27e"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "size": 2255,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "path": "pkg/core/player/exec.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "4c6f739ee82d4aa50e0cd899238237044e99ba22",
+      "size": 7607,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/4c6f739ee82d4aa50e0cd899238237044e99ba22"
+    },
+    {
+      "path": "pkg/core/player/player.go",
+      "mode": "100644",
+      "type": "blob",
+      "sha": "e0d2ec53cc57341da1a8b33064ce3f0f553d307e",
+      "size": 8881,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/git/blobs/e0d2ec53cc57341da1a8b33064ce3f0f553d307e"
+    },
+    {
+      "path": "internal/template/character/stam.go",
+      "sha": "daad47c45064dad029794802f5ed41136cdb07d9",
+      "size": 6165,
+      "url": "https://api.github.com/repos/genshinsim/gcsim/contents/internal/template/character/stam.go?ref=a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+    }
+  ]
+}

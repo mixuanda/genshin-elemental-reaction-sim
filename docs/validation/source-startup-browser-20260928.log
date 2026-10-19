@@ -1,0 +1,11 @@
+[WebServer] (node:10488) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:10489) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"runs":{"stellar":4,"classic":6},"fullApplications":3,"sourceCommit":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","wasmSha256":"c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681","reexecution":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","workers":3,"errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-startup-sensitivity.spec.ts:35:1 › native zero/full/custom startup energy preserves exact runs, paired windows, and complete replay (2.8s)
+
+  1 passed (3.6s)

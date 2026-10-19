@@ -1,0 +1,64 @@
+--- a/internal/artifacts/heartofthefurnace/heartofthefurnace.go
++++ b/internal/artifacts/heartofthefurnace/heartofthefurnace.go
+@@ -41,6 +41,9 @@
+ 		Base:         modifier.NewBase(setKey2, -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if c.SourceHost != nil {
++				m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-heart-of-the-furnace-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+@@ -56,6 +59,9 @@
+ 		Base:         modifier.NewBaseWithHitlag(atkKey, 12*60),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if c.SourceHost != nil {
++				m2[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-heart-of-the-furnace-4pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m2
+ 		},
+ 	}
+@@ -66,6 +72,9 @@
+ 			if !ai.AttackTag.IsStellar() {
+ 				return 0
+ 			}
++			if c.SourceHost != nil {
++				return c.SourceHost.ArtifactScalar(ai.ActorIndex, "dynamic-heart-of-the-furnace-4pc-stellar-react", map[string]any{"state": map[string]any{}}, &ai, 0)
++			}
+ 			return 0.50
+ 		},
+ 	}
+--- a/internal/artifacts/scarletproof/scarletproof.go
++++ b/internal/artifacts/scarletproof/scarletproof.go
+@@ -38,6 +38,9 @@
+ 		Base:         modifier.NewBase("scarletproof-2pc", -1),
+ 		AffectedStat: attributes.ATKP,
+ 		Amount: func() []float64 {
++			if c.SourceHost != nil {
++				m[attributes.ATKP] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-scarletproof-2pc-atkp", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return m
+ 		},
+ 	})
+@@ -53,6 +56,9 @@
+ 		Base:         modifier.NewBaseWithHitlag(crKey, 10*60),
+ 		AffectedStat: attributes.CR,
+ 		Amount: func() []float64 {
++			if c.SourceHost != nil {
++				cr[attributes.CR] = c.SourceHost.ArtifactScalar(char.Index(), "dynamic-scarletproof-4pc-cr", map[string]any{"state": map[string]any{}}, nil, 0)
++			}
+ 			return cr
+ 		},
+ 	}
+@@ -63,6 +69,9 @@
+ 			switch ai.AttackTag {
+ 			case attacks.AttackTagReactionStellarSwirl,
+ 				attacks.AttackTagDirectStellarSwirl:
++				if c.SourceHost != nil {
++					return c.SourceHost.ArtifactScalar(char.Index(), "dynamic-scarletproof-4pc-stellar-swirl", map[string]any{"state": map[string]any{}}, &ai, 0)
++				}
+ 				return 0.40
+ 			}
+ 			return 0

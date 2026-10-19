@@ -1,0 +1,271 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "commits": {
+    "gcsim": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "genshin-db": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf"
+  },
+  "archivePath": "packages/game-data/sources/weapon-proc-lifecycle/source.json.gz",
+  "archiveSha256": "b75a1dacd3ddd4f57ad2291c7670d361cc195e4fa10ba2229b122fb733d4fa71",
+  "archivedFrom": "existing fixed local source trees; all 23 gcsim paths match independent external sample source-review hashes",
+  "optimizerManifestPath": "packages/game-data/sources/weapon-proc-lifecycle-optimizer/manifest.json",
+  "scope": "Four explicit note/skill/particle lifecycle transitions under no-character-hitlag assumption; actual host events and scheduling supplied by runtime.",
+  "sourceConflicts": [
+    {
+      "weaponId": "flute",
+      "ranks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "optimizerSheetCoefficients": [
+        2,
+        2,
+        2,
+        2
+      ],
+      "gcsimAndCatalogCoefficients": [
+        1,
+        1.25,
+        1.5,
+        1.75
+      ],
+      "resolution": "Use explicit fixed gcsim plus catalogue values and display disagreement; do not mark three-source agreement."
+    }
+  ],
+  "files": [
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/sword/flute/flute.go",
+      "archiveEntry": "gcsim/internal/weapons/sword/flute/flute.go",
+      "bytes": 2148,
+      "sha256": "df27541a50b740b2ef1ad3ccc8f5526b1e883362d864243d5ce1ee4e3b4510ae",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/flute/flute.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/claymore/debateclub/debateclub.go",
+      "archiveEntry": "gcsim/internal/weapons/claymore/debateclub/debateclub.go",
+      "bytes": 2499,
+      "sha256": "df6a10cd3275faabb635c102c5ee72212f22bc3ed987dac1e799809330799d2c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/debateclub/debateclub.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/spear/crescent/crescent.go",
+      "archiveEntry": "gcsim/internal/weapons/spear/crescent/crescent.go",
+      "bytes": 2003,
+      "sha256": "a3d7ff1c0209e8c02b8e0c8a51f88c1b708b98679f13187859588c0e56e6400c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/crescent/crescent.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/weapons/bow/endoftheline/endoftheline.go",
+      "archiveEntry": "gcsim/internal/weapons/bow/endoftheline/endoftheline.go",
+      "bytes": 3061,
+      "sha256": "e86a6db96ce72ec593436a0beb10e979278d4a70c3121924e708cef85da95ca2",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/endoftheline/endoftheline.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/exec.go",
+      "archiveEntry": "gcsim/pkg/core/player/exec.go",
+      "bytes": 7052,
+      "sha256": "daa25611e8a527c7ff81e857272f10646971a58722460906fb07e0f6d91b6bb0",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/exec.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/simulation/run.go",
+      "archiveEntry": "gcsim/pkg/simulation/run.go",
+      "bytes": 9886,
+      "sha256": "df050f12c3d4f57aa87f1f5d754a03931c7bc7545d12c94aaa1926adb4c03b76",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/run.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/core.go",
+      "archiveEntry": "gcsim/pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/task/task.go",
+      "archiveEntry": "gcsim/pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/task/task.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/energy.go",
+      "archiveEntry": "gcsim/pkg/core/energy.go",
+      "bytes": 2639,
+      "sha256": "b75119c3e1720fe8823dc9ffaf5440a66e0b4f53a7fb089e83cc92866c59cd1c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/energy.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/player.go",
+      "archiveEntry": "gcsim/pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/player.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/energy.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/energy.go",
+      "bytes": 2327,
+      "sha256": "eb58b6e643a147d67cab226dd0296d2df63d0bcdc32c4c3a433724f1609f9493",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/energy.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/character.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/character.go",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/character.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "archiveEntry": "gcsim/pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/hitlag.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/event/event.go",
+      "archiveEntry": "gcsim/pkg/core/event/event.go",
+      "bytes": 4927,
+      "sha256": "cea71a4977595c9260a1c11dc459f4ebaaec73378631d70beb5a0fc5f3fb81b6",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/event/event.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "archiveEntry": "gcsim/pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/core/attack.go",
+      "archiveEntry": "gcsim/pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "pkg/enemy/attack.go",
+      "archiveEntry": "gcsim/pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/diona/skill.go",
+      "archiveEntry": "gcsim/internal/characters/diona/skill.go",
+      "bytes": 4916,
+      "sha256": "ee1b2a33b6795a9ab2a661ef51b5c97e552db0dcdd299be58bff6f4560e3451e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/skill.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/diona/attack.go",
+      "archiveEntry": "gcsim/internal/characters/diona/attack.go",
+      "bytes": 1931,
+      "sha256": "ec33f6c13fac4fb5f7919992ad4a02b82aa05ff26ece66289b47cfe7644da9e0",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/attack.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/diona/diona.go",
+      "archiveEntry": "gcsim/internal/characters/diona/diona.go",
+      "bytes": 1009,
+      "sha256": "d75c86712d2def91e1353ce6a65a856e3f5e1de961760114d99307344cc923d4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/diona.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "internal/characters/diona/zz_diona.dm.go",
+      "archiveEntry": "gcsim/internal/characters/diona/zz_diona.dm.go",
+      "bytes": 4261,
+      "sha256": "2601720c0cc0d1b6efdf9e59f3659dc4261ec229a7c8a55a561e267f4a740683",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/diona/zz_diona.dm.go"
+    },
+    {
+      "source": "gcsim",
+      "path": "LICENSE",
+      "archiveEntry": "gcsim/LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "source": "genshin-db",
+      "path": "LICENSE",
+      "archiveEntry": "genshin-db/LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/LICENSE"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/theflute.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/theflute.json",
+      "bytes": 4780,
+      "sha256": "5a8dafc81992cb350696db285245c6d57ad2ac36e36b1174110774fa03e45df3",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/theflute.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/debateclub.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/debateclub.json",
+      "bytes": 3967,
+      "sha256": "cc3ef4ea58b93d2791d535ee9a080bb8c7107330fb1e233930176de41dc43c2e",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/debateclub.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/crescentpike.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/crescentpike.json",
+      "bytes": 4628,
+      "sha256": "ce0ec74cf0241bb1c538cda7a8736b6e5541a4c0e041ce8e25b234c849802f8b",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/crescentpike.json"
+    },
+    {
+      "source": "genshin-db",
+      "path": "src/data/ChineseSimplified/weapons/endoftheline.json",
+      "archiveEntry": "genshin-db/src/data/ChineseSimplified/weapons/endoftheline.json",
+      "bytes": 4869,
+      "sha256": "a09dcf2adad0229aaf77de42a2cc31ef00c74192fbc473d02c9bf17326ea0433",
+      "url": "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/endoftheline.json"
+    }
+  ]
+}

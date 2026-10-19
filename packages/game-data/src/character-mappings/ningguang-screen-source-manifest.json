@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "status": "source-backed-provisional",
+  "recordedAt": "2026-09-23T17:20:41.233218+00:00",
+  "localArchivePath": "packages/game-data/sources/ningguang-screen/source.json.gz",
+  "localArchiveSha256": "057b0ca2e7a140506645a2965aac726503e62268a0031254784648bad3b04368",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/ningguang/ningguang.go": "6af4c2f3fc0cf76f189922f0ee073c98ab78de07d64d67b96ba20560e92f0b10",
+    "internal/characters/ningguang/burst.go": "b16ad91b9be7d9140de6b967d4811514b93e2a3f599aca6c93c11d523813e837",
+    "internal/characters/ningguang/skill.go": "c8ba05dfc7ca3db7f84e19b65f8b062319dcd5be3cf20b8134b67597c63a5e8b",
+    "internal/characters/ningguang/asc.go": "a14fd20e97e9edd60885b218a66d9f093b7568bbc0d728f4a99933f2287d4ca0",
+    "internal/characters/ningguang/screen.go": "49ad1aee18693fbba5c9c3fba3200acfed81756c4afbbeaae479526fc5503f69",
+    "internal/characters/ningguang/zz_ningguang.dm.go": "f8c948e2b7783443d6bc173dfc6d26c8fd92cca4e9375924ff881fb30e8a7c8e",
+    "internal/template/character/character.go": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+    "pkg/core/info/combat.go": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+    "pkg/enemy/damage.go": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+    "catalog-evidence/ningguang-constellations.json": "25485c32b27a9a2738bb351f33275ba056cc0793adb31cb1e8b4993124fdba4d"
+  },
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "comparedCoefficientPositions": 15,
+  "maximumAbsoluteDifference": 0,
+  "coefficients": [
+    {
+      "id": "ningguang-combat3-gem",
+      "characterSlug": "ningguang",
+      "abilityKey": "combat3",
+      "parameterKey": "param1",
+      "sourceTable": "burst",
+      "sourceIndex": [],
+      "values": [
+        0.8696,
+        0.93482,
+        1.00004,
+        1.087,
+        1.15222,
+        1.21744,
+        1.3044,
+        1.39136,
+        1.47832,
+        1.56528,
+        1.65224,
+        1.7392,
+        1.8479,
+        1.9566,
+        2.0653
+      ]
+    }
+  ],
+  "scope": [
+    "Six body gems with Q snapshot and six screen gems with previously recorded E snapshot; Q talent coefficient for both groups; C0-C6 with explicit independent A4 accounting."
+  ],
+  "unverified": [
+    "Pinned source/catalog agreement is not live-game verification.",
+    "Source TODO: Jade Screen gem hitmarks and A4 dash event fidelity; targeting and all twelve hits landing are explicit conditions.",
+    "Constellation descriptions are retained from the catalog source, not an independent live-game verification."
+  ]
+}

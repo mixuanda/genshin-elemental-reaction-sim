@@ -1,0 +1,82 @@
+[
+  {
+    "id": "weapon:11101",
+    "name": "无锋剑",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:11201",
+    "name": "银剑",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:12101",
+    "name": "训练大剑",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:12201",
+    "name": "佣兵重剑",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:13101",
+    "name": "新手长枪",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:13201",
+    "name": "铁尖枪",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:14101",
+    "name": "学徒笔记",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:14201",
+    "name": "口袋魔导书",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:15101",
+    "name": "猎弓",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  },
+  {
+    "id": "weapon:15201",
+    "name": "历练的猎弓",
+    "fields": [
+      "mainStatType",
+      "stats.specialized"
+    ]
+  }
+]

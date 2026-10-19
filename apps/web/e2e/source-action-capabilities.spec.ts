@@ -1,0 +1,61 @@
+import { expect, test } from "@playwright/test";
+import { readFile, writeFile } from "node:fs/promises";
+import type { SourceHostResult } from "../../../packages/sim-core/src/source-host-wire";
+
+test("角色动作按来源方法提供，普攻输入与伤害段分开，实际命中可恢复", async ({ page }) => {
+  test.setTimeout(60000);
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.goto("/source-simulation");
+  const builder = page.locator("#source-team-builder");
+  await builder.locator("[data-add-character]").selectOption("noelle");
+  await expect(builder.locator('[data-quick-action="aim"]')).toHaveCount(0);
+  // The source implements Noelle's Xianyun-airborne plunge branch; its
+  // runtime prerequisite must not be confused with an absent method.
+  await expect(builder.locator('[data-quick-action="high_plunge"]')).toBeVisible();
+  await expect(builder.locator('[data-quick-action="charge"]')).toBeVisible();
+  await expect(builder.locator("[data-normal-combo]")).toHaveCount(4);
+  await builder.locator('[data-normal-combo="4"]').click();
+  await expect(builder.locator('[data-action-repeat-field="0"]')).toHaveValue("4");
+  await builder.locator('[data-draft-field="durationSeconds"]').fill("6");
+  await builder.locator('[data-draft-field="durationSeconds"]').press("Tab");
+  await builder.locator("[data-apply-script]").click();
+  await expect(page.locator("#source-host-config")).toHaveValue(/noelle attack:4;/);
+  await page.locator("#source-host-run").click();
+  await expect(page.locator("#source-host-status")).toContainText("本次运行完成", { timeout: 45000 });
+  const download = page.waitForEvent("download");
+  await page.locator("#source-host-export").click();
+  const result = JSON.parse(await readFile((await (await download).path())!, "utf8")) as SourceHostResult;
+  const actions = (result.result as { characters: Array<{ action_events: Array<{ action: string }> }> }).characters[0]!.action_events;
+  expect(actions.filter(action => action.action === "attack")).toHaveLength(4);
+  const normalIds = new Set(result.calculations.filter(row => row.request.kind === "damage" && row.request.ability.startsWith("Normal ")).map(row => row.request.id));
+  const procIds = new Set(result.calculations.filter(row => row.request.kind === "damage" && row.request.ability === "Prototype Archaic Proc").map(row => row.request.id));
+  expect(result.applications.filter(hit => normalIds.has(hit.calculationId))).toHaveLength(4);
+  expect(result.applications.filter(hit => procIds.has(hit.calculationId))).toHaveLength(1);
+  await writeFile("docs/validation/source-action-capabilities-20260928.result.json", JSON.stringify(result, null, 2));
+  await page.locator("#source-host-open-calculator").click();
+  await expect(page.locator("#calc-source-host-capture")).toContainText("差值 0");
+  await page.getByRole("link", { name: "来源队伍模拟", exact: true }).click();
+  await builder.locator("[data-add-character]").selectOption("amber");
+  await expect(builder.locator('[data-quick-action="aim"]')).toBeVisible();
+  await expect(builder.locator('[data-quick-action="charge"]')).toHaveCount(0);
+  await expect(builder.locator("[data-normal-combo]")).toHaveCount(5);
+  await builder.locator('[data-quick-action="aim"]').click();
+  await expect(builder.locator('[data-action-kind="1"]')).toHaveValue("aim");
+  await builder.locator("[data-source-action-guide] summary").click();
+  await expect(builder.locator("[data-source-action-guide]")).toContainText("travel");
+  // Keeping an action while changing its actor must not silently replace it.
+  await builder.locator('[data-action-actor="1"]').selectOption("noelle");
+  await builder.locator("[data-apply-script]").click();
+  await expect(builder.locator(".source-team-builder__status")).toContainText("尚未实现");
+  await builder.locator('[data-action-kind="1"]').selectOption("skill");
+  await builder.locator("[data-apply-script]").click();
+  await expect(page.locator("#source-host-config")).toHaveValue(/noelle skill;/);
+  await page.locator("#source-host-variant").selectOption("stellar");
+  await builder.locator("[data-add-character]").selectOption("aethercryo");
+  await expect(builder.locator('[data-quick-action="skill"]')).toBeVisible();
+  await expect(builder.locator("[data-normal-combo]")).toHaveCount(5);
+  await builder.locator("[data-source-action-guide] summary").click();
+  await expect(builder.locator("[data-source-action-guide]").getByRole("link", { name: "E 技能", exact: true })).toHaveAttribute("href", /traveler\/common\/cryo\/skill\.go/);
+  expect(errors).toEqual([]);
+});

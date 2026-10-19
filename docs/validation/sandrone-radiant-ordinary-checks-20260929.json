@@ -1,0 +1,40 @@
+{
+  "subject": "Sandrone C0 observed ordinary sweep and overdrive under Stellar radiance",
+  "date": "2026-09-29",
+  "provenance": "Transcribed from the already executed focused test tool result and root build report; no rerun for this receipt.",
+  "source": {
+    "repository": "frzyc/genshin-optimizer",
+    "commit": "180a0a1015cb725c7570cd828eb086749960df98",
+    "sheet": "packages/game-data/sources/optimizer-missing-components/sandrone/raw/libs/gi/sheets/src/Characters/Sandrone/index.tsx:215-251",
+    "englishSkillText": "packages/game-data/sources/optimizer-missing-components/sandrone/raw/libs/gi/dm-localization/assets/locales/en/char_Sandrone_gen.json:15-20",
+    "claim": "sweepDmg and overdriveDmg are ordinary Cryo nodes without a radiance condition; only condensed-beam Stellar replacements are radiance gated."
+  },
+  "changedFiles": [
+    "packages/sim-core/src/sandrone-observed-lifecycle.ts",
+    "packages/game-data/src/character-mappings/optimizer-additional-mappings.ts",
+    "packages/sim-core/src/sandrone-observed-lifecycle.test.ts"
+  ],
+  "focusedTest": {
+    "command": "npx vitest run packages/sim-core/src/sandrone-observed-lifecycle.test.ts",
+    "exitCode": 0,
+    "testFilesPassed": 1,
+    "testsPassed": 3,
+    "vitestDurationSeconds": 10.01,
+    "commandWallSeconds": 11.32,
+    "coveredBranches": [
+      "stellar-conduct observed sweep binds to ordinary source and calculates",
+      "stellar-swirl observed overdrive binds to ordinary source and calculates",
+      "stellar-conduct beam resolves to replacement and rejects ordinary beam child"
+    ]
+  },
+  "rootReportedWebBuild": {
+    "status": "passed",
+    "durationSeconds": 8.718,
+    "note": "Root report covers this batch; initial unrelated optional/undefined UI typing failure was resolved before the final passing build."
+  },
+  "limits": [
+    "No coefficient or downstream calculator formula changed.",
+    "Actual attack count, cadence, target contact, heat changes, and complete window attribution require observed input.",
+    "Not a claim of in-game validation or completion of the whole product goal."
+  ]
+}

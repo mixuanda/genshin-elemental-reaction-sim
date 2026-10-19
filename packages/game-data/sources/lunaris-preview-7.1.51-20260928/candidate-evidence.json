@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "sourceArchiveSha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf",
+  "providerVersion": "7.1.51",
+  "gameVersionMapping": "unknown",
+  "requested72V1MappingConfirmed": false,
+  "observedEntityIds": [
+    10000136,
+    10000137
+  ],
+  "fullInventory": "unknown",
+  "licenseStatus": "No provider data redistribution license confirmed; offline mirror license does not cover these bytes.",
+  "officialObservation": {
+    "evidenceRef": "docs/data-evidence-refresh-20260928.json#official-71-index",
+    "knownRelease": "7.1",
+    "directArticleBodyArchived": false
+  },
+  "officialSourceLimit": "Indexed official update detail observed; complete official page response bytes were not downloaded here.",
+  "newSourceMetadata": {
+    "mityaAttacks": 16,
+    "mityaEnergy": 1,
+    "valeriyAttacks": 16,
+    "valeriyEnergy": 1,
+    "valeriyEndure": 3
+  },
+  "semanticStatus": "All new source combat rows and raw parameters are unverified; no executable definitions."
+}

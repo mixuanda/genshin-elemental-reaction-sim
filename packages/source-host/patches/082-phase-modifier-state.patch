@@ -1,0 +1,134 @@
+--- a/pkg/modifier/modifier.go
++++ b/pkg/modifier/modifier.go
+@@ -4,6 +4,7 @@
+ 
+ import (
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ )
+ 
+ type Mod interface {
+@@ -16,6 +17,8 @@
+ }
+ 
+ type Base struct {
++	// Phase describes the live captured state of this modifier without running Amount.
++	Phase     *phase.Descriptor
+ 	ModKey    string
+ 	Dur       int
+ 	Hitlag    bool
+--- /dev/null
++++ b/pkg/modifier/sourcehost_phase_callback.go
+@@ -0,0 +1,23 @@
++package modifier
++
++import "github.com/genshinsim/gcsim/pkg/core/phase"
++
++// WithPhase attaches source-audited, read-only closure metadata. It does not
++// change the modifier's value, expiry or execution. The observer must return
++// copied live captures and semantic references to other captured providers.
++func WithPhase(base Base, source string, observe func() (map[string]any, []string)) Base {
++	base.Phase = &phase.Descriptor{Source: source, Observe: observe}
++	return base
++}
++
++func (b *Base) SourceHostPhaseCallback() (map[string]any, []string) {
++	if b.Phase == nil || b.Phase.Source == "" || b.Phase.Observe == nil {
++		return nil, []string{"Amount callback has no source-reviewed live capture descriptor"}
++	}
++	// Amount affects gameplay even when a caller mistakenly labels it observational.
++	state, gaps := b.Phase.Observe()
++	if state == nil {
++		state = map[string]any{}
++	}
++	return map[string]any{"source": b.Phase.Source, "capture": state}, gaps
++}
+--- a/pkg/core/player/character/sourcehost_phase_state.go
++++ b/pkg/core/player/character/sourcehost_phase_state.go
+@@ -48,32 +48,56 @@
+ 			entry["affectedStat"] = typed.AffectedStat.String()
+ 			entry["extra"] = typed.Extra
+ 			if typed.Amount != nil {
+-				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++				capture, callbackGaps := typed.SourceHostPhaseCallback()
++				entry["callback"] = capture
++				for _, gap := range callbackGaps {
++					gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d]: %s", c.index, index, gap))
++				}
+ 			}
+ 		case *AttackMod:
+ 			entry["duration"] = typed.Dur
+ 			if typed.Amount != nil {
+-				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++				capture, callbackGaps := typed.SourceHostPhaseCallback()
++				entry["callback"] = capture
++				for _, gap := range callbackGaps {
++					gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d]: %s", c.index, index, gap))
++				}
+ 			}
+ 		case *CooldownMod:
+ 			entry["duration"] = typed.Dur
+ 			if typed.Amount != nil {
+-				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++				capture, callbackGaps := typed.SourceHostPhaseCallback()
++				entry["callback"] = capture
++				for _, gap := range callbackGaps {
++					gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d]: %s", c.index, index, gap))
++				}
+ 			}
+ 		case *DamageReductionMod:
+ 			entry["duration"] = typed.Dur
+ 			if typed.Amount != nil {
+-				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++				capture, callbackGaps := typed.SourceHostPhaseCallback()
++				entry["callback"] = capture
++				for _, gap := range callbackGaps {
++					gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d]: %s", c.index, index, gap))
++				}
+ 			}
+ 		case *HealBonusMod:
+ 			entry["duration"] = typed.Dur
+ 			if typed.Amount != nil {
+-				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++				capture, callbackGaps := typed.SourceHostPhaseCallback()
++				entry["callback"] = capture
++				for _, gap := range callbackGaps {
++					gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d]: %s", c.index, index, gap))
++				}
+ 			}
+ 		case *ReactBonusMod:
+ 			entry["duration"] = typed.Dur
+ 			if typed.Amount != nil {
+-				gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d].Amount callback", c.index, index))
++				capture, callbackGaps := typed.SourceHostPhaseCallback()
++				entry["callback"] = capture
++				for _, gap := range callbackGaps {
++					gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d]: %s", c.index, index, gap))
++				}
+ 			}
+ 		default:
+ 			gaps = append(gaps, fmt.Sprintf("character[%d].modifier[%d] private implementation", c.index, index))
+--- a/internal/characters/amber/asc.go
++++ b/internal/characters/amber/asc.go
+@@ -17,7 +17,9 @@
+ 	m := make([]float64, attributes.EndStatType)
+ 	m[attributes.CR] = .1
+ 	c.AddAttackMod(character.AttackMod{
+-		Base: modifier.NewBase("amber-a1", -1),
++		Base: modifier.WithPhase(modifier.NewBase("amber-a1", -1), "internal/characters/amber/asc.go:a1", func() (map[string]any, []string) {
++			return map[string]any{"characterIndex": c.Index(), "vector": append([]float64(nil), m...)}, nil
++		}),
+ 		Amount: func(atk *info.AttackEvent, t info.Target) []float64 {
+ 			if atk.Info.AttackTag == attacks.AttackTagElementalBurst {
+ 				if c.Core.SourceHost != nil {
+@@ -54,7 +56,9 @@
+ 		m := make([]float64, attributes.EndStatType)
+ 		m[attributes.ATKP] = 0.15
+ 		c.AddStatMod(character.StatMod{
+-			Base:         modifier.NewBaseWithHitlag("amber-a4", 600),
++			Base: modifier.WithPhase(modifier.NewBaseWithHitlag("amber-a4", 600), "internal/characters/amber/asc.go:a4", func() (map[string]any, []string) {
++				return map[string]any{"characterIndex": c.Index(), "vector": append([]float64(nil), m...)}, nil
++			}),
+ 			AffectedStat: attributes.ATKP,
+ 			Amount: func() []float64 {
+ 				if c.Core.SourceHost != nil {

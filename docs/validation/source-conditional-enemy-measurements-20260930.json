@@ -1,0 +1,404 @@
+{
+  "schemaVersion": "source-conditional-enemy-measurements-v1",
+  "asOf": "2026-09-30",
+  "goalStatus": "active",
+  "report": "docs/source-conditional-enemy-tasks-20260930.zh-CN.md",
+  "change": {
+    "newCanonicalActions": 8,
+    "directRegistryRows": 27,
+    "producerRegistryRows": 72,
+    "rawRegistryRows": 99,
+    "mergedContractIds": 98,
+    "canonicalCharacterActions": 96,
+    "producerPlanDeclarations": 72,
+    "explicitProducerSiteDeclarations": 100,
+    "uniqueProducerSiteIds": 93
+  },
+  "checks": {
+    "browser-baseline": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-conditional-and-enemy-task.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 4.834
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.152
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.4
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.115
+    },
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.655
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.063
+    },
+    "browser-initial": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-conditional-and-enemy-task.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 10.906
+    },
+    "typecheck-final": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.853
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.216
+    },
+    "browser-final": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-conditional-and-enemy-task.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.334
+    }
+  },
+  "runtime": {
+    "nativeRuns": 3,
+    "baseline": "One Classic run using batch123 artifacts; no Stellar pre-change baseline.",
+    "postChangeRuns": 2,
+    "cachedVerificationRuns": 1,
+    "classicApplicationsAndOriginalOriginUnchanged": true,
+    "runs": [
+      {
+        "lane": "classic",
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "artifact": {
+          "wasmSha256": "6f586d138a67674d860fccf3f52f797b2bdc1866cf2a6dc1b13ef72595d7b7fb",
+          "wasmBytes": 46819092
+        },
+        "actualEndFrame": 653,
+        "applications": 15,
+        "selectedApplications": 12,
+        "completeInvocations": 6,
+        "maxAbsoluteReplayDifference": 0,
+        "invocations": [
+          {
+            "key": "chascaE1",
+            "id": 1,
+            "entryFacts": {
+              "chasca.skill.blessing-at-entry": 0,
+              "chasca.skill.pending-aim-release": 0
+            },
+            "expectedRootAttackCount": 1,
+            "completeCast": true,
+            "hitCount": 2
+          },
+          {
+            "key": "chascaE2",
+            "id": 2,
+            "entryFacts": {
+              "chasca.skill.blessing-at-entry": 1,
+              "chasca.skill.pending-aim-release": 0
+            },
+            "expectedRootAttackCount": 0,
+            "completeCast": true,
+            "hitCount": 0
+          },
+          {
+            "key": "xilonenE1",
+            "id": 3,
+            "entryFacts": {
+              "xilonen.skill.blessing-at-entry": 0
+            },
+            "expectedRootAttackCount": 1,
+            "completeCast": true,
+            "hitCount": 2
+          },
+          {
+            "key": "xilonenE2",
+            "id": 4,
+            "entryFacts": {
+              "xilonen.skill.blessing-at-entry": 1
+            },
+            "expectedRootAttackCount": 0,
+            "completeCast": true,
+            "hitCount": 0
+          },
+          {
+            "key": "qiqiQ",
+            "id": 5,
+            "entryFacts": {
+              "qiqi.burst.stellar-conduct-at-entry": 0
+            },
+            "expectedRootAttackCount": 2,
+            "completeCast": true,
+            "hitCount": 4
+          },
+          {
+            "key": "nilouQ",
+            "id": 6,
+            "entryFacts": {},
+            "expectedRootAttackCount": 3,
+            "completeCast": true,
+            "hitCount": 4
+          }
+        ],
+        "nilou": {
+          "rootAttacks": 3,
+          "applications": 4,
+          "totalAppliedDamage": 7209.930777468864,
+          "tasks": [
+            {
+              "id": 73,
+              "queueId": 2,
+              "queuedClock": 392,
+              "dueClock": 513,
+              "queuedFrame": 396,
+              "runFrame": 517,
+              "completedFrame": 517,
+              "state": "completed"
+            },
+            {
+              "id": 74,
+              "queueId": 3,
+              "queuedClock": 392,
+              "dueClock": 513,
+              "queuedFrame": 396,
+              "runFrame": 517,
+              "completedFrame": 517,
+              "state": "completed"
+            }
+          ]
+        },
+        "zeroAttackCalculatorRoundTrip": true,
+        "missingBranchFactRemainsUnknown": {
+          "chascaE2": {
+            "completeCast": false,
+            "zeroAttackCast": false,
+            "knownSubtotal": null,
+            "reasons": [
+              "本次参数分支不在已审阅的有限规则内。"
+            ]
+          },
+          "xilonenE2": {
+            "completeCast": false,
+            "zeroAttackCast": false,
+            "knownSubtotal": null,
+            "reasons": [
+              "本次参数分支不在已审阅的有限规则内。"
+            ]
+          }
+        }
+      },
+      {
+        "lane": "stellar",
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "artifact": {
+          "wasmSha256": "b6b13f143fdba08c725d025857cfba5b22c3d7748a7fd2e1f4b7295d220b30e5",
+          "wasmBytes": 70626860
+        },
+        "actualEndFrame": 653,
+        "applications": 15,
+        "selectedApplications": 12,
+        "completeInvocations": 6,
+        "maxAbsoluteReplayDifference": 0,
+        "invocations": [
+          {
+            "key": "chascaE1",
+            "id": 1,
+            "entryFacts": {
+              "chasca.skill.blessing-at-entry": 0,
+              "chasca.skill.pending-aim-release": 0
+            },
+            "expectedRootAttackCount": 1,
+            "completeCast": true,
+            "hitCount": 2
+          },
+          {
+            "key": "chascaE2",
+            "id": 2,
+            "entryFacts": {
+              "chasca.skill.blessing-at-entry": 1,
+              "chasca.skill.pending-aim-release": 0
+            },
+            "expectedRootAttackCount": 0,
+            "completeCast": true,
+            "hitCount": 0
+          },
+          {
+            "key": "xilonenE1",
+            "id": 3,
+            "entryFacts": {
+              "xilonen.skill.blessing-at-entry": 0
+            },
+            "expectedRootAttackCount": 1,
+            "completeCast": true,
+            "hitCount": 2
+          },
+          {
+            "key": "xilonenE2",
+            "id": 4,
+            "entryFacts": {
+              "xilonen.skill.blessing-at-entry": 1
+            },
+            "expectedRootAttackCount": 0,
+            "completeCast": true,
+            "hitCount": 0
+          },
+          {
+            "key": "qiqiQ",
+            "id": 5,
+            "entryFacts": {
+              "qiqi.burst.stellar-conduct-at-entry": 0
+            },
+            "expectedRootAttackCount": 2,
+            "completeCast": true,
+            "hitCount": 4
+          },
+          {
+            "key": "nilouQ",
+            "id": 6,
+            "entryFacts": {},
+            "expectedRootAttackCount": 3,
+            "completeCast": true,
+            "hitCount": 4
+          }
+        ],
+        "nilou": {
+          "rootAttacks": 3,
+          "applications": 4,
+          "totalAppliedDamage": 7209.930777468864,
+          "tasks": [
+            {
+              "id": 73,
+              "queueId": 2,
+              "queuedClock": 392,
+              "dueClock": 513,
+              "queuedFrame": 396,
+              "runFrame": 517,
+              "completedFrame": 517,
+              "state": "completed"
+            },
+            {
+              "id": 74,
+              "queueId": 3,
+              "queuedClock": 392,
+              "dueClock": 513,
+              "queuedFrame": 396,
+              "runFrame": 517,
+              "completedFrame": 517,
+              "state": "completed"
+            }
+          ]
+        },
+        "zeroAttackCalculatorRoundTrip": false,
+        "missingBranchFactRemainsUnknown": {
+          "chascaE2": {
+            "completeCast": false,
+            "zeroAttackCast": false,
+            "knownSubtotal": null,
+            "reasons": [
+              "本次参数分支不在已审阅的有限规则内。"
+            ]
+          },
+          "xilonenE2": {
+            "completeCast": false,
+            "zeroAttackCast": false,
+            "knownSubtotal": null,
+            "reasons": [
+              "本次参数分支不在已审阅的有限规则内。"
+            ]
+          }
+        }
+      }
+    ],
+    "pageErrors": []
+  },
+  "repair": {
+    "initialBrowserFailure": "Stellar receipts encode the ordinary Burst tag as AttackTag(6); named-only matching rejected valid Nilou attacks. Added the seven source-shared literal aliases in one helper and reused the saved two-lane native captures for final checks.",
+    "nativeRunsRepeated": false,
+    "goRebuildAfterTagRepair": false
+  },
+  "dataPointers": [
+    {
+      "path": "packages/game-data/manifests/pointers.json",
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "bytes": 955
+    },
+    {
+      "path": "packages/game-data/manifests/runtime/current.ts",
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "bytes": 6035
+    }
+  ],
+  "remaining": [
+    "Jean E, Lanyan Q, Varka Q and Aloy E have source/build evidence only in this batch.",
+    "Qiqi Stellar Conduct positive branch, Chasca pending AimState release and Nilou dead-target pending branch were not exercised.",
+    "Sara E delayed Crowfeather ownership and Mavuika Q persistent mode/resource ownership are incomplete.",
+    "Shared tag aliases fix matching gates; other existing contracts were not rerun as a character matrix.",
+    "General native phase convergence, remaining E/Q ownership, unavailable game evidence and remote CI execution remain open."
+  ]
+}

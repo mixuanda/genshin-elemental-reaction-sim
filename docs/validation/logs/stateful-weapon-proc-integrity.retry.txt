@@ -1,0 +1,13 @@
+COMMAND: npx vitest run packages/schemas/src/stateful-weapon-proc-integrity.test.ts -t activates Crescent Pike
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 1 skipped (2)
+   Start at  11:35:42
+   Duration  1.01s (transform 642ms, setup 0ms, import 817ms, tests 143ms, environment 0ms)
+
+
+EXIT_CODE: 0
+WALL_SECONDS: 1.2781788340071216

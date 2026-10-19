@@ -1,0 +1,30 @@
+--- a/pkg/avatar/avatar.go
++++ b/pkg/avatar/avatar.go
+@@ -41,6 +41,7 @@
+ 	dmg, crit = p.calc(atk)
+ 
+ 	dmgLeft := p.Core.Player.Shields.OnDamage(activeChar, activeChar, dmg, atk.Info.Element)
++	damageAfterShield := dmgLeft
+ 	if dmgLeft > 0 {
+ 		dmgLeft = p.Core.Player.Drain(info.DrainInfo{
+ 			ActorIndex: activeChar,
+@@ -49,6 +50,9 @@
+ 			External:   true,
+ 		})
+ 	}
++	if p.Core.SourceHost != nil {
++		p.Core.SourceHost.PlayerApplied(atk, p.Key(), activeChar, dmg, damageAfterShield, dmgLeft, crit)
++	}
+ 	evt.Write("target", p.Key()).
+ 		Write("attack-tag", atk.Info.AttackTag).
+ 		Write("ele", atk.Info.Element.String()).
+@@ -76,6 +80,9 @@
+ }
+ 
+ func (p *Player) calc(atk *info.AttackEvent) (float64, bool) {
++	if p.Core.SourceHost != nil {
++		return p.calcSourceHost(atk)
++	}
+ 	var isCrit bool
+ 
+ 	st := attributes.EleToDmgP(atk.Info.Element)

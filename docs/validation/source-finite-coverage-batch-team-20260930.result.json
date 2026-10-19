@@ -1,0 +1,170 @@
+{
+  "schemaVersion": "source-finite-coverage-batch-browser-v1",
+  "measurements": {
+    "nativeRunsPerformed": false,
+    "rawPath": "docs/validation/source-finite-coverage-batch-team-20260930.capture.json",
+    "nativeResultArchived": true,
+    "casts": [
+      {
+        "characterKey": "ganyu",
+        "action": "skill",
+        "contractId": "ganyu-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "ganyu-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 2,
+        "observedRootAttackCount": 2,
+        "completedRootAttackCount": 2,
+        "hitCount": 2,
+        "componentSubtotal": 1194.0357925738979,
+        "appliedDamageSubtotal": 1194.0357925738979,
+        "replayDifferences": [
+          0,
+          0
+        ]
+      },
+      {
+        "characterKey": "yanfei",
+        "action": "skill",
+        "contractId": "yanfei-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "yanfei-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 622.8374895493632,
+        "appliedDamageSubtotal": 622.8374895493632,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "xiao",
+        "action": "skill",
+        "contractId": "xiao-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "xiao-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 551.6531511516001,
+        "appliedDamageSubtotal": 551.6531511516001,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "thoma",
+        "action": "skill",
+        "contractId": "thoma-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "thoma-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 236.09597578742884,
+        "appliedDamageSubtotal": 236.09597578742884,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "kamisatoayato",
+        "action": "skill",
+        "contractId": "ayato-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "ayato-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 147.14406046349998,
+        "appliedDamageSubtotal": 147.14406046349998,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "yunjin",
+        "action": "burst",
+        "contractId": "yunjin-burst",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "yunjin-burst",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 1,
+        "observedRootAttackCount": 1,
+        "completedRootAttackCount": 1,
+        "hitCount": 1,
+        "componentSubtotal": 378.6432788016,
+        "appliedDamageSubtotal": 378.6432788016,
+        "replayDifferences": [
+          0
+        ]
+      },
+      {
+        "characterKey": "kirara",
+        "action": "skill",
+        "contractId": "kirara-skill",
+        "invocationFound": true,
+        "invocationSuccess": true,
+        "componentContractId": "kirara-skill",
+        "completeCast": true,
+        "reasons": [],
+        "expectedRootAttackCount": 3,
+        "observedRootAttackCount": 3,
+        "completedRootAttackCount": 3,
+        "hitCount": 3,
+        "componentSubtotal": 248.1868052397105,
+        "appliedDamageSubtotal": 248.1868052397105,
+        "replayDifferences": [
+          0,
+          0,
+          0
+        ],
+        "rollProducerCount": 2,
+        "rollProducerIds": [
+          3,
+          4
+        ],
+        "rollQueueIds": [
+          8,
+          12
+        ],
+        "rollAttackIds": [
+          4,
+          5
+        ],
+        "rollQueuedAttackCounts": [
+          1,
+          1
+        ],
+        "nativeRollTaskCount": 2
+      }
+    ],
+    "ganyuUiEditExportImport": {
+      "hitCount": 2,
+      "completed": true
+    }
+  },
+  "pageErrors": [],
+  "scope": "Two classic native configurations cover one Ganyu E, Yanfei E, Xiao E, Thoma E, Ayato E, Yunjin Q, and Kirara E invocation. Each selected finite cast is limited to its registered intrinsic source roots and included captured applications."
+}

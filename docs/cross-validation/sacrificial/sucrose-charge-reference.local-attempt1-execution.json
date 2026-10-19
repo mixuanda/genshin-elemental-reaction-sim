@@ -1,0 +1,11 @@
+{
+  "command": "SACRIFICIAL_EXTERNAL_LOCAL_READY=1 node docs/cross-validation/sacrificial/compare-local.mjs",
+  "exitCode": 1,
+  "toolReportedWallTimeSeconds": 0.678863458,
+  "phase": "configuration parsing; no combat execution",
+  "issues": [
+    "compatibility target enemy-0 missing",
+    "aura-v1 does not support anemo elemental application"
+  ],
+  "correction": "Target IDs now enemy-0..2, aura-v3; panel, coefficient, timing, seed and expected damages unchanged."
+}

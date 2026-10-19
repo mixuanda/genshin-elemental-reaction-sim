@@ -1,0 +1,82 @@
+--- a/pkg/core/info/sourcehost_scalar_provenance.go
++++ b/pkg/core/info/sourcehost_scalar_provenance.go
+@@ -28,6 +28,7 @@
+ 	After float64 `json:"after"`
+ 	Dependencies []*SourceHostStatRead `json:"dependencies"`
+ 	FormulaCalculationIDs []int `json:"formulaCalculationIds,omitempty"`
++	CreationFormulaCalculationIDs []int `json:"creationFormulaCalculationIds,omitempty"`
+ 	ArtifactResistance *SourceHostArtifactResistanceMeta `json:"artifactResistance,omitempty"`
+ }
+ type SourceHostScalarTransform struct {
+--- a/pkg/core/player/character/sourcehost_stat_provenance.go
++++ b/pkg/core/player/character/sourcehost_stat_provenance.go
+@@ -65,10 +65,10 @@
+ 	step.Outcome, step.Returned, step.After, step.ExpiryAfter = outcome, returned, after, expiry
+ }
+ 
+-// Capture only real stat reads nested inside this particular ReactBonus Amount.
+-func (c *CharWrapper) beginSourceHostScalarStep(step *info.SourceHostScalarStep) {
++// Capture only real stat reads nested inside this particular scalar Amount.
++func (c *CharWrapper) beginSourceHostScalarStep(step *info.SourceHostScalarStep, reads ...*info.SourceHostScalarRead) {
+ 	if step == nil { return }
+-	c.SourceHost.BeginScalarFormulaStep(step)
++	c.SourceHost.BeginScalarFormulaStep(step, reads...)
+ 	c.sourceHostScalarSteps = append(c.sourceHostScalarSteps, step)
+ 	c.sourceHostScalarStatDepths = append(c.sourceHostScalarStatDepths, len(c.sourceHostStatStack))
+ }
+--- a/pkg/core/player/character/mods.go
++++ b/pkg/core/player/character/mods.go
+@@ -317,6 +317,11 @@
+ 
+ func (c *CharWrapper) CDReduction(a action.Action, dur int) int {
+ 	var cd float64 = 1
++	var read *info.SourceHostScalarRead
++	if c.SourceHost != nil {
++		actor := c.Index()
++		read = c.SourceHost.NewScalarRead("cooldown-factor", 1, &actor, nil, "")
++	}
+ 	n := 0
+ 	for _, v := range c.mods {
+ 		m, ok := v.(*CooldownMod)
+@@ -325,22 +330,29 @@
+ 			n++
+ 			continue
+ 		}
++		step := sourcehost.NewScalarStep(read, m.Key(), m.Expiry(), m.AffectedByHitlag(), cd, "", true)
+ 		// if not expired
+ 		if m.Expiry() == -1 || m.Expiry() > *c.f {
++			c.beginSourceHostScalarStep(step, read)
+ 			amt := m.Amount(a)
++			c.endSourceHostScalarStep(step)
+ 			c.log.NewEvent("applying cooldown modifier", glog.LogCooldownEvent, c.Index()).
+ 				Write("key", m.Key()).
+ 				Write("modifier", amt).
+ 				Write("expiry", m.Expiry())
+ 			cd += amt
+-			c.mods[n] = v
+-			n++
++			sourcehost.FinishScalarStep(step, "applied", &amt, cd, m.Expiry())
++			c.mods[n] = v
++			n++
++		} else {
++			sourcehost.FinishScalarStep(step, "expired", nil, cd, m.Expiry())
+ 		}
+ 	}
+ 	c.mods = c.mods[:n]
++	if read != nil { read.Sum, read.Output = cd, cd }
+ 
+ 	if c.SourceHost != nil {
+-		return c.SourceHost.CooldownDuration(c.Index(), a, dur, cd)
++		return c.SourceHost.CooldownDuration(c.Index(), a, dur, cd, read)
+ 	}
+ 	return int(float64(dur) * cd)
+ }
+@@ -410,7 +422,7 @@
+ 		}
+ 		step := sourcehost.NewScalarStep(read, m.Key(), m.Expiry(), m.AffectedByHitlag(), amt, "", true)
+ 		if m.Expiry() > *c.f || m.Expiry() == -1 {
+-			c.beginSourceHostScalarStep(step)
++			c.beginSourceHostScalarStep(step, read)
+ 			val := m.Amount(atk)
+ 			c.endSourceHostScalarStep(step)
+ 			amt += val

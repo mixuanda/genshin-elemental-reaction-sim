@@ -1,0 +1,12 @@
+{
+  "command": [
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-auxiliary-formulas.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 13.318,
+  "log": "docs/validation/source-auxiliary-formulas-e2e-20260928.log"
+}

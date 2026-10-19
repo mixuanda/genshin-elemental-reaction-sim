@@ -1,0 +1,6 @@
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-finite-expansion.spec.ts(196,77): error TS2339: Property 'state' does not exist on type '{ ruleId: "dynamic-adaycarvedfromrisingwinds-2pc-atkp" | "dynamic-adaycarvedfromrisingwinds-4pc-atkp" | "dynamic-adaycarvedfromrisingwinds-4pc-hexerei-cr" | "dynamic-archaic-2pc-geop" | ... 86 more ... | "dynamic-viridescent-4pc-b4"; state: Record<...>; } | ... 69 more ... | { ...; }'.
+  Property 'state' does not exist on type '{ ruleId: "cinnabar" | "foliar" | "hunterspath"; refinement: number; statValue: number; }'.

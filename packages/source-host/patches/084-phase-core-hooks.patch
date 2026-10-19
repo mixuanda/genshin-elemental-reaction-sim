@@ -1,0 +1,311 @@
+--- a/pkg/core/energy.go
++++ b/pkg/core/energy.go
+@@ -6,6 +6,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+ )
+ 
+@@ -22,9 +23,14 @@
+ 	if delay < 0 {
+ 		panic("queue particle called with delay < 0")
+ 	}
+-	c.Tasks.Add(func() {
++	c.Tasks.AddWithPhase(func() {
+ 		c.Player.DistributeParticle(p)
+-	}, delay)
++	}, delay, "core-particle-delivery", phase.Descriptor{
++		Source: "pkg/core/energy.go:QueueParticle",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"source": p.Source, "count": p.Num, "element": p.Ele}, nil
++		},
++	})
+ }
+ 
+ func (c *Core) SetupOnNormalHitEnergy() {
+@@ -46,7 +52,17 @@
+ 
+ 	// TODO: not sure if there's like a 0.2s icd on this. for now let's add it in to be safe
+ 	icd := 0
+-	c.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++	energyPhase := phase.Descriptor{
++		Source: "pkg/core/energy.go:SetupOnNormalHitEnergy",
++		Observe: func() (map[string]any, []string) {
++			remaining := 0
++			if icd > c.F {
++				remaining = icd - c.F
++			}
++			return map[string]any{"chanceByActorAndWeapon": current, "icdRemainingFrames": remaining}, nil
++		},
++	}
++	c.Events.SubscribeWithPhase(event.OnEnemyDamage, func(args ...any) {
+ 		atk := args[1].(*info.AttackEvent)
+ 		if atk.Info.AttackTag != attacks.AttackTagNormal && atk.Info.AttackTag != attacks.AttackTagExtra {
+ 			return
+@@ -76,15 +92,15 @@
+ 		if char.Weapon.Class == info.WeaponClassSword {
+ 			current[atk.Info.ActorIndex][char.Weapon.Class] = 0.10
+ 		}
+-	}, "random-energy-restore-on-hit")
++	}, "random-energy-restore-on-hit", energyPhase)
+ 
+ 	// TODO: assuming we clear the probability on swap
+-	c.Events.Subscribe(event.OnCharacterSwap, func(args ...any) {
++	c.Events.SubscribeWithPhase(event.OnCharacterSwap, func(args ...any) {
+ 		for i := range current {
+ 			for j := range current[i] {
+ 				current[i][j] = 0
+ 			}
+ 			current[i][info.WeaponClassSword] = 0.10
+ 		}
+-	}, "random-energy-restore-on-hit-swap")
++	}, "random-energy-restore-on-hit-swap", energyPhase)
+ }
+--- a/pkg/simulation/setup.go
++++ b/pkg/simulation/setup.go
+@@ -15,6 +15,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
+ 	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/keys"
++	"github.com/genshinsim/gcsim/pkg/core/phase"
+ 	"github.com/genshinsim/gcsim/pkg/core/player/character"
+ 	"github.com/genshinsim/gcsim/pkg/enemy"
+ 	"github.com/genshinsim/gcsim/pkg/modifier"
+@@ -28,6 +29,12 @@
+ 
+ // first is 0 because you can't proc it without the natlan character
+ var nightsoulBurstICD = []int{0, 18 * 60, 12 * 60, 9 * 60, 9 * 60}
++
++// A source-audited callback with no mutable local capture still records its
++// registration identity; referenced core/player/target state has own providers.
++func phaseStaticCallback(source string) phase.Descriptor {
++	return phase.Descriptor{Source: source, Observe: func() (map[string]any, []string) { return map[string]any{}, nil }}
++}
+ 
+ func SetupTargetsInCore(core *core.Core, p info.Point, r float64, targets []info.EnemyProfile) error {
+ 	// s.stats.ElementUptime = make([]map[core.EleType]int, len(s.C.Targets))
+@@ -164,7 +171,7 @@
+ 			}
+ 
+ 			// workaround for giving lunarcharge the 15% CR
+-			s.Events.Subscribe(event.OnLunarReactionAttack, func(args ...any) {
++			s.Events.SubscribeWithPhase(event.OnLunarReactionAttack, func(args ...any) {
+ 				e, ok := args[0].(*enemy.Enemy)
+ 				if !ok {
+ 					return
+@@ -177,9 +184,19 @@
+ 				if e.AuraContains(attributes.Cryo) || e.AuraContains(attributes.Frozen) {
+ 					ae.Snapshot.Stats[attributes.CR] += 0.15
+ 				}
+-			}, "cryo-res-lunarcharge")
++			}, "cryo-res-lunarcharge", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:cryo-reaction-attack"))
+ 		case attributes.Electro:
+ 			last := 0
++			electroPhase := phase.Descriptor{
++				Source: "pkg/simulation/setup.go:SetupResonance:electro-particle",
++				Observe: func() (map[string]any, []string) {
++					remaining := 0
++					if last != 0 && s.F-last < 300 {
++						remaining = 300 - (s.F - last)
++					}
++					return map[string]any{"cooldownRemainingFrames": remaining}, nil
++				},
++			}
+ 
+ 			recoverParticle := func(_ ...any) {
+ 				if s.F-last < 300 && last != 0 { // every 5 seconds
+@@ -197,13 +214,13 @@
+ 					recoverParticle(args...)
+ 				}
+ 			}
+-			s.Events.Subscribe(event.OnOverload, recoverNoGadget, "electro-res")
+-			s.Events.Subscribe(event.OnSuperconduct, recoverNoGadget, "electro-res")
+-			s.Events.Subscribe(event.OnElectroCharged, recoverNoGadget, "electro-res")
+-			s.Events.Subscribe(event.OnLunarCharged, recoverNoGadget, "electro-res")
+-			s.Events.Subscribe(event.OnQuicken, recoverNoGadget, "electro-res")
+-			s.Events.Subscribe(event.OnAggravate, recoverNoGadget, "electro-res")
+-			s.Events.Subscribe(event.OnHyperbloom, recoverParticle, "electro-res")
++			s.Events.SubscribeWithPhase(event.OnOverload, recoverNoGadget, "electro-res", electroPhase)
++			s.Events.SubscribeWithPhase(event.OnSuperconduct, recoverNoGadget, "electro-res", electroPhase)
++			s.Events.SubscribeWithPhase(event.OnElectroCharged, recoverNoGadget, "electro-res", electroPhase)
++			s.Events.SubscribeWithPhase(event.OnLunarCharged, recoverNoGadget, "electro-res", electroPhase)
++			s.Events.SubscribeWithPhase(event.OnQuicken, recoverNoGadget, "electro-res", electroPhase)
++			s.Events.SubscribeWithPhase(event.OnAggravate, recoverNoGadget, "electro-res", electroPhase)
++			s.Events.SubscribeWithPhase(event.OnHyperbloom, recoverParticle, "electro-res", electroPhase)
+ 		case attributes.Geo:
+ 			// Increases shield strength by 15%. Additionally, characters protected by a shield,
+ 			// or when Moondrifts formed by Lunar-Crystallize are nearby, will have the following
+@@ -214,11 +231,17 @@
+ 			s.Player.Shields.AddShieldBonusMod(geoResKey, -1, f)
+ 
+ 			geoResTickerSrc := 0
++			geoTickerPhase := phase.Descriptor{
++				Source: "pkg/simulation/setup.go:SetupResonance:geo-ticker-reset",
++				Observe: func() (map[string]any, []string) {
++					return map[string]any{"tickerSourceAgeFrames": s.F - geoResTickerSrc, "geoResFlag": s.Flags.Custom[geoResKey]}, nil
++				},
++			}
+ 
+ 			updateGeoResonance(s, geoResTickerSrc, &geoResTickerSrc)
+ 
+ 			// shred geo res of target
+-			s.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++			s.Events.SubscribeWithPhase(event.OnEnemyDamage, func(args ...any) {
+ 				t, ok := args[0].(*enemy.Enemy)
+ 				if !ok {
+ 					return
+@@ -233,7 +256,12 @@
+ 						Value: -0.2,
+ 					})
+ 				}
+-			}, "geo res")
++			}, "geo res", phase.Descriptor{
++				Source: "pkg/simulation/setup.go:SetupResonance:geo-shred",
++				Observe: func() (map[string]any, []string) {
++					return map[string]any{"geoResFlag": s.Flags.Custom[geoResKey]}, nil
++				},
++			})
+ 
+ 			m := make([]float64, attributes.EndStatType)
+ 			m[attributes.DmgP] = .15
+@@ -249,23 +277,23 @@
+ 				})
+ 			}
+ 
+-			s.Events.Subscribe(event.OnCharacterSwap, func(args ...any) {
++			s.Events.SubscribeWithPhase(event.OnCharacterSwap, func(args ...any) {
+ 				geoResTickerSrc = s.F
+ 
+ 				updateGeoResonance(s, geoResTickerSrc, &geoResTickerSrc)()
+-			}, "geo-res-on-swap")
+-
+-			s.Events.Subscribe(event.OnShielded, func(args ...any) {
++			}, "geo-res-on-swap", geoTickerPhase)
++
++			s.Events.SubscribeWithPhase(event.OnShielded, func(args ...any) {
+ 				geoResTickerSrc = s.F
+ 
+ 				updateGeoResonance(s, geoResTickerSrc, &geoResTickerSrc)()
+-			}, "geo-res-on-shielded")
+-
+-			s.Events.Subscribe(event.OnShieldBreak, func(args ...any) {
++			}, "geo-res-on-shielded", geoTickerPhase)
++
++			s.Events.SubscribeWithPhase(event.OnShieldBreak, func(args ...any) {
+ 				geoResTickerSrc = s.F
+ 
+ 				updateGeoResonance(s, geoResTickerSrc, &geoResTickerSrc)()
+-			}, "geo-res-on-shield-break")
++			}, "geo-res-on-shield-break", geoTickerPhase)
+ 
+ 		case attributes.Anemo:
+ 			s.Player.AddStamPercentMod("anemo-res-stam", -1, func(a action.Action) (float64, bool) {
+@@ -307,10 +335,10 @@
+ 					})
+ 				}
+ 			}
+-			s.Events.Subscribe(event.OnBurning, twoEl, "dendro-res")
+-			s.Events.Subscribe(event.OnBloom, twoEl, "dendro-res")
+-			s.Events.Subscribe(event.OnLunarBloom, twoEl, "dendro-res")
+-			s.Events.Subscribe(event.OnQuicken, twoEl, "dendro-res")
++			s.Events.SubscribeWithPhase(event.OnBurning, twoEl, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-twoEl"))
++			s.Events.SubscribeWithPhase(event.OnBloom, twoEl, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-twoEl"))
++			s.Events.SubscribeWithPhase(event.OnLunarBloom, twoEl, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-twoEl"))
++			s.Events.SubscribeWithPhase(event.OnQuicken, twoEl, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-twoEl"))
+ 
+ 			threeBuff := make([]float64, attributes.EndStatType)
+ 			threeBuff[attributes.EM] = 20
+@@ -330,10 +358,10 @@
+ 					threeEl(nil)
+ 				}
+ 			}
+-			s.Events.Subscribe(event.OnAggravate, threeElNoGadget, "dendro-res")
+-			s.Events.Subscribe(event.OnSpread, threeElNoGadget, "dendro-res")
+-			s.Events.Subscribe(event.OnHyperbloom, threeEl, "dendro-res")
+-			s.Events.Subscribe(event.OnBurgeon, threeEl, "dendro-res")
++			s.Events.SubscribeWithPhase(event.OnAggravate, threeElNoGadget, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-threeElNoGadget"))
++			s.Events.SubscribeWithPhase(event.OnSpread, threeElNoGadget, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-threeElNoGadget"))
++			s.Events.SubscribeWithPhase(event.OnHyperbloom, threeEl, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-threeEl"))
++			s.Events.SubscribeWithPhase(event.OnBurgeon, threeEl, "dendro-res", phaseStaticCallback("pkg/simulation/setup.go:SetupResonance:dendro-threeEl"))
+ 		}
+ 	}
+ }
+@@ -367,7 +395,7 @@
+ }
+ 
+ func SetupMisc(c *core.Core) {
+-	c.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++	c.Events.SubscribeWithPhase(event.OnEnemyDamage, func(args ...any) {
+ 		// dmg tag is superconduct, target is enemy
+ 		t, ok := args[0].(*enemy.Enemy)
+ 		if !ok {
+@@ -383,7 +411,7 @@
+ 			Ele:   attributes.Physical,
+ 			Value: -0.4,
+ 		})
+-	}, "superconduct")
++	}, "superconduct", phaseStaticCallback("pkg/simulation/setup.go:SetupMisc:superconduct-shred"))
+ }
+ 
+ func setupNightsoulBurst(core *core.Core) {
+@@ -399,7 +427,7 @@
+ 	}
+ 
+ 	triggerCD := nightsoulBurstICD[count]
+-	core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++	core.Events.SubscribeWithPhase(event.OnEnemyDamage, func(args ...any) {
+ 		if core.Status.Duration(nightsoulBurstICDStatus) > 0 {
+ 			return
+ 		}
+@@ -423,7 +451,12 @@
+ 
+ 		core.Events.Emit(event.OnNightsoulBurst, t, atk)
+ 		core.Status.Add(nightsoulBurstICDStatus, triggerCD)
+-	}, "nightsoul-burst")
++	}, "nightsoul-burst", phase.Descriptor{
++		Source: "pkg/simulation/setup.go:setupNightsoulBurst",
++		Observe: func() (map[string]any, []string) {
++			return map[string]any{"triggerCooldownFrames": triggerCD}, nil
++		},
++	})
+ }
+ 
+ func setupAscendantGleam(core *core.Core) {
+@@ -469,7 +502,13 @@
+ 			if core.Flags.LogDebug {
+ 				core.Log.NewEvent("Updating ascendant gleam react bonus", glog.LogDebugEvent, char.Index()).Write("amt", buff)
+ 			}
+-			core.Tasks.Add(gleamBuffUpdateGen(char, s), 60)
++			core.Tasks.AddWithPhase(gleamBuffUpdateGen(char, s), 60, "ascendant-gleam-update", phase.Descriptor{
++				Source: "pkg/simulation/setup.go:setupAscendantGleam:update",
++				Observe: func() (map[string]any, []string) {
++					return map[string]any{"actorIndex": char.Index(), "sourceAgeFrames": core.F - s,
++						"currentSourceAgeFrames": core.F - src, "buff": buff}, nil
++				},
++			})
+ 		}
+ 	}
+ 
+@@ -496,8 +535,18 @@
+ 		}
+ 		gleamBuffUpdateGen(char, src)()
+ 	}
+-	core.Events.Subscribe(event.OnSkill, hook, "ascendant-gleam-on-skill")
+-	core.Events.Subscribe(event.OnBurst, hook, "ascendant-gleam-on-burst")
++	gleamPhase := phase.Descriptor{
++		Source: "pkg/simulation/setup.go:setupAscendantGleam:refresh",
++		Observe: func() (map[string]any, []string) {
++			state := map[string]any{"buff": buff, "sourceInitialized": src >= 0}
++			if src >= 0 {
++				state["sourceAgeFrames"] = core.F - src
++			}
++			return state, nil
++		},
++	}
++	core.Events.SubscribeWithPhase(event.OnSkill, hook, "ascendant-gleam-on-skill", gleamPhase)
++	core.Events.SubscribeWithPhase(event.OnBurst, hook, "ascendant-gleam-on-burst", gleamPhase)
+ }
+ 
+ func (s *Simulation) handleEnergy() {

@@ -1,0 +1,92 @@
+diff --git a/internal/characters/ororon/asc.go b/internal/characters/ororon/asc.go
+index 1d12133..a7f61cf 100644
+--- a/internal/characters/ororon/asc.go
++++ b/internal/characters/ororon/asc.go
+@@ -74,7 +74,7 @@ func (c *char) a1Init() {
+ 		if _, ok := args[0].(*enemy.Enemy); !ok {
+ 			return
+ 		}
+-		c.a1NightSoulAttack(atk)
++		c.a1NightSoulAttack(atk, "")
+ 	}, a1ECTriggerKey)
+ 
+ 	c.Core.Events.Subscribe(event.OnLunarCharged, func(args ...any) {
+@@ -82,10 +82,12 @@ func (c *char) a1Init() {
+ 		if _, ok := args[0].(*enemy.Enemy); !ok {
+ 			return
+ 		}
+-		c.a1NightSoulAttack(atk)
++		c.a1NightSoulAttack(atk, "")
+ 	}, a1LCTriggerKey)
+ 
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("ororon.a1.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("ororon.a1.enemy-damage.attack-count", 0)
+ 		atk := args[1].(*info.AttackEvent)
+ 
+ 		if atk.Info.ActorIndex == c.Index() {
+@@ -94,11 +96,11 @@ func (c *char) a1Init() {
+ 		if !slices.Contains(atk.Info.AdditionalTags, attacks.AttackTagNightsoul) {
+ 			return
+ 		}
+-		c.a1NightSoulAttack(atk)
++		c.a1NightSoulAttack(atk, "ororon.a1.enemy-damage.attack-count")
+ 	}, a1NSTriggerKey)
+ }
+ 
+-func (c *char) a1NightSoulAttack(atk *info.AttackEvent) {
++func (c *char) a1NightSoulAttack(atk *info.AttackEvent, eventCountFact string) {
+ 	if c.nightsoulState.Points() < 10 {
+ 		return
+ 	}
+@@ -110,10 +112,10 @@ func (c *char) a1NightSoulAttack(atk *info.AttackEvent) {
+ 		c.a1EnterBlessing()
+ 	}
+ 	c.nightsoulState.ConsumePoints(10)
+-	c.hypersense(1.6, a1Abil, atk.Pattern.Shape.Pos())
++	c.hypersense(1.6, a1Abil, atk.Pattern.Shape.Pos(), eventCountFact)
+ }
+ 
+-func (c *char) hypersense(mult float64, abil string, initialTargetPos info.Point) {
++func (c *char) hypersense(mult float64, abil string, initialTargetPos info.Point, eventCountFact string) {
+ 	ai := info.AttackInfo{
+ 		ActorIndex:         c.Index(),
+ 		Abil:               abil,
+@@ -131,17 +133,13 @@ func (c *char) hypersense(mult float64, abil string, initialTargetPos info.Point
+ 
+ 	enemies := c.Core.Combat.EnemiesWithinArea(combat.NewCircleHitOnTarget(initialTargetPos, nil, 15), nil)
+ 	for i := 0; len(enemies) < 4 && i < len(enemies); i++ {
+-		c.Core.QueueAttack(
+-			ai,
+-			combat.NewBoxHitOnTarget(
+-				enemies[i].Pos(),
+-				nil,
+-				0.2,
+-				0.2,
+-			),
+-			12,
+-			12,
+-		)
++		pattern := combat.NewBoxHitOnTarget(enemies[i].Pos(), nil, 0.2, 0.2)
++		if eventCountFact != "" {
++			c.Core.SourceHostEventListenerFact(eventCountFact, float64(i+1))
++			c.Core.SourceHostQueueEventAttack("ororon.a1.hypersense-attack", ai, pattern, 12, 12)
++			continue
++		}
++		c.Core.QueueAttack(ai, pattern, 12, 12)
+ 	}
+ 	c.c6onHypersense()
+ }
+diff --git a/internal/characters/ororon/cons.go b/internal/characters/ororon/cons.go
+index 5e94abd..beed91d 100644
+--- a/internal/characters/ororon/cons.go
++++ b/internal/characters/ororon/cons.go
+@@ -143,7 +143,7 @@ func (c *char) c6OnBurst() {
+ 	if c.Base.Ascension < 1 {
+ 		return
+ 	}
+-	c.hypersense(3.2, "Hypersense (C6)", c.Core.Combat.PrimaryTarget().Pos())
++	c.hypersense(3.2, "Hypersense (C6)", c.Core.Combat.PrimaryTarget().Pos(), "")
+ }
+ 
+ func (c *char) c6onHypersense() {

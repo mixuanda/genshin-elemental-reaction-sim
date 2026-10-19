@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.719,
+  "log": "docs/validation/source-character-dynamic-web-build-retry1-20260928.log"
+}

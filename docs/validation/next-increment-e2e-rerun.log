@@ -1,0 +1,10 @@
+
+Running 3 tests using 1 worker
+
+(node:2676) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/next-increment.spec.ts:47:1 › sourced Viridescent resistance conditions and Thundering Fury aggravate bonuses affect the shared calculation (2.0s)
+  ✓  2 [chromium] › apps/web/e2e/next-increment.spec.ts:103:1 › rotation DSL and visual ordering retain requested frames, movement and actor bindings (1.1s)
+  ✓  3 [chromium] › apps/web/e2e/next-increment.spec.ts:166:1 › executed Stellar Conduct fields and the explicit Moondew ability restore their actual damage contexts (2.4s)
+
+  3 passed (5.9s)

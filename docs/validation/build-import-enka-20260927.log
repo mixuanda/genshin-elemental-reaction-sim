@@ -1,0 +1,15 @@
+Command:
+./node_modules/.bin/vitest run packages/game-data/src/build-import.test.ts -t 'preserves Enka' --reporter=dot
+
+This final run followed the test edits for the pinned relic itemId 23414 (without flat.setId), empty ascension val, and absent affixMap. It did not measure shell wall-clock time. The duration below is Vitest's own reported duration.
+
+Raw output:
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+-·
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 1 skipped (2)
+   Start at  03:27:56
+   Duration  1.65s (transform 1.21s, setup 0ms, import 1.59s, tests 4ms, environment 0ms)

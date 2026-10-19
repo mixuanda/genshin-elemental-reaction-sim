@@ -1,0 +1,25 @@
+{
+  "previewSnapshotId": "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc",
+  "releaseStatus": "preview",
+  "counts": {
+    "characters": 2,
+    "talentSets": 2,
+    "abilities": 13,
+    "constellations": 2
+  },
+  "fieldAssessments": 425,
+  "definitions": 0,
+  "validation": {
+    "errors": [],
+    "inventory": {
+      "status": "unknown",
+      "missing": null,
+      "unexpected": null
+    },
+    "readiness": [],
+    "schemaValid": true
+  },
+  "releasedPointerUnchanged": true,
+  "verifiedPointerUnchanged": true,
+  "releasedContentUnchanged": true
+}

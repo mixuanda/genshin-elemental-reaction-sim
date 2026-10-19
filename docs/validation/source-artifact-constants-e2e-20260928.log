@@ -1,0 +1,11 @@
+[WebServer] (node:19965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:19966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+{"rules":{"blizzardCryo":"const-blizzard-4pc-cryo-cr","instructorTeam":"const-instructor-4pc-em","noblesseTeam":"const-noblesse-4pc-atkp","oceanHealing":"const-oceanhuedclam-2pc-heal"},"runs":[{"variant":"classic","sourceCommit":"b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541","wasmSha256":"ae8f0abcbdec9ad094bc01397b7cef10b5e1b447347fc1592db54c41ce503a94","calculations":108,"applications":41,"observedRuleCounts":{"const-blizzard-2pc-cryo-p":3,"const-instructor-2pc-em":10,"const-oceanhuedclam-2pc-heal":10,"const-blizzard-4pc-cryo-cr":1,"const-instructor-4pc-em":21,"const-noblesse-4pc-atkp":8,"const-noblesse-2pc-dmg":1},"teamRecipients":{"instructor":["fischl","bennett","barbara"],"noblesse":["bennett","barbara"]},"blizzardHitId":10,"selectedHitIndex":14,"supportCount":3,"originalDamage":224.642370074518,"editedDamage":449.284740149036},{"variant":"stellar","sourceCommit":"a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd","wasmSha256":"828039ae6a350a616d866acad8c64fa3eba61e02b978ca987f3913f4fcc56b6c","calculations":95,"applications":41,"observedRuleCounts":{"const-blizzard-2pc-cryo-p":3,"const-instructor-2pc-em":10,"const-oceanhuedclam-2pc-heal":10,"const-blizzard-4pc-cryo-cr":1,"const-instructor-4pc-em":21,"const-noblesse-4pc-atkp":8,"const-noblesse-2pc-dmg":1},"teamRecipients":{"instructor":["fischl","bennett","barbara"],"noblesse":["bennett","barbara"]},"blizzardHitId":10,"selectedHitIndex":14,"supportCount":3,"originalDamage":224.642370074518,"editedDamage":449.284740149036}],"errors":[]}
+  ✓  1 [chromium] › apps/web/e2e/source-artifact-constants.spec.ts:56:1 › native constant artifact modifiers link their actual recipients and target conditions to an editable restored hit (6.2s)
+
+  1 passed (7.0s)

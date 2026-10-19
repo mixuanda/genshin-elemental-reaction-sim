@@ -1,0 +1,12 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.074,
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "output": "",
+  "scope": "tracked diff whitespace only; pre-existing dirty/untracked work preserved"
+}

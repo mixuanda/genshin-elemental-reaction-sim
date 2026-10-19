@@ -1,0 +1,87 @@
+
+Running 3 tests using 1 worker
+
+(node:88114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/continuation.spec.ts:43:1 › Kaeya equipment and talent edits preserve current inputs and source-backed examples remain distinct (2.0s)
+  ✘  2 [chromium] › apps/web/e2e/continuation.spec.ts:106:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile (2.1s)
+(node:88250) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  3 [chromium] › apps/web/e2e/continuation.spec.ts:160:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries (6.9s)
+
+
+  1) [chromium] › apps/web/e2e/continuation.spec.ts:106:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile 
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: locator('[data-trace-node="criticalSample"]')
+    Expected: visible
+    Error: strict mode violation: locator('[data-trace-node="criticalSample"]') resolved to 2 elements:
+        1) <tr data-trace-node="criticalSample">…</tr> aka getByRole('row', { name: '带种子暴击判定 0 (if roll < critRate' })
+        2) <tr data-trace-node="criticalSample">…</tr> aka locator('#sharedHitTrace').getByText('带种子暴击判定0(if roll < critRate')
+
+    Call log:
+      - Expect "toBeVisible" with timeout 5000ms
+      - waiting for locator('[data-trace-node="criticalSample"]')
+
+
+      138 |   await page.locator("#openHitCalculator").click();
+      139 |   await expect(page.getByTestId("replay-difference")).toHaveText("0");
+    > 140 |   await expect(page.locator('[data-trace-node="criticalSample"]')).toBeVisible();
+          |                                                                    ^
+      141 |   await page.locator('.product-nav a[href="/results"]').click();
+      142 |   await page.locator("#critModeInput").selectOption("noCrit");
+      143 |   await page.locator("#randomSeedInput").fill("discard-this-seed");
+        at /Users/evan/Documents/gidps/apps/web/e2e/continuation.spec.ts:140:68
+
+    Error Context: test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/continuation-seeded-critic-a3a2d-tions-and-execution-profile-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium] › apps/web/e2e/continuation.spec.ts:160:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#analysis-startup-output')
+    Expected substring: "未建立稳态"
+    Received string:    "当前情景不能执行此次预热。合法时间线失败：commands.4 [ABILITY_ON_COOLDOWN] \"杜林 E：进入精质转变（分支审计入口）\" 尚未完成冷却/充能，最早可在第 723 帧施放。预热 3 秒，实际启动行动 0 次；窗口开始能量 null。"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#analysis-startup-output')
+        4 × locator resolved to <div role="status" aria-live="polite" id="analysis-startup-output">正在连续执行预热与观察窗口…</div>
+          - unexpected value "正在连续执行预热与观察窗口…"
+        10 × locator resolved to <div role="status" aria-live="polite" id="analysis-startup-output">…</div>
+           - unexpected value "当前情景不能执行此次预热。合法时间线失败：commands.4 [ABILITY_ON_COOLDOWN] "杜林 E：进入精质转变（分支审计入口）" 尚未完成冷却/充能，最早可在第 723 帧施放。预热 3 秒，实际启动行动 0 次；窗口开始能量 null。"
+
+
+      195 |   await page.locator("#analysis-warmup-cycles").fill("1");
+      196 |   await page.locator("#analysis-steady-run").click();
+    > 197 |   await expect(page.locator("#analysis-startup-output")).toContainText("未建立稳态");
+          |                                                          ^
+      198 |   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
+      199 |   const report = await downloadJson<{ window: DamageWindow; steady: SteadyStateEvaluation; energyRecharge: ErSearchResult; startup: SimulationStartupResult }>(page, "#analysis-export");
+      200 |   const included = record.result.damageEvents.filter(event => event.frame < lastFrame);
+        at /Users/evan/Documents/gidps/apps/web/e2e/continuation.spec.ts:197:58
+
+    Error Context: test-results/continuation-enemy-resista-43bc2-xplicit-scenario-boundaries-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/continuation-enemy-resista-43bc2-xplicit-scenario-boundaries-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/continuation-enemy-resista-43bc2-xplicit-scenario-boundaries-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium] › apps/web/e2e/continuation.spec.ts:106:1 › seeded critical hits replay exactly and simulation-record import restores seed, options and execution profile 
+    [chromium] › apps/web/e2e/continuation.spec.ts:160:1 › enemy resistances, execution delays and window-energy-steady analyses retain explicit scenario boundaries 
+  1 passed (11.8s)

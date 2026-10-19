@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "source-talent-table-browser-v1",
+  "seed": "11",
+  "script": "options iteration=1 duration=12;\nxingqiu char lvl=90/90 cons=0 talent=1,1,1 +params=[start_energy=100];\nxingqiu add weapon=\"favoniussword\" refine=1 lvl=90/90;\nxingqiu add stats atk=200 er=0.2 cr=0.2 cd=0.4;\nfischl char lvl=90/90 cons=0 talent=1,1,1;\nfischl add weapon=\"favoniuswarbow\" refine=1 lvl=90/90;\nfischl add stats atk=200 em=100 cr=0.2 cd=0.4;\ntarget lvl=90 resist=0.1 radius=2 pos=0,2.4;\nactive xingqiu;\nxingqiu burst;\nxingqiu skill;\nfischl skill;\nxingqiu attack:3;\nwait(300);\n",
+  "measurements": [
+    {
+      "lane": "classic",
+      "rawPath": "/tmp/gidps-talent-table-classic.json",
+      "baselinePath": "docs/validation/reaction-em-classic-20260929.capture.json",
+      "executionArtifact": {
+        "wasmSha256": "3793ad70a79fddaf44fcf2249d58c90d855bacb6882258b4cc7b87b924d813ef",
+        "wasmBytes": 44286894
+      },
+      "receiptHitCount": 14,
+      "distinctTableCount": 2,
+      "distinctSiteCount": 2,
+      "selectedApplicationId": 39,
+      "selectedCalculationId": 37,
+      "selectedActorKey": "xingqiu",
+      "selectedFrame": 200,
+      "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+      "siteId": "internal/characters/xingqiu/burst.go:83:15",
+      "indices": [
+        0
+      ],
+      "tableValue": 0.54272,
+      "originalScaling": 0.54272,
+      "lookupFormula": "burst[index0]",
+      "lookupSubstitution": "burst[0]",
+      "lookupNodeId": "sourceTalentTable.37",
+      "replayDifference": 0,
+      "editedScaling": 0.64272,
+      "editedDamageDifference": 54.735166868903946,
+      "nativeGameplayUnchanged": true,
+      "originalReceiptPreserved": true,
+      "calculatorRoundtrip": true
+    },
+    {
+      "lane": "stellar",
+      "rawPath": "/tmp/gidps-talent-table-stellar.json",
+      "baselinePath": "docs/validation/reaction-em-stellar-20260929.capture.json",
+      "executionArtifact": {
+        "wasmSha256": "c247280ab1c46b16251705273d9bf6883e1f17f25a296f8304d83e0e324d814a",
+        "wasmBytes": 66483675
+      },
+      "receiptHitCount": 14,
+      "distinctTableCount": 2,
+      "distinctSiteCount": 2,
+      "selectedApplicationId": 39,
+      "selectedCalculationId": 37,
+      "selectedActorKey": "xingqiu",
+      "selectedFrame": 200,
+      "tableId": "internal/characters/xingqiu/zz_xingqiu.dm.go#burst",
+      "siteId": "internal/characters/xingqiu/burst.go:83:15",
+      "indices": [
+        0
+      ],
+      "tableValue": 0.54272,
+      "originalScaling": 0.54272,
+      "lookupFormula": "burst[index0]",
+      "lookupSubstitution": "burst[0]",
+      "lookupNodeId": "sourceTalentTable.37",
+      "replayDifference": 0,
+      "editedScaling": 0.64272,
+      "editedDamageDifference": 54.735166868903946,
+      "nativeGameplayUnchanged": true,
+      "originalReceiptPreserved": true,
+      "calculatorRoundtrip": true
+    }
+  ],
+  "pageErrors": [],
+  "scope": "One native XQ/Fischl run per pinned source; indexed talent-table reads, actual applied hit, and an independent scaling edit."
+}

@@ -1,0 +1,201 @@
+--- a/pkg/core/task/task.go
++++ b/pkg/core/task/task.go
+@@ -11,26 +11,29 @@
+ import (
+ 	"container/heap"
+ 
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/phase"
+-	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ type minHeap []task
+ 
+ type task struct {
+-	executeBy int
+-	f         func()
+-	id        int
+-	key       string
+-	phase     phase.Descriptor
+-	origin    info.SourceHostOrigin
++	executeBy        int
++	f                func()
++	id               int
++	key              string
++	phase            phase.Descriptor
++	origin           info.SourceHostOrigin
++	sourceHostTaskID int
+ }
+ 
+ type Handler struct {
+-	Origin *info.SourceHostOriginTracker
+-	f       *int
+-	tasks   *minHeap
+-	counter int
++	Origin                *info.SourceHostOriginTracker
++	SourceHostTaskTracker *info.SourceHostTaskTracker
++	SourceHostQueueID     int
++	f                     *int
++	tasks                 *minHeap
++	counter               int
+ }
+ 
+ type Tasker interface {
+@@ -48,10 +51,20 @@
+ func (s *Handler) Run() {
+ 	for s.tasks.Len() > 0 && s.tasks.Peek().executeBy <= *s.f {
+ 		item := heap.Pop(s.tasks).(task)
+-		if s.Origin == nil { item.f(); continue }
+-		end := s.Origin.BeginTask(item.origin)
+-		item.f()
+-		end()
++		var endObservation func()
++		if s.SourceHostTaskTracker != nil {
++			endObservation = s.SourceHostTaskTracker.Begin(item.sourceHostTaskID)
++		}
++		if s.Origin == nil {
++			item.f()
++		} else {
++			end := s.Origin.BeginTask(item.origin)
++			item.f()
++			end()
++		}
++		if endObservation != nil {
++			endObservation()
++		}
+ 	}
+ }
+ 
+@@ -65,16 +78,28 @@
+ 
+ func (s *Handler) add(f func(), delay int, key string, descriptor phase.Descriptor) {
+ 	var origin info.SourceHostOrigin
+-	if s.Origin != nil { origin = s.Origin.CaptureForChild() }
+-	heap.Push(s.tasks, task{
++	if s.Origin != nil {
++		origin = s.Origin.CaptureForChild()
++	}
++	item := task{
+ 		executeBy: *s.f + delay,
+ 		f:         f,
+ 		id:        s.counter,
+ 		key:       key,
+ 		phase:     descriptor,
+ 		origin:    origin,
+-	})
++	}
++	if s.SourceHostTaskTracker != nil {
++		item.sourceHostTaskID = s.SourceHostTaskTracker.Schedule(s.SourceHostQueueID, *s.f, item.executeBy, key)
++	}
++	heap.Push(s.tasks, item)
+ 	s.counter += 1
++}
++
++// SourceHostTrackTasks observes this handler without changing its native clock or heap.
++func (s *Handler) SourceHostTrackTasks(tracker *info.SourceHostTaskTracker, kind string) {
++	s.SourceHostTaskTracker = tracker
++	s.SourceHostQueueID = tracker.RegisterQueue(kind, s.f)
+ }
+ 
+ // min heap functions
+--- a/pkg/core/core.go
++++ b/pkg/core/core.go
+@@ -8,8 +8,8 @@
+ package core
+ 
+ import (
++	"fmt"
+ 	"github.com/genshinsim/gcsim/pkg/core/sourcehost"
+-	"fmt"
+ 	"math/rand"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+@@ -26,10 +26,10 @@
+ 
+ type Core struct {
+ 	SourceHost *sourcehost.Bridge
+-	F     int
+-	Flags Flags
+-	Seed  int64
+-	Rand  *rand.Rand
++	F          int
++	Flags      Flags
++	Seed       int64
++	Rand       *rand.Rand
+ 	// various functionalities of core
+ 	Log        glog.Logger    // we use an interface here so that we can pass in a nil logger for all except 1 run
+ 	Events     *event.Handler // track events: subscribe/unsubscribe/emit
+@@ -166,7 +166,10 @@
+ 	}
+ 
+ 	char.SourceHost = c.SourceHost
+-	if c.SourceHost != nil { char.SourceHostOriginQueue(c.SourceHost.Origin) }
++	if c.SourceHost != nil {
++		char.SourceHostOriginQueue(c.SourceHost.Origin)
++		char.SourceHostTaskQueue(c.SourceHost.TaskTracker)
++	}
+ 	f, ok := NewCharFuncMap[p.Base.Key]
+ 	if !ok {
+ 		return -1, fmt.Errorf("invalid character: %v", p.Base.Key.String())
+@@ -176,7 +179,10 @@
+ 		return -1, err
+ 	}
+ 	index := c.Player.AddChar(char)
+-	if c.SourceHost != nil { c.SourceHost.ActorKeys[index] = p.Base.Key.String() }
++	if c.SourceHost != nil {
++		c.SourceHost.ActorKeys[index] = p.Base.Key.String()
++		char.SourceHostTaskQueueActor(index)
++	}
+ 
+ 	// get starting hp
+ 	char.StartHP = -1
+--- a/pkg/core/player/character/hitlag.go
++++ b/pkg/core/player/character/hitlag.go
+@@ -76,3 +76,11 @@
+ func (c *CharWrapper) SourceHostOriginQueue(origin *info.SourceHostOriginTracker) {
+ 	c.queue.Origin = origin
+ }
++
++func (c *CharWrapper) SourceHostTaskQueue(tracker *info.SourceHostTaskTracker) {
++	c.queue.SourceHostTrackTasks(tracker, "character")
++}
++
++func (c *CharWrapper) SourceHostTaskQueueActor(index int) {
++	c.queue.SourceHostTaskTracker.SetActor(c.queue.SourceHostQueueID, index)
++}
+--- a/pkg/enemy/hitlag.go
++++ b/pkg/enemy/hitlag.go
+@@ -5,6 +5,7 @@
+ 	"math"
+ 
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ func (e *Enemy) ApplyHitlag(factor, dur float64) {
+@@ -40,6 +41,13 @@
+ 	}
+ }
+ 
++// SourceHostTaskQueue observes enemy-local tasks. Origin remains unbound,
++// preserving their existing callback execution context.
++func (e *Enemy) SourceHostTaskQueue(tracker *info.SourceHostTaskTracker) {
++	e.queue.SourceHostTrackTasks(tracker, "enemy")
++	tracker.SetTarget(e.queue.SourceHostQueueID, int(e.Key()))
++}
++
+ func (e *Enemy) QueueEnemyTask(f func(), delay int) {
+ 	if delay == 0 {
+ 		f()
+--- a/pkg/simulation/setup.go
++++ b/pkg/simulation/setup.go
+@@ -54,6 +54,9 @@
+ 		}
+ 		e := enemy.New(core, *v)
+ 		core.Combat.AddEnemy(e)
++		if core.SourceHost != nil {
++			e.SourceHostTaskQueue(core.SourceHost.TaskTracker)
++		}
+ 		// s.stats.ElementUptime[i+1] = make(map[core.EleType]int)
+ 	}
+ 

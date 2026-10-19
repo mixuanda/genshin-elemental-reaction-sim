@@ -598,10 +598,10 @@ describe("direct-damage-group audit identity", () => {
     >().toEqualTypeOf<true>();
   });
 
-  it("adds only callback audit tables at the 1.53 result boundary", () => {
+  it("adds callback, execution, and source-action audits at the current result boundary", () => {
     expectTypeOf<
       Exclude<keyof SimulationResultForV153, keyof SimulationResultForV152>
-    >().toEqualTypeOf<"callbackRegistrationLog" | "callbackDeliveryLog">();
+    >().toEqualTypeOf<"enemyShieldLog" | "enemyShieldState" | "totalPotentialDamage" | "weaponHitStackLog" | "weaponHitStackState" | "callbackRegistrationLog" | "callbackDeliveryLog" | "executionAudit" | "energyCostLog" | "summonLog" | "statConversionLog" | "sourceNormalChainLog" | "sourceNormalChainState" | "normalHitEnergyLog" | "favoniusLog" | "weaponProcLog" | "weaponProcLifecycleLog" | "thrillingTalesLog" | "sacrificialLog" | "skillCooldownLog" | "artifactEventLog" | "artifactDamageLog" | "artifactDamageState" | "nightsoulBurstLog" | "targetHealthLog" | "targetHealthSummaries" | "stamina" | "playerHealthEvents" | "playerMaxHpEvents" | "periodicEntityLog" | "actionConditionLog" | "sourceSnapshotLog" | "playerShieldLog" | "playerShieldState" | "artifactBuffLog" | "artifactBuffState">();
     expectTypeOf<
       Exclude<keyof SimulationResultForV152, keyof SimulationResultForV153>
     >().toEqualTypeOf<never>();

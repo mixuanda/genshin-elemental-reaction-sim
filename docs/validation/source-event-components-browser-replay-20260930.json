@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-event-components.spec.ts",
+    "--workers=1"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 40.802
+}

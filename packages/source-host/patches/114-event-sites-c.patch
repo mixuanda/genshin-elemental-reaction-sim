@@ -1,0 +1,92 @@
+diff --git a/internal/characters/charlotte/cons.go b/internal/characters/charlotte/cons.go
+--- a/internal/characters/charlotte/cons.go
++++ b/internal/characters/charlotte/cons.go
+@@ -134,6 +134,8 @@
+ 
+ func (c *char) c6() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("charlotte.c6.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("charlotte.c6.enemy-damage.producer-count", 0)
+ 		t, ok := args[0].(*enemy.Enemy)
+ 		if !ok {
+ 			return
+@@ -167,8 +169,9 @@
+ 			IsDeployable:       true,
+ 		}
+ 		pos := t.Pos()
+-		c.Core.Tasks.Add(func() {
+-			c.Core.QueueAttack(ai, combat.NewCircleHitOnTarget(pos, nil, c6AttackRadius), 0, 0)
++		c.Core.SourceHostEventListenerFact("charlotte.c6.enemy-damage.producer-count", 1)
++		c.Core.SourceHostQueueEventTask("charlotte.c6.followup-task", func() {
++			c.Core.SourceHostQueueEventAttack("charlotte.c6.followup-attack", ai, combat.NewCircleHitOnTarget(pos, nil, c6AttackRadius), 0, 0)
+ 			if c.Core.Combat.Player().IsWithinArea(combat.NewCircleHitOnTarget(pos, nil, c6HealRadius)) {
+ 				totalAtk, srcRead := 0.0, (*info.SourceHostStatRead)(nil)
+ 				if c.Core.SourceHost != nil {
+diff --git a/internal/characters/faruzan/cons.go b/internal/characters/faruzan/cons.go
+--- a/internal/characters/faruzan/cons.go
++++ b/internal/characters/faruzan/cons.go
+@@ -59,6 +59,8 @@
+ 
+ func (c *char) c6Collapse() {
+ 	c.Core.Events.Subscribe(event.OnEnemyDamage, func(args ...any) {
++		c.Core.SourceHostLabelEventListener("faruzan.c6.enemy-damage", args...)
++		c.Core.SourceHostEventListenerFact("faruzan.c6.enemy-damage.producer-count", 0)
+ 		if dmg := args[2].(float64); dmg == 0 {
+ 			return
+ 		}
+@@ -75,6 +77,7 @@
+ 		}
+ 		c.AddStatus(c6ICDKey, 180, false)
+ 		enemy := args[0].(*enemy.Enemy)
+-		c.pressurizedCollapse(enemy.Pos())
++		c.Core.SourceHostEventListenerFact("faruzan.c6.enemy-damage.producer-count", 1)
++		c.pressurizedCollapse(enemy.Pos(), true)
+ 	}, "faruzan-c6-hook")
+ }
+diff --git a/internal/characters/faruzan/skill.go b/internal/characters/faruzan/skill.go
+--- a/internal/characters/faruzan/skill.go
++++ b/internal/characters/faruzan/skill.go
+@@ -92,7 +92,7 @@
+ 	c.Core.QueueParticle(c.Base.Key.String(), 2, attributes.Anemo, c.ParticleDelay)
+ }
+ 
+-func (c *char) pressurizedCollapse(pos info.Point) {
++func (c *char) pressurizedCollapse(pos info.Point, sourceHostEvent bool) {
+ 	ai := info.AttackInfo{
+ 		ActorIndex: c.Index(),
+ 		Abil:       VortexAbilName,
+@@ -114,6 +114,22 @@
+ 		shredCb = applyBurstShredCb
+ 	}
+ 
++	if sourceHostEvent {
++		c.Core.SourceHostQueueEventTask("faruzan.c6.collapse-task", func() {
++			c.Core.SourceHostQueueEventAttackWithSnap(
++				"faruzan.c6.collapse-attack",
++				ai,
++				snap,
++				combat.NewCircleHitOnTarget(pos, nil, 6),
++				0,
++				c.makeC4Callback(),
++				shredCb,
++				c.particleCB,
++			)
++		}, vortexHitmark)
++		return
++	}
++
+ 	c.Core.Tasks.Add(func() {
+ 		c.Core.QueueAttackWithSnap(
+ 			ai,
+diff --git a/internal/characters/faruzan/aimed.go b/internal/characters/faruzan/aimed.go
+--- a/internal/characters/faruzan/aimed.go
++++ b/internal/characters/faruzan/aimed.go
+@@ -97,7 +97,7 @@
+ 			if done {
+ 				return
+ 			}
+-			c.pressurizedCollapse(a.Target.Pos())
++			c.pressurizedCollapse(a.Target.Pos(), false)
+ 		}
+ 		if shortAim {
+ 			a = action.Info{

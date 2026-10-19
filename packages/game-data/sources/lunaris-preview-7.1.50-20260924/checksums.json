@@ -1,0 +1,50 @@
+{
+  "version.json": {
+    "bytes": 950,
+    "sha256": "eaeff9d580d0631f142f8494072e5d4888aa7003c4109ed1ba6a96f71ef06f16"
+  },
+  "candidate-evidence.json": {
+    "bytes": 3821,
+    "sha256": "06e2f414112f094afdfb890c7642b286e451dbc508e93f121a26a27162567426"
+  },
+  "valeriy.chs.json": {
+    "bytes": 59276,
+    "sha256": "0714b7f9db97e3256c906dbf850c45aa99211cf566e5f4dc0e67f48461c21d50"
+  },
+  "retrieval-manifest.json": {
+    "bytes": 2832,
+    "sha256": "773bdcbcd3c21f4989ca49f3bd85ef7de00f3e8c021cf71bcfe3866f78456d20"
+  },
+  "candidate.bundle.json": {
+    "bytes": 142722,
+    "sha256": "d5560bfb8f2627e23bad5c4097bd17489f51e13144c774d546b1fffbeb594ea0"
+  },
+  "mitya.chs.json": {
+    "bytes": 62717,
+    "sha256": "d3d5bc6445f57ebd969cd67a43ba67a4dd7e4e7da673be1947fa31ecac0ef81e"
+  },
+  "prepare-candidate.py": {
+    "bytes": 9936,
+    "sha256": "9d2af91bd615b1e5cc2ff07537d97b55afd1975fda1a293fbeea984f682f1e6e"
+  },
+  "mitya.en.json": {
+    "bytes": 59115,
+    "sha256": "357b9f0b0967d96491ac875d53ba0408d3ed1d2d86e948cba1f327880d9ef678"
+  },
+  "candidate.metadata.json": {
+    "bytes": 246106,
+    "sha256": "c2cc10174438048e7c8b8e055e3f919e0512d2d60c7779adf32a925d65ad5ccf"
+  },
+  "lunaris-app.js": {
+    "bytes": 668977,
+    "sha256": "404cffbce5e1185046566caf3cd10a445c6ce4b01f30f2032fa3a729876dbd2b"
+  },
+  "charlist.json": {
+    "bytes": 73817,
+    "sha256": "c086253bd2d09698d1ab7b98bdb85690ba52b0e212a5f747f43e127b2f3330aa"
+  },
+  "valeriy.en.json": {
+    "bytes": 54524,
+    "sha256": "ab0f155c8ee3d6b33842cee41e16f526fd459c6f4f4e310c974654ae330e1d2c"
+  }
+}

@@ -1,0 +1,26 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts (3 tests | 1 failed) 536ms
+     × samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners 90ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts > remaining fixed-source weapon lifecycles > samples Sword only at its actual delayed task, captures pending state, and excludes innate Arkhe owners
+TypeError: Cannot read properties of undefined (reading 'state')
+ ❯ packages/sim-core/src/__tests__/remaining-weapon-proc-lifecycle.test.ts:64:63
+     62|     expect(hits.map(row => [row.frame, row.targetId, row.activeCharact…
+     63|     expect(replay(result, hits[0]!.id)).toBe(0);
+     64|     const state = result.executionAudit!.phaseCheckpoints[0]!.state as…
+       |                                                               ^
+     65|     expect(state.pendingEvents.inFlight.find((row: any) => row.type ==…
+     66|       payload: { actor: { hasInnateArkhe: false }, triggerAgeTicks: 2,…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  22:55:09
+   Duration  1.52s (transform 717ms, setup 0ms, import 927ms, tests 536ms, environment 0ms)
+

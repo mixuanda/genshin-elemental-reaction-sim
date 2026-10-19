@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "source-cross-cutting-next-step-v1",
+  "asOf": "2026-09-30",
+  "findings": [
+    {
+      "id": "native-phase-state-closure",
+      "priority": 1,
+      "classification": "cross-cutting-code-and-evidence-gap",
+      "recommendation": "For batch 119, prioritize broad native phase coverage gaps over additional individual-character cases. Use coverage.gaps from representative captures to select one broadly shared opaque callback/task domain; source-audit and expose its captured state, ordering, and deadlines, while retaining explicit gaps for unknown closures. Preserve the existing not-established behavior and validate one representative closure and one incomplete case.",
+      "basis": [
+        {
+          "file": "packages/source-host/stellar-overlay/go/cmd/sourcehost/phase_observation.go",
+          "lines": "22-63,78-82",
+          "evidence": "Phase capture records named providers and concrete gaps; coverage is complete only when no gaps remain."
+        },
+        {
+          "file": "packages/sim-core/src/source-host-phase-analysis.ts",
+          "evidence": "Analysis requires continuous same-input-phase observations, complete provider coverage, repeated state, elapsed frames, and matching interval damage."
+        },
+        {
+          "file": "docs/source-phase-captures-20260928.zh-CN.md",
+          "lines": "3,7-10,18-30,45-49",
+          "evidence": "One provisional Stellar periodic result exists; shared private clocks, equipment/events/reactions/tasks, shield/stamina callbacks and stochastic steady state remain bounded or open."
+        },
+        {
+          "file": "docs/master-requirements-status.zh-CN.md",
+          "lines": "176,196",
+          "evidence": "Energy startup and observation-window UI are delivered; general closure and random steady state remain incomplete."
+        },
+        {
+          "file": "/Users/evan/Downloads/GENSHIN_DPS_MASTER_PROMPT_EN.md",
+          "lines": "439-451",
+          "evidence": "Deterministic convergence requires phase-aligned relevant state; stochastic runs require a disclosed warmup/distribution policy."
+        }
+      ],
+      "scope": "Do not add energy widgets or another character-scoped test batch. Seed capture alone does not establish stochastic convergence."
+    },
+    {
+      "id": "data-discovery-remote-evidence",
+      "priority": 2,
+      "classification": "external-operation-and-evidence-gap",
+      "recommendation": "Run the existing data-discovery workflow once with authorized repository Actions access, inspect and retain its uploaded artifact and review receipt, then reconcile the actual outcome into status/evidence. Keep discovery separate from release identity and candidate promotion. Create a preview only if an immutable source-to-release mapping is established.",
+      "basis": [
+        {
+          "file": ".github/workflows/data-discovery.yml",
+          "lines": "3-9,22-62",
+          "evidence": "Scheduled/manual workflow already discovers sources, captures an isolated candidate, assembles a read-only receipt, uploads artifacts, and reports failures."
+        },
+        {
+          "file": "packages/game-data/scripts/update-data.mjs",
+          "lines": "280-317",
+          "evidence": "Discovery fingerprints source bytes; review assembles discovery, candidate, and failure history without automatically updating project status."
+        },
+        {
+          "file": "docs/data-evidence-refresh-20260930.json",
+          "lines": "116-170",
+          "evidence": "Current observed provider/community evidence remains labeled 7.1; focused official search did not confirm a 7.2 detail, and absence is not proof."
+        },
+        {
+          "file": "docs/master-requirements-status.zh-CN.md",
+          "lines": "170,189,202",
+          "evidence": "Remote workflow execution and a verified 7.2 V1 mapping remain outstanding."
+        },
+        {
+          "file": "/Users/evan/Downloads/GENSHIN_DPS_MASTER_PROMPT_EN.md",
+          "lines": "296-322",
+          "evidence": "Release identity, verification coverage, and isolated immutable preview snapshots are separate requirements."
+        }
+      ],
+      "blockers": "Executing the remote workflow requires repository Actions access. Release mapping, complete version evidence, and redistribution rights require external evidence; these are not missing pipeline features. Do not promote from discovery alone."
+    }
+  ],
+  "completedAdjacentScope": "Existing rotation presets, DSL controls, startup modes, observation windows, and JSON import/export are already present; no additional onboarding UI is recommended without a concrete uncovered requirement. See docs/master-requirements-status.zh-CN.md:174 and apps/web/src/source-team-builder.ts."
+}

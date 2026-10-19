@@ -1,0 +1,103 @@
+--- a/pkg/core/player/character/energy.go
++++ b/pkg/core/player/character/energy.go
+@@ -4,6 +4,7 @@
+ 	"github.com/genshinsim/gcsim/pkg/core/attributes"
+ 	"github.com/genshinsim/gcsim/pkg/core/event"
+ 	"github.com/genshinsim/gcsim/pkg/core/glog"
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ func (c *CharWrapper) ConsumeEnergy(delay int) {
+@@ -14,12 +15,21 @@
+ 	f := func() {
+ 		preEnergy := c.Energy
+ 		post := max(c.Energy-amount, 0)
++		source := c.Base.Key.String() + "-burst-energy-drain"
++		calculationID := 0
++		if c.SourceHost != nil {
++			post, calculationID = c.SourceHost.CharacterEnergy(c.Index(), source, attributes.NoElement,
++				map[string]any{"operation": "consume", "energyBefore": preEnergy, "energyMax": c.EnergyMax, "amount": amount}, nil, 0)
++		}
+ 		c.log.NewEvent("draining energy", glog.LogEnergyEvent, c.Index()).
+ 			Write("pre_drain", preEnergy).
+ 			Write("post_drain", post).
+-			Write("source", c.Base.Key.String()+"-burst-energy-drain").
++			Write("source", source).
+ 			Write("max_energy", c.EnergyMax)
+ 		c.Energy = post
++		if c.SourceHost != nil {
++			c.SourceHost.RecordEnergyApplication(calculationID, c.Index(), source, "consume", preEnergy, post, amount, c.EnergyMax, 0)
++		}
+ 		c.events.Emit(event.OnEnergyBurst, c, preEnergy, amount)
+ 	}
+ 
+@@ -32,12 +42,21 @@
+ 
+ func (c *CharWrapper) AddEnergy(src string, e float64) {
+ 	preEnergy := c.Energy
+-	c.Energy += e
+-	if c.Energy > c.EnergyMax {
+-		c.Energy = c.EnergyMax
++	post := c.Energy + e
++	if post > c.EnergyMax {
++		post = c.EnergyMax
+ 	}
+-	if c.Energy < 0 {
+-		c.Energy = 0
++	if post < 0 {
++		post = 0
++	}
++	calculationID := 0
++	if c.SourceHost != nil {
++		post, calculationID = c.SourceHost.CharacterEnergy(c.Index(), src, attributes.NoElement,
++			map[string]any{"operation": "flat-change", "energyBefore": preEnergy, "energyMax": c.EnergyMax, "amount": e}, nil, 0)
++	}
++	c.Energy = post
++	if c.SourceHost != nil {
++		c.SourceHost.RecordEnergyApplication(calculationID, c.Index(), src, "flat-change", preEnergy, post, e, c.EnergyMax, 0)
+ 	}
+ 
+ 	c.events.Emit(event.OnEnergyChange, c, preEnergy, e, src, false)
+@@ -68,15 +87,37 @@
+ 	amt *= r // apply off field reduction
+ 	// apply energy regen stat
+ 
+-	er = c.Stat(attributes.ER)
++	var statRead *info.SourceHostStatRead
++	if c.SourceHost != nil {
++		er, statRead = c.StatWithProvenance(attributes.ER)
++	} else {
++		er = c.Stat(attributes.ER)
++	}
+ 
+-	amt = amt * er * p.Num
++	amountCalculationID := 0
++	if c.SourceHost != nil {
++		amt, amountCalculationID = c.SourceHost.CharacterEnergy(c.Index(), p.Source, p.Ele,
++			map[string]any{"operation": "particle-amount", "particleElement": p.Ele.String(),
++				"actorElement": c.Base.Element.String(), "isActive": isActive, "partyCount": partyCount,
++				"energyRecharge": er, "particleCount": p.Num}, statRead, 0)
++	} else {
++		amt = amt * er * p.Num
++	}
+ 
+ 	pre := c.Energy
+ 
+-	c.Energy += amt
+-	if c.Energy > c.EnergyMax {
+-		c.Energy = c.EnergyMax
++	post := c.Energy + amt
++	if post > c.EnergyMax {
++		post = c.EnergyMax
++	}
++	calculationID := 0
++	if c.SourceHost != nil {
++		post, calculationID = c.SourceHost.CharacterEnergy(c.Index(), p.Source, p.Ele,
++			map[string]any{"operation": "particle-apply", "energyBefore": pre, "energyMax": c.EnergyMax, "amount": amt}, nil, amountCalculationID)
++	}
++	c.Energy = post
++	if c.SourceHost != nil {
++		c.SourceHost.RecordEnergyApplication(calculationID, c.Index(), p.Source, "particle-apply", pre, post, amt, c.EnergyMax, amountCalculationID)
+ 	}
+ 
+ 	c.events.Emit(event.OnEnergyChange, c, pre, amt, p.Source, true)

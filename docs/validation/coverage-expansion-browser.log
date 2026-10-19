@@ -1,0 +1,9 @@
+
+Running 1 test using 1 worker
+
+(node:84116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+Complete-cast coverage browser measurements {"nonCritical":{"dori-skill-complete-cast-c0":946.8000000000001,"nilou-burst-complete-cast-c0":1843.2000000000003,"ganyu-skill-complete-cast-c0":1188,"baizhu-high-hp":1336.5,"baizhu-low-hp":1069.2},"baizhuSingleNonCritical":445.5,"includedPanelNonCritical":1336.5,"finalPanelNonCritical":730.9559001838501,"jsonNonCritical":730.9559001838501}
+  ✓  1 [chromium] › apps/web/e2e/coverage-expansion.spec.ts:51:1 › Four sourced complete casts work independently and Baizhu retains one explicit cast-HP snapshot through single hits, final panels and JSON (1.5s)
+
+  1 passed (1.8s)

@@ -1,0 +1,5 @@
+
+> genshin-dps-lab@1.0.0 data:check
+> node packages/game-data/scripts/generate-catalog.mjs --check
+
+Catalog is reproducible: 120 characters, 125 talent sets, 762 abilities, 237 weapons.

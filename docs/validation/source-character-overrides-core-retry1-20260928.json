@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/source-character-overrides.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.846,
+  "log": "docs/validation/source-character-overrides-core-retry1-20260928.log"
+}

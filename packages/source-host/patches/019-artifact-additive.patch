@@ -1,0 +1,106 @@
+--- a/internal/artifacts/echoes/echoes.go
++++ b/internal/artifacts/echoes/echoes.go
+@@ -74,9 +74,24 @@
+ 		}
+ 
+ 		// if buff is already active then buff attack
+-		snATK := char.TotalAtk()
++		var snATK float64
++		var statRead *info.SourceHostStatRead
++		if c.SourceHost != nil {
++			snATK, statRead = char.TotalAtkWithProvenance()
++		} else {
++			snATK = char.TotalAtk()
++		}
+ 		if c.F < s.procExpireF {
+-			dmgAdded = snATK * 0.7
++			if c.SourceHost != nil {
++				dmgAdded = c.SourceHost.ArtifactAdditiveHit(atk, args[0].(info.Target).Key(), "echoes", snATK, statRead, map[string]any{
++					"ruleId": "echoes", "sourceHolderIndex": char.Index(), "path": "active-window",
++					"probabilityBefore": s.prob, "probabilityAfter": s.prob, "roll": nil,
++					"procExpiryBefore": s.procExpireF, "procExpiryAfter": s.procExpireF,
++					"cooldownBefore": s.icd, "cooldownAfter": s.icd,
++				})
++			} else {
++				dmgAdded = snATK * 0.7
++			}
+ 			atk.Info.FlatDmg += dmgAdded
+ 			c.Log.NewEvent("echoes 4pc adding dmg", glog.LogArtifactEvent, char.Index()).
+ 				Write("dmg_added", dmgAdded).
+@@ -93,7 +108,8 @@
+ 			return
+ 		}
+ 
+-		if c.Rand.Float64() > s.prob {
++		roll := c.Rand.Float64()
++		if roll > s.prob {
+ 			s.icd = c.F + 12 // 0.2s
+ 			s.prob += 0.2
+ 			c.Log.NewEvent("echoes 4pc failed to proc due to chance", glog.LogArtifactEvent, char.Index()).
+@@ -102,7 +118,16 @@
+ 			return
+ 		}
+ 
+-		dmgAdded = snATK * 0.7
++		if c.SourceHost != nil {
++			dmgAdded = c.SourceHost.ArtifactAdditiveHit(atk, args[0].(info.Target).Key(), "echoes", snATK, statRead, map[string]any{
++				"ruleId": "echoes", "sourceHolderIndex": char.Index(), "path": "rolled-proc",
++				"probabilityBefore": s.prob, "probabilityAfter": 0.36, "roll": roll,
++				"procExpiryBefore": s.procExpireF, "procExpiryAfter": c.F + procDuration,
++				"cooldownBefore": s.icd, "cooldownAfter": c.F + 12,
++			})
++		} else {
++			dmgAdded = snATK * 0.7
++		}
+ 		atk.Info.FlatDmg += dmgAdded
+ 
+ 		s.procExpireF = c.F + procDuration
+--- a/internal/artifacts/songofdayspast/songofdayspast.go
++++ b/internal/artifacts/songofdayspast/songofdayspast.go
+@@ -94,15 +94,25 @@
+ 		default:
+ 			return
+ 		}
+-		if s.core.Status.Duration(wavesOfDaysPastKey) == 0 {
++		windowRemainingFrames := s.core.Status.Duration(wavesOfDaysPastKey)
++		if windowRemainingFrames == 0 {
+ 			return
+ 		}
+ 		if atk.Info.ActorIndex != s.core.Player.Active() {
+ 			return
+ 		}
+ 		if s.core.Flags.Custom[wavesOfDaysPastKey] > 0 {
++			remainingBefore := int(s.core.Flags.Custom[wavesOfDaysPastKey])
+ 			s.core.Flags.Custom[wavesOfDaysPastKey]--
+-			amt := s.core.Flags.Custom[healSnapKey] * 0.08
++			healSnap := s.core.Flags.Custom[healSnapKey]
++			amt := healSnap * 0.08
++			if s.core.SourceHost != nil {
++				amt = s.core.SourceHost.ArtifactAdditiveHit(atk, args[0].(info.Target).Key(), "songofdayspast", healSnap, nil, map[string]any{
++					"ruleId": "songofdayspast", "sourceHolderIndex": s.char.Index(),
++					"remainingBefore": remainingBefore, "remainingAfter": int(s.core.Flags.Custom[wavesOfDaysPastKey]),
++					"windowRemainingFrames": windowRemainingFrames, "healSnap": healSnap,
++				})
++			}
+ 			atk.Info.FlatDmg += amt
+ 			s.core.Log.NewEvent("sodp 4pc adding dmg", glog.LogArtifactEvent, atk.Info.ActorIndex).
+ 				Write("dmg_added", amt)
+--- a/internal/artifacts/oceanhuedclam/oceanhuedclam.go
++++ b/internal/artifacts/oceanhuedclam/oceanhuedclam.go
+@@ -115,7 +115,15 @@
+ 						StrikeType:       attacks.StrikeTypeDefault,
+ 						Element:          attributes.Physical,
+ 						IgnoreDefPercent: 1,
+-						FlatDmg:          s.bubbleHealStacks * .9,
++					}
++					if c.SourceHost != nil {
++						atk.FlatDmg = c.SourceHost.ArtifactAdditiveQueued(&atk, "oceanhuedclam", s.bubbleHealStacks, map[string]any{
++							"ruleId": "oceanhuedclam", "sourceHolderIndex": char.Index(),
++							"bubbleHealStacks": s.bubbleHealStacks, "bubbleExpiry": s.bubbleDurationExpiry,
++							"cooldownExpiry": bubbleICDExpiry, "queueDelayFrames": 1,
++						})
++					} else {
++						atk.FlatDmg = s.bubbleHealStacks * .9
+ 					}
+ 					// snapshot -1 since we don't need stats
+ 					c.QueueAttack(atk, combat.NewCircleHitOnTarget(c.Combat.Player(), nil, 6), -1, 1)

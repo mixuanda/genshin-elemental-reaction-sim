@@ -1,0 +1,26 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/linnea-observed-lifecycle.test.ts (0 test)
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/linnea-observed-lifecycle.test.ts [ packages/sim-core/src/linnea-observed-lifecycle.test.ts ]
+Error: Cannot find module './nefer-observed-lifecycle' imported from /Users/evan/Documents/gidps/packages/sim-core/src/source-cast-context.ts
+ ❯ packages/sim-core/src/source-cast-context.ts:6:1
+      4| import { prepareObservedCharacterResourceDocument, resetObservedCharac…
+      5| import { prepareAlyoshaObservedDocument } from "./alyosha-observed-lif…
+      6| import { prepareNeferObservedDocument } from "./nefer-observed-lifecyc…
+       | ^
+      7| import { prepareLinneaObservedDocument } from "./linnea-observed-lifec…
+      8| import { prepareSandroneObservedLifecycleDocument } from "./sandrone-o…
+ ❯ apps/web/src/character-calculations.ts:3:1
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  20:37:17
+   Duration  2.12s (transform 1.54s, setup 0ms, import 0ms, tests 0ms, environment 0ms)
+

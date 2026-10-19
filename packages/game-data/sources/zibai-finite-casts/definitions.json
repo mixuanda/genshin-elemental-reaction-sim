@@ -1,0 +1,182 @@
+{
+  "templates": [
+    {
+      "skillId": "zibai-finite-spirit-steed-c0",
+      "characterSlug": "zibai",
+      "talentSetId": "talent-set:zibai",
+      "abilityKey": "combat2",
+      "label": "灵驹飞踏 · 已观察完整两段",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "roles": {
+        "ordinary": {
+          "mappingId": "zibai-finite-spirit-steed-c0-ordinary",
+          "label": "第一段 · 普通岩伤",
+          "kind": "ordinary",
+          "element": "geo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "values": [
+            1.72528,
+            1.854676,
+            1.984072,
+            2.1566,
+            2.285996,
+            2.415392,
+            2.58792,
+            2.760448,
+            2.932976,
+            3.105504,
+            3.278032,
+            3.45056,
+            3.66622,
+            3.88188,
+            4.09754
+          ],
+          "sourceField": "libs/gi/stats/Data/Characters/Zibai/skillParam.json#/skill/0",
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json#/skill/0",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        },
+        "lunar": {
+          "mappingId": "zibai-finite-spirit-steed-c0-lunar",
+          "label": "第二段 · 直接月结晶",
+          "kind": "lunar-crystallize-direct",
+          "element": "geo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "values": [
+            1.40968,
+            1.515406,
+            1.621132,
+            1.7621,
+            1.867826,
+            1.973552,
+            2.11452,
+            2.255488,
+            2.396456,
+            2.537424,
+            2.678392,
+            2.81936,
+            2.99557,
+            3.17178,
+            3.34799
+          ],
+          "sourceField": "libs/gi/stats/Data/Characters/Zibai/skillParam.json#/skill/1",
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json#/skill/1",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0；本次灵驹重施或Q已经合法发生；只认证一次有限两段，不认证隙中月整个姿态。",
+        "两段命中与进攻取样的实际时刻由用户记录；没有来源帧数、ICD、粒子或取消窗的推测。",
+        "逐击真实属性与已含A4／固有基础提升／A1份额分别记账；普通增伤不流入月结晶。",
+        "灵驹A1只应用于第二段明确4秒有效窗口；Q两段不读取此状态。",
+        "固定Optimizer公式来源为provisional，不认证当前官服机制或自动队伍执行。"
+      ]
+    },
+    {
+      "skillId": "zibai-finite-burst-c0",
+      "characterSlug": "zibai",
+      "talentSetId": "talent-set:zibai",
+      "abilityKey": "combat3",
+      "label": "元素爆发 · 已观察完整两段",
+      "sourceCommit": "180a0a1015cb725c7570cd828eb086749960df98",
+      "roles": {
+        "ordinary": {
+          "mappingId": "zibai-finite-burst-c0-ordinary",
+          "label": "第一段 · 普通岩伤",
+          "kind": "ordinary",
+          "element": "geo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "values": [
+            1.2696,
+            1.36482,
+            1.46004,
+            1.587,
+            1.68222,
+            1.77744,
+            1.9044,
+            2.03136,
+            2.15832,
+            2.28528,
+            2.41224,
+            2.5392,
+            2.6979,
+            2.8566,
+            3.0153
+          ],
+          "sourceField": "libs/gi/stats/Data/Characters/Zibai/skillParam.json#/burst/0",
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json#/burst/0",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        },
+        "lunar": {
+          "mappingId": "zibai-finite-burst-c0-lunar",
+          "label": "第二段 · 直接月结晶",
+          "kind": "lunar-crystallize-direct",
+          "element": "geo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param2",
+          "values": [
+            1.77744,
+            1.910748,
+            2.044056,
+            2.2218,
+            2.355108,
+            2.488416,
+            2.66616,
+            2.843904,
+            3.021648,
+            3.199392,
+            3.377136,
+            3.55488,
+            3.77706,
+            3.99924,
+            4.22142
+          ],
+          "sourceField": "libs/gi/stats/Data/Characters/Zibai/skillParam.json#/burst/1",
+          "sourceRefs": [
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Characters/Zibai/index.tsx",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/stats/Data/Characters/Zibai/skillParam.json#/burst/1",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/dm-localization/assets/locales/en/char_Zibai_gen.json",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/lunar.ts",
+            "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/wr/src/reaction/special.ts"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0；本次灵驹重施或Q已经合法发生；只认证一次有限两段，不认证隙中月整个姿态。",
+        "两段命中与进攻取样的实际时刻由用户记录；没有来源帧数、ICD、粒子或取消窗的推测。",
+        "逐击真实属性与已含A4／固有基础提升／A1份额分别记账；普通增伤不流入月结晶。",
+        "灵驹A1只应用于第二段明确4秒有效窗口；Q两段不读取此状态。",
+        "固定Optimizer公式来源为provisional，不认证当前官服机制或自动队伍执行。"
+      ]
+    }
+  ],
+  "constants": {
+    "a1DefenseCoefficient": 0.6,
+    "a1DurationSeconds": 4,
+    "a4DefensePercentPerOtherGeo": 0.15,
+    "a4ElementalMasteryPerHydro": 60,
+    "intrinsicBaseBonusPer100Defense": 0.007,
+    "intrinsicBaseBonusCap": 0.14
+  }
+}

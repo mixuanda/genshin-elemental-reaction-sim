@@ -1,0 +1,627 @@
+{
+  "schemaVersion": 1,
+  "protocol": "source-periodic-ordinary-v1",
+  "templates": [
+    {
+      "skillId": "periodic-ordinary-ineffa-skill-no-lunar-c0",
+      "characterSlug": "ineffa",
+      "talentSetId": "talent-set:ineffa",
+      "abilityKey": "combat2",
+      "label": "清洁模式·完整无月感电场施放（C0）",
+      "roles": {
+        "initial": {
+          "mappingId": "periodic-ordinary-ineffa-skill-no-lunar-c0-initial",
+          "label": "初始战技",
+          "element": "electro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.864,
+                0.9288,
+                0.9936,
+                1.08,
+                1.1448,
+                1.2096,
+                1.296,
+                1.3824,
+                1.4688,
+                1.5552,
+                1.6416,
+                1.728,
+                1.836,
+                1.944,
+                2.052
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skillInitial"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/ineffa/asc.go",
+            "internal/characters/ineffa/attack.go",
+            "internal/characters/ineffa/burst.go",
+            "internal/characters/ineffa/charge.go",
+            "internal/characters/ineffa/cons.go",
+            "internal/characters/ineffa/ineffa.go",
+            "internal/characters/ineffa/shield.go",
+            "internal/characters/ineffa/skill.go",
+            "internal/characters/ineffa/zz_ineffa.dm.go"
+          ]
+        },
+        "discharge": {
+          "mappingId": "periodic-ordinary-ineffa-skill-no-lunar-c0-discharge",
+          "label": "比尔吉塔放电",
+          "element": "electro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param4",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "parameterKey": "param4",
+              "sourceField": "skillDoT"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/ineffa/asc.go",
+            "internal/characters/ineffa/attack.go",
+            "internal/characters/ineffa/burst.go",
+            "internal/characters/ineffa/charge.go",
+            "internal/characters/ineffa/cons.go",
+            "internal/characters/ineffa/ineffa.go",
+            "internal/characters/ineffa/shield.go",
+            "internal/characters/ineffa/skill.go",
+            "internal/characters/ineffa/zz_ineffa.dm.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0；全新实体，无替换、打断、死亡或卡肉；显式观察覆盖全部候选和尾段，实际接触逐项确认。",
+        "完整范围仅限当前命名的自身伤害条件分支，不自动执行团队、附着、产球或治疗。"
+      ]
+    },
+    {
+      "skillId": "periodic-ordinary-columbina-skill-no-lunar-c0",
+      "characterSlug": "columbina",
+      "talentSetId": "talent-set:columbina",
+      "abilityKey": "combat2",
+      "label": "万古潮汐·完整无月事件施放（C0）",
+      "roles": {
+        "initial": {
+          "mappingId": "periodic-ordinary-columbina-skill-no-lunar-c0-initial",
+          "label": "初始战技",
+          "element": "hydro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "terms": [
+            {
+              "stat": "hp",
+              "values": [
+                0.1672,
+                0.17974,
+                0.19228,
+                0.209,
+                0.22154,
+                0.23408,
+                0.2508,
+                0.26752,
+                0.28424,
+                0.30096,
+                0.31768,
+                0.3344,
+                0.3553,
+                0.3762,
+                0.3971
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skill"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/columbina/asc.go",
+            "internal/characters/columbina/attack.go",
+            "internal/characters/columbina/burst.go",
+            "internal/characters/columbina/charge.go",
+            "internal/characters/columbina/columbina.go",
+            "internal/characters/columbina/cons.go",
+            "internal/characters/columbina/jump.go",
+            "internal/characters/columbina/skill.go",
+            "internal/characters/columbina/zz_columbina.dm.go"
+          ]
+        },
+        "ripple": {
+          "mappingId": "periodic-ordinary-columbina-skill-no-lunar-c0-ripple",
+          "label": "涟漪周期伤害",
+          "element": "hydro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "terms": [
+            {
+              "stat": "hp",
+              "values": [
+                0.0936,
+                0.10062,
+                0.10764,
+                0.117,
+                0.12402,
+                0.13104,
+                0.1404,
+                0.14976,
+                0.15912,
+                0.16848,
+                0.17784,
+                0.1872,
+                0.1989,
+                0.2106,
+                0.2223
+              ],
+              "parameterKey": "param2",
+              "sourceField": "skillDoT"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/columbina/asc.go",
+            "internal/characters/columbina/attack.go",
+            "internal/characters/columbina/burst.go",
+            "internal/characters/columbina/charge.go",
+            "internal/characters/columbina/columbina.go",
+            "internal/characters/columbina/cons.go",
+            "internal/characters/columbina/jump.go",
+            "internal/characters/columbina/skill.go",
+            "internal/characters/columbina/zz_columbina.dm.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0；全新实体，无替换、打断、死亡或卡肉；显式观察覆盖全部候选和尾段，实际接触逐项确认。",
+        "完整范围仅限当前命名的自身伤害条件分支，不自动执行团队、附着、产球或治疗。"
+      ]
+    },
+    {
+      "skillId": "periodic-ordinary-lauma-skill-press-c0",
+      "characterSlug": "lauma",
+      "talentSetId": "talent-set:lauma",
+      "abilityKey": "combat2",
+      "label": "林野踏歌·点按与完整圣域（C0）",
+      "roles": {
+        "initial": {
+          "mappingId": "periodic-ordinary-lauma-skill-press-c0-initial",
+          "label": "点按初击",
+          "element": "dendro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param1",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.216,
+                1.3072,
+                1.3984,
+                1.52,
+                1.6112,
+                1.7024,
+                1.824,
+                1.9456,
+                2.0672,
+                2.1888,
+                2.3104,
+                2.432,
+                2.584,
+                2.736,
+                2.888
+              ],
+              "parameterKey": "param1",
+              "sourceField": "skillPress"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/lauma/asc.go",
+            "internal/characters/lauma/attack.go",
+            "internal/characters/lauma/burst.go",
+            "internal/characters/lauma/charge.go",
+            "internal/characters/lauma/cons.go",
+            "internal/characters/lauma/dash.go",
+            "internal/characters/lauma/jump.go",
+            "internal/characters/lauma/lauma.go",
+            "internal/characters/lauma/skill.go",
+            "internal/characters/lauma/zz_lauma.dm.go"
+          ]
+        },
+        "sanctuary": {
+          "mappingId": "periodic-ordinary-lauma-skill-press-c0-sanctuary",
+          "label": "霜林圣域",
+          "element": "dendro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param4",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "parameterKey": "param4",
+              "sourceField": "frostgroveSanctuaryAtk"
+            },
+            {
+              "stat": "em",
+              "values": [
+                1.92,
+                2.064,
+                2.208,
+                2.4,
+                2.544,
+                2.688,
+                2.88,
+                3.072,
+                3.264,
+                3.456,
+                3.648,
+                3.84,
+                4.08,
+                4.32,
+                4.56
+              ],
+              "parameterKey": "param5",
+              "sourceField": "frostgroveSanctuaryEM"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/lauma/asc.go",
+            "internal/characters/lauma/attack.go",
+            "internal/characters/lauma/burst.go",
+            "internal/characters/lauma/charge.go",
+            "internal/characters/lauma/cons.go",
+            "internal/characters/lauma/dash.go",
+            "internal/characters/lauma/jump.go",
+            "internal/characters/lauma/lauma.go",
+            "internal/characters/lauma/skill.go",
+            "internal/characters/lauma/zz_lauma.dm.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0；全新实体，无替换、打断、死亡或卡肉；显式观察覆盖全部候选和尾段，实际接触逐项确认。",
+        "完整范围仅限当前命名的自身伤害条件分支，不自动执行团队、附着、产球或治疗。"
+      ]
+    },
+    {
+      "skillId": "periodic-ordinary-chasca-burst-c0",
+      "characterSlug": "chasca",
+      "talentSetId": "talent-set:chasca",
+      "abilityKey": "combat3",
+      "label": "索魂命狙·实际六弹完整施放（C0）",
+      "roles": {
+        "initial": {
+          "mappingId": "periodic-ordinary-chasca-burst-c0-initial",
+          "label": "裂风索魂弹",
+          "element": "anemo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.88,
+                0.946,
+                1.012,
+                1.1,
+                1.166,
+                1.232,
+                1.32,
+                1.408,
+                1.496,
+                1.584,
+                1.672,
+                1.76,
+                1.87,
+                1.98,
+                2.09
+              ],
+              "parameterKey": "param1",
+              "sourceField": "burstGalesplitting"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/chasca/aimed.go",
+            "internal/characters/chasca/asc.go",
+            "internal/characters/chasca/attack.go",
+            "internal/characters/chasca/burst.go",
+            "internal/characters/chasca/chasca.go",
+            "internal/characters/chasca/cons.go",
+            "internal/characters/chasca/dash.go",
+            "internal/characters/chasca/jump.go",
+            "internal/characters/chasca/plunge.go",
+            "internal/characters/chasca/skill.go",
+            "internal/characters/chasca/zz_chasca.dm.go"
+          ]
+        },
+        "soulseeker": {
+          "mappingId": "periodic-ordinary-chasca-burst-c0-soulseeker",
+          "label": "索魂弹·风",
+          "element": "anemo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param2",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.034,
+                1.11155,
+                1.1891,
+                1.2925,
+                1.37005,
+                1.4476,
+                1.551,
+                1.6544,
+                1.7578,
+                1.8612,
+                1.9646,
+                2.068,
+                2.19725,
+                2.3265,
+                2.45575
+              ],
+              "parameterKey": "param2",
+              "sourceField": "burstSoulseeker"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/chasca/aimed.go",
+            "internal/characters/chasca/asc.go",
+            "internal/characters/chasca/attack.go",
+            "internal/characters/chasca/burst.go",
+            "internal/characters/chasca/chasca.go",
+            "internal/characters/chasca/cons.go",
+            "internal/characters/chasca/dash.go",
+            "internal/characters/chasca/jump.go",
+            "internal/characters/chasca/plunge.go",
+            "internal/characters/chasca/skill.go",
+            "internal/characters/chasca/zz_chasca.dm.go"
+          ]
+        },
+        "radiant-pyro": {
+          "mappingId": "periodic-ordinary-chasca-burst-c0-radiant-pyro",
+          "label": "溢光索魂弹·火",
+          "element": "pyro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.068,
+                2.2231,
+                2.3782,
+                2.585,
+                2.7401,
+                2.8952,
+                3.102,
+                3.3088,
+                3.5156,
+                3.7224,
+                3.9292,
+                4.136,
+                4.3945,
+                4.653,
+                4.9115
+              ],
+              "parameterKey": "param3",
+              "sourceField": "burstRadiant"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/chasca/aimed.go",
+            "internal/characters/chasca/asc.go",
+            "internal/characters/chasca/attack.go",
+            "internal/characters/chasca/burst.go",
+            "internal/characters/chasca/chasca.go",
+            "internal/characters/chasca/cons.go",
+            "internal/characters/chasca/dash.go",
+            "internal/characters/chasca/jump.go",
+            "internal/characters/chasca/plunge.go",
+            "internal/characters/chasca/skill.go",
+            "internal/characters/chasca/zz_chasca.dm.go"
+          ]
+        },
+        "radiant-hydro": {
+          "mappingId": "periodic-ordinary-chasca-burst-c0-radiant-hydro",
+          "label": "溢光索魂弹·水",
+          "element": "hydro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.068,
+                2.2231,
+                2.3782,
+                2.585,
+                2.7401,
+                2.8952,
+                3.102,
+                3.3088,
+                3.5156,
+                3.7224,
+                3.9292,
+                4.136,
+                4.3945,
+                4.653,
+                4.9115
+              ],
+              "parameterKey": "param3",
+              "sourceField": "burstRadiant"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/chasca/aimed.go",
+            "internal/characters/chasca/asc.go",
+            "internal/characters/chasca/attack.go",
+            "internal/characters/chasca/burst.go",
+            "internal/characters/chasca/chasca.go",
+            "internal/characters/chasca/cons.go",
+            "internal/characters/chasca/dash.go",
+            "internal/characters/chasca/jump.go",
+            "internal/characters/chasca/plunge.go",
+            "internal/characters/chasca/skill.go",
+            "internal/characters/chasca/zz_chasca.dm.go"
+          ]
+        },
+        "radiant-electro": {
+          "mappingId": "periodic-ordinary-chasca-burst-c0-radiant-electro",
+          "label": "溢光索魂弹·雷",
+          "element": "electro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.068,
+                2.2231,
+                2.3782,
+                2.585,
+                2.7401,
+                2.8952,
+                3.102,
+                3.3088,
+                3.5156,
+                3.7224,
+                3.9292,
+                4.136,
+                4.3945,
+                4.653,
+                4.9115
+              ],
+              "parameterKey": "param3",
+              "sourceField": "burstRadiant"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/chasca/aimed.go",
+            "internal/characters/chasca/asc.go",
+            "internal/characters/chasca/attack.go",
+            "internal/characters/chasca/burst.go",
+            "internal/characters/chasca/chasca.go",
+            "internal/characters/chasca/cons.go",
+            "internal/characters/chasca/dash.go",
+            "internal/characters/chasca/jump.go",
+            "internal/characters/chasca/plunge.go",
+            "internal/characters/chasca/skill.go",
+            "internal/characters/chasca/zz_chasca.dm.go"
+          ]
+        },
+        "radiant-cryo": {
+          "mappingId": "periodic-ordinary-chasca-burst-c0-radiant-cryo",
+          "label": "溢光索魂弹·冰",
+          "element": "cryo",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.068,
+                2.2231,
+                2.3782,
+                2.585,
+                2.7401,
+                2.8952,
+                3.102,
+                3.3088,
+                3.5156,
+                3.7224,
+                3.9292,
+                4.136,
+                4.3945,
+                4.653,
+                4.9115
+              ],
+              "parameterKey": "param3",
+              "sourceField": "burstRadiant"
+            }
+          ],
+          "sourceRefs": [
+            "internal/characters/chasca/aimed.go",
+            "internal/characters/chasca/asc.go",
+            "internal/characters/chasca/attack.go",
+            "internal/characters/chasca/burst.go",
+            "internal/characters/chasca/chasca.go",
+            "internal/characters/chasca/cons.go",
+            "internal/characters/chasca/dash.go",
+            "internal/characters/chasca/jump.go",
+            "internal/characters/chasca/plunge.go",
+            "internal/characters/chasca/skill.go",
+            "internal/characters/chasca/zz_chasca.dm.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0；全新实体，无替换、打断、死亡或卡肉；显式观察覆盖全部候选和尾段，实际接触逐项确认。",
+        "完整范围仅限当前命名的自身伤害条件分支，不自动执行团队、附着、产球或治疗。"
+      ]
+    }
+  ],
+  "laumaShredValues": [
+    0.025,
+    0.05,
+    0.075,
+    0.1,
+    0.125,
+    0.15,
+    0.175,
+    0.2,
+    0.225,
+    0.25,
+    0.28,
+    0.31,
+    0.34,
+    0.37,
+    0.4
+  ]
+}

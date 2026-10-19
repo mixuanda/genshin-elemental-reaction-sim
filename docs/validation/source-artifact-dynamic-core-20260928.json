@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/source-host-artifact-dynamic.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.697,
+  "log": "docs/validation/source-artifact-dynamic-core-20260928.log"
+}

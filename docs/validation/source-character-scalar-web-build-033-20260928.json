@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.729,
+  "log": "docs/validation/source-character-scalar-web-build-033-20260928.log"
+}

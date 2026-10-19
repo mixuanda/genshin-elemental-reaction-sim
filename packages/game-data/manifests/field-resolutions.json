@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "weapon-no-secondary-20260923",
+  "sourceCommit": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+  "field": "mainStatType / stats.specialized",
+  "value": "FIGHT_PROP_NONE",
+  "weaponIds": [
+    11101,
+    11201,
+    12101,
+    12201,
+    13101,
+    13201,
+    14101,
+    14201,
+    15101,
+    15201
+  ],
+  "numericEvidenceStatus": "cross-checked",
+  "mechanicEvidenceStatus": "partial",
+  "sourceUrl": "https://genshin-impact.fandom.com/wiki/Weapon/List/By_Availability",
+  "evidenceRef": "docs/research/release-inventory-2026-09-23.json#noSecondaryWeapons",
+  "note": "The availability table explicitly lists None in the 2nd Stat column for these ten named starter weapons. The pinned source also has no mainStatType and base.specialized=0. This is an exact reviewed list, not a rule that zero or absent means None. The old pinned npm 5.2.12 stats independently records FIGHT_PROP_NONE."
+}

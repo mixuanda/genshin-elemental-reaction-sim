@@ -1,0 +1,320 @@
+diff --git a/internal/characters/fischl/burst.go b/internal/characters/fischl/burst.go
+--- a/internal/characters/fischl/burst.go
++++ b/internal/characters/fischl/burst.go
+@@ -122,12 +122,12 @@
+ 		AnimationLength: burstFrames[action.InvalidAction],
+ 		CanQueueAfter:   burstFrames[action.ActionSwap], // earliest cancel
+ 		State:           action.BurstState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: action.OpaqueRemovedFunc(func(next action.AnimationState) {
+ 			// other actions are handled by burstFullOzFunc
+ 			if next == action.SwapState {
+ 				burstShortOzFunc()
+ 			}
+-		},
++		}),
+ 	}, nil
+ }
+ 
+diff --git a/internal/characters/hutao/attack.go b/internal/characters/hutao/attack.go
+--- a/internal/characters/hutao/attack.go
++++ b/internal/characters/hutao/attack.go
+@@ -180,9 +180,7 @@
+ 	}
+ 
+ 	if c.NormalCounter == 1 {
+-		act.UseNormalizedTime = func(next action.Action) bool {
+-			return next == action.ActionCharge
+-		}
++		act.UseNormalizedTime = action.NormalizedForNextAction(action.ActionCharge)
+ 	}
+ 
+ 	return act
+diff --git a/internal/characters/hutao/charge.go b/internal/characters/hutao/charge.go
+--- a/internal/characters/hutao/charge.go
++++ b/internal/characters/hutao/charge.go
+@@ -159,10 +159,10 @@
+ 		AnimationLength: ppChargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   1,
+ 		State:           action.ChargeAttackState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/hutao/charge.go:ppChargeAttack:OnRemoved", c, func(next action.AnimationState) {
+ 			if next != action.BurstState {
+ 				c.ExtendStatus(paramitaBuff, -1.8*60)
+ 			}
+-		},
++		}),
+ 	}
+ }
+diff --git a/internal/characters/itto/charge.go b/internal/characters/itto/charge.go
+--- a/internal/characters/itto/charge.go
++++ b/internal/characters/itto/charge.go
+@@ -306,13 +306,13 @@
+ 
+ 			return frames.AtkSpdAdjust(f-windup, atkspd)
+ 		}),
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/itto/charge.go:ChargeAttack:OnRemoved", c, func(next action.AnimationState) {
+ 			if next != action.ChargeAttackState {
+ 				c.slashState = InvalidSlash
+ 				c.a1Stacks = 0
+ 				c.stacksConsumed = 0
+ 			}
+-		},
++		}),
+ 		AnimationLength: chargeFrames[curSlash][action.InvalidAction] - windup,
+ 		CanQueueAfter:   chargeHitmarks[curSlash] - windup,
+ 		Segmented:       !caStart,
+diff --git a/internal/characters/keqing/attack.go b/internal/characters/keqing/attack.go
+--- a/internal/characters/keqing/attack.go
++++ b/internal/characters/keqing/attack.go
+@@ -101,9 +101,7 @@
+ 	}
+ 
+ 	if c.NormalCounter == 0 {
+-		act.UseNormalizedTime = func(next action.Action) bool {
+-			return next == action.ActionCharge
+-		}
++		act.UseNormalizedTime = action.NormalizedForNextAction(action.ActionCharge)
+ 	}
+ 
+ 	return act, nil
+diff --git a/internal/characters/klee/attack.go b/internal/characters/klee/attack.go
+--- a/internal/characters/klee/attack.go
++++ b/internal/characters/klee/attack.go
+@@ -146,7 +146,7 @@
+ 		AnimationLength: adjustedFrames[c.NormalCounter][action.InvalidAction],
+ 		CanQueueAfter:   canQueueAfter,
+ 		State:           action.NormalAttackState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: action.OpaqueRemovedFunc(func(next action.AnimationState) {
+ 			switch next {
+ 			case action.SkillState,
+ 				action.BurstState,
+@@ -154,7 +154,7 @@
+ 				action.JumpState:
+ 				tryPerformAttack()
+ 			}
+-		},
++		}),
+ 	}
+ 	actionInfo.QueueAction(tryPerformAttack, adjustedHitmarks[c.NormalCounter])
+ 	return actionInfo, nil
+diff --git a/internal/characters/mavuika/charge.go b/internal/characters/mavuika/charge.go
+--- a/internal/characters/mavuika/charge.go
++++ b/internal/characters/mavuika/charge.go
+@@ -262,12 +262,12 @@
+ 		CanQueueAfter:   durationCA,
+ 		Segmented:       segmented,
+ 		State:           action.ChargeAttackState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/mavuika/charge.go:BikeCharge:OnRemoved", c, func(next action.AnimationState) {
+ 			if next != action.ChargeAttackState {
+ 				c.caState = ChargeState{}
+ 				c.bikeChargeAttackUnhook()
+ 			}
+-		},
++		}),
+ 	}, nil
+ }
+ 
+diff --git a/internal/characters/mona/dash.go b/internal/characters/mona/dash.go
+--- a/internal/characters/mona/dash.go
++++ b/internal/characters/mona/dash.go
+@@ -59,6 +59,6 @@
+ 		AnimationLength: dashFrames[action.InvalidAction] + f,
+ 		CanQueueAfter:   dashHitmark + f,
+ 		State:           action.DashState,
+-		OnRemoved:       c.c6OnDashEnd,
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/mona/dash.go:Dash:OnRemoved", c, c.c6OnDashEnd),
+ 	}, nil
+ }
+diff --git a/internal/characters/neuvillette/charge.go b/internal/characters/neuvillette/charge.go
+--- a/internal/characters/neuvillette/charge.go
++++ b/internal/characters/neuvillette/charge.go
+@@ -151,13 +151,13 @@
+ 		AnimationLength: 1200, // there is no upper limit on the duration of the CA
+ 		CanQueueAfter:   windup + 3 + endLag[action.ActionDash],
+ 		State:           action.ChargeAttackState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/neuvillette/charge.go:chargeAttackJudgement:OnRemoved", c, func(next action.AnimationState) {
+ 			// need to calculate correct swap cd in case of early cancel
+ 			switch next {
+ 			case action.SkillState, action.BurstState, action.DashState, action.JumpState:
+ 				c.Core.Player.SwapCD = max(player.SwapCDFrames-(c.Core.F-c.lastSwap), 0)
+ 			}
+-		},
++		}),
+ 	}, nil
+ }
+ 
+diff --git a/internal/characters/noelle/charge.go b/internal/characters/noelle/charge.go
+--- a/internal/characters/noelle/charge.go
++++ b/internal/characters/noelle/charge.go
+@@ -115,11 +115,11 @@
+ 
+ 			return windup + frames.AtkSpdAdjust(f, atkspd)
+ 		}),
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/noelle/charge.go:ChargeAttack:OnRemoved", c, func(next action.AnimationState) {
+ 			if next != action.ChargeAttackState {
+ 				c.caState = ChargeState{}
+ 			}
+-		},
++		}),
+ 		AnimationLength: windup + spinFrames + transFrames + chargeFrames[action.InvalidAction],
+ 		CanQueueAfter:   windup + hitmark,
+ 		Segmented:       c.caState.StartF != 0,
+diff --git a/internal/characters/sigewinne/burst.go b/internal/characters/sigewinne/burst.go
+--- a/internal/characters/sigewinne/burst.go
++++ b/internal/characters/sigewinne/burst.go
+@@ -78,14 +78,14 @@
+ 		AnimationLength: chargeBurstDur + c.burstMaxDuration,
+ 		CanQueueAfter:   chargeBurstDur,
+ 		State:           action.BurstState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/sigewinne/burst.go:Burst:OnRemoved", c, func(next action.AnimationState) {
+ 			// need to calculate correct swap cd in case of early cancel
+ 			switch next {
+ 			case action.DashState, action.JumpState:
+ 				c.Core.Player.SwapCD = max(player.SwapCDFrames-(c.Core.F-c.lastSwap), 0)
+ 			}
+ 			c.removeC2Shield()
+-		},
++		}),
+ 	}, nil
+ }
+ 
+diff --git a/internal/characters/sigewinne/skill.go b/internal/characters/sigewinne/skill.go
+--- a/internal/characters/sigewinne/skill.go
++++ b/internal/characters/sigewinne/skill.go
+@@ -104,9 +104,9 @@
+ 		AnimationLength: skillFrames[hold][action.InvalidAction],
+ 		CanQueueAfter:   skillFrames[hold][action.ActionAttack],
+ 		State:           action.SkillState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/sigewinne/skill.go:Skill:OnRemoved", c, func(next action.AnimationState) {
+ 			c.removeC2Shield()
+-		},
++		}),
+ 	}, nil
+ }
+ 
+diff --git a/internal/characters/skirk/burst.go b/internal/characters/skirk/burst.go
+--- a/internal/characters/skirk/burst.go
++++ b/internal/characters/skirk/burst.go
+@@ -179,6 +179,6 @@
+ 		AnimationLength: burstSkillFrames[action.InvalidAction],
+ 		CanQueueAfter:   burstSkillFrames[action.ActionAttack], // earliest cancel
+ 		State:           action.BurstState,
+-		OnRemoved:       func(next action.AnimationState) { c.DeleteStatus(burstAbsorbRiftAnimKey) },
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/skirk/burst.go:BurstExtinction:OnRemoved", c, func(next action.AnimationState) { c.DeleteStatus(burstAbsorbRiftAnimKey) }),
+ 	}, nil
+ }
+diff --git a/internal/characters/traveler/common/hydro/skill.go b/internal/characters/traveler/common/hydro/skill.go
+--- a/internal/characters/traveler/common/hydro/skill.go
++++ b/internal/characters/traveler/common/hydro/skill.go
+@@ -117,7 +117,7 @@
+ 		AnimationLength: skillFrames[c.gender][action.InvalidAction],
+ 		CanQueueAfter:   canQueueAfter[c.gender], // earliest cancel
+ 		State:           action.SkillState,
+-		OnRemoved:       func(next action.AnimationState) { c.c4Remove() },
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/traveler/common/hydro/skill.go:skillPress:OnRemoved", c, func(next action.AnimationState) { c.c4Remove() }),
+ 	}, nil
+ }
+ 
+@@ -158,7 +158,7 @@
+ 		AnimationLength: skillShortHoldFrames[c.gender][action.InvalidAction],
+ 		CanQueueAfter:   skillShortHoldCanQueueAfter[c.gender], // earliest cancel
+ 		State:           action.SkillState,
+-		OnRemoved:       func(next action.AnimationState) { c.c4Remove() },
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/traveler/common/hydro/skill.go:skillShortHold:OnRemoved", c, func(next action.AnimationState) { c.c4Remove() }),
+ 	}, nil
+ }
+ 
+@@ -205,7 +205,7 @@
+ 		AnimationLength: skillShortHoldFrames[c.gender][action.InvalidAction] + extend,
+ 		CanQueueAfter:   skillShortHoldCanQueueAfter[c.gender] + extend, // earliest cancel
+ 		State:           action.SkillState,
+-		OnRemoved:       func(next action.AnimationState) { c.c4Remove() },
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/traveler/common/hydro/skill.go:skillHold:OnRemoved", c, func(next action.AnimationState) { c.c4Remove() }),
+ 	}, nil
+ }
+ 
+diff --git a/internal/characters/varesa/burst.go b/internal/characters/varesa/burst.go
+--- a/internal/characters/varesa/burst.go
++++ b/internal/characters/varesa/burst.go
+@@ -159,9 +159,9 @@
+ 		AnimationLength: volcanicFrames[action.InvalidAction],
+ 		CanQueueAfter:   volcanicFrames[action.ActionSwap],
+ 		State:           action.PlungeAttackState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/varesa/burst.go:volcanicKablam:OnRemoved", c, func(next action.AnimationState) {
+ 			c.clearNightsoulCB(next)
+ 			c.usedShortBurst = false
+-		},
++		}),
+ 	}
+ }
+diff --git a/internal/characters/varesa/plunge.go b/internal/characters/varesa/plunge.go
+--- a/internal/characters/varesa/plunge.go
++++ b/internal/characters/varesa/plunge.go
+@@ -252,7 +252,7 @@
+ 		AnimationLength: plungeFrames[action.InvalidAction],
+ 		CanQueueAfter:   plungeFrames[action.ActionDash],
+ 		State:           action.PlungeAttackState,
+-		OnRemoved:       c.clearNightsoulCB,
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/varesa/plunge.go:highPlungeCA:OnRemoved", c, c.clearNightsoulCB),
+ 	}
+ }
+ 
+@@ -326,7 +326,7 @@
+ 		AnimationLength: plungeFrames.Run(action.InvalidAction),
+ 		CanQueueAfter:   plungeFrames.Run(action.ActionDash),
+ 		State:           action.PlungeAttackState,
+-		OnRemoved:       c.clearNightsoulCB,
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/varesa/plunge.go:highPlungeXY:OnRemoved", c, c.clearNightsoulCB),
+ 	}
+ }
+ 
+@@ -400,7 +400,7 @@
+ 		AnimationLength: plungeFrames.Run(action.InvalidAction),
+ 		CanQueueAfter:   plungeFrames.Run(action.ActionDash),
+ 		State:           action.PlungeAttackState,
+-		OnRemoved:       c.clearNightsoulCB,
++		OnRemoved:       c.SourceHostRemovedFunc("internal/characters/varesa/plunge.go:lowPlungeXY:OnRemoved", c, c.clearNightsoulCB),
+ 	}
+ }
+ 
+diff --git a/internal/characters/wanderer/burst.go b/internal/characters/wanderer/burst.go
+--- a/internal/characters/wanderer/burst.go
++++ b/internal/characters/wanderer/burst.go
+@@ -118,10 +118,10 @@
+ 		AnimationLength: burstFramesE[action.InvalidAction],
+ 		CanQueueAfter:   burstFramesE[action.ActionWalk],
+ 		State:           action.BurstState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/wanderer/burst.go:WindfavoredBurst:OnRemoved", c, func(next action.AnimationState) {
+ 			if next == action.SwapState {
+ 				c.checkForSkillEnd()
+ 			}
+-		},
++		}),
+ 	}, nil
+ }
+diff --git a/internal/characters/xilonen/attack.go b/internal/characters/xilonen/attack.go
+--- a/internal/characters/xilonen/attack.go
++++ b/internal/characters/xilonen/attack.go
+@@ -162,10 +162,10 @@
+ 		AnimationLength: rollerFrames[c.NormalCounter][action.InvalidAction],
+ 		CanQueueAfter:   rollerHitmarks[c.NormalCounter],
+ 		State:           action.NormalAttackState,
+-		OnRemoved: func(next action.AnimationState) {
++		OnRemoved: c.SourceHostRemovedFunc("internal/characters/xilonen/attack.go:nightsoulAttack:OnRemoved", c, func(next action.AnimationState) {
+ 			if !c.canUseNightsoul() {
+ 				c.exitNightsoul()
+ 			}
+-		},
++		}),
+ 	}
+ }

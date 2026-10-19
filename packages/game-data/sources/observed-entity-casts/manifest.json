@@ -1,0 +1,2732 @@
+{
+  "schemaVersion": 1,
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "retrievedAt": "2026-09-24T16:54:43.225618+00:00",
+  "evidenceStatus": "fixed-source-provisional",
+  "protocol": "explicit-observed-entity-v1",
+  "originalArchiveSha256": "334067728781541ccd4351fbe9851f7684f4f6c2d4dab79a1c3dd1e01318fd1a",
+  "archive": {
+    "path": "packages/game-data/sources/observed-entity-casts/source.json.gz",
+    "bytes": 193199,
+    "sha256": "2083353eb2f9577666836c61dd6a65f2e31621eb33639101e7f0a04955e17fff"
+  },
+  "definitions": {
+    "path": "packages/game-data/sources/observed-entity-casts/definitions.json",
+    "sha256": "f84033e2dc222438fdf1eeacc8e030fb5eb7f710ef5988c21167f21a6b89230c",
+    "templates": 10,
+    "roles": 24
+  },
+  "verification": {
+    "gitTreeCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "gitTreeTruncated": false,
+    "allArchivedGcsimGitBlobHashesMatch": true,
+    "catalogFile": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+    "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+    "catalogSourceRevision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+    "availableCatalogGitTreeTruncated": true,
+    "allArchivedCatalogFilesMatchAvailableGitTreeEntries": false,
+    "canonicalCatalogMatchesRawStats": true,
+    "exactUniqueCoefficientVectors": 21,
+    "roundedUniqueCoefficientVectors": 0,
+    "catalogCoefficientRule": "All 21 unique vectors exactly match all 15 canonical catalog levels and the archived raw genshin-db stats. Includes one Hu Tao HP-to-ATK conversion parameter, not a damage template. No tolerance override.",
+    "catalogImportedSourceEvidence": "packages/game-data/manifests/source-evidence/genshin-db-7.1-files.json"
+  },
+  "coefficientBindings": [
+    {
+      "stat": "atk",
+      "values": [
+        0.4264,
+        0.45838,
+        0.49036,
+        0.533,
+        0.56498,
+        0.59696,
+        0.6396,
+        0.68224,
+        0.72488,
+        0.76752,
+        0.81016,
+        0.8528,
+        0.9061,
+        0.9594,
+        1.0127
+      ],
+      "sourceValues": [
+        0.4264,
+        0.45838,
+        0.49036,
+        0.533,
+        0.56498,
+        0.59696,
+        0.6396,
+        0.68224,
+        0.72488,
+        0.76752,
+        0.81016,
+        0.8528,
+        0.9061,
+        0.9594,
+        1.0127
+      ],
+      "parameterKey": "param1",
+      "sourceField": "burst",
+      "sourcePath": "internal/characters/klee/zz_klee.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:klee",
+      "abilityKey": "combat3",
+      "catalogValues": [
+        0.4264,
+        0.45838,
+        0.49036,
+        0.533,
+        0.56498,
+        0.59696,
+        0.6396,
+        0.68224,
+        0.72488,
+        0.76752,
+        0.81016,
+        0.8528,
+        0.9061,
+        0.9594,
+        1.0127
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.66456,
+        0.714402,
+        0.764244,
+        0.8307,
+        0.880542,
+        0.930384,
+        0.99684,
+        1.063296,
+        1.129752,
+        1.196208,
+        1.262664,
+        1.32912,
+        1.41219,
+        1.49526,
+        1.57833
+      ],
+      "sourceValues": [
+        0.66456,
+        0.714402,
+        0.764244,
+        0.8307,
+        0.880542,
+        0.930384,
+        0.99684,
+        1.063296,
+        1.129752,
+        1.196208,
+        1.262664,
+        1.32912,
+        1.41219,
+        1.49526,
+        1.57833
+      ],
+      "parameterKey": "param1",
+      "sourceField": "burst",
+      "sourcePath": "internal/characters/ayato/zz_kamisatoayato.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:kamisatoayato",
+      "abilityKey": "combat3",
+      "catalogValues": [
+        0.66456,
+        0.714402,
+        0.764244,
+        0.8307,
+        0.880542,
+        0.930384,
+        0.99684,
+        1.063296,
+        1.129752,
+        1.196208,
+        1.262664,
+        1.32912,
+        1.41219,
+        1.49526,
+        1.57833
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.128,
+        0.1376,
+        0.1472,
+        0.16,
+        0.1696,
+        0.1792,
+        0.192,
+        0.2048,
+        0.2176,
+        0.2304,
+        0.2432,
+        0.256,
+        0.272,
+        0.288,
+        0.304
+      ],
+      "sourceValues": [
+        0.128,
+        0.1376,
+        0.1472,
+        0.16,
+        0.1696,
+        0.1792,
+        0.192,
+        0.2048,
+        0.2176,
+        0.2304,
+        0.2432,
+        0.256,
+        0.272,
+        0.288,
+        0.304
+      ],
+      "parameterKey": "param1",
+      "sourceField": "skill",
+      "sourcePath": "internal/characters/layla/zz_layla.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:layla",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.128,
+        0.1376,
+        0.1472,
+        0.16,
+        0.1696,
+        0.1792,
+        0.192,
+        0.2048,
+        0.2176,
+        0.2304,
+        0.2432,
+        0.256,
+        0.272,
+        0.288,
+        0.304
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.1472,
+        0.15824,
+        0.16928,
+        0.184,
+        0.19504,
+        0.20608,
+        0.2208,
+        0.23552,
+        0.25024,
+        0.26496,
+        0.27968,
+        0.2944,
+        0.3128,
+        0.3312,
+        0.3496
+      ],
+      "sourceValues": [
+        0.1472,
+        0.15824,
+        0.16928,
+        0.184,
+        0.19504,
+        0.20608,
+        0.2208,
+        0.23552,
+        0.25024,
+        0.26496,
+        0.27968,
+        0.2944,
+        0.3128,
+        0.3312,
+        0.3496
+      ],
+      "parameterKey": "param2",
+      "sourceField": "starDmg",
+      "sourcePath": "internal/characters/layla/zz_layla.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:layla",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.1472,
+        0.15824,
+        0.16928,
+        0.184,
+        0.19504,
+        0.20608,
+        0.2208,
+        0.23552,
+        0.25024,
+        0.26496,
+        0.27968,
+        0.2944,
+        0.3128,
+        0.3312,
+        0.3496
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        1.1456,
+        1.23152,
+        1.31744,
+        1.432,
+        1.51792,
+        1.60384,
+        1.7184,
+        1.83296,
+        1.94752,
+        2.06208,
+        2.17664,
+        2.2912,
+        2.4344,
+        2.5776,
+        2.7208
+      ],
+      "sourceValues": [
+        1.1456,
+        1.23152,
+        1.31744,
+        1.432,
+        1.51792,
+        1.60384,
+        1.7184,
+        1.83296,
+        1.94752,
+        2.06208,
+        2.17664,
+        2.2912,
+        2.4344,
+        2.5776,
+        2.7208
+      ],
+      "parameterKey": "param4",
+      "sourceField": "burstDMG",
+      "sourcePath": "internal/characters/yaoyao/zz_yaoyao.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:yaoyao",
+      "abilityKey": "combat3",
+      "catalogValues": [
+        1.1456,
+        1.23152,
+        1.31744,
+        1.432,
+        1.51792,
+        1.60384,
+        1.7184,
+        1.83296,
+        1.94752,
+        2.06208,
+        2.17664,
+        2.2912,
+        2.4344,
+        2.5776,
+        2.7208
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.7216,
+        0.77572,
+        0.82984,
+        0.902,
+        0.95612,
+        1.01024,
+        1.0824,
+        1.15456,
+        1.22672,
+        1.29888,
+        1.37104,
+        1.4432,
+        1.5334,
+        1.6236,
+        1.7138
+      ],
+      "sourceValues": [
+        0.7216,
+        0.77572,
+        0.82984,
+        0.902,
+        0.95612,
+        1.01024,
+        1.0824,
+        1.15456,
+        1.22672,
+        1.29888,
+        1.37104,
+        1.4432,
+        1.5334,
+        1.6236,
+        1.7138
+      ],
+      "parameterKey": "param1",
+      "sourceField": "burstRadishDMG",
+      "sourcePath": "internal/characters/yaoyao/zz_yaoyao.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:yaoyao",
+      "abilityKey": "combat3",
+      "catalogValues": [
+        0.7216,
+        0.77572,
+        0.82984,
+        0.902,
+        0.95612,
+        1.01024,
+        1.0824,
+        1.15456,
+        1.22672,
+        1.29888,
+        1.37104,
+        1.4432,
+        1.5334,
+        1.6236,
+        1.7138
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.2992,
+        0.32164,
+        0.34408,
+        0.374,
+        0.39644,
+        0.41888,
+        0.4488,
+        0.47872,
+        0.50864,
+        0.53856,
+        0.56848,
+        0.5984,
+        0.6358,
+        0.6732,
+        0.7106
+      ],
+      "sourceValues": [
+        0.2992,
+        0.32164,
+        0.34408,
+        0.374,
+        0.39644,
+        0.41888,
+        0.4488,
+        0.47872,
+        0.50864,
+        0.53856,
+        0.56848,
+        0.5984,
+        0.6358,
+        0.6732,
+        0.7106
+      ],
+      "parameterKey": "param1",
+      "sourceField": "skillRadishDMG",
+      "sourcePath": "internal/characters/yaoyao/zz_yaoyao.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:yaoyao",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.2992,
+        0.32164,
+        0.34408,
+        0.374,
+        0.39644,
+        0.41888,
+        0.4488,
+        0.47872,
+        0.50864,
+        0.53856,
+        0.56848,
+        0.5984,
+        0.6358,
+        0.6732,
+        0.7106
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "hp",
+      "values": [
+        0.07864,
+        0.084538,
+        0.090436,
+        0.0983,
+        0.104198,
+        0.110096,
+        0.11796,
+        0.125824,
+        0.133688,
+        0.141552,
+        0.149416,
+        0.15728,
+        0.16711,
+        0.17694,
+        0.18677
+      ],
+      "sourceValues": [
+        0.07864,
+        0.084538,
+        0.090436,
+        0.0983,
+        0.104198,
+        0.110096,
+        0.11796,
+        0.125824,
+        0.133688,
+        0.141552,
+        0.149416,
+        0.15728,
+        0.16711,
+        0.17694,
+        0.18677
+      ],
+      "parameterKey": "param1",
+      "sourceField": "skillOusiaBubble",
+      "sourcePath": "internal/characters/furina/zz_furina.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:furina",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.07864,
+        0.084538,
+        0.090436,
+        0.0983,
+        0.104198,
+        0.110096,
+        0.11796,
+        0.125824,
+        0.133688,
+        0.141552,
+        0.149416,
+        0.15728,
+        0.16711,
+        0.17694,
+        0.18677
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "hp",
+      "values": [
+        0.03232,
+        0.034744,
+        0.037168,
+        0.0404,
+        0.042824,
+        0.045248,
+        0.04848,
+        0.051712,
+        0.054944,
+        0.058176,
+        0.061408,
+        0.06464,
+        0.06868,
+        0.07272,
+        0.07676
+      ],
+      "sourceValues": [
+        0.03232,
+        0.034744,
+        0.037168,
+        0.0404,
+        0.042824,
+        0.045248,
+        0.04848,
+        0.051712,
+        0.054944,
+        0.058176,
+        0.061408,
+        0.06464,
+        0.06868,
+        0.07272,
+        0.07676
+      ],
+      "parameterKey": "param4",
+      "sourceField": "skillChevalmarin",
+      "sourcePath": "internal/characters/furina/zz_furina.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:furina",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.03232,
+        0.034744,
+        0.037168,
+        0.0404,
+        0.042824,
+        0.045248,
+        0.04848,
+        0.051712,
+        0.054944,
+        0.058176,
+        0.061408,
+        0.06464,
+        0.06868,
+        0.07272,
+        0.07676
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "hp",
+      "values": [
+        0.0596,
+        0.06407,
+        0.06854,
+        0.0745,
+        0.07897,
+        0.08344,
+        0.0894,
+        0.09536,
+        0.10132,
+        0.10728,
+        0.11324,
+        0.1192,
+        0.12665,
+        0.1341,
+        0.14155
+      ],
+      "sourceValues": [
+        0.0596,
+        0.06407,
+        0.06854,
+        0.0745,
+        0.07897,
+        0.08344,
+        0.0894,
+        0.09536,
+        0.10132,
+        0.10728,
+        0.11324,
+        0.1192,
+        0.12665,
+        0.1341,
+        0.14155
+      ],
+      "parameterKey": "param3",
+      "sourceField": "skillUsher",
+      "sourcePath": "internal/characters/furina/zz_furina.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:furina",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.0596,
+        0.06407,
+        0.06854,
+        0.0745,
+        0.07897,
+        0.08344,
+        0.0894,
+        0.09536,
+        0.10132,
+        0.10728,
+        0.11324,
+        0.1192,
+        0.12665,
+        0.1341,
+        0.14155
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "hp",
+      "values": [
+        0.08288,
+        0.089096,
+        0.095312,
+        0.1036,
+        0.109816,
+        0.116032,
+        0.12432,
+        0.132608,
+        0.140896,
+        0.149184,
+        0.157472,
+        0.16576,
+        0.17612,
+        0.18648,
+        0.19684
+      ],
+      "sourceValues": [
+        0.08288,
+        0.089096,
+        0.095312,
+        0.1036,
+        0.109816,
+        0.116032,
+        0.12432,
+        0.132608,
+        0.140896,
+        0.149184,
+        0.157472,
+        0.16576,
+        0.17612,
+        0.18648,
+        0.19684
+      ],
+      "parameterKey": "param5",
+      "sourceField": "skillCrabaletta",
+      "sourcePath": "internal/characters/furina/zz_furina.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:furina",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.08288,
+        0.089096,
+        0.095312,
+        0.1036,
+        0.109816,
+        0.116032,
+        0.12432,
+        0.132608,
+        0.140896,
+        0.149184,
+        0.157472,
+        0.16576,
+        0.17612,
+        0.18648,
+        0.19684
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.4708,
+        0.50611,
+        0.54142,
+        0.5885,
+        0.62381,
+        0.65912,
+        0.7062,
+        0.75328,
+        0.80036,
+        0.84744,
+        0.89452,
+        0.9416,
+        1.00045,
+        1.0593,
+        1.11815
+      ],
+      "sourceValues": [
+        0.4708,
+        0.50611,
+        0.54142,
+        0.5885,
+        0.62381,
+        0.65912,
+        0.7062,
+        0.75328,
+        0.80036,
+        0.84744,
+        0.89452,
+        0.9416,
+        1.00045,
+        1.0593,
+        1.11815
+      ],
+      "parameterKey": "param1",
+      "sourceField": "skillDMG",
+      "sourcePath": "internal/characters/emilie/zz_emilie.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:emilie",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.4708,
+        0.50611,
+        0.54142,
+        0.5885,
+        0.62381,
+        0.65912,
+        0.7062,
+        0.75328,
+        0.80036,
+        0.84744,
+        0.89452,
+        0.9416,
+        1.00045,
+        1.0593,
+        1.11815
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.3852,
+        0.41409,
+        0.44298,
+        0.4815,
+        0.51039,
+        0.53928,
+        0.5778,
+        0.61632,
+        0.65484,
+        0.69336,
+        0.73188,
+        0.7704,
+        0.81855,
+        0.8667,
+        0.91485
+      ],
+      "sourceValues": [
+        0.3852,
+        0.41409,
+        0.44298,
+        0.4815,
+        0.51039,
+        0.53928,
+        0.5778,
+        0.61632,
+        0.65484,
+        0.69336,
+        0.73188,
+        0.7704,
+        0.81855,
+        0.8667,
+        0.91485
+      ],
+      "parameterKey": "param5",
+      "sourceField": "skillArke",
+      "sourcePath": "internal/characters/emilie/zz_emilie.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:emilie",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.3852,
+        0.41409,
+        0.44298,
+        0.4815,
+        0.51039,
+        0.53928,
+        0.5778,
+        0.61632,
+        0.65484,
+        0.69336,
+        0.73188,
+        0.7704,
+        0.81855,
+        0.8667,
+        0.91485
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.396,
+        0.4257,
+        0.4554,
+        0.495,
+        0.5247,
+        0.5544,
+        0.594,
+        0.6336,
+        0.6732,
+        0.7128,
+        0.7524,
+        0.792,
+        0.8415,
+        0.891,
+        0.9405
+      ],
+      "sourceValues": [
+        0.396,
+        0.4257,
+        0.4554,
+        0.495,
+        0.5247,
+        0.5544,
+        0.594,
+        0.6336,
+        0.6732,
+        0.7128,
+        0.7524,
+        0.792,
+        0.8415,
+        0.891,
+        0.9405
+      ],
+      "parameterKey": "param2",
+      "sourceField": "skillLumidouce[0]",
+      "sourcePath": "internal/characters/emilie/zz_emilie.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:emilie",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.396,
+        0.4257,
+        0.4554,
+        0.495,
+        0.5247,
+        0.5544,
+        0.594,
+        0.6336,
+        0.6732,
+        0.7128,
+        0.7524,
+        0.792,
+        0.8415,
+        0.891,
+        0.9405
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.84,
+        0.903,
+        0.966,
+        1.05,
+        1.113,
+        1.176,
+        1.26,
+        1.344,
+        1.428,
+        1.512,
+        1.596,
+        1.68,
+        1.785,
+        1.89,
+        1.995
+      ],
+      "sourceValues": [
+        0.84,
+        0.903,
+        0.966,
+        1.05,
+        1.113,
+        1.176,
+        1.26,
+        1.344,
+        1.428,
+        1.512,
+        1.596,
+        1.68,
+        1.785,
+        1.89,
+        1.995
+      ],
+      "parameterKey": "param3",
+      "sourceField": "skillLumidouce[1]",
+      "sourcePath": "internal/characters/emilie/zz_emilie.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:emilie",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.84,
+        0.903,
+        0.966,
+        1.05,
+        1.113,
+        1.176,
+        1.26,
+        1.344,
+        1.428,
+        1.512,
+        1.596,
+        1.68,
+        1.785,
+        1.89,
+        1.995
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        2.172,
+        2.3349,
+        2.4978,
+        2.715,
+        2.8779,
+        3.0408,
+        3.258,
+        3.4752,
+        3.6924,
+        3.9096,
+        4.1268,
+        4.344,
+        4.6155,
+        4.887,
+        5.1585
+      ],
+      "sourceValues": [
+        2.172,
+        2.3349,
+        2.4978,
+        2.715,
+        2.8779,
+        3.0408,
+        3.258,
+        3.4752,
+        3.6924,
+        3.9096,
+        4.1268,
+        4.344,
+        4.6155,
+        4.887,
+        5.1585
+      ],
+      "parameterKey": "param1",
+      "sourceField": "burstDMG",
+      "sourcePath": "internal/characters/emilie/zz_emilie.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:emilie",
+      "abilityKey": "combat3",
+      "catalogValues": [
+        2.172,
+        2.3349,
+        2.4978,
+        2.715,
+        2.8779,
+        3.0408,
+        3.258,
+        3.4752,
+        3.6924,
+        3.9096,
+        4.1268,
+        4.344,
+        4.6155,
+        4.887,
+        5.1585
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.776,
+        0.8342,
+        0.8924,
+        0.97,
+        1.0282,
+        1.0864,
+        1.164,
+        1.2416,
+        1.3192,
+        1.3968,
+        1.4744,
+        1.552,
+        1.649,
+        1.746,
+        1.843
+      ],
+      "sourceValues": [
+        0.776,
+        0.8342,
+        0.8924,
+        0.97,
+        1.0282,
+        1.0864,
+        1.164,
+        1.2416,
+        1.3192,
+        1.3968,
+        1.4744,
+        1.552,
+        1.649,
+        1.746,
+        1.843
+      ],
+      "parameterKey": "param1",
+      "sourceField": "burst",
+      "sourcePath": "internal/characters/kaeya/zz_kaeya.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:kaeya",
+      "abilityKey": "combat3",
+      "catalogValues": [
+        0.776,
+        0.8342,
+        0.8924,
+        0.97,
+        1.0282,
+        1.0864,
+        1.164,
+        1.2416,
+        1.3192,
+        1.3968,
+        1.4744,
+        1.552,
+        1.649,
+        1.746,
+        1.843
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.64,
+        0.688,
+        0.736,
+        0.8,
+        0.848,
+        0.896,
+        0.96,
+        1.024,
+        1.088,
+        1.152,
+        1.216,
+        1.28,
+        1.36,
+        1.44,
+        1.52
+      ],
+      "sourceValues": [
+        0.64,
+        0.688,
+        0.736,
+        0.8,
+        0.848,
+        0.896,
+        0.96,
+        1.024,
+        1.088,
+        1.152,
+        1.216,
+        1.28,
+        1.36,
+        1.44,
+        1.52
+      ],
+      "parameterKey": "param3",
+      "sourceField": "bb",
+      "sourcePath": "internal/characters/hutao/zz_hutao.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:hutao",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.64,
+        0.688,
+        0.736,
+        0.8,
+        0.848,
+        0.896,
+        0.96,
+        1.024,
+        1.088,
+        1.152,
+        1.216,
+        1.28,
+        1.36,
+        1.44,
+        1.52
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        1.776,
+        1.9092,
+        2.0424,
+        2.22,
+        2.3532,
+        2.4864,
+        2.664,
+        2.8416,
+        3.0192,
+        3.1968,
+        3.3744,
+        3.552,
+        3.774,
+        3.996,
+        4.218
+      ],
+      "sourceValues": [
+        1.776,
+        1.9092,
+        2.0424,
+        2.22,
+        2.3532,
+        2.4864,
+        2.664,
+        2.8416,
+        3.0192,
+        3.1968,
+        3.3744,
+        3.552,
+        3.774,
+        3.996,
+        4.218
+      ],
+      "parameterKey": "param1",
+      "sourceField": "skillMain",
+      "sourcePath": "internal/characters/aloy/zz_aloy.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:aloy",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        1.776,
+        1.9092,
+        2.0424,
+        2.22,
+        2.3532,
+        2.4864,
+        2.664,
+        2.8416,
+        3.0192,
+        3.1968,
+        3.3744,
+        3.552,
+        3.774,
+        3.996,
+        4.218
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "atk",
+      "values": [
+        0.4,
+        0.43,
+        0.46,
+        0.5,
+        0.53,
+        0.56,
+        0.6,
+        0.64,
+        0.68,
+        0.72,
+        0.76,
+        0.8,
+        0.85,
+        0.9,
+        0.95
+      ],
+      "sourceValues": [
+        0.4,
+        0.43,
+        0.46,
+        0.5,
+        0.53,
+        0.56,
+        0.6,
+        0.64,
+        0.68,
+        0.72,
+        0.76,
+        0.8,
+        0.85,
+        0.9,
+        0.95
+      ],
+      "parameterKey": "param2",
+      "sourceField": "skillBomblets",
+      "sourcePath": "internal/characters/aloy/zz_aloy.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:aloy",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.4,
+        0.43,
+        0.46,
+        0.5,
+        0.53,
+        0.56,
+        0.6,
+        0.64,
+        0.68,
+        0.72,
+        0.76,
+        0.8,
+        0.85,
+        0.9,
+        0.95
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    },
+    {
+      "stat": "hp",
+      "values": [
+        0.03841,
+        0.04071,
+        0.04301,
+        0.046,
+        0.0483,
+        0.0506,
+        0.05359,
+        0.05658,
+        0.05957,
+        0.06256,
+        0.06555,
+        0.06854,
+        0.07153,
+        0.07452,
+        0.07751
+      ],
+      "sourceValues": [
+        0.03841,
+        0.04071,
+        0.04301,
+        0.046,
+        0.0483,
+        0.0506,
+        0.05359,
+        0.05658,
+        0.05957,
+        0.06256,
+        0.06555,
+        0.06854,
+        0.07153,
+        0.07452,
+        0.07751
+      ],
+      "parameterKey": "param2",
+      "sourceField": "ppatk",
+      "sourcePath": "internal/characters/hutao/zz_hutao.dm.go",
+      "coefficientTolerance": 0,
+      "talentSetId": "talent-set:hutao",
+      "abilityKey": "combat2",
+      "catalogValues": [
+        0.03841,
+        0.04071,
+        0.04301,
+        0.046,
+        0.0483,
+        0.0506,
+        0.05359,
+        0.05658,
+        0.05957,
+        0.06256,
+        0.06555,
+        0.06854,
+        0.07153,
+        0.07452,
+        0.07751
+      ],
+      "absoluteDeltas": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "matchingRule": "exact-all-15"
+    }
+  ],
+  "fixedCoefficientBindings": [
+    {
+      "sourcePath": "internal/characters/layla/asc.go",
+      "sourceField": "a4",
+      "stat": "hp",
+      "coefficient": 0.015,
+      "minimumAscension": 4
+    },
+    {
+      "sourcePath": "internal/characters/emilie/asc.go",
+      "sourceField": "a1:Mult",
+      "stat": "atk",
+      "coefficient": 6,
+      "minimumAscension": 1
+    }
+  ],
+  "sourceCaveats": [
+    "Klee burst wave comments explicitly approximate timing and question snapshot timing; hitlag queue TODO remains.",
+    "Ayato burst snapshot-at-circle-formation comment remains a source question.",
+    "Furina member timing is fitted/random and cancellation on CA/recast/timeout has an explicit testing TODO.",
+    "Emilie attack invokes an additional self-rescheduling scent collection callback; source comments question this observation.",
+    "Engine task.go documents different character/core queue phases and inconsistent delay<=0 behavior; same-frame ordering must be preserved.",
+    "Kaeya C0 burst is the fixed-source 13-opportunity rotation approximation; source explicitly notes 14/15 possible game hits. No maximum-hit claim.",
+    "Hu Tao E scope includes only its Blood Blossom damage. Charged attacks are observed marker qualifications, not extra E damage. Paramita slide, A1 timing and A4 periodic-check TODO remain.",
+    "Aloy E uses explicitly declared fixed-source travel/bomblets/bomb_delay parameters; source simplifies bomblet variations and questions main-bomb snapshot timing. Not a model of all in-game bomblet lifetimes."
+  ],
+  "licenses": [
+    {
+      "repository": "genshinsim/gcsim",
+      "license": "MIT",
+      "archiveKey": "gcsim/LICENSE"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "license": "MIT",
+      "archiveKey": "genshin-db/LICENSE"
+    }
+  ],
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "gitBlobSha1": "194f5e6715dd99e008f815327df1d87228eb5b3b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/aimed.go",
+      "bytes": 2331,
+      "sha256": "475e18a7c81fc07b14a8f7405b6687e4614cdd7b68ad26f756ef446fa57b3c26",
+      "gitBlobSha1": "ae2f696298e4d43e4d8b7824d4d13f1c641f24cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/aloy.go",
+      "bytes": 1028,
+      "sha256": "3f180094807cf4f4521344ed0fa5ffb020bd28420cfec775feb17c5484049114",
+      "gitBlobSha1": "a221320d97292ddf587c35de34c405337790c5ee"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/asc.go",
+      "bytes": 1535,
+      "sha256": "19d7fbd66fcc04bdce6c1bec0b3be8ecc971bd05d2fba51c75f6d25cf37503e7",
+      "gitBlobSha1": "8478de999bab583e49707f007edd31b579dee795"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/attack.go",
+      "bytes": 2107,
+      "sha256": "6f6154930da72d66876ac1b96f2664f7dc40d5fcb28e378ce7b00ded9080209b",
+      "gitBlobSha1": "003b3ee9a9a7b7e1cbfebf254200b1ca660574df"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/burst.go",
+      "bytes": 1813,
+      "sha256": "34d2442ff85c4fdae81a522878675deb60bde9041e962b76c3991c7b250b7150",
+      "gitBlobSha1": "4813020fd2e2bef7fda1ec299e2a25ac9e07813f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/skill.go",
+      "bytes": 5675,
+      "sha256": "6ec3725a7d9ee820ea3391a5a795808c3bb0b36b43ca31d280e22086fa96eaf1",
+      "gitBlobSha1": "c21a1fbb76b0fca7e1857005d21fdff407f29b1d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/aloy/zz_aloy.dm.go",
+      "bytes": 4228,
+      "sha256": "ab3c6083d86cade56a703879e707da7d33f58e67fec32dfe1acc589db5c42eeb",
+      "gitBlobSha1": "49b12189464e49a1635e68ec8e009db3c8dfc4a6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/asc.go",
+      "bytes": 1087,
+      "sha256": "55e9af3f30366353a5c42b2c081a0fb0c60421db0fe2df47f71700532578593b",
+      "gitBlobSha1": "83aebc626b5de1f6036126bd57e8ec6d83b1b5eb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/attack.go",
+      "bytes": 4597,
+      "sha256": "278ef36749a1a9f1a4517d61c828e289ec6bc7eb94393949f5dfd5908eb8b77a",
+      "gitBlobSha1": "e599f3fefffc7fa30b27d1c28f4a32a3f9bdfcdc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/ayato.go",
+      "bytes": 2270,
+      "sha256": "d7a67032eff911ee0dd30141c227bbcf8a1c4d850b3495c15b4c1356c0554c73",
+      "gitBlobSha1": "d0c9bc34cd35bdee55abd3fb3355c51d8d4d8e6e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/burst.go",
+      "bytes": 3285,
+      "sha256": "48f28e77ec4fb318f8c2c3716550b07b5f9714f46401a5d6c0585ac99efd55b1",
+      "gitBlobSha1": "27956590ad009e4f98febad5e02b4f5164f1c40a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/charge.go",
+      "bytes": 1473,
+      "sha256": "2f720c3d7cff3e769bcfcadaba40894f5d7992e58323cb1fc37107bd7a20503b",
+      "gitBlobSha1": "a4e603bfa7a034b7a1e37abc1790959de85731d7"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/cons.go",
+      "bytes": 2499,
+      "sha256": "05557f54e5e87dcbfaf98489e2d7d4143969d7d064a0083abdd885982ed18077",
+      "gitBlobSha1": "25a691bbf6ce97047ad8270b935ac8049ec53c59"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/plunge.go",
+      "bytes": 5047,
+      "sha256": "612aa9290bf1bf9ff8dbf36b5942e4c6513a7761f4d7d7213e01da52ac073d08",
+      "gitBlobSha1": "3d684072d89593c3f153926c26a300d9002e71a5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/skill.go",
+      "bytes": 2569,
+      "sha256": "2be2ad66bd5a8a951f61195b473693c1d489490bba6edb832e15e8d286e7ac9d",
+      "gitBlobSha1": "c83b9f66baaffd1c6894a9b417acb9178703414c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/ayato/zz_kamisatoayato.dm.go",
+      "bytes": 5156,
+      "sha256": "527c1dd1bf7f9b8fef494ee48e73583eea52e3c0be550f99d1494fccc8ee4546",
+      "gitBlobSha1": "680df9070684cce5734f3330ee9c618485dd9049"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/asc.go",
+      "bytes": 1456,
+      "sha256": "3c66f39a85fdcbde926709824cce84c4c71f5fbbed115f8e1a4658ec92af1fb4",
+      "gitBlobSha1": "cafa6ebbc179fd28df3792e59e50532749453c36"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/attack.go",
+      "bytes": 3029,
+      "sha256": "2b7fc23452153d9180b0b332f59c81d88442f6b0fa17f2b4670a146349c25255",
+      "gitBlobSha1": "14141691960801a8b68a04080a2d95d218714e81"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/burst.go",
+      "bytes": 3574,
+      "sha256": "fb20a71f30b34b0d91d56ca3817efbc7036497341a63fb84f55123594d179321",
+      "gitBlobSha1": "d3f7bcb92f2edaf041535f959bbe977ea1bb5e07"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/charge.go",
+      "bytes": 1562,
+      "sha256": "ff34c01f3a9c9c5e8a2d5fcdedbe741c524e2d6dbdf9c34c7361ce6ba3e20349",
+      "gitBlobSha1": "adde6c50b136bf0d86353f07f9d21304fe998f42"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/cons.go",
+      "bytes": 3054,
+      "sha256": "2b05c478cea4bbce8c464374312f1d4fa8931720f4c66cf86aa00ec438feb2c1",
+      "gitBlobSha1": "b3b2e968ec1767e9613c1e1e229cf0c48ad2e0f3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/emilie.go",
+      "bytes": 976,
+      "sha256": "7fc07ab36f505057a77ee70038c479c4d31c5d726cd90d42764646c0306f35f4",
+      "gitBlobSha1": "74b8209e88c92568db7a4084c7de4efb9ddf2bea"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/lumidouce.go",
+      "bytes": 4519,
+      "sha256": "9265a79b34ceb960e498af63f9b906a75289a385443dcdd47948e294d825ff67",
+      "gitBlobSha1": "7cae8534eda0a151d621d913889b70640f50ab1d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/plunge.go",
+      "bytes": 4785,
+      "sha256": "39f55cf6d8acc3171e9564d2a91c27321e59edb8200a601c1333127da4ff9f4b",
+      "gitBlobSha1": "0fe20f7f7debd828279c3e0323f46b466720a594"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/skill.go",
+      "bytes": 2911,
+      "sha256": "9d581417ecc760a5055b2d7b93dfd79b441f7bde216f9a51562a24833798db5c",
+      "gitBlobSha1": "b1d874bae217a4db011e72af1fec911c2c169071"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/emilie/zz_emilie.dm.go",
+      "bytes": 4587,
+      "sha256": "dbf81616baa868306421a4d4f315fcf7aafe881835416354d10a7bec06091cd8",
+      "gitBlobSha1": "36e700e17c363f543d4d0c8f0f4ece8f5ea2f02c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/asc.go",
+      "bytes": 1986,
+      "sha256": "58d38394a97e39fd3e2edb2f2961894f83990aae1ba535594a87e8c90f27993e",
+      "gitBlobSha1": "a122ae940950011b2a92fdbba66482a47c0554cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/attack.go",
+      "bytes": 4587,
+      "sha256": "cb19459fe4b8cf7b8c9a6c0e1f321fdfe890b8720e7be0db0a38571fa13d19d7",
+      "gitBlobSha1": "46cc9a4c2512ad4c7f3cf877bb6e3d5234224930"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/burst.go",
+      "bytes": 5514,
+      "sha256": "a5b3ec41efb22c9fdc8ae265f11db7a2ed0f24106f53cf214bc79082aa111134",
+      "gitBlobSha1": "3e4a59ea869a47c87915943df7cf33768162e599"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/charge.go",
+      "bytes": 2415,
+      "sha256": "60c26239f36b7a485057e4bb1f3316e45b926ef18dee6527e72dbcf87b7f8756",
+      "gitBlobSha1": "8f4065b587fcee23ac8cf958333a4da9c71abc95"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/cons.go",
+      "bytes": 2743,
+      "sha256": "3be5c82c2eff7bdf0b32357c0dc1ef2d065a9f2c81e6eed6a292ced3bf8e5359",
+      "gitBlobSha1": "332495a0142dccefa6685542281668d78deda84c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/furina.go",
+      "bytes": 2140,
+      "sha256": "1e962217215f76c8319961257504a2e2b9ff53ca03ffbd386025ecf8dbfcf0ee",
+      "gitBlobSha1": "6e2006a95de3bd55686d929c277f0f60f4dab056"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/plunge.go",
+      "bytes": 5622,
+      "sha256": "ffb72dd4d9b5edc37d02ea8522cfdbccf447812bb4d401773587d50394e5ef85",
+      "gitBlobSha1": "ec0784b7fd1f2b77fc5e6cade0d570ddfbd66fc3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/skill.go",
+      "bytes": 10775,
+      "sha256": "4755c63dacfb31f5dcf282af3beb308d4f297c404ed35b1f9b17ce30e50d230c",
+      "gitBlobSha1": "865852c105f628cb7a56f1da38da090a97a0d9e1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/furina/zz_furina.dm.go",
+      "bytes": 5501,
+      "sha256": "3461bb5935b5fca53bb3eca6939398d14f3bdd79f9b542689e1b197cf760c55d",
+      "gitBlobSha1": "c4ba5129255655c06ed8ccd8414bf146c40a53c0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/asc.go",
+      "bytes": 1394,
+      "sha256": "bfc9270018335d4b61ffdd866da6f10a847c0fe7ee4fb1fcc918927ed711af9f",
+      "gitBlobSha1": "49ae31517074dbf7095cfa48b08dd6eab51b85b6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/attack.go",
+      "bytes": 6958,
+      "sha256": "8bd8a66e73139d2da8fafb1029b25e7f846461ebf5bf6218bdff7a9f6ce1a8dc",
+      "gitBlobSha1": "2d5ff8d31b4fbc690df4846ce91eea9ea58f099e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/burst.go",
+      "bytes": 2822,
+      "sha256": "8757cc0423fde1cb7dc8cdcd4d9485763c1145c160caa476dca6bbe7c20dce0e",
+      "gitBlobSha1": "2e8aa1905a757afcbe4bcf4698b67c23c0983b3d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/charge.go",
+      "bytes": 4122,
+      "sha256": "ab0fe7084e1e4d917885de0ccd24629f9fa4621e5ae630ae82ae527ad75d3877",
+      "gitBlobSha1": "f3a851be78a6e14b708b0a0a63e9dd655ee727a0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/cons.go",
+      "bytes": 2391,
+      "sha256": "898f808f65281bc1d74fa9bc497e781c40ecf33f26b95c3ebf2177120ab02070",
+      "gitBlobSha1": "e5d0426fa2afc8a4d153e97f829c92fa1d693790"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/hutao.go",
+      "bytes": 2097,
+      "sha256": "484ce9c2d3e8e50e7583741adc6705140f99ff099a67b2915582917437c97b6f",
+      "gitBlobSha1": "89ce3569987d7fb4e620cb639bb186cdfc37833c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/plunge.go",
+      "bytes": 7889,
+      "sha256": "0e3b43be764afac3cde3044af91055a00a4774f28e17b7fe76025cdc87d42da8",
+      "gitBlobSha1": "5c34280478e84cefdd29456bf2209fbba9d2113a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/skill.go",
+      "bytes": 4319,
+      "sha256": "8ccdf8eebe5a75ef4561bf78822d81d399a0c9177e48a3acdad4bd89b91d1685",
+      "gitBlobSha1": "8aa3d354ab9366e9902e315a07ae763314729e78"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/hutao/zz_hutao.dm.go",
+      "bytes": 4986,
+      "sha256": "ccfe0f4d7dff2a63c595aeac215af4b20faeb47dd4fc8bed09536f7f188a3495",
+      "gitBlobSha1": "f416d0379c972bb3aad6724ee998ce03f74772f3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/attack.go",
+      "bytes": 3018,
+      "sha256": "83f8e951f5be873b1181a36f0a6360a13e1b665b9ac5372f6694f471c8051bb9",
+      "gitBlobSha1": "d83a8107db94db6de28697375c04432a02260620"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/burst.go",
+      "bytes": 3183,
+      "sha256": "b22a90b2856c4989f223332ec3ff57da46fd0f7643054d1dea6df60d9aef2bfe",
+      "gitBlobSha1": "ec7b27e7ae980183f005346e08bfa91d151def12"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/charge.go",
+      "bytes": 1680,
+      "sha256": "46a38b38799b893d1d00b851e5290ff556b52f26abb86d78c2e6c7c7134f232a",
+      "gitBlobSha1": "3eb6e8874d7aa38e5770990477770544f2726fbd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/cons.go",
+      "bytes": 2896,
+      "sha256": "e4e11e6a2772809a8b2f4616a6de7f8e1ef6caf24b449a635e21d6817a84786b",
+      "gitBlobSha1": "199aaa621365aae8f5d1538aab4647d2693d4540"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/kaeya.go",
+      "bytes": 1247,
+      "sha256": "eb9a069965582ca29679c9d4b8b9b1492a72e6076fdcc39c809bfd409f6563ee",
+      "gitBlobSha1": "2b08c0a1f618fd3e2505b0bb81efcdeec9087a4d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/plunge.go",
+      "bytes": 4858,
+      "sha256": "817bb762ddb95306ec63d5a85eddd9a899051cfd573e253be6ca7452a9a5a336",
+      "gitBlobSha1": "6835a0964981b71c76bdd7c2bc56bb00e17a1f03"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/skill.go",
+      "bytes": 3079,
+      "sha256": "bd9256ab028e839f74ff6bd6f4df9e1783a6e0247459223ce7b22eb92f9b49fd",
+      "gitBlobSha1": "167ab0f7ce190879217cc2ee40979c212b47f01e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kaeya/zz_kaeya.dm.go",
+      "bytes": 3674,
+      "sha256": "5e5e835dce839033ed0f1ad45ebf4561aca286b9d0c455128f57b15a18e94351",
+      "gitBlobSha1": "2ad47b3a7da9672675c206dba0e946ef7287b609"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/asc.go",
+      "bytes": 1200,
+      "sha256": "b54118b5edc5df216e1f192ca0a5dd3073c96f9fe3627c329c04c827d173a759",
+      "gitBlobSha1": "c03d3c1a00be5b982ace75d7b0142691c310ab46"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/attack.go",
+      "bytes": 4112,
+      "sha256": "f2c75a228f0e7932eec4da17a7114d722335e9bb33cf9d4a5a352c36cb78b218",
+      "gitBlobSha1": "c542694a193b8f2368831c1cbecef2e158a5505e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/burst.go",
+      "bytes": 4820,
+      "sha256": "ec963497091ac8f832e7bef933e18f9e21d9f2d0368d1f4bd4ead97037650fb8",
+      "gitBlobSha1": "04c46b4c7cee455a183775a03be271c3f93f4b69"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/charge.go",
+      "bytes": 2146,
+      "sha256": "2a4e6ba6cb9cc7e57151fb93c96d7763b7e17399bc6c67d7e26a37589e486a45",
+      "gitBlobSha1": "56381bef80cf1441d918abccd84b96a66b52bac6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/cons.go",
+      "bytes": 1402,
+      "sha256": "1f00616bc5b2ac3c2345dcfb1aa7294ffd2705501d94f7fee6304002d1166f9b",
+      "gitBlobSha1": "6f92e7ba686be39cb2226b7697f7a7c9a0115360"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/klee.go",
+      "bytes": 904,
+      "sha256": "6e2bd123b09e98fdac774b687d5f5c101285c22c8d6ea496c6be87673b5805a2",
+      "gitBlobSha1": "4d76e87924dbe031069a51f1463a1c4514aa9a9e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/plunge.go",
+      "bytes": 4806,
+      "sha256": "3d9656ab5fd09be6f57ac3da2c59c3b418314181af0f4f644c0bbdeab2329cec",
+      "gitBlobSha1": "5433a0a5d79715b0afa3631f38d9d5e4dbd80d8a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/skill.go",
+      "bytes": 4244,
+      "sha256": "500d62bad258d3c12550df6be4ee6dbf9913abf64bab5f031ae5001ba4f907be",
+      "gitBlobSha1": "195a26c1ff0bd7b420ec4a7aa2ecc7e00f9fb2fb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/klee/zz_klee.dm.go",
+      "bytes": 3241,
+      "sha256": "ecda0e70cc7bcd07f8db7b2423487ed9baee2f00f15905aad7fcfde93de0a79c",
+      "gitBlobSha1": "3a946a5b5cddc125063646696023421266e4cbbb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/asc.go",
+      "bytes": 910,
+      "sha256": "432b2f142d83aca3737cf9a3a65dbdaf1f36a7b27eb882af9a363fb78bd05439",
+      "gitBlobSha1": "191c4b775981d7b0f6724ac59439e0bd522ff1cb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/attack.go",
+      "bytes": 2660,
+      "sha256": "1860c7698dea0749d30b973de524625ef9a8abb6c4d167d11a511b954740a142",
+      "gitBlobSha1": "12996065cd1021a652095d1c955b96e2d3540081"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/burst.go",
+      "bytes": 2316,
+      "sha256": "7744fbdf3700bb3e9e3a37ce11038241f86f33b7bc7bf15dd62bfe005258ac29",
+      "gitBlobSha1": "a3988b16f1bf7593cb267786f31891b4a30c87eb"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/charge.go",
+      "bytes": 1713,
+      "sha256": "de3fc7868a03ea49750ec1c1751bce64cbadac3cd6d69710153c9a26a1eb5ad3",
+      "gitBlobSha1": "163674cfe2f553eb47f9119fdd8e7d8c72b4ffe2"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/cons.go",
+      "bytes": 1963,
+      "sha256": "c33a2ea376966f35d34aafd85046f829952118dddf4881fa2c8e4511a80636c5",
+      "gitBlobSha1": "b684d7903d7118eea79a2924e67f6fd70af4ff7f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/layla.go",
+      "bytes": 973,
+      "sha256": "f5f2a27b7425089ea0d3c05ec8aeb08bb97a4411e521c6a257a1f967873cf33c",
+      "gitBlobSha1": "74f6ab64ad0d02bf6e2b791bebd4d60088dc32ec"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/shield.go",
+      "bytes": 4930,
+      "sha256": "d6d893527006002a0d6cea461b8c84061167cc2fcbedfa09e8fa52ac582461a4",
+      "gitBlobSha1": "c7e5e1dd03855b1a100e3a309c5212467b8c861b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/skill.go",
+      "bytes": 2601,
+      "sha256": "6a68351d2c7e8e88f460ca32e6b24a032113063c46f3e716d70e5d41b3de5f0b",
+      "gitBlobSha1": "2985f8c157bdaaf94b887bbeccad3657e2111e2b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/layla/zz_layla.dm.go",
+      "bytes": 3288,
+      "sha256": "7f773f7980f4faab7372f456c4be022d24e1abcf7012f8ed19de774da251760d",
+      "gitBlobSha1": "cfa261011a88d3be328fb796e00d1b59c16d97ba"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/asc.go",
+      "bytes": 1944,
+      "sha256": "8590a30f77da9ffa35db83dcda3f103e7cab68f95f586547bb887a8fbcd4cc1c",
+      "gitBlobSha1": "11b82c1b910528a5275e79c424ea44c6d1d42fd5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/attack.go",
+      "bytes": 3135,
+      "sha256": "052f85f014a23ec34b8eb22c03d3d6676c3b76436f25d28717a4b589d70a3baf",
+      "gitBlobSha1": "dc7acd36c1dc21eea4e923a8a5bef520861c128f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/burst.go",
+      "bytes": 2780,
+      "sha256": "229cbbf87c409b60dd85a0787c200a924e3581fbc4ed64c1f4d610d08458c76e",
+      "gitBlobSha1": "cc6255c60d5b9a148ce6b6de8eba9bf7fb68ea77"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/charge.go",
+      "bytes": 1622,
+      "sha256": "f9bfcdf58eda5d00f22c4fd930bcc2c60145cc518d7ed7abff74b2127f5eb7e3",
+      "gitBlobSha1": "1d9c67bec6f0cd40bbc4e5bc7f96f5ba5640f281"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/cons.go",
+      "bytes": 2448,
+      "sha256": "4dd7985d028b9452528e2bcb4c1885e924acfca5e0277fc033d2c603dd91f993",
+      "gitBlobSha1": "c23bf4590a880cc153b435f7571d4e5399a2df4e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/radish.go",
+      "bytes": 464,
+      "sha256": "e576f07e902c69eb32a5b05881b45bb95a29909daf24f7373de2337fe542f883",
+      "gitBlobSha1": "cd3bde2567db07a121ea9248d87beb102e130289"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/skill.go",
+      "bytes": 1411,
+      "sha256": "d7331688385d56866999772ac4130f728d8239f49995ffc52834d55e38c2a147",
+      "gitBlobSha1": "0c72c6a38cd8a1814ba318faed97b4fa1a3040ee"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/yaoyao.go",
+      "bytes": 1907,
+      "sha256": "3d87697ba0230f4299726b770d0fda06614e268b902cb11f7e01f7121f6d2227",
+      "gitBlobSha1": "38a153b5e9d09710e39a0cd969ab4da6f363208d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/yuegui.go",
+      "bytes": 4995,
+      "sha256": "f3532ae04d70acf9efea77a8deb0ebce14cdadbf08dbbd11ca0dbf1cfba4e925",
+      "gitBlobSha1": "db1aa4f516c2e16f13b565cec3cfc3a1f3dd6899"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/yaoyao/zz_yaoyao.dm.go",
+      "bytes": 4179,
+      "sha256": "bf74cd0dea3f4986fb903baf59b2c4b2cb4f796330b54ae4cac4c4a9e6a0d715",
+      "gitBlobSha1": "14ebc405707e17587902a97973a94a2ac138d1f0"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/frames/frames.go",
+      "bytes": 1589,
+      "sha256": "1e8da70965123d70ac6009f96affcd8a9d272c2381589de01a5edf8de4f98ae9",
+      "gitBlobSha1": "6f0f47b4097751ee1076677356ce0c4bdbe038c7"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/character.go",
+      "bytes": 4270,
+      "sha256": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+      "gitBlobSha1": "8446a3de64aa409a414bbad9897c7fd3d690457c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/cooldown.go",
+      "bytes": 7269,
+      "sha256": "4adc0fd0f5feae07e2b652a1cafd0cdc5d4c3221829598a410f1f0793a19df14",
+      "gitBlobSha1": "0ef808a53ae22f7eec9d1c0c680aa0d1c80a20d1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/template/character/default.go",
+      "bytes": 226,
+      "sha256": "798e50e474f27fbee50182c0771ba1b3795882aaceee8080d06e8724a3d2cda0",
+      "gitBlobSha1": "122e5fb12e42b9e005cfc783a7c0dda885f2666b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/action/action.go",
+      "bytes": 4043,
+      "sha256": "5074744fa1f71db33c1d13230b3b929fe0df3b87f26fc84a70693ace1cc2ab69",
+      "gitBlobSha1": "3a2d1cdcfaa17df8ba93ddfcef62d5c9cc629754"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha1": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attacks/attack.go",
+      "bytes": 1484,
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "gitBlobSha1": "63b9b3cc74984420e93df17b90eec90ece9665bd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/combat/attack.go",
+      "bytes": 2494,
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "gitBlobSha1": "b56ff487f078ee302b6bec9a9616697de1dc88e5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/combat/combat.go",
+      "bytes": 2422,
+      "sha256": "54dc23a14ec8e4b7a72d8f8a316948e4fe86f03473ff669dc5f225c3341bba41",
+      "gitBlobSha1": "e7d73d942b7cdee1f9e7536317b71fb24c535695"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/core.go",
+      "bytes": 5508,
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "gitBlobSha1": "71107d1a34ee44f1b2f9b0982ab3336647ebaed3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/character.go",
+      "bytes": 3177,
+      "sha256": "79f32dea9696faf270e797c9e7fd42f5ee24027c9cdbb1c6d51a10241cd00d12",
+      "gitBlobSha1": "8b40d9da49225b4cfbbd573875251830a28e0cab"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/info/combat.go",
+      "bytes": 4239,
+      "sha256": "2e46d3c003944c5d3368b09e89ce622e62ed13a66fdadeb03168ae049cf115ee",
+      "gitBlobSha1": "c2e89e614a2513d00c710478f8dc55f2773d2ead"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/animation/animation.go",
+      "bytes": 3385,
+      "sha256": "3ef3c137f2401ab5b7c687baf819edc33ea011e7672e7cf1a389fb0680fa54fd",
+      "gitBlobSha1": "a11a10d7afbe88a8d1eefb60439a2c07e8823c88"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/character.go",
+      "bytes": 6364,
+      "sha256": "388c26fbe02d8c16f82d0613d12f0085b8da3dd66c4abba5095e9ffe754559cf",
+      "gitBlobSha1": "af46b23318605e1d47c6295428b24f9f2a1a0635"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/hitlag.go",
+      "bytes": 1566,
+      "sha256": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+      "gitBlobSha1": "3a31809c95a9599270b2c165a6a2309c193feda4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/mods.go",
+      "bytes": 9963,
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "gitBlobSha1": "fd5281e16030e9fabe33a746b53d8dac5b980729"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha1": "33d47f781e040dbabac6622360272235888cf663"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/player.go",
+      "bytes": 8629,
+      "sha256": "1920e035af195f85b136262c811832d31389e6cb9fda7438e1e14685c4c1df3e",
+      "gitBlobSha1": "2ea49c50ae7327c4e682f99eed9ebce1023cbf00"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/shield/handler.go",
+      "bytes": 3879,
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "gitBlobSha1": "221aca329c9195f99fe715958666a7c56485551e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/shield/template.go",
+      "bytes": 1312,
+      "sha256": "fe8f488d85ea876e463ab735f14a9837751ea24f9681fa076a74242686d2051a",
+      "gitBlobSha1": "1846dda0b9afbcbd92f0d8a9a4a79885e1eea88c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/status/status.go",
+      "bytes": 1646,
+      "sha256": "e8ab96350e9e0bf7be4dc60b5b973f383c1c04018f2483f73e4e9a3379a2d1f0",
+      "gitBlobSha1": "4173a9935621c2c4ac9e7216164b94c3c00fe789"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/task/task.go",
+      "bytes": 1701,
+      "sha256": "05accb6da9b5c374fa5b49f8d8a5e06792db0f44823226a542a3c5947743f9ab",
+      "gitBlobSha1": "74b8799218516bbcbe981ada50fd460e9a333bd1"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/attack.go",
+      "bytes": 7607,
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "gitBlobSha1": "e362d4c75594496770fe52d0b4447e2a446601cd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha1": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/hitlag.go",
+      "bytes": 1649,
+      "sha256": "fbb1af44cd1da3e41c96110c12890c34f21e213c8fdbbe0040563de3d57cdfda",
+      "gitBlobSha1": "dd8fd2bea28622989069d981f4aaafb1eef2c221"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/mods.go",
+      "bytes": 4013,
+      "sha256": "00c0b1c7ed42b7701dfb9abea8ebcd3a81edf5e915d85097f08ea057ae593aa2",
+      "gitBlobSha1": "d1c63e76895a0b8964567f0697aa9df8375ada71"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/gadget/gadget.go",
+      "bytes": 1657,
+      "sha256": "9dae7ac35683c46018961b84fee0176aa5806de44841e08b1d4c61fd0a187105",
+      "gitBlobSha1": "551d8cfe4645ec6d1e9ba2066f49fccd3125c263"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "gitBlobSha1": "57ffacf6a3effb66ee6f5936ce744c2c26a78b11"
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "LICENSE",
+      "bytes": 1065,
+      "sha256": "9b4edf56612dd31a97ade0d2d408154eb2e3dcf620f5b832fefec036ba9b50e1",
+      "gitBlobSha1": "5335086ba177d823d802d64e7a255e0256258099",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": false
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/aloy.json",
+      "bytes": 8113,
+      "sha256": "60b75fb699349147360ddb6cdd034ca80880bf3ca216df946450bd96351956df",
+      "gitBlobSha1": "c93b692f8e26adfb63648bfd8e93d86e7988737c",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/emilie.json",
+      "bytes": 9813,
+      "sha256": "07ee393bf848ecd9b689de925bad32a348e9c65a33b9cc385e32f2ad75a63601",
+      "gitBlobSha1": "4b494f5443a4bb5e3faf229b781c48be6fa0026a",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/furina.json",
+      "bytes": 12212,
+      "sha256": "46d27e4f7158e1c50eec53b3f0eb5c5e943ac848003b449fa16723cabc8662bd",
+      "gitBlobSha1": "f41b3bd7b4d795968bfc0c72c39a4d2744579872",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/hutao.json",
+      "bytes": 8341,
+      "sha256": "0627584088b96e473faf3f3724a40f8f7612a9eeed454019066119bc636c946a",
+      "gitBlobSha1": "bc563e4c27677d297c72023cca1a2215880cb9ca",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/kaeya.json",
+      "bytes": 5993,
+      "sha256": "8ff31973b5d19ab45df6730c433821f634199bed880fa641004b1f2ac31602de",
+      "gitBlobSha1": "82dbbb2a99acd0ea0641a00cef8d8f98d0da362f",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/kamisatoayato.json",
+      "bytes": 8573,
+      "sha256": "6a11e437f9c7a989ec4d5066b685eb04a038cf68489fc7eb8ac3ed54eed6d5fc",
+      "gitBlobSha1": "6e43659195dd1d371fefa411f5be73a8a535289a",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/klee.json",
+      "bytes": 6746,
+      "sha256": "57c4e38b8b434a9b3960fa14c392dcd7c4e603d10f61174c0e9444ead6cc40df",
+      "gitBlobSha1": "a03d95e7f787844ddf15c6f275f4ad8fbfa79304",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/layla.json",
+      "bytes": 8262,
+      "sha256": "12f0f5e68f674366bade01e9a172b6af39036a1ff3062bcf9556d05921ff92ad",
+      "gitBlobSha1": "067d0119a2f7f6ab412891d1df7bdf97838aa67e",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/ChineseSimplified/talents/yaoyao.json",
+      "bytes": 10314,
+      "sha256": "2e1692a20dcb3fb4a4f5f2086db6e3a00bee29b82e6583a224a5fc405e8cbd33",
+      "gitBlobSha1": "3f444775cf5fdc0b94863c7506cde62c0f95caab",
+      "matchedAvailableGitTreeEntry": true,
+      "matchedImportedSourceEvidenceSha256": true
+    },
+    {
+      "repository": "theBowja/genshin-db",
+      "revision": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "path": "src/data/stats/talents.json",
+      "bytes": 566511,
+      "sha256": "a6e87c30c325f6dd5f7441cbeded21b329175286c92bfd9757ce9be2680048d7",
+      "gitBlobSha1": "36ed6ee699d7ed2c80a5cc29d61685b3c9441e95",
+      "matchedAvailableGitTreeEntry": false,
+      "matchedImportedSourceEvidenceSha256": true
+    }
+  ],
+  "retrievalMethod": "Read existing pinned local originals; no network retrieval in the original or extension data tasks. New gcsim blobs matched full fixed tree; catalog originals matched imported SHA-256 and available tree entries.",
+  "extensionRecordedAt": "2026-09-24T19:05:09.219031+00:00",
+  "previousGenerations": [
+    {
+      "classificationVersion": "reviewed-hits.22",
+      "archive": {
+        "path": "packages/game-data/sources/observed-entity-casts/history/reviewed-hits.22/source.json.gz",
+        "bytes": 174849,
+        "sha256": "8b844e78c0388a9077fd8987aa099f0e1b7f94e9eb054342d6e553957977cd41"
+      },
+      "definitions": {
+        "path": "packages/game-data/sources/observed-entity-casts/history/reviewed-hits.22/definitions.json",
+        "sha256": "4d23d439758172c588d2faccfc697b7946f0965e631149c0d98b9f0564273d1e"
+      },
+      "manifest": {
+        "path": "packages/game-data/sources/observed-entity-casts/history/reviewed-hits.22/manifest.json",
+        "sha256": "ad412adc7cdb4f3187c01c601911289d470f3f257b59d04857bf58951da402b5"
+      },
+      "templates": 7,
+      "roles": 20
+    }
+  ],
+  "extensionSummary": {
+    "classificationVersion": "reviewed-hits.23",
+    "templatesAdded": 3,
+    "rolesAdded": 4,
+    "exactVectorsAdded": 5,
+    "originalFilesAdded": 28,
+    "newOriginals": [
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/attack.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/burst.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/charge.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/cons.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/kaeya.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/plunge.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/skill.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/kaeya/zz_kaeya.dm.go"
+      },
+      {
+        "repository": "theBowja/genshin-db",
+        "path": "src/data/ChineseSimplified/talents/kaeya.json"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/asc.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/attack.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/burst.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/charge.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/cons.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/hutao.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/plunge.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/skill.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/hutao/zz_hutao.dm.go"
+      },
+      {
+        "repository": "theBowja/genshin-db",
+        "path": "src/data/ChineseSimplified/talents/hutao.json"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/aimed.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/aloy.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/asc.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/attack.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/burst.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/skill.go"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "internal/characters/aloy/zz_aloy.dm.go"
+      },
+      {
+        "repository": "theBowja/genshin-db",
+        "path": "src/data/ChineseSimplified/talents/aloy.json"
+      },
+      {
+        "repository": "genshinsim/gcsim",
+        "path": "pkg/enemy/hitlag.go"
+      }
+    ],
+    "runtimeValidation": "not-run-by-source-data-task"
+  }
+}

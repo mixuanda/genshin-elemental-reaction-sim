@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "generatedDate": "2026-09-28",
+  "scope": "只读筛查固定 Go character AttackInfo.Mult 复合写入；不含普通天赋表直取的机械迁移。",
+  "sourceTrees": [
+    {"lane": "classic", "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "root": "/tmp/gidps-source-host-cache/build-Tt3Mpw/source"},
+    {"lane": "stellar", "commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd", "root": "/tmp/gidps-source-host-cache/stellar-build-zIYaw6/source", "rootEvidence": "dist/manifest.json source.revision"}
+  ],
+  "sharedBoundary": {
+    "current": "AttackInfo.Mult is consumed as a final native base/talent scaling input in damage resolution; 142 character-flat rules share FlatDmg producers, not the arithmetic that constructs Mult. No dedicated source-host character Mult producer rule/receipt was found in the current registry.",
+    "exclude": "Plain multiplier table lookup by talent/normal counter (for example attack[counter][talent], burst[talent]) is a native table input, not an additional arithmetic producer; don't add rules solely for these lookups.",
+    "scopeLimit": "This is a source-location shortlist from compound assignments and multiplier expressions, not a complete AST count of every Mult field initialization."
+  },
+  "recommendedFamily": {
+    "priority": 1,
+    "id": "talent-ratio-plus-state-stack-ratio",
+    "why": "Repeated source pattern across both lanes: talent-level base multiplier plus a talent-level bonus multiplied by a native counter/stack field. Those operations are flattened into final AttackInfo.Mult and have no separate shared arithmetic trace.",
+    "formulaShape": "baseTalent[talent] + bonusTalent[talent] * float64(activeStacks)",
+    "records": [
+      {"character": "beidou", "path": "internal/characters/beidou/skill.go", "line": 52, "formula": "skillbase[TalentLvlSkill] + skillbonus[TalentLvlSkill] * float64(counter)", "lane": "both", "phase": "creation from charged-skill counter"},
+      {"character": "eula", "path": "internal/characters/eula/burst.go", "line": 111, "formula": "burstExplodeBase[TalentLvlBurst] + burstExplodeStack[TalentLvlBurst] * float64(burstCounter)", "lane": "both", "phase": "burst explosion from saved burst stack counter"},
+      {"character": "heizou", "path": "internal/characters/heizou/skill.go", "line": 59, "formula": "skill[TalentLvlSkill] + float64(decStack) * decBonus[TalentLvlSkill]", "lane": "both", "phase": "charged skill creation"},
+      {"character": "lyney", "path": "internal/characters/lyney/skill.go", "line": 62, "formula": "skill[TalentLvlSkill] + skillBonus[TalentLvlSkill] * float64(propSurplusStacks)", "lane": "both", "phase": "skill hit creation from stored Prop Surplus stacks"},
+      {"character": "raiden", "path": "internal/characters/raiden/charge.go", "line": 86, "formula": "mult[TalentLvlBurst] + resolveBonus[TalentLvlBurst] * stacksConsumed", "lane": "both", "phase": "burst-state charged attack"},
+      {"character": "raiden", "path": "internal/characters/raiden/plunge.go", "lines": [160, 253, 301], "formula": "lowPlunge/highPlunge/collision[TalentLvlBurst] + resolveBonus[TalentLvlBurst] * stacksConsumed", "lane": "both", "phase": "burst-state plunge components"},
+      {"character": "raiden", "path": "internal/characters/raiden/attack.go", "line": 145, "formula": "existing Mult += resolveBonus[TalentLvlBurst] * stacksConsumed", "lane": "both", "phase": "native post-initialization additive update"},
+      {"character": "raiden", "path": "internal/characters/raiden/burst.go", "line": 71, "formula": "existing Mult += resolveBaseBonus[TalentLvlBurst] * stacksConsumed", "lane": "both", "phase": "burst hit after stacks are copied to stacksConsumed"},
+      {"character": "traveler/common/cryo", "path": "internal/characters/traveler/common/cryo/burst.go", "lines": [59, 67, 73], "formula": "burstTable[TalentLvlBurst] + frostglowBonusTable[TalentLvlBurst] * float64(frostglowStacks)", "lane": "stellar only", "phase": "normal / Stellar Conduct / Stellar Swirl burst branches"}
+    ],
+    "preserve": "Capture the actual talent table entry, stack/counter value, and operation order at the existing AttackInfo creation/update. Raiden's stacksConsumed is copied/consumed earlier; do not reread current stacks later. Cryo Traveler rows are a7-only."
+  },
+  "additionalStateMultiplierFamily": {
+    "priority": 2,
+    "id": "talent-ratio-times-state-or-helper-multiplier",
+    "records": [
+      {"character": "varka", "path": "internal/characters/varka/skill.go", "line": {"classic": 142, "stellar": 150}, "formula": "skillAscension[i][TalentLvlSkill] * a1SkillMulti() * c1Mult", "helper": "internal/characters/varka/asc.go:89-94 a1SkillMulti gates saved A1 multiplier by ascension"},
+      {"character": "varka", "path": "internal/characters/varka/attack.go", "line": 144, "formula": "skillAttack[counter][i][TalentLvlSkill] * a1SkillMulti()", "lane": "both"},
+      {"character": "varka", "path": "internal/characters/varka/charge.go", "line": 124, "formula": "charge[i][TalentLvlSkill] * a1SkillMulti()", "lane": "both"},
+      {"character": "skirk", "path": "internal/characters/skirk/burst.go", "lines": [65, 79], "formula": "(burstTalent + subtletyBonus * bonusTalent) * a4MultBurst()", "helper": "internal/characters/skirk/asc.go:142-143 maps live A4 stack count through a talent table"},
+      {"character": "skirk", "path": "internal/characters/skirk/attack.go", "line": 165, "formula": "mult[TalentLvlSkill] * a4MultAttack()", "helper": "internal/characters/skirk/asc.go:138-139"},
+      {"character": "skirk", "path": "internal/characters/skirk/cons.go", "lines": [132, 194], "formula": "7.5 * a4MultBurst() / 1.8 * a4MultAttack()", "lane": "both"},
+      {"character": "odette", "path": "internal/characters/odette/skill.go", "lines": [139, 147, 250], "formula": "Coda/stellar talent multiplier * a4StellarGlimmerMult()", "helper": "internal/characters/odette/asc.go:129-137: ascension gate; 1 + min(max(TotalATK-1000,0)/100*0.015,0.3)", "lane": "stellar only"},
+      {"character": "odette", "path": "internal/characters/odette/cons.go", "lines": [48, 51], "formula": "3 or 4.5 * a4StellarGlimmerMult()", "lane": "stellar only"},
+      {"character": "navia", "path": "internal/characters/navia/skill.go", "line": {"classic": 182, "stellar": 184}, "formula": "skillshotgun[TalentLvlSkill] * skillMultiplier[hits]", "phase": "shotgun count-derived multiplier"},
+      {"character": "lauma", "path": "internal/characters/lauma/skill.go", "line": 156, "formula": "skillHold2[TalentLvlSkill] * float64(dewCount)", "phase": "direct Lunar Bloom multiplier from consumed dew count"}
+    ],
+    "preserve": "At helper-based paths, trace the helper's true internal formula and its read-time state/snapshot; don't treat the helper return as an opaque constant. Keep original assignment stage when the expression scales an existing Mult."
+  },
+  "nextStep": "Batch the two formula shapes into a small source-versioned character-multiplier descriptor family. First implement the state-stack additive family; it has the clearest repeated structure. Keep table-only talent lookups outside scope.",
+  "nonGoals": ["No tests/builds run.", "No game-side validation inferred.", "No attempt to inventory every simple AttackInfo.Mult table lookup."]
+}

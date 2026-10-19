@@ -1,0 +1,994 @@
+{
+  "schemaVersion": 1,
+  "protocol": "explicit-mixed-source-v1",
+  "templates": [
+    {
+      "skillId": "mixed-lauma-hold-skill-c0",
+      "characterSlug": "lauma",
+      "talentSetId": "talent-set:lauma",
+      "abilityKey": "combat2",
+      "label": "菈乌玛长按E·草露与霜林完整施放（C0）",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "roles": {
+        "hold": {
+          "mappingId": "mixed-lauma-hold-skill-c0-hold",
+          "label": "长按普通草伤",
+          "kind": "ordinary",
+          "element": "dendro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.5808,
+                1.69936,
+                1.81792,
+                1.976,
+                2.09456,
+                2.21312,
+                2.3712,
+                2.52928,
+                2.68736,
+                2.84544,
+                3.00352,
+                3.1616,
+                3.3592,
+                3.5568,
+                3.7544
+              ],
+              "sourceValues": [
+                1.5808,
+                1.69936,
+                1.81792,
+                1.976,
+                2.09456,
+                2.21312,
+                2.3712,
+                2.52928,
+                2.68736,
+                2.84544,
+                3.00352,
+                3.1616,
+                3.3592,
+                3.5568,
+                3.7544
+              ],
+              "parameterKey": "param2",
+              "sourceField": "skillHold1",
+              "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/lauma.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/zz_lauma.dm.go"
+          ]
+        },
+        "lunarBloom": {
+          "mappingId": "mixed-lauma-hold-skill-c0-lunarBloom",
+          "label": "长按月绽放",
+          "kind": "lunar-bloom-direct",
+          "element": "dendro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "em",
+              "values": [
+                1.52,
+                1.634,
+                1.748,
+                1.9,
+                2.014,
+                2.128,
+                2.28,
+                2.432,
+                2.584,
+                2.736,
+                2.888,
+                3.04,
+                3.23,
+                3.42,
+                3.61
+              ],
+              "sourceValues": [
+                1.52,
+                1.634,
+                1.748,
+                1.9,
+                2.014,
+                2.128,
+                2.28,
+                2.432,
+                2.584,
+                2.736,
+                2.888,
+                3.04,
+                3.23,
+                3.42,
+                3.61
+              ],
+              "parameterKey": "param3",
+              "sourceField": "skillHold2",
+              "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/lauma.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/zz_lauma.dm.go"
+          ]
+        },
+        "sanctuary": {
+          "mappingId": "mixed-lauma-hold-skill-c0-sanctuary",
+          "label": "霜林圣域",
+          "kind": "ordinary",
+          "element": "dendro",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param4",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "sourceValues": [
+                0.96,
+                1.032,
+                1.104,
+                1.2,
+                1.272,
+                1.344,
+                1.44,
+                1.536,
+                1.632,
+                1.728,
+                1.824,
+                1.92,
+                2.04,
+                2.16,
+                2.28
+              ],
+              "parameterKey": "param4",
+              "sourceField": "frostgroveSanctuaryAtk",
+              "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+              "coefficientTolerance": 0
+            },
+            {
+              "stat": "em",
+              "values": [
+                1.92,
+                2.064,
+                2.208,
+                2.4,
+                2.544,
+                2.688,
+                2.88,
+                3.072,
+                3.264,
+                3.456,
+                3.648,
+                3.84,
+                4.08,
+                4.32,
+                4.56
+              ],
+              "sourceValues": [
+                1.92,
+                2.064,
+                2.208,
+                2.4,
+                2.544,
+                2.688,
+                2.88,
+                3.072,
+                3.264,
+                3.456,
+                3.648,
+                3.84,
+                4.08,
+                4.32,
+                4.56
+              ],
+              "parameterKey": "param5",
+              "sourceField": "frostgroveSanctuaryEM",
+              "sourcePath": "internal/characters/lauma/zz_lauma.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/lauma.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/lauma/zz_lauma.dm.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0、无卡肉／中断／替换的明确完整观察；普通与直接特殊反应分别执行对应公式。",
+        "未自动推导队伍、附着、资源来源、随机数或星领域；未知必要输入阻塞。",
+        "固定社区实现与目录倍率一致不等同当前游戏机制实测；Flins基础提升原源码TODO和Odette无光耀终段默认星导保留为source-provisional。"
+      ],
+      "resistanceReduction": [
+        0.025,
+        0.05,
+        0.075,
+        0.1,
+        0.125,
+        0.15,
+        0.175,
+        0.2,
+        0.225,
+        0.25,
+        0.28,
+        0.31,
+        0.34,
+        0.37,
+        0.4
+      ]
+    },
+    {
+      "skillId": "mixed-flins-burst-c0",
+      "characterSlug": "flins",
+      "talentSetId": "talent-set:flins",
+      "abilityKey": "combat3",
+      "label": "菲林斯普通Q·普通与月感电完整施放（C0）",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "roles": {
+        "initial": {
+          "mappingId": "mixed-flins-burst-c0-initial",
+          "label": "普通Q初击",
+          "kind": "ordinary",
+          "element": "electro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param1",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                2.5984,
+                2.79328,
+                2.98816,
+                3.248,
+                3.44288,
+                3.63776,
+                3.8976,
+                4.15744,
+                4.41728,
+                4.67712,
+                4.93696,
+                5.1968,
+                5.5216,
+                5.8464,
+                6.1712
+              ],
+              "sourceValues": [
+                2.5984,
+                2.79328,
+                2.98816,
+                3.248,
+                3.44288,
+                3.63776,
+                3.8976,
+                4.15744,
+                4.41728,
+                4.67712,
+                4.93696,
+                5.1968,
+                5.5216,
+                5.8464,
+                6.1712
+              ],
+              "parameterKey": "param1",
+              "sourceField": "burstInit",
+              "sourcePath": "internal/characters/flins/zz_flins.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/flins.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/zz_flins.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/cons.go"
+          ]
+        },
+        "middle": {
+          "mappingId": "mixed-flins-burst-c0-middle",
+          "label": "月感电中间段",
+          "kind": "lunar-charged-direct",
+          "element": "electro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param2",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.1624,
+                0.17458,
+                0.18676,
+                0.203,
+                0.21518,
+                0.22736,
+                0.2436,
+                0.25984,
+                0.27608,
+                0.29232,
+                0.30856,
+                0.3248,
+                0.3451,
+                0.3654,
+                0.3857
+              ],
+              "sourceValues": [
+                0.1624,
+                0.17458,
+                0.18676,
+                0.203,
+                0.21518,
+                0.22736,
+                0.2436,
+                0.25984,
+                0.27608,
+                0.29232,
+                0.30856,
+                0.3248,
+                0.3451,
+                0.3654,
+                0.3857
+              ],
+              "parameterKey": "param2",
+              "sourceField": "burstMid",
+              "sourcePath": "internal/characters/flins/zz_flins.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/flins.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/zz_flins.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/cons.go"
+          ]
+        },
+        "final": {
+          "mappingId": "mixed-flins-burst-c0-final",
+          "label": "月感电终段",
+          "kind": "lunar-charged-direct",
+          "element": "electro",
+          "attackTag": "burst",
+          "abilityKey": "combat3",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                1.16928,
+                1.256976,
+                1.344672,
+                1.4616,
+                1.549296,
+                1.636992,
+                1.75392,
+                1.870848,
+                1.987776,
+                2.104704,
+                2.221632,
+                2.33856,
+                2.48472,
+                2.63088,
+                2.77704
+              ],
+              "sourceValues": [
+                1.16928,
+                1.256976,
+                1.344672,
+                1.4616,
+                1.549296,
+                1.636992,
+                1.75392,
+                1.870848,
+                1.987776,
+                2.104704,
+                2.221632,
+                2.33856,
+                2.48472,
+                2.63088,
+                2.77704
+              ],
+              "parameterKey": "param3",
+              "sourceField": "burstFinal",
+              "sourcePath": "internal/characters/flins/zz_flins.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/flins.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/zz_flins.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/burst.go",
+            "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/flins/cons.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0、无卡肉／中断／替换的明确完整观察；普通与直接特殊反应分别执行对应公式。",
+        "未自动推导队伍、附着、资源来源、随机数或星领域；未知必要输入阻塞。",
+        "固定社区实现与目录倍率一致不等同当前游戏机制实测；Flins基础提升原源码TODO和Odette无光耀终段默认星导保留为source-provisional。"
+      ]
+    },
+    {
+      "skillId": "mixed-odette-coda-c0",
+      "characterSlug": "odette",
+      "talentSetId": "talent-set:odette",
+      "abilityKey": "combat2",
+      "label": "奥黛塔终奏·旧倒影升级完整剩余生命期（C0）",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "roles": {
+        "coda": {
+          "mappingId": "mixed-odette-coda-c0-coda",
+          "label": "终奏持续普通伤害",
+          "kind": "ordinary",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param2",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.9584,
+                1.03028,
+                1.10216,
+                1.198,
+                1.26988,
+                1.34176,
+                1.4376,
+                1.53344,
+                1.62928,
+                1.72512,
+                1.82096,
+                1.9168,
+                2.0366,
+                2.1564,
+                2.2762
+              ],
+              "sourceValues": [
+                0.9584,
+                1.03028,
+                1.10216,
+                1.198,
+                1.26988,
+                1.34176,
+                1.4376,
+                1.53344,
+                1.62928,
+                1.72512,
+                1.82096,
+                1.9168,
+                2.0366,
+                2.1564,
+                2.2762
+              ],
+              "parameterKey": "param2",
+              "sourceField": "codaDoT",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "codaSSC": {
+          "mappingId": "mixed-odette-coda-c0-codaSSC",
+          "label": "终奏星导",
+          "kind": "stellar-conduct-direct",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param3",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                3.0576,
+                3.28692,
+                3.51624,
+                3.822,
+                4.05132,
+                4.28064,
+                4.5864,
+                4.89216,
+                5.19792,
+                5.50368,
+                5.80944,
+                6.1152,
+                6.4974,
+                6.8796,
+                7.2618
+              ],
+              "sourceValues": [
+                3.0576,
+                3.28692,
+                3.51624,
+                3.822,
+                4.05132,
+                4.28064,
+                4.5864,
+                4.89216,
+                5.19792,
+                5.50368,
+                5.80944,
+                6.1152,
+                6.4974,
+                6.8796,
+                7.2618
+              ],
+              "parameterKey": "param3",
+              "sourceField": "codaSSC",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "codaSSw": {
+          "mappingId": "mixed-odette-coda-c0-codaSSw",
+          "label": "终奏星旋",
+          "kind": "stellar-swirl-direct",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param4",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                4.5864,
+                4.93038,
+                5.27436,
+                5.733,
+                6.07698,
+                6.42096,
+                6.8796,
+                7.33824,
+                7.79688,
+                8.25552,
+                8.71416,
+                9.1728,
+                9.7461,
+                10.3194,
+                10.8927
+              ],
+              "sourceValues": [
+                4.5864,
+                4.93038,
+                5.27436,
+                5.733,
+                6.07698,
+                6.42096,
+                6.8796,
+                7.33824,
+                7.79688,
+                8.25552,
+                8.71416,
+                9.1728,
+                9.7461,
+                10.3194,
+                10.8927
+              ],
+              "parameterKey": "param4",
+              "sourceField": "codaSSw",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "plume": {
+          "mappingId": "mixed-odette-coda-c0-plume",
+          "label": "倒影羽舞",
+          "kind": "ordinary",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param5",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.4304,
+                0.46268,
+                0.49496,
+                0.538,
+                0.57028,
+                0.60256,
+                0.6456,
+                0.68864,
+                0.73168,
+                0.77472,
+                0.81776,
+                0.8608,
+                0.9146,
+                0.9684,
+                1.0222
+              ],
+              "sourceValues": [
+                0.4304,
+                0.46268,
+                0.49496,
+                0.538,
+                0.57028,
+                0.60256,
+                0.6456,
+                0.68864,
+                0.73168,
+                0.77472,
+                0.81776,
+                0.8608,
+                0.9146,
+                0.9684,
+                1.0222
+              ],
+              "parameterKey": "param5",
+              "sourceField": "plume",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "plumeSSC": {
+          "mappingId": "mixed-odette-coda-c0-plumeSSC",
+          "label": "升级羽舞星导",
+          "kind": "stellar-conduct-direct",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param6",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.27024,
+                0.290508,
+                0.310776,
+                0.3378,
+                0.358068,
+                0.378336,
+                0.40536,
+                0.432384,
+                0.459408,
+                0.486432,
+                0.513456,
+                0.54048,
+                0.57426,
+                0.60804,
+                0.64182
+              ],
+              "sourceValues": [
+                0.27024,
+                0.290508,
+                0.310776,
+                0.3378,
+                0.358068,
+                0.378336,
+                0.40536,
+                0.432384,
+                0.459408,
+                0.486432,
+                0.513456,
+                0.54048,
+                0.57426,
+                0.60804,
+                0.64182
+              ],
+              "parameterKey": "param6",
+              "sourceField": "plumeSSC",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "plumeSSw": {
+          "mappingId": "mixed-odette-coda-c0-plumeSSw",
+          "label": "升级羽舞星旋",
+          "kind": "stellar-swirl-direct",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param7",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.40528,
+                0.435676,
+                0.466072,
+                0.5066,
+                0.536996,
+                0.567392,
+                0.60792,
+                0.648448,
+                0.688976,
+                0.729504,
+                0.770032,
+                0.81056,
+                0.86122,
+                0.91188,
+                0.96254
+              ],
+              "sourceValues": [
+                0.40528,
+                0.435676,
+                0.466072,
+                0.5066,
+                0.536996,
+                0.567392,
+                0.60792,
+                0.648448,
+                0.688976,
+                0.729504,
+                0.770032,
+                0.81056,
+                0.86122,
+                0.91188,
+                0.96254
+              ],
+              "parameterKey": "param7",
+              "sourceField": "plumeSSw",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "wing": {
+          "mappingId": "mixed-odette-coda-c0-wing",
+          "label": "倒影翼舞",
+          "kind": "ordinary",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param8",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.51464,
+                0.553238,
+                0.591836,
+                0.6433,
+                0.681898,
+                0.720496,
+                0.77196,
+                0.823424,
+                0.874888,
+                0.926352,
+                0.977816,
+                1.02928,
+                1.09361,
+                1.15794,
+                1.22227
+              ],
+              "sourceValues": [
+                0.51464,
+                0.553238,
+                0.591836,
+                0.6433,
+                0.681898,
+                0.720496,
+                0.77196,
+                0.823424,
+                0.874888,
+                0.926352,
+                0.977816,
+                1.02928,
+                1.09361,
+                1.15794,
+                1.22227
+              ],
+              "parameterKey": "param8",
+              "sourceField": "wing",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "wingSSC": {
+          "mappingId": "mixed-odette-coda-c0-wingSSC",
+          "label": "升级翼舞星导",
+          "kind": "stellar-conduct-direct",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param9",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.32312,
+                0.347354,
+                0.371588,
+                0.4039,
+                0.428134,
+                0.452368,
+                0.48468,
+                0.516992,
+                0.549304,
+                0.581616,
+                0.613928,
+                0.64624,
+                0.68663,
+                0.72702,
+                0.76741
+              ],
+              "sourceValues": [
+                0.32312,
+                0.347354,
+                0.371588,
+                0.4039,
+                0.428134,
+                0.452368,
+                0.48468,
+                0.516992,
+                0.549304,
+                0.581616,
+                0.613928,
+                0.64624,
+                0.68663,
+                0.72702,
+                0.76741
+              ],
+              "parameterKey": "param9",
+              "sourceField": "wingSSC",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        },
+        "wingSSw": {
+          "mappingId": "mixed-odette-coda-c0-wingSSw",
+          "label": "升级翼舞星旋",
+          "kind": "stellar-swirl-direct",
+          "element": "cryo",
+          "attackTag": "skill",
+          "abilityKey": "combat2",
+          "parameterKey": "param10",
+          "terms": [
+            {
+              "stat": "atk",
+              "values": [
+                0.48464,
+                0.520988,
+                0.557336,
+                0.6058,
+                0.642148,
+                0.678496,
+                0.72696,
+                0.775424,
+                0.823888,
+                0.872352,
+                0.920816,
+                0.96928,
+                1.02986,
+                1.09044,
+                1.15102
+              ],
+              "sourceValues": [
+                0.48464,
+                0.520988,
+                0.557336,
+                0.6058,
+                0.642148,
+                0.678496,
+                0.72696,
+                0.775424,
+                0.823888,
+                0.872352,
+                0.920816,
+                0.96928,
+                1.02986,
+                1.09044,
+                1.15102
+              ],
+              "parameterKey": "param10",
+              "sourceField": "wingSSw",
+              "sourcePath": "internal/characters/odette/zz_odette.dm.go",
+              "coefficientTolerance": 0
+            }
+          ],
+          "sourceRefs": [
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/skill.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/asc.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/odette.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/zz_odette.dm.go",
+            "https://github.com/genshinsim/gcsim/blob/a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd/internal/characters/odette/stellar.go"
+          ]
+        }
+      },
+      "assumptions": [
+        "C0、无卡肉／中断／替换的明确完整观察；普通与直接特殊反应分别执行对应公式。",
+        "未自动推导队伍、附着、资源来源、随机数或星领域；未知必要输入阻塞。",
+        "固定社区实现与目录倍率一致不等同当前游戏机制实测；Flins基础提升原源码TODO和Odette无光耀终段默认星导保留为source-provisional。"
+      ]
+    }
+  ]
+}

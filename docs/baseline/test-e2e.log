@@ -1,0 +1,56 @@
+
+> genshin-dps-lab@1.0.0 test:e2e
+> playwright test
+
+[WebServer] (node:19684) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [plugin builtin:vite-reporter] 
+[WebServer] (!) Some chunks are larger than 500 kB after minification. Consider:
+[WebServer] - Using dynamic import() to code-split the application
+[WebServer] - Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+[WebServer] - Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[WebServer] (node:19719) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 36 tests using 1 worker
+
+(node:19729) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › apps/web/e2e/simulator.spec.ts:73:1 › runs, imports, explores, and exports the compatibility preset (1.3s)
+  ✓   2 [chromium] › apps/web/e2e/simulator.spec.ts:258:1 › migrates a 1.38 config to deferred delivery and all fixed mechanics roots (409ms)
+  ✓   3 [chromium] › apps/web/e2e/simulator.spec.ts:352:1 › rejects a 1.38 wire polluted by the current reaction formula model (336ms)
+  ✓   4 [chromium] › apps/web/e2e/simulator.spec.ts:385:1 › shows a field path for an invalid config (1.0s)
+  ✓   5 [chromium] › apps/web/e2e/simulator.spec.ts:400:1 › locks the scalar resistance control when an elemental table is active (727ms)
+  ✓   6 [chromium] › apps/web/e2e/simulator.spec.ts:487:1 › disables an unused shared scalar for target-level resistance tables and identifies mixed consumers (800ms)
+  ✓   7 [chromium] › apps/web/e2e/simulator.spec.ts:580:1 › renders the legal frame action queue and traces hits to commands (414ms)
+  ✓   8 [chromium] › apps/web/e2e/simulator.spec.ts:602:1 › rolls back a failed burst before executing the following commands (389ms)
+  ✓   9 [chromium] › apps/web/e2e/simulator.spec.ts:783:1 › renders automatic Aura, ICD, reaction audits, and the enemy aura curve (936ms)
+  ✓  10 [chromium] › apps/web/e2e/simulator.spec.ts:903:1 › renders an initial enemy Aura even when the run has no hits or state events (416ms)
+  ✓  11 [chromium] › apps/web/e2e/simulator.spec.ts:1205:1 › renders Dendro Catalyze, per-hit composition, Quicken state, and component curves (477ms)
+  ✓  12 [chromium] › apps/web/e2e/simulator.spec.ts:1402:1 › renders target-local mechanics truncation without counting later potential damage (408ms)
+  ✓  13 [chromium] › apps/web/e2e/simulator.spec.ts:1537:1 › renders an ordered Overload as cancelled when the same hit truncates on Burning (405ms)
+  ✓  14 [chromium] › apps/web/e2e/simulator.spec.ts:1659:1 › renders aura-v4 Burning Fuel, 15f ticks, skip-9, audits, and core-owned curves (732ms)
+  ✓  15 [chromium] › apps/web/e2e/simulator.spec.ts:2141:1 › renders Swirl self damage, propagation, secondary reaction, Aura, and curve events (483ms)
+  ✓  16 [chromium] › apps/web/e2e/simulator.spec.ts:2337:1 › renders Crystallize Aura, shard pickup, shield state, and shield curve (449ms)
+  ✓  17 [chromium] › apps/web/e2e/simulator.spec.ts:2562:1 › renders Overload as independent per-target damage with queue and formula audits (462ms)
+  ✓  18 [chromium] › apps/web/e2e/simulator.spec.ts:2712:1 › renders Superconduct damage and target-scoped physical resistance windows (423ms)
+  ✓  19 [chromium] › apps/web/e2e/simulator.spec.ts:2883:1 › renders every Electro-Charged tick, ownership refresh, Aura wane, and curve state (437ms)
+  ✓  20 [chromium] › apps/web/e2e/simulator.spec.ts:3094:1 › renders Frozen creation, exact expiry, resistance, and curve state (424ms)
+  ✓  21 [chromium] › apps/web/e2e/simulator.spec.ts:3238:1 › renders Shatter trigger audit, physical damage, frozen consumption, and curve (509ms)
+  ✓  22 [chromium] › apps/web/e2e/simulator.spec.ts:3510:1 › renders deterministic particle travel, receive-time field state, and energy curves (400ms)
+  ✓  23 [chromium] › apps/web/e2e/simulator.spec.ts:3582:1 › renders the source-audited Durin black E hit, ICD, aura, energy, and damage curves (516ms)
+  ✓  24 [chromium] › apps/web/e2e/simulator.spec.ts:3739:1 › audits a scripted target miss before damage, Aura, and hit-confirmed particles (586ms)
+  ✓  25 [chromium] › apps/web/e2e/simulator.spec.ts:3888:1 › keeps landed target damage, Aura, and hit-confirm policies independent (568ms)
+  ✓  26 [chromium] › apps/web/e2e/simulator.spec.ts:4040:1 › applies half-open enemy target phases and exposes their source per hit (561ms)
+  ✓  27 [chromium] › apps/web/e2e/simulator.spec.ts:4183:1 › keeps registered enemy stats, Aura, ICD, and UI filters independent (636ms)
+  ✓  28 [chromium] › apps/web/e2e/simulator.spec.ts:4348:1 › fans one AoE hit across targets while producing hit-confirm particles once (564ms)
+  ✓  29 [chromium] › apps/web/e2e/simulator.spec.ts:4440:1 › derives circle hits from target positions and exposes geometric evidence (584ms)
+  ✓  30 [chromium] › apps/web/e2e/simulator.spec.ts:4587:1 › audits rotated rectangle intersections against circular target hitboxes (599ms)
+  ✓  31 [chromium] › apps/web/e2e/simulator.spec.ts:4740:1 › audits finite capsule side and end-cap intersections (604ms)
+  ✓  32 [chromium] › apps/web/e2e/simulator.spec.ts:4891:1 › audits filled sector arc, radial-edge, and out-of-range intersections (600ms)
+  ✓  33 [chromium] › apps/web/e2e/simulator.spec.ts:5048:1 › transforms actor-local geometry from a static source pose and audits world coordinates (582ms)
+  ✓  34 [chromium] › apps/web/e2e/simulator.spec.ts:5190:1 › interpolates target motion at each hit frame before geometry resolution (583ms)
+  ✓  35 [chromium] › apps/web/e2e/simulator.spec.ts:5341:1 › renders the source-audited Durin white E branch and state transition (488ms)
+  ✓  36 [chromium] › apps/web/e2e/simulator.spec.ts:5491:1 › imports a public UID showcase and keeps graduation data as a placeholder (589ms)
+
+  36 passed (24.8s)

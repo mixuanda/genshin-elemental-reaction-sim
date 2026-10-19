@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "sourceRevision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "scope": "13 weapons: real ordinary-team enemy-damage callbacks, shared AST stack stats, independent replay, checkpoints, and normal UI; validation delegated to parent integration gate",
+  "evidence": "fixed-source-assumed",
+  "files": [
+    {
+      "path": "internal/weapons/common/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/royal.go",
+      "sha256": "c679666b0aacd358add08fc6c48cb45c78c71e33db31c8e1c650ce065843d119",
+      "bytes": 1586
+    },
+    {
+      "path": "internal/weapons/common/goldenmajesty.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/goldenmajesty.go",
+      "sha256": "6f39046147d9c5997bb49f90704e91831ce50d0b121a79377e55ee4033f08e93",
+      "bytes": 1817
+    },
+    {
+      "path": "internal/weapons/sword/prototype/prototype.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/prototype/prototype.go",
+      "sha256": "c3e031203cd50665357bf03cdae45c17a489e8dc5789cb919c74767ad054895d",
+      "bytes": 1867
+    },
+    {
+      "path": "internal/weapons/claymore/whiteblind/whiteblind.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/whiteblind/whiteblind.go",
+      "sha256": "75eac82a7af89167cb3cd1ceef338ad99927e27df6db1910dc8cd894c8fc9b63",
+      "bytes": 1855
+    },
+    {
+      "path": "internal/weapons/spear/primordial/primordial.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/primordial/primordial.go",
+      "sha256": "d45955167faa04a88ddcbdeee9d0aa7a18c372441c3523f7b318167b846687ef",
+      "bytes": 2023
+    },
+    {
+      "path": "internal/weapons/sword/ironsting/ironsting.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/ironsting/ironsting.go",
+      "sha256": "e5f103259e4b5bfe06e1966ab14a8675df6cf16ecc102d9fdcc7861864985e0c",
+      "bytes": 1667
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "bytes": 9963
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "bytes": 3321
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "bytes": 3345
+    },
+    {
+      "path": "pkg/core/player/shield/bonus.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/bonus.go",
+      "sha256": "b1dd22330c876b9fea5fed6911986379975ac2e60603c345ff08594865105e13",
+      "bytes": 2284
+    },
+    {
+      "path": "pkg/core/player/shield/handler.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/shield/handler.go",
+      "sha256": "cb9ccbf3de255a6aa870083f10edefef5621948bf8aaf6e37565d979efbdef73",
+      "bytes": 3879
+    },
+    {
+      "path": "internal/weapons/sword/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "path": "internal/weapons/claymore/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "path": "internal/weapons/spear/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "path": "internal/weapons/catalyst/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "path": "internal/weapons/bow/royal/royal.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/royal/royal.go",
+      "sha256": "53b1efcc3a5c66821713ba9c0d40c2dfa48688008223d6b3c0c43aacbf696473",
+      "bytes": 385
+    },
+    {
+      "path": "internal/weapons/sword/summit/summit.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/summit/summit.go",
+      "sha256": "15fe03b431c55fe8b949848ad6ed763a3d66b9388f1ab1ccd8bb22572e41befa",
+      "bytes": 394
+    },
+    {
+      "path": "internal/weapons/claymore/unforged/unforged.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/claymore/unforged/unforged.go",
+      "sha256": "c50851c75a574b5992a126e103f96b1bf9fb384e91fae5e87638c060847093f0",
+      "bytes": 396
+    },
+    {
+      "path": "internal/weapons/spear/vortex/vortex.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/vortex/vortex.go",
+      "sha256": "e8b5247c9c669fb98c33c66eb2548e13a3a623bb2a5cb1ff12fac0b15d3dedb6",
+      "bytes": 394
+    },
+    {
+      "path": "internal/weapons/catalyst/memory/memory.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/memory/memory.go",
+      "sha256": "1d48300b93ee53d6ab7a3c9bb00f4aa351d0e320da09cbfa37ca8adc58acf6b4",
+      "bytes": 394
+    },
+    {
+      "path": "pkg/enemy/attack.go",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/attack.go",
+      "sha256": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+      "bytes": 7607
+    }
+  ]
+}

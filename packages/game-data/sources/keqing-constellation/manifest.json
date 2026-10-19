@@ -1,0 +1,57 @@
+{
+  "repository": "genshinsim/gcsim",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "localArchivePath": "packages/game-data/sources/keqing-constellation/source.json.gz",
+  "localArchiveSha256": "9cb8ad811199c9f27a9d2977f7dd9ee8b4fe6471b8b7557d581016228f843b98",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/keqing/asc.go": "8880bc2870628064fea9f1170edcf9396cd465064d3c1e91816ae465823527c0",
+    "internal/characters/keqing/attack.go": "281d6c7367b3413892685be21bbc2ad1e7f32bfe70a3c15a738129e1951f14b6",
+    "internal/characters/keqing/burst.go": "8002f360da1a93ceed52b83a0cd077b1895222316b306d045f57f4ce031eee4a",
+    "internal/characters/keqing/charge.go": "49f8e8bc2e661f0f4db980eed2beac145aeb6f844bc9f43182879b87984466b7",
+    "internal/characters/keqing/cons.go": "baa5a966a047dca79d1ff377246d5e467676a11765bcc2a562c09fe38a7c4dbb",
+    "internal/characters/keqing/keqing.go": "a776804f66eab0e0d0e15875dd9169d92f39742403c4f1d786e035ed09ddaf27",
+    "internal/characters/keqing/skill.go": "6b6c01f435b3ba3b40b32698f820ed19f9fcaaa0b589ce2fc4e877c8346d07fe",
+    "internal/template/character/character.go": "d57a79360c3224eeb36e1cfd39f6a48fc77039f26768d55c8419c494d3867e87",
+    "pkg/core/attack.go": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+    "pkg/core/player/character/hitlag.go": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+    "pkg/core/player/character/mods.go": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+    "pkg/core/player/character/stats.go": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+    "pkg/modifier/modifier.go": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9"
+  },
+  "sourceVerification": {
+    "method": "raw fixed-revision URL byte equality with inspected local source",
+    "checkedAt": "2026-09-23T18:23:09.655197+00:00",
+    "urlTemplate": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/{path}",
+    "filesCompared": 14,
+    "mismatches": 0
+  },
+  "classification": "source-backed-provisional; fixed implementation audit, not current game/server measurement",
+  "scope": {
+    "c4AttackPercent": 0.25,
+    "c4DurationFrames": 600,
+    "c6ElectroDamageBonusPerCategory": 0.06,
+    "c6DurationFrames": 480,
+    "c6Categories": [
+      "attack",
+      "charge",
+      "skill",
+      "burst"
+    ],
+    "burstSnapshotFrames": [
+      56,
+      82,
+      93,
+      104,
+      115,
+      126,
+      137,
+      148,
+      159,
+      197
+    ],
+    "sameCategoryPolicy": "replace modifier by key and refresh its duration; does not add another same-category stack",
+    "qOwnBurstCategoryPolicy": "synchronous burst category refresh after delayed hits are enqueued, before first delayed snapshot",
+    "c4ActivationPolicy": "actor-owned subscribed reaction events; calculator must receive actual state at each snapshot; no automatic reaction-history inference in this audit"
+  }
+}

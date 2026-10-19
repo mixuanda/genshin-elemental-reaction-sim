@@ -1,0 +1,47 @@
+[WebServer] (node:21390) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:21391) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-shared-movement-state.spec.ts:73:1 › shared movement state descriptors retain timing and stamina outputs in both hosts (1.5m)
+
+
+  1) [chromium] › apps/web/e2e/source-shared-movement-state.spec.ts:73:1 › shared movement state descriptors retain timing and stamina outputs in both hosts 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#source-host-status')
+    Expected substring: "本次运行完成"
+    Received string:    "请填写队伍脚本与种子。"
+    Timeout: 90000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 90000ms
+      - waiting for locator('#source-host-status')
+        183 × locator resolved to <p role="status" aria-live="polite" id="source-host-status">请填写队伍脚本与种子。</p>
+            - unexpected value "请填写队伍脚本与种子。"
+
+
+      101 |       await page.locator('#source-host-phase-limit').fill('64');
+      102 |       await page.locator('#source-host-run').click();
+    > 103 |       await expect(page.locator('#source-host-status')).toContainText('本次运行完成', { timeout: 90_000 });
+          |                                                         ^
+      104 |       const result = await exported(page);
+      105 |       current.runs[lane] = result;
+      106 |       await writeFile(capturePath, JSON.stringify(current, null, 2) + '\n');
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-shared-movement-state.spec.ts:103:57
+
+    Error Context: test-results/source-shared-movement-sta-c6325-amina-outputs-in-both-hosts-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-shared-movement-sta-c6325-amina-outputs-in-both-hosts-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-shared-movement-sta-c6325-amina-outputs-in-both-hosts-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-shared-movement-state.spec.ts:73:1 › shared movement state descriptors retain timing and stamina outputs in both hosts 

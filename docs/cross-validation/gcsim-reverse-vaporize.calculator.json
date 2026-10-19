@@ -1,0 +1,64 @@
+{
+  "schemaVersion": "1.0.0",
+  "ruleVersion": "ordinary-trace-v1",
+  "id": "gcsim-two-character-vaporized-arrow",
+  "label": "双角色轮转中已触发反向蒸发的安柏满蓄力",
+  "scope": "single-hit",
+  "characterLevel": 1,
+  "build": {
+    "mode": "manual-final",
+    "stats": {
+      "atk": 41.9434,
+      "hp": 793.2582,
+      "def": 50.358,
+      "em": 100,
+      "critRate": 0,
+      "critDamage": 0.5
+    },
+    "source": "Fixed gcsim b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541 exact resolved panel; local automatic aura event 1"
+  },
+  "enemy": {
+    "level": 90,
+    "resistance": 0.1,
+    "defenseAdjustment": 0,
+    "defenseIgnore": 0
+  },
+  "hits": [
+    {
+      "id": "vaporized-arrow",
+      "label": "Fully-Charged Aimed Shot",
+      "kind": "ordinary",
+      "element": "pyro",
+      "terms": [
+        {
+          "stat": "atk",
+          "coefficient": 1.24
+        }
+      ],
+      "additiveBaseDamage": 0,
+      "damageBonus": 0,
+      "critEligible": true,
+      "reaction": "reverseVaporize",
+      "reactionBonus": 0,
+      "groupMultiplier": 1,
+      "sourceRefs": [
+        "gcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:amber/aimed.go"
+      ],
+      "dependencies": []
+    }
+  ],
+  "selectedHitIds": [
+    "vaporized-arrow"
+  ],
+  "assumptions": [
+    "Reaction was decided automatically in the saved two-character simulation; this single-hit document conditions on that recorded reaction.",
+    "Resolved final panel: do not add character or weapon ATK again."
+  ],
+  "dependencies": [],
+  "dataIdentity": {
+    "datasetId": "external-gcsim-v2.44.1-resolved-context",
+    "gameVersion": "unspecified-controlled-reference",
+    "releaseStatus": "unknown",
+    "evidenceStatus": "provisional"
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "schemaVersion": "source-layla-ownership-measurements-v1",
+  "date": "2026-09-30",
+  "baseHead": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "audit": "docs/validation/source-layla-ownership-audit-20260930.json",
+  "baselinePath": "docs/validation/source-layla-ownership-20260930.baseline.json",
+  "capturePath": "docs/validation/source-layla-ownership-20260930.capture.json",
+  "seed": "20260930126",
+  "config": "options iteration=1 duration=30 ignore_burst_energy=true;\nchongyun char lvl=90/90 cons=2 talent=1,1,1;\nchongyun add weapon=\"wastergreatsword\" refine=1 lvl=1/20;\nlayla char lvl=90/90 cons=0 talent=1,1,1;\nlayla add weapon=\"dullblade\" refine=1 lvl=1/20;\nkaeya char lvl=90/90 cons=0 talent=1,1,1;\nkaeya add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0.4,1;\nactive chongyun;\nchongyun skill;\nlayla skill;\nlayla burst;\nwait(180);\nkaeya skill;\nwait(300);\nlayla skill;\nwait(1000);",
+  "receipts": {
+    "typecheck": {
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 2.473
+    },
+    "classic-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.269
+    },
+    "stellar-build": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.652
+    },
+    "talent-registry": {
+      "command": [
+        "npm",
+        "run",
+        "source:talent-registry"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.114
+    },
+    "browser-baseline": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-layla-ownership.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 12.628
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 1.042
+    },
+    "browser": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-layla-ownership.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 17.24
+    },
+    "classic-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "source:build",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.294
+    },
+    "stellar-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "source:build:stellar",
+        "--",
+        "--cache-dir",
+        "/Users/evan/Library/Caches/gidps-source-host"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.639
+    },
+    "web-build-duplicate-label": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 2.757
+    },
+    "browser-stale-dist": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-layla-ownership.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 17.111
+    },
+    "web-build-final": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 3.78
+    },
+    "browser-final": {
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-layla-ownership.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 27.064
+    }
+  },
+  "nativeRunCount": 8,
+  "nativeRunBreakdown": {
+    "baseline": 2,
+    "initialPostIntegration": 2,
+    "accidentalStaleDist": 2,
+    "finalAfterSharedEventRepair": 2
+  },
+  "integrationFindings": [
+    "Initial native run exposed absent OnSkill observer support: shield hooks existed but had no event call IDs. Shared observer now includes native OnSkill and labels its actual zero-argument dispatch; enemy event argument identity checks stay unchanged.",
+    "Concurrent tiny UI edits duplicated trigger label, causing final Web typecheck to fail. Root removed the duplicate. Root prematurely launched one stale-dist browser command before inspecting this failed build, causing two redundant native executions; both failures/captures are retained and are not final verification.",
+    "Initial spec incorrectly required every E-owned hit to carry the E action origin. Removed before final checks: native trigger origin and explicit shield ownership are separate; baseline comparison retains all original origins."
+  ],
+  "lanes": [
+    {
+      "lane": "classic",
+      "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "executionArtifact": {
+        "wasmSha256": "b5e123ee3ef4dee2b96ff5388f2a7ccbdbced93e27a680a391c95ccd318aa1e1",
+        "wasmBytes": 46922059
+      },
+      "observationFrame": 1730,
+      "applicationCount": 58,
+      "totalAppliedDamage": 10062.966433464577,
+      "actionLogCount": 59,
+      "baselineComparison": {
+        "damageAndOriginsEqual": true,
+        "actionLogsEqual": true
+      },
+      "closedCasts": [
+        {
+          "id": 2,
+          "actionSequence": 3,
+          "action": "skill",
+          "contractId": "layla-skill",
+          "expectedRootAttackCount": 17,
+          "observedRootAttackCount": 17,
+          "completeCast": true,
+          "includedHitCount": 34,
+          "startedFrame": 57,
+          "totalAppliedDamage": 3707.331002241753,
+          "replayCount": 34,
+          "maxReplayDifference": 0
+        },
+        {
+          "id": 3,
+          "actionSequence": 4,
+          "action": "burst",
+          "contractId": "layla-burst",
+          "expectedRootAttackCount": 8,
+          "observedRootAttackCount": 8,
+          "completeCast": true,
+          "includedHitCount": 16,
+          "startedFrame": 100,
+          "totalAppliedDamage": 4955.532026619891,
+          "replayCount": 16,
+          "maxReplayDifference": 0
+        },
+        {
+          "id": 5,
+          "actionSequence": 8,
+          "action": "skill",
+          "contractId": "layla-skill",
+          "expectedRootAttackCount": 1,
+          "observedRootAttackCount": 1,
+          "completeCast": true,
+          "includedHitCount": 2,
+          "startedFrame": 688,
+          "totalAppliedDamage": 30.705936875520003,
+          "replayCount": 2,
+          "maxReplayDifference": 0
+        }
+      ],
+      "shield": {
+        "id": 1,
+        "birthFrame": 76,
+        "originalExpiryFrame": 796,
+        "refreshFrame": 707,
+        "finalExpiryFrame": 1427,
+        "terminalReason": "expired",
+        "hpBeforeRefresh": 2525.502969476544,
+        "hpAfterRefresh": 2525.502969476544
+      },
+      "shieldProducerCount": 38,
+      "shootingStarAttackCount": 16,
+      "qSlugProducerCount": 8,
+      "qRootAttackCount": 8,
+      "qCallbackCount": 16,
+      "qContributions": {
+        "3": 5,
+        "4": 1,
+        "0": 2
+      },
+      "kaeyaSkillTrigger": {
+        "frame": 346,
+        "branch": 0,
+        "requestedStars": 2,
+        "meaning": "Observed OnSkill trigger is blocked by the already-shooting tag (branch 0); this sample does not demonstrate positive OnSkill star accumulation."
+      },
+      "calculatorImportedCompleteE": true
+    },
+    {
+      "lane": "stellar",
+      "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+      "executionArtifact": {
+        "wasmSha256": "01d1e2f1ce51b6faf58494a9f926b71ba13e3be0b8eb7388f9a4bdc9f9997873",
+        "wasmBytes": 70965087
+      },
+      "observationFrame": 1730,
+      "applicationCount": 58,
+      "totalAppliedDamage": 10062.966433464577,
+      "actionLogCount": 59,
+      "baselineComparison": {
+        "damageAndOriginsEqual": true,
+        "actionLogsEqual": true
+      },
+      "closedCasts": [
+        {
+          "id": 2,
+          "actionSequence": 3,
+          "action": "skill",
+          "contractId": "layla-skill",
+          "expectedRootAttackCount": 17,
+          "observedRootAttackCount": 17,
+          "completeCast": true,
+          "includedHitCount": 34,
+          "startedFrame": 57,
+          "totalAppliedDamage": 3707.331002241753,
+          "replayCount": 34,
+          "maxReplayDifference": 0
+        },
+        {
+          "id": 3,
+          "actionSequence": 4,
+          "action": "burst",
+          "contractId": "layla-burst",
+          "expectedRootAttackCount": 8,
+          "observedRootAttackCount": 8,
+          "completeCast": true,
+          "includedHitCount": 16,
+          "startedFrame": 100,
+          "totalAppliedDamage": 4955.532026619891,
+          "replayCount": 16,
+          "maxReplayDifference": 0
+        },
+        {
+          "id": 5,
+          "actionSequence": 8,
+          "action": "skill",
+          "contractId": "layla-skill",
+          "expectedRootAttackCount": 1,
+          "observedRootAttackCount": 1,
+          "completeCast": true,
+          "includedHitCount": 2,
+          "startedFrame": 688,
+          "totalAppliedDamage": 30.705936875520003,
+          "replayCount": 2,
+          "maxReplayDifference": 0
+        }
+      ],
+      "shield": {
+        "id": 1,
+        "birthFrame": 76,
+        "originalExpiryFrame": 796,
+        "refreshFrame": 707,
+        "finalExpiryFrame": 1427,
+        "terminalReason": "expired",
+        "hpBeforeRefresh": 2525.502969476544,
+        "hpAfterRefresh": 2525.502969476544
+      },
+      "shieldProducerCount": 38,
+      "shootingStarAttackCount": 16,
+      "qSlugProducerCount": 8,
+      "qRootAttackCount": 8,
+      "qCallbackCount": 16,
+      "qContributions": {
+        "3": 5,
+        "4": 1,
+        "0": 2
+      },
+      "kaeyaSkillTrigger": {
+        "frame": 346,
+        "branch": 0,
+        "requestedStars": 2,
+        "meaning": "Observed OnSkill trigger is blocked by the already-shooting tag (branch 0); this sample does not demonstrate positive OnSkill star accumulation."
+      },
+      "calculatorImportedCompleteE": false
+    }
+  ],
+  "totalClosedCastCount": 6,
+  "totalSelectedReplayCount": 104,
+  "pageErrors": [],
+  "registryCounts": {
+    "directRows": 28,
+    "producerRows": 76,
+    "rawRows": 104,
+    "mergedIds": 103,
+    "canonicalCharacterActions": 101,
+    "producerPlans": 76,
+    "producerSiteDeclarations": 103,
+    "uniqueProducerSites": 96
+  },
+  "unsampledBranches": [
+    "Positive OnSkill star gain (observed Kaeya/E2 triggers were blocked while shooting).",
+    "Shield break and shooting past a broken shield; no-target retry; old shoot chain restarting accumulation on a new shield generation.",
+    "C6 tick interval; Q no-target, miss or hit-confirm-blocked branches.",
+    "Calculator export/import roundtrip and editing not newly sampled in this batch; only Classic complete E import/certificate."
+  ],
+  "unchangedDataPointers": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "scope": "Source-backed ownership, finite damage scopes and shared-core hit replay. No gameplay verification, full private-phase coverage, deterministic convergence or overall goal completion claim."
+}

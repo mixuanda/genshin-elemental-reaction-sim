@@ -1,0 +1,34 @@
+{
+  "classic": {
+    "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/build-JuB68x/source",
+    "changed": [
+      {
+        "path": "pkg/core/player/animation/animation.go",
+        "expected": "536ce5105f9cb256f52318fd527ee778ef8187814b747391d9dea62dc54cd4a0",
+        "actual": "a0e42c20c345b16d609f6c6e693b35b5dc56004f7aa8820b3c4aefce84f78349"
+      }
+    ],
+    "restoration": {
+      "reference": "/Users/evan/Library/Caches/gidps-source-host/build-ic293G/source/pkg/core/player/animation/animation.go",
+      "preservedDriftCopy": "/Users/evan/Library/Caches/gidps-source-host/121-animation-core/baseline-drift/classic/animation.go",
+      "restoredSha256": "536ce5105f9cb256f52318fd527ee778ef8187814b747391d9dea62dc54cd4a0",
+      "matchesOriginalReceipt": true
+    }
+  },
+  "stellar": {
+    "sourceDir": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-kP5bjk/source",
+    "changed": [
+      {
+        "path": "pkg/core/player/animation/animation.go",
+        "expected": "b8af6cd3b272069d4b4c3c8d275722145226ec1066b0ee330df99456fa5f477e",
+        "actual": "f818e4b8af382da284c20b9e7ea4563c3ef5eaecff562ca50b179892b645b146"
+      }
+    ],
+    "restoration": {
+      "reference": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-FthxyH/source/pkg/core/player/animation/animation.go",
+      "preservedDriftCopy": "/Users/evan/Library/Caches/gidps-source-host/121-animation-core/baseline-drift/stellar/animation.go",
+      "restoredSha256": "b8af6cd3b272069d4b4c3c8d275722145226ec1066b0ee330df99456fa5f477e",
+      "matchesOriginalReceipt": true
+    }
+  }
+}

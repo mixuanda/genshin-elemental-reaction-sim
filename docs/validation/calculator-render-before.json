@@ -1,0 +1,72 @@
+{
+  "label": "before",
+  "at": "2026-09-23T17:52:10.647Z",
+  "milliseconds": 83.55620899999997,
+  "elements": 23079,
+  "htmlBytes": 4004079,
+  "hitCards": 12,
+  "expected": "10,401.2856",
+  "cpuTop": [
+    {
+      "frame": "(program) :0",
+      "ms": 97.563
+    },
+    {
+      "frame": "Y http://127.0.0.1:4173/assets/calculator-ui-BVzVsV23.js:30",
+      "ms": 24.087
+    },
+    {
+      "frame": "add http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:2",
+      "ms": 10.513
+    },
+    {
+      "frame": "y http://127.0.0.1:4173/assets/calculator-ui-BVzVsV23.js:30",
+      "ms": 4.516
+    },
+    {
+      "frame": "(idle) :0",
+      "ms": 4.17
+    },
+    {
+      "frame": " :5596",
+      "ms": 1.98
+    },
+    {
+      "frame": "$ http://127.0.0.1:4173/assets/character-calculations-dKVWvAI4.js:1",
+      "ms": 1.503
+    },
+    {
+      "frame": " http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:14",
+      "ms": 1.502
+    },
+    {
+      "frame": "querySelectorAll :0",
+      "ms": 1.501
+    },
+    {
+      "frame": "setupHitTargetInterceptor :7565",
+      "ms": 1.5
+    },
+    {
+      "frame": "ki http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:2",
+      "ms": 1.495
+    },
+    {
+      "frame": "xi http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:2",
+      "ms": 1.325
+    },
+    {
+      "frame": "n http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:2",
+      "ms": 0.157
+    },
+    {
+      "frame": "Di http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:2",
+      "ms": 0.013
+    },
+    {
+      "frame": "wi http://127.0.0.1:4173/assets/index-BO7Dh6r_.js:2",
+      "ms": 0.012
+    }
+  ],
+  "note": "Single instrumented interaction. CPU profiler enabled; not a repeated benchmark."
+}

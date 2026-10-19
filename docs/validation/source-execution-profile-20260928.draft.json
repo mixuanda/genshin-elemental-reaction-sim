@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "name": "我的来源队伍",
+  "members": [
+    {
+      "id": "noelle",
+      "characterKey": "noelle",
+      "level": 90,
+      "levelCap": 90,
+      "constellation": 0,
+      "talents": {
+        "auto": 8,
+        "skill": 8,
+        "burst": 8
+      },
+      "weapon": {
+        "key": "prototypearchaic",
+        "level": 90,
+        "levelCap": 90,
+        "refinement": 1
+      },
+      "artifactSets": [
+        {
+          "key": "gladiatorsfinale",
+          "count": 5
+        }
+      ],
+      "artifactStats": {
+        "hp": 3967,
+        "cr": 0.5224,
+        "cd": 0.645,
+        "atk%": 0.7950999999999999,
+        "er": 0.38860000000000006,
+        "atk": 258,
+        "hp%": 0.1049,
+        "geo%": 0.387
+      }
+    }
+  ],
+  "actions": [
+    {
+      "actorId": "noelle",
+      "kind": "attack",
+      "repeat": 1
+    }
+  ],
+  "durationSeconds": 30,
+  "executionProfile": {
+    "version": "source-action-delay-v1",
+    "mode": "custom",
+    "delays": {
+      "swap": 8,
+      "attack": 12,
+      "charge": 5,
+      "skill": 5,
+      "burst": 5,
+      "jump": 5,
+      "dash": 5,
+      "aim_delay": 5
+    }
+  },
+  "target": {
+    "level": 90,
+    "resistance": 0.1
+  },
+  "source": {
+    "hostVariant": "classic",
+    "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541"
+  }
+}

@@ -1,0 +1,440 @@
+{
+  "rows": [
+    {
+      "variant": "stellar",
+      "scenario": "zero",
+      "seed": "1",
+      "startupState": {
+        "mode": "zero",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": 0,
+            "energy": 0,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 0,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        }
+      ],
+      "elapsedMs": 33.200000047683716,
+      "wasm": {
+        "wasmSha256": "d449be21b8640b036878649200897e7a4f770dbddf48b931295c97fb23f23a1f",
+        "wasmBytes": 61580559
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "full",
+      "seed": "1",
+      "startupState": {
+        "mode": "full",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": null,
+            "energy": 60,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 3,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 821.3520391992001,
+          "dps": 410.67601959960007,
+          "acceptedQ": 1,
+          "insufficientEnergyQ": 0
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 406.15858338400443,
+          "dps": 203.07929169200222,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 0
+        }
+      ],
+      "elapsedMs": 33.10000002384186,
+      "wasm": {
+        "wasmSha256": "d449be21b8640b036878649200897e7a4f770dbddf48b931295c97fb23f23a1f",
+        "wasmBytes": 61580559
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "zero",
+      "seed": "2",
+      "startupState": {
+        "mode": "zero",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": 0,
+            "energy": 0,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 0,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        }
+      ],
+      "elapsedMs": 5.700000047683716,
+      "wasm": {
+        "wasmSha256": "d449be21b8640b036878649200897e7a4f770dbddf48b931295c97fb23f23a1f",
+        "wasmBytes": 61580559
+      }
+    },
+    {
+      "variant": "stellar",
+      "scenario": "full",
+      "seed": "2",
+      "startupState": {
+        "mode": "full",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": null,
+            "energy": 60,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 3,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 1560.5688744784802,
+          "dps": 780.2844372392402,
+          "acceptedQ": 1,
+          "insufficientEnergyQ": 0
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 771.7013084296084,
+          "dps": 385.8506542148042,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 0
+        }
+      ],
+      "elapsedMs": 12,
+      "wasm": {
+        "wasmSha256": "d449be21b8640b036878649200897e7a4f770dbddf48b931295c97fb23f23a1f",
+        "wasmBytes": 61580559
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "zero",
+      "seed": "1",
+      "startupState": {
+        "mode": "zero",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": 0,
+            "energy": 0,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 0,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        }
+      ],
+      "elapsedMs": 25.5,
+      "wasm": {
+        "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+        "wasmBytes": 41966295
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "full",
+      "seed": "1",
+      "startupState": {
+        "mode": "full",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": null,
+            "energy": 60,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 3,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 821.3520391992001,
+          "dps": 410.67601959960007,
+          "acceptedQ": 1,
+          "insufficientEnergyQ": 0
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 406.15858338400443,
+          "dps": 203.07929169200222,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 0
+        }
+      ],
+      "elapsedMs": 29.600000023841858,
+      "wasm": {
+        "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+        "wasmBytes": 41966295
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "custom",
+      "seed": "1",
+      "startupState": {
+        "mode": "custom",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": 1000,
+            "energy": 60,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 3,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 821.3520391992001,
+          "dps": 410.67601959960007,
+          "acceptedQ": 1,
+          "insufficientEnergyQ": 0
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 406.15858338400443,
+          "dps": 203.07929169200222,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 0
+        }
+      ],
+      "elapsedMs": 14,
+      "wasm": {
+        "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+        "wasmBytes": 41966295
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "zero",
+      "seed": "2",
+      "startupState": {
+        "mode": "zero",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": 0,
+            "energy": 0,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 0,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 0,
+          "dps": 0.0,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 120
+        }
+      ],
+      "elapsedMs": 4.200000047683716,
+      "wasm": {
+        "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+        "wasmBytes": 41966295
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "full",
+      "seed": "2",
+      "startupState": {
+        "mode": "full",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": null,
+            "energy": 60,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 3,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 1560.5688744784802,
+          "dps": 780.2844372392402,
+          "acceptedQ": 1,
+          "insufficientEnergyQ": 0
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 771.7013084296084,
+          "dps": 385.8506542148042,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 0
+        }
+      ],
+      "elapsedMs": 12,
+      "wasm": {
+        "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+        "wasmBytes": 41966295
+      }
+    },
+    {
+      "variant": "classic",
+      "scenario": "custom",
+      "seed": "2",
+      "startupState": {
+        "mode": "custom",
+        "actors": [
+          {
+            "actorIndex": 0,
+            "actorKey": "noelle",
+            "requestedEnergy": 1000,
+            "energy": 60,
+            "maxEnergy": 60
+          }
+        ]
+      },
+      "applications": 3,
+      "windows": [
+        {
+          "startFrame": 1,
+          "endFrame": 121,
+          "damage": 1560.5688744784802,
+          "dps": 780.2844372392402,
+          "acceptedQ": 1,
+          "insufficientEnergyQ": 0
+        },
+        {
+          "startFrame": 121,
+          "endFrame": 241,
+          "damage": 771.7013084296084,
+          "dps": 385.8506542148042,
+          "acceptedQ": 0,
+          "insufficientEnergyQ": 0
+        }
+      ],
+      "elapsedMs": 11.899999976158142,
+      "wasm": {
+        "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+        "wasmBytes": 41966295
+      }
+    }
+  ],
+  "reexecutionReceipt": {
+    "schemaVersion": "source-host-complete-reexecution-v1",
+    "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "wasmSha256": "c3b46cd940798beda2bc17fed601979da3a6ef1c4729385b055418d35176f681",
+    "checkedFields": [
+      "calculations",
+      "applications",
+      "playerApplications",
+      "result",
+      "logs",
+      "capabilities"
+    ],
+    "counts": {
+      "calculations": 3,
+      "applications": 3,
+      "playerApplications": 0,
+      "logEvents": 89
+    }
+  },
+  "captureInitialEnergy": {
+    "mode": "full"
+  },
+  "captureDamage": 344.9678564636641,
+  "inputFiles": [
+    "docs/validation/source-startup-sensitivity-20260928.result.json"
+  ]
+}

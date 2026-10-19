@@ -1,0 +1,227 @@
+{
+  "schemaVersion": "er-independent-failure-measurements-v1",
+  "batch": 120,
+  "date": "2026-09-30",
+  "status": "implemented-two-sufficient-proof-classes",
+  "baselineCommit": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "checks": [
+    {
+      "name": "core",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/er-independent-failure.test.ts",
+        "packages/sim-core/src/__tests__/energy-analysis-dynamic.test.ts"
+      ],
+      "elapsedSeconds": 2.43,
+      "exitCode": 1,
+      "log": "docs/validation/logs/er-independent-120-core.txt"
+    },
+    {
+      "name": "core-repair",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/sim-core/src/__tests__/er-independent-failure.test.ts",
+        "-t",
+        "all-success|strict stamina"
+      ],
+      "elapsedSeconds": 1.68,
+      "exitCode": 0,
+      "log": "docs/validation/logs/er-independent-120-core-repair.txt"
+    },
+    {
+      "name": "typecheck",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "elapsedSeconds": 2.815,
+      "exitCode": 0,
+      "log": "docs/validation/logs/er-independent-120-typecheck.txt"
+    },
+    {
+      "name": "web",
+      "command": [
+        "npm",
+        "run",
+        "build",
+        "--workspace",
+        "@genshin-dps-lab/web"
+      ],
+      "elapsedSeconds": 1.144,
+      "exitCode": 0,
+      "log": "docs/validation/logs/er-independent-120-web.txt"
+    },
+    {
+      "name": "browser",
+      "command": [
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/er-independent-failure.spec.ts",
+        "--workers=1",
+        "--retries=0"
+      ],
+      "environment": {
+        "GIDPS_PREBUILT": "1"
+      },
+      "elapsedSeconds": 3.874,
+      "exitCode": 0,
+      "log": "docs/validation/logs/er-independent-120-browser.txt"
+    }
+  ],
+  "uniqueCoreTests": 4,
+  "initialCorePassed": 2,
+  "initialCoreFailed": 2,
+  "repairTestsPassed": 2,
+  "initialFailureCause": "New synthetic fixtures omitted the existing positive runtime cooldown and all-ability explicit stamina requirements; corrected fixture inputs only.",
+  "browserCases": 1,
+  "browserAttempts": 1,
+  "browserRunnerSeconds": 3.5,
+  "browserCaseSeconds": 1.7,
+  "webViteSeconds": 0.947,
+  "browserResult": "docs/validation/er-independent-failure-browser-20260930.result.json",
+  "browserErResult": {
+    "status": "er-independent-failure",
+    "method": "exhaustive-finite-grid-no-monotonicity-assumption",
+    "minimumFeasibleEr": null,
+    "recommendedEr": null,
+    "safetyMargin": 0,
+    "evaluated": [
+      {
+        "energyRecharge": 1,
+        "feasible": false,
+        "failedCommandIndices": [
+          1
+        ],
+        "failureCodes": [
+          "INSUFFICIENT_ENERGY"
+        ],
+        "totalDamage": 427.5,
+        "reproducibilityKey": "gdl-v2-fnv1a32-76943707",
+        "energyEvidence": {
+          "requestedCostCommandIndices": [
+            1
+          ],
+          "executedCostCommandIndices": [],
+          "spawnedParticleEvents": 1,
+          "receivedParticleRawEnergy": 3,
+          "fixedEnergyRequested": 0
+        }
+      },
+      {
+        "energyRecharge": 2,
+        "feasible": false,
+        "failedCommandIndices": [
+          1
+        ],
+        "failureCodes": [
+          "INSUFFICIENT_ENERGY"
+        ],
+        "totalDamage": 427.5,
+        "reproducibilityKey": "gdl-v2-fnv1a32-9965dee2",
+        "energyEvidence": {
+          "requestedCostCommandIndices": [
+            1
+          ],
+          "executedCostCommandIndices": [],
+          "spawnedParticleEvents": 1,
+          "receivedParticleRawEnergy": 3,
+          "fixedEnergyRequested": 0
+        }
+      }
+    ],
+    "observedGridMonotonicity": "monotone",
+    "scenario": {
+      "actorId": "a",
+      "minimumEr": 1,
+      "maximumEr": 2,
+      "step": 1,
+      "seed": "test-seed",
+      "durationSeconds": 2,
+      "startupEnergy": "configured"
+    },
+    "limitations": [
+      "无解结论依据附带的不变量证明；实际候选仍只覆盖给定窗口、种子和离散网格，不证明无限循环或随机失败概率。",
+      "不会同时优化其他词条、动作或充能来源；安全裕量目标必须经实际模拟验证。"
+    ],
+    "reasons": [
+      "第 2 条动作需要 61 能量，超过角色容量 60。初能和所有回能均受容量上限约束；提高充能效率无法使此动作可用。"
+    ],
+    "independentFailureProof": {
+      "kind": "cost-exceeds-capacity",
+      "commandIndex": 1,
+      "actorId": "a",
+      "abilityId": "q",
+      "energyCost": 61,
+      "energyMax": 60,
+      "comparisonEpsilon": 1e-09,
+      "formula": "E_available ≤ E_max < C − ε ⇒ C > E_available + ε",
+      "variables": {
+        "E_available": "扣除已预留能量后的可用能量",
+        "E_max": "角色固定能量容量（按执行器保留 12 位小数）",
+        "C": "该动作实际耗能（同一精度）",
+        "ε": "执行器允许的能量比较误差"
+      },
+      "substitution": "实际失败时 E_available = 60；容量 E_max = 60；C = 61 > 60 + 1e-9 = 60.000000001。",
+      "explanation": "第 2 条动作需要 61 能量，超过角色容量 60。初能和所有回能均受容量上限约束；提高充能效率无法使此动作可用。",
+      "assumptions": [
+        "仅修改该角色充能效率；角色容量、动作耗能和完整轮转保持不变。",
+        "依据本地执行器的实际能量拒绝与容量约束；不把合成输入视为游戏数值验证。"
+      ],
+      "evidence": {
+        "energyRecharge": 1,
+        "reproducibilityKey": "gdl-v2-fnv1a32-76943707",
+        "failure": {
+          "time": 0.03333333333333333,
+          "frame": 2,
+          "actorId": "a",
+          "actionId": "q#1",
+          "action": "超出容量的合成耗能",
+          "reason": "能量不足 60/61",
+          "reasonCode": "INSUFFICIENT_ENERGY",
+          "energyBefore": 60,
+          "energyCost": 61,
+          "cycle": 0,
+          "timelineCommandIndex": 1,
+          "sourceAbilityId": "q"
+        }
+      }
+    }
+  },
+  "pageErrors": [],
+  "proofScope": [
+    "Observed fixed command cost exceeds fixed capacity using shared execution precision.",
+    "All-energy-success strict timeline remains illegal without dynamic cooldown or Stellar Swirl feedback."
+  ],
+  "notProved": [
+    "Completeness for every ER-independent failure.",
+    "Game verification of synthetic values.",
+    "Fixed-source native ER solving.",
+    "General deterministic or stochastic steady state."
+  ],
+  "unchangedDataPointers": {
+    "packages/game-data/manifests/pointers.json": {
+      "bytes": 955,
+      "sha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+      "matchesBatch119": true
+    },
+    "packages/game-data/manifests/runtime/current.ts": {
+      "bytes": 6035,
+      "sha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+      "matchesBatch119": true
+    }
+  },
+  "checksNotRun": [
+    "full unit suite",
+    "character matrix",
+    "performance suite",
+    "Go/WASM builds",
+    "data refresh",
+    "remote CI"
+  ]
+}

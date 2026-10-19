@@ -1,0 +1,41 @@
+[
+  {
+    "id": "npm-latest",
+    "url": "https://registry.npmjs.org/genshin-db/latest",
+    "retrievedAt": "2026-09-22T14:45:17.964895+00:00",
+    "sha256": "648c1e5786069473626645fe40074f646d18edbeb1b0499ca7ced1f8754be159",
+    "metadata": {
+      "name": "genshin-db",
+      "version": "5.2.14",
+      "gitHead": "d158715a69615c9730d060fbf4bc2c75cc48166e",
+      "dist": {
+        "shasum": "b2a379653f4430a6743f1062a479c82e6d34a23d",
+        "tarball": "https://registry.npmjs.org/genshin-db/-/genshin-db-5.2.14.tgz",
+        "fileCount": 50,
+        "integrity": "sha512-ynW5TYaEKJJOCUghETzv0CAe3OPUgtoKMWHxnpca9zyyrPmzEsYg4ATbplbdAh3ED0cc4fwLm83HxMquCGKX6w==",
+        "signatures": [
+          {
+            "sig": "MEYCIQCbhnxk3SsbdfAQIJj9ygzi4CxDesI+InI4CGwgLkkS6QIhANTnCXrYR6HJ5IsEfYrZFHAEYGsxy98WAU6K3n7BO25v",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          },
+          {
+            "sig": "MEUCIQCDZUpogHo+xzr3Q38MgfGwToyU2VU9BRycNS1UtysqAwIgJvCRUFUNcXaHpBX8tkab3Ymr7lpWVz7LxCK1V1XpT2U=",
+            "keyid": "SHA256:DhQ8wR5APBvFHLF/+Tc+AYvPOdTpcIDqOhxsBHRwC7U"
+          }
+        ],
+        "unpackedSize": 186776763
+      }
+    }
+  },
+  {
+    "id": "github-latest",
+    "url": "https://api.github.com/repos/theBowja/genshin-db/commits?per_page=1",
+    "retrievedAt": "2026-09-22T14:45:18.779092+00:00",
+    "sha256": "3fa8b0b0616982950cd038972dad3d552b97d51489071abcf2dfa88c588394d8",
+    "metadata": {
+      "sha": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "date": "2026-09-21T20:39:46Z",
+      "message": "7.1 assemble"
+    }
+  }
+]

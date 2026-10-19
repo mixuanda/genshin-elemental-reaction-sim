@@ -1,0 +1,33 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ × packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts > actual deterministic stateful weapon checkpoints > establishes all four live state machines, retains boundary snapshots and distinguishes unfinished Flute notes 131ms
+   → expected 1800 to be 1880 // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts > actual deterministic stateful weapon checkpoints > establishes all four live state machines, retains boundary snapshots and distinguishes unfinished Flute notes
+AssertionError: expected 1800 to be 1880 // Object.is equality
+
+- Expected
++ Received
+
+- 1880
++ 1800
+
+ ❯ packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts:70:45
+     68|     expect(result.steadyState!.periodCycles).toBe(1);
+     69|     expect(result.result!.damageEvents.some(event => event.reaction ==…
+     70|     expect(result.measurement!.totalDamage).toBe(1880);
+       |                                             ^
+     71|     expect(result.steadyState!.steadyStateDps).toBe(58.75);
+     72|     const points = result.result!.executionAudit!.phaseCheckpoints;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  11:37:05
+   Duration  1.00s (transform 632ms, setup 0ms, import 815ms, tests 131ms, environment 0ms)
+

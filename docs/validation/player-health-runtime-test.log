@@ -1,0 +1,64 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts (3 tests | 3 failed) 22ms
+     × executes delayed healing, bonuses, overheal and nonlethal current/max/fixed consumption through AST 19ms
+     × orders same-frame active/party healing and Burning self damage on one HP timeline 2ms
+     × rejects malformed/old or forged health state, and failed actions never enqueue healing 1ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > executes delayed healing, bonuses, overheal and nonlethal current/max/fixed consumption through AST
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: must include compatibility target "enemy-0" because hits without targeting resolve to it
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33543:11
+    33541|   if (!parsed.success) {
+    33542|     const issues = formatZodError(parsed.error);
+    33543|     throw new ConfigMigrationError(
+       |           ^
+    33544|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33545|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34964:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18038:18
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:38:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > orders same-frame active/party healing and Burning self damage on one HP timeline
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: must include compatibility target "enemy-0" because hits without targeting resolve to it
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33543:11
+    33541|   if (!parsed.success) {
+    33542|     const issues = formatZodError(parsed.error);
+    33543|     throw new ConfigMigrationError(
+       |           ^
+    33544|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33545|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34964:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18038:18
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:62:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > rejects malformed/old or forged health state, and failed actions never enqueue healing
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: must include compatibility target "enemy-0" because hits without targeting resolve to it
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33543:11
+    33541|   if (!parsed.success) {
+    33542|     const issues = formatZodError(parsed.error);
+    33543|     throw new ConfigMigrationError(
+       |           ^
+    33544|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33545|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:34964:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18038:18
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:79:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  02:29:22
+   Duration  862ms (transform 595ms, setup 0ms, import 761ms, tests 22ms, environment 0ms)
+

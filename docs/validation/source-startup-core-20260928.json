@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "apps/web/src/source-host-startup-analysis.test.ts",
+    "packages/sim-core/src/__tests__/source-host-reexecution.test.ts",
+    "-t",
+    "pairs exact|preserves an explicit"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 2.269,
+  "log": "docs/validation/source-startup-core-20260928.log"
+}

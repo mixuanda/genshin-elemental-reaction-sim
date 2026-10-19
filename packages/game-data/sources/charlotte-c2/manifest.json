@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "status": "source-backed-provisional",
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "recordedAt": "2026-09-23T23:18:19.170218+00:00",
+  "localArchivePath": "packages/game-data/sources/charlotte-c2/source.json.gz",
+  "localArchiveSha256": "7c154431a94e02d9bfd83da5347c49935c93e8e8bcaff1a41c9a337db84cac2e",
+  "sourceSha256": {
+    "LICENSE": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+    "internal/characters/charlotte/cons.go": "afd3b510dfd72c703934054be2bb636cf7a4747b80928e2628dac4385e64446a",
+    "internal/characters/charlotte/skill.go": "90ed9a4aab8df8dafef7c69420858c5bdc36f6920efbd40a8f5c065de2b47907",
+    "internal/characters/charlotte/charlotte.go": "bdda71953c7fc302e6cc12fb01ba7baed55c93494486a800da2362483c2311e8",
+    "pkg/core/attack.go": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+    "pkg/enemy/attack.go": "27eae5912f201eb509bded28ed204e62d880b30c909059bf68f52d1ffd1ed01b",
+    "pkg/core/player/character/stats.go": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+    "pkg/core/player/character/mods.go": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+    "pkg/core/player/character/basestat.go": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+    "pkg/core/player/character/hitlag.go": "6b6ee9bc80b3429c5ace559ae1ece904b0a312d9c9dc66c5e64459b185e7e0b7",
+    "pkg/core/attributes/stats.go": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+    "pkg/modifier/modifier.go": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+    "pkg/core/info/convert.go": "8a0e0468fb398c735017bd6345041eeb3af1a24946010733d8d62283a484c885"
+  },
+  "previousArchivePath": "packages/game-data/sources/collei-charlotte-skills/source.json.gz",
+  "previousArchiveSha256": "58bef8853affb1cbf2b8bf1f18c5e64a10a97f15683f2d1d39b4c4d92a7d4f8e",
+  "optimizerRevision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "optimizerSources": [
+    {
+      "path": "libs/gi/sheets/src/Characters/Charlotte/index.tsx",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/libs/gi/sheets/src/Characters/Charlotte/index.tsx",
+      "sha256": "f7c37a71458148ad0ccd545c7fcc58ad276ffe7d52748b27da47348a30847d43"
+    },
+    {
+      "path": "libs/gi/stats/Data/Characters/Charlotte/skillParam.json",
+      "archivedPath": "packages/game-data/sources/collei-charlotte-skills/raw/optimizer/libs/gi/stats/Data/Characters/Charlotte/skillParam.json",
+      "sha256": "ade3ebdf1dc796c462f953f892959d2662f1d4322a4285bc596d4032803329ff"
+    }
+  ],
+  "c2AtkPercentByStacks": [
+    0,
+    0.1,
+    0.2,
+    0.3
+  ],
+  "c2NominalDurationFrames": 720,
+  "statExpiryComparison": "expiry <= frame means no stat contribution; StatusIsActive has a different boundary",
+  "scope": "Charlotte C2-C5 E: each selected hit requires its actual C2 stacks and common-panel included stacks. Differing stacks require explicit base ATK; equal stacks cancel without needing unknown base ATK. No automatic C2 refresh or expiry simulation. C6 remains blocked."
+}

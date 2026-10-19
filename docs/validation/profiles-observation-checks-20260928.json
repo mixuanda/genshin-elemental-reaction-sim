@@ -1,0 +1,53 @@
+[
+  {
+    "name": "profiles-observation-core-20260928",
+    "command": [
+      "./node_modules/.bin/vitest",
+      "run",
+      "apps/web/src/source-host-observation-policy.test.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 1.486
+  },
+  {
+    "name": "profiles-observation-build-20260928",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 1,
+    "wallSeconds": 2.59
+  },
+  {
+    "name": "profiles-observation-build-20260928.retry1",
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 3.468
+  },
+  {
+    "name": "profiles-observation-browser-20260928",
+    "command": [
+      "./node_modules/.bin/playwright",
+      "test",
+      "apps/web/e2e/source-execution-profile.spec.ts",
+      "apps/web/e2e/source-observation-windows.spec.ts"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 2.245
+  },
+  {
+    "name": "profiles-observation-final-diff-20260928",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exitCode": 0,
+    "wallSeconds": 0.074
+  }
+]

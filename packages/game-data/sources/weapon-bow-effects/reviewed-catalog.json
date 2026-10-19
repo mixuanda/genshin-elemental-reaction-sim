@@ -1,0 +1,1628 @@
+[
+  {
+    "id": "weapon:15101",
+    "slug": "huntersbow",
+    "name": "猎弓",
+    "supported": false,
+    "blocker": "来源确认没有武器被动；基础面板仍可计算，不计入被动执行覆盖。",
+    "refinements": [],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/huntersbow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/huntersbow/hunter.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/common.go"
+    ]
+  },
+  {
+    "id": "weapon:15201",
+    "slug": "seasonedhuntersbow",
+    "name": "历练的猎弓",
+    "supported": false,
+    "blocker": "来源确认没有武器被动；基础面板仍可计算，不计入被动执行覆盖。",
+    "refinements": [],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/seasonedhuntersbow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/seasonedhuntersbow/seaonedhuntersbow.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/common.go"
+    ]
+  },
+  {
+    "id": "weapon:15302",
+    "slug": "sharpshootersoath",
+    "name": "神射手之誓",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "针对要害造成的伤害提升24%。",
+        "values": [
+          "24%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "针对要害造成的伤害提升30%。",
+        "values": [
+          "30%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "针对要害造成的伤害提升36%。",
+        "values": [
+          "36%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "针对要害造成的伤害提升42%。",
+        "values": [
+          "42%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "针对要害造成的伤害提升48%。",
+        "values": [
+          "48%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sharpshootersoath.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sharpshooter/sharpshooter.go"
+    ]
+  },
+  {
+    "id": "weapon:15303",
+    "slug": "recurvebow",
+    "name": "反曲弓",
+    "supported": false,
+    "blocker": "击败敌人的比例恢复生命需要击杀和生命恢复事件，不是静态输出属性。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "击败敌人时，恢复8%生命值。",
+        "values": [
+          "8%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "击败敌人时，恢复10%生命值。",
+        "values": [
+          "10%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "击败敌人时，恢复12%生命值。",
+        "values": [
+          "12%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "击败敌人时，恢复14%生命值。",
+        "values": [
+          "14%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "击败敌人时，恢复16%生命值。",
+        "values": [
+          "16%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/recurvebow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/recurve/recurve.go"
+    ]
+  },
+  {
+    "id": "weapon:15305",
+    "slug": "messenger",
+    "name": "信使",
+    "supported": false,
+    "blocker": "重击要害后的独立必暴物理攻击需要额外伤害事件和10秒冷却，不能改成攻击力或当前重击倍率。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "重击若命中要害，则额外造成100%攻击力的伤害，该伤害必定暴击。此效果每10秒只能触发一次。",
+        "values": [
+          "100%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "重击若命中要害，则额外造成125%攻击力的伤害，该伤害必定暴击。此效果每10秒只能触发一次。",
+        "values": [
+          "125%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "重击若命中要害，则额外造成150%攻击力的伤害，该伤害必定暴击。此效果每10秒只能触发一次。",
+        "values": [
+          "150%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "重击若命中要害，则额外造成175%攻击力的伤害，该伤害必定暴击。此效果每10秒只能触发一次。",
+        "values": [
+          "175%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "重击若命中要害，则额外造成200%攻击力的伤害，该伤害必定暴击。此效果每10秒只能触发一次。",
+        "values": [
+          "200%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/messenger.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/messenger/messenger.go"
+    ]
+  },
+  {
+    "id": "weapon:15401",
+    "slug": "favoniuswarbow",
+    "name": "西风猎弓",
+    "supported": false,
+    "blocker": "暴击概率触发无色粒子与精炼冷却需要粒子及角色接收者事件，不能改成充能效率。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "攻击造成暴击时，有60%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每12秒只能触发一次。",
+        "values": [
+          "60%",
+          "12"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "攻击造成暴击时，有70%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每10.5秒只能触发一次。",
+        "values": [
+          "70%",
+          "10.5"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "攻击造成暴击时，有80%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每9秒只能触发一次。",
+        "values": [
+          "80%",
+          "9"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "攻击造成暴击时，有90%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每7.5秒只能触发一次。",
+        "values": [
+          "90%",
+          "7.5"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "攻击造成暴击时，有100%的几率产生少量元素微粒，能为角色恢复6点元素能量。该效果每6秒只能触发一次。",
+        "values": [
+          "100%",
+          "6"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/favoniuswarbow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/favonius/favonius.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/favonius.go"
+    ]
+  },
+  {
+    "id": "weapon:15403",
+    "slug": "sacrificialbow",
+    "name": "祭礼弓",
+    "supported": false,
+    "blocker": "战技伤害概率重置技能冷却需要动作冷却事件，不是静态伤害加成。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素战技造成伤害时，有40%的概率重置该技能的冷却时间，该效果每30秒只能触发一次。",
+        "values": [
+          "40%",
+          "30"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素战技造成伤害时，有50%的概率重置该技能的冷却时间，该效果每26秒只能触发一次。",
+        "values": [
+          "50%",
+          "26"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素战技造成伤害时，有60%的概率重置该技能的冷却时间，该效果每22秒只能触发一次。",
+        "values": [
+          "60%",
+          "22"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素战技造成伤害时，有70%的概率重置该技能的冷却时间，该效果每19秒只能触发一次。",
+        "values": [
+          "70%",
+          "19"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素战技造成伤害时，有80%的概率重置该技能的冷却时间，该效果每16秒只能触发一次。",
+        "values": [
+          "80%",
+          "16"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sacrificialbow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sacrificial/sacrificial.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/sacrificial.go"
+    ]
+  },
+  {
+    "id": "weapon:15409",
+    "slug": "theviridescenthunt",
+    "name": "苍翠猎弓",
+    "supported": false,
+    "blocker": "风之眼的牵引、0.5秒重复物理伤害和触发冷却属于独立事件，不能追加当前普通或重击面板。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "普通攻击与重击命中时，有50%几率生成一个风之眼，持续吸引周围敌人，并对其中的敌人每0.5秒造成40%攻击的伤害。该效果持续4秒，每14秒至多触发一次。",
+        "values": [
+          "40%",
+          "14"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "普通攻击与重击命中时，有50%几率生成一个风之眼，持续吸引周围敌人，并对其中的敌人每0.5秒造成50%攻击的伤害。该效果持续4秒，每13秒至多触发一次。",
+        "values": [
+          "50%",
+          "13"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "普通攻击与重击命中时，有50%几率生成一个风之眼，持续吸引周围敌人，并对其中的敌人每0.5秒造成60%攻击的伤害。该效果持续4秒，每12秒至多触发一次。",
+        "values": [
+          "60%",
+          "12"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "普通攻击与重击命中时，有50%几率生成一个风之眼，持续吸引周围敌人，并对其中的敌人每0.5秒造成70%攻击的伤害。该效果持续4秒，每11秒至多触发一次。",
+        "values": [
+          "70%",
+          "11"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "普通攻击与重击命中时，有50%几率生成一个风之眼，持续吸引周围敌人，并对其中的敌人每0.5秒造成80%攻击的伤害。该效果持续4秒，每10秒至多触发一次。",
+        "values": [
+          "80%",
+          "10"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/theviridescenthunt.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/viridescent/viridescent.go"
+    ]
+  },
+  {
+    "id": "weapon:15410",
+    "slug": "alleyhunter",
+    "name": "暗巷猎手",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备该武器的角色处于队伍后台时，每1秒角色造成的伤害提升2%，最多通过这种方式获得20%的伤害提升；在场上超过4秒后，上述伤害提升效果每1秒会流失4%，直到降低至0%。",
+        "values": [
+          "2%",
+          "20%",
+          "4%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备该武器的角色处于队伍后台时，每1秒角色造成的伤害提升2.5%，最多通过这种方式获得25%的伤害提升；在场上超过4秒后，上述伤害提升效果每1秒会流失5%，直到降低至0%。",
+        "values": [
+          "2.5%",
+          "25%",
+          "5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备该武器的角色处于队伍后台时，每1秒角色造成的伤害提升3%，最多通过这种方式获得30%的伤害提升；在场上超过4秒后，上述伤害提升效果每1秒会流失6%，直到降低至0%。",
+        "values": [
+          "3%",
+          "30%",
+          "6%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备该武器的角色处于队伍后台时，每1秒角色造成的伤害提升3.5%，最多通过这种方式获得35%的伤害提升；在场上超过4秒后，上述伤害提升效果每1秒会流失7%，直到降低至0%。",
+        "values": [
+          "3.5%",
+          "35%",
+          "7%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备该武器的角色处于队伍后台时，每1秒角色造成的伤害提升4%，最多通过这种方式获得40%的伤害提升；在场上超过4秒后，上述伤害提升效果每1秒会流失8%，直到降低至0%。",
+        "values": [
+          "4%",
+          "40%",
+          "8%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/alleyhunter.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/alley/alley.go"
+    ]
+  },
+  {
+    "id": "weapon:15411",
+    "slug": "fadingtwilight",
+    "name": "落霞",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "具有夕暮、流霞、朝晖三种状态，分别能使造成的伤害提升6%/10%/14%。攻击命中敌人后，将转换为下一种状态，每7秒至多转换一次状态。装备该武器的角色处于队伍后台时该效果依旧能触发转换。",
+        "values": [
+          "6%/10%/14%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "具有夕暮、流霞、朝晖三种状态，分别能使造成的伤害提升7.5%/12.5%/17.5%。攻击命中敌人后，将转换为下一种状态，每7秒至多转换一次状态。装备该武器的角色处于队伍后台时该效果依旧能触发转换。",
+        "values": [
+          "7.5%/12.5%/17.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "具有夕暮、流霞、朝晖三种状态，分别能使造成的伤害提升9%/15%/21%。攻击命中敌人后，将转换为下一种状态，每7秒至多转换一次状态。装备该武器的角色处于队伍后台时该效果依旧能触发转换。",
+        "values": [
+          "9%/15%/21%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "具有夕暮、流霞、朝晖三种状态，分别能使造成的伤害提升10.5%/17.5%/24.5%。攻击命中敌人后，将转换为下一种状态，每7秒至多转换一次状态。装备该武器的角色处于队伍后台时该效果依旧能触发转换。",
+        "values": [
+          "10.5%/17.5%/24.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "具有夕暮、流霞、朝晖三种状态，分别能使造成的伤害提升12%/20%/28%。攻击命中敌人后，将转换为下一种状态，每7秒至多转换一次状态。装备该武器的角色处于队伍后台时该效果依旧能触发转换。",
+        "values": [
+          "12%/20%/28%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/fadingtwilight.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/twilight/twilight.go"
+    ]
+  },
+  {
+    "id": "weapon:15412",
+    "slug": "mitternachtswaltz",
+    "name": "幽夜华尔兹",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "普通攻击命中敌人后的5秒内，元素战技造成的伤害提升20%；元素战技命中敌人后的5秒内，普通攻击造成的伤害提升20%。",
+        "values": [
+          "20%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "普通攻击命中敌人后的5秒内，元素战技造成的伤害提升25%；元素战技命中敌人后的5秒内，普通攻击造成的伤害提升25%。",
+        "values": [
+          "25%",
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "普通攻击命中敌人后的5秒内，元素战技造成的伤害提升30%；元素战技命中敌人后的5秒内，普通攻击造成的伤害提升30%。",
+        "values": [
+          "30%",
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "普通攻击命中敌人后的5秒内，元素战技造成的伤害提升35%；元素战技命中敌人后的5秒内，普通攻击造成的伤害提升35%。",
+        "values": [
+          "35%",
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "普通攻击命中敌人后的5秒内，元素战技造成的伤害提升40%；元素战技命中敌人后的5秒内，普通攻击造成的伤害提升40%。",
+        "values": [
+          "40%",
+          "40%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/mitternachtswaltz.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/mitternachtswaltz/mitternachtswaltz.go"
+    ]
+  },
+  {
+    "id": "weapon:15415",
+    "slug": "predator",
+    "name": "掠食者",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "仅在以下平台生效：\n\"PlayStation™Network\"\n对敌人造成冰元素伤害后，普通攻击与重击造成的伤害提高10%，该效果持续6秒，至多叠加2次；此外，埃洛伊装备掠食者时，攻击力提升66点。",
+        "values": []
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/predator.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/predator/predator.go"
+    ]
+  },
+  {
+    "id": "weapon:15417",
+    "slug": "kingssquire",
+    "name": "王下近侍",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "施放元素战技或元素爆发时，将获得「森林教诲」的效果，元素精通提升60点，持续12秒。该效果将在切换角色时移除。森林教诲的持续时间结束或被移除时，将对附近一名敌人造成100%攻击力的伤害。森林教诲每20秒至多触发一次。",
+        "values": [
+          "60",
+          "100%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "施放元素战技或元素爆发时，将获得「森林教诲」的效果，元素精通提升80点，持续12秒。该效果将在切换角色时移除。森林教诲的持续时间结束或被移除时，将对附近一名敌人造成120%攻击力的伤害。森林教诲每20秒至多触发一次。",
+        "values": [
+          "80",
+          "120%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "施放元素战技或元素爆发时，将获得「森林教诲」的效果，元素精通提升100点，持续12秒。该效果将在切换角色时移除。森林教诲的持续时间结束或被移除时，将对附近一名敌人造成140%攻击力的伤害。森林教诲每20秒至多触发一次。",
+        "values": [
+          "100",
+          "140%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "施放元素战技或元素爆发时，将获得「森林教诲」的效果，元素精通提升120点，持续12秒。该效果将在切换角色时移除。森林教诲的持续时间结束或被移除时，将对附近一名敌人造成160%攻击力的伤害。森林教诲每20秒至多触发一次。",
+        "values": [
+          "120",
+          "160%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "施放元素战技或元素爆发时，将获得「森林教诲」的效果，元素精通提升140点，持续12秒。该效果将在切换角色时移除。森林教诲的持续时间结束或被移除时，将对附近一名敌人造成180%攻击力的伤害。森林教诲每20秒至多触发一次。",
+        "values": [
+          "140",
+          "180%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/kingssquire.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/kingssquire/kingssquire.go"
+    ]
+  },
+  {
+    "id": "weapon:15418",
+    "slug": "endoftheline",
+    "name": "竭泽",
+    "supported": false,
+    "blocker": "沿洄的独立范围伤害、3次消费和2秒/12秒冷却需要额外伤害事件，不能伪装flatATK。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "施放元素战技后，将触发「沿洄」效果，在攻击命中敌人时造成80%攻击力的范围伤害，该效果将在15秒或触发3次范围伤害后移除。每2秒至多通过这种方式造成一次范围伤害，每12秒至多触发一次沿洄。",
+        "values": [
+          "80%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "施放元素战技后，将触发「沿洄」效果，在攻击命中敌人时造成100%攻击力的范围伤害，该效果将在15秒或触发3次范围伤害后移除。每2秒至多通过这种方式造成一次范围伤害，每12秒至多触发一次沿洄。",
+        "values": [
+          "100%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "施放元素战技后，将触发「沿洄」效果，在攻击命中敌人时造成120%攻击力的范围伤害，该效果将在15秒或触发3次范围伤害后移除。每2秒至多通过这种方式造成一次范围伤害，每12秒至多触发一次沿洄。",
+        "values": [
+          "120%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "施放元素战技后，将触发「沿洄」效果，在攻击命中敌人时造成140%攻击力的范围伤害，该效果将在15秒或触发3次范围伤害后移除。每2秒至多通过这种方式造成一次范围伤害，每12秒至多触发一次沿洄。",
+        "values": [
+          "140%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "施放元素战技后，将触发「沿洄」效果，在攻击命中敌人时造成160%攻击力的范围伤害，该效果将在15秒或触发3次范围伤害后移除。每2秒至多通过这种方式造成一次范围伤害，每12秒至多触发一次沿洄。",
+        "values": [
+          "160%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/endoftheline.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/endoftheline/endoftheline.go"
+    ]
+  },
+  {
+    "id": "weapon:15419",
+    "slug": "ibispiercer",
+    "name": "鹮穿之喙",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "重击命中敌人后的6秒内，角色元素精通提升40点。该效果至多叠加2层，每0.5秒至多触发一次。",
+        "values": [
+          "40"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "重击命中敌人后的6秒内，角色元素精通提升50点。该效果至多叠加2层，每0.5秒至多触发一次。",
+        "values": [
+          "50"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "重击命中敌人后的6秒内，角色元素精通提升60点。该效果至多叠加2层，每0.5秒至多触发一次。",
+        "values": [
+          "60"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "重击命中敌人后的6秒内，角色元素精通提升70点。该效果至多叠加2层，每0.5秒至多触发一次。",
+        "values": [
+          "70"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "重击命中敌人后的6秒内，角色元素精通提升80点。该效果至多叠加2层，每0.5秒至多触发一次。",
+        "values": [
+          "80"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/ibispiercer.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/ibispiercer/ibispiercer.go"
+    ]
+  },
+  {
+    "id": "weapon:15424",
+    "slug": "scionoftheblazingsun",
+    "name": "烈阳之嗣",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "重击命中敌人后，会向命中的敌人降下阳炎矢，造成攻击力60%的伤害，并为受到阳炎矢伤害的敌人施加持续10秒的灼心效果。装备者的重击对处于灼心状态下的敌人造成的伤害提升28%。阳炎矢每10秒至多触发一次。",
+        "values": [
+          "60%",
+          "28%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "重击命中敌人后，会向命中的敌人降下阳炎矢，造成攻击力75%的伤害，并为受到阳炎矢伤害的敌人施加持续10秒的灼心效果。装备者的重击对处于灼心状态下的敌人造成的伤害提升35%。阳炎矢每10秒至多触发一次。",
+        "values": [
+          "75%",
+          "35%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "重击命中敌人后，会向命中的敌人降下阳炎矢，造成攻击力90%的伤害，并为受到阳炎矢伤害的敌人施加持续10秒的灼心效果。装备者的重击对处于灼心状态下的敌人造成的伤害提升42%。阳炎矢每10秒至多触发一次。",
+        "values": [
+          "90%",
+          "42%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "重击命中敌人后，会向命中的敌人降下阳炎矢，造成攻击力105%的伤害，并为受到阳炎矢伤害的敌人施加持续10秒的灼心效果。装备者的重击对处于灼心状态下的敌人造成的伤害提升49%。阳炎矢每10秒至多触发一次。",
+        "values": [
+          "105%",
+          "49%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "重击命中敌人后，会向命中的敌人降下阳炎矢，造成攻击力120%的伤害，并为受到阳炎矢伤害的敌人施加持续10秒的灼心效果。装备者的重击对处于灼心状态下的敌人造成的伤害提升56%。阳炎矢每10秒至多触发一次。",
+        "values": [
+          "120%",
+          "56%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/scionoftheblazingsun.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/scionoftheblazingsun/scionoftheblazingsun.go"
+    ]
+  },
+  {
+    "id": "weapon:15426",
+    "slug": "cloudforged",
+    "name": "筑云",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素能量减少后，装备者的元素精通提升40点。该效果持续18秒，至多叠加2层。",
+        "values": [
+          "40"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素能量减少后，装备者的元素精通提升50点。该效果持续18秒，至多叠加2层。",
+        "values": [
+          "50"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素能量减少后，装备者的元素精通提升60点。该效果持续18秒，至多叠加2层。",
+        "values": [
+          "60"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素能量减少后，装备者的元素精通提升70点。该效果持续18秒，至多叠加2层。",
+        "values": [
+          "70"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素能量减少后，装备者的元素精通提升80点。该效果持续18秒，至多叠加2层。",
+        "values": [
+          "80"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/cloudforged.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/cloudforged/cloudforged.go"
+    ]
+  },
+  {
+    "id": "weapon:15427",
+    "slug": "rangegauge",
+    "name": "测距规",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高3%攻击力与7%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "3%",
+          "7%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高4%攻击力与8.5%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "4%",
+          "8.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高5%攻击力与10%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "5%",
+          "10%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高6%攻击力与11.5%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "6%",
+          "11.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "受到治疗或进行治疗时，将赋予一枚团结标记，持续30秒，至多拥有三枚团结标记。施放元素战技或元素爆发时，将消耗所有的团结标记，产生持续10秒的「抗争」效果：每枚消耗的团结标记提高7%攻击力与13%所有元素伤害加成。每15秒至多触发一次抗争效果；角色处于队伍后台时也能获得团结标记。",
+        "values": [
+          "7%",
+          "13%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/rangegauge.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/rangegauge/rangegauge.go"
+    ]
+  },
+  {
+    "id": "weapon:15430",
+    "slug": "flowerwreathedfeathers",
+    "name": "缀花之翎",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "滑翔消耗的体力降低15%。进行瞄准射击时，每0.5秒提升重击造成的伤害6%，该效果最多叠加6层，并将在不处于瞄准状态下10秒后移除。",
+        "values": [
+          "6%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "滑翔消耗的体力降低15%。进行瞄准射击时，每0.5秒提升重击造成的伤害7.5%，该效果最多叠加6层，并将在不处于瞄准状态下10秒后移除。",
+        "values": [
+          "7.5%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "滑翔消耗的体力降低15%。进行瞄准射击时，每0.5秒提升重击造成的伤害9%，该效果最多叠加6层，并将在不处于瞄准状态下10秒后移除。",
+        "values": [
+          "9%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "滑翔消耗的体力降低15%。进行瞄准射击时，每0.5秒提升重击造成的伤害10.5%，该效果最多叠加6层，并将在不处于瞄准状态下10秒后移除。",
+        "values": [
+          "10.5%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "滑翔消耗的体力降低15%。进行瞄准射击时，每0.5秒提升重击造成的伤害12%，该效果最多叠加6层，并将在不处于瞄准状态下10秒后移除。",
+        "values": [
+          "12%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/flowerwreathedfeathers.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/flowerwreathedfeathers/flowerwreathedfeathers.go"
+    ]
+  },
+  {
+    "id": "weapon:15431",
+    "slug": "chainbreaker",
+    "name": "碎链",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "队伍中每有一名纳塔角色或与装备者元素类型不同的角色，装备者获得4.8%攻击力提升；上述角色不少于3名时，装备者的元素精通提升24点。",
+        "values": [
+          "4.8%",
+          "24"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "队伍中每有一名纳塔角色或与装备者元素类型不同的角色，装备者获得6%攻击力提升；上述角色不少于3名时，装备者的元素精通提升30点。",
+        "values": [
+          "6%",
+          "30"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "队伍中每有一名纳塔角色或与装备者元素类型不同的角色，装备者获得7.2%攻击力提升；上述角色不少于3名时，装备者的元素精通提升36点。",
+        "values": [
+          "7.2%",
+          "36"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "队伍中每有一名纳塔角色或与装备者元素类型不同的角色，装备者获得8.4%攻击力提升；上述角色不少于3名时，装备者的元素精通提升42点。",
+        "values": [
+          "8.4%",
+          "42"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "队伍中每有一名纳塔角色或与装备者元素类型不同的角色，装备者获得9.6%攻击力提升；上述角色不少于3名时，装备者的元素精通提升48点。",
+        "values": [
+          "9.6%",
+          "48"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/chainbreaker.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/chainbreaker/chainbreaker.go"
+    ]
+  },
+  {
+    "id": "weapon:15432",
+    "slug": "sequenceofsolitude",
+    "name": "冷寂迸音",
+    "supported": false,
+    "blocker": "每15秒基于生命上限造成的独立范围伤害需要专用事件，不能伪装普通伤害倍率。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "攻击命中敌人时，在目标位置基于生命值上限的40%，造成范围伤害。该效果每15秒至多触发一次。",
+        "values": [
+          "40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "攻击命中敌人时，在目标位置基于生命值上限的50%，造成范围伤害。该效果每15秒至多触发一次。",
+        "values": [
+          "50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "攻击命中敌人时，在目标位置基于生命值上限的60%，造成范围伤害。该效果每15秒至多触发一次。",
+        "values": [
+          "60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "攻击命中敌人时，在目标位置基于生命值上限的70%，造成范围伤害。该效果每15秒至多触发一次。",
+        "values": [
+          "70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "攻击命中敌人时，在目标位置基于生命值上限的80%，造成范围伤害。该效果每15秒至多触发一次。",
+        "values": [
+          "80%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/sequenceofsolitude.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go"
+    ]
+  },
+  {
+    "id": "weapon:15433",
+    "slug": "snarehook",
+    "name": "罗网勾针",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "触发元素反应后的12秒内，元素精通提升60点。月兆·满辉：该效果中的元素精通额外提升60点。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "60",
+          "60"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "触发元素反应后的12秒内，元素精通提升75点。月兆·满辉：该效果中的元素精通额外提升75点。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "75",
+          "75"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "触发元素反应后的12秒内，元素精通提升90点。月兆·满辉：该效果中的元素精通额外提升90点。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "90",
+          "90"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "触发元素反应后的12秒内，元素精通提升105点。月兆·满辉：该效果中的元素精通额外提升105点。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "105",
+          "105"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "触发元素反应后的12秒内，元素精通提升120点。月兆·满辉：该效果中的元素精通额外提升120点。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "120",
+          "120"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/snarehook.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/snarehook/snarehook.go"
+    ]
+  },
+  {
+    "id": "weapon:15434",
+    "slug": "rainbowserpentsrainbow",
+    "name": "虹蛇的雨弦",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备者处于队伍后台时，装备者的攻击命中敌人后的8秒内，攻击力提升28%。",
+        "values": [
+          "28%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备者处于队伍后台时，装备者的攻击命中敌人后的8秒内，攻击力提升35%。",
+        "values": [
+          "35%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备者处于队伍后台时，装备者的攻击命中敌人后的8秒内，攻击力提升42%。",
+        "values": [
+          "42%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备者处于队伍后台时，装备者的攻击命中敌人后的8秒内，攻击力提升49%。",
+        "values": [
+          "49%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备者处于队伍后台时，装备者的攻击命中敌人后的8秒内，攻击力提升56%。",
+        "values": [
+          "56%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/rainbowserpentsrainbow.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/rainbow/rainbow.go"
+    ]
+  },
+  {
+    "id": "weapon:15435",
+    "slug": "jadevista",
+    "name": "悬黎千钧",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "除装备者外，队伍中每有一名角色：元素类型与装备者相同：装备者的元素精通提升64点；元素类型与装备者不同：装备者的攻击力提升12%。上述两种效果总共至多叠加3层，元素类型相同的效果优先生效。",
+        "values": [
+          "64",
+          "12%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "除装备者外，队伍中每有一名角色：元素类型与装备者相同：装备者的元素精通提升80点；元素类型与装备者不同：装备者的攻击力提升15%。上述两种效果总共至多叠加3层，元素类型相同的效果优先生效。",
+        "values": [
+          "80",
+          "15%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "除装备者外，队伍中每有一名角色：元素类型与装备者相同：装备者的元素精通提升96点；元素类型与装备者不同：装备者的攻击力提升18%。上述两种效果总共至多叠加3层，元素类型相同的效果优先生效。",
+        "values": [
+          "96",
+          "18%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "除装备者外，队伍中每有一名角色：元素类型与装备者相同：装备者的元素精通提升112点；元素类型与装备者不同：装备者的攻击力提升21%。上述两种效果总共至多叠加3层，元素类型相同的效果优先生效。",
+        "values": [
+          "112",
+          "21%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "除装备者外，队伍中每有一名角色：元素类型与装备者相同：装备者的元素精通提升128点；元素类型与装备者不同：装备者的攻击力提升24%。上述两种效果总共至多叠加3层，元素类型相同的效果优先生效。",
+        "values": [
+          "128",
+          "24%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/jadevista.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/JadeVista/index.tsx"
+    ]
+  },
+  {
+    "id": "weapon:15436",
+    "slug": "covenantoffrostandsnow",
+    "name": "霜雪誓约",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备者施放元素战技后的12秒内，元素精通提升120点。",
+        "values": [
+          "120"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备者施放元素战技后的12秒内，元素精通提升150点。",
+        "values": [
+          "150"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备者施放元素战技后的12秒内，元素精通提升180点。",
+        "values": [
+          "180"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备者施放元素战技后的12秒内，元素精通提升210点。",
+        "values": [
+          "210"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备者施放元素战技后的12秒内，元素精通提升240点。",
+        "values": [
+          "240"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/covenantoffrostandsnow.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Weapons/Bow/CovenantOfFrostAndSnow/index.tsx"
+    ]
+  },
+  {
+    "id": "weapon:15437",
+    "slug": "breezebornerefrain",
+    "name": "柔风游弦",
+    "supported": false,
+    "blocker": "当前目录有恒定充能与星烁团队条款，但固定gcsim及已检索GO树缺少对应实现；仅单源文本，尚未映射执行。",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "元素充能效率提升20%。装备者的元素战技或元素爆发命中敌人时，获得一层「纯净者的圣咏」，该效果至多叠加3层，每0.03秒至多获得一层。叠加至3层时，将清除所有「纯净者的圣咏」，获得「蛇信的死毒」：使队伍中附近的所有角色造成的星烁反应伤害提升24%，持续12秒，期间无法再次获得「纯净者的圣咏」。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "20%",
+          "24%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "元素充能效率提升25%。装备者的元素战技或元素爆发命中敌人时，获得一层「纯净者的圣咏」，该效果至多叠加3层，每0.03秒至多获得一层。叠加至3层时，将清除所有「纯净者的圣咏」，获得「蛇信的死毒」：使队伍中附近的所有角色造成的星烁反应伤害提升30%，持续12秒，期间无法再次获得「纯净者的圣咏」。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "25%",
+          "30%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "元素充能效率提升30%。装备者的元素战技或元素爆发命中敌人时，获得一层「纯净者的圣咏」，该效果至多叠加3层，每0.03秒至多获得一层。叠加至3层时，将清除所有「纯净者的圣咏」，获得「蛇信的死毒」：使队伍中附近的所有角色造成的星烁反应伤害提升36%，持续12秒，期间无法再次获得「纯净者的圣咏」。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "30%",
+          "36%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "元素充能效率提升35%。装备者的元素战技或元素爆发命中敌人时，获得一层「纯净者的圣咏」，该效果至多叠加3层，每0.03秒至多获得一层。叠加至3层时，将清除所有「纯净者的圣咏」，获得「蛇信的死毒」：使队伍中附近的所有角色造成的星烁反应伤害提升42%，持续12秒，期间无法再次获得「纯净者的圣咏」。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "35%",
+          "42%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "元素充能效率提升40%。装备者的元素战技或元素爆发命中敌人时，获得一层「纯净者的圣咏」，该效果至多叠加3层，每0.03秒至多获得一层。叠加至3层时，将清除所有「纯净者的圣咏」，获得「蛇信的死毒」：使队伍中附近的所有角色造成的星烁反应伤害提升48%，持续12秒，期间无法再次获得「纯净者的圣咏」。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "40%",
+          "48%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/breezebornerefrain.json"
+    ]
+  },
+  {
+    "id": "weapon:15503",
+    "slug": "elegyfortheend",
+    "name": "终末嗟叹之诗",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "飘游风中的「千年的大乐章」的一部分。元素精通提高60点；元素战技或元素爆发命中敌人时，角色获得一枚追思之符，每0.2秒内至多触发一次，角色处于队伍后台也能触发。拥有4枚追思之符时，将消耗所有追思之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·别离之歌」效果：元素精通提高100点，攻击力提升20%。触发后20秒内，无法再次获得追思之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+        "values": [
+          "60",
+          "100",
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "飘游风中的「千年的大乐章」的一部分。元素精通提高75点；元素战技或元素爆发命中敌人时，角色获得一枚追思之符，每0.2秒内至多触发一次，角色处于队伍后台也能触发。拥有4枚追思之符时，将消耗所有追思之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·别离之歌」效果：元素精通提高125点，攻击力提升25%。触发后20秒内，无法再次获得追思之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+        "values": [
+          "75",
+          "125",
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "飘游风中的「千年的大乐章」的一部分。元素精通提高90点；元素战技或元素爆发命中敌人时，角色获得一枚追思之符，每0.2秒内至多触发一次，角色处于队伍后台也能触发。拥有4枚追思之符时，将消耗所有追思之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·别离之歌」效果：元素精通提高150点，攻击力提升30%。触发后20秒内，无法再次获得追思之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+        "values": [
+          "90",
+          "150",
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "飘游风中的「千年的大乐章」的一部分。元素精通提高105点；元素战技或元素爆发命中敌人时，角色获得一枚追思之符，每0.2秒内至多触发一次，角色处于队伍后台也能触发。拥有4枚追思之符时，将消耗所有追思之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·别离之歌」效果：元素精通提高175点，攻击力提升35%。触发后20秒内，无法再次获得追思之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+        "values": [
+          "105",
+          "175",
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "飘游风中的「千年的大乐章」的一部分。元素精通提高120点；元素战技或元素爆发命中敌人时，角色获得一枚追思之符，每0.2秒内至多触发一次，角色处于队伍后台也能触发。拥有4枚追思之符时，将消耗所有追思之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·别离之歌」效果：元素精通提高200点，攻击力提升40%。触发后20秒内，无法再次获得追思之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+        "values": [
+          "120",
+          "200",
+          "40%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/elegyfortheend.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/elegy/elegy.go",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/millennial.go"
+    ]
+  },
+  {
+    "id": "weapon:15509",
+    "slug": "thunderingpulse",
+    "name": "飞雷之弦振",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "攻击力提高20%，并能获得「飞雷之巴印」的威势。飞雷之巴印：持有1/2/3层飞雷之巴印时，普通攻击造成的伤害提高12/24/40%。在下列情况下，角色将各获得1层飞雷之巴印：普通攻击造成伤害时，持续5秒；施放元素战技时，持续10秒；此外，角色元素能量低于100%时，将获得1层飞雷之巴印，此飞雷之巴印会在角色的元素能量充满时消失。每层飞雷之巴印的持续时间独立计算。",
+        "values": [
+          "20%",
+          "12/24/40%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "攻击力提高25%，并能获得「飞雷之巴印」的威势。飞雷之巴印：持有1/2/3层飞雷之巴印时，普通攻击造成的伤害提高15/30/50%。在下列情况下，角色将各获得1层飞雷之巴印：普通攻击造成伤害时，持续5秒；施放元素战技时，持续10秒；此外，角色元素能量低于100%时，将获得1层飞雷之巴印，此飞雷之巴印会在角色的元素能量充满时消失。每层飞雷之巴印的持续时间独立计算。",
+        "values": [
+          "25%",
+          "15/30/50%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "攻击力提高30%，并能获得「飞雷之巴印」的威势。飞雷之巴印：持有1/2/3层飞雷之巴印时，普通攻击造成的伤害提高18/36/60%。在下列情况下，角色将各获得1层飞雷之巴印：普通攻击造成伤害时，持续5秒；施放元素战技时，持续10秒；此外，角色元素能量低于100%时，将获得1层飞雷之巴印，此飞雷之巴印会在角色的元素能量充满时消失。每层飞雷之巴印的持续时间独立计算。",
+        "values": [
+          "30%",
+          "18/36/60%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "攻击力提高35%，并能获得「飞雷之巴印」的威势。飞雷之巴印：持有1/2/3层飞雷之巴印时，普通攻击造成的伤害提高21/42/70%。在下列情况下，角色将各获得1层飞雷之巴印：普通攻击造成伤害时，持续5秒；施放元素战技时，持续10秒；此外，角色元素能量低于100%时，将获得1层飞雷之巴印，此飞雷之巴印会在角色的元素能量充满时消失。每层飞雷之巴印的持续时间独立计算。",
+        "values": [
+          "35%",
+          "21/42/70%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "攻击力提高40%，并能获得「飞雷之巴印」的威势。飞雷之巴印：持有1/2/3层飞雷之巴印时，普通攻击造成的伤害提高24/48/80%。在下列情况下，角色将各获得1层飞雷之巴印：普通攻击造成伤害时，持续5秒；施放元素战技时，持续10秒；此外，角色元素能量低于100%时，将获得1层飞雷之巴印，此飞雷之巴印会在角色的元素能量充满时消失。每层飞雷之巴印的持续时间独立计算。",
+        "values": [
+          "40%",
+          "24/48/80%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thunderingpulse.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/thundering/thundering.go"
+    ]
+  },
+  {
+    "id": "weapon:15511",
+    "slug": "hunterspath",
+    "name": "猎人之径",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "获得12%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的160%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+        "values": [
+          "12%",
+          "160%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "获得15%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的200%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+        "values": [
+          "15%",
+          "200%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "获得18%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的240%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+        "values": [
+          "18%",
+          "240%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "获得21%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的280%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+        "values": [
+          "21%",
+          "280%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "获得24%所有元素伤害加成。重击命中敌人后，将获得「无休止的狩猎」：重击造成的伤害值提高，提高值相当于元素精通数值的320%。该效果将在生效12次或10秒后消失，每12秒至多获得一次无休止的狩猎。",
+        "values": [
+          "24%",
+          "320%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/hunterspath.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/hunterspath/hunterspath.go"
+    ]
+  },
+  {
+    "id": "weapon:15513",
+    "slug": "silvershowerheartstrings",
+    "name": "白雨心弦",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升12%/24%/40%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升28%，该效果将在疗护不足3层4秒后移除。",
+        "values": [
+          "12%/24%/40%",
+          "28%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升15%/30%/50%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升35%，该效果将在疗护不足3层4秒后移除。",
+        "values": [
+          "15%/30%/50%",
+          "35%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升18%/36%/60%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升42%，该效果将在疗护不足3层4秒后移除。",
+        "values": [
+          "18%/36%/60%",
+          "42%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升21%/42%/70%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升49%，该效果将在疗护不足3层4秒后移除。",
+        "values": [
+          "21%/42%/70%",
+          "49%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备者能获得「疗护」效果，持有1/2/3层疗护时，生命值上限提升24%/48%/80%。在下列情况下，装备者将各获得1层疗护：施放元素战技时，持续25秒；生命之契的数值增加时，持续25秒；进行治疗时，持续20秒，装备者处于队伍后台时依然能触发。每层疗护的持续时间独立计算。此外，处于3层疗护状态下时，元素爆发的暴击率提升56%，该效果将在疗护不足3层4秒后移除。",
+        "values": [
+          "24%/48%/80%",
+          "56%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/silvershowerheartstrings.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/heartstrings/heartstrings.go"
+    ]
+  },
+  {
+    "id": "weapon:15514",
+    "slug": "astralvulturescrimsonplumage",
+    "name": "星鹫赤羽",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "触发扩散或星扩散反应后的12秒内，攻击力提高24%。此外，队伍中存在至少1/2名与装备者元素类型不同的角色时，装备者重击造成的伤害提高20%/48%，元素爆发造成的伤害提高10%/24%。",
+        "values": [
+          "24%",
+          "20%/48%",
+          "10%/24%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "触发扩散或星扩散反应后的12秒内，攻击力提高30%。此外，队伍中存在至少1/2名与装备者元素类型不同的角色时，装备者重击造成的伤害提高25%/60%，元素爆发造成的伤害提高12.5%/30%。",
+        "values": [
+          "30%",
+          "25%/60%",
+          "12.5%/30%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "触发扩散或星扩散反应后的12秒内，攻击力提高36%。此外，队伍中存在至少1/2名与装备者元素类型不同的角色时，装备者重击造成的伤害提高30%/72%，元素爆发造成的伤害提高15%/36%。",
+        "values": [
+          "36%",
+          "30%/72%",
+          "15%/36%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "触发扩散或星扩散反应后的12秒内，攻击力提高42%。此外，队伍中存在至少1/2名与装备者元素类型不同的角色时，装备者重击造成的伤害提高35%/84%，元素爆发造成的伤害提高17.5%/42%。",
+        "values": [
+          "42%",
+          "35%/84%",
+          "17.5%/42%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "触发扩散或星扩散反应后的12秒内，攻击力提高48%。此外，队伍中存在至少1/2名与装备者元素类型不同的角色时，装备者重击造成的伤害提高40%/96%，元素爆发造成的伤害提高20%/48%。",
+        "values": [
+          "48%",
+          "40%/96%",
+          "20%/48%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/astralvulturescrimsonplumage.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/astralvulturescrimsonplumage/astralvulturescrimsonplumage.go"
+    ]
+  },
+  {
+    "id": "weapon:15515",
+    "slug": "thedaybreakchronicles",
+    "name": "黎明破晓之史",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "装备者获得「渐起的晓风」：脱离战斗状态3秒后，普通攻击、元素战技和元素爆发造成的伤害提升60%。在战斗状态下，上述伤害提升效果每秒降低10%，直到降低至0%；装备者的普通攻击、元素战技或元素爆发命中敌人时，对应类别的伤害提升效果提升10%，直到提升至60%，上述每种类别的攻击每0.1秒至多触发一次该效果。装备者处于队伍后台时，依然能触发上述效果。\n此外，队伍拥有「魔导·秘仪」效果时，装备者的普通攻击、元素战技或元素爆发命中敌人时，改为使所有类别的伤害提升效果提升20%。",
+        "values": [
+          "60%",
+          "10%",
+          "10%",
+          "60%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "装备者获得「渐起的晓风」：脱离战斗状态3秒后，普通攻击、元素战技和元素爆发造成的伤害提升75%。在战斗状态下，上述伤害提升效果每秒降低12.5%，直到降低至0%；装备者的普通攻击、元素战技或元素爆发命中敌人时，对应类别的伤害提升效果提升12.5%，直到提升至75%，上述每种类别的攻击每0.1秒至多触发一次该效果。装备者处于队伍后台时，依然能触发上述效果。\n此外，队伍拥有「魔导·秘仪」效果时，装备者的普通攻击、元素战技或元素爆发命中敌人时，改为使所有类别的伤害提升效果提升25%。",
+        "values": [
+          "75%",
+          "12.5%",
+          "12.5%",
+          "75%",
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "装备者获得「渐起的晓风」：脱离战斗状态3秒后，普通攻击、元素战技和元素爆发造成的伤害提升90%。在战斗状态下，上述伤害提升效果每秒降低15%，直到降低至0%；装备者的普通攻击、元素战技或元素爆发命中敌人时，对应类别的伤害提升效果提升15%，直到提升至90%，上述每种类别的攻击每0.1秒至多触发一次该效果。装备者处于队伍后台时，依然能触发上述效果。\n此外，队伍拥有「魔导·秘仪」效果时，装备者的普通攻击、元素战技或元素爆发命中敌人时，改为使所有类别的伤害提升效果提升30%。",
+        "values": [
+          "90%",
+          "15%",
+          "15%",
+          "90%",
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "装备者获得「渐起的晓风」：脱离战斗状态3秒后，普通攻击、元素战技和元素爆发造成的伤害提升105%。在战斗状态下，上述伤害提升效果每秒降低17.5%，直到降低至0%；装备者的普通攻击、元素战技或元素爆发命中敌人时，对应类别的伤害提升效果提升17.5%，直到提升至105%，上述每种类别的攻击每0.1秒至多触发一次该效果。装备者处于队伍后台时，依然能触发上述效果。\n此外，队伍拥有「魔导·秘仪」效果时，装备者的普通攻击、元素战技或元素爆发命中敌人时，改为使所有类别的伤害提升效果提升35%。",
+        "values": [
+          "105%",
+          "17.5%",
+          "17.5%",
+          "105%",
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "装备者获得「渐起的晓风」：脱离战斗状态3秒后，普通攻击、元素战技和元素爆发造成的伤害提升120%。在战斗状态下，上述伤害提升效果每秒降低20%，直到降低至0%；装备者的普通攻击、元素战技或元素爆发命中敌人时，对应类别的伤害提升效果提升20%，直到提升至120%，上述每种类别的攻击每0.1秒至多触发一次该效果。装备者处于队伍后台时，依然能触发上述效果。\n此外，队伍拥有「魔导·秘仪」效果时，装备者的普通攻击、元素战技或元素爆发命中敌人时，改为使所有类别的伤害提升效果提升40%。",
+        "values": [
+          "120%",
+          "20%",
+          "20%",
+          "120%",
+          "40%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/thedaybreakchronicles.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/daybreakchronicles/daybreakchronicles.go"
+    ]
+  },
+  {
+    "id": "weapon:15516",
+    "slug": "goldenfrostboundoath",
+    "name": "霜结的誓金枝",
+    "supported": true,
+    "blocker": "",
+    "refinements": [
+      {
+        "rank": 1,
+        "description": "防御力提高16%。装备者的元素战技或月结晶攻击命中敌人时，将获得持续6秒的「霜妖精的报恩」效果：装备者造成的岩元素伤害提升40%，月结晶反应伤害提升40%；持续期间，若装备者附近存在月笼，则队伍中附近的所有其他角色还会获得「霜妖精的恶戏」效果：造成的岩元素伤害提升20%，月结晶反应伤害提升20%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "16%",
+          "40%",
+          "40%",
+          "20%",
+          "20%"
+        ]
+      },
+      {
+        "rank": 2,
+        "description": "防御力提高20%。装备者的元素战技或月结晶攻击命中敌人时，将获得持续6秒的「霜妖精的报恩」效果：装备者造成的岩元素伤害提升50%，月结晶反应伤害提升50%；持续期间，若装备者附近存在月笼，则队伍中附近的所有其他角色还会获得「霜妖精的恶戏」效果：造成的岩元素伤害提升25%，月结晶反应伤害提升25%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "20%",
+          "50%",
+          "50%",
+          "25%",
+          "25%"
+        ]
+      },
+      {
+        "rank": 3,
+        "description": "防御力提高24%。装备者的元素战技或月结晶攻击命中敌人时，将获得持续6秒的「霜妖精的报恩」效果：装备者造成的岩元素伤害提升60%，月结晶反应伤害提升60%；持续期间，若装备者附近存在月笼，则队伍中附近的所有其他角色还会获得「霜妖精的恶戏」效果：造成的岩元素伤害提升30%，月结晶反应伤害提升30%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "24%",
+          "60%",
+          "60%",
+          "30%",
+          "30%"
+        ]
+      },
+      {
+        "rank": 4,
+        "description": "防御力提高28%。装备者的元素战技或月结晶攻击命中敌人时，将获得持续6秒的「霜妖精的报恩」效果：装备者造成的岩元素伤害提升70%，月结晶反应伤害提升70%；持续期间，若装备者附近存在月笼，则队伍中附近的所有其他角色还会获得「霜妖精的恶戏」效果：造成的岩元素伤害提升35%，月结晶反应伤害提升35%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "28%",
+          "70%",
+          "70%",
+          "35%",
+          "35%"
+        ]
+      },
+      {
+        "rank": 5,
+        "description": "防御力提高32%。装备者的元素战技或月结晶攻击命中敌人时，将获得持续6秒的「霜妖精的报恩」效果：装备者造成的岩元素伤害提升80%，月结晶反应伤害提升80%；持续期间，若装备者附近存在月笼，则队伍中附近的所有其他角色还会获得「霜妖精的恶戏」效果：造成的岩元素伤害提升40%，月结晶反应伤害提升40%。装备者处于队伍后台时，依然能触发上述效果。",
+        "values": [
+          "32%",
+          "80%",
+          "80%",
+          "40%",
+          "40%"
+        ]
+      }
+    ],
+    "sourcePaths": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/weapons/goldenfrostboundoath.json",
+      "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/goldenfrostboundoath/goldenfrostboundoath.go"
+    ]
+  }
+]

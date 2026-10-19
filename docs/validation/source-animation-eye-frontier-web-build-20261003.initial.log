@@ -1,0 +1,10 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/source-animation-eye-frontier.spec.ts(218,17): error TS18048: 'yanfeiQ.collection' is possibly 'undefined'.
+apps/web/e2e/source-animation-eye-frontier.spec.ts(223,17): error TS18048: 'mikaQ.collection' is possibly 'undefined'.

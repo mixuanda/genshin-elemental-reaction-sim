@@ -1,0 +1,46 @@
+
+Running 1 test using 1 worker
+
+(node:13086) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/1] [chromium] › apps/web/e2e/sacrificial-runtime.spec.ts:41:1 › Sacrificial normal controls reset one serial charge, execute a third skill, and preserve actual hit replay without claiming steady state
+  1) [chromium] › apps/web/e2e/sacrificial-runtime.spec.ts:41:1 › Sacrificial normal controls reset one serial charge, execute a third skill, and preserve actual hit replay without claiming steady state 
+
+    Error: expect(locator).toContainText(expected) failed
+
+    Locator: locator('#analysis-startup-output')
+    Expected substring: "祭礼独立随机流"
+    Received string:    "当前情景不能执行此次预热。合法时间线失败：commands.5 [ABILITY_ON_COOLDOWN] \"明确合成两充能战技\" 尚未完成冷却/充能，最早可在第 1207 帧施放。预热 11 秒，实际启动行动 0 次。"
+    Timeout: 5000ms
+
+    Call log:
+      - Expect "toContainText" with timeout 5000ms
+      - waiting for locator('#analysis-startup-output')
+        14 × locator resolved to <div role="status" aria-live="polite" id="analysis-startup-output">…</div>
+           - unexpected value "当前情景不能执行此次预热。合法时间线失败：commands.5 [ABILITY_ON_COOLDOWN] "明确合成两充能战技" 尚未完成冷却/充能，最早可在第 1207 帧施放。预热 11 秒，实际启动行动 0 次。"
+
+
+      158 |   await page.locator("#analysis-steady-run").click();
+      159 |   await expect(page.locator("#analysis-steady-run")).toBeEnabled();
+    > 160 |   await expect(page.locator("#analysis-startup-output")).toContainText("祭礼独立随机流");
+          |                                                          ^
+      161 |   await expect(page.locator("#analysis-startup-output")).not.toContainText("已从完整模拟检查点建立稳态");
+      162 |   const { startup } = await downloadJson<{ startup: SimulationStartupResult }>(page, "#analysis-export");
+      163 |   expect(startup.status).not.toBe("steady-state-established");
+        at /Users/evan/Documents/gidps/apps/web/e2e/sacrificial-runtime.spec.ts:160:58
+
+    Error Context: test-results/sacrificial-runtime/sacrificial-runtime-Sacrif-bb5e9-thout-claiming-steady-state-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/sacrificial-runtime/sacrificial-runtime-Sacrif-bb5e9-thout-claiming-steady-state-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/sacrificial-runtime/sacrificial-runtime-Sacrif-bb5e9-thout-claiming-steady-state-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  1 failed
+    [chromium] › apps/web/e2e/sacrificial-runtime.spec.ts:41:1 › Sacrificial normal controls reset one serial charge, execute a third skill, and preserve actual hit replay without claiming steady state 

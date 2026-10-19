@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "source-hit-callbacks-browser-v1",
+  "measurements": {
+    "rawPath": "docs/validation/source-hit-callbacks-team-20260929.capture.json",
+    "nativeResultArchived": true
+  },
+  "pageErrors": [],
+  "scope": "One classic four-character run with two nearby targets. Closure uses actual per-target hit callback batches and audited child queues; unrelated applications remain excluded."
+}

@@ -1,0 +1,676 @@
+{
+  "schemaVersion": 1,
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "optimizerRevision": "180a0a1015cb725c7570cd828eb086749960df98",
+  "retrievedAt": "2026-09-24T06:38:36.986078+00:00",
+  "evidenceStatus": "fixed-source-provisional",
+  "archive": {
+    "path": "packages/game-data/sources/batch-complete-finite-skills/source.json.gz",
+    "bytes": 48682,
+    "sha256": "4aa66f8ba59f2675c9cf9de4d36cb3d3608bdc032c0de2aceeabdbe97025512e"
+  },
+  "files": [
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/skill.go",
+      "bytes": 11563,
+      "sha256": "d58e17efd9cb4b18851c725178aa7bccf6eee456e5cf04df2b7d5968c0b6f66d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/zz_dehya.dm.go",
+      "bytes": 4780,
+      "sha256": "4c92bfc19c6f07f48a86e67bfe8531865e16b31d12dc0fc5a378b7005e4fd8fd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/burst.go",
+      "bytes": 4839,
+      "sha256": "1629c22bd1c4d9d23dc736117abe2aa375112148c22acca32ba48a759690d4bc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/cons.go",
+      "bytes": 4391,
+      "sha256": "d60f1752472ae3e114cffa94fa98f9d1688ff6e6bec59afd2be59d66d8080a89"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/asc.go",
+      "bytes": 2749,
+      "sha256": "a0ac2d7f7b5f4456558acae42b9caa015554d7afc38489ca8887ed78d8c78f55"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/dehya/dehya.go",
+      "bytes": 2434,
+      "sha256": "ce28e25480aedc86cc2a843e1fe2873bc4356de9024862bdf6b8153b5dee9762"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diluc/zz_diluc.dm.go",
+      "bytes": 3733,
+      "sha256": "8cd30d7b621915216159292c8eb886a9e3c1137167e1aaf73c908d7fb6256e22"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diluc/skill.go",
+      "bytes": 5147,
+      "sha256": "9042183ddbf40cc0620f13a7c9b3b480cc03876e0853b1df53de390fbed07390"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diluc/diluc.go",
+      "bytes": 2094,
+      "sha256": "41583f04730b2c3b6bbb7fbeb354120b4d9c085c0ec4a5331bb1386c6bc7ef0b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diluc/burst.go",
+      "bytes": 3795,
+      "sha256": "980734a506d0e5afda9b59b0fb636a8ebcca1b99b0dc931449790f26669d1f86"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/diluc/cons.go",
+      "bytes": 2064,
+      "sha256": "2718ce2d723fd8e7cf64248314b1be88abcad5d5f65b21cf59e77a7898054875"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/jean/skill.go",
+      "bytes": 2349,
+      "sha256": "357c8f523d079e626e55781be10637d967d18ad16c7b2538436eb7ce87dfb31a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/jean/zz_jean.dm.go",
+      "bytes": 3923,
+      "sha256": "a80d49f4b46e2332916739b0a5c37cef6abc7b86d342d971478aae2ea26ecdb4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/jean/burst.go",
+      "bytes": 4070,
+      "sha256": "cb996f64178f4bed00f610a4c0f9f2043eadff10701da582e3f2eafe8e1d266a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/jean/jean.go",
+      "bytes": 865,
+      "sha256": "6a90c46555d46826d26c86447c790cb62bcebd36f67b61c4d969318330365df8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/jean/cons.go",
+      "bytes": 2168,
+      "sha256": "82798587fb702a84e89d3cadd6b01ee2776de9edc7157af618eda81bf60f5d0c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/jean/asc.go",
+      "bytes": 904,
+      "sha256": "89cecb7dce51003ae7056c4943fa5c4621673cab68470f5450e757b6ba53ae66"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/arlecchino/skill.go",
+      "bytes": 4990,
+      "sha256": "9feb692a6e20d49d5430b5cccb0ae6b29d9699640c06bec31f72b32591a4e61e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/arlecchino/zz_arlecchino.dm.go",
+      "bytes": 4852,
+      "sha256": "2378d34d08c259bedcda3fc95e8a64eb9de122e0f3934142ce40994922901c99"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/arlecchino/burst.go",
+      "bytes": 2141,
+      "sha256": "6bf3e4030fbd50aaa7ad76d31161789ed458d67c0aa2759d14a50bc3668dafa6"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/arlecchino/cons.go",
+      "bytes": 2419,
+      "sha256": "dd2b35228ec953833d0b765255e98847032b2137a2ca07d36a9b0adf3a03c83e"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/arlecchino/asc.go",
+      "bytes": 1873,
+      "sha256": "f524a93ca178d964a8edf2f99dde2c503588237a1a86d1c1d8b62eb72e9cb7f5"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/arlecchino/arlecchino.go",
+      "bytes": 2098,
+      "sha256": "0736b4a3f5cb66f289b243d9ee01bf0151068476dcc32dd3e7d2777be6ccebc3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kirara/skill.go",
+      "bytes": 8085,
+      "sha256": "1e04609e56302d7b9e15db75dcf5af9cc262124ab410665c4239315b2c51063b"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kirara/kirara.go",
+      "bytes": 1431,
+      "sha256": "083b6a14f49264bba99c1ddb876e735b4e9ee59d3a86a8a9026ffe77da4b866d"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kirara/zz_kirara.dm.go",
+      "bytes": 4955,
+      "sha256": "026cad18d6d4e9f6cc89fe2963323730af08ff47f6173f4b424123901f3d81ff"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kirara/burst.go",
+      "bytes": 3368,
+      "sha256": "4e4f09b744619b5ce0f170edb5ff6071a65b41865d1e9ae300c7f893926e80dd"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kirara/cons.go",
+      "bytes": 2815,
+      "sha256": "e52aeebd03c0b8482f944d3dd8659c65fd1b961aa588bfa906dd972444b3a2f3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/kirara/asc.go",
+      "bytes": 2339,
+      "sha256": "c3a5e0df629b6621eefd56e3462d090d351df95648cd081f2b1dd48b2d812132"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/chongyun/skill.go",
+      "bytes": 5214,
+      "sha256": "2d3c819893c38dbb70ac033782cb053ea13db555befd2a25dcdd4bca0b0d6cff"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/chongyun/chongyun.go",
+      "bytes": 918,
+      "sha256": "964b568568ede814acbcc375ece32bbeeb054b56466771b96f84d175af27ffa3"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/chongyun/burst.go",
+      "bytes": 1851,
+      "sha256": "4936126216b9eadfa065ce241580472909be35232df42d8c5dbe9fb47d105f0c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/chongyun/zz_chongyun.dm.go",
+      "bytes": 3130,
+      "sha256": "6324f2ea1db74be3b11c0b8f0e07b1394ddd511eecbe5c41ca0e71f8052f32fc"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/chongyun/cons.go",
+      "bytes": 1593,
+      "sha256": "47564d836cc786bc897e9013e7d4d6f3bf61d656a42dc61ff51ce89c1be5873f"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "internal/characters/chongyun/asc.go",
+      "bytes": 2000,
+      "sha256": "ac83ad54aac50812a13d9385a0921c196e17b21a03ae8603028dda06bfe6a2ac"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "LICENSE",
+      "bytes": 1067,
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/enemy/damage.go",
+      "bytes": 11023,
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/attack.go",
+      "bytes": 2255,
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/core/player/character/stats.go",
+      "bytes": 3321,
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c"
+    },
+    {
+      "repository": "genshinsim/gcsim",
+      "path": "pkg/modifier/modifier.go",
+      "bytes": 3345,
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9"
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/sheets/src/Characters/Dehya/index.tsx",
+      "bytes": 11363,
+      "sha256": "11ad4ab269591b1e4ce410418201adc0e70fc66c22a876ead4800e5c89aac01a",
+      "gitBlobSha": "0773ce4aa62297e64ee3a69783e420dff2edd493",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/stats/Data/Characters/Dehya/skillParam.json",
+      "bytes": 6173,
+      "sha256": "02780a571fd7cb503ff8400ebab9c8e969561ad556949e49e23cf950b102f9ab",
+      "gitBlobSha": "d881163655f3ac411b74a97765f121368aecb89c",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/sheets/src/Characters/Diluc/index.tsx",
+      "bytes": 11420,
+      "sha256": "442637c92ac521e4fae32ae5922f2ceb31f13c1946b9c2a69af1997c515bc699",
+      "gitBlobSha": "e0ede57de2705170ab8e69a6ef081076dcc4c0fa",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/stats/Data/Characters/Diluc/skillParam.json",
+      "bytes": 4775,
+      "sha256": "6c8c2738c12ac51175530647da73fab3a6532083e3608c25968869f8be11a3ad",
+      "gitBlobSha": "8040475913933c08e0f8b37c559a3987510ab60c",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/sheets/src/Characters/Jean/index.tsx",
+      "bytes": 9481,
+      "sha256": "2b479478ca89fa36ca76294132e12793a746259cd78c5618f48c5aad638bbe53",
+      "gitBlobSha": "ae356133498b2a653d0375ee7d8496477a273d45",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/stats/Data/Characters/Jean/skillParam.json",
+      "bytes": 5100,
+      "sha256": "ca8499b6c81d5cd6b12b0ff0dd976a672e729865e8f62c1bc8ec46a2862e33bb",
+      "gitBlobSha": "cb2b60c94727d1206a38faf3d166c5620a9ee758",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/sheets/src/Characters/Arlecchino/index.tsx",
+      "bytes": 12583,
+      "sha256": "82efc521d70e63ef07febc1a86d3265563c98bd9ebefb3ca682cfc241b31a1e5",
+      "gitBlobSha": "d075a13e14316fbad9885ee7b6fede4cc203f2ff",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/stats/Data/Characters/Arlecchino/skillParam.json",
+      "bytes": 6418,
+      "sha256": "e6862af82e645c7b688d282a66a45ddd15e1fd96c8aacbc4a08f277124001302",
+      "gitBlobSha": "bb1a0336b65e72dd68802ef68fd293624b244a80",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/sheets/src/Characters/Kirara/index.tsx",
+      "bytes": 12311,
+      "sha256": "ea08887c59af63de943b74f57b326610c757dff09c35a85414a9c56d9f1de1d0",
+      "gitBlobSha": "8b73bb5bd4e4e3e83cc2a5cc4c9d36a893e0e37d",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/stats/Data/Characters/Kirara/skillParam.json",
+      "bytes": 6420,
+      "sha256": "bc4002392d2f202f88839983d1197fcbea8cad7ca93d4a88b2227f578855252a",
+      "gitBlobSha": "f41ab2b7513d2fcf635c816691f5fd90faf77326",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/sheets/src/Characters/Chongyun/index.tsx",
+      "bytes": 8964,
+      "sha256": "4a4e26c1c13ebbb221a91621c2e373139811d0930b926a3303c5b70ffd80d0d7",
+      "gitBlobSha": "5545dc70190edcd0705ad711d8bc43322ce529b5",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "libs/gi/stats/Data/Characters/Chongyun/skillParam.json",
+      "bytes": 4152,
+      "sha256": "fef05c83b9e4571d8d34b22e31c17f77f5c0404efaebd39bf93b8d7bc3efabdf",
+      "gitBlobSha": "97d89ad3f4f5ae227fe95f67d686340cbf62e172",
+      "matchesPinnedTree": true
+    },
+    {
+      "repository": "frzyc/genshin-optimizer",
+      "path": "LICENSE",
+      "bytes": 1071,
+      "sha256": "6c51d31f2009cda50d5112c2870e4a4d37696f2d5b29fa601b5ef186f4a5d11c",
+      "gitBlobSha": "ccc6a6c559f48acd605c121885cd8c37a01aaf42",
+      "matchesPinnedTree": true
+    }
+  ],
+  "coefficients": [
+    {
+      "id": "jean-burst",
+      "sourceField": "burst",
+      "values": [
+        4.248,
+        4.5666,
+        4.8852,
+        5.31,
+        5.6286,
+        5.9472,
+        6.372,
+        6.7968,
+        7.2216,
+        7.6464,
+        8.0712,
+        8.496,
+        9.027,
+        9.558,
+        10.089
+      ]
+    },
+    {
+      "id": "jean-burstEnter",
+      "sourceField": "burstEnter",
+      "values": [
+        0.784,
+        0.8428,
+        0.9016,
+        0.98,
+        1.0388,
+        1.0976,
+        1.176,
+        1.2544,
+        1.3328,
+        1.4112,
+        1.4896,
+        1.568,
+        1.666,
+        1.764,
+        1.862
+      ]
+    },
+    {
+      "id": "diluc-burstInitial",
+      "sourceField": "burstInitial",
+      "values": [
+        2.04,
+        2.193,
+        2.346,
+        2.55,
+        2.703,
+        2.856,
+        3.06,
+        3.264,
+        3.468,
+        3.672,
+        3.876,
+        4.08,
+        4.335,
+        4.59,
+        4.845
+      ]
+    },
+    {
+      "id": "diluc-burstDOT",
+      "sourceField": "burstDOT",
+      "values": [
+        0.6,
+        0.645,
+        0.69,
+        0.75,
+        0.795,
+        0.84,
+        0.9,
+        0.96,
+        1.02,
+        1.08,
+        1.14,
+        1.2,
+        1.275,
+        1.35,
+        1.425
+      ]
+    },
+    {
+      "id": "diluc-burstExplode",
+      "sourceField": "burstExplode",
+      "values": [
+        2.04,
+        2.193,
+        2.346,
+        2.55,
+        2.703,
+        2.856,
+        3.06,
+        3.264,
+        3.468,
+        3.672,
+        3.876,
+        4.08,
+        4.335,
+        4.59,
+        4.845
+      ]
+    },
+    {
+      "id": "kirara-burst",
+      "sourceField": "burst",
+      "values": [
+        5.7024,
+        6.13008,
+        6.55776,
+        7.128,
+        7.55568,
+        7.98336,
+        8.5536,
+        9.12384,
+        9.69408,
+        10.26432,
+        10.83456,
+        11.4048,
+        12.1176,
+        12.8304,
+        13.5432
+      ]
+    },
+    {
+      "id": "kirara-cardamom",
+      "sourceField": "cardamom",
+      "values": [
+        0.3564,
+        0.38313,
+        0.40986,
+        0.4455,
+        0.47223,
+        0.49896,
+        0.5346,
+        0.57024,
+        0.60588,
+        0.64152,
+        0.67716,
+        0.7128,
+        0.75735,
+        0.8019,
+        0.84645
+      ]
+    },
+    {
+      "id": "chongyun-skill",
+      "sourceField": "skill",
+      "values": [
+        1.7204,
+        1.84943,
+        1.97846,
+        2.1505,
+        2.27953,
+        2.40856,
+        2.5806,
+        2.75264,
+        2.92468,
+        3.09672,
+        3.26876,
+        3.4408,
+        3.65585,
+        3.8709,
+        4.08595
+      ]
+    },
+    {
+      "id": "arlecchino-skillSpike",
+      "sourceField": "skillSpike",
+      "values": [
+        0.1484,
+        0.15953,
+        0.17066,
+        0.1855,
+        0.19663,
+        0.20776,
+        0.2226,
+        0.23744,
+        0.25228,
+        0.26712,
+        0.28196,
+        0.2968,
+        0.31535,
+        0.3339,
+        0.35245
+      ]
+    },
+    {
+      "id": "arlecchino-skillFinal",
+      "sourceField": "skillFinal",
+      "values": [
+        1.3356,
+        1.43577,
+        1.53594,
+        1.6695,
+        1.76967,
+        1.86984,
+        2.0034,
+        2.13696,
+        2.27052,
+        2.40408,
+        2.53764,
+        2.6712,
+        2.83815,
+        3.0051,
+        3.17205
+      ]
+    },
+    {
+      "id": "arlecchino-skillSigil",
+      "sourceField": "skillSigil",
+      "values": [
+        0.318,
+        0.34185,
+        0.3657,
+        0.3975,
+        0.42135,
+        0.4452,
+        0.477,
+        0.5088,
+        0.5406,
+        0.5724,
+        0.6042,
+        0.636,
+        0.67575,
+        0.7155,
+        0.75525
+      ]
+    },
+    {
+      "id": "dehya-burstPunchAtk",
+      "sourceField": "burstPunchAtk",
+      "values": [
+        0.987,
+        1.061025,
+        1.13505,
+        1.23375,
+        1.307775,
+        1.3818,
+        1.4805,
+        1.5792,
+        1.6779,
+        1.7766,
+        1.8753,
+        1.974,
+        2.097375,
+        2.22075,
+        2.344125
+      ]
+    },
+    {
+      "id": "dehya-burstPunchHP",
+      "sourceField": "burstPunchHP",
+      "values": [
+        0.01692,
+        0.018189,
+        0.019458,
+        0.02115,
+        0.022419,
+        0.023688,
+        0.02538,
+        0.027072,
+        0.028764,
+        0.030456,
+        0.032148,
+        0.03384,
+        0.035955,
+        0.03807,
+        0.040185
+      ]
+    },
+    {
+      "id": "dehya-burstKickAtk",
+      "sourceField": "burstKickAtk",
+      "values": [
+        1.393,
+        1.497475,
+        1.60195,
+        1.74125,
+        1.845725,
+        1.9502,
+        2.0895,
+        2.2288,
+        2.3681,
+        2.5074,
+        2.6467,
+        2.786,
+        2.960125,
+        3.13425,
+        3.308375
+      ]
+    },
+    {
+      "id": "dehya-burstKickHP",
+      "sourceField": "burstKickHP",
+      "values": [
+        0.02388,
+        0.025671,
+        0.027462,
+        0.02985,
+        0.031641,
+        0.033432,
+        0.03582,
+        0.038208,
+        0.040596,
+        0.042984,
+        0.045372,
+        0.04776,
+        0.050745,
+        0.05373,
+        0.056715
+      ]
+    }
+  ],
+  "scope": "C0 finite self-damage casts under explicit snapshot and target conditions; no auto timeline or current-game verification"
+}

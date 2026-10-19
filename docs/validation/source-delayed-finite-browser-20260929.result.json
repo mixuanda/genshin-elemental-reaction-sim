@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "source-delayed-finite-browser-v1",
+  "measurements": {
+    "dionaFull": {
+      "rawPath": "/tmp/gidps-delayed-finite-diona-full.json",
+      "nativeResultArchived": true,
+      "producers": 7,
+      "completedProducers": 7,
+      "observedRoots": 7,
+      "replayedHits": 7,
+      "sharedTotal": 2334.666065224993,
+      "nativeTotal": 2334.666065224993,
+      "missingProducerCloses": false,
+      "legacyCaptureAvailable": false,
+      "certificateImportExportSame": true
+    },
+    "kaeyaFull": {
+      "rawPath": "/tmp/gidps-delayed-finite-kaeya-full.json",
+      "nativeResultArchived": true,
+      "producers": 16,
+      "completedProducers": 16,
+      "observedRoots": 13,
+      "replayedHits": 13,
+      "sharedTotal": 2966.6700854069763,
+      "nativeTotal": 2966.6700854069763,
+      "closed": true
+    },
+    "kaeyaPartial": {
+      "rawPath": "/tmp/gidps-delayed-finite-kaeya-partial.json",
+      "nativeResultArchived": true,
+      "producers": 5,
+      "pendingProducers": 3,
+      "observedRoots": 2,
+      "replayedHits": 2,
+      "knownSubtotal": 456.410782370304,
+      "nativeTotal": 456.410782370304,
+      "closed": false
+    }
+  },
+  "pageErrors": [],
+  "scope": "Three actual classic runs: Diona Q 15s, Kaeya Q 12s, Kaeya Q 2s. Completeness is limited to audited intrinsic attacks and native producer/dispatch receipts."
+}

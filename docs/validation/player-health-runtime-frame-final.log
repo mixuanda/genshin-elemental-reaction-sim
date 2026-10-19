@@ -1,0 +1,36 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts (3 tests | 1 failed | 2 skipped) 97ms
+     × rejects malformed/old or forged health state, and failed actions never enqueue healing 97ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/player-health-runtime.test.ts > explicit actions share the real player HP state > rejects malformed/old or forged health state, and failed actions never enqueue healing
+AssertionError: expected [Function] to throw error matching /Max HP|maximum HP|hpPct/ but got '配置校验失败：\n- timeline.abilities.0.buffs…'
+
+- Expected:
+/Max HP|maximum HP|hpPct/
+
++ Received:
+"配置校验失败：
+- timeline.abilities.0.buffs.0.stat: action health changes currently require static max HP; dynamic HP buffs are unsupported
+- timeline.abilities.0.buffs.0.durationFrames: Invalid input: expected number, received undefined
+- timeline.abilities.0.buffs.0: Unrecognized key: \"duration\""
+
+ ❯ packages/sim-core/src/__tests__/player-health-runtime.test.ts:94:42
+     92|     const dynamic = structuredClone(config);
+     93|     dynamic.timeline!.abilities[0]!.buffs = [{ stat: "hpPct", value: 0…
+     94|     expect(() => migrateConfig(dynamic)).toThrow(/Max HP|maximum HP|hp…
+       |                                          ^
+     95|     const aligned = fixture([]);
+     96|     delete aligned.timeline;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 skipped (3)
+   Start at  02:35:28
+   Duration  905ms (transform 579ms, setup 0ms, import 749ms, tests 97ms, environment 0ms)
+

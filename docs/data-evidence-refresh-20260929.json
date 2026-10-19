@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "1.0.0",
+  "observedAtUtc": "2026-09-28T22:32:11.709174Z",
+  "localDate": "2026-09-29 Asia/Hong_Kong",
+  "scope": "Focused read-only comparison with docs/data-evidence-refresh-20260928.json and the already archived isolated 7.1.51 candidate. No provider character refetch, candidate ingestion, pointer change, promotion, build, or test was warranted by the unchanged source identities.",
+  "commandsAndQueries": [
+    {
+      "method": "Web search of the publisher's indexed pages",
+      "queries": [
+        "site:genshin.hoyoverse.com/de/news/detail Genshin 7.2 update September 2026",
+        "site:genshin.hoyoverse.com/m/es/news/detail Genshin 7.2 2026",
+        "site:genshin.hoyoverse.com news \"Version 7.2\""
+      ],
+      "resultUsed": "The indexed German and Spanish Version 7.1 update-detail pages and the German news index; search did not surface an official Version 7.2 update detail. The index is search data, not a complete live inventory or archived article bytes."
+    },
+    {
+      "method": "Executed Python 3 urllib.request HTTPS GET with User-Agent gidps-source-evidence/1.0, 25-second timeout and SHA-256 over response bytes; HTTP JSON endpoints used Accept: application/json and the official news URL used Accept: text/html.",
+      "command": "python3 - <<'PY'\nimport urllib.request, json, hashlib, datetime\nurls = {\n  'lunaris-version':'https://api.lunaris.moe/data/version.json',\n  'genshin-db-head':'https://api.github.com/repos/theBowja/genshin-db/commits/HEAD',\n  'genshin-db-latest-release':'https://api.github.com/repos/theBowja/genshin-db/releases/latest',\n  'official-german-news':'https://genshin.hoyoverse.com/de/news'\n}\nfor key,url in urls.items():\n  observed=datetime.datetime.now(datetime.timezone.utc).isoformat().replace('+00:00','Z')\n  try:\n    req=urllib.request.Request(url,headers={'User-Agent':'gidps-source-evidence/1.0','Accept':'application/json' if key!='official-german-news' else 'text/html'})\n    with urllib.request.urlopen(req,timeout=25) as response:\n      body=response.read()\n      out={'id':key,'url':url,'observedAtUtc':observed,'httpStatus':response.status,'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest(),'lastModified':response.headers.get('Last-Modified'),'etag':response.headers.get('ETag')}\n      if key=='lunaris-version':\n        data=json.loads(body)\n        out['topLevelKeys']=list(data) if isinstance(data,dict) else None\n        out['latest']=data.get('version') or data.get('latest')\n        out['versionStrings']=[x if isinstance(x,str) else x.get('version') for x in data.get('versions',[])] if isinstance(data,dict) else None\n        out['providerTimestamp']=data.get('timestamp')\n      elif key=='genshin-db-head':\n        data=json.loads(body)\n        out['headSha']=data.get('sha')\n        out['commitDate']=data.get('commit',{}).get('committer',{}).get('date')\n      elif key=='genshin-db-latest-release':\n        data=json.loads(body)\n        out['tagName']=data.get('tag_name')\n        out['publishedAt']=data.get('published_at')\n        out['htmlUrl']=data.get('html_url')\n      print(json.dumps(out,ensure_ascii=False))\n  except Exception as exc:\n    print(json.dumps({'id':key,'url':url,'observedAtUtc':observed,'error':str(exc)},ensure_ascii=False))\nPY",
+      "exitCode": 0
+    },
+    {
+      "method": "Local archive and pointer integrity read",
+      "command": "python3 - <<'PY'\nimport json,hashlib,pathlib\npaths=['packages/game-data/manifests/pointers.json','packages/game-data/sources/lunaris-preview-7.1.51-20260928/retrieval-manifest.json','packages/game-data/sources/lunaris-preview-7.1.51-20260928/source.json.gz']\nfor p in paths:\n x=pathlib.Path(p); b=x.read_bytes(); print(p, len(b), hashlib.sha256(b).hexdigest())\n if p.endswith('pointers.json'): print(json.dumps(json.loads(b),indent=2))\nPY",
+      "exitCode": 0
+    }
+  ],
+  "externalObservations": [
+    {
+      "id": "lunaris-version-index",
+      "url": "https://api.lunaris.moe/data/version.json",
+      "observedAtUtc": "2026-09-28T22:32:08.502486Z",
+      "httpStatus": 200,
+      "responseBytes": 988,
+      "responseSha256": "e749c84a53bc1ecda55ca42aec8e732a43c3021e167ed782b455032e2e6d635f",
+      "httpLastModified": "Mon, 28 Sep 2026 10:15:46 GMT",
+      "etag": "\"3263b73510132a687b38dc7cbe912b8e\"",
+      "latestProviderVersion": "7.1.51",
+      "versionCount": 49,
+      "providerTimestamp": 1791194400,
+      "changeFrom20260928": "None: identical response SHA-256, latest label, and version count. The version list contains no 7.2-prefixed label. The provider timestamp is future-dated relative to observation and has no established release meaning."
+    },
+    {
+      "id": "genshin-db-head",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/commits/HEAD",
+      "observedAtUtc": "2026-09-28T22:32:09.628983Z",
+      "httpStatus": 200,
+      "responseBytes": 860463,
+      "responseSha256": "e71fe1b0ac96cbae4d8cc5897e3eaa00085b56cf60d872f6355a72a561280751",
+      "httpLastModified": "Mon, 21 Sep 2026 20:39:46 GMT",
+      "headSha": "49a6544a6c6ae36089cb42fa591fc46f01de8bcf",
+      "commitDateUtc": "2026-09-21T20:39:46Z",
+      "changeFrom20260928": "No commit revision change. The whole GitHub API response hash differs from the prior report, but the immutable head SHA and commit date are identical; response-byte difference is not treated as changed source content."
+    },
+    {
+      "id": "genshin-db-latest-release",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/releases/latest",
+      "releaseUrl": "https://github.com/theBowja/genshin-db/releases/tag/v5.2.14",
+      "observedAtUtc": "2026-09-28T22:32:11.301377Z",
+      "httpStatus": 200,
+      "responseBytes": 1759,
+      "responseSha256": "4735b4be0c53153170e497fdf5355ec619d9a1def2d6a8ee04b0a29c71136b11",
+      "httpLastModified": "Mon, 21 Sep 2026 20:38:35 GMT",
+      "tagName": "v5.2.14",
+      "publishedAtUtc": "2026-09-21T20:38:35Z",
+      "changeFrom20260928": "No release tag or publication-date change. The API response-byte hash differs from the prior report without a changed release identity."
+    },
+    {
+      "id": "official-release-index",
+      "url": "https://genshin.hoyoverse.com/de/news",
+      "updateDetailUrls": [
+        "https://genshin.hoyoverse.com/de/news/detail/166383",
+        "https://genshin.hoyoverse.com/m/es/news/detail/166383"
+      ],
+      "observedAtUtc": "2026-09-28T22:32:11.709174Z",
+      "httpStatus": 200,
+      "responseBytes": 11355,
+      "responseSha256": "95c2141c6fb094e9bb8f33a03fa3a57db719ca0a9e6e85196edcd36b13a49a67",
+      "httpLastModified": "Tue, 22 Sep 2026 22:56:09 GMT",
+      "indexedObservation": "Focused publisher-domain search returned the September 23 Version 7.1 update details and a September 28 anniversary item, but no indexed Version 7.2 update detail.",
+      "changeFrom20260928": "The direct news URL still returns the same application-shell bytes as the prior official-page attempt. No full update-detail article was downloaded. Search results may lag or omit pages; absence in this focused query does not prove there is no later notice."
+    }
+  ],
+  "localCandidateAndPointers": {
+    "existingIsolatedCandidate": "packages/game-data/sources/lunaris-preview-7.1.51-20260928",
+    "candidateRawArchiveSha256": "a7df5c77d55d56fb2817840355a788e92b045ede80084e63cefb2c855a4186cf",
+    "candidateRetrievalManifestSha256": "6ed24b46c8937059dfecd57ed6e8a36065c8cfb8a778be65076c8cf0f625b72a",
+    "isolatedSnapshotId": "snapshot-77008c3d87b7116802ca00435af9b69290113c9e4ab8545877a5585d977af819",
+    "candidateEvidencePath": "packages/game-data/sources/lunaris-preview-7.1.51-20260928/candidate-evidence.json",
+    "candidateDiffPath": "packages/game-data/sources/lunaris-preview-7.1.51-20260928/revision-diff.json",
+    "projectPointersSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "activeVerifiedSnapshotId": null,
+    "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "changeFrom20260928": "The previously captured 7.1.51 archive remains isolated. Project pointer values match the prior report. No new candidate or project pointer write occurred."
+  },
+  "conclusions": {
+    "newEligibleSourceRevisionDetected": false,
+    "candidateAction": "Stopped after index and revision checks; did not refetch the unchanged 7.1.51 character files or recreate its validated isolated candidate.",
+    "releasedIdentity": "The indexed official Version 7.1 update detail remains the available publisher evidence; direct full article bytes were not captured.",
+    "preview72V1Identity": "unconfirmed",
+    "remainingBlocker": "No observed immutable public source revision explicitly maps complete version-specific data to 7.2 V1. Provider labels and a limited two-character preview cannot establish that mapping or completeness. No source license or redistribution permission was inferred."
+  }
+}

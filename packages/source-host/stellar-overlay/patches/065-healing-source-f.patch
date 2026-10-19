@@ -1,0 +1,202 @@
+--- a/internal/weapons/bow/recurve/recurve.go
++++ b/internal/weapons/bow/recurve/recurve.go
+@@ -39,10 +39,15 @@
+ 			return
+ 		}
+ 		// heal char
++		src, srcID := healPercentage, 0
++		if c.SourceHost != nil {
++			src, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-recurve", map[string]any{"refinement": r}, nil, nil)
++		}
+ 		c.Player.Heal(info.HealInfo{
+-			Type:    info.HealTypePercent,
+-			Message: "Recurve Bow (Proc)",
+-			Src:     healPercentage,
++			Type:            info.HealTypePercent,
++			Message:         "Recurve Bow (Proc)",
++			Src:             src,
++			SourceHostSrcID: srcID,
+ 		})
+ 	}, fmt.Sprintf("recurvebow-%v", char.Base.Key.String()))
+ 
+--- a/internal/weapons/catalyst/otherworldly/otherworldly.go
++++ b/internal/weapons/catalyst/otherworldly/otherworldly.go
+@@ -26,10 +26,17 @@
+ 		if c.Player.Active() != char.Index() {
+ 			return
+ 		}
++		src, srcID := 0.0, 0
++		if c.SourceHost != nil {
++			src, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-otherworldly", map[string]any{"refinement": r}, nil, nil)
++		} else {
++			src = 0.0075 + float64(r)*0.0025
++		}
+ 		c.Player.Heal(info.HealInfo{
+-			Type:    info.HealTypePercent,
+-			Message: "Otherworldly Story (Proc)",
+-			Src:     0.0075 + float64(r)*0.0025,
++			Type:            info.HealTypePercent,
++			Message:         "Otherworldly Story (Proc)",
++			Src:             src,
++			SourceHostSrcID: srcID,
+ 		})
+ 	}, fmt.Sprintf("otherworldlystory-%v", char.Base.Key.String()))
+ 
+--- a/internal/weapons/catalyst/prototype/prototype.go
++++ b/internal/weapons/catalyst/prototype/prototype.go
+@@ -39,13 +39,29 @@
+ 			this := x
+ 			for i := 120; i <= 360; i += 120 {
+ 				this.QueueCharTask(func() {
++					caller, target := char.Index(), this.Index()
++					src, srcID := 0.0, 0
++					if c.SourceHost != nil {
++						src, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-prototype", map[string]any{"refinement": r}, nil, nil)
++					} else {
++						src = e / 100.0
++					}
++					bonus, bonusID := 0.0, 0
++					if c.SourceHost != nil {
++						rawBonus, bonusRead := char.StatWithProvenance(attributes.Heal)
++						bonus, bonusID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": rawBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++					} else {
++						bonus = char.Stat(attributes.Heal)
++					}
+ 					c.Player.Heal(info.HealInfo{
+-						Caller:  char.Index(),
+-						Target:  this.Index(),
+-						Type:    info.HealTypePercent,
+-						Message: "Prototype Amber",
+-						Src:     e / 100.0,
+-						Bonus:   char.Stat(attributes.Heal),
++						Caller:            caller,
++						Target:            target,
++						Type:              info.HealTypePercent,
++						Message:           "Prototype Amber",
++						Src:               src,
++						Bonus:             bonus,
++						SourceHostSrcID:   srcID,
++						SourceHostBonusID: bonusID,
+ 					})
+ 				}, i)
+ 			}
+--- a/internal/weapons/claymore/whiteiron/whiteiron.go
++++ b/internal/weapons/claymore/whiteiron/whiteiron.go
+@@ -38,10 +38,17 @@
+ 			return
+ 		}
+ 		// heal
++		src, srcID := 0.0, 0
++		if c.SourceHost != nil {
++			src, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-whiteiron", map[string]any{"refinement": r}, nil, nil)
++		} else {
++			src = 0.06 + float64(r)*0.02
++		}
+ 		c.Player.Heal(info.HealInfo{
+-			Type:    info.HealTypePercent,
+-			Message: "White Iron Greatsword (Proc)",
+-			Src:     0.06 + float64(r)*0.02,
++			Type:            info.HealTypePercent,
++			Message:         "White Iron Greatsword (Proc)",
++			Src:             src,
++			SourceHostSrcID: srcID,
+ 		})
+ 	}, fmt.Sprintf("whiteirongreatsword-%v", char.Base.Key.String()))
+ 
+--- a/internal/weapons/sword/aquila/aquila.go
++++ b/internal/weapons/sword/aquila/aquila.go
+@@ -72,12 +72,29 @@
+ 		snap := char.Snapshot(&ai)
+ 		c.QueueAttackWithSnap(ai, snap, combat.NewCircleHitOnTarget(c.Combat.Player(), nil, 6), 1)
+ 
++		caller, target := char.Index(), c.Player.Active()
++		attack := snap.Stats.TotalATK()
++		amount, srcID := 0.0, 0
++		if c.SourceHost != nil {
++			amount, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-aquila", map[string]any{"refinement": r, "totalAtk": attack}, nil, &snap)
++		} else {
++			amount = attack * heal
++		}
++		bonus, bonusID := 0.0, 0
++		if c.SourceHost != nil {
++			rawBonus, bonusRead := char.StatWithProvenance(attributes.Heal)
++			bonus, bonusID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": rawBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++		} else {
++			bonus = char.Stat(attributes.Heal)
++		}
+ 		c.Player.Heal(info.HealInfo{
+-			Caller:  char.Index(),
+-			Target:  c.Player.Active(),
+-			Message: "Aquila Favonia",
+-			Src:     snap.Stats.TotalATK() * heal,
+-			Bonus:   char.Stat(attributes.Heal),
++			Caller:            caller,
++			Target:            target,
++			Message:           "Aquila Favonia",
++			Src:               amount,
++			Bonus:             bonus,
++			SourceHostSrcID:   srcID,
++			SourceHostBonusID: bonusID,
+ 		})
+ 	}, fmt.Sprintf("aquila-%v", char.Base.Key.String()))
+ 	return w, nil
+--- a/internal/weapons/sword/blacksword/blacksword.go
++++ b/internal/weapons/sword/blacksword/blacksword.go
+@@ -55,12 +55,29 @@
+ 			return
+ 		}
+ 		if crit {
++			caller, target := char.Index(), c.Player.Active()
++			attack := atk.Snapshot.Stats.TotalATK()
++			amount, srcID := 0.0, 0
++			if c.SourceHost != nil {
++				amount, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-blacksword", map[string]any{"refinement": r, "totalAtk": attack}, nil, &atk.Snapshot)
++			} else {
++				amount = heal * attack
++			}
++			bonus, bonusID := 0.0, 0
++			if c.SourceHost != nil {
++				rawBonus, bonusRead := char.StatWithProvenance(attributes.Heal)
++				bonus, bonusID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-info-bonus-stat", map[string]any{"healBonus": rawBonus}, []*info.SourceHostStatRead{bonusRead}, nil)
++			} else {
++				bonus = char.Stat(attributes.Heal)
++			}
+ 			c.Player.Heal(info.HealInfo{
+-				Caller:  char.Index(),
+-				Target:  c.Player.Active(),
+-				Message: "The Black Sword",
+-				Src:     heal * atk.Snapshot.Stats.TotalATK(),
+-				Bonus:   char.Stat(attributes.Heal),
++				Caller:            caller,
++				Target:            target,
++				Message:           "The Black Sword",
++				Src:               amount,
++				Bonus:             bonus,
++				SourceHostSrcID:   srcID,
++				SourceHostBonusID: bonusID,
+ 			})
+ 			// trigger cd
+ 			char.AddStatus(icdKey, 300, true) // every 5s
+--- a/internal/weapons/sword/travelershandysword/travelershandysword.go
++++ b/internal/weapons/sword/travelershandysword/travelershandysword.go
+@@ -26,10 +26,17 @@
+ 		if c.Player.Active() != char.Index() {
+ 			return
+ 		}
++		src, srcID := 0.0, 0
++		if c.SourceHost != nil {
++			src, srcID = c.SourceHost.HealSourceCompute(char.Index(), "heal-source-weapon-travelershandysword", map[string]any{"refinement": r}, nil, nil)
++		} else {
++			src = 0.0075 + float64(r)*0.0025
++		}
+ 		c.Player.Heal(info.HealInfo{
+-			Type:    info.HealTypePercent,
+-			Message: "Traveler's Handy Sword (Proc)",
+-			Src:     0.0075 + float64(r)*0.0025,
++			Type:            info.HealTypePercent,
++			Message:         "Traveler's Handy Sword (Proc)",
++			Src:             src,
++			SourceHostSrcID: srcID,
+ 		})
+ 	}, fmt.Sprintf("travelershandysword-%v", char.Base.Key.String()))
+ 

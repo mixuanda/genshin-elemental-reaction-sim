@@ -1,0 +1,34 @@
+{
+  "schemaVersion": "data-evidence-refresh-v1",
+  "observedAtUtc": "2026-10-03T11:25:23.479981+00:00",
+  "priorReport": "docs/data-evidence-refresh-20260930.json",
+  "scope": "Read-only public provider index and structured dataset release refresh; no ingestion, promotion, pointers or remote workflow execution.",
+  "externalObservations": [
+    {
+      "id": "lunaris-version-index",
+      "url": "https://api.lunaris.moe/data/version.json",
+      "observedAtUtc": "2026-10-03T11:25:23.466763+00:00",
+      "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+    },
+    {
+      "id": "genshin-db-head",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/commits/HEAD",
+      "observedAtUtc": "2026-10-03T11:25:23.467236+00:00",
+      "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+    },
+    {
+      "id": "genshin-db-release",
+      "url": "https://api.github.com/repos/theBowja/genshin-db/releases/latest",
+      "observedAtUtc": "2026-10-03T11:25:23.467331+00:00",
+      "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>"
+    }
+  ],
+  "officialSearchAttempt": {
+    "queries": [
+      "site:genshin.hoyoverse.com \"Version 7.2\" \"2026\" October",
+      "site:genshin.hoyoverse.com \"Version 7.1\" \"Update Details\" 2026"
+    ],
+    "result": "No indexed results returned. API opens inaccessible through web tool. Search absence is not evidence of no newer release."
+  },
+  "conclusion": "Evaluate exact response labels; do not infer game-version mapping from provider labels. Official current-release status is not freshly established by this request."
+}

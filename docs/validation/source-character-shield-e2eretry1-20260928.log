@@ -1,0 +1,38 @@
+[WebServer] (node:20965) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:20966) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-character-shield.spec.ts:65:1 › native shield creation, refresh, consumption and standalone arithmetic replay across both source lanes (2.5s)
+
+
+  1) [chromium] › apps/web/e2e/source-character-shield.spec.ts:65:1 › native shield creation, refresh, consumption and standalone arithmetic replay across both source lanes 
+
+    Error: expect(received).toBe(expected) // Object.is equality
+
+    Expected: 9
+    Received: 33
+
+      134 |         expect(stack!.request.valueSources?.amount).toBe(burst!.request.id);
+      135 |         expect(stack!.request.valueSources?.maximum).toBe(maximum!.request.id);
+    > 136 |         expect(stack!.request.valueSources?.oldHP).toBe(consumption!.request.id);
+          |                                                    ^
+      137 |         expect(stack!.request.componentIds).toEqual(expect.arrayContaining([
+      138 |           burst!.request.id, maximum!.request.id, consumption!.request.id]));
+      139 |         const stackCapture = captureSourceHostCharacterShield(result, stack!.request.id);
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-character-shield.spec.ts:136:52
+
+    Error Context: test-results/source-character-shield-na-30e11-ay-across-both-source-lanes-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-character-shield-na-30e11-ay-across-both-source-lanes-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-character-shield-na-30e11-ay-across-both-source-lanes-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-character-shield.spec.ts:65:1 › native shield creation, refresh, consumption and standalone arithmetic replay across both source lanes 

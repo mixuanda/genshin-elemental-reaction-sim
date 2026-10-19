@@ -1,0 +1,10 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "source:build:stellar"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.719,
+  "log": "docs/validation/source-startup-stellar-build-20260928.log"
+}

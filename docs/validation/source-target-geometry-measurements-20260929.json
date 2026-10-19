@@ -1,0 +1,165 @@
+{
+  "schemaVersion": "source-target-geometry-measurements-v1",
+  "batch": "102",
+  "date": "2026-09-29",
+  "commands": {
+    "core": {
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "apps/web/src/source-target-geometry.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 0.878
+    },
+    "web-build": {
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.358
+    },
+    "browser": {
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/source-target-geometry.spec.ts",
+        "--workers=1"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.667
+    }
+  },
+  "browser": {
+    "schemaVersion": "source-target-geometry-browser-v1",
+    "measurements": {
+      "near": {
+        "rawPath": "/tmp/gidps-target-geometry-near.json",
+        "target": {
+          "level": 90,
+          "resistance": 0.1,
+          "geometry": {
+            "radius": 2,
+            "x": 0,
+            "y": 2.4
+          }
+        },
+        "actionSequence": 1,
+        "applicationIds": [
+          4
+        ],
+        "knownSubtotal": 1161.8921525418264,
+        "firstHitReplayDifference": 0
+      },
+      "far": {
+        "rawPath": "/tmp/gidps-target-geometry-far.json",
+        "target": {
+          "level": 90,
+          "resistance": 0.1,
+          "geometry": {
+            "radius": 2,
+            "x": 50,
+            "y": 2.4
+          }
+        },
+        "actionSequence": 1,
+        "nativeMissCount": 1,
+        "applicationCount": 0,
+        "knownSubtotal": 0,
+        "screenshot": "docs/validation/source-target-geometry-browser-20260929.png"
+      },
+      "team": {
+        "exportedTarget": {
+          "level": 90,
+          "resistance": 0.1,
+          "geometry": {
+            "radius": 3,
+            "x": -2,
+            "y": 6
+          }
+        },
+        "generatedTarget": "target lvl=90 resist=0.1 radius=3 pos=-2,6;",
+        "nativeTeamRun": false
+      }
+    },
+    "pageErrors": [],
+    "scope": "One classic Kaeya skill at two explicit source target positions, followed by one team-draft geometry export and GCSL generation; no team executor run."
+  },
+  "artifacts": {
+    "near": {
+      "capture": "docs/validation/source-target-geometry-near-20260929.capture.json",
+      "sha256": "135b7d39849beee16f2f37ff1aa6b50b5ef0c216d4cf23606bf012cfaccd541f",
+      "executionArtifact": {
+        "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+        "wasmBytes": 44567991
+      },
+      "applications": 1,
+      "calculations": 12
+    },
+    "far": {
+      "capture": "docs/validation/source-target-geometry-far-20260929.capture.json",
+      "sha256": "672fae5214414d3524c9350da9263b23cac552103ec649c525ccdc091d159027",
+      "executionArtifact": {
+        "wasmSha256": "b0ccb2f64e5397ea9409334a2b16cccb16c7d8a2c9314cc100b334435fff4ed7",
+        "wasmBytes": 44567991
+      },
+      "applications": 0,
+      "calculations": 2
+    }
+  },
+  "sourceAudit": {
+    "classicRoot": "/tmp/gidps-source-host-cache/build-AdoyVi/source",
+    "stellarRoot": "/tmp/gidps-source-host-cache/stellar-build-knpD0p/source",
+    "files": [
+      "pkg/gcs/parser/parser.go",
+      "pkg/gcs/parser/parseTarget.go",
+      "pkg/gcs/ast/lex.go",
+      "pkg/simulation/setup.go",
+      "pkg/core/info/shape.go",
+      "pkg/core/info/circle.go",
+      "pkg/core/combat/hitbox.go"
+    ],
+    "facts": [
+      "Player initial center (0,0), radius .3; target parser reads radius and pos, setup rejects zero radius.",
+      "App accepts finite positive radius and finite x/y; old radius2,x0,y2.4 is an application default.",
+      "Numeric lexer accepts decimal digits/point and optional sign, not exponent; serializer expands shortest JS values.",
+      "Diagram is initial geometry, not a skill hit range or fixed facing; execution owns contact."
+    ],
+    "sha256": {
+      "classic": {
+        "pkg/gcs/parser/parser.go": "fc24279e9a247739273140c6f41bb1a636ba738b12b050b39d769f036c6cb35f",
+        "pkg/gcs/parser/parseTarget.go": "555b013c957e15080af8c33bb5414aa9806182285dbb3685958b6f7eec6f6d26",
+        "pkg/gcs/ast/lex.go": "cd792ac1d7eb5dd0a554efbb35122fa4b78c651dd2e451733e2b7ea40bb271ee",
+        "pkg/simulation/setup.go": "14d39712021e9e149ff7c3a5d0e042b7150087e825dac2bb8fd9268e1eeeba67",
+        "pkg/core/info/shape.go": "e2d91f48c10940510035dbd48b33ac8312f239cb7ede5feb40c20430720b80c2",
+        "pkg/core/info/circle.go": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83",
+        "pkg/core/combat/hitbox.go": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679"
+      },
+      "stellar": {
+        "pkg/gcs/parser/parser.go": "fc24279e9a247739273140c6f41bb1a636ba738b12b050b39d769f036c6cb35f",
+        "pkg/gcs/parser/parseTarget.go": "555b013c957e15080af8c33bb5414aa9806182285dbb3685958b6f7eec6f6d26",
+        "pkg/gcs/ast/lex.go": "cd792ac1d7eb5dd0a554efbb35122fa4b78c651dd2e451733e2b7ea40bb271ee",
+        "pkg/simulation/setup.go": "7dca1b632e5d95c4ded0813993f53103e9fc621eb13d12be680e670859ad4caa",
+        "pkg/core/info/shape.go": "e2d91f48c10940510035dbd48b33ac8312f239cb7ede5feb40c20430720b80c2",
+        "pkg/core/info/circle.go": "cdec125c270076b8817210f4cba8a943db3ac61c850a4945812327f6a922fc83",
+        "pkg/core/combat/hitbox.go": "5dacc7b780265a3986d70a09e4ac84e7fd3699585b556041eb41898705a41679"
+      }
+    }
+  },
+  "dataHashesUnchangedFrom101": {
+    "packages/game-data/manifests/pointers.json": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "packages/game-data/manifests/runtime/current.ts": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045"
+  },
+  "scope": [
+    "Two focused formatter tests, one Web build, one classic near/far page case, all first pass.",
+    "Team draft import/edit/export and script generation verified without a new team execution.",
+    "No source-native rebuild, no stellar rerun, no game hitbox certification or complete-cast promotion."
+  ],
+  "goalStatus": "active"
+}

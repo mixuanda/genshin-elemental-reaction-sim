@@ -1,0 +1,9 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/e2e/itto-energy-controls.spec.ts(128,25): error TS2353: Object literal may only specify known properties, and 'actorId' does not exist in type 'TimelineSwapCommand'.

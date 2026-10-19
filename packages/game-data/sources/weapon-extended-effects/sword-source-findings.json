@@ -1,0 +1,1683 @@
+{
+  "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "scope": "read-only sword candidate audit; no production changes or tests",
+  "catalogNumericComparisons": {
+    "weaponCount": 18,
+    "refinementRowCount": 86,
+    "result": "all expected source-coefficient values match active catalog; Kagotsurube R1 only"
+  },
+  "notes": [
+    "All numerical formula units are ratios except flat EM.",
+    "Per-hit CR/CD and base damage addends cannot use statModifier globalCR/CD/flatAtk as substitutes.",
+    "Metadata/catalog and fixedreference compatibility supports provisional scoped formulas; no claim of full verified character/weapon simulation."
+  ],
+  "weapons": [
+    {
+      "id": "weapon:11504",
+      "slug": "summitshaper",
+      "name": "斫峰之刃",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "护盾强效提升20%。攻击命中后的8秒内，攻击力提升4%。该效果至多可叠加5层，每0.3秒只能触发一次。此外，处于护盾庇护下时，该效果的攻击力提升效果提高100%。",
+          "values": [
+            "20%",
+            "4%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "护盾强效提升25%。攻击命中后的8秒内，攻击力提升5%。该效果至多可叠加5层，每0.3秒只能触发一次。此外，处于护盾庇护下时，该效果的攻击力提升效果提高100%。",
+          "values": [
+            "25%",
+            "5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "护盾强效提升30%。攻击命中后的8秒内，攻击力提升6%。该效果至多可叠加5层，每0.3秒只能触发一次。此外，处于护盾庇护下时，该效果的攻击力提升效果提高100%。",
+          "values": [
+            "30%",
+            "6%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "护盾强效提升35%。攻击命中后的8秒内，攻击力提升7%。该效果至多可叠加5层，每0.3秒只能触发一次。此外，处于护盾庇护下时，该效果的攻击力提升效果提高100%。",
+          "values": [
+            "35%",
+            "7%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "护盾强效提升40%。攻击命中后的8秒内，攻击力提升8%。该效果至多可叠加5层，每0.3秒只能触发一次。此外，处于护盾庇护下时，该效果的攻击力提升效果提高100%。",
+          "values": [
+            "40%",
+            "8%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/summit/summit.go",
+        "internal/weapons/common/goldenmajesty.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/summit/summit.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/summit/summit.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/summit/summit.go",
+          "sha256": "15fe03b431c55fe8b949848ad6ed763a3d66b9388f1ab1ccd8bb22572e41befa",
+          "bytes": 394
+        },
+        {
+          "upstreamPath": "internal/weapons/common/goldenmajesty.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/goldenmajesty.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/goldenmajesty.go",
+          "sha256": "6f39046147d9c5997bb49f90704e91831ce50d0b121a79377e55ee4033f08e93",
+          "bytes": 1817
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "atkPercent",
+          "expression": "weaponStacks * (0.03 + 0.01 * r) * (shielded ? 2 : 1)",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "weaponStacks": "integer 0..5; currently valid 8s stacks",
+        "shielded": "boolean; shield protection at stat sampling"
+      },
+      "sourceConditions": [
+        "Owned on-field enemy damage adds stack; 18f ICD; 480f duration for whole stack buff, refreshed together; cap 5.",
+        "Shield double is evaluated dynamically at stat lookup."
+      ],
+      "blockers": [
+        "Shield strength 20/25/30/35/40% requires survival properties, not damage bonus.",
+        "Automatic hit triggers, shield acquisition/loss and hitlag timing are not reproduced by restored per-hit context."
+      ],
+      "handComputedExamples": {
+        "r1Stacks5Shielded": {
+          "atkPercent": 0.4
+        },
+        "r5Stacks5Shielded": {
+          "atkPercent": 0.8
+        },
+        "r1Stacks5Unshielded": {
+          "atkPercent": 0.2
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11503",
+      "slug": "freedomsworn",
+      "name": "苍古自由之誓",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "飘游风中的「千年的大乐章」的一部分。造成的伤害提高10%；触发元素反应时，角色获得一枚奋起之符，每0.5秒内至多触发一次，角色处于队伍后台也能触发。拥有2枚奋起之符时，将消耗所有奋起之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·抗争之歌」效果：普通攻击、重击、下落攻击造成的伤害提高16%，攻击力提升20%。触发后20秒内，无法再次获得奋起之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "10%",
+            "16%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "飘游风中的「千年的大乐章」的一部分。造成的伤害提高12.5%；触发元素反应时，角色获得一枚奋起之符，每0.5秒内至多触发一次，角色处于队伍后台也能触发。拥有2枚奋起之符时，将消耗所有奋起之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·抗争之歌」效果：普通攻击、重击、下落攻击造成的伤害提高20%，攻击力提升25%。触发后20秒内，无法再次获得奋起之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "12.5%",
+            "20%",
+            "25%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "飘游风中的「千年的大乐章」的一部分。造成的伤害提高15%；触发元素反应时，角色获得一枚奋起之符，每0.5秒内至多触发一次，角色处于队伍后台也能触发。拥有2枚奋起之符时，将消耗所有奋起之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·抗争之歌」效果：普通攻击、重击、下落攻击造成的伤害提高24%，攻击力提升30%。触发后20秒内，无法再次获得奋起之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "15%",
+            "24%",
+            "30%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "飘游风中的「千年的大乐章」的一部分。造成的伤害提高17.5%；触发元素反应时，角色获得一枚奋起之符，每0.5秒内至多触发一次，角色处于队伍后台也能触发。拥有2枚奋起之符时，将消耗所有奋起之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·抗争之歌」效果：普通攻击、重击、下落攻击造成的伤害提高28%，攻击力提升35%。触发后20秒内，无法再次获得奋起之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "17.5%",
+            "28%",
+            "35%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "飘游风中的「千年的大乐章」的一部分。造成的伤害提高20%；触发元素反应时，角色获得一枚奋起之符，每0.5秒内至多触发一次，角色处于队伍后台也能触发。拥有2枚奋起之符时，将消耗所有奋起之符，使附近的队伍中所有角色获得持续12秒的「千年的大乐章·抗争之歌」效果：普通攻击、重击、下落攻击造成的伤害提高32%，攻击力提升40%。触发后20秒内，无法再次获得奋起之符。「千年的大乐章」触发的多种数值效果中，同类数值效果不可叠加。",
+          "values": [
+            "20%",
+            "32%",
+            "40%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/freedom/freedom.go",
+        "internal/weapons/common/millennial.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/freedom/freedom.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/freedom/freedom.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/freedom/freedom.go",
+          "sha256": "d734056ccf7e7e7ccf6424e576b53fb51c226b8725f7df3c4fa18635f4ef548f",
+          "bytes": 3497
+        },
+        {
+          "upstreamPath": "internal/weapons/common/millennial.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/millennial.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/common/millennial.go",
+          "sha256": "ee302ed581ef718533b6ac2c5d1790814f1c8d7b98fc8244253dc5d0b7a8e975",
+          "bytes": 56
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "0.075 + 0.025 * r",
+          "attackTags": "all ordinary damage"
+        },
+        {
+          "target": "atkPercent",
+          "expression": "timedEffectActive ? 0.15 + 0.05 * r : 0",
+          "phase": "pre-panel"
+        },
+        {
+          "target": "dynamicHitBonus",
+          "expression": "timedEffectActive ? 0.12 + 0.04 * r : 0",
+          "attackTags": [
+            "normal",
+            "charged",
+            "plunge"
+          ]
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; effective Song of Resistance 12s window for wearer, after same-stat Millennial conflict resolution"
+      },
+      "sourceConditions": [
+        "Owned reaction can add sigil off-field; 30f ICD; exactly 2 sigils consumes and grants party buffs for 720f; 1200f sigil lockout.",
+        "ATK modifier uses shared millennial-atk% key; same type cannot add twice.",
+        "ATK stat buff snapshots, normal/charged/plunge attack modifier is separate."
+      ],
+      "blockers": [
+        "No automatic sigil/reaction state or party propagation.",
+        "Other Millennial ATK effects must resolve exclusivity before restoring this effective window; do not count duplicated team ATK buff."
+      ],
+      "handComputedExamples": {
+        "r1Active": {
+          "atkPercent": 0.2,
+          "allDamageBonus": 0.1,
+          "normalChargedPlungeExtra": 0.16
+        },
+        "r5Active": {
+          "atkPercent": 0.4,
+          "allDamageBonus": 0.2,
+          "normalChargedPlungeExtra": 0.32
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11306",
+      "slug": "skyridersword",
+      "name": "飞天御剑",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "施放元素爆发后，提高12%攻击力和移动速度，持续15秒。",
+          "values": [
+            "12%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "施放元素爆发后，提高15%攻击力和移动速度，持续15秒。",
+          "values": [
+            "15%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "施放元素爆发后，提高18%攻击力和移动速度，持续15秒。",
+          "values": [
+            "18%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "施放元素爆发后，提高21%攻击力和移动速度，持续15秒。",
+          "values": [
+            "21%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "施放元素爆发后，提高24%攻击力和移动速度，持续15秒。",
+          "values": [
+            "24%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/skyrider/skyrider.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/skyrider/skyrider.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/skyrider/skyrider.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/skyrider/skyrider.go",
+          "sha256": "a520de01e03db0f59afa6c2116027509938c07d17bbe04067bd7bdac4d8efc05",
+          "bytes": 1219
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "atkPercent",
+          "expression": "timedEffectActive ? 0.09 + 0.03 * r : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; owned burst 15s ATK window"
+      },
+      "sourceConditions": [
+        "OnBurst while wearer active adds 900f hitlag-aware ATK buff."
+      ],
+      "blockers": [
+        "Movement speed 12/15/18/21/24% excluded; no automatic timing."
+      ],
+      "handComputedExamples": {
+        "r1Active": {
+          "atkPercent": 0.12
+        },
+        "r5Active": {
+          "atkPercent": 0.24
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11410",
+      "slug": "thealleyflash",
+      "name": "暗巷闪光",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "角色造成的伤害提升12%。受到伤害后，该伤害提升效果会失效5秒。",
+          "values": [
+            "12%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "角色造成的伤害提升15%。受到伤害后，该伤害提升效果会失效5秒。",
+          "values": [
+            "15%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "角色造成的伤害提升18%。受到伤害后，该伤害提升效果会失效5秒。",
+          "values": [
+            "18%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "角色造成的伤害提升21%。受到伤害后，该伤害提升效果会失效5秒。",
+          "values": [
+            "21%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "角色造成的伤害提升24%。受到伤害后，该伤害提升效果会失效5秒。",
+          "values": [
+            "24%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/alley/alley.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/alley/alley.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/alley/alley.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/alley/alley.go",
+          "sha256": "80429e3263b56d6219e95d81f3a4cf66a2a9cb5ff17ea7fce575d902f151656a",
+          "bytes": 1370
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "timedEffectActive ? 0.09 + 0.03 * r : 0",
+          "attackTags": "all ordinary damage"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; damage bonus is available, i.e. not in 5s external damage lockout"
+      },
+      "sourceConditions": [
+        "Positive external HP drain of owner adds 300f hitlag-aware lockout; own HP consumption (External=false) does not.",
+        "Stat-based damage bonus checks lockout at sampling; do not infer from current HP fraction."
+      ],
+      "blockers": [
+        "No damage-receipt history inferred; restored active state must distinguish external damage from self drain."
+      ],
+      "handComputedExamples": {
+        "r1Active": {
+          "allDamageBonus": 0.12
+        },
+        "r5Active": {
+          "allDamageBonus": 0.24
+        },
+        "inactive": {
+          "allDamageBonus": 0
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11413",
+      "slug": "festeringdesire",
+      "name": "腐殖之剑",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技造成的伤害增加16%，元素战技的暴击率提升6%。",
+          "values": [
+            "16%",
+            "6%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技造成的伤害增加20%，元素战技的暴击率提升7.5%。",
+          "values": [
+            "20%",
+            "7.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技造成的伤害增加24%，元素战技的暴击率提升9%。",
+          "values": [
+            "24%",
+            "9%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技造成的伤害增加28%，元素战技的暴击率提升10.5%。",
+          "values": [
+            "28%",
+            "10.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技造成的伤害增加32%，元素战技的暴击率提升12%。",
+          "values": [
+            "32%",
+            "12%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/festering/festering.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/festering/festering.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/festering/festering.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/festering/festering.go",
+          "sha256": "27931c1fef196aae8d5dfb9d90f0a23ef5678326e667939be77709be6056d9d0",
+          "bytes": 1035
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "0.12 + 0.04 * r",
+          "attackTags": [
+            "skill"
+          ]
+        }
+      ],
+      "explicitContext": {},
+      "sourceConditions": [
+        "Skill tap/hold attack tags only."
+      ],
+      "blockers": [
+        "Skill-only CR 6/7.5/9/10.5/12% cannot be a global CR stat modifier; partial formula only until tag-scoped CR exists."
+      ],
+      "handComputedExamples": {
+        "r1Skill": {
+          "damageBonus": 0.16
+        },
+        "r5Skill": {
+          "damageBonus": 0.32
+        },
+        "burst": {
+          "damageBonus": 0
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11416",
+      "slug": "kagotsurubeisshin",
+      "name": "笼钓瓶一心",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "普通攻击、重击或下落攻击命中敌人时，将卷起切落风，造成180%攻击力的范围伤害，并且使攻击力提升15%，持续8秒。该效果每8秒至多触发一次。",
+          "values": []
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/kagotsurubeisshin/kagotsurubeisshin.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/kagotsurubeisshin/kagotsurubeisshin.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/kagotsurubeisshin/kagotsurubeisshin.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/kagotsurubeisshin/kagotsurubeisshin.go",
+          "sha256": "8c073132728377520472412777df3a78bdd526abe6f3ee5775ebebcdeb6cf585",
+          "bytes": 2326
+        }
+      ],
+      "numericRanksMatched": 1,
+      "formulaCompatibleScope": [
+        {
+          "target": "atkPercent",
+          "expression": "timedEffectActive ? 0.15 : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; current 8s ATK buff"
+      },
+      "sourceConditions": [
+        "ONLY R1 exists in active catalog; refinements 2..5 must reject.",
+        "Owned on-field normal/charged/plunge enemy damage, 480f ICD and 480f hitlag-aware buff.",
+        "Proc receives new ATK buff first; queued physical WeaponSkill, mult=1.8, radius3, delay1f."
+      ],
+      "blockers": [
+        "180% ATK physical area proc is a separate damage event, not flatAtk nor a DMG% buff.",
+        "Proc ownership, targeting, trigger and timing unimplemented in static context."
+      ],
+      "handComputedExamples": {
+        "r1Active": {
+          "atkPercent": 0.15
+        },
+        "r1Inactive": {
+          "atkPercent": 0
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11417",
+      "slug": "sapwoodblade",
+      "name": "原木刀",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升60点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "60"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升75点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "75"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升90点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "90"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升105点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "105"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "触发燃烧、原激化、超激化、蔓激化、绽放、月绽放、超绽放或烈绽放后，将在角色周围产生至多存在10秒的「种识之叶」。拾取种识之叶的角色元素精通提升120点，持续12秒。每20秒至多通过这种方式产生一枚种识之叶。角色处于队伍后台时也能触发。种识之叶的效果无法叠加。",
+          "values": [
+            "120"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/sapwoodblade/sapwoodblade.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/sapwoodblade/sapwoodblade.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sapwoodblade/sapwoodblade.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/sapwoodblade/sapwoodblade.go",
+          "sha256": "85b748c6e1f32a3973dc627ccb6d52479e595848b01752c211e4eddb333228d9",
+          "bytes": 2697
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "em",
+          "expression": "timedEffectActive ? 45 + 15 * r : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; wearer actually picked up a valid leaf and its 12s EM buff is effective"
+      },
+      "sourceConditions": [
+        "Fixed source includes Burning, Quicken, Aggravate, Spread, Bloom, LunarBloom, Hyperbloom, Burgeon.",
+        "Owner-triggered event may occur off-field; 1200f leaf creation ICD; configured pickup goes to active character at pickup, 720f buff using forest-sanctuary shared key.",
+        "Catalog leaf lifetime is10s. Fixed code takes pickup_delay, ignores <=0, but does not enforce maximum600f; do not infer valid pickups from arbitrary delay."
+      ],
+      "blockers": [
+        "Do not grant EM automatically to weapon owner: leaf can belong to another recipient.",
+        "No party propagation, leaf pickup or nonstacking conflict simulation; effective-window context asserts wearer is recipient."
+      ],
+      "handComputedExamples": {
+        "r1Active": {
+          "em": 60
+        },
+        "r5Active": {
+          "em": 120
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11424",
+      "slug": "wolffang",
+      "name": "狼牙",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技与元素爆发造成的伤害提升16%。元素战技命中敌人时，元素战技的暴击率提升2%；元素爆发命中敌人时，元素爆发的暴击率提升2%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+          "values": [
+            "16%",
+            "2%",
+            "2%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技与元素爆发造成的伤害提升20%。元素战技命中敌人时，元素战技的暴击率提升2.5%；元素爆发命中敌人时，元素爆发的暴击率提升2.5%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+          "values": [
+            "20%",
+            "2.5%",
+            "2.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技与元素爆发造成的伤害提升24%。元素战技命中敌人时，元素战技的暴击率提升3%；元素爆发命中敌人时，元素爆发的暴击率提升3%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+          "values": [
+            "24%",
+            "3%",
+            "3%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技与元素爆发造成的伤害提升28%。元素战技命中敌人时，元素战技的暴击率提升3.5%；元素爆发命中敌人时，元素爆发的暴击率提升3.5%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+          "values": [
+            "28%",
+            "3.5%",
+            "3.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技与元素爆发造成的伤害提升32%。元素战技命中敌人时，元素战技的暴击率提升4%；元素爆发命中敌人时，元素爆发的暴击率提升4%。上述两种效果各自持续10秒，至多叠加4次，每0.1秒至多触发一次。",
+          "values": [
+            "32%",
+            "4%",
+            "4%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/wolffang/wolffang.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/wolffang/wolffang.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/wolffang/wolffang.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/wolffang/wolffang.go",
+          "sha256": "7edd32ef6ed3756165f484c38f8baa2430cabe334b352b315582355bbbb929ad",
+          "bytes": 2860
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "0.12 + 0.04 * r",
+          "attackTags": [
+            "skill",
+            "burst"
+          ]
+        }
+      ],
+      "explicitContext": {},
+      "sourceConditions": [
+        "Damage bonus permanent; skill tap/hold and burst tags.",
+        "Owned on-field eligible hit builds separate skill/burst CR stacks, each6f ICD,600f refreshed shared duration per category, max4; off-field cannot acquire stacks in fixed source."
+      ],
+      "blockers": [
+        "Skill/burst scoped CR per stack 2/2.5/3/3.5/4% needs two separate conditional CR tracks, not one global CR modifier."
+      ],
+      "handComputedExamples": {
+        "r1SkillBurst": {
+          "damageBonus": 0.16
+        },
+        "r5SkillBurst": {
+          "damageBonus": 0.32
+        },
+        "normal": {
+          "damageBonus": 0
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11426",
+      "slug": "fleuvecendreferryman",
+      "name": "灰河渡手",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素战技暴击率提升8%；此外，施放元素战技后的5秒内，元素充能效率提升16%。",
+          "values": [
+            "8%",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素战技暴击率提升10%；此外，施放元素战技后的5秒内，元素充能效率提升20%。",
+          "values": [
+            "10%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素战技暴击率提升12%；此外，施放元素战技后的5秒内，元素充能效率提升24%。",
+          "values": [
+            "12%",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素战技暴击率提升14%；此外，施放元素战技后的5秒内，元素充能效率提升28%。",
+          "values": [
+            "14%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素战技暴击率提升16%；此外，施放元素战技后的5秒内，元素充能效率提升32%。",
+          "values": [
+            "16%",
+            "32%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/fleuvecendreferryman/fleuvecendreferryman.go",
+          "sha256": "538efc88ce829e8905b83fedfc5299cf60edde9866b353e5ba8cd43d37b9fdcb",
+          "bytes": 1763
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "energyRechargeBonus",
+          "expression": "timedEffectActive ? 0.12 + 0.04 * r : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; owned skill cast 5s ER window"
+      },
+      "sourceConditions": [
+        "OnSkill while wearer active adds300f hitlag-aware ER.",
+        "Permanent CR modifier applies only skill tap/hold."
+      ],
+      "blockers": [
+        "Skill-only CR 8/10/12/14/16% excluded until scoped CR supported."
+      ],
+      "handComputedExamples": {
+        "r1Active": {
+          "energyRechargeBonus": 0.16
+        },
+        "r5Active": {
+          "energyRechargeBonus": 0.32
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11427",
+      "slug": "thedockhandsassistant",
+      "name": "船坞长剑",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高40点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复2点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "40",
+            "2"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高50点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复2.5点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "50",
+            "2.5"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高60点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复3点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "60",
+            "3"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高70点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复3.5点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "70",
+            "3.5"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "受到治疗或进行治疗时，将赋予一枚坚忍标记，持续30秒，至多拥有三枚坚忍标记。施放元素战技或元素爆发时，将消耗所有的坚忍标记，产生持续10秒的「奋起」效果：每枚消耗的坚忍标记提高80点元素精通，并在效果产生2秒后，每枚消耗的坚忍标记为装备者恢复4点元素能量。每15秒至多触发一次奋起效果；角色处于队伍后台时也能获得坚忍标记。",
+          "values": [
+            "80",
+            "4"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/dockhand/dockhand.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/dockhand/dockhand.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dockhand/dockhand.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/dockhand/dockhand.go",
+          "sha256": "558a95563e4c48720cd4f51a6118c71d18ef0faea483f356b86551686b234a12",
+          "bytes": 3273
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "em",
+          "expression": "timedEffectActive ? weaponStacks * (30 + 10 * r) : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; 10s Roused window active",
+        "weaponStacks": "integer0..3; symbols consumed for this active buff, NOT currently held symbols"
+      },
+      "sourceConditions": [
+        "Positive healing where wearer is caller OR recipient grants stack; off-field allowed;30s common symbol duration refreshed;cap3.",
+        "Owned on-field skill/burst consumes available stacks;15sICD;10sEM;2s delayed flat energy refund.",
+        "Healing event amount must be >0; code does not require effective nonoverheal."
+      ],
+      "blockers": [
+        "Energy refund (1.5+0.5*r)*consumedSymbols is a separate delayed flat energy event; not ER and not EM.",
+        "Heal triggers and symbol consumption not automatically simulated."
+      ],
+      "handComputedExamples": {
+        "r1ActiveConsumed3": {
+          "em": 120,
+          "unsupportedEnergyRefund": 6
+        },
+        "r5ActiveConsumed3": {
+          "em": 240,
+          "unsupportedEnergyRefund": 12
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11432",
+      "slug": "calamityofeshu",
+      "name": "厄水之祸",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升20%，普通攻击和重击的暴击率提升8%。",
+          "values": [
+            "20%",
+            "8%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升25%，普通攻击和重击的暴击率提升10%。",
+          "values": [
+            "25%",
+            "10%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升30%，普通攻击和重击的暴击率提升12%。",
+          "values": [
+            "30%",
+            "12%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升35%，普通攻击和重击的暴击率提升14%。",
+          "values": [
+            "35%",
+            "14%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "角色处于护盾庇护下时，普通攻击和重击造成的伤害提升40%，普通攻击和重击的暴击率提升16%。",
+          "values": [
+            "40%",
+            "16%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/calamityofeshu/calamityofeshu.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/calamityofeshu/calamityofeshu.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/calamityofeshu/calamityofeshu.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/calamityofeshu/calamityofeshu.go",
+          "sha256": "34dc842904d4a0a558e4cc919489c09585b9c98391c2976cbd7e324481757416",
+          "bytes": 1133
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "shielded ? 0.15 + 0.05 * r : 0",
+          "attackTags": [
+            "normal",
+            "charged"
+          ]
+        }
+      ],
+      "explicitContext": {
+        "shielded": "boolean; wearer shielded at hit"
+      },
+      "sourceConditions": [
+        "Both DMG% and CR modifier require shield and normal/charged tag."
+      ],
+      "blockers": [
+        "Normal/charged scoped CR 8/10/12/14/16% must not become global CR."
+      ],
+      "handComputedExamples": {
+        "r1ShieldedNormalCharged": {
+          "damageBonus": 0.2
+        },
+        "r5ShieldedNormalCharged": {
+          "damageBonus": 0.4
+        },
+        "unshielded": {
+          "damageBonus": 0
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11433",
+      "slug": "serenityscall",
+      "name": "谧音吹哨",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "触发元素反应后的12秒内，生命值上限提高16%。月兆·满辉：该效果中的生命值上限额外提高16%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "16%",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "触发元素反应后的12秒内，生命值上限提高20%。月兆·满辉：该效果中的生命值上限额外提高20%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "20%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "触发元素反应后的12秒内，生命值上限提高24%。月兆·满辉：该效果中的生命值上限额外提高24%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "24%",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "触发元素反应后的12秒内，生命值上限提高28%。月兆·满辉：该效果中的生命值上限额外提高28%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "28%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "触发元素反应后的12秒内，生命值上限提高32%。月兆·满辉：该效果中的生命值上限额外提高32%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "32%",
+            "32%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/serenityscall/serenityscall.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/serenityscall/serenityscall.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/serenityscall/serenityscall.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/serenityscall/serenityscall.go",
+          "sha256": "3f1356498a6b8e05565fcdf700a3b81a8330dd2f106d0d31b34e687f51c5ac99",
+          "bytes": 1719
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "hpPercent",
+          "expression": "timedEffectActive ? (0.12 + 0.04 * r) * (moonsignAscendant ? 2 : 1) : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; wearer reaction12sHPbuff active",
+        "moonsignAscendant": "boolean; independently confirmed Moonsign level>=2"
+      },
+      "sourceConditions": [
+        "Owned reaction to enemy target; no on-field restriction;720fhitlag-aware buff.",
+        "Moonsign level checked dynamically in modifier."
+      ],
+      "blockers": [
+        "Do not derive Moonsign team rule from character names/counts without verified team module; explicit confirmed state only.",
+        "Automatic reaction eligibility/timing not implemented."
+      ],
+      "handComputedExamples": {
+        "r1ActiveBase": {
+          "hpPercent": 0.16
+        },
+        "r5ActiveBase": {
+          "hpPercent": 0.32
+        },
+        "r1ActiveAscendant": {
+          "hpPercent": 0.32
+        },
+        "r5ActiveAscendant": {
+          "hpPercent": 0.64
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11434",
+      "slug": "moonweaversdawn",
+      "name": "织月者的曙色",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素爆发造成的伤害提高20%；装备者的元素能量上限不超过60/40点时，元素爆发造成的伤害额外提高16%/28%。",
+          "values": [
+            "20%",
+            "16%/28%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素爆发造成的伤害提高25%；装备者的元素能量上限不超过60/40点时，元素爆发造成的伤害额外提高20%/35%。",
+          "values": [
+            "25%",
+            "20%/35%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素爆发造成的伤害提高30%；装备者的元素能量上限不超过60/40点时，元素爆发造成的伤害额外提高24%/42%。",
+          "values": [
+            "30%",
+            "24%/42%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素爆发造成的伤害提高35%；装备者的元素能量上限不超过60/40点时，元素爆发造成的伤害额外提高28%/49%。",
+          "values": [
+            "35%",
+            "28%/49%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素爆发造成的伤害提高40%；装备者的元素能量上限不超过60/40点时，元素爆发造成的伤害额外提高32%/56%。",
+          "values": [
+            "40%",
+            "32%/56%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/moonweaversdawn/moonweaversdawn.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/moonweaversdawn/moonweaversdawn.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/moonweaversdawn/moonweaversdawn.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/moonweaversdawn/moonweaversdawn.go",
+          "sha256": "cb0f47e4bf0b86ececb0d009d5e56d4d121750a8b537473bffe1dcc1cf842a3d",
+          "bytes": 1136
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "(0.15 + 0.05 * r) + (burstEnergyCost <= 40 ? 0.21 + 0.07 * r : burstEnergyCost <= 60 ? 0.12 + 0.04 * r : 0)",
+          "attackTags": [
+            "burst"
+          ]
+        }
+      ],
+      "explicitContext": {
+        "burstEnergyCost": "number>=0; wearer actual energy maximum, NOT remaining energy or team total"
+      },
+      "sourceConditions": [
+        "Reads char.EnergyMax once at weapon initialization.",
+        "<=40 branch has priority; <=60 branch is else-if, never both; exact40 and60 inclusive."
+      ],
+      "blockers": [
+        "Character energy maximum requires verified field or explicit complete context."
+      ],
+      "handComputedExamples": {
+        "r1Cost40": {
+          "burstDamageBonus": 0.48
+        },
+        "r5Cost40": {
+          "burstDamageBonus": 0.96
+        },
+        "r1Cost60": {
+          "burstDamageBonus": 0.36
+        },
+        "r5Cost60": {
+          "burstDamageBonus": 0.72
+        },
+        "r1Cost61": {
+          "burstDamageBonus": 0.2
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11512",
+      "slug": "lightoffoliarincision",
+      "name": "裁叶萃光",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "暴击率提升4%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的120%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+          "values": [
+            "4%",
+            "120%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "暴击率提升5%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的150%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+          "values": [
+            "5%",
+            "150%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "暴击率提升6%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的180%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+          "values": [
+            "6%",
+            "180%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "暴击率提升7%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的210%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+          "values": [
+            "7%",
+            "210%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "暴击率提升8%；普通攻击造成元素伤害后，获得「裁叶」效果：普通攻击和元素战技造成的伤害提高，提高值相当于元素精通的240%。该效果在生效28次或12秒后消失，每12秒至多获得一次「裁叶」效果。",
+          "values": [
+            "8%",
+            "240%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/foliar/foliar.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/foliar/foliar.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/foliar/foliar.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/foliar/foliar.go",
+          "sha256": "e3c6ec3401a23ce61500b992e9f184e92bd202837f9dbf976a47657c4d31df37",
+          "bytes": 2577
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "critRate",
+          "expression": "0.03 + 0.01 * r",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {},
+      "sourceConditions": [
+        "Permanent globalCR; elemental normal hit while owner onfield triggers12sbuff/12sICD,28procs.",
+        "Active normal/skill tap/hold adds currentEM*(0.9+0.3*r) to AttackInfo.FlatDmg.",
+        "Fixed source explicitly assumes triggering first hit gets no addend due ping-dependence."
+      ],
+      "blockers": [
+        "EM-based base damage addend 120/150/180/210/240% is not flatAtk and not DMG%; excluded by current AST channels.",
+        "Trigger-hit assumption,28consumptions,onfield hit scope and12stimers unimplemented."
+      ],
+      "handComputedExamples": {
+        "r1": {
+          "critRate": 0.04
+        },
+        "r5": {
+          "critRate": 0.08
+        },
+        "excludedR1EM100": {
+          "flatDamageAddend": 120
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11513",
+      "slug": "splendoroftranquilwaters",
+      "name": "静水流涌之辉",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "装备者的当前生命值提升或降低时，元素战技造成的伤害提升8%，该效果持续6秒，至多叠加3次，每0.2秒至多触发一次；队伍中其他角色的当前生命值提升或降低时，装备者的生命值上限提升14%，该效果持续6秒，至多叠加2次，每0.2秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "8%",
+            "14%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "装备者的当前生命值提升或降低时，元素战技造成的伤害提升10%，该效果持续6秒，至多叠加3次，每0.2秒至多触发一次；队伍中其他角色的当前生命值提升或降低时，装备者的生命值上限提升17.5%，该效果持续6秒，至多叠加2次，每0.2秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "10%",
+            "17.5%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "装备者的当前生命值提升或降低时，元素战技造成的伤害提升12%，该效果持续6秒，至多叠加3次，每0.2秒至多触发一次；队伍中其他角色的当前生命值提升或降低时，装备者的生命值上限提升21%，该效果持续6秒，至多叠加2次，每0.2秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "12%",
+            "21%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "装备者的当前生命值提升或降低时，元素战技造成的伤害提升14%，该效果持续6秒，至多叠加3次，每0.2秒至多触发一次；队伍中其他角色的当前生命值提升或降低时，装备者的生命值上限提升24.5%，该效果持续6秒，至多叠加2次，每0.2秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "14%",
+            "24.5%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "装备者的当前生命值提升或降低时，元素战技造成的伤害提升16%，该效果持续6秒，至多叠加3次，每0.2秒至多触发一次；队伍中其他角色的当前生命值提升或降低时，装备者的生命值上限提升28%，该效果持续6秒，至多叠加2次，每0.2秒至多触发一次。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "16%",
+            "28%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/splendoroftranquilwaters/splendoroftranquilwaters.go",
+        "pkg/core/player/character/mods.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/splendoroftranquilwaters/splendoroftranquilwaters.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/splendoroftranquilwaters/splendoroftranquilwaters.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/splendoroftranquilwaters/splendoroftranquilwaters.go",
+          "sha256": "67c0ab18736335e12e9bb18f4945cd5a5ae7b63298c3c2c10ec6ec9b4846bc4b",
+          "bytes": 3824
+        },
+        {
+          "upstreamPath": "pkg/core/player/character/mods.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+          "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+          "bytes": 9963
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "dynamicHitBonus",
+          "expression": "weaponStacks * (0.06 + 0.02 * r)",
+          "attackTags": [
+            "skill"
+          ]
+        },
+        {
+          "target": "hpPercent",
+          "expression": "weaponSecondaryStacks * (0.105 + 0.035 * r)",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "weaponStacks": "integer0..3; still-valid wearer HP-change skillDMG stacks",
+        "weaponSecondaryStacks": "integer0..2; independently still-valid other-member HP-change HP% stacks"
+      },
+      "sourceConditions": [
+        "Two independent12fICDs and360f refreshed windows; can trigger off-field.",
+        "Owner positiveHPdrain or nonzeroeffectiveheal increases skillbuff; other member HPchange increasesHPbuff.",
+        "Pure overheal rejected via abs(amount-overheal)<=1e-9.",
+        "StatModIsActive finds common modifier table even for AttackMod: verified mods.go, so source stack checks are not a type mismatch."
+      ],
+      "blockers": [
+        "Two independent trackers cannot be represented by one shared stack count.",
+        "HP-change events,overheal and expiration are restored context, not simulated."
+      ],
+      "handComputedExamples": {
+        "r1Stacks3And2": {
+          "skillDamageBonus": 0.24,
+          "hpPercent": 0.28
+        },
+        "r5Stacks3And2": {
+          "skillDamageBonus": 0.48,
+          "hpPercent": 0.56
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11515",
+      "slug": "absolution",
+      "name": "赦罪",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "暴击伤害提升20%；生命之契的数值增加时，装备者造成的伤害提升16%。该效果持续6秒，至多叠加3次。",
+          "values": [
+            "20%",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "暴击伤害提升25%；生命之契的数值增加时，装备者造成的伤害提升20%。该效果持续6秒，至多叠加3次。",
+          "values": [
+            "25%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "暴击伤害提升30%；生命之契的数值增加时，装备者造成的伤害提升24%。该效果持续6秒，至多叠加3次。",
+          "values": [
+            "30%",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "暴击伤害提升35%；生命之契的数值增加时，装备者造成的伤害提升28%。该效果持续6秒，至多叠加3次。",
+          "values": [
+            "35%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "暴击伤害提升40%；生命之契的数值增加时，装备者造成的伤害提升32%。该效果持续6秒，至多叠加3次。",
+          "values": [
+            "40%",
+            "32%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/absolution/absolution.go",
+        "pkg/core/player/character/mods.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/absolution/absolution.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/absolution/absolution.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/absolution/absolution.go",
+          "sha256": "6d12c30242eace5a86b9a2065213216ccebf2aa1d6b56d92f403031db4d1c258",
+          "bytes": 1619
+        },
+        {
+          "upstreamPath": "pkg/core/player/character/mods.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go",
+          "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+          "bytes": 9963
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "critDamage",
+          "expression": "0.15 + 0.05 * r",
+          "phase": "pre-panel"
+        },
+        {
+          "target": "dynamicHitBonus",
+          "expression": "weaponStacks * (0.12 + 0.04 * r)",
+          "attackTags": "all ordinary damage"
+        }
+      ],
+      "explicitContext": {
+        "weaponStacks": "integer0..3; still-valid6s stacks from own Bond of Life increases"
+      },
+      "sourceConditions": [
+        "Permanent globalCD; OnHPDebt for ownindex with negativeamount addsstack;max3;360f refreshedcommonwindow.",
+        "Active catalog identifies event as Bond of Life value increase; code amount sign is internal debt convention.",
+        "StatModIsActive accepts AttackMod keys through common modifier table."
+      ],
+      "blockers": [
+        "Do not infer stack count from current Bond of Life amount; event history needed.",
+        "Debt events,refresh and timing not automatically executed."
+      ],
+      "handComputedExamples": {
+        "r1Stacks3": {
+          "critDamage": 0.2,
+          "allDamageBonus": 0.48
+        },
+        "r5Stacks3": {
+          "critDamage": 0.4,
+          "allDamageBonus": 0.96
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11517",
+      "slug": "azurelight",
+      "name": "苍耀",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "施放元素战技后的12秒内，攻击力提升24%。持续期间，装备者的元素能量为0时，攻击力还会提升24%，且暴击伤害提升40%。",
+          "values": [
+            "24%",
+            "24%",
+            "40%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "施放元素战技后的12秒内，攻击力提升30%。持续期间，装备者的元素能量为0时，攻击力还会提升30%，且暴击伤害提升50%。",
+          "values": [
+            "30%",
+            "30%",
+            "50%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "施放元素战技后的12秒内，攻击力提升36%。持续期间，装备者的元素能量为0时，攻击力还会提升36%，且暴击伤害提升60%。",
+          "values": [
+            "36%",
+            "36%",
+            "60%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "施放元素战技后的12秒内，攻击力提升42%。持续期间，装备者的元素能量为0时，攻击力还会提升42%，且暴击伤害提升70%。",
+          "values": [
+            "42%",
+            "42%",
+            "70%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "施放元素战技后的12秒内，攻击力提升48%。持续期间，装备者的元素能量为0时，攻击力还会提升48%，且暴击伤害提升80%。",
+          "values": [
+            "48%",
+            "48%",
+            "80%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/azurelight/azurelight.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/azurelight/azurelight.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/azurelight/azurelight.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/azurelight/azurelight.go",
+          "sha256": "1076373ec9f529b60430b91191653bd3c3835309e451e6f1f191280a62f72ebe",
+          "bytes": 1348
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "atkPercent",
+          "expression": "timedEffectActive ? (0.18 + 0.06 * r) * (energyZero ? 2 : 1) : 0",
+          "phase": "pre-panel"
+        },
+        {
+          "target": "critDamage",
+          "expression": "timedEffectActive && energyZero ? 0.30 + 0.10 * r : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; ownedskill12swindow",
+        "energyZero": "boolean; current wearer energy is exactly0 at stat sampling"
+      },
+      "sourceConditions": [
+        "Ownedskill whileweareractive grants720fhitlag-awaremodifier; Energy==0 check dynamic insideAmount().",
+        "Outside12swindow evenzeroEnergy grantsnothing."
+      ],
+      "blockers": [
+        "Energy consumption/gain and window timing need event integration; no inference from fullEnergy=false."
+      ],
+      "handComputedExamples": {
+        "r1ActiveEnergy0": {
+          "atkPercent": 0.48,
+          "critDamage": 0.4
+        },
+        "r5ActiveEnergy0": {
+          "atkPercent": 0.96,
+          "critDamage": 0.8
+        },
+        "r1ActiveNonzero": {
+          "atkPercent": 0.24,
+          "critDamage": 0
+        },
+        "inactiveEnergy0": {
+          "atkPercent": 0,
+          "critDamage": 0
+        }
+      },
+      "verification": "provisional"
+    },
+    {
+      "id": "weapon:11518",
+      "slug": "athameartis",
+      "name": "黑蚀",
+      "refinements": [
+        {
+          "rank": 1,
+          "description": "元素爆发造成的暴击伤害提升16%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升20%，除装备者以外，队伍中附近的当前场上角色攻击力提升16%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "16%",
+            "20%",
+            "16%"
+          ]
+        },
+        {
+          "rank": 2,
+          "description": "元素爆发造成的暴击伤害提升20%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升25%，除装备者以外，队伍中附近的当前场上角色攻击力提升20%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "20%",
+            "25%",
+            "20%"
+          ]
+        },
+        {
+          "rank": 3,
+          "description": "元素爆发造成的暴击伤害提升24%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升30%，除装备者以外，队伍中附近的当前场上角色攻击力提升24%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "24%",
+            "30%",
+            "24%"
+          ]
+        },
+        {
+          "rank": 4,
+          "description": "元素爆发造成的暴击伤害提升28%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升35%，除装备者以外，队伍中附近的当前场上角色攻击力提升28%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "28%",
+            "35%",
+            "28%"
+          ]
+        },
+        {
+          "rank": 5,
+          "description": "元素爆发造成的暴击伤害提升32%；元素爆发命中敌人时，将获得「白昼之刃」效果：攻击力提升40%，除装备者以外，队伍中附近的当前场上角色攻击力提升32%，持续3秒。\n此外，队伍拥有「魔导·秘仪」效果时，「白昼之刃」的效果额外提升75%。装备者处于队伍后台时，依然能触发上述效果。",
+          "values": [
+            "32%",
+            "40%",
+            "32%"
+          ]
+        }
+      ],
+      "sourcePaths": [
+        "internal/weapons/sword/athameartis/athameartis.go"
+      ],
+      "sourceEvidence": [
+        {
+          "upstreamPath": "internal/weapons/sword/athameartis/athameartis.go",
+          "rawUrl": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go",
+          "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/sword/athameartis/athameartis.go",
+          "sha256": "5cb1564828175529d7643333fb20f61fb9f202902c6bb666ac9a6aa866bf5281",
+          "bytes": 3767
+        }
+      ],
+      "numericRanksMatched": 5,
+      "formulaCompatibleScope": [
+        {
+          "target": "atkPercent",
+          "expression": "timedEffectActive ? (0.15 + 0.05 * r) * (hexereiActive ? 1.75 : 1) : 0",
+          "phase": "pre-panel"
+        }
+      ],
+      "explicitContext": {
+        "timedEffectActive": "boolean; ownburst-hit3sATKwindow already established",
+        "hexereiActive": "boolean; verified party Hexerei effect (fixedsourceCount>=2)"
+      },
+      "sourceConditions": [
+        "Own burst hit againstenemy grants/refreshes180fselfATK; owner can beofffield.",
+        "SelfATK multiplier is computed duringweaponInit; no dynamicteamchange inferred.",
+        "Team current on-field non-wearer receives 16/20/24/28/32% ATK, multiplied by 1.75 with Hexerei. Team refresh is 60f, duration 180f or 120f with Hexerei; multiple Athame keeps first refinement."
+      ],
+      "blockers": [
+        "Burst-onlyCD16/20/24/28/32% cannot be globalCD.",
+        "SourceTODO:triggeringbursthit should receiveATKbutgcsim snapshotsbeforeOnEnemyHit,thereforemissesit. Restore establishedwindowonly; triggerhitmechanic unresolved.",
+        "No teamATK propagation,currentactivecharacter switching,multipleweaponrefreshorHexereiteamrule inferred."
+      ],
+      "handComputedExamples": {
+        "r1ActiveNoHexerei": {
+          "atkPercent": 0.2
+        },
+        "r5ActiveNoHexerei": {
+          "atkPercent": 0.4
+        },
+        "r1ActiveHexerei": {
+          "atkPercent": 0.35
+        },
+        "r5ActiveHexerei": {
+          "atkPercent": 0.7
+        }
+      },
+      "verification": "provisional"
+    }
+  ]
+}

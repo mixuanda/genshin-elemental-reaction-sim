@@ -1,0 +1,184 @@
+
+Running 2 tests using 2 workers
+
+(node:19131) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+(node:19130) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1/2] [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent
+[2/2] [chromium] › apps/web/e2e/artifact-damage-lifecycle.spec.ts:69:1 › Normal team controls execute Echoes and Song lifecycles, explain actual host additions, and restore calculator and full-run JSON
+  1) [chromium] › apps/web/e2e/artifact-damage-lifecycle.spec.ts:69:1 › Normal team controls execute Echoes and Song lifecycles, explain actual host additions, and restore calculator and full-run JSON 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  - 18
+    + Received  + 18
+
+    @@ -3,33 +3,33 @@
+          "detail": "展开：最终攻击力的计算与解释已应用基础攻击力先乘百分比攻击增益，再加入固定攻击力。符号公式((baseAtk × (1 + atkPercent)) + flatAtk)实际代入与中间结果((1000 × (1 + 0)) + 0) = 1,000baseAtk基础攻击力数值：1000 atk；来源：captured-snapshotatkPercent攻击力百分比比例数值：0 倍率 / 比例；来源：captured-snapshotflatAtk固定攻击力数值：0 atk；来源：captured-snapshot适用条件：snapshot:hit;owner:a本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 snapshotFinalStat · 完整精度 1000；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "snapshotFinalStat",
+          "text": "最终攻击力1,000((baseAtk × (1 + atkPercent)) + flatAtk)",
+        },
+        Object {
+    -     "detail": "展开：昔时之歌加算基伤的计算与解释条件假定在本击暴击、增伤、防御、抗性与增幅反应乘区前加入普通加算基伤。余响使用本次实际回调的实时攻击力；昔时使用六秒记录窗口封存的治疗量。符号公式(sourceAmount × 0.08)实际代入与中间结果(15000 × 0.08) = 1,200sourceAmount六秒窗口转换时封存的治疗量数值：15000 HP；来源：actual-artifact-callback固定 b4ae769 的 OnEnemyHit 前伤害回调，只覆盖实际普通命中和显式治疗；两件套属性已包含于输入面板。；余响使用本工具独立命名随机流，不宣称复现 gcsim 或游戏随机序列；成功窗口不延长，实时攻击力逐次重读。；昔时记录治疗加成后、清除生命之契前的请求治疗量，包含溢出和抵债部分。；昔时按固定源码共享记录池；多个持有者在同一命中依次重复消费共享次数并加伤，此来源行为未经实机确认。；昔时转换与同帧治疗按已声明事件队列顺序；不推断角色卡肉、未声明治疗或旧战斗状态。本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/songofdayspast/songofdayspast.go计算规则 artifact.flat.0 · 完整精度 1200；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：余响来歆加算基伤的计算与解释条件假定在本击暴击、增伤、防御、抗性与增幅反应乘区前加入普通加算基伤。余响使用本次实际回调的实时攻击力；昔时使用六秒记录窗口封存的治疗量。符号公式(sourceAmount × 0.7)实际代入与中间结果(1000 × 0.7) = 700sourceAmount命中回调时本人实时攻击力数值：1000 ATK；来源：actual-artifact-callback固定 b4ae769 的 OnEnemyHit 前伤害回调，只覆盖实际普通命中和显式治疗；两件套属性已包含于输入面板。；余响使用本工具独立命名随机流，不宣称复现 gcsim 或游戏随机序列；成功窗口不延长，实时攻击力逐次重读。；昔时记录治疗加成后、清除生命之契前的请求治疗量，包含溢出和抵债部分。；昔时按固定源码共享记录池；多个持有者在同一命中依次重复消费共享次数并加伤，此来源行为未经实机确认。；昔时转换与同帧治疗按已声明事件队列顺序；不推断角色卡肉、未声明治疗或旧战斗状态。本步骤来源https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/artifacts/echoes/echoes.go计算规则 artifact.flat.0 · 完整精度 700；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "artifact.flat.0",
+    -     "text": "昔时之歌加算基伤1,200(sourceAmount × 0.08)",
+    +     "text": "余响来歆加算基伤700(sourceAmount × 0.7)",
+        },
+        Object {
+          "detail": "展开：天赋基础伤害的计算与解释已应用指定缩放面板乘以有效天赋系数。符号公式(scaling × scalingValue)实际代入与中间结果(1 × 1000) = 1,000scaling天赋倍率数值：1 倍率 / 比例；来源：calculation-contextscalingValue用于缩放的面板数值数值：1000 面板数值；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 talentDamage · 完整精度 1000；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "talentDamage",
+          "text": "天赋基础伤害1,000(scaling × scalingValue)",
+        },
+        Object {
+    -     "detail": "展开：加入附加基础伤害的计算与解释已应用附加基础伤害在天赋缩放后相加；它不是固定攻击力，不再乘天赋系数。符号公式(talentDamage + flatDamage)实际代入与中间结果(1000 + 1200) = 2,200talentDamage天赋基础伤害数值：1000 伤害；来源：previous-step · talentDamageflatDamage附加基础伤害数值：1200 伤害；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 baseDamage · 完整精度 2200；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：加入附加基础伤害的计算与解释已应用附加基础伤害在天赋缩放后相加；它不是固定攻击力，不再乘天赋系数。符号公式(talentDamage + flatDamage)实际代入与中间结果(1000 + 700) = 1,700talentDamage天赋基础伤害数值：1000 伤害；来源：previous-step · talentDamageflatDamage附加基础伤害数值：700 伤害；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 baseDamage · 完整精度 1700；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "baseDamage",
+    -     "text": "加入附加基础伤害2,200(talentDamage + flatDamage)",
+    +     "text": "加入附加基础伤害1,700(talentDamage + flatDamage)",
+        },
+        Object {
+          "detail": "展开：伤害加成乘区的计算与解释已应用只使用此伤害实例适用的伤害加成。符号公式(1 + damageBonus)实际代入与中间结果(1 + 0) = 1damageBonus适用伤害加成数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 damageBonusMultiplier · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "damageBonusMultiplier",
+          "text": "伤害加成乘区1(1 + damageBonus)",
+        },
+        Object {
+    -     "detail": "展开：伤害加成后的计算与解释已应用加入附加基础伤害后，再乘伤害加成乘区。符号公式(baseDamage × damageBonusMultiplier)实际代入与中间结果(2200 × 1) = 2,200baseDamage附加后基础伤害数值：2200 伤害；来源：previous-step · baseDamagedamageBonusMultiplier伤害加成乘数数值：1 倍率 / 比例；来源：previous-step · damageBonusMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterBonus · 完整精度 2200；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：伤害加成后的计算与解释已应用加入附加基础伤害后，再乘伤害加成乘区。符号公式(baseDamage × damageBonusMultiplier)实际代入与中间结果(1700 × 1) = 1,700baseDamage附加后基础伤害数值：1700 伤害；来源：previous-step · baseDamagedamageBonusMultiplier伤害加成乘数数值：1 倍率 / 比例；来源：previous-step · damageBonusMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterBonus · 完整精度 1700；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "afterBonus",
+    -     "text": "伤害加成后2,200(baseDamage × damageBonusMultiplier)",
+    +     "text": "伤害加成后1,700(baseDamage × damageBonusMultiplier)",
+        },
+        Object {
+          "detail": "展开：防御无视限制的计算与解释已应用防御无视按当前历史规则限制在 0 到 100%。符号公式clamp(defenseIgnore, 0, 1)实际代入与中间结果clamp(0, 0, 1) = 0defenseIgnore防御无视比例数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 defenseIgnore · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "defenseIgnore",
+          "text": "防御无视限制0clamp(defenseIgnore, 0, 1)",
+    @@ -43,23 +43,23 @@
+          "detail": "展开：敌人防御乘区的计算与解释已应用人物与敌人等级共同决定防御比例；此兼容字段以 1 加有符号防御调整表示敌方剩余防御。符号公式((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))实际代入与中间结果((90 + 100) / ((90 + 100) + ((90 + 100) × (1 + 0) × (1 − 0)))) = 0.5characterLevel角色等级数值：90 等级；来源：calculation-contextenemyLevel敌人等级数值：90 等级；来源：calculation-contextdefenseAdjustment有符号防御调整数值：0 倍率 / 比例；来源：previous-step · defenseAdjustmentdefenseIgnore防御无视比例数值：0 倍率 / 比例；来源：previous-step · defenseIgnore本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 defenseMultiplier · 完整精度 0.5；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "defenseMultiplier",
+          "text": "敌人防御乘区0.5((characterLevel + 100) / ((characterLevel + 100) + ((enemyLevel + 100) × (1 + defenseAdjustment) × (1 − defenseIgnore))))",
+        },
+        Object {
+    -     "detail": "展开：防御乘区后的计算与解释已应用抗性结算前先乘敌人防御乘区。符号公式(afterBonus × defenseMultiplier)实际代入与中间结果(2200 × 0.5) = 1,100afterBonus伤害加成后数值数值：2200 伤害；来源：previous-step · afterBonusdefenseMultiplier防御乘数数值：0.5 倍率 / 比例；来源：previous-step · defenseMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterDefense · 完整精度 1100；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：防御乘区后的计算与解释已应用抗性结算前先乘敌人防御乘区。符号公式(afterBonus × defenseMultiplier)实际代入与中间结果(1700 × 0.5) = 850afterBonus伤害加成后数值数值：1700 伤害；来源：previous-step · afterBonusdefenseMultiplier防御乘数数值：0.5 倍率 / 比例；来源：previous-step · defenseMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterDefense · 完整精度 850；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "afterDefense",
+    -     "text": "防御乘区后1,100(afterBonus × defenseMultiplier)",
+    +     "text": "防御乘区后850(afterBonus × defenseMultiplier)",
+        },
+        Object {
+          "detail": "展开：敌人抗性分支的计算与解释已应用负抗性使用减半分支；0 至 75% 使用线性分支；至少 75% 使用倒数分支。符号公式(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))实际代入与中间结果(if 0 < 0 then (1 − (0 / 2)) else (if 0 < 0.75 then (1 − 0) else (1 / ((4 × 0) + 1)))) = 1resistance对应元素有效抗性数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 resistanceMultiplier · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "resistanceMultiplier",
+          "text": "敌人抗性分支1(if resistance < 0 then (1 − (resistance / 2)) else (if resistance < 0.75 then (1 − resistance) else (1 / ((4 × resistance) + 1))))",
+        },
+        Object {
+    -     "detail": "展开：抗性乘区后的计算与解释已应用对当前伤害元素的有效抗性乘区进行结算。符号公式(afterDefense × resistanceMultiplier)实际代入与中间结果(1100 × 1) = 1,100afterDefense防御结算后伤害数值：1100 伤害；来源：previous-step · afterDefenseresistanceMultiplier抗性乘数数值：1 倍率 / 比例；来源：previous-step · resistanceMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterResistance · 完整精度 1100；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：抗性乘区后的计算与解释已应用对当前伤害元素的有效抗性乘区进行结算。符号公式(afterDefense × resistanceMultiplier)实际代入与中间结果(850 × 1) = 850afterDefense防御结算后伤害数值：850 伤害；来源：previous-step · afterDefenseresistanceMultiplier抗性乘数数值：1 倍率 / 比例；来源：previous-step · resistanceMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterResistance · 完整精度 850；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "afterResistance",
+    -     "text": "抗性乘区后1,100(afterDefense × resistanceMultiplier)",
+    +     "text": "抗性乘区后850(afterDefense × resistanceMultiplier)",
+        },
+        Object {
+          "detail": "展开：有效暴击率的计算与解释已应用暴击概率限制在 0 到 1；超出范围不会产生额外暴击概率。符号公式clamp(critRate, 0, 1)实际代入与中间结果clamp(0, 0, 1) = 0critRate暴击率数值：0 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 critRate · 完整精度 0；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "critRate",
+          "text": "有效暴击率0clamp(critRate, 0, 1)",
+    @@ -83,25 +83,25 @@
+          "detail": "展开：增幅反应乘数的计算与解释不适用反应基础倍率乘精通与反应专属加成；假设反应成立并不证明实战附着与 ICD 覆盖。符号公式(reactionBase × (1 + elementalMasteryBonus + reactionBonus))实际代入与中间结果(1 × (1 + 0 + 0)) = 1reactionBase增幅基础倍率数值：1 倍率 / 比例；来源：calculation-contextelementalMasteryBonus精通反应加成数值：0 倍率 / 比例；来源：calculation-contextreactionBonus反应专属加成数值：0 倍率 / 比例；来源：calculation-context适用条件：reaction.none本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 reactionMultiplier · 完整精度 1；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "reactionMultiplier",
+          "text": "增幅反应乘数1(reactionBase × (1 + elementalMasteryBonus + reactionBonus))",
+        },
+        Object {
+    -     "detail": "展开：暴击分支伤害的计算与解释已应用执行当前非暴击、暴击或期望分支；保留模拟器既有的浮点运算顺序。符号公式(afterResistance × critMultiplier)实际代入与中间结果(1100 × 1) = 1,100afterResistance抗性结算后伤害数值：1100 伤害；来源：previous-step · afterResistancecritMultiplier所选暴击乘数数值：1 倍率 / 比例；来源：previous-step · nonCriticalMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterCritical · 完整精度 1100；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：暴击分支伤害的计算与解释已应用执行当前非暴击、暴击或期望分支；保留模拟器既有的浮点运算顺序。符号公式(afterResistance × critMultiplier)实际代入与中间结果(850 × 1) = 850afterResistance抗性结算后伤害数值：850 伤害；来源：previous-step · afterResistancecritMultiplier所选暴击乘数数值：1 倍率 / 比例；来源：previous-step · nonCriticalMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterCritical · 完整精度 850；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "afterCritical",
+    -     "text": "暴击分支伤害1,100(afterResistance × critMultiplier)",
+    +     "text": "暴击分支伤害850(afterResistance × critMultiplier)",
+        },
+        Object {
+    -     "detail": "展开：反应结算后的计算与解释不适用对这一个伤害实例应用反应，不向其他段数传播假设。符号公式(afterCritical × reactionMultiplier)实际代入与中间结果(1100 × 1) = 1,100afterCritical暴击分支结果数值：1100 伤害；来源：previous-step · afterCriticalreactionMultiplier反应乘数数值：1 倍率 / 比例；来源：previous-step · reactionMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterReaction · 完整精度 1100；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：反应结算后的计算与解释不适用对这一个伤害实例应用反应，不向其他段数传播假设。符号公式(afterCritical × reactionMultiplier)实际代入与中间结果(850 × 1) = 850afterCritical暴击分支结果数值：850 伤害；来源：previous-step · afterCriticalreactionMultiplier反应乘数数值：1 倍率 / 比例；来源：previous-step · reactionMultiplier本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 afterReaction · 完整精度 850；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "afterReaction",
+    -     "text": "反应结算后1,100(afterCritical × reactionMultiplier)",
+    +     "text": "反应结算后850(afterCritical × reactionMultiplier)",
+        },
+        Object {
+    -     "detail": "展开：本分支最终伤害的计算与解释已应用再应用当前已定义的独立伤害组倍率，得到此分支最终值。符号公式(afterReaction × groupMultiplier)实际代入与中间结果(1100 × 1) = 1,100afterReaction反应后伤害数值：1100 伤害；来源：previous-step · afterReactiongroupMultiplier独立伤害组倍率数值：1 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 finalDamage · 完整精度 1100；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：本分支最终伤害的计算与解释已应用再应用当前已定义的独立伤害组倍率，得到此分支最终值。符号公式(afterReaction × groupMultiplier)实际代入与中间结果(850 × 1) = 850afterReaction反应后伤害数值：850 伤害；来源：previous-step · afterReactiongroupMultiplier独立伤害组倍率数值：1 倍率 / 比例；来源：calculation-context本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 finalDamage · 完整精度 850；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "finalDamage",
+    -     "text": "本分支最终伤害1,100(afterReaction × groupMultiplier)",
+    +     "text": "本分支最终伤害850(afterReaction × groupMultiplier)",
+        },
+        Object {
+    -     "detail": "展开：目标伤害策略的计算与解释已应用潜在伤害乘该目标的命中、免疫或阶段倍率；免疫时为 0。符号公式(potentialDamage × targetDamageMultiplier)实际代入与中间结果(1100 × 1) = 1,100potentialDamage潜在伤害数值：1100 伤害；来源：shared-coretargetDamageMultiplier目标状态倍率数值：1 倍率 / 比例；来源：captured-target-policy适用条件：normal本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 targetDamagePolicy · 完整精度 1100；后续步骤读取完整精度，页面格式化不会改变计算。",
+    +     "detail": "展开：目标伤害策略的计算与解释已应用潜在伤害乘该目标的命中、免疫或阶段倍率；免疫时为 0。符号公式(potentialDamage × targetDamageMultiplier)实际代入与中间结果(850 × 1) = 850potentialDamage潜在伤害数值：850 伤害；来源：shared-coretargetDamageMultiplier目标状态倍率数值：1 倍率 / 比例；来源：captured-target-policy适用条件：normal本步骤来源https://library.keqingmains.com/combat-mechanics/damage/damage-formulagcsim:b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541:pkg/core/combat/reaction.dm.go计算规则 targetDamagePolicy · 完整精度 850；后续步骤读取完整精度，页面格式化不会改变计算。",
+          "id": "targetDamagePolicy",
+    -     "text": "目标伤害策略1,100(potentialDamage × targetDamageMultiplier)",
+    +     "text": "目标伤害策略850(potentialDamage × targetDamageMultiplier)",
+        },
+      ]
+
+      55 |   expect(await page.locator("#calc-results tr[data-trace-node]").evaluateAll(rows => rows.map(row => ({
+      56 |     id: row.getAttribute("data-trace-node"), text: row.textContent, detail: row.nextElementSibling?.textContent,
+    > 57 |   })))).toEqual(sourceTrace);
+         |         ^
+      58 |   const captured = await downloadJson<CapturedSimulationHit>(page, '[data-action="export"]');
+      59 |   expect(captured.eventId).toBe(eventId);
+      60 |   expect(captured.sourceResult).toEqual(record.result);
+        at replayHostHit (/Users/evan/Documents/gidps/apps/web/e2e/artifact-damage-lifecycle.spec.ts:57:9)
+        at /Users/evan/Documents/gidps/apps/web/e2e/artifact-damage-lifecycle.spec.ts:174:3
+
+    Error Context: test-results/artifact-damage-lifecycle--b8806-alculator-and-full-run-JSON-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/artifact-damage-lifecycle--b8806-alculator-and-full-run-JSON-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/artifact-damage-lifecycle--b8806-alculator-and-full-run-JSON-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2) [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent 
+
+    Error: expect(locator).toHaveCount(expected) failed
+
+    Locator:  locator('[data-source-cast-state-field^="gameContext.observedEntityCast.targetContacts."]')
+    Expected: 3
+    Received: 0
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('[data-source-cast-state-field^="gameContext.observedEntityCast.targetContacts."]')
+        14 × locator resolved to 0 elements
+           - unexpected value "0"
+
+
+      43 | async function confirmContacts(page: Page, expectedCount: number, miss?: string): Promise<void> {
+      44 |   const contacts = page.locator(`[data-source-cast-state-field^="${context}.targetContacts."]`);
+    > 45 |   await expect(contacts).toHaveCount(expectedCount);
+         |                          ^
+      46 |   const fields = await contacts.evaluateAll(nodes => nodes.map(node => node.getAttribute("data-source-cast-state-field")!));
+      47 |   for (const field of fields) await page.locator(`[data-source-cast-state-field="${field}"]`).selectOption(field === `${context}.targetContacts.${miss}` ? "0" : "1");
+      48 | }
+        at confirmContacts (/Users/evan/Documents/gidps/apps/web/e2e/observed-contact-mark-calculator.spec.ts:45:26)
+        at /Users/evan/Documents/gidps/apps/web/e2e/observed-contact-mark-calculator.spec.ts:100:9
+
+    Error Context: test-results/observed-contact-mark-calc-4313a-keep-a-past-hit-independent-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/observed-contact-mark-calc-4313a-keep-a-past-hit-independent-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/observed-contact-mark-calc-4313a-keep-a-past-hit-independent-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+  2 failed
+    [chromium] › apps/web/e2e/artifact-damage-lifecycle.spec.ts:69:1 › Normal team controls execute Echoes and Song lifecycles, explain actual host additions, and restore calculator and full-run JSON 
+    [chromium] › apps/web/e2e/observed-contact-mark-calculator.spec.ts:74:1 › observed contacts and Blood Blossom records use ordinary controls, preserve final JSON, and keep a past hit independent 

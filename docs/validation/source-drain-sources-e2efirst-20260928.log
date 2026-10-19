@@ -1,0 +1,10 @@
+[WebServer] (node:42753) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:42754) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium] › apps/web/e2e/source-drain-sources.spec.ts:100:1 › actual native Drain sources preserve causal state, special self-hits, and one editable HP-ratio calculation (19.1s)
+
+  1 passed (20.2s)

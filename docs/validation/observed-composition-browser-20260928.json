@@ -1,0 +1,13 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/observed-composition.spec.ts"
+  ],
+  "startedAt": "2026-09-28T13:12:19.902149+00:00",
+  "finishedAt": "2026-09-28T13:12:27.864831+00:00",
+  "wallSeconds": 7.962,
+  "exitCode": 0,
+  "log": "docs/validation/observed-composition-browser-20260928.log"
+}

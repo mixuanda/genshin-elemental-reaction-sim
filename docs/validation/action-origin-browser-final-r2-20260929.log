@@ -1,0 +1,37 @@
+[WebServer] (node:88153) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:88154) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/source-action-origin.spec.ts:40:1 › native action origins preserve gameplay and make an editable observed multi-hit collection (4.1s)
+
+
+  1) [chromium] › apps/web/e2e/source-action-origin.spec.ts:40:1 › native action origins preserve gameplay and make an editable observed multi-hit collection 
+
+    Error: expect(received).toBeTruthy()
+
+    Received: undefined
+
+      69 |       const byId = new Map(result.calculations.map(row => [row.request.id, row.request]));
+      70 |       const skillHit = result.applications.find(row => byId.get(row.calculationId)?.actorKey === 'xingqiu' && byId.get(row.calculationId)?.attackTagName === 'AttackTagElementalArt' && row.origin?.creationActionSequence);
+    > 71 |       expect(skillHit).toBeTruthy();
+         |                        ^
+      72 |       const sequence = skillHit!.origin!.creationActionSequence!;
+      73 |       lastSequence = sequence;
+      74 |       const collection = captureSourceHostActionCollection(result, sequence, 'creation');
+        at /Users/evan/Documents/gidps/apps/web/e2e/source-action-origin.spec.ts:71:24
+
+    Error Context: test-results/source-action-origin-nativ-bfe6c-served-multi-hit-collection-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/source-action-origin-nativ-bfe6c-served-multi-hit-collection-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/source-action-origin-nativ-bfe6c-served-multi-hit-collection-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/source-action-origin.spec.ts:40:1 › native action origins preserve gameplay and make an editable observed multi-hit collection 

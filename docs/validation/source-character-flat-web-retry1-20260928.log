@@ -1,0 +1,13 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/sim-core/src/source-host-character-flat-group-e.ts(24,5): error TS2322: Type '{ character: string; title: string; sourceFile: string; sourceCommits: readonly ["b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"]; operation: "add" | "set"; inputs: Readonly<...>; expression: FormulaExpression; explanation: string; statLeaf: SourceHostCharacterModifierDynamicSt...' is not assignable to type 'SourceHostCharacterFlatDescriptor'.
+  Type '{ character: string; title: string; sourceFile: string; sourceCommits: readonly ["b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"]; operation: "add" | "set"; inputs: Readonly<...>; expression: FormulaExpression; explanation: string; statLeaf: SourceHostCharacterModifierDynamicSt...' is not assignable to type 'SourceHostCharacterFlatDescriptor' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'statLeaf' are incompatible.
+      Type 'SourceHostCharacterModifierDynamicStatLeaf | undefined' is not assignable to type 'SourceHostCharacterModifierDynamicStatLeaf'.
+        Type 'undefined' is not assignable to type 'SourceHostCharacterModifierDynamicStatLeaf'.

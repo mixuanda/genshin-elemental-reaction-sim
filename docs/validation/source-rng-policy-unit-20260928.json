@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/source-host-randomness.test.ts",
+    "apps/web/src/source-host-startup-analysis.test.ts",
+    "apps/web/src/source-host-energy-analysis.test.ts"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 7.056
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/preview-history.spec.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.639,
+  "log": "docs/validation/preview-history-e2e-first-20260928.log"
+}

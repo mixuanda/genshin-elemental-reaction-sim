@@ -1,0 +1,12 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+apps/web/src/calculator-linnea-observed-controls.ts(36,31): error TS2379: Argument of type '{ id: string; events: ({ id: string; frame: number; order: number; kind: "skill-tap"; summonId: string; observedEffect: "feed" | "summon"; observedExpiresFrame?: number | undefined; supplyAfter?: number | undefined; actionReadyConfirmed: boolean; } | ... 5 more ... | { ...; })[]; ... 5 more ...; selectedEventCompone...' is not assignable to parameter of type 'ObservedRowsEditorOptions' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'selectedEventLabel' are incompatible.
+    Type 'string | undefined' is not assignable to type 'string'.
+      Type 'undefined' is not assignable to type 'string'.

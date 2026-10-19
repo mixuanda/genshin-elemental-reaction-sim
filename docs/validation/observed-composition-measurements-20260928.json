@@ -1,0 +1,115 @@
+{
+  "scope": "Observed-skill composition UI/core; source-backed teaching observations, not in-game measurements",
+  "head": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "buildInitial": {
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "startedAt": "2026-09-28T13:10:58.784219+00:00",
+    "finishedAt": "2026-09-28T13:11:01.809137+00:00",
+    "wallSeconds": 3.025,
+    "exitCode": 1,
+    "log": "docs/validation/observed-composition-build-20260928.log"
+  },
+  "buildFinal": {
+    "command": [
+      "npm",
+      "run",
+      "build"
+    ],
+    "startedAt": "2026-09-28T13:11:54.434486+00:00",
+    "finishedAt": "2026-09-28T13:11:58.674004+00:00",
+    "wallSeconds": 4.239,
+    "exitCode": 0,
+    "log": "docs/validation/observed-composition-build-retry1-20260928.log"
+  },
+  "browser": {
+    "command": [
+      "npx",
+      "playwright",
+      "test",
+      "apps/web/e2e/observed-composition.spec.ts"
+    ],
+    "startedAt": "2026-09-28T13:12:19.902149+00:00",
+    "finishedAt": "2026-09-28T13:12:27.864831+00:00",
+    "wallSeconds": 7.962,
+    "exitCode": 0,
+    "log": "docs/validation/observed-composition-browser-20260928.log"
+  },
+  "browserResults": {
+    "scenes": [
+      {
+        "profile": "linnea-lumi",
+        "coverage": "complete-cast",
+        "originalExpected": 3913.3773424390247,
+        "editedExpected": 4010.5293424390247,
+        "exportedRestoredExpected": 4010.5293424390247,
+        "absoluteRoundtripDifference": 0,
+        "missingComponentStatus": "blocked",
+        "missingComponentKnownSubtotal": {
+          "nonCritical": 1704.435512195122,
+          "critical": 3749.758126829269,
+          "expected": 3136.161342439025
+        },
+        "reattachedExpected": 4010.5293424390247,
+        "missTraceVisible": true,
+        "observedTraceVisible": true,
+        "provenance": "Catalog-source formulas with explicit editable teaching panels and observations; not in-game verification."
+      },
+      {
+        "profile": "sandrone-fagio-window",
+        "coverage": "complete-observed-window",
+        "originalExpected": 7724.315187692308,
+        "editedExpected": 7825.786587692308,
+        "exportedRestoredExpected": 7825.786587692308,
+        "absoluteRoundtripDifference": 0,
+        "missingComponentStatus": "blocked",
+        "missingComponentKnownSubtotal": {
+          "nonCritical": 3095.047384615385,
+          "critical": 6809.104246153847,
+          "expected": 5694.8871876923085
+        },
+        "reattachedExpected": 7825.786587692308,
+        "missTraceVisible": true,
+        "observedTraceVisible": true,
+        "provenance": "Catalog-source formulas with explicit editable teaching panels and observations; not in-game verification."
+      }
+    ],
+    "pageErrors": []
+  },
+  "focusedUnits": {
+    "linnea": {
+      "passed": 2,
+      "runnerSeconds": 0.655,
+      "log": "docs/validation/linnea-observed-composition-20260928.log",
+      "boundary": "Before canonical catalog identity correction; final integrated browser covers actual catalog inputs."
+    },
+    "sandrone": {
+      "passed": 1,
+      "runnerSeconds": 3.13,
+      "receipt": "docs/validation/sandrone-observed-composition-20260928.md"
+    }
+  },
+  "buildModules": 783,
+  "diffCheck": {
+    "command": "git diff --check",
+    "exitCode": 0,
+    "scope": "tracked differences before report edits, not a check of untracked files"
+  },
+  "dataPointers": {
+    "pointersSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+    "runtimeSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+    "changed": false
+  },
+  "notExecuted": [
+    "full unit suite",
+    "historical character matrix",
+    "Go/WASM rebuild",
+    "in-game verification",
+    "data promotion",
+    "deployment"
+  ],
+  "exampleCalculationReceipt": "docs/validation/observed-composition-examples-20260928.json"
+}

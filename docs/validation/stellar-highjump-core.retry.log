@@ -1,0 +1,47 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts (3 tests | 2 failed | 1 skipped) 115ms
+     × consumes the team buff on an executed jump and counts one ordinary plunge with JSON replay 85ms
+     × does not accept invented lift, non-plunge airborne actions, or a second plunge 30ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts > Stellar-Swirl actual jump consumption and declared plunge > consumes the team buff on an executed jump and counts one ordinary plunge with JSON replay
+Error: Trusted SimulationResult 1.53 integrity validation failed: timelineExecution.commandResults.6.status: accepted plunge requires an unexpired airborne state from an earlier accepted declared action
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22759:11
+    22757|     const remainder =
+    22758|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22759|     throw new Error(
+       |           ^
+    22760|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22761|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:18769:10
+ ❯ simulate packages/sim-core/src/simulator.ts:18809:12
+ ❯ simulateStellarSwirlProfile packages/sim-core/src/simulator.ts:18933:22
+ ❯ packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts:24:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts > Stellar-Swirl actual jump consumption and declared plunge > does not accept invented lift, non-plunge airborne actions, or a second plunge
+Error: Trusted SimulationResult 1.53 integrity validation failed: timelineExecution.commandResults.7.status: accepted plunge requires an unexpired airborne state from an earlier accepted declared action
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22759:11
+    22757|     const remainder =
+    22758|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22759|     throw new Error(
+       |           ^
+    22760|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22761|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:18769:10
+ ❯ simulate packages/sim-core/src/simulator.ts:18809:12
+ ❯ simulateStellarSwirlProfile packages/sim-core/src/simulator.ts:18933:22
+ ❯ packages/sim-core/src/__tests__/stellar-swirl-high-jump.test.ts:47:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 skipped (3)
+   Start at  00:52:30
+   Duration  1.11s (transform 711ms, setup 0ms, import 913ms, tests 115ms, environment 0ms)
+

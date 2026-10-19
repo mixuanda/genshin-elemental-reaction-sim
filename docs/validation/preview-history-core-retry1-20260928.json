@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/game-data/src/runtime-workspace.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 2.478,
+  "log": "docs/validation/preview-history-core-retry1-20260928.log"
+}

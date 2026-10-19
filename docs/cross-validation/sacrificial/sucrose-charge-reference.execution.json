@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/var/folders/3k/lmzjz_h51dn_5rdqvwffprph0000gn/T/gidps-gcsim-b4ae769-03yjl36g/gcsim_darwin_arm64",
+    "-c",
+    "docs/cross-validation/sacrificial/sucrose-charge-reference.gcsl",
+    "-out",
+    "docs/cross-validation/sacrificial/sucrose-charge-reference.result.json",
+    "-sample",
+    "docs/cross-validation/sacrificial/sucrose-charge-reference.sample.json"
+  ],
+  "workingDirectory": "/Users/evan/Documents/gidps",
+  "executedAt": "2026-09-24T01:03:53.329806+00:00",
+  "elapsedSeconds": 0.02009241603082046,
+  "binarySha256": "2332566a3c06ab1b50003024b1838ee3565d2969bd4a004a35a60f482cbc8449",
+  "exitCode": 0,
+  "stdout": "Average duration of 34.00 seconds (min: 34.00 max: 34.00 std: 0.00)\nAverage 328.43 damage over 34.00 seconds, resulting in 10 dps (min: 9.66 max: 9.66 std: 0.00) \nSimulation completed 1 iterations\n\nGenerated sample with seed 1214699284035967682 to docs/cross-validation/sacrificial/sucrose-charge-reference.sample.json\n",
+  "stderr": "",
+  "artifacts": [
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.gcsl",
+      "bytes": 647,
+      "sha256": "53eb8fbb1491d822ec485b01817f37b3c5a1ee275baf5518812773c3bfc6f845"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.result.json",
+      "bytes": 9279,
+      "sha256": "fd0b72ad4c82b170a330b28612bc0f92f874aa74e6f2819ac45e76ac0759f741"
+    },
+    {
+      "path": "docs/cross-validation/sacrificial/sucrose-charge-reference.sample.json",
+      "bytes": 34857,
+      "sha256": "a1fd3bea97034efb66609d3972a76e130400ed7159f46888e7f78b42c05fff94"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "command": [
+    "npx",
+    "vitest",
+    "run",
+    "packages/sim-core/src/__tests__/calculator-aggregation.test.ts"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.531,
+  "log": "docs/validation/calculator-aggregation-core-20260928.log"
+}

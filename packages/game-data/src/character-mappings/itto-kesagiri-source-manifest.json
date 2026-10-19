@@ -1,0 +1,226 @@
+{
+  "schemaVersion": "1.0.0",
+  "repository": "genshinsim/gcsim",
+  "commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "catalogVersion": "gi-7.1-released.genshin-db-49a6544a6c6a.inventory-20260923.2",
+  "catalogRelativePath": "packages/game-data/manifests/runtime/datasets/snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34/catalog.json",
+  "catalogSha256": "3ed973284f87bba52bf2dcc407c5ad08aa76fdc2c8f0cad475f34ed0812f5602",
+  "recordedAt": "2026-09-23T13:57:03.466925+00:00",
+  "status": "source-backed-provisional",
+  "coefficientComparison": "3 complete fifteen-level coefficient vectors exactly equal the active catalog; compared source decimal literals, without label or displayed-percent inference.",
+  "comparisonMethod": "Read runtime/current.ts activeCatalogData import; parse source Go []float64 arrays and active catalog JSON values as decimal numbers; require 15 entries and zero absolute difference for every pair. This is a data comparison, not a test-suite run, simulator run, or live-game validation.",
+  "comparedCoefficientPositions": 45,
+  "maximumAbsoluteDifference": 0.0,
+  "coefficients": {
+    "akCombo": {
+      "abilityKey": "combat1",
+      "parameterKey": "param6",
+      "values": [
+        0.9116,
+        0.9858,
+        1.06,
+        1.166,
+        1.2402,
+        1.325,
+        1.4416,
+        1.5582,
+        1.6748,
+        1.802,
+        1.94775,
+        2.119152,
+        2.290554,
+        2.461956,
+        2.64894
+      ]
+    },
+    "akFinal": {
+      "abilityKey": "combat1",
+      "parameterKey": "param7",
+      "values": [
+        1.9092,
+        2.0646,
+        2.22,
+        2.442,
+        2.5974,
+        2.775,
+        3.0192,
+        3.2634,
+        3.5076,
+        3.774,
+        4.07925,
+        4.438224,
+        4.797198,
+        5.156172,
+        5.54778
+      ]
+    },
+    "defconv": {
+      "abilityKey": "combat3",
+      "parameterKey": "param2",
+      "values": [
+        0.576,
+        0.6192,
+        0.6624,
+        0.72,
+        0.7632,
+        0.8064,
+        0.864,
+        0.9216,
+        0.9792,
+        1.0368,
+        1.0944,
+        1.152,
+        1.224,
+        1.296,
+        1.368
+      ]
+    }
+  },
+  "localSourceRoot": "/tmp/gidps-gcsim-b4ae769",
+  "sourceFiles": {
+    "internal/characters/itto/charge.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/itto/charge.go",
+      "sha256": "46b3842bb547418395fc85b829caa76fc64ae347cb106a19ed427e9c9f6e9729",
+      "gitBlobSha": "462e0d11b07fd13c716c0190b34d8978adbf26ef",
+      "bytes": 8227
+    },
+    "internal/characters/itto/asc.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/itto/asc.go",
+      "sha256": "a7d4ad795772ff8f6de4baa543356a1d7875597514452e7324f035dc530f28fc",
+      "gitBlobSha": "6ca220bdaeeda432f9ea4a9cf49becdf217ae976",
+      "bytes": 2097
+    },
+    "internal/characters/itto/cons.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/itto/cons.go",
+      "sha256": "968dc9b80d47b825ada4198082ac15ea89110d0aad4303f9c24cf3a207f3d5b4",
+      "gitBlobSha": "bb3efbf03949f7692b30e1e4e7115a3dcd34d177",
+      "bytes": 2296
+    },
+    "internal/characters/itto/itto.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/itto/itto.go",
+      "sha256": "b5656eb99f33df08b73b569a00a75dd11bc90efe7d9fc147097f11357170233b",
+      "gitBlobSha": "6bfcd24956ce43366e23cfa2b58227f544258c4f",
+      "bytes": 3937
+    },
+    "internal/characters/itto/burst.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/itto/burst.go",
+      "sha256": "926c3d2c7c1e75286adcaa54c9db2b5c5cca36648423b79789a0e693d5adfd06",
+      "gitBlobSha": "4a5716d50121c75c53c0052d477cf2cf6cd142f2",
+      "bytes": 4407
+    },
+    "internal/characters/itto/zz_aratakiitto.dm.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/itto/zz_aratakiitto.dm.go",
+      "sha256": "6266a2cd1702b8074ee3eefd8c2c41ac8cf32e04f5ebcb1759fd2a0f7cbf500c",
+      "gitBlobSha": "222d377ee394222d7f8a7331021d51253e14a6b7",
+      "bytes": 3835
+    },
+    "pkg/core/player/character/stats.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "gitBlobSha": "33d47f781e040dbabac6622360272235888cf663",
+      "bytes": 3321
+    },
+    "pkg/core/attributes/stats.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go",
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "gitBlobSha": "cc142a8c7ebd88cf2e212786bc3f260b936fc960",
+      "bytes": 1677
+    },
+    "pkg/core/attack.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "gitBlobSha": "a3d5f86888044df3c472311fac33e0c6a0ac4dbc",
+      "bytes": 2255
+    },
+    "pkg/enemy/damage.go": {
+      "url": "https://raw.githubusercontent.com/genshinsim/gcsim/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "gitBlobSha": "af0ee61e4b377286cfb02aee6ba170cc0924f2ad",
+      "bytes": 11023
+    }
+  },
+  "sourceLocations": [
+    {
+      "path": "internal/characters/itto/zz_aratakiitto.dm.go",
+      "startLine": 127,
+      "endLine": 143,
+      "meaning": "akCombo 的完整 15 级原始数值，与活动目录对应参数逐项十进制比较相等。"
+    },
+    {
+      "path": "internal/characters/itto/zz_aratakiitto.dm.go",
+      "startLine": 145,
+      "endLine": 161,
+      "meaning": "akFinal 的完整 15 级原始数值，与活动目录对应参数逐项十进制比较相等。"
+    },
+    {
+      "path": "internal/characters/itto/zz_aratakiitto.dm.go",
+      "startLine": 235,
+      "endLine": 251,
+      "meaning": "defconv 的完整 15 级原始数值，与活动目录对应参数逐项十进制比较相等。"
+    },
+    {
+      "path": "internal/characters/itto/charge.go",
+      "startLine": 85,
+      "endLine": 110,
+      "meaning": "SlashType.Next 依赖当前连斩状态、乱神之怪力层数与 C6 本次不消耗分支；不能由倍率反推完整持有次数。"
+    },
+    {
+      "path": "internal/characters/itto/charge.go",
+      "startLine": 187,
+      "endLine": 237,
+      "meaning": "重击标记 AttackTagExtra，默认 Physical；连斩与终结均使用普攻天赋等级，非左一文字斩才调用 A4。"
+    },
+    {
+      "path": "internal/characters/itto/charge.go",
+      "startLine": 258,
+      "endLine": 272,
+      "meaning": "每次 ChargeAttack 仅 QueueAttack 一次；命中时点与起手快照仍有 TODO；C6 影响后续层数消耗分支。"
+    },
+    {
+      "path": "internal/characters/itto/asc.go",
+      "startLine": 62,
+      "endLine": 68,
+      "meaning": "A4 在突破 >= 4 时按本次动作构建时 TotalDef(false) 的 35% 添加 FlatDmg，包含 Extra DEF。"
+    },
+    {
+      "path": "internal/characters/itto/burst.go",
+      "startLine": 45,
+      "endLine": 65,
+      "meaning": "Q 起手以 TotalDef(true) 记录非 Extra DEF，独立读取有效 Q 等级 defconv，转换为 Extra ATK；增益精确时点仍有 TODO。"
+    },
+    {
+      "path": "internal/characters/itto/itto.go",
+      "startLine": 84,
+      "endLine": 98,
+      "meaning": "Q 增益激活时，普通、重击和下落在 Snapshot 改为不可覆盖的 Geo，攻击标签不改。"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "startLine": 122,
+      "endLine": 166,
+      "meaning": "SelectStat 在 nonExtra=true 时排除 Extra 修饰；TotalDef 将参数原样传入，故 A4 当前 DEF 与 Q 非 Extra DEF 快照必须区分。"
+    },
+    {
+      "path": "internal/characters/itto/cons.go",
+      "startLine": 12,
+      "endLine": 72,
+      "meaning": "C1 层数、C2 能量与冷却、C4 条件 ATK%/DEF%、C6 重击暴伤分别处理；不能自动等价为一次伤害倍率。"
+    }
+  ],
+  "scope": [
+    "两项映射各归属一次源码 ChargeAttack 调用：荒泷逆袈裟单次连斩或单次终结。该次输入自身只有一次 QueueAttack；completeAction 不表示完整持有重击、完整逆袈裟连段或整个 Q 窗口。",
+    "原始映射以 C0、Q 未激活、无外部附魔的 ATK / Physical / charged 为基础；有合法乱神之怪力状态并实际命中指定目标。连斩左右两种姿态共享 akCombo，不表示固定两次命中。",
+    "A4、Q 非 Extra DEF 起手快照转 ATK、岩附魔和条件命座由角色条件适配器按显式上下文另行处理；这些依赖不得被基础倍率映射默认为零或已处理。",
+    "akCombo / akFinal 依普攻有效等级；defconv 依 Q 独立有效等级，不通过同一 formulaParameters 索引混用。"
+  ],
+  "unverified": [
+    "只核对固定社区实现和活动目录数值，没有运行上游 gcsim 或本项目测试，也未独立进行当前游戏实测。",
+    "charge.go:258-259 明示攻速命中时点未调整，CA 是否起手快照仍为假设。",
+    "burst.go:54 / 87-97 对精确增益、C1 资料与初始层数时点、C2 延迟仍有 TODO。",
+    "完整持有连段的实际层数获取、C6 随机分支、取消、卡肉、帧、命中覆盖与多目标不由这两个单次伤害映射推导。"
+  ],
+  "defenseSemantics": {
+    "a4": "0.35 × TotalDef(false)，动作构建时当前完整 DEF，突破 >= 4，包含 Extra 修饰；只用于逆袈裟，不用于左一文字斩。",
+    "burstConversion": "defconv[独立有效 Q 等级 - 1] × 起手 TotalDef(true)，排除 Extra 修饰；产生 Extra ATK，输入最终 ATK 时须明确是否已含，不能重复相加。"
+  }
+}

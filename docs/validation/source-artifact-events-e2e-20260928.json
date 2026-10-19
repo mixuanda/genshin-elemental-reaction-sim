@@ -1,0 +1,14 @@
+{
+  "command": [
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-artifact-events.spec.ts"
+  ],
+  "env": {
+    "GIDPS_PREBUILT": "1"
+  },
+  "exitCode": 1,
+  "wallSeconds": 8.713,
+  "log": "docs/validation/source-artifact-events-e2e-20260928.log"
+}

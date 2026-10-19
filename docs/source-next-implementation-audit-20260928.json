@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "generatedDate": "2026-09-28",
+  "scope": "只读实施定位；当前固定源码build，不含测试/构建或游戏验证结论。",
+  "sources": {
+    "classic": {"commit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541", "root": "/tmp/gidps-source-host-cache/build-nAyH0I/source"},
+    "stellar": {"commit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd", "root": "/tmp/gidps-source-host-cache/stellar-build-59AAI4/source"}
+  },
+  "baseline": {
+    "partialActionRecords": 24,
+    "observedPlungeRecordsWithinPartials": 8,
+    "sourceAbilityRegistry": "15 roles / 57 actions / 89 hit templates",
+    "characterFlatRules": {"rules": 142, "characters": 40, "operations": {"set": 120, "add": 16, "multiply": 6}},
+    "sources": ["docs/master-requirements-status.zh-CN.md:83,109", "docs/source-character-flat-registry-20260928.json"]
+  },
+  "recommendedBatches": [
+    {
+      "priority": 1,
+      "batch": "Partial action-family coverage",
+      "gap": "24 mapped actions remain partial; 8 are plunge templates with observed contact. This is the largest clear implementation denominator.",
+      "paths": ["packages/sim-core/src/source-runtime-abilities.ts", "packages/game-data generated hit/action mappings", "fixed source internal/characters/* action builders"],
+      "approach": "Group remaining rows by missing source dimension and extend shared action-family/source receipts. Preserve action-specific gate, hit layout, contact, and frame schedule; keep rows partial until every required source path is represented.",
+      "reuse": "Existing 15-role/57-action/89-template source ability registry and action receipts.",
+      "limit": "Do not infer complete role/team support from the 24-row count or the 8 observed plunges."
+    },
+    {
+      "priority": 2,
+      "batch": "ReceiveHeal and ReduceActionCooldown overrides",
+      "gap": "5 unique override bodies across pinned lanes: ReceiveHeal 2 (Arlecchino, Clorinde, both lanes); ReduceActionCooldown 2 classic (Cyno, Varka), 3 stellar (Cyno, Varka, Odette).",
+      "paths": [
+        {"file": "internal/characters/arlecchino/arlecchino.go", "line": 79, "behavior": "only own Balemoon Rising heal reaches template receiver; other healing returns zero"},
+        {"file": "internal/characters/clorinde/heal.go", "line": 10, "behavior": "eligible named heal delegates; otherwise skill-state healing converts to BOL using healingBOL or factor 1 at A4+, updates debt, returns zero"},
+        {"file": "internal/characters/cyno/cyno.go", "line": 89, "behavior": "skill cooldown reduction also reduces LowPlunge"},
+        {"file": "internal/characters/varka/varka.go", "line": 106, "behavior": "stellar maps active skill reduction to SpecialSkill; classic calls Four Winds helper then base reduction"},
+        {"file": "internal/characters/odette/odette.go", "line": 105, "behavior": "stellar maps Skill reduction to SpecialSkill and returns"}
+      ],
+      "approach": "Add shared branch/result receipts at the override boundary; leave healing debt, eligibility, cooldown queue mutation, and action routing in Go.",
+      "reuse": "Generic CharacterHealing and cooldown remaining/reduce formulas already exist; these wrapper branches bypass their generic semantic explanation.",
+      "limit": "Preserve classic/stellar Varka difference. The native same-heal debt-clearing TODO at internal/template/character/heal.go:152 is unresolved and must not be adjudicated."
+    },
+    {
+      "priority": 3,
+      "batch": "Native helper derivation leaves under shared character scalars",
+      "gap": "2 helper families are explicitly left as native observation leaves in the scalar source notes.",
+      "paths": [
+        {"file": "internal/characters/ifa/ifa.go", "line": 52, "helper": "getTeamNightsoul", "related": ["ifa/cons.go:29 c2BonusPoints", "ifa/cons.go:37 c2CapIncrease", "ifa/asc.go:26 final min/reaction multiplier"], "lane": "stellar only"},
+        {"file": "internal/characters/durin/asc.go", "line": 142, "helper": "hexereiA1Bonus returns 1 or 1.75 based on Hexerei/team count; consumed by A1 around line 82", "lane": "both"}
+      ],
+      "approach": "Expose each helper result as a source-leaf formula/receipt at its actual read and link the already shared final scalar formula to that receipt; first preserve team iteration and same-frame reads.",
+      "reuse": "The 35 character scalar descriptors and getter provenance are already shared.",
+      "limit": "Ifa is absent from b4. This improves derivation depth; it does not migrate native state mutation or establish game behavior."
+    }
+  ],
+  "staleArtifactBoundaryCorrection": {
+    "document": "docs/cross-validation/artifact-dynamic-boundaries-20260928.md",
+    "currentBuildFinding": "Most formerly listed residuals are now connected: Heart of the Furnace/Scarlet Proof use ArtifactScalar; Blizzard/Disenchantment snapshot CR use ArtifactSnapshot; Echoes/Song/OHC use ArtifactAdditive; Exile/Scholar/Scroll/Reminiscence energy, Bolide/Tenacity shields, Maiden heal, Deepwood/VV resistance, and Thundering Fury ReactBonus have shared rules.",
+    "remainingConcreteItem": {"file": "internal/artifacts/thunderingfury/thunderingfury.go", "line": 103, "expression": "char.ReduceActionCooldown(action.ActionSkill, 60)", "scope": "The trigger gates/ICD and queue mutation stay native; only the fixed 60-frame refund source amount/provenance is not a separate shared event formula."}
+  },
+  "excluded": ["Unresolved source TODOs, 7.2V1 identity mapping, game verification, random steady state, and arbitrary checkpoints are not treated as source-only implementation work."]
+}

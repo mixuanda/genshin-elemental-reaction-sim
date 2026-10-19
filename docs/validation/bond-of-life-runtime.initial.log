@@ -1,0 +1,47 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/bond-of-life-runtime.test.ts (3 tests | 2 failed) 31ms
+     × replays actual active/party transitions and end state independently after JSON import 19ms
+     × captures the real debt pool and pending heal across a periodic input boundary 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/bond-of-life-runtime.test.ts > explicit default-source Bond of Life resource > replays actual active/party transitions and end state independently after JSON import
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33934:11
+    33932|   if (!parsed.success) {
+    33933|     const issues = formatZodError(parsed.error);
+    33934|     throw new ConfigMigrationError(
+       |           ^
+    33935|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33936|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35398:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18694:18
+ ❯ packages/sim-core/src/__tests__/bond-of-life-runtime.test.ts:62:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  packages/sim-core/src/__tests__/bond-of-life-runtime.test.ts > explicit default-source Bond of Life resource > captures the real debt pool and pending heal across a periodic input boundary
+ConfigMigrationError: 配置校验失败：
+- enemy.targets: player reaction self-damage requires explicit positioned enemy targets
+ ❯ parseSimConfig packages/schemas/src/schema.ts:33934:11
+    33932|   if (!parsed.success) {
+    33933|     const issues = formatZodError(parsed.error);
+    33934|     throw new ConfigMigrationError(
+       |           ^
+    33935|       `配置校验失败：\n${issues.map((issue) => `- ${issue}`).join("\n")}`,
+    33936|       issues
+ ❯ migrateConfig packages/schemas/src/schema.ts:35398:12
+ ❯ simulate packages/sim-core/src/simulator.ts:18694:18
+ ❯ packages/sim-core/src/__tests__/bond-of-life-runtime.test.ts:80:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 1 passed (3)
+   Start at  23:42:35
+   Duration  1.02s (transform 701ms, setup 0ms, import 911ms, tests 31ms, environment 0ms)
+

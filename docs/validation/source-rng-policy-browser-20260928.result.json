@@ -1,0 +1,71 @@
+{
+  "runs": [
+    {
+      "lane": "classic",
+      "seed": "1",
+      "randomness": {
+        "schemaVersion": "source-host-randomness-v1",
+        "algorithm": "go-math-rand-rngSource-v1",
+        "seedNormalization": "uint64-int64-mod2147483647-zero89482311-v1",
+        "seed": "1",
+        "signedSeed": "1",
+        "effectiveSeed": "1",
+        "critPolicy": "native-seeded",
+        "criticalTriggeredEffects": "native-sampled",
+        "otherRng": "native-sampled",
+        "goVersion": "go1.25.0"
+      },
+      "executionArtifact": {
+        "wasmSha256": "35548a34a9ce33367ebc13a53d53bafccd44f84392ebf2a76f866a408c1333fc",
+        "wasmBytes": 44496857
+      },
+      "applications": 5
+    },
+    {
+      "lane": "classic",
+      "seed": "2147483648",
+      "randomness": {
+        "schemaVersion": "source-host-randomness-v1",
+        "algorithm": "go-math-rand-rngSource-v1",
+        "seedNormalization": "uint64-int64-mod2147483647-zero89482311-v1",
+        "seed": "2147483648",
+        "signedSeed": "2147483648",
+        "effectiveSeed": "1",
+        "critPolicy": "native-seeded",
+        "criticalTriggeredEffects": "native-sampled",
+        "otherRng": "native-sampled",
+        "goVersion": "go1.25.0"
+      },
+      "executionArtifact": {
+        "wasmSha256": "35548a34a9ce33367ebc13a53d53bafccd44f84392ebf2a76f866a408c1333fc",
+        "wasmBytes": 44496857
+      },
+      "applications": 5
+    },
+    {
+      "lane": "stellar",
+      "seed": "18446744073709551615",
+      "randomness": {
+        "schemaVersion": "source-host-randomness-v1",
+        "algorithm": "go-math-rand-rngSource-v1",
+        "seedNormalization": "uint64-int64-mod2147483647-zero89482311-v1",
+        "seed": "18446744073709551615",
+        "signedSeed": "-1",
+        "effectiveSeed": "2147483646",
+        "critPolicy": "native-seeded",
+        "criticalTriggeredEffects": "native-sampled",
+        "otherRng": "native-sampled",
+        "goVersion": "go1.27.1"
+      },
+      "executionArtifact": {
+        "wasmSha256": "36b833e9ac379a89346d3c3e61c2a1866ac6e115d96e25f80de39c801b9235b3",
+        "wasmBytes": 66059562
+      },
+      "applications": 5
+    }
+  ],
+  "aliasApplicationsEqual": true,
+  "importedEqual": true,
+  "calculatorMetadataEqual": true,
+  "pageErrors": []
+}

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "env",
+    "GIDPS_PREBUILT=1",
+    "npx",
+    "playwright",
+    "test",
+    "apps/web/e2e/source-base-panel.spec.ts",
+    "--workers=1"
+  ],
+  "exitCode": 0,
+  "elapsedSeconds": 18.847
+}

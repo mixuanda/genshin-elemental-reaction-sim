@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "source-construct-ownership-browser-v1",
+  "measurements": {
+    "config": "options iteration=1 duration=50 ignore_burst_energy=true;\nalbedo char lvl=90/90 cons=0 talent=1,1,1;\nalbedo add weapon=\"dullblade\" refine=1 lvl=1/20;\nzhongli char lvl=90/90 cons=1 talent=1,1,1;\nzhongli add weapon=\"blacktassel\" refine=1 lvl=1/20;\nkaeya char lvl=90/90 cons=0 talent=1,1,1;\nkaeya add weapon=\"dullblade\" refine=1 lvl=1/20;\ntarget lvl=90 hp=10000000 resist=0.1 radius=0.5 pos=0,1;\nactive albedo;\nalbedo skill;\nwait(30);\nzhongli skill;\nwait(240);\nzhongli skill;\nalbedo skill;\nkaeya attack;\nwait(2200);",
+    "seed": "20260930127",
+    "baselinePath": "docs/validation/source-construct-ownership-20260930.baseline.json",
+    "capturePath": "docs/validation/source-construct-ownership-20260930.capture.json",
+    "runs": [],
+    "scope": "One combined Albedo E / Zhongli C1 two-stele / Kaeya trigger scene per pinned source lane; a pre-127 baseline is archived separately. Counts and hit totals are measured from native receipts.",
+    "mode": "both-lane-pre-127-baseline",
+    "baseline": {
+      "classic": {
+        "sourceCommit": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+        "executionArtifact": {
+          "wasmSha256": "b5e123ee3ef4dee2b96ff5388f2a7ccbdbced93e27a680a391c95ccd318aa1e1",
+          "wasmBytes": 46922059
+        },
+        "applicationCount": 77,
+        "actionLogCount": 72
+      },
+      "stellar": {
+        "sourceCommit": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd",
+        "executionArtifact": {
+          "wasmSha256": "01d1e2f1ce51b6faf58494a9f926b71ba13e3be0b8eb7388f9a4bdc9f9997873",
+          "wasmBytes": 70965087
+        },
+        "applicationCount": 77,
+        "actionLogCount": 72
+      }
+    }
+  },
+  "pageErrors": []
+}

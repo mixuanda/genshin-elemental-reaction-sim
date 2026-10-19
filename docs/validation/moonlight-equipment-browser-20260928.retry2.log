@@ -1,0 +1,41 @@
+[WebServer] (node:1557) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:1558) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/equipment-team-handoff.spec.ts:33:1 › an editable Whiteblind build becomes an actual local-team weapon callback and replays its next hit (1.2s)
+
+
+  1) [chromium] › apps/web/e2e/equipment-team-handoff.spec.ts:33:1 › an editable Whiteblind build becomes an actual local-team weapon callback and replays its next hit 
+
+    Error: locator.textContent: Error: strict mode violation: locator('[data-detail-id="targetDamagePolicy"] > .trace-detail-content > p.calculator-hint') resolved to 2 elements:
+        1) <p class="calculator-hint">计算规则 targetDamagePolicy · 完整精度 1653.0613746609279…</p> aka locator('#calc-results').getByText('计算规则 targetDamagePolicy')
+        2) <p class="calculator-hint">计算规则 targetDamagePolicy · 完整精度 1653.0613746609279…</p> aka locator('#sharedHitTrace').getByText('计算规则 targetDamagePolicy')
+
+    Call log:
+      - waiting for locator('[data-detail-id="targetDamagePolicy"] > .trace-detail-content > p.calculator-hint')
+
+
+      83 |   expect(hitCapture.sourceResult).toEqual(record.result);
+      84 |   const calculatorAudit = JSON.parse((await page.locator("#calc-results .calculator-audit pre").textContent())!);
+    > 85 |   const fullPrecision = await page.locator('[data-detail-id="targetDamagePolicy"] > .trace-detail-content > p.calculator-hint').textContent();
+         |                                                                                                                                 ^
+      86 |   const reproducedDamage = Number(fullPrecision!.match(/完整精度 ([^；]+)/)![1]);
+      87 |   const originalDamage = calculatorAudit.event.finalDamage as number;
+      88 |   const delta = reproducedDamage - originalDamage;
+        at /Users/evan/Documents/gidps/apps/web/e2e/equipment-team-handoff.spec.ts:85:129
+
+    Error Context: test-results/equipment-team-handoff-an--5a283-ck-and-replays-its-next-hit-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/equipment-team-handoff-an--5a283-ck-and-replays-its-next-hit-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/equipment-team-handoff-an--5a283-ck-and-replays-its-next-hit-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/equipment-team-handoff.spec.ts:33:1 › an editable Whiteblind build becomes an actual local-team weapon callback and replays its next hit 

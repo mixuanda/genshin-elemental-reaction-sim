@@ -1,0 +1,15 @@
+/Users/evan/Documents/gidps/packages/sim-core/src/rotation-dsl.ts:27
+		throw new RotationDslError(message, index);
+		      ^
+
+RotationDslError: 轮转 DSL 第 1 个词：a 未定义合法的 N4 普攻输入序列。
+    at fail (/Users/evan/Documents/gidps/packages/sim-core/src/rotation-dsl.ts:27:9)
+    at visit (/Users/evan/Documents/gidps/packages/sim-core/src/rotation-dsl.ts:213:6)
+    at parseRotationDsl (/Users/evan/Documents/gidps/packages/sim-core/src/rotation-dsl.ts:248:2)
+    at file:///private/tmp/gidps-bow-family-smoke.mjs:16:28 {
+  tokenIndex: 0
+}
+
+Node.js v24.15.0
+
+WALL_SECONDS=1.121

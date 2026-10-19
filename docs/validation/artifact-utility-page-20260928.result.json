@@ -1,0 +1,442 @@
+{
+  "schemaVersion": "artifact-utility-calculator-v2",
+  "scenario": {
+    "incomingDamageMode": "unshielded-hp-only",
+    "setId": 10013,
+    "pieces": 4,
+    "maxHp": 10000,
+    "initialHp": 5000,
+    "events": [
+      {
+        "kind": "burst-cast",
+        "frame": 0,
+        "healingBonus": 0.1,
+        "otherIncomingHealingBonus": 0.05
+      }
+    ]
+  },
+  "replay": {
+    "finalHp": 7700,
+    "steps": [
+      {
+        "event": {
+          "kind": "burst-cast",
+          "frame": 0,
+          "healingBonus": 0.1,
+          "otherIncomingHealingBonus": 0.05
+        },
+        "hpBefore": 5000,
+        "hpAfter": 7700,
+        "trace": [
+          {
+            "id": "health.base",
+            "ruleId": "health.base",
+            "titleKey": "基础治疗或生命消耗",
+            "explanationKey": "固定量直接使用声明值；比例量在本次事件执行时读取同一角色生命状态，乘以声明比例。",
+            "status": "assumed",
+            "expression": {
+              "kind": "multiply",
+              "terms": [
+                {
+                  "kind": "variable",
+                  "key": "basisHp"
+                },
+                {
+                  "kind": "variable",
+                  "key": "declaredRatio"
+                }
+              ]
+            },
+            "inputs": [
+              {
+                "key": "basisHp",
+                "value": 10000,
+                "unit": "HP",
+                "meaningKey": "受作用角色最大生命值",
+                "origin": "actual-player-health-state"
+              },
+              {
+                "key": "declaredRatio",
+                "value": 0.2,
+                "unit": "ratio",
+                "meaningKey": "动作声明比例",
+                "origin": "declared-health-action"
+              }
+            ],
+            "result": {
+              "value": 2000,
+              "display": "2,000",
+              "unit": "HP"
+            },
+            "childIds": [],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "(basisHp × declaredRatio)",
+            "substitution": "(10000 × 0.2)"
+          },
+          {
+            "id": "health.bonus",
+            "ruleId": "health.bonus",
+            "titleKey": "治疗乘区",
+            "explanationKey": "来源治疗加成与目标受治疗加成加算；此入口使用动作明确值，不自动推断装备或被动。",
+            "status": "assumed",
+            "expression": {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "constant",
+                  "value": 1
+                },
+                {
+                  "kind": "variable",
+                  "key": "healingBonus"
+                },
+                {
+                  "kind": "variable",
+                  "key": "incomingHealingBonus"
+                }
+              ]
+            },
+            "inputs": [
+              {
+                "key": "healingBonus",
+                "value": 0.1,
+                "unit": "ratio",
+                "meaningKey": "本次治疗来源加成 hi.Bonus",
+                "origin": "declared-health-action"
+              },
+              {
+                "key": "incomingHealingBonus",
+                "value": 0.25,
+                "unit": "ratio",
+                "meaningKey": "目标受治疗加成 c.HealBonus()",
+                "origin": "declared-health-action"
+              }
+            ],
+            "result": {
+              "value": 1.35,
+              "display": "1.35",
+              "unit": "ratio"
+            },
+            "childIds": [],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "(1 + healingBonus + incomingHealingBonus)",
+            "substitution": "(1 + 0.1 + 0.25)"
+          },
+          {
+            "id": "health.requested",
+            "ruleId": "health.requested",
+            "titleKey": "请求生命变化量",
+            "explanationKey": "基础量乘治疗乘区得到请求量；非治疗操作乘区固定为一。",
+            "status": "assumed",
+            "expression": {
+              "kind": "multiply",
+              "terms": [
+                {
+                  "kind": "variable",
+                  "key": "baseAmount"
+                },
+                {
+                  "kind": "variable",
+                  "key": "bonusMultiplier"
+                }
+              ]
+            },
+            "inputs": [
+              {
+                "key": "baseAmount",
+                "value": 2000,
+                "unit": "HP",
+                "meaningKey": "上一步基础量",
+                "origin": "actual-player-health-state"
+              },
+              {
+                "key": "bonusMultiplier",
+                "value": 1.35,
+                "unit": "ratio",
+                "meaningKey": "上一步治疗乘区",
+                "origin": "actual-player-health-state"
+              }
+            ],
+            "result": {
+              "value": 2700,
+              "display": "2,700",
+              "unit": "HP"
+            },
+            "childIds": [
+              "health.base",
+              "health.bonus"
+            ],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "(baseAmount × bonusMultiplier)",
+            "substitution": "(2000 × 1.35)"
+          },
+          {
+            "id": "health.minimum",
+            "ruleId": "health.minimum",
+            "titleKey": "生命消耗下限",
+            "explanationKey": "下限只约束本次消耗。已低于下限的角色不会因此回复生命；治疗不使用此下限。",
+            "status": "assumed",
+            "expression": {
+              "kind": "constant",
+              "value": 0
+            },
+            "inputs": [],
+            "result": {
+              "value": 0,
+              "display": "0",
+              "unit": "HP"
+            },
+            "childIds": [],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "0",
+            "substitution": "0"
+          },
+          {
+            "id": "health.actual",
+            "ruleId": "health.actual",
+            "titleKey": "有效治疗",
+            "explanationKey": "有效治疗最多填满缺失生命；生命之契为零是此模型的明确前提。",
+            "status": "assumed",
+            "expression": {
+              "kind": "max",
+              "terms": [
+                {
+                  "kind": "constant",
+                  "value": 0
+                },
+                {
+                  "kind": "min",
+                  "terms": [
+                    {
+                      "kind": "variable",
+                      "key": "requestedAmount"
+                    },
+                    {
+                      "kind": "subtract",
+                      "left": {
+                        "kind": "variable",
+                        "key": "maxHp"
+                      },
+                      "right": {
+                        "kind": "variable",
+                        "key": "hpBefore"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "inputs": [
+              {
+                "key": "requestedAmount",
+                "value": 2700,
+                "unit": "HP",
+                "meaningKey": "本次请求生命量",
+                "origin": "actual-player-health-state"
+              },
+              {
+                "key": "hpBefore",
+                "value": 5000,
+                "unit": "HP",
+                "meaningKey": "事件执行前生命值",
+                "origin": "actual-player-health-state"
+              },
+              {
+                "key": "maxHp",
+                "value": 10000,
+                "unit": "HP",
+                "meaningKey": "最大生命值",
+                "origin": "actual-player-health-state"
+              }
+            ],
+            "result": {
+              "value": 2700,
+              "display": "2,700",
+              "unit": "HP"
+            },
+            "childIds": [
+              "health.requested",
+              "health.minimum"
+            ],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "max(0, min(requestedAmount, (maxHp − hpBefore)))",
+            "substitution": "max(0, min(2700, (10000 − 5000)))"
+          },
+          {
+            "id": "health.after",
+            "ruleId": "health.after",
+            "titleKey": "事件后生命值",
+            "explanationKey": "把实际变化写回与反应自伤共用的角色生命状态。",
+            "status": "assumed",
+            "expression": {
+              "kind": "add",
+              "terms": [
+                {
+                  "kind": "variable",
+                  "key": "hpBefore"
+                },
+                {
+                  "kind": "variable",
+                  "key": "actualChange"
+                }
+              ]
+            },
+            "inputs": [
+              {
+                "key": "hpBefore",
+                "value": 5000,
+                "unit": "HP",
+                "meaningKey": "同一生命状态中的事件前生命值",
+                "origin": "actual-player-health-state"
+              },
+              {
+                "key": "actualChange",
+                "value": 2700,
+                "unit": "HP",
+                "meaningKey": "实际回复或消耗量",
+                "origin": "actual-player-health-state"
+              }
+            ],
+            "result": {
+              "value": 7700,
+              "display": "7,700",
+              "unit": "HP"
+            },
+            "childIds": [
+              "health.actual"
+            ],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "(hpBefore + actualChange)",
+            "substitution": "(5000 + 2700)"
+          },
+          {
+            "id": "health.overheal",
+            "ruleId": "health.overheal",
+            "titleKey": "溢出治疗",
+            "explanationKey": "溢出为请求治疗减实际回复；生命消耗没有溢出治疗。",
+            "status": "assumed",
+            "expression": {
+              "kind": "subtract",
+              "left": {
+                "kind": "variable",
+                "key": "requestedAmount"
+              },
+              "right": {
+                "kind": "variable",
+                "key": "actualChange"
+              }
+            },
+            "inputs": [
+              {
+                "key": "requestedAmount",
+                "value": 2700,
+                "unit": "HP",
+                "meaningKey": "请求治疗量",
+                "origin": "actual-player-health-state"
+              },
+              {
+                "key": "actualChange",
+                "value": 2700,
+                "unit": "HP",
+                "meaningKey": "实际回复生命",
+                "origin": "actual-player-health-state"
+              }
+            ],
+            "result": {
+              "value": 0,
+              "display": "0",
+              "unit": "HP"
+            },
+            "childIds": [
+              "health.requested",
+              "health.actual"
+            ],
+            "sourceRefs": [
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/heal.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/template/character/hp.go",
+              "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/kuki/skill.go",
+              "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+              "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+            ],
+            "warnings": [
+              "生命之契为零；治疗加成和受治疗加成由动作明确给出。",
+              "生命消耗下限由动作声明，不能从角色名称推断；零生命后仍采用已有 clamp-and-continue 模型。"
+            ],
+            "symbolicFormula": "(requestedAmount − actualChange)",
+            "substitution": "(2700 − 2700)"
+          }
+        ],
+        "notes": [],
+        "requestedHealing": 2700,
+        "actualHealing": 2700,
+        "tinyMiracleExpiresFrame": null,
+        "tinyMiracleCooldownExpiresFrame": null,
+        "chestWindowExpiresFrame": null
+      }
+    ],
+    "sourceRefs": [
+      "https://github.com/theBowja/genshin-db/blob/49a6544a6c6ae36089cb42fa591fc46f01de8bcf/src/data/ChineseSimplified/artifacts/travelingdoctor.json",
+      "https://github.com/frzyc/genshin-optimizer/blob/180a0a1015cb725c7570cd828eb086749960df98/libs/gi/sheets/src/Artifacts/TravelingDoctor/index.tsx"
+    ]
+  }
+}

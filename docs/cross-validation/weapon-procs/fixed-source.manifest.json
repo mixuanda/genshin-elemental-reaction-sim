@@ -1,0 +1,147 @@
+{
+  "revision": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+  "archive": "fixed-source.json.gz",
+  "archiveSha256": "4fdc4f5072841746feff70369d0835b3fb40da49383bfa105b749a1388969d04",
+  "files": [
+    {
+      "path": "LICENSE",
+      "sha256": "a100d2f2a4f04058c3986861bcb1b27d1a920e9e7b810714fffc3f66c188f6d4",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/LICENSE"
+    },
+    {
+      "path": "internal/weapons/spear/halberd/halberd.go",
+      "sha256": "56b33f8e9fc5c4cea783231d45b8421e8556071dfa4c834a16c1405ef6ab1d8c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/halberd/halberd.go"
+    },
+    {
+      "path": "internal/weapons/spear/halberd/zz_halberd.dm.go",
+      "sha256": "cb73757413d9fc00610e03cc126ac825857527298d77b836425bfe2534120520",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/spear/halberd/zz_halberd.dm.go"
+    },
+    {
+      "path": "internal/weapons/catalyst/ashgraven/ashgraven.go",
+      "sha256": "a2ba3e0625efb19cd5336871f19023e39763c0d67cd3b56b0440c2d9afb49ef6",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/ashgraven/ashgraven.go"
+    },
+    {
+      "path": "internal/weapons/catalyst/ashgraven/zz_ashgravendrinkinghorn.dm.go",
+      "sha256": "bd5886875b5d168a88c5ad7ffde688bef48db53e30497c8be9e5c3129700440a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/catalyst/ashgraven/zz_ashgravendrinkinghorn.dm.go"
+    },
+    {
+      "path": "internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go",
+      "sha256": "d16358e9179a1c20b74c98ba81b160b7e64bf92b96a571eb07086d529e805a77",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sequenceofsolitude/sequenceofsolitude.go"
+    },
+    {
+      "path": "internal/weapons/bow/sequenceofsolitude/zz_sequenceofsolitude.dm.go",
+      "sha256": "8a581df47467dd374a29985ceb33e415ee3c97bf9e7946cd9fdd00ccd0387e32",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/weapons/bow/sequenceofsolitude/zz_sequenceofsolitude.dm.go"
+    },
+    {
+      "path": "pkg/core/attack.go",
+      "sha256": "7ebdc2ae07b7f2c15e735aae930049b62bafd9b75b3be03313751ce3e8cf830a",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attack.go"
+    },
+    {
+      "path": "pkg/core/attacks/attack.go",
+      "sha256": "11107a8583f38dfbdd3fb47c796cc1a79c2ece4da679da79d6ca26e96cee5c78",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attacks/attack.go"
+    },
+    {
+      "path": "pkg/core/player/character/basestat.go",
+      "sha256": "062e7448e40a06a29562ab856bc017bed11ebbf9583589f924b3fc0a028f2c15",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/basestat.go"
+    },
+    {
+      "path": "pkg/core/player/character/mods.go",
+      "sha256": "4375291dc9a203a6e87002653a862a708333bcd37cd506574080853ac978f4b1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/mods.go"
+    },
+    {
+      "path": "pkg/core/player/character/stats.go",
+      "sha256": "47e64b4cae4551b74f829160367c73577c4b2779d5b2344f47e638f34c61324c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/player/character/stats.go"
+    },
+    {
+      "path": "pkg/modifier/modifier.go",
+      "sha256": "add1a79f56566c74510c6e8d45c377976359ebc3a997dc501bdd4bf8872021c9",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/modifier/modifier.go"
+    },
+    {
+      "path": "pkg/enemy/damage.go",
+      "sha256": "ab467c5206a49c936ce2b3b9412c17dd4367310de9b47cf97a22dfcbe7c38ea8",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/enemy/damage.go"
+    },
+    {
+      "path": "pkg/core/attributes/stats.go",
+      "sha256": "eed60aee668f04171a65476670971479d45ac965a74586df8e68674c30660d31",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/attributes/stats.go"
+    },
+    {
+      "path": "pkg/gcs/parser/parseOptions.go",
+      "sha256": "8af068c056f1a678a34d1fb3b68b8edf37cba1f9e9ebfa7f3dab154bf029f1de",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/gcs/parser/parseOptions.go"
+    },
+    {
+      "path": "pkg/simulation/core.go",
+      "sha256": "6e62987a6dcbc5c6897637aa244ae1d4ce7511349498a14314bb9aa04bcf547e",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/simulation/core.go"
+    },
+    {
+      "path": "pkg/core/core.go",
+      "sha256": "c61c270ac466b25c392e428f622b06d06174e3348c7f9377e4e42f2601541f7b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/core.go"
+    },
+    {
+      "path": "pkg/core/combat/attack.go",
+      "sha256": "b6b9729320cd726e5ed06903fc67c573520cf22b5dfa7cd539cab54545121e0c",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/pkg/core/combat/attack.go"
+    },
+    {
+      "path": "internal/characters/zhongli/attack.go",
+      "sha256": "7901c35bf7a5a67bc3d71a12829c9ef3fd4ff9440286f8f8c52ab023966b62f1",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/attack.go"
+    },
+    {
+      "path": "internal/characters/zhongli/asc.go",
+      "sha256": "1bc6ef2c7264cbb7e41a5545a950d72246db40cce28e42d0c2c8467856ad622f",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/asc.go"
+    },
+    {
+      "path": "internal/characters/zhongli/zz_zhongli.dm.go",
+      "sha256": "2d63c513c62c94b099d46d28502b5a9bd4c0b6f945f9d2e3442f8e121a526b2b",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/zhongli/zz_zhongli.dm.go"
+    },
+    {
+      "path": "internal/characters/barbara/attack.go",
+      "sha256": "8fb36e988ba255c863a2dd69956d5f64e3d3ee137301dd0f934c9f94207dbca3",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/barbara/attack.go"
+    },
+    {
+      "path": "internal/characters/barbara/asc.go",
+      "sha256": "f6260e77591a00aa40e1bda3a59109e47bf36dbc073c08930b8a63253f4a91d8",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/barbara/asc.go"
+    },
+    {
+      "path": "internal/characters/barbara/zz_barbara.dm.go",
+      "sha256": "4f949538b7abb1aa7193e2f5df09e01f97497d0a58858b59c9fe95055cb7206f",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/barbara/zz_barbara.dm.go"
+    },
+    {
+      "path": "internal/characters/amber/attack.go",
+      "sha256": "f78e228737b2b401565cfa5b1054214ea9b9b04c082f124c29c62116f2a660ff",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/attack.go"
+    },
+    {
+      "path": "internal/characters/amber/asc.go",
+      "sha256": "b057956e4b9f49703d118c7317a54cafe76a937c98249a15ba65946bcc36cd84",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/asc.go"
+    },
+    {
+      "path": "internal/characters/amber/zz_amber.dm.go",
+      "sha256": "62e6b1a0f66e54f456dd515c34aa46ca83bcc7115ef918d1aabf81a725b14901",
+      "url": "https://github.com/genshinsim/gcsim/blob/b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541/internal/characters/amber/zz_amber.dm.go"
+    }
+  ]
+}

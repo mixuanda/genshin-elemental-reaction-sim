@@ -1,0 +1,149 @@
+--- a/internal/characters/xiangling/skill.go
++++ b/internal/characters/xiangling/skill.go
+@@ -47,10 +47,10 @@
+ 
+ 	// guoba spawns at cd frame
+ 	// lasts 7.3 seconds, shoots every 100 frames
+-	c.Core.Tasks.Add(func() {
++	c.Core.SourceHostQueueTask("xiangling.skill.spawn-guoba", c.Index(), func() {
+ 		guoba := c.newGuoba(ai)
+ 		c.AddStatus("xianglingguoba", guoba.Duration, false)
+-		c.Core.Combat.AddGadget(guoba)
++		c.Core.SourceHostAddOwnedGadget("xiangling.skill.guoba", c.Index(), guoba)
+ 		// queue up a4 relative to guoba expiry
+ 		if a4Delay < 0 {
+ 			return
+--- a/internal/characters/xiangling/guoba.go
++++ b/internal/characters/xiangling/guoba.go
+@@ -59,13 +59,14 @@
+ 		}, infuseWindow+1) // +1 since infuse window is inclusive
+ 		p.SetDirectionToClosestEnemy()
+ 		// queue this in advance because that's how it is on live
+-		p.breath()
++		p.Core.SourceHostTriggerOwnedEntity(int(p.Key()), "think", p.breath)
+ 	}
+ }
+ 
+ func (p *panda) breath() {
+ 	// assume A1
+-	p.Core.QueueAttackWithSnap(
++	p.Core.SourceHostQueueOwnedEntityAttackWithSnap(
++		"xiangling.skill.guoba-breath",
+ 		p.ai,
+ 		p.snap,
+ 		combat.NewCircleHitOnTargetFanAngle(p, nil, p.c.guobaFlameRange, 60),
+--- a/internal/characters/yaoyao/burst.go
++++ b/internal/characters/yaoyao/burst.go
+@@ -48,9 +48,15 @@
+ 	}
+ 	c.Core.QueueAttack(burstAI, combat.NewCircleHitOnTarget(c.Core.Combat.Player(), nil, 3), burstInitialHitmark, burstInitialHitmark)
+ 
+-	c.Core.Tasks.Add(c.newYueguiJump, 104)
+-	c.Core.Tasks.Add(c.newYueguiJump, 162)
+-	c.Core.Tasks.Add(c.newYueguiJump, 221)
++	c.Core.SourceHostQueueTask("yaoyao.burst.jump-yuegui-1", c.Index(), func() {
++		c.newYueguiJump("yaoyao.burst.jump-yuegui-1")
++	}, 104)
++	c.Core.SourceHostQueueTask("yaoyao.burst.jump-yuegui-2", c.Index(), func() {
++		c.newYueguiJump("yaoyao.burst.jump-yuegui-2")
++	}, 162)
++	c.Core.SourceHostQueueTask("yaoyao.burst.jump-yuegui-3", c.Index(), func() {
++		c.newYueguiJump("yaoyao.burst.jump-yuegui-3")
++	}, 221)
+ 	c.Core.Tasks.Add(c.removeBurst, burstDur)
+ 	c.AddStatus(burstKey, burstDur, false)
+ 
+@@ -59,7 +65,7 @@
+ 	}
+ 
+ 	if c.Base.Ascension >= 1 {
+-		c.QueueCharTask(c.a1Ticker, 0.6*60)
++		c.SourceHostQueueCharTask("yaoyao.burst.a1-ticker", c.a1Ticker, 0.6*60)
+ 	}
+ 	return action.Info{
+ 		Frames:          frames.NewAbilFunc(burstFrames),
+--- a/internal/characters/yaoyao/yuegui.go
++++ b/internal/characters/yaoyao/yuegui.go
+@@ -53,8 +53,9 @@
+ 	return yg
+ }
+ 
+-func (c *char) newYueguiJump() {
++func (c *char) newYueguiJump(spawnSite string) {
+ 	if !c.StatusIsActive(burstKey) || c.numYueguiJumping >= 3 {
++		c.Core.SourceHostAbilityProducerFact(spawnSite+".spawn-count", 0)
+ 		return
+ 	}
+ 	yg := &yuegui{
+@@ -79,7 +80,8 @@
+ 	// yg.Reactable.Init(yg, c.Core)
+ 	yg.aoe = combat.NewCircleHitOnTarget(pos, nil, skillTargetingRad)
+ 
+-	c.Core.Combat.AddGadget(yg)
++	c.Core.SourceHostAddOwnedGadget("yaoyao.burst.yuegui-jumping", c.Index(), yg)
++	c.Core.SourceHostAbilityProducerFact(spawnSite+".spawn-count", 1)
+ 	c.yueguiJumping[c.numYueguiJumping] = yg
+ 	c.numYueguiJumping += 1
+ }
+--- a/internal/characters/yaoyao/asc.go
++++ b/internal/characters/yaoyao/asc.go
+@@ -12,37 +12,46 @@
+ 
+ func (c *char) a1Ticker() {
+ 	if !c.StatusIsActive(burstKey) {
++		c.Core.SourceHostAbilityProducerFact("yaoyao.burst.a1-ticker.branch", 0)
+ 		return
+ 	}
+ 	switch c.Core.Player.CurrentState() {
+ 	case action.DashState, action.JumpState:
+ 		c.Core.Log.NewEvent("yaoyao a1 triggered", glog.LogCharacterEvent, c.Index()).
+ 			Write("state", c.Core.Player.CurrentState())
+-		c.a1Throw()
++		if c.a1Throw() {
++			c.Core.SourceHostAbilityProducerFact("yaoyao.burst.a1-ticker.branch", 3)
++		} else {
++			c.Core.SourceHostAbilityProducerFact("yaoyao.burst.a1-ticker.branch", 2)
++		}
++	default:
++		c.Core.SourceHostAbilityProducerFact("yaoyao.burst.a1-ticker.branch", 1)
+ 	}
+-	c.QueueCharTask(c.a1Ticker, 0.6*60)
++	c.SourceHostQueueCharTask("yaoyao.burst.a1-ticker", c.a1Ticker, 0.6*60)
+ }
+ 
+-func (c *char) a1Throw() {
++func (c *char) a1Throw() bool {
+ 	a1aoe := combat.NewCircleHitOnTarget(c.Core.Combat.Player().Pos(), nil, skillTargetingRad)
+ 	enemy := c.Core.Combat.RandomEnemyWithinArea(a1aoe, nil)
+ 	if enemy == nil {
+-		return
++		return false
+ 	}
+ 	target := enemy.Pos()
+ 
+ 	radishExplodeAoE := combat.NewCircleHitOnTarget(target, nil, radishRad)
+ 
+-	c.QueueCharTask(func() {
++	c.SourceHostQueueCharTask("yaoyao.burst.a1-radish-flight", func() {
+ 		var hi info.HealInfo
+ 		var ai info.AttackInfo
+ 		var snap info.Snapshot
+ 
+ 		if c.StatusIsActive(burstKey) {
++			c.Core.SourceHostAbilityProducerFact("yaoyao.burst.a1-radish.burst-mode", 1)
+ 			ai = c.burstRadishAI
+ 			snap = c.Snapshot(&ai)
+ 			hi = c.getBurstHealInfo(&snap)
+ 		} else {
++			c.Core.SourceHostAbilityProducerFact("yaoyao.burst.a1-radish.burst-mode", 0)
+ 			ai = c.skillRadishAI
+ 			snap = c.Snapshot(&ai)
+ 			hi = c.getSkillHealInfo(&snap)
+@@ -58,6 +67,7 @@
+ 			c.makeC2CB(),
+ 		)
+ 	}, travelDelay-1)
++	return true
+ }
+ 
+ func (c *char) a4(index, src int) func() {

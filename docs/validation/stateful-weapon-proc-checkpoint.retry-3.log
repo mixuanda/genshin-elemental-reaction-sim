@@ -1,0 +1,10 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ✓ packages/sim-core/src/__tests__/stateful-weapon-proc-checkpoint.test.ts > actual deterministic stateful weapon checkpoints > establishes all four live state machines, retains boundary snapshots and distinguishes unfinished Flute notes 483ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  11:50:32
+   Duration  1.39s (transform 664ms, setup 0ms, import 850ms, tests 483ms, environment 0ms)
+

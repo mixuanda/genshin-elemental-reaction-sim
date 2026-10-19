@@ -1,0 +1,315 @@
+{
+  "schemaVersion": 1,
+  "status": "source-audited; proposed contracts only; no runtime evidence or verified status asserted",
+  "sourceCommits": {
+    "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+    "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+  },
+  "sourceRoots": {
+    "classic": "/Users/evan/Library/Caches/gidps-source-host/build-yNtRq2/source",
+    "stellar": "/Users/evan/Library/Caches/gidps-source-host/stellar-build-lzWkaI/source"
+  },
+  "laneComparison": "All 14 inspected character source files have identical SHA-256 in the fresh classic and Stellar roots. No lane-specific attack-count difference found.",
+  "scope": "Intrinsic ability-method root attacks from the single accepted E invocation. Excludes independent weapon/artifact procs, later player actions, unrelated team damage, healing/shields/buffs, and reaction damage outside the root attack applications.",
+  "findings": [
+    {
+      "characterKey": "ganyu",
+      "action": "skill",
+      "expectedRootAttackCount": 2,
+      "basis": "Two direct E roots: initial lotus hit and delayed lotus explosion. No callback-generated attack is created.",
+      "oneCastClosureRequirement": "Keep observation open through delay 373 and terminal dispatch/application (about six seconds); a shorter window cannot honestly total Ganyu E."
+    },
+    {
+      "characterKey": "yanfei",
+      "action": "skill",
+      "expectedRootAttackCount": 1,
+      "basis": "One direct E root. Seal and particle callbacks only modify state/create particles. A4 extra hit requires a later charged-attack critical callback."
+    },
+    {
+      "characterKey": "xiao",
+      "action": "skill",
+      "expectedRootAttackCount": 1,
+      "basis": "One direct E root. A4 task installs a modifier for later E uses. C6 callback is attached to plunge attacks and changes later E availability."
+    }
+  ],
+  "assumptions": [
+    "The existing native dispatcher records direct method-queued attacks and unique dispatch completion facts for QueueAttack and QueueAttackWithSnap; this audit does not instrument or run it.",
+    "Direct root counts describe all intrinsic damage attacks emitted by one E method invocation. Damage reactions and equipment procs remain separate under the current contract scope.",
+    "For Ganyu E, closure means waiting for both scheduled direct roots; the delayed explosion is not a separate cast or producer."
+  ],
+  "requirementsPreventingHonestOneCastTotal": [],
+  "proposedContracts": {
+    "schemaVersion": 1,
+    "scope": "intrinsic ability-method root attacks only; excludes independent weapons/artifacts, later player actions, unrelated team damage, continued healing/buffs, and source unverified reactions beyond these root attack deliveries",
+    "sourceCommits": {
+      "classic": "b4ae769d7c1c1bce68fce5faf0b460c5b5b7f541",
+      "stellar": "a7dc4bf4f5e18390035ca0333fb6eb1d5fac32bd"
+    },
+    "coordinateSystem": "patched fixed source files; line references are current cache, not upstream original",
+    "rows": [
+      {
+        "characterKey": "ganyu",
+        "action": "skill",
+        "method": "Skill",
+        "sourcePath": "internal/characters/ganyu/skill.go",
+        "sourceSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+        "sourceHashes": {
+          "classicSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+          "stellarSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e"
+        },
+        "expectedRootAttackCount": {
+          "kind": "constant",
+          "count": 2
+        },
+        "sourceEvidence": "skill.go:19-50 direct QueueAttackWithSnap calls at 35 (delay 13) and 37 (delay 373).",
+        "nonDamageCallbacksAndInitAudit": "skill.go:53-65 callback queues particles only. ganyu.go:42-49 Init installs C1/C4 only; cons.go:20-42 C1 callback is for Frostflake Arrow/Bloom and is not attached by E; cons.go:44-68 C4 is a damage modifier, not another attack. Skill line 39-41 grants C6 status consumed by a later aimed shot (aimed.go:78-85), which is a later player action and excluded.",
+        "id": "ganyu-skill",
+        "label": "甘雨 E"
+      },
+      {
+        "characterKey": "yanfei",
+        "action": "skill",
+        "method": "Skill",
+        "sourcePath": "internal/characters/yanfei/skill.go",
+        "sourceSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+        "sourceHashes": {
+          "classicSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+          "stellarSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e"
+        },
+        "expectedRootAttackCount": {
+          "kind": "constant",
+          "count": 1
+        },
+        "sourceEvidence": "skill.go:31-85 one direct QueueAttack at 63.",
+        "nonDamageCallbacksAndInitAudit": "skill.go:32-48 addSeal and 87-96 particleCB update seals/particles only. yanfei.go:47-59 Init initializes modifiers and C2; cons.go:15-39 C2 applies only to AttackTagExtra, while E is AttackTagElementalArt. asc.go:38-76 A4 queues Blazing Eye only from a later charged-attack crit; burst.go:90 calls c4 from Q (shield only).",
+        "id": "yanfei-skill",
+        "label": "烟绯 E"
+      },
+      {
+        "characterKey": "xiao",
+        "action": "skill",
+        "method": "Skill",
+        "sourcePath": "internal/characters/xiao/skill.go",
+        "sourceSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+        "sourceHashes": {
+          "classicSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+          "stellarSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25"
+        },
+        "expectedRootAttackCount": {
+          "kind": "constant",
+          "count": 1
+        },
+        "sourceEvidence": "skill.go:31-83 one direct QueueAttack at 50, hitmark 4.",
+        "nonDamageCallbacksAndInitAudit": "skill.go:44-48 / 85-96 particle callback queues particles only. skill.go:63-66 schedules A4; asc.go:40-68 creates a 420-frame modifier for subsequent Elemental Art-tagged attacks, no attack. xiao.go:46-55 Init adds no cast attack; cons.go:61-88 C6 resets E cooldown after qualifying plunge hits, and plunge.go:168-174,251-257 attach it to later plunge attacks, not E.",
+        "id": "xiao-skill",
+        "label": "魈 E"
+      }
+    ]
+  },
+  "sourceFiles": {
+    "internal/characters/ganyu/skill.go": {
+      "classicSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+      "stellarSha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/ganyu/ganyu.go": {
+      "classicSha256": "534be5fa4d218b6ad11afbc8d08e17be03af6f96d6ce7fa6cf57605eade36add",
+      "stellarSha256": "534be5fa4d218b6ad11afbc8d08e17be03af6f96d6ce7fa6cf57605eade36add",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/ganyu/cons.go": {
+      "classicSha256": "1668e9900e8c62c473e47f394e383572f49ad98ba11ce75a006937548b66cee3",
+      "stellarSha256": "1668e9900e8c62c473e47f394e383572f49ad98ba11ce75a006937548b66cee3",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/ganyu/aimed.go": {
+      "classicSha256": "659c5adcc4cfa273488a37ec2f18b8501618459a98a54a75c54ac2b96ce3d0fc",
+      "stellarSha256": "659c5adcc4cfa273488a37ec2f18b8501618459a98a54a75c54ac2b96ce3d0fc",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yanfei/skill.go": {
+      "classicSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+      "stellarSha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yanfei/yanfei.go": {
+      "classicSha256": "56a79155c48728b3ac29927c6fa5c01b81bad02eda0c5d78586fa898bd059fc2",
+      "stellarSha256": "56a79155c48728b3ac29927c6fa5c01b81bad02eda0c5d78586fa898bd059fc2",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yanfei/asc.go": {
+      "classicSha256": "a1bb5ef32a424f00ee7e446befedccd34c586c4a00d8e5968d4cea113d95f1a5",
+      "stellarSha256": "a1bb5ef32a424f00ee7e446befedccd34c586c4a00d8e5968d4cea113d95f1a5",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yanfei/cons.go": {
+      "classicSha256": "aa1c2e782d00b554dbc48d4ccdd0253d1a8f3bc34e305630aa221c1808f8c87e",
+      "stellarSha256": "aa1c2e782d00b554dbc48d4ccdd0253d1a8f3bc34e305630aa221c1808f8c87e",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/yanfei/burst.go": {
+      "classicSha256": "874655e71e2c20d10b4b369c417748d86352c0b501eddd5e5cee631cc5ce1278",
+      "stellarSha256": "874655e71e2c20d10b4b369c417748d86352c0b501eddd5e5cee631cc5ce1278",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/xiao/skill.go": {
+      "classicSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+      "stellarSha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/xiao/xiao.go": {
+      "classicSha256": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+      "stellarSha256": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/xiao/asc.go": {
+      "classicSha256": "0a6011fe9235cbfba9f3b29eb0bc2868c20f18c135868e92014599487be71bc7",
+      "stellarSha256": "0a6011fe9235cbfba9f3b29eb0bc2868c20f18c135868e92014599487be71bc7",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/xiao/cons.go": {
+      "classicSha256": "ae3606aedf799108c59d7ea987ebd8620e10b8ad93e1de4d1ad4310d876f4d86",
+      "stellarSha256": "ae3606aedf799108c59d7ea987ebd8620e10b8ad93e1de4d1ad4310d876f4d86",
+      "sameAcrossLanes": true
+    },
+    "internal/characters/xiao/plunge.go": {
+      "classicSha256": "24fd413c3775cbde581aefba511a7d64aa4adedfa741df2030627ef130463ea0",
+      "stellarSha256": "24fd413c3775cbde581aefba511a7d64aa4adedfa741df2030627ef130463ea0",
+      "sameAcrossLanes": true
+    }
+  },
+  "sourceEvidence": {
+    "ganyu E": [
+      {
+        "path": "internal/characters/ganyu/skill.go",
+        "lines": [
+          19,
+          50
+        ],
+        "sha256": "1ae163e6ba11b8097b044ec11d0528de30a3f1656ed785fdf1b12c75b983730e",
+        "purpose": "method and both direct root queues"
+      },
+      {
+        "path": "internal/characters/ganyu/ganyu.go",
+        "lines": [
+          42,
+          49
+        ],
+        "sha256": "534be5fa4d218b6ad11afbc8d08e17be03af6f96d6ce7fa6cf57605eade36add",
+        "purpose": "Init hooks"
+      },
+      {
+        "path": "internal/characters/ganyu/cons.go",
+        "lines": [
+          20,
+          68
+        ],
+        "sha256": "1668e9900e8c62c473e47f394e383572f49ad98ba11ce75a006937548b66cee3",
+        "purpose": "C1 callback and C4 damage modifier"
+      },
+      {
+        "path": "internal/characters/ganyu/aimed.go",
+        "lines": [
+          78,
+          85
+        ],
+        "sha256": "659c5adcc4cfa273488a37ec2f18b8501618459a98a54a75c54ac2b96ce3d0fc",
+        "purpose": "C6 next aimed shot consumption; later action"
+      }
+    ],
+    "yanfei E": [
+      {
+        "path": "internal/characters/yanfei/skill.go",
+        "lines": [
+          31,
+          96
+        ],
+        "sha256": "63dfe6720769d4adb982d92bf326fd398c95115d9f6c2f5c2da872ffd885499e",
+        "purpose": "single attack and non-damage callbacks"
+      },
+      {
+        "path": "internal/characters/yanfei/yanfei.go",
+        "lines": [
+          47,
+          59
+        ],
+        "sha256": "56a79155c48728b3ac29927c6fa5c01b81bad02eda0c5d78586fa898bd059fc2",
+        "purpose": "Init and C2 setup"
+      },
+      {
+        "path": "internal/characters/yanfei/cons.go",
+        "lines": [
+          15,
+          39
+        ],
+        "sha256": "aa1c2e782d00b554dbc48d4ccdd0253d1a8f3bc34e305630aa221c1808f8c87e",
+        "purpose": "C2 scope restricted to AttackTagExtra"
+      },
+      {
+        "path": "internal/characters/yanfei/asc.go",
+        "lines": [
+          38,
+          76
+        ],
+        "sha256": "a1bb5ef32a424f00ee7e446befedccd34c586c4a00d8e5968d4cea113d95f1a5",
+        "purpose": "A4 queued damage only from charged attack crit callback"
+      },
+      {
+        "path": "internal/characters/yanfei/burst.go",
+        "lines": [
+          80,
+          93
+        ],
+        "sha256": "874655e71e2c20d10b4b369c417748d86352c0b501eddd5e5cee631cc5ce1278",
+        "purpose": "C4 shield invocation is in Q"
+      }
+    ],
+    "xiao E": [
+      {
+        "path": "internal/characters/xiao/skill.go",
+        "lines": [
+          31,
+          83
+        ],
+        "sha256": "a69d05bff0dda1a83a1951f1226b361294b436ddb59ce4cc67697c9c0ecdbf25",
+        "purpose": "single attack and A4 task"
+      },
+      {
+        "path": "internal/characters/xiao/asc.go",
+        "lines": [
+          40,
+          68
+        ],
+        "sha256": "0a6011fe9235cbfba9f3b29eb0bc2868c20f18c135868e92014599487be71bc7",
+        "purpose": "A4 adds modifier, not attack"
+      },
+      {
+        "path": "internal/characters/xiao/xiao.go",
+        "lines": [
+          46,
+          55
+        ],
+        "sha256": "69eb2b4a97fca1ea53ae6e57601ecabf9d737f6a5ac3bedec8d3a3a225bd278d",
+        "purpose": "Init hooks"
+      },
+      {
+        "path": "internal/characters/xiao/cons.go",
+        "lines": [
+          61,
+          88
+        ],
+        "sha256": "ae3606aedf799108c59d7ea987ebd8620e10b8ad93e1de4d1ad4310d876f4d86",
+        "purpose": "C6 cooldown/availability callback only"
+      },
+      {
+        "path": "internal/characters/xiao/plunge.go",
+        "lines": [
+          168,
+          174
+        ],
+        "sha256": "24fd413c3775cbde581aefba511a7d64aa4adedfa741df2030627ef130463ea0",
+        "purpose": "C6 callback attached to plunge attack"
+      }
+    ]
+  }
+}

@@ -1,0 +1,186 @@
+--- a/pkg/core/event/event.go
++++ b/pkg/core/event/event.go
+@@ -1,8 +1,8 @@
+ package event
+ 
+ import (
++	"github.com/genshinsim/gcsim/pkg/core/info"
+ 	"github.com/genshinsim/gcsim/pkg/core/phase"
+-	"github.com/genshinsim/gcsim/pkg/core/info"
+ )
+ 
+ type Event int
+@@ -91,9 +91,21 @@
+ 	EndEventTypes          // elim
+ )
+ 
++// SourceHostEventObserver receives only the two audited enemy damage/death
++// event families. It observes original hook slots without replacing callbacks.
++type SourceHostEventObserver interface {
++	RegisterEventListener(eventType, slotIndex int, key string, origin info.SourceHostOrigin) int
++	EndEventListenerRegistration(id int, state string)
++	BeginEventEmission(eventType int, mode string, args ...any) int
++	CompleteEventEmission(id int)
++	SuppressEventListener(emissionID, registrationID int)
++	BeginEventListenerCall(emissionID, registrationID, slotIndex int, key string) func()
++}
++
+ type Handler struct {
+-	Origin *info.SourceHostOriginTracker
+-	events [][]ehook
++	Origin             *info.SourceHostOriginTracker
++	SourceHostObserver SourceHostEventObserver
++	events             [][]ehook
+ }
+ 
+ type Hook func(args ...any)
+@@ -106,10 +118,11 @@
+ }
+ 
+ type ehook struct {
+-	f     Hook
+-	key   string
+-	phase phase.Descriptor
+-	origin info.SourceHostOrigin
++	f                        Hook
++	key                      string
++	phase                    phase.Descriptor
++	origin                   info.SourceHostOrigin
++	sourceHostRegistrationID int
+ }
+ 
+ func New() *Handler {
+@@ -150,13 +163,15 @@
+ 
+ func (h *Handler) subscribe(e Event, f Hook, key string, descriptor phase.Descriptor) {
+ 	var origin info.SourceHostOrigin
+-	if h.Origin != nil { origin = h.Origin.Snapshot() }
++	if h.Origin != nil {
++		origin = h.Origin.Snapshot()
++	}
+ 	a := h.events[e]
+ 
+ 	evt := ehook{
+-		f:     f,
+-		key:   key,
+-		phase: descriptor,
++		f:      f,
++		key:    key,
++		phase:  descriptor,
+ 		origin: origin,
+ 	}
+ 
+@@ -168,8 +183,15 @@
+ 		}
+ 	}
+ 	if ind > -1 {
++		if h.SourceHostObserver != nil && sourceHostObservedEvent(e) {
++			h.SourceHostObserver.EndEventListenerRegistration(a[ind].sourceHostRegistrationID, "replaced")
++			evt.sourceHostRegistrationID = h.SourceHostObserver.RegisterEventListener(int(e), ind, key, origin)
++		}
+ 		a[ind] = evt
+ 	} else {
++		if h.SourceHostObserver != nil && sourceHostObservedEvent(e) {
++			evt.sourceHostRegistrationID = h.SourceHostObserver.RegisterEventListener(int(e), len(a), key, origin)
++		}
+ 		a = append(a, evt)
+ 	}
+ 	h.events[e] = a
+@@ -178,6 +200,9 @@
+ func (h *Handler) Unsubscribe(e Event, key string) {
+ 	for i, v := range h.events[e] {
+ 		if v.key == key {
++			if v.f != nil && h.SourceHostObserver != nil && sourceHostObservedEvent(e) {
++				h.SourceHostObserver.EndEventListenerRegistration(v.sourceHostRegistrationID, "unsubscribed")
++			}
+ 			h.events[e][i].f = nil
+ 		}
+ 	}
+@@ -186,17 +211,34 @@
+ // EmitObserved preserves audited measurement hooks while suppressing gameplay
+ // hooks for a target whose hit confirmation is blocked.
+ type ObservedEmission struct {
+-	GameplaySkipped int
++	GameplaySkipped  int
+ 	ObserversEmitted int
++}
++
++func sourceHostObservedEvent(e Event) bool {
++	return e == OnEnemyDamage || e == OnTargetDied
+ }
+ 
+ func (h *Handler) EmitObserved(e Event, args ...any) ObservedEmission {
+ 	var result ObservedEmission
+-	for _, v := range h.events[e] {
+-		if v.f == nil { continue }
++	emissionID := 0
++	if h.SourceHostObserver != nil && sourceHostObservedEvent(e) {
++		emissionID = h.SourceHostObserver.BeginEventEmission(int(e), "observed", args...)
++	}
++	for slotIndex, v := range h.events[e] {
++		if v.f == nil {
++			continue
++		}
+ 		if !v.phase.Observational || v.phase.Source == "" {
+ 			result.GameplaySkipped++
++			if emissionID > 0 {
++				h.SourceHostObserver.SuppressEventListener(emissionID, v.sourceHostRegistrationID)
++			}
+ 			continue
++		}
++		var endObservation func()
++		if emissionID > 0 {
++			endObservation = h.SourceHostObserver.BeginEventListenerCall(emissionID, v.sourceHostRegistrationID, slotIndex, v.key)
+ 		}
+ 		if h.Origin == nil {
+ 			v.f(args...)
+@@ -205,18 +247,41 @@
+ 			v.f(args...)
+ 			end()
+ 		}
++		if endObservation != nil {
++			endObservation()
++		}
+ 		result.ObserversEmitted++
+ 	}
++	if emissionID > 0 {
++		h.SourceHostObserver.CompleteEventEmission(emissionID)
++	}
+ 	return result
+ }
+ 
+ func (h *Handler) Emit(e Event, args ...any) {
+-	for _, v := range h.events[e] {
++	emissionID := 0
++	if h.SourceHostObserver != nil && sourceHostObservedEvent(e) {
++		emissionID = h.SourceHostObserver.BeginEventEmission(int(e), "gameplay", args...)
++	}
++	for slotIndex, v := range h.events[e] {
+ 		if v.f != nil {
+-			if h.Origin == nil { v.f(args...); continue }
+-			end := h.Origin.BeginEvent(v.origin, v.key, int(e), args...)
+-			v.f(args...)
+-			end()
+-		}
+-	}
+-}
++			var endObservation func()
++			if emissionID > 0 {
++				endObservation = h.SourceHostObserver.BeginEventListenerCall(emissionID, v.sourceHostRegistrationID, slotIndex, v.key)
++			}
++			if h.Origin == nil {
++				v.f(args...)
++			} else {
++				end := h.Origin.BeginEvent(v.origin, v.key, int(e), args...)
++				v.f(args...)
++				end()
++			}
++			if endObservation != nil {
++				endObservation()
++			}
++		}
++	}
++	if emissionID > 0 {
++		h.SourceHostObserver.CompleteEventEmission(emissionID)
++	}
++}

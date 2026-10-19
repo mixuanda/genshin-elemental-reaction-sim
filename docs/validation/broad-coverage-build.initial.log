@@ -1,0 +1,18 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/classified-hits.ts(206,114): error TS2379: Argument of type 'SourceMappingBlocker' is not assignable to parameter of type 'Pick<SourceHitMapping, "sourceCommit" | "sourceHost" | "sourcePaths" | "sourceRepository">' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'sourceHost' are incompatible.
+    Type '"github" | "gitlab" | undefined' is not assignable to type '"github" | "gitlab"'.
+      Type 'undefined' is not assignable to type '"github" | "gitlab"'.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"actionConditionLog" | "artifactBuffLog" | "artifactBuffState" | "artifactDamageLog" | "artifactDamageState" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | ... 22 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldLog" | "Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldState" | ... 152 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: weaponHitStackState"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldLog" | "Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldState" | ... 152 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: weaponHitStackState"'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"actionConditionLog" | "artifactBuffLog" | "artifactBuffState" | "artifactDamageLog" | "artifactDamageState" | "artifactEventLog" | "callbackDeliveryLog" | "callbackRegistrationLog" | ... 22 more ... | "weaponProcLog"' does not satisfy the constraint '"Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldLog" | "Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldState" | ... 152 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: weaponHitStackState"'.
+  Type '"actionConditionLog"' is not assignable to type '"Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldLog" | "Expected: literal string: actionConditionLog, Actual: literal string: enemyShieldState" | ... 152 more ... | "Expected: literal string: weaponProcLog, Actual: literal string: weaponHitStackState"'.
+
+WALL_SECONDS=2.525

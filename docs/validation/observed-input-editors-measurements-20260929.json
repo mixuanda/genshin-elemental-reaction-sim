@@ -1,0 +1,213 @@
+{
+  "schemaVersion": "observed-input-editors-measurements-v1",
+  "recordedAt": "2026-09-28T17:43:40.476947+00:00",
+  "baselineCommit": "84ff5cd3efb70ac91d1a4501e6f16ada1d07a2e5",
+  "checks": [
+    {
+      "name": "plunge-unit",
+      "command": [
+        "npx",
+        "vitest",
+        "run",
+        "packages/game-data/src/character-mappings/optimizer-observed-plunge.test.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.649,
+      "receipt": "docs/validation/action-origin-plunge-unit-20260929.json"
+    },
+    {
+      "name": "observed-editors-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 7.127,
+      "receipt": "docs/validation/action-origin-observed-editors-build-20260929.json"
+    },
+    {
+      "name": "observed-editors-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 5.956,
+      "receipt": "docs/validation/action-origin-observed-editors-build-final-20260929.json"
+    },
+    {
+      "name": "observed-editors-browser",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/observed-input-editors.spec.ts"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 31.811,
+      "receipt": "docs/validation/action-origin-observed-editors-browser-20260929.json"
+    },
+    {
+      "name": "observed-editors-browser-final",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/observed-input-editors.spec.ts"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 32.071,
+      "receipt": "docs/validation/action-origin-observed-editors-browser-final-20260929.json"
+    },
+    {
+      "name": "observed-editors-browser-final-r2",
+      "command": [
+        "env",
+        "GIDPS_PREBUILT=1",
+        "npx",
+        "playwright",
+        "test",
+        "apps/web/e2e/observed-input-editors.spec.ts"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.593,
+      "receipt": "docs/validation/action-origin-observed-editors-browser-final-r2-20260929.json"
+    },
+    {
+      "name": "observed-editors-release-build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 1,
+      "elapsedSeconds": 4.651,
+      "receipt": "docs/validation/action-origin-observed-editors-release-build-20260929.json"
+    },
+    {
+      "name": "observed-editors-release-build-final",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "elapsedSeconds": 6.801,
+      "receipt": "docs/validation/action-origin-observed-editors-release-build-final-20260929.json"
+    }
+  ],
+  "kachinaFocusedCheck": {
+    "schemaVersion": "focused-test-transcription-v1",
+    "transcribed": true,
+    "source": "Earlier exec_command tool result in this task; no test rerun for this receipt",
+    "command": "npx vitest run packages/game-data/src/character-mappings/optimizer-kachina-mappings.test.ts",
+    "workdir": "/Users/evan/Documents/gidps",
+    "exitCode": 0,
+    "wallSeconds": 5.453136833,
+    "runnerReported": {
+      "version": "vitest 4.1.10",
+      "startLocalTime": "01:30:55",
+      "startLocalDate": "2026-09-29",
+      "timezone": "Asia/Hong_Kong",
+      "durationSeconds": 4.88,
+      "testFilesPassed": 1,
+      "testFilesTotal": 1,
+      "testsPassed": 6,
+      "testsTotal": 6,
+      "transformSeconds": 3.64,
+      "importSeconds": 4.71,
+      "testsMilliseconds": 80
+    },
+    "observedOutput": "RUN  v4.1.10 /Users/evan/Documents/gidps\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  01:30:55\n   Duration  4.88s (transform 3.64s, setup 0ms, import 4.71s, tests 80ms, environment 0ms)"
+  },
+  "browser": {
+    "provenance": "Explicit teaching observations, not in-game measurements",
+    "events": {
+      "rowCount": 14,
+      "contactBlocked": true,
+      "originalExpected": 3453.2289791999997,
+      "restoredExpected": 3453.2289791999997,
+      "difference": 0
+    },
+    "plunge": {
+      "hitIds": [
+        "lohen-plunge-low-observed-base:collision-1",
+        "lohen-plunge-low-observed-base:landing"
+      ],
+      "originalExpected": 2843.0235000000002,
+      "editedExpected": 2899.8936000000003,
+      "restoredExpected": 2899.8936000000003,
+      "difference": 0,
+      "missingSnapshotBlocked": true,
+      "emptyDraftHidesOldResult": true
+    },
+    "pageErrors": []
+  },
+  "pointers": {
+    "schemaVersion": "1.0.0",
+    "activeCatalogSnapshotId": "snapshot-953ea16b6f72ef68408176ddf81abc384d643a795d7f234517caad8351f24d34",
+    "previousCatalogSnapshotIds": [
+      "snapshot-7a04312fe7e39be842a84b1cacdfbd5838454a92304e4f367eb852b73f30e6c0",
+      "snapshot-ac47e52c318acda87c24caadbcfd0002c6dee012e154ffc95be8bbe4ceaa2c37"
+    ],
+    "activeVerifiedSnapshotId": null,
+    "previousVerifiedSnapshotIds": [],
+    "previewWorkspaceSnapshotId": "snapshot-93da65025b953bdcd7918078624d11ba25f657cdf1b469f2980c70261ebe4217",
+    "archivedSnapshotIds": [
+      "snapshot-42fbd144ef58e11ff80f6ab8954eb642a3b200d9ee5cac2667c03cb8184b6a50",
+      "snapshot-5664d4cabbe84b86c6e473f72fc8269fcbd1bb62498567f463aaae144e4afbbc",
+      "snapshot-7a04312fe7e39be842a84b1cacdfbd5838454a92304e4f367eb852b73f30e6c0",
+      "snapshot-ac47e52c318acda87c24caadbcfd0002c6dee012e154ffc95be8bbe4ceaa2c37",
+      "snapshot-075975978341f3e8c54b32e3c2d94e8da049ec890d880c8b398f115c7c0216bc"
+    ]
+  },
+  "pointerSha256": "bcff67a4c25f405aac867e8924d3375dfa5405c2f08e5343c1f89977c7bc67e7",
+  "runtimeSha256": "414badb3c7f2e145c039b61048507df6ae2160ce15fb377784a2a6c58f8de045",
+  "uiScopes": {
+    "structuredEventFamilies": [
+      "nefer",
+      "linnea",
+      "sandrone",
+      "alyosha"
+    ],
+    "historicalPlungeInputs": [
+      "lohen-low",
+      "lohen-high",
+      "linnea-low",
+      "linnea-high",
+      "sandrone-low",
+      "sandrone-high",
+      "alyosha-low",
+      "alyosha-high"
+    ],
+    "pageSampleOnly": [
+      "nefer",
+      "lohen-low"
+    ]
+  },
+  "failuresResolved": [
+    "First page attempt selected simple low landing instead of observed collision+landing template.",
+    "Second page attempt waited for a new contact selector before leaving count input; press Tab now commits its existing blur UI path.",
+    "Last optional Linnea selector failed exactOptionalPropertyTypes due explicit undefined; omitted inactive selector fields with conditional spread, final typecheck and bundle passed."
+  ],
+  "limits": [
+    "Teaching observation values, not game measurements.",
+    "Initial state and completeness declarations remain in advanced JSON for event editors.",
+    "Native complete-cast lifecycle proof, newer source timing, remote CI and missing release evidence remain unresolved.",
+    "Static coverage and game verified counts unchanged; no data generation, promotion, commit or deployment.",
+    "Existing historical observed-lifecycles and observed-kachina-alyosha tests only adapted for advanced details, not rerun.",
+    "Linnea hammer/crush selectedEventId selector and final text-label corrections followed the passing Nefer/Lohen UI run; final build includes them, no extra browser sample."
+  ],
+  "finalBuild": {
+    "command": "npm run build",
+    "exitCode": 0,
+    "elapsedSeconds": 6.801,
+    "receipt": "docs/validation/action-origin-observed-editors-release-build-final-20260929.json"
+  }
+}

@@ -431,10 +431,10 @@ describe("1.53 callback-bus config and manifest identity", () => {
     );
   });
 
-  it("adds only the callback audit tables to the versioned result surface", () => {
+  it("adds callback, execution, and source-action audits to the current result surface", () => {
     expectTypeOf<
       Exclude<keyof SimulationResultForV153, keyof SimulationResultForV152>
-    >().toEqualTypeOf<"callbackRegistrationLog" | "callbackDeliveryLog">();
+    >().toEqualTypeOf<"enemyShieldLog" | "enemyShieldState" | "totalPotentialDamage" | "weaponHitStackLog" | "weaponHitStackState" | "callbackRegistrationLog" | "callbackDeliveryLog" | "executionAudit" | "energyCostLog" | "summonLog" | "statConversionLog" | "sourceNormalChainLog" | "sourceNormalChainState" | "sourceSnapshotLog" | "playerShieldLog" | "playerShieldState" | "artifactBuffLog" | "artifactBuffState" | "normalHitEnergyLog" | "favoniusLog" | "weaponProcLog" | "weaponProcLifecycleLog" | "thrillingTalesLog" | "sacrificialLog" | "skillCooldownLog" | "artifactEventLog" | "artifactDamageLog" | "artifactDamageState" | "nightsoulBurstLog" | "targetHealthLog" | "targetHealthSummaries" | "stamina" | "playerHealthEvents" | "playerMaxHpEvents" | "periodicEntityLog" | "actionConditionLog">();
     expectTypeOf<
       "callbackRegistrationLog" extends keyof SimulationResultForV152
         ? true

@@ -1,0 +1,45 @@
+
+Running 1 test using 1 worker
+
+(node:83065) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [chromium] › apps/web/e2e/lunar-artifact-bonus.spec.ts:20:1 › Lunar artifact conditions roundtrip and the Worker capture preserves the same formula context (5.7s)
+
+
+  1) [chromium] › apps/web/e2e/lunar-artifact-bonus.spec.ts:20:1 › Lunar artifact conditions roundtrip and the Worker capture preserves the same formula context 
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  locator('#randomSeedInput')
+    Expected: "lunar-artifact-bonus-worker"
+    Received: "legacy-default"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" with timeout 5000ms
+      - waiting for locator('#randomSeedInput')
+        14 × locator resolved to <input id="randomSeedInput"/>
+           - unexpected value "legacy-default"
+
+
+      51 |   await page.goto("/results");
+      52 |   await page.locator("#importInput").setInputFiles({ name: "lunar-artifact-worker.record.json", mimeType: "application/json", buffer: Buffer.from(JSON.stringify(inputRecord)) });
+    > 53 |   await expect(page.locator("#randomSeedInput")).toHaveValue(seed);
+         |                                                  ^
+      54 |   await expect(page.locator("#cancelRunButton")).toBeHidden();
+      55 |   await expect(page.locator("#exportRunButton")).toBeEnabled();
+      56 |   await page.locator('[data-lunar-action="refresh"]').click();
+        at /Users/evan/Documents/gidps/apps/web/e2e/lunar-artifact-bonus.spec.ts:53:50
+
+    Error Context: test-results/lunar-artifact-bonus-Lunar-1dd0f-es-the-same-formula-context-chromium/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/lunar-artifact-bonus-Lunar-1dd0f-es-the-same-formula-context-chromium/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/lunar-artifact-bonus-Lunar-1dd0f-es-the-same-formula-context-chromium/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [chromium] › apps/web/e2e/lunar-artifact-bonus.spec.ts:20:1 › Lunar artifact conditions roundtrip and the Worker capture preserves the same formula context 

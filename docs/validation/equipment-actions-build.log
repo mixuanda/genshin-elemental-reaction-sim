@@ -1,0 +1,19 @@
+
+> genshin-dps-lab@1.0.0 build
+> npm run typecheck && npm run build --workspace @genshin-dps-lab/web
+
+
+> genshin-dps-lab@1.0.0 typecheck
+> tsc --noEmit
+
+packages/game-data/src/equipment-hit-effects.test.ts(108,10): error TS18048: 'doc.build.equipment' is possibly 'undefined'.
+packages/game-data/src/weapon-ranged-hit-effects.ts(65,212): error TS2375: Type '{ id: string; label: string; expression: FormulaExpression; inputs: EquipmentFormulaInput[]; attackTags: EquipmentEffectAttackTag[] | undefined; inputPolicy: "final-panel"; sourceRefs: string[]; }' is not assignable to type 'EquipmentDynamicHitBonus & { inputPolicy: "final-panel"; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Type '{ id: string; label: string; expression: FormulaExpression; inputs: EquipmentFormulaInput[]; attackTags: EquipmentEffectAttackTag[] | undefined; inputPolicy: "final-panel"; sourceRefs: string[]; }' is not assignable to type 'EquipmentDynamicHitBonus' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+    Types of property 'attackTags' are incompatible.
+      Type 'EquipmentEffectAttackTag[] | undefined' is not assignable to type 'EquipmentEffectAttackTag[]'.
+        Type 'undefined' is not assignable to type 'EquipmentEffectAttackTag[]'.
+packages/schemas/src/callback-bus-schema.test.ts(437,23): error TS2344: Type '"callbackDeliveryLog" | "callbackRegistrationLog" | "executionAudit"' does not satisfy the constraint '"Expected: literal string: callbackDeliveryLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: summonLog" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackRegistrationLog...'.
+  Type '"callbackDeliveryLog"' is not assignable to type '"Expected: literal string: callbackDeliveryLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: summonLog" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackRegistrationLog...'.
+packages/schemas/src/reproducibility.test.ts(604,23): error TS2344: Type '"callbackDeliveryLog" | "callbackRegistrationLog" | "executionAudit"' does not satisfy the constraint '"Expected: literal string: callbackDeliveryLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: summonLog" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackRegistrationLog...'.
+  Type '"callbackDeliveryLog"' is not assignable to type '"Expected: literal string: callbackDeliveryLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackDeliveryLog, Actual: literal string: summonLog" | "Expected: literal string: callbackRegistrationLog, Actual: literal string: energyCostLog" | "Expected: literal string: callbackRegistrationLog...'.
+packages/sim-core/src/__tests__/source-action-amber-skill-burst.test.ts(83,9): error TS18048: 'ability.hits' is possibly 'undefined'.

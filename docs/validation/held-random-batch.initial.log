@@ -1,0 +1,31 @@
+
+ RUN  v4.1.10 /Users/evan/Documents/gidps
+
+ ❯ packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts (2 tests | 1 failed) 63ms
+     × captures all seven real streams, cooldowns, in-flight procs and particles without claiming stochastic steady state 62ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts > actual named random state at pre-event boundaries > captures all seven real streams, cooldowns, in-flight procs and particles without claiming stochastic steady state
+Error: Trusted SimulationResult 1.53 integrity validation failed: damageEvents.3.hitGroupId: normal-hit energy source must resolve an exact configured direct hit occurrence
+ ❯ assertTrustedSimulationResultV153 packages/schemas/src/result-integrity.ts:22757:11
+    22755|     const remainder =
+    22756|       issues.length > 12 ? `; ${issues.length - 12} additional issue(s…
+    22757|     throw new Error(
+       |           ^
+    22758|       `Trusted SimulationResult 1.53 integrity validation failed: ${pr…
+    22759|     );
+ ❯ simulateLegalTimeline packages/sim-core/src/simulator.ts:18692:10
+ ❯ simulate packages/sim-core/src/simulator.ts:18732:12
+ ❯ repeatLegalTimelineForDuration packages/sim-core/src/simulation-analysis.ts:456:69
+ ❯ randomCheckpointFixture packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts:40:10
+ ❯ packages/sim-core/src/__tests__/random-phase-checkpoint.test.ts:62:29
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 3 passed (4)
+   Start at  23:51:47
+   Duration  3.08s (transform 1.62s, setup 0ms, import 2.27s, tests 697ms, environment 0ms)
+
